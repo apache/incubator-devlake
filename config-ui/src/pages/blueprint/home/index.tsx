@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Table } from 'antd';
 import { ButtonGroup, Button, Tag, Intent, FormGroup, InputGroup, RadioGroup, Radio } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, IconButton, TextTooltip, Dialog } from '@/components';
+import { PageHeader, IconButton, TextTooltip, Dialog } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -111,13 +112,14 @@ export const BlueprintHomePage = () => {
           <Button icon="plus" intent={Intent.PRIMARY} text="New Blueprint" onClick={handleShowDialog} />
         </div>
         <Table
+          rowKey="id"
+          size="middle"
           loading={!ready}
           columns={[
             {
               title: 'Blueprint Name',
-              dataIndex: ['id', 'name'],
               key: 'name',
-              render: ({ id, name }) => (
+              render: (_, { id, name }) => (
                 <Link to={`/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
@@ -125,21 +127,16 @@ export const BlueprintHomePage = () => {
             },
             {
               title: 'Data Connections',
-              dataIndex: ['mode', 'connections'],
               key: 'connections',
-              render: ({ mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
+              render: (_, { mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
                 if (mode === IBPMode.ADVANCED) {
                   return 'Advanced Mode';
                 }
                 return (
                   <S.ConnectionList>
                     {connections.map((it) => (
-                      <li>
-                        <ConnectionName
-                          key={`${it.pluginName}-${it.connectionId}`}
-                          plugin={it.pluginName}
-                          connectionId={it.connectionId}
-                        />
+                      <li key={`${it.pluginName}-${it.connectionId}`}>
+                        <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
                       </li>
                     ))}
                   </S.ConnectionList>
@@ -148,20 +145,18 @@ export const BlueprintHomePage = () => {
             },
             {
               title: 'Frequency',
-              dataIndex: ['isManual', 'cronConfig'],
               key: 'frequency',
               width: 100,
-              render: ({ isManual, cronConfig }) => {
+              render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return cron.label;
               },
             },
             {
               title: 'Next Run Time',
-              dataIndex: ['isManual', 'cronConfig'],
               key: 'nextRunTime',
               width: 200,
-              render: ({ isManual, cronConfig }) => {
+              render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return formatTime(cron.nextTime);
               },
@@ -206,15 +201,10 @@ export const BlueprintHomePage = () => {
           ]}
           dataSource={dataSource}
           pagination={{
-            page,
+            current: page,
             pageSize,
             total,
             onChange: setPage,
-          }}
-          noData={{
-            text: 'There is no Blueprint yet. Please add a new Blueprint here or from a Project.',
-            btnText: 'New Blueprint',
-            onCreate: handleShowDialog,
           }}
         />
       </S.Wrapper>

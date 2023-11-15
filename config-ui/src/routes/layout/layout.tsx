@@ -60,6 +60,10 @@ export const Layout = () => {
   }
 
   const handlePushPath = (it: MenuItemType) => {
+    if (!it.path) {
+      return;
+    }
+
     if (!it.target) {
       navigate(it.path);
     } else {
@@ -68,7 +72,7 @@ export const Layout = () => {
   };
 
   const getGrafanaUrl = () => {
-    const suffix = '/d/lCO8w-pVk/homepage?orgId=1';
+    const suffix = '/';
     const { protocol, hostname } = window.location;
 
     return import.meta.env.DEV ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
@@ -79,7 +83,7 @@ export const Layout = () => {
       <TipsContextConsumer>
         {({ tips, setTips }) => (
           <S.Wrapper>
-            <S.Sider>
+            <S.Sider style={{userSelect: 'none'}}>
               <Logo />
               <Menu className="menu">
                 {menu.map((it) => {

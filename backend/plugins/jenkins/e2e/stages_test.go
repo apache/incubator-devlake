@@ -50,10 +50,6 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.JenkinsBuild{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_jenkins_builds_for_stages.csv", models.JenkinsBuild{})
 
-	// import tool table
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_build_commits.csv", models.JenkinsBuildCommit{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/cicd_tasks.csv", devops.CICDTask{})
-
 	// verify extraction
 	dataflowTester.FlushTabler(&models.JenkinsStage{})
 	dataflowTester.Subtask(tasks.ExtractApiStagesMeta, taskData)
@@ -73,7 +69,6 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			"type",
 		),
 	)
-
 	// verify env when production regex is omitted
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.Subtask(tasks.ConvertStagesMeta, taskData)

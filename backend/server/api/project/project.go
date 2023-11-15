@@ -56,8 +56,8 @@ func GetProject(c *gin.Context) {
 // @Summary Get list of projects
 // @Description GET /projects?page=1&pageSize=10
 // @Tags framework/projects
-// @Param page query int true "query"
-// @Param pageSize query int true "query"
+// @Param page query int false "query"
+// @Param pageSize query int false "query"
 // @Success 200  {object} PaginatedProjects
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
