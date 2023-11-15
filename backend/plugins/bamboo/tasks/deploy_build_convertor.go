@@ -140,7 +140,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				deploymentCommit.Environment = devops.PRODUCTION
 			}
 			if input.FinishedDate != nil && input.StartedDate != nil {
-				duration := uint64(input.FinishedDate.Sub(*input.StartedDate).Seconds())
+				duration := input.FinishedDate.Sub(*input.StartedDate).Seconds()
 				deploymentCommit.DurationSec = &duration
 			}
 			fakeRepoUrl, err := generateFakeRepoUrl(data.ApiClient.GetEndpoint(), input.RepositoryId)

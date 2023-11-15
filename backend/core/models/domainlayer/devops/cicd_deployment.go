@@ -32,7 +32,7 @@ type CICDDeployment struct {
 	CreatedDate  time.Time
 	StartedDate  *time.Time
 	FinishedDate *time.Time
-	DurationSec  *uint64
+	DurationSec  *float64
 }
 
 func (CICDDeployment) TableName() string {

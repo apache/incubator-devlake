@@ -88,7 +88,7 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 			// rebuild the FinishedDate
 			if domainTask.Status == devops.STATUS_DONE {
 				domainTask.FinishedDate = bitbucketPipelineStep.CompletedOn
-				domainTask.DurationSec = uint64(bitbucketPipelineStep.DurationInSeconds)
+				domainTask.DurationSec = float64(bitbucketPipelineStep.DurationInSeconds)
 			}
 			return []interface{}{
 				domainTask,

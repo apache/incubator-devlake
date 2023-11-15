@@ -99,7 +99,14 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			if body.Name == "" {
 				return nil, err
 			}
-			durationSec := int64(body.DurationMillis / 1000)
+			var durationMillis int64
+			if body.DurationMillis > 0 {
+				durationMillis = int64(body.DurationMillis)
+			} else {
+				durationMillis = int64(0)
+			}
+			durationSec := float64(durationMillis / 1e3)
+
 			jenkinsTaskResult := devops.GetResult(&devops.ResultRule{
 				Success: []string{SUCCESS},
 				Failure: []string{FAILED, FAILURE, ABORTED},
@@ -115,7 +122,7 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			var jenkinsTaskFinishedDate *time.Time
 			results := make([]interface{}, 0)
 			startedDate := time.Unix(body.StartTimeMillis/1000, 0)
-			finishedDate := startedDate.Add(time.Duration(durationSec * int64(time.Second)))
+			finishedDate := startedDate.Add(time.Duration(durationMillis * int64(time.Millisecond)))
 			jenkinsTaskFinishedDate = &finishedDate
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
@@ -125,7 +132,7 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				PipelineId:   buildIdGen.Generate(body.ConnectionId, body.BuildName),
 				Result:       jenkinsTaskResult,
 				Status:       jenkinsTaskStatus,
-				DurationSec:  uint64(body.DurationMillis / 1000),
+				DurationSec:  durationSec,
 				StartedDate:  startedDate,
 				FinishedDate: jenkinsTaskFinishedDate,
 				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
