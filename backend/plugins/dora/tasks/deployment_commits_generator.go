@@ -43,7 +43,7 @@ type pipelineCommitEx struct {
 	PipelineName       string
 	Result             string
 	Status             string
-	DurationSec        *uint64
+	DurationSec        *float64
 	CreatedDate        *time.Time
 	FinishedDate       *time.Time
 	Environment        string

@@ -45,7 +45,7 @@ type CICDTask struct {
 	Status       string `gorm:"type:varchar(100)"`
 	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
 	Environment  string `gorm:"type:varchar(255)"`
-	DurationSec  uint64
+	DurationSec  float64
 	StartedDate  time.Time
 	FinishedDate *time.Time
 	CicdScopeId  string `gorm:"index;type:varchar(255)"`
