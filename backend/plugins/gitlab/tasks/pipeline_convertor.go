@@ -90,16 +90,18 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{StatusFailed, StatusCanceled},
 					Default: devops.RESULT_DEFAULT,
 				}, gitlabPipeline.Status),
+				OriginalResult: gitlabPipeline.Status,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled},
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPending, StatusPreparing},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabPipeline.Status),
-				CreatedDate:  startedAt,
-				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
-				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
-				Environment:  gitlabPipeline.Environment,
-				Type:         gitlabPipeline.Type,
+				OriginalStatus: gitlabPipeline.Status,
+				CreatedDate:    startedAt,
+				FinishedDate:   gitlabPipeline.GitlabUpdatedAt,
+				CicdScopeId:    projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
+				Environment:    gitlabPipeline.Environment,
+				Type:           gitlabPipeline.Type,
 			}
 
 			// rebuild the FinishedDate and DurationSec by Status

@@ -28,6 +28,8 @@ type CicdDeploymentCommit struct {
 	Name                          string `gorm:"type:varchar(255)"`
 	Result                        string `gorm:"type:varchar(100)"`
 	Status                        string `gorm:"type:varchar(100)"`
+	OriginalStatus                string `gorm:"type:varchar(100)"`
+	OriginalResult                string `gorm:"type:varchar(100)"`
 	Environment                   string `gorm:"type:varchar(255)"`
 	CreatedDate                   time.Time
 	StartedDate                   *time.Time

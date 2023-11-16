@@ -70,13 +70,15 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error"}, // on_hold
 					Default: devops.STATUS_OTHER,
 				}, userTool.Status),
+				OriginalStatus: userTool.Status,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{"success"},
 					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
 					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
-				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
-				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
+				OriginalResult: userTool.Status,
+				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
+				Environment:    data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
 			}
 			result := make([]interface{}, 0, 2)
 			result = append(result, pipeline)

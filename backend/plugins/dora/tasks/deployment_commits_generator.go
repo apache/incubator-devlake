@@ -43,6 +43,8 @@ type pipelineCommitEx struct {
 	PipelineName       string
 	Result             string
 	Status             string
+	OriginalStatus     string
+	OriginalResult     string
 	DurationSec        *float64
 	CreatedDate        *time.Time
 	FinishedDate       *time.Time
@@ -70,6 +72,8 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				p.finished_date,
 				p.environment,
 				p.cicd_scope_id,
+				p.original_status,
+				p.original_result,
 				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
 				as has_testing_tasks,
 				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
@@ -125,6 +129,8 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdDeploymentId: pipelineCommit.PipelineId,
 				Name:             pipelineCommit.PipelineName,
 				Result:           pipelineCommit.Result,
+				OriginalStatus:   pipelineCommit.OriginalStatus,
+				OriginalResult:   pipelineCommit.OriginalResult,
 				Status:           pipelineCommit.Status,
 				Environment:      pipelineCommit.Environment,
 				CreatedDate:      *pipelineCommit.CreatedDate,
