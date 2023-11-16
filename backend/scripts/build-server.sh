@@ -17,6 +17,8 @@
 
 set -e
 
+echo build-server.sh VERSION: $VERSION
+
 ROOT_DIR=$(dirname $(dirname "$0"))
 VERSION=${VERSION:-$(git describe --tags --always --dirty || true)}
 EXTRA=""
