@@ -89,7 +89,6 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					Failure: []string{StatusCanceled, StatusFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, gitlabJob.Status),
-				OriginalResult: gitlabJob.Status,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed},
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPreparing, StatusPending},

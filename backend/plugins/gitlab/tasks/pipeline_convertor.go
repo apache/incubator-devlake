@@ -90,7 +90,6 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{StatusFailed, StatusCanceled},
 					Default: devops.RESULT_DEFAULT,
 				}, gitlabPipeline.Status),
-				OriginalResult: gitlabPipeline.Status,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled},
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPending, StatusPreparing},

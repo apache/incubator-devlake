@@ -98,7 +98,6 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{StatusCanceled, StatusFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, gitlabDeployment.Status),
-				OriginalResult: gitlabDeployment.Status,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled},
 					InProgress: []string{StatusRunning},
