@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
 	archivedBase "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts/archived"
@@ -94,6 +93,7 @@ func createForPlugin(db dal.Dal, user string, name string, pluginName string, al
 	if err != nil {
 		return err
 	}
+
 	now := time.Now()
 	apiKeyRecord := &archived.ApiKey{
 		Model: archivedBase.Model{
@@ -138,7 +138,7 @@ func (u *addApiKeys) Up(baseRes context.BasicRes) errors.Error {
 	}
 	for _, webhook := range webhooks {
 		name := fmt.Sprintf("%s-%d", pluginName, webhook.ID)
-		apiKey := &models.ApiKey{}
+		apiKey := &archived.ApiKey{}
 		if err := db.First(apiKey, dal.Where("name = ?", name)); err != nil {
 			if db.IsErrorNotFound(err) {
 				allowedPath := fmt.Sprintf("/plugins/%s/connections/%d/.*", pluginName, webhook.ID)
