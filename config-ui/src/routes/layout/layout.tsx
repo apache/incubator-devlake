@@ -23,7 +23,7 @@ import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
-import { init, selectStatus } from '@/features';
+import { init, selectError, selectStatus } from '@/features';
 import { DOC_URL } from '@/release';
 import { TipsContextProvider, TipsContextConsumer } from '@/store';
 
@@ -46,6 +46,7 @@ export const Layout = () => {
 
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectStatus);
+  const error = useAppSelector(selectError);
 
   const menu = useMenu();
 
@@ -57,6 +58,10 @@ export const Layout = () => {
 
   if (['idle', 'loading'].includes(status)) {
     return <PageLoading />;
+  }
+
+  if (status === 'failed') {
+    throw error.message;
   }
 
   const handlePushPath = (it: MenuItemType) => {
@@ -83,7 +88,7 @@ export const Layout = () => {
       <TipsContextConsumer>
         {({ tips, setTips }) => (
           <S.Wrapper>
-            <S.Sider style={{userSelect: 'none'}}>
+            <S.Sider style={{ userSelect: 'none' }}>
               <Logo />
               <Menu className="menu">
                 {menu.map((it) => {
