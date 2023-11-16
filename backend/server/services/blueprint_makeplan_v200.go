@@ -20,6 +20,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -137,4 +138,20 @@ func GeneratePlanJsonV200(
 		ParallelizePipelinePlans(metricPlans...),
 	)
 	return plan, err
+}
+
+func removeCollectorTasks(plan coreModels.PipelinePlan) coreModels.PipelinePlan {
+	for j, stage := range plan {
+		for k, task := range stage {
+			newSubtasks := make([]string, 0, len(task.Subtasks))
+			for _, subtask := range task.Subtasks {
+				if !strings.Contains(strings.ToLower(subtask), "collect") {
+					newSubtasks = append(newSubtasks, subtask)
+				}
+			}
+			task.Subtasks = newSubtasks
+			plan[j][k] = task
+		}
+	}
+	return plan
 }
