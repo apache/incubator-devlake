@@ -95,7 +95,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoUrl:      githubDeployment.RepositoryUrl,
 			}
 
-			durationSec := uint64(githubDeployment.UpdatedDate.Sub(githubDeployment.CreatedDate).Seconds())
+			durationSec := githubDeployment.UpdatedDate.Sub(githubDeployment.CreatedDate).Seconds()
 			deploymentCommit.DurationSec = &durationSec
 
 			if data.RegexEnricher != nil {

@@ -108,7 +108,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				domainPipeline.DurationSec = 0
 			} else if domainPipeline.FinishedDate != nil {
 				durationTime := domainPipeline.FinishedDate.Sub(startedAt)
-				domainPipeline.DurationSec = uint64(durationTime.Seconds())
+				domainPipeline.DurationSec = durationTime.Seconds()
 			}
 
 			return []interface{}{
