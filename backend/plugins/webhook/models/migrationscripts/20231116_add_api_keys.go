@@ -18,7 +18,10 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -26,27 +29,56 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	common "github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts/archived"
 	"regexp"
+	"strings"
 	"time"
 )
 
 var _ plugin.MigrationScript = (*addApiKeys)(nil)
 
 const (
-	creator    = "migration_scripts"
-	pluginName = "webhook"
+	creator         = "migration_scripts"
+	pluginName      = "webhook"
+	apiKeyLen       = 128
+	EncodeKeyEnvStr = "ENCRYPTION_SECRET"
 )
 
 type addApiKeys struct{}
+
+func generateApiKey(logger log.Logger) (apiKey string, hashedApiKey string, err errors.Error) {
+	apiKey, randomLetterErr := utils.RandLetterBytes(apiKeyLen)
+	if randomLetterErr != nil {
+		err = errors.Default.Wrap(randomLetterErr, "random letters")
+		return
+	}
+	hashedApiKey, err = digestToken(apiKey, logger)
+	return apiKey, hashedApiKey, err
+}
+
+func digestToken(token string, logger log.Logger) (string, errors.Error) {
+	cfg := config.GetConfig()
+	encryptionSecret := strings.TrimSpace(cfg.GetString(EncodeKeyEnvStr))
+	h := hmac.New(sha256.New, []byte(encryptionSecret))
+	if _, err := h.Write([]byte(token)); err != nil {
+		logger.Error(err, "hmac write api key")
+		return "", errors.Default.Wrap(err, "hmac write token")
+	}
+	hashedApiKey := fmt.Sprintf("%x", h.Sum(nil))
+	return hashedApiKey, nil
+}
 
 func createForPlugin(db dal.Dal, logger log.Logger, user string, name string, pluginName string, allowedPath string, extra string) (*models.ApiKey, errors.Error) {
 	if _, err := regexp.Compile(allowedPath); err != nil {
 		logger.Error(err, "Compile allowed path")
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("compile allowed path: %s", allowedPath))
 	}
-
-	apiKey, hashedApiKey := "auto-generated-key", "auto-generated-key"
+	apiKey, hashedApiKey, err := generateApiKey(logger)
+	if err != nil {
+		logger.Error(err, "generateApiKey")
+		return nil, err
+	}
 	now := time.Now()
 	apiKeyRecord := &models.ApiKey{
 		Model: common.Model{
@@ -91,11 +123,10 @@ func (u *addApiKeys) Up(baseRes context.BasicRes) errors.Error {
 		return err
 	}
 	logger := baseRes.GetLogger()
-	tx := db.Begin()
 	for _, webhook := range webhooks {
 		name := fmt.Sprintf("%s-%d", pluginName, webhook.ID)
 		apiKey := &models.ApiKey{}
-		if err := tx.First(apiKey, dal.Where("name = ?", name)); err != nil {
+		if err := db.First(apiKey, dal.Where("name = ?", name)); err != nil {
 			if db.IsErrorNotFound(err) {
 				logger.Info("api key with name: %s not found in db", name)
 				allowedPath := fmt.Sprintf("/plugins/%s/connections/%d/.*", pluginName, webhook.ID)
