@@ -27,11 +27,13 @@ import { transformConnection, transformWebhook } from './utils';
 
 const initialState: {
   status: IStatus;
+  error: any;
   plugins: string[];
   connections: IConnection[];
   webhooks: IWebhook[];
 } = {
   status: 'idle',
+  error: null,
   plugins: [],
   connections: [],
   webhooks: [],
@@ -52,6 +54,7 @@ export const init = createAsyncThunk('connections/init', async (plugins: string[
       .filter((plugin) => plugin === 'webhook')
       .map(async () => {
         const webhooks = await API.plugin.webhook.list();
+        console.log(webhooks);
         return webhooks.map((webhook) => transformWebhook(webhook));
       }),
   );
@@ -151,6 +154,11 @@ export const connectionsSlice = createSlice({
         state.webhooks = action.payload.webhooks;
         state.status = 'success';
       })
+      .addCase(init.rejected, (state, action) => {
+        console.error(action.error.stack);
+        state.status = 'failed';
+        state.error = action.error;
+      })
       .addCase(addConnection.fulfilled, (state, action) => {
         state.connections.push(action.payload);
       })
@@ -194,6 +202,8 @@ export const connectionsSlice = createSlice({
 export default connectionsSlice.reducer;
 
 export const selectStatus = (state: RootState) => state.connections.status;
+
+export const selectError = (state: RootState) => state.connections.error;
 
 export const selectPlugins = (state: RootState) => state.connections.plugins;
 

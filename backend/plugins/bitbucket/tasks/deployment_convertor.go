@@ -75,9 +75,9 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketDeployment := inputRow.(*bitbucketDeploymentWithRefName)
 
-			var duration *uint64
+			var duration *float64
 			if bitbucketDeployment.CompletedOn != nil {
-				d := uint64(bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Seconds())
+				d := bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Seconds()
 				duration = &d
 			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{

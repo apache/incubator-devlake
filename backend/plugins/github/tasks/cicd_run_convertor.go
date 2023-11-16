@@ -109,7 +109,7 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				}, line.Status),
 			}
 			if domainPipeline.Status == devops.STATUS_DONE {
-				domainPipeline.DurationSec = uint64(line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds())
+				domainPipeline.DurationSec = line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds()
 			}
 
 			domainPipelineCommit := &devops.CiCDPipelineCommit{
