@@ -15,16 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"time"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addApiKeys),
-	}
+// ApiKey is the basic of api key management.
+type ApiKey struct {
+	archived.Model
+	archived.Creator
+	archived.Updater
+	Name        string     `json:"name"`
+	ApiKey      string     `json:"apiKey,omitempty"`
+	ExpiredAt   *time.Time `json:"expiredAt"`
+	AllowedPath string     `json:"allowedPath"`
+	Type        string     `json:"type"`
+	Extra       string     `json:"extra"`
+}
+
+func (apiKey *ApiKey) TableName() string {
+	return "_devlake_api_keys"
 }

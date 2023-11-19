@@ -34,7 +34,7 @@ type CicdDeploymentCommit struct {
 	CreatedDate                   time.Time
 	StartedDate                   *time.Time
 	FinishedDate                  *time.Time
-	DurationSec                   *uint64
+	DurationSec                   *float64
 	CommitSha                     string `gorm:"primaryKey;type:varchar(255)"`
 	RefName                       string `gorm:"type:varchar(255)"` // to delete?
 	RepoId                        string `gorm:"type:varchar(255)"`

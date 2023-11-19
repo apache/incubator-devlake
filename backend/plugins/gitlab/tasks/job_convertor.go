@@ -95,7 +95,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					Default:    devops.STATUS_OTHER,
 				}, gitlabJob.Status),
 
-				DurationSec:  uint64(gitlabJob.Duration),
+				DurationSec:  gitlabJob.Duration,
 				StartedDate:  *startedAt,
 				FinishedDate: gitlabJob.FinishedAt,
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),

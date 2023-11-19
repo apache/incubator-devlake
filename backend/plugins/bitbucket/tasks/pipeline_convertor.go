@@ -100,7 +100,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:         bitbucketPipeline.Type,
 				Environment:  bitbucketPipeline.Environment,
 				CreatedDate:  createdAt,
-				DurationSec:  bitbucketPipeline.DurationInSeconds,
+				DurationSec:  float64(bitbucketPipeline.DurationInSeconds),
 				FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
 				CicdScopeId:  repoId,
 			}

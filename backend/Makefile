@@ -17,7 +17,7 @@
 # https://stackoverflow.com/questions/920413/make-error-missing-separator
 # https://tutorialedge.net/golang/makefiles-for-go-developers/
 
-SHA = $(shell git show -s --format=%h)
+SHA ?= $(shell git show -s --format=%h)
 TAG ?= $(shell git tag --points-at HEAD)
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
@@ -44,7 +44,7 @@ build-plugin:
 	scripts/build-plugins.sh
 
 build-server: swag
-	scripts/build-server.sh
+	VERSION=$(VERSION) scripts/build-server.sh
 
 build-python: #don't mix this with the other build commands
 	scripts/build-python.sh

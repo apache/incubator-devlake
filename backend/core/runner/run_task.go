@@ -20,6 +20,7 @@ package runner
 import (
 	gocontext "context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -214,8 +215,12 @@ func RunPluginSubTasks(
 		}
 	}
 
-	// make sure `Required` subtasks are always enabled
+	// 1. make sure `Collect` subtasks skip if `SkipCollectors` is true
+	// 2. make sure `Required` subtasks are always enabled
 	for _, subtaskMeta := range subtaskMetas {
+		if syncPolicy != nil && syncPolicy.SkipCollectors && strings.Contains(strings.ToLower(subtaskMeta.Name), "collect") {
+			subtasksFlag[subtaskMeta.Name] = false
+		}
 		if subtaskMeta.Required {
 			subtasksFlag[subtaskMeta.Name] = true
 		}

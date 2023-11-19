@@ -35,7 +35,7 @@ type CircleciWorkflow struct {
 	PipelineNumber int64               `json:"pipeline_number"`
 	CreatedAt      *common.Iso8601Time `json:"created_at"`
 	StoppedAt      *common.Iso8601Time `json:"stopped_at"`
-	DurationSec    uint64              `json:"duration_sec"`
+	DurationSec    float64             `json:"duration_sec"`
 
 	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 }

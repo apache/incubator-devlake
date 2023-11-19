@@ -21,6 +21,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"time"
 
@@ -30,8 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
-
-	"github.com/go-playground/validator/v10"
 )
 
 type WebhookDeployTaskRequest struct {
@@ -105,7 +104,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if request.Result == "" {
 		request.Result = devops.RESULT_SUCCESS
 	}
-	duration := uint64(request.FinishedDate.Sub(*request.StartedDate).Seconds())
+	duration := request.FinishedDate.Sub(*request.StartedDate).Seconds()
 
 	// create a deployment_commit record
 	deploymentCommit := &devops.CicdDeploymentCommit{
