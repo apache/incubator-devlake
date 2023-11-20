@@ -36,7 +36,7 @@ echo "  build and keep specified plugins only: DEVLAKE_PLUGINS=github,jira $0 [g
 
 
 if [ "$DEVLAKE_PLUGINS" = "none" ]; then
-    echo "skip building plugins" > &2
+    echo "skip building plugins" >&2
     exit 0
 fi
 
