@@ -68,6 +68,11 @@ func runPipelineTasks(
 		return err
 	}
 
+	// if pipeline has been cancelled, just return.
+	if dbPipeline.Status == models.TASK_CANCELLED {
+		return nil
+	}
+
 	// This double for loop executes each set of tasks sequentially while
 	// executing the set of tasks concurrently.
 	for i, row := range taskIds {
@@ -90,6 +95,10 @@ func runPipelineTasks(
 			}
 		}
 	}
-	log.Info("pipeline finished in %d ms: %v", time.Now().UnixMilli()-dbPipeline.BeganAt.UnixMilli(), err)
+	if dbPipeline.BeganAt != nil {
+		log.Info("pipeline finished in %d ms: %v", time.Now().UnixMilli()-dbPipeline.BeganAt.UnixMilli(), err)
+	} else {
+		log.Info("pipeline finished at %d ms: %v", time.Now().UnixMilli(), err)
+	}
 	return err
 }
