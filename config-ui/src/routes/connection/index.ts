@@ -16,17 +16,4 @@
  *
  */
 
-import Icon from './assets/icon.svg';
-
-export const WebhookConfig = {
-  plugin: 'webhook',
-  name: 'Webhook',
-  icon: Icon,
-  sort: 100,
-  connection: {
-    docLink: '',
-    fields: [],
-    initialValues: {},
-  },
-  dataScope: {},
-};
+export * from './connections';

@@ -208,7 +208,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                 {connections.map((cs) => (
                   <S.ConnectionItem key={`${cs.plugin}-${cs.connectionId}`}>
                     <div className="title">
-                      <img src={cs.icon} alt="" />
+                      {/* <img src={cs.icon} alt="" /> */}
                       <ConnectionName plugin={cs.plugin} connectionId={cs.connectionId} />
                     </div>
                     <div className="count">

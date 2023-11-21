@@ -16,29 +16,19 @@
  *
  */
 
-export interface IPluginConfig {
-  plugin: string;
-  name: string;
-  icon: ({ color }: { color: string }) => React.ReactNode;
-  sort: number;
-  isBeta?: boolean;
+import { IPluginConfig } from '@/types';
+
+import Icon from './assets/icon.svg?react';
+
+export const WebhookConfig: IPluginConfig = {
+  plugin: 'webhook',
+  name: 'Webhook',
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 100,
   connection: {
-    docLink: string;
-    initialValues?: Record<string, any>;
-    fields: any[];
-  };
-  dataScope: {
-    localSearch?: boolean;
-    searchPlaceholder?: string;
-    title?: string;
-    millerColumn?: {
-      columnCount?: number;
-      firstColumnTitle?: string;
-    };
-    render?: (props: any) => React.ReactNode;
-  };
-  scopeConfig?: {
-    entities: string[];
-    transformation: any;
-  };
-}
+    docLink: '',
+    fields: [],
+    initialValues: {},
+  },
+  dataScope: {},
+};

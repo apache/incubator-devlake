@@ -18,15 +18,16 @@
 
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 import { BaseURL } from './connection-fields';
 
-export const AzureConfig = {
+export const AzureConfig: IPluginConfig = {
   plugin: 'azuredevops',
   name: 'Azure DevOps',
-  icon: Icon,
-  sort: 6,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 1,
   connection: {
     docLink: DOC_URL.PLUGIN.AZUREDEVOPS.BASIS,
     fields: [
