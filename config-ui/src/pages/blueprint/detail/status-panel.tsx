@@ -116,7 +116,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     });
 
     if (success) {
-      navigate('/blueprints');
+      navigate('/advanced/blueprints');
     }
   };
 

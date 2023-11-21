@@ -72,24 +72,29 @@ export const router = createBrowserRouter([
         element: <BlueprintConnectionDetailPage />,
       },
       {
-        path: 'blueprints',
-        element: <BlueprintHomePage />,
-      },
-      {
-        path: 'blueprints/:id',
-        element: <BlueprintDetailPage />,
-      },
-      {
-        path: 'blueprints/:bid/:unique',
-        element: <BlueprintConnectionDetailPage />,
-      },
-      {
-        path: 'pipelines',
-        element: <Pipelines />,
-      },
-      {
-        path: 'pipeline/:id',
-        element: <Pipeline />,
+        path: 'advanced',
+        children: [
+          {
+            path: 'blueprints',
+            element: <BlueprintHomePage />,
+          },
+          {
+            path: 'blueprints/:id',
+            element: <BlueprintDetailPage />,
+          },
+          {
+            path: 'blueprints/:bid/:unique',
+            element: <BlueprintConnectionDetailPage />,
+          },
+          {
+            path: 'pipelines',
+            element: <Pipelines />,
+          },
+          {
+            path: 'pipeline/:id',
+            element: <Pipeline />,
+          },
+        ],
       },
       {
         path: 'keys',

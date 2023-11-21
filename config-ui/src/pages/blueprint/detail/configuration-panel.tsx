@@ -218,7 +218,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? `/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
+                            ? `/advanced/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
                             : `/projects/${encodeName(blueprint.projectName)}/${cs.plugin}-${cs.connectionId}`
                         }
                       >
