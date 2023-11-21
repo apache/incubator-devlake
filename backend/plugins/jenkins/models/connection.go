@@ -36,3 +36,8 @@ type JenkinsConnection struct {
 func (JenkinsConnection) TableName() string {
 	return "_tool_jenkins_connections"
 }
+
+func (connection JenkinsConnection) CleanUp() JenkinsConnection {
+	connection.Password = ""
+	return connection
+}

@@ -36,3 +36,8 @@ type TapdConnection struct {
 func (TapdConnection) TableName() string {
 	return "_tool_tapd_connections"
 }
+
+func (connection TapdConnection) CleanUp() TapdConnection {
+	connection.Password = ""
+	return connection
+}

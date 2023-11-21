@@ -20,6 +20,7 @@ package models
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -71,6 +72,26 @@ type ZentaoConn struct {
 type ZentaoConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	ZentaoConn            `mapstructure:",squash"`
+}
+
+func (connection ZentaoConnection) SecretDbUrl() string {
+	if connection.DbUrl == "" {
+		return connection.DbUrl
+	}
+	dbUrl := connection.DbUrl
+	if strings.HasPrefix(dbUrl, "mysql") {
+		// fixme
+		dbUrl = ""
+	}
+	return dbUrl
+}
+
+func (connection ZentaoConnection) CleanUp() ZentaoConnection {
+	connection.Password = ""
+	if connection.DbUrl != "" {
+		connection.DbUrl = connection.SecretDbUrl()
+	}
+	return connection
 }
 
 // This object conforms to what the frontend currently expects.

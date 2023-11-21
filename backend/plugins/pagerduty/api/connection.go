@@ -74,7 +74,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch pagerduty connection
@@ -91,7 +91,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
 }
 
 // @Summary delete pagerduty connection
@@ -103,7 +103,13 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.PagerDutyConnection{}, input)
+	conn := &models.PagerDutyConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.CleanUp()
+	return output, nil
 }
 
 // @Summary list pagerduty connections
@@ -119,7 +125,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-
+	for idx, c := range connections {
+		connections[idx] = c.CleanUp()
+	}
 	return &plugin.ApiResourceOutput{Body: connections}, nil
 }
 
@@ -136,5 +144,5 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, nil
 }

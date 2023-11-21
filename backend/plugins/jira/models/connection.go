@@ -59,3 +59,8 @@ type JiraConnection struct {
 func (JiraConnection) TableName() string {
 	return "_tool_jira_connections"
 }
+
+func (connection JiraConnection) CleanUp() JiraConnection {
+	connection.Password = ""
+	return connection
+}

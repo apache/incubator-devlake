@@ -40,6 +40,11 @@ type TeambitionConnection struct {
 	TeambitionConn        `mapstructure:",squash"`
 }
 
+func (connection TeambitionConnection) CleanUp() TeambitionConnection {
+	connection.SecretKey = ""
+	return connection
+}
+
 func (tc *TeambitionConn) SetupAuthentication(req *http.Request) errors.Error {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := make(jwt.MapClaims)

@@ -36,3 +36,8 @@ type SlackConnection struct {
 func (SlackConnection) TableName() string {
 	return "_tool_slack_connections"
 }
+
+func (connection SlackConnection) CleanUp() SlackConnection {
+	connection.Token = ""
+	return connection
+}

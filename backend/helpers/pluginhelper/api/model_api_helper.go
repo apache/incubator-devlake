@@ -104,15 +104,28 @@ func (self *ModelApiHelper[M]) GetDetail(input *plugin.ApiResourceInput) (*plugi
 	if err != nil {
 		return nil, err
 	}
+	model = self.executeCleanUp(model)
+	return &plugin.ApiResourceOutput{
+		Body: model,
+	}, nil
+}
+
+func (self *ModelApiHelper[M]) executeCleanUp(model *M) *M {
 	if self.cleanUp != nil {
 		for _, clean := range self.cleanUp {
 			cleanedModel := clean(*model)
 			model = &cleanedModel
 		}
 	}
-	return &plugin.ApiResourceOutput{
-		Body: model,
-	}, nil
+	return model
+}
+
+func (self *ModelApiHelper[M]) executeCleanUps(models []*M) []*M {
+	for idx, m := range models {
+		model := *m
+		models[idx] = self.executeCleanUp(&model)
+	}
+	return models
 }
 
 func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -128,6 +141,7 @@ func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.Ap
 	if err != nil {
 		return nil, err
 	}
+	model = self.executeCleanUp(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
@@ -149,15 +163,7 @@ func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.A
 
 func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	all, err := self.dalHelper.GetAll()
-	if self.cleanUp != nil {
-		for idx, m := range all {
-			model := *m
-			for _, clean := range self.cleanUp {
-				model = clean(model)
-			}
-			all[idx] = &model
-		}
-	}
+	all = self.executeCleanUps(all)
 	return &plugin.ApiResourceOutput{
 		Body: all,
 	}, err

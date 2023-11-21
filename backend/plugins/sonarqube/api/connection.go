@@ -99,7 +99,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
 }
 
 // PatchConnection patch sonarqube connection
@@ -118,7 +118,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, nil
 }
 
 // DeleteConnection delete a sonarqube connection
@@ -132,7 +132,14 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.SonarqubeConnection{}, input)
+	conn := &models.SonarqubeConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.CleanUp()
+	return output, nil
+
 }
 
 // ListConnections get all sonarqube connections
@@ -149,6 +156,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
+	for idx, c := range connections {
+		connections[idx] = c.CleanUp()
+	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
@@ -164,5 +174,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, err
 }

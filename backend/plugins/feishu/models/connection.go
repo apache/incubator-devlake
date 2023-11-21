@@ -71,3 +71,8 @@ type FeishuConnection struct {
 func (FeishuConnection) TableName() string {
 	return "_tool_feishu_connections"
 }
+
+func (connection FeishuConnection) CleanUp() FeishuConnection {
+	connection.SecretKey = ""
+	return connection
+}

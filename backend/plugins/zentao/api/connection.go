@@ -97,7 +97,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch zentao connection
@@ -114,7 +114,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, nil
 }
 
 // @Summary delete a zentao connection
@@ -126,7 +126,13 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.ZentaoConnection{}, input)
+	conn := &models.ZentaoConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.CleanUp()
+	return output, nil
 }
 
 // @Summary get all zentao connections
@@ -142,6 +148,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
+	for idx, c := range connections {
+		connections[idx] = c.CleanUp()
+	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
@@ -155,5 +164,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, err
 }

@@ -67,3 +67,8 @@ type GiteeScopeConfig struct {
 func (GiteeConnection) TableName() string {
 	return "_tool_gitee_connections"
 }
+
+func (connection GiteeConnection) CleanUp() GiteeConnection {
+	connection.Token = ""
+	return connection
+}

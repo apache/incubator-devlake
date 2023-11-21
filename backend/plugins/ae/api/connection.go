@@ -80,7 +80,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
 }
 
 // @Summary get all ae connections
@@ -96,6 +96,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
+	for idx, c := range connections {
+		connections[idx] = c.CleanUp()
+	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
@@ -109,7 +112,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, err
 }
 
 // @Summary patch ae connection
@@ -126,7 +129,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
 }
 
 // @Summary delete a ae connection
@@ -138,5 +141,12 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/ae/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.AeConnection{}, input)
+	conn := &models.AeConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.CleanUp()
+	return output, nil
+
 }

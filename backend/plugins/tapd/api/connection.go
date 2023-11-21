@@ -93,7 +93,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, err
 	}
 
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch tapd connection
@@ -111,7 +111,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, err
 	}
 
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, nil
 }
 
 // @Summary delete a tapd connection
@@ -123,7 +123,13 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.TapdConnection{}, input)
+	conn := &models.TapdConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.CleanUp()
+	return output, nil
 }
 
 // @Summary get all tapd connections
@@ -139,7 +145,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-
+	for idx, c := range connections {
+		connections[idx] = c.CleanUp()
+	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 

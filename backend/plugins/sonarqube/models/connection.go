@@ -66,3 +66,8 @@ type SonarqubeResponse struct {
 func (SonarqubeConnection) TableName() string {
 	return "_tool_sonarqube_connections"
 }
+
+func (connection SonarqubeConnection) CleanUp() SonarqubeConnection {
+	connection.Token = ""
+	return connection
+}

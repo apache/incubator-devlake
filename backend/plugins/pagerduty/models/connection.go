@@ -62,3 +62,8 @@ type ApiUserResponse struct {
 func (PagerDutyConnection) TableName() string {
 	return "_tool_pagerduty_connections"
 }
+
+func (connection PagerDutyConnection) CleanUp() PagerDutyConnection {
+	connection.Token = ""
+	return connection
+}

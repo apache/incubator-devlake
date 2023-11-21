@@ -36,6 +36,11 @@ type TrelloConnection struct {
 	TrelloConn            `mapstructure:",squash"`
 }
 
+func (connection TrelloConnection) CleanUp() TrelloConnection {
+	connection.SecretKey = ""
+	return connection
+}
+
 // SetupAuthentication sets up the HTTP Request Authentication
 func (tc *TrelloConn) SetupAuthentication(req *http.Request) errors.Error {
 	req.Header.Set("Authorization", fmt.Sprintf("OAuth oauth_consumer_key=\"%s\", oauth_token=\"%s\"", tc.AppId, tc.SecretKey))

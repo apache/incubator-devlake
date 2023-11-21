@@ -43,3 +43,8 @@ func (cc *CircleciConn) SetupAuthentication(req *http.Request) errors.Error {
 func (CircleciConnection) TableName() string {
 	return "_tool_circleci_connections"
 }
+
+func (connection CircleciConnection) CleanUp() CircleciConnection {
+	connection.Token = ""
+	return connection
+}

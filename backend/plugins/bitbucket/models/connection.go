@@ -39,3 +39,8 @@ type BitbucketConnection struct {
 func (BitbucketConnection) TableName() string {
 	return "_tool_bitbucket_connections"
 }
+
+func (connection BitbucketConnection) CleanUp() BitbucketConnection {
+	connection.Password = ""
+	return connection
+}

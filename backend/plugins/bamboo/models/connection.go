@@ -36,6 +36,11 @@ type BambooConnection struct {
 	BambooConn         `mapstructure:",squash"`
 }
 
+func (connection BambooConnection) CleanUp() BambooConnection {
+	connection.Password = ""
+	return connection
+}
+
 // TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type BambooConn struct {
