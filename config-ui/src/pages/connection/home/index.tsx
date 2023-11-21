@@ -80,7 +80,7 @@ export const ConnectionHomePage = () => {
                 const connectionCount = connections.filter((cs) => cs.plugin === plugin).length;
                 return (
                   <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
-                    <img src={pluginConfig.icon} alt="" />
+                    {/* <img src={pluginConfig.icon} alt="" /> */}
                     <span className="name">{pluginConfig.name}</span>
                     <S.Count>{connectionCount ? `${connectionCount} connections` : 'No connection'}</S.Count>
                     {pluginConfig.isBeta && (
@@ -109,7 +109,7 @@ export const ConnectionHomePage = () => {
                 const connectionCount = webhooks.length;
                 return (
                   <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
-                    <img src={pluginConfig.icon} alt="" />
+                    {/* <img src={pluginConfig.icon} alt="" /> */}
                     <span className="name">{pluginConfig.name}</span>
                     <S.Count>{connectionCount ? `${connectionCount} connections` : 'No connection'}</S.Count>
                   </li>
@@ -124,7 +124,7 @@ export const ConnectionHomePage = () => {
           isOpen
           title={
             <S.DialogTitle>
-              <img src={pluginConfig.icon} alt="" />
+              {/* <img src={pluginConfig.icon} alt="" /> */}
               <span>Manage Connections: {pluginConfig.name}</span>
             </S.DialogTitle>
           }
@@ -140,7 +140,7 @@ export const ConnectionHomePage = () => {
           isOpen
           title={
             <S.DialogTitle>
-              <img src={pluginConfig.icon} alt="" />
+              {/* <img src={pluginConfig.icon} alt="" /> */}
               <span>Manage Connections: {pluginConfig.name}</span>
             </S.DialogTitle>
           }
