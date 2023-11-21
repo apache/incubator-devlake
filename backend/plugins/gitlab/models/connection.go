@@ -139,3 +139,8 @@ type ApiUserResponse struct {
 func (GitlabConnection) TableName() string {
 	return "_tool_gitlab_connections"
 }
+
+func (connection GitlabConnection) CleanUp() GitlabConnection {
+	connection.Token = ""
+	return connection
+}

@@ -109,6 +109,7 @@ type Scope interface {
 type ToolLayerConnection interface {
 	dal.Tabler
 	ConnectionId() uint64
+	//CleanUp() ToolLayerConnection
 }
 
 type ToolLayerScope interface {

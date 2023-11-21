@@ -39,22 +39,28 @@ type ModelApiHelper[M dal.Tabler] struct {
 	log            log.Logger
 	modelName      string
 	pkPathVarNames []string
+	cleanUp        []func(m M) M
 }
 
 func NewModelApiHelper[M dal.Tabler](
 	basicRes context.BasicRes,
 	dalHelper *srvhelper.ModelSrvHelper[M],
 	pkPathVarNames []string, // path variable names of primary key
+	cleanUp func(m M) M,
 ) *ModelApiHelper[M] {
 	m := new(M)
 	modelName := fmt.Sprintf("%T", m)
-	return &ModelApiHelper[M]{
+	modelApiHelper := &ModelApiHelper[M]{
 		basicRes:       basicRes,
 		dalHelper:      dalHelper,
 		log:            basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
 		modelName:      modelName,
 		pkPathVarNames: pkPathVarNames,
 	}
+	if cleanUp != nil {
+		modelApiHelper.cleanUp = []func(m M) M{cleanUp}
+	}
+	return modelApiHelper
 }
 
 func (self *ModelApiHelper[M]) Post(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -98,6 +104,12 @@ func (self *ModelApiHelper[M]) GetDetail(input *plugin.ApiResourceInput) (*plugi
 	if err != nil {
 		return nil, err
 	}
+	if self.cleanUp != nil {
+		for _, clean := range self.cleanUp {
+			cleanedModel := clean(*model)
+			model = &cleanedModel
+		}
+	}
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
@@ -137,6 +149,15 @@ func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.A
 
 func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	all, err := self.dalHelper.GetAll()
+	if self.cleanUp != nil {
+		for idx, m := range all {
+			model := *m
+			for _, clean := range self.cleanUp {
+				model = clean(model)
+			}
+			all[idx] = &model
+		}
+	}
 	return &plugin.ApiResourceOutput{
 		Body: all,
 	}, err

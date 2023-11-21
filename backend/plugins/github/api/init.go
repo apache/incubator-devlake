@@ -37,11 +37,17 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
 	dsHelper = api.NewDataSourceHelper[
 		models.GithubConnection,
-		models.GithubRepo, models.GithubScopeConfig,
+		models.GithubRepo,
+		models.GithubScopeConfig,
 	](
 		br,
 		p.Name(),
 		[]string{"full_name"},
+		func(c models.GithubConnection) models.GithubConnection {
+			return c.CleanUp()
+		},
+		nil,
+		nil,
 	)
 	// TODO: refactor remoteHelper
 	vld = validator.New()

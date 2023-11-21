@@ -43,7 +43,7 @@ type GithubAppKey struct {
 	InstallationID int `mapstructure:"installationId" validate:"required" json:"installationId"`
 }
 
-// GithubConn holds the essential information to connect to the Github API
+// GithubConn holds the essential information to connect to the GitHub API
 type GithubConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.MultiAuth      `mapstructure:",squash"`
@@ -94,8 +94,13 @@ type GithubConnection struct {
 	EnableGraphql         bool `mapstructure:"enableGraphql" json:"enableGraphql"`
 }
 
-func (GithubConnection) TableName() string {
+func (connection GithubConnection) TableName() string {
 	return "_tool_github_connections"
+}
+
+func (connection GithubConnection) CleanUp() GithubConnection {
+	connection.Token = ""
+	return connection
 }
 
 // Using GithubUserOfToken because it requires authentication, and it is public information anyway.

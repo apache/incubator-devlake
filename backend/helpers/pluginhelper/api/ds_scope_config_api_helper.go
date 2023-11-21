@@ -31,12 +31,17 @@ type DsScopeConfigApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScop
 	*srvhelper.ScopeConfigSrvHelper[C, S, SC]
 }
 
-func NewDsScopeConfigApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig](
+func NewDsScopeConfigApiHelper[
+	C plugin.ToolLayerConnection,
+	S plugin.ToolLayerScope,
+	SC plugin.ToolLayerScopeConfig,
+](
 	basicRes context.BasicRes,
 	dalHelper *srvhelper.ScopeConfigSrvHelper[C, S, SC],
+	cleanUp func(sc SC) SC,
 ) *DsScopeConfigApiHelper[C, S, SC] {
 	return &DsScopeConfigApiHelper[C, S, SC]{
-		ModelApiHelper:       NewModelApiHelper[SC](basicRes, dalHelper.ModelSrvHelper, []string{"scopeConfigId"}),
+		ModelApiHelper:       NewModelApiHelper[SC](basicRes, dalHelper.ModelSrvHelper, []string{"scopeConfigId"}, cleanUp),
 		ScopeConfigSrvHelper: dalHelper,
 	}
 }

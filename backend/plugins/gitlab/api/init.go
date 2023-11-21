@@ -42,6 +42,11 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		br,
 		p.Name(),
 		[]string{"name"},
+		func(c models.GitlabConnection) models.GitlabConnection {
+			return c.CleanUp()
+		},
+		nil,
+		nil,
 	)
 	// TODO: remove connectionHelper and refactor remoteHelper
 	vld = validator.New()
