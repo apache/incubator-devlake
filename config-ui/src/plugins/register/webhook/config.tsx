@@ -16,12 +16,14 @@
  *
  */
 
-import Icon from './assets/icon.svg';
+import { IPluginConfig } from '@/types';
 
-export const WebhookConfig = {
+import Icon from './assets/icon.svg?react';
+
+export const WebhookConfig: IPluginConfig = {
   plugin: 'webhook',
   name: 'Webhook',
-  icon: Icon,
+  icon: ({ color }) => <Icon fill={color} />,
   sort: 100,
   connection: {
     docLink: '',

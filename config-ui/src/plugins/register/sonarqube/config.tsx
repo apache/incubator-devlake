@@ -17,47 +17,36 @@
  */
 
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 
-export const JenkinsConfig = {
-  plugin: 'jenkins',
-  name: 'Jenkins',
-  icon: Icon,
-  sort: 4,
+export const SonarQubeConfig: IPluginConfig = {
+  plugin: 'sonarqube',
+  name: 'SonarQube',
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 9,
   connection: {
-    docLink: DOC_URL.PLUGIN.JENKINS.BASIS,
+    docLink: DOC_URL.PLUGIN.SONARQUBE.BASIS,
     fields: [
       'name',
       {
         key: 'endpoint',
-        subLabel: 'Provide the Jenkins instance API endpoint. E.g. https://api.jenkins.io',
+        subLabel: 'Provide the SonarQube instance API endpoint. E.g. http://<host>:<port>/api/',
       },
-      'username',
-      'password',
+      'token',
       'proxy',
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses 10,000 requests/hour for data collection for Jenkins. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: DOC_URL.PLUGIN.JENKINS.RATE_LIMIT,
-        externalInfo: 'Jenkins does not specify a maximum value of rate limit.',
+          'By default, DevLake uses 10,000 requests/hour for data collection for SonarQube. But you can adjust the collection speed by setting up your desirable rate limit.',
+        learnMore: DOC_URL.PLUGIN.SONARQUBE.RATE_LIMIT,
+        externalInfo: 'SonarQube does not specify a maximum value of rate limit.',
         defaultValue: 10000,
       },
     ],
   },
   dataScope: {
-    localSearch: true,
-    title: 'Jobs',
-    millerColumn: {
-      columnCount: 2.5,
-    },
-  },
-  scopeConfig: {
-    entities: ['CICD'],
-    transformation: {
-      deploymentPattern: '(deploy|push-image)',
-      productionPattern: 'prod(.*)',
-    },
+    title: 'Repositories',
   },
 };
