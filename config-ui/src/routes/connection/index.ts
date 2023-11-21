@@ -16,4 +16,4 @@
  *
  */
 
-export * from './detail';
+export * from './connections';

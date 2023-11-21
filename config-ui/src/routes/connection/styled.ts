@@ -18,16 +18,30 @@
 
 import styled from 'styled-components';
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.div<{ theme: string }>`
+  h2 {
+    margin-top: 36px;
+  }
+
   h5 {
     margin-top: 12px;
     font-weight: 400;
   }
 
-  .block + .block {
-    margin-top: 36px;
-  }
+  h4 {
+    position: relative;
+    margin-top: 24px;
 
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 48px;
+      height: 4px;
+      background-color: ${({ theme }) => theme};
+    }
+  }
   ul {
     display: flex;
     align-items: center;
@@ -53,9 +67,15 @@ export const Wrapper = styled.div`
       background-color: #eeeeee;
     }
 
-    & > img {
+    & > .logo {
       width: 60px;
+      height: 60px;
       margin-bottom: 8px;
+
+      & > svg {
+        width: 100%;
+        height: 100%;
+      }
     }
 
     & > .name {
@@ -75,24 +95,23 @@ export const Wrapper = styled.div`
       }
     }
 
-    & > .bp5-tag {
-      position: absolute;
-      top: 0;
-      right: 0;
+    & > .count {
+      color: #70727f;
     }
   }
 `;
 
-export const Count = styled.span`
-  color: #70727f;
-`;
-
-export const DialogTitle = styled.div`
+export const ModalTitle = styled.div`
   display: flex;
   align-items: center;
 
-  img {
+  .icon {
     margin-right: 8px;
     width: 24px;
+
+    & > svg {
+      width: 100%;
+      height: 100%;
+    }
   }
 `;
