@@ -30,6 +30,11 @@ type TrelloConn struct {
 	helper.AppKey         `mapstructure:",squash"`
 }
 
+func (tc *TrelloConn) CleanUp() TrelloConn {
+	tc.SecretKey = ""
+	return *tc
+}
+
 // TrelloConnection holds TrelloConn plus ID/Name for database storage
 type TrelloConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
@@ -37,7 +42,7 @@ type TrelloConnection struct {
 }
 
 func (connection TrelloConnection) CleanUp() TrelloConnection {
-	connection.SecretKey = ""
+	connection.TrelloConn = connection.TrelloConn.CleanUp()
 	return connection
 }
 

@@ -140,6 +140,9 @@ func (p Slack) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestConnectionV2,
+		},
 	}
 }
 

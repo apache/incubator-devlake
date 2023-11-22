@@ -27,6 +27,11 @@ type SlackConn struct {
 	helper.AccessToken    `mapstructure:",squash"`
 }
 
+func (connection SlackConn) CleanUp() SlackConn {
+	connection.Token = ""
+	return connection
+}
+
 // SlackConnection holds SlackConn plus ID/Name for database storage
 type SlackConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
@@ -38,6 +43,6 @@ func (SlackConnection) TableName() string {
 }
 
 func (connection SlackConnection) CleanUp() SlackConnection {
-	connection.Token = ""
+	connection.SlackConn = connection.SlackConn.CleanUp()
 	return connection
 }

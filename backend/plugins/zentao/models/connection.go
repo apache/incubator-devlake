@@ -68,13 +68,21 @@ type ZentaoConn struct {
 	DbMaxConns     int    `json:"dbMaxConns" mapstructure:"dbMaxConns"`
 }
 
+func (connection ZentaoConn) CleanUp() ZentaoConn {
+	connection.Password = ""
+	if connection.DbUrl != "" {
+		connection.DbUrl = connection.SecretDbUrl()
+	}
+	return connection
+}
+
 // ZentaoConnection holds ZentaoConn plus ID/Name for database storage
 type ZentaoConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	ZentaoConn            `mapstructure:",squash"`
 }
 
-func (connection ZentaoConnection) SecretDbUrl() string {
+func (connection ZentaoConn) SecretDbUrl() string {
 	if connection.DbUrl == "" {
 		return connection.DbUrl
 	}
@@ -87,10 +95,7 @@ func (connection ZentaoConnection) SecretDbUrl() string {
 }
 
 func (connection ZentaoConnection) CleanUp() ZentaoConnection {
-	connection.Password = ""
-	if connection.DbUrl != "" {
-		connection.DbUrl = connection.SecretDbUrl()
-	}
+	connection.ZentaoConn = connection.ZentaoConn.CleanUp()
 	return connection
 }
 

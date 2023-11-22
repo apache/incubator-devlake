@@ -27,6 +27,11 @@ type JenkinsConn struct {
 	helper.BasicAuth      `mapstructure:",squash"`
 }
 
+func (connection JenkinsConn) CleanUp() JenkinsConn {
+	connection.Password = ""
+	return connection
+}
+
 // JenkinsConnection holds JenkinsConn plus ID/Name for database storage
 type JenkinsConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
@@ -38,6 +43,6 @@ func (JenkinsConnection) TableName() string {
 }
 
 func (connection JenkinsConnection) CleanUp() JenkinsConnection {
-	connection.Password = ""
+	connection.JenkinsConn = connection.JenkinsConn.CleanUp()
 	return connection
 }

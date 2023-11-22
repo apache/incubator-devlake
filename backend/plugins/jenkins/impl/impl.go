@@ -183,6 +183,9 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestConnectionV2,
+		},
 		"connections/:connectionId/search-remote-scopes": {
 			"GET": api.SearchRemoteScopes,
 		},

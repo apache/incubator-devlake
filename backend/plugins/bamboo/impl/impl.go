@@ -215,6 +215,9 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestConnectionV2,
+		},
 		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,

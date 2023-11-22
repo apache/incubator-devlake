@@ -32,23 +32,14 @@ type ApiMeResponse struct {
 	Name string `json:"name"`
 }
 
-// @Summary test ae connection
-// @Description Test AE Connection
-// @Tags plugins/ae
-// @Param body body models.AeConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/ae/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// decode
-	var err errors.Error
-	var connection models.AeConn
-	if err = api.Decode(input.Body, &connection, vld); err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
+func testConnection(ctx context.Context, connection models.AeConn) (*plugin.ApiResourceOutput, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
 	}
-
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +55,44 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	default: // unknow what happen , back to user
 		return &plugin.ApiResourceOutput{Body: res.Body, Status: res.StatusCode}, nil
 	}
+}
+
+// TestConnection test ae connection
+// Deprecated
+// @Summary test ae connection
+// @Description Test AE Connection
+// @Tags plugins/ae
+// @Param body body models.AeConn true "json body"
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/ae/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// decode
+	var err errors.Error
+	var connection models.AeConn
+	if err = api.Decode(input.Body, &connection, vld); err != nil {
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
+	}
+	return testConnection(context.TODO(), connection)
+}
+
+// TestConnectionV2 test ae connection
+// @Summary test ae connection
+// @Description Test AE Connection
+// @Tags plugins/ae
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/ae/{connectionId}/test [POST]
+func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// decode
+	connection := &models.AeConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	return testConnection(context.TODO(), connection.AeConn)
 }
 
 // @Summary create ae connection

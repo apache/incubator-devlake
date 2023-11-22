@@ -35,22 +35,13 @@ type TeambitionTestConnResponse struct {
 	Connection *models.TeambitionConn
 }
 
-// TestConnection @Summary test teambition connection
-// @Description Test teambition Connection
-// @Tags plugins/teambition
-// @Param body body models.TeambitionConn true "json body"
-// @Success 200  {object} TeambitionTestConnResponse "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/teambition/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func testConnection(ctx context.Context, connection models.TeambitionConn) (*TeambitionTestConnResponse, errors.Error) {
 	// process input
-	var connection models.TeambitionConn
-	err := api.Decode(input.Body, &connection, vld)
-	if err != nil {
-		return nil, err
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
 	}
-
 	// test connection
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
@@ -80,12 +71,59 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.HttpStatus(resBody.Code).New(fmt.Sprintf("unexpected body status code: %d", resBody.Code))
 	}
 
+	connection = connection.CleanUp()
 	body := TeambitionTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
 	// output
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &body, nil
+}
+
+// TestConnection @Summary test teambition connection
+// Deprecated
+// @Description Test teambition Connection
+// @Tags plugins/teambition
+// @Param body body models.TeambitionConn true "json body"
+// @Success 200  {object} TeambitionTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/teambition/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// process input
+	var connection models.TeambitionConn
+	err := api.Decode(input.Body, &connection, vld)
+	if err != nil {
+		return nil, err
+	}
+
+	// test connection
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestConnectionV2 test teambition connection options
+// @Summary test teambition connection
+// @Description Test teambition Connection
+// @Tags plugins/teambition
+// @Success 200  {object} TeambitionTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/teambition/{connectionId}/test [POST]
+func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.TeambitionConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.TeambitionConn)
+	if testConnectionErr != nil {
+		return nil, testConnectionErr
+	}
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
 // PostConnections @Summary create teambition connection

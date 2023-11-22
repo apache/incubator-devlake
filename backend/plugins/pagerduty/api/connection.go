@@ -27,6 +27,31 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 )
 
+func testConnection(ctx context.Context, connection models.PagerDutyConn) (*plugin.ApiResourceOutput, errors.Error) {
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
+	if err != nil {
+		return nil, err
+	}
+	response, err := apiClient.Get("licenses", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error while testing connection")
+	}
+	if response.StatusCode == http.StatusOK {
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
+	}
+	return &plugin.ApiResourceOutput{Body: nil, Status: response.StatusCode}, errors.HttpStatus(response.StatusCode).Wrap(err, "could not validate connection")
+}
+
+// TestConnection test pagerduty connection
+// Deprecated
 // @Summary test pagerduty connection
 // @Description Test Pagerduty Connection
 // @Tags plugins/pagerduty
@@ -41,23 +66,24 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, err
 	}
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-	if err != nil {
-		return nil, err
-	}
-	response, err := apiClient.Get("licenses", nil, nil)
-	if err != nil {
-		return nil, err
-	}
+	return testConnection(context.TODO(), connection)
+}
 
-	if response.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error while testing connection")
+// TestConnectionV2 test pagerduty connection
+// @Summary test pagerduty connection
+// @Description Test Pagerduty Connection
+// @Tags plugins/pagerduty
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/pagerduty/{connectionId}/test [POST]
+func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.PagerDutyConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
 	}
-
-	if response.StatusCode == http.StatusOK {
-		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
-	}
-	return &plugin.ApiResourceOutput{Body: nil, Status: response.StatusCode}, errors.HttpStatus(response.StatusCode).Wrap(err, "could not validate connection")
+	return testConnection(context.TODO(), connection.PagerDutyConn)
 }
 
 // @Summary create pagerduty connection

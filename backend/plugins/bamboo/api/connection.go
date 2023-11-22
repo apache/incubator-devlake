@@ -33,6 +33,28 @@ type BambooTestConnResponse struct {
 	Connection *models.BambooConn
 }
 
+func testConnection(ctx context.Context, connection models.BambooConn) (*BambooTestConnResponse, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	// test connection
+	_, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
+	connection = connection.CleanUp()
+	if err != nil {
+		return nil, err
+	}
+	body := BambooTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	return &body, nil
+}
+
+// TestConnection test bamboo connection
+// Deprecated
 // @Summary test bamboo connection
 // @Description Test bamboo Connection
 // @Tags plugins/bamboo
@@ -48,23 +70,34 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
-
 	// test connection
-	_, err = api.NewApiClientFromConnection(
-		context.TODO(),
-		basicRes,
-		&connection,
-	)
+	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
 		return nil, err
 	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
 
-	body := BambooTestConnResponse{}
-	body.Success = true
-	body.Message = "success"
-	body.Connection = &connection
-
-	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
+// TestConnectionV2 test bamboo connection
+// @Summary test bamboo connection
+// @Description Test bamboo Connection
+// @Tags plugins/bamboo
+// @Success 200  {object} BambooTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/bamboo/{connectionId}/test [POST]
+func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.BambooConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection.BambooConn)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create bamboo connection

@@ -33,6 +33,11 @@ type FeishuConn struct {
 	helper.AppKey         `mapstructure:",squash"`
 }
 
+func (conn *FeishuConn) CleanUp() FeishuConn {
+	conn.SecretKey = ""
+	return *conn
+}
+
 func (conn *FeishuConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
 	// request for access token
 	tokenReqBody := &apimodels.ApiAccessTokenRequest{
@@ -73,6 +78,6 @@ func (FeishuConnection) TableName() string {
 }
 
 func (connection FeishuConnection) CleanUp() FeishuConnection {
-	connection.SecretKey = ""
+	connection.FeishuConn = connection.FeishuConn.CleanUp()
 	return connection
 }

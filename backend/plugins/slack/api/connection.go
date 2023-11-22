@@ -34,6 +34,28 @@ type SlackTestConnResponse struct {
 	Connection *models.SlackConn
 }
 
+func testConnection(ctx context.Context, connection models.SlackConn) (*SlackTestConnResponse, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	// test connection
+	_, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	if err != nil {
+		return nil, err
+	}
+	connection = connection.CleanUp()
+	body := SlackTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	return &body, nil
+}
+
+// TestConnection test slack connection
+// Deprecated
 // @Summary test slack connection
 // @Description Test slack Connection. endpoint: https://open.slack.cn/open-apis/
 // @Tags plugins/slack
@@ -48,18 +70,34 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err := api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-
 	// test connection
-	_, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-
-	body := SlackTestConnResponse{}
-	body.Success = true
-	body.Message = "success"
-	body.Connection = &connection
+	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestConnectionV2 test slack connection
+// @Summary test slack connection
+// @Description Test slack Connection. endpoint: https://open.slack.cn/open-apis/
+// @Tags plugins/slack
+// @Success 200  {object} SlackTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/slack/{connectionId}/test [POST]
+func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.SlackConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection.SlackConn)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create slack connection
@@ -112,7 +150,6 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	}
 	output.Body = conn.CleanUp()
 	return output, nil
-
 }
 
 // @Summary get all slack connections

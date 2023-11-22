@@ -44,6 +44,12 @@ type JiraConn struct {
 	helper.AccessToken    `mapstructure:",squash"`
 }
 
+func (jc *JiraConn) CleanUp() JiraConn {
+	jc.Password = ""
+	jc.AccessToken.Token = ""
+	return *jc
+}
+
 // SetupAuthentication implements the `IAuthentication` interface by delegating
 // the actual logic to the `MultiAuth` struct to help us write less code
 func (jc *JiraConn) SetupAuthentication(req *http.Request) errors.Error {
@@ -61,6 +67,6 @@ func (JiraConnection) TableName() string {
 }
 
 func (connection JiraConnection) CleanUp() JiraConnection {
-	connection.Password = ""
+	connection.JiraConn = connection.JiraConn.CleanUp()
 	return connection
 }

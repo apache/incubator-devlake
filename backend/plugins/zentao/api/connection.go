@@ -36,6 +36,44 @@ type ZentaoTestConnResponse struct {
 	Connection *models.ZentaoConn
 }
 
+func testConnection(ctx context.Context, connection models.ZentaoConn) (*ZentaoTestConnResponse, errors.Error) {
+	// process input
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	// try to create apiClient
+	client, err := helper.NewApiClientFromConnection(ctx, basicRes, &connection)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := client.Get("/user", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	var body ZentaoTestConnResponse
+	if resp.StatusCode != http.StatusOK {
+		body.Success = false
+		body.Message = err.Error()
+		return &body, nil
+	}
+	if connection.DbUrl != "" {
+		err = runner.CheckDbConnection(connection.DbUrl, 5*time.Second)
+		if err != nil {
+			body.Success = false
+			body.Message = "invalid DbUrl"
+			return &body, nil
+		}
+	}
+	body.Success = true
+	body.Message = "success"
+	connection = connection.CleanUp()
+	body.Connection = &connection
+	return &body, nil
+}
+
+// Deprecated
 // @Summary test zentao connection
 // @Description Test zentao Connection
 // @Tags plugins/zentao
@@ -52,34 +90,33 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.BadInput.Wrap(err, "failed to decode input to be zentao connection")
 	}
 
-	// try to create apiClient
-	client, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	// test connection
+	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := client.Get("/user", nil, nil)
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestConnectionV2 test zentao connection options
+// @Summary test zentao connection
+// @Description Test zentao Connection
+// @Tags plugins/zentao
+// @Success 200  {object} ZentaoTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/zentao/{connectionId}/test [POST]
+func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.ZentaoConnection{}
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
 	}
-	var body ZentaoTestConnResponse
-	if resp.StatusCode != http.StatusOK {
-		body.Success = false
-		body.Message = err.Error()
-		return &plugin.ApiResourceOutput{Body: body, Status: http.StatusBadRequest}, nil
+	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.ZentaoConn)
+	if testConnectionErr != nil {
+		return nil, testConnectionErr
 	}
-	if connection.DbUrl != "" {
-		err = runner.CheckDbConnection(connection.DbUrl, 5*time.Second)
-		if err != nil {
-			body.Success = false
-			body.Message = "invalid DbUrl"
-			return &plugin.ApiResourceOutput{Body: body, Status: http.StatusBadRequest}, nil
-		}
-	}
-	body.Success = true
-	body.Message = "success"
-	body.Connection = &connection
-	// output
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
 // @Summary create zentao connection

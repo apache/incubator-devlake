@@ -30,6 +30,11 @@ type BitbucketConn struct {
 	api.BasicAuth      `mapstructure:",squash"`
 }
 
+func (connection BitbucketConn) CleanUp() BitbucketConn {
+	connection.Password = ""
+	return connection
+}
+
 // BitbucketConnection holds BitbucketConn plus ID/Name for database storage
 type BitbucketConnection struct {
 	api.BaseConnection `mapstructure:",squash"`
@@ -41,6 +46,6 @@ func (BitbucketConnection) TableName() string {
 }
 
 func (connection BitbucketConnection) CleanUp() BitbucketConnection {
-	connection.Password = ""
+	connection.BitbucketConn = connection.BitbucketConn.CleanUp()
 	return connection
 }

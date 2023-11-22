@@ -34,6 +34,28 @@ type FeishuTestConnResponse struct {
 	Connection *models.FeishuConn
 }
 
+func testConnection(ctx context.Context, connection models.FeishuConn) (*FeishuTestConnResponse, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	_, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
+	if err != nil {
+		return nil, err
+	}
+	connection = connection.CleanUp()
+	body := FeishuTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+
+	return &body, nil
+}
+
+// TestConnection test feishu connection
+// Deprecated
 // @Summary test feishu connection
 // @Description Test feishu Connection. endpoint: https://open.feishu.cn/open-apis/
 // @Tags plugins/feishu
@@ -48,18 +70,34 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err := api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-
 	// test connection
-	_, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-
-	body := FeishuTestConnResponse{}
-	body.Success = true
-	body.Message = "success"
-	body.Connection = &connection
+	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestConnectionV2 test feishu connection
+// @Summary test feishu connection
+// @Description Test feishu Connection. endpoint: https://open.feishu.cn/open-apis/
+// @Tags plugins/feishu
+// @Success 200  {object} FeishuTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/feishu/{connectionId}/test [POST]
+func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.FeishuConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection.FeishuConn)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create feishu connection

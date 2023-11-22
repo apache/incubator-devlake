@@ -37,7 +37,7 @@ type BambooConnection struct {
 }
 
 func (connection BambooConnection) CleanUp() BambooConnection {
-	connection.Password = ""
+	connection.BambooConn = connection.BambooConn.CleanUp()
 	return connection
 }
 
@@ -47,6 +47,11 @@ type BambooConn struct {
 	api.RestConnection `mapstructure:",squash"`
 	//TODO you may need to use helper.BasicAuth instead of helper.AccessToken
 	api.BasicAuth `mapstructure:",squash"`
+}
+
+func (conn *BambooConn) CleanUp() BambooConn {
+	conn.Password = ""
+	return *conn
 }
 
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.

@@ -34,6 +34,11 @@ type TeambitionConn struct {
 	TenantType            string `mapstructure:"tenantType" validate:"required" json:"tenantType"`
 }
 
+func (tc TeambitionConn) CleanUp() TeambitionConn {
+	tc.SecretKey = ""
+	return tc
+}
+
 // TeambitionConnection holds TeambitionConn plus ID/Name for database storage
 type TeambitionConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
@@ -41,7 +46,7 @@ type TeambitionConnection struct {
 }
 
 func (connection TeambitionConnection) CleanUp() TeambitionConnection {
-	connection.SecretKey = ""
+	connection.TeambitionConn = connection.TeambitionConn.CleanUp()
 	return connection
 }
 

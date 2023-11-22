@@ -139,6 +139,9 @@ func (p AE) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestConnectionV2,
+		},
 	}
 }
 

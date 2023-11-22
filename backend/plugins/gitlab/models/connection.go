@@ -42,6 +42,11 @@ func (conn *GitlabConn) SetupAuthentication(request *http.Request) errors.Error 
 	return nil
 }
 
+func (conn *GitlabConn) CleanUp() GitlabConn {
+	conn.Token = ""
+	return *conn
+}
+
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.
 func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
 	header1 := http.Header{}
@@ -141,6 +146,6 @@ func (GitlabConnection) TableName() string {
 }
 
 func (connection GitlabConnection) CleanUp() GitlabConnection {
-	connection.Token = ""
+	connection.GitlabConn = connection.GitlabConn.CleanUp()
 	return connection
 }
