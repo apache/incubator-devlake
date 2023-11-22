@@ -132,21 +132,25 @@ export const BlueprintHomePage = () => {
                 if (mode === IBPMode.ADVANCED) {
                   return 'Advanced Mode';
                 }
+
+                if (!connections.length) {
+                  return 'N/A';
+                }
+
                 return (
-                  <S.ConnectionList>
+                  <ul>
                     {connections.map((it) => (
                       <li key={`${it.pluginName}-${it.connectionId}`}>
                         <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
                       </li>
                     ))}
-                  </S.ConnectionList>
+                  </ul>
                 );
               },
             },
             {
               title: 'Frequency',
               key: 'frequency',
-              width: 100,
               render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return cron.label;
@@ -155,7 +159,6 @@ export const BlueprintHomePage = () => {
             {
               title: 'Next Run Time',
               key: 'nextRunTime',
-              width: 200,
               render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return formatTime(cron.nextTime);
@@ -179,7 +182,6 @@ export const BlueprintHomePage = () => {
               dataIndex: 'enable',
               key: 'enable',
               align: 'center',
-              width: 100,
               render: (val) => (
                 <Tag minimal intent={val ? Intent.SUCCESS : Intent.DANGER}>
                   {val ? 'Enabled' : 'Disabled'}
