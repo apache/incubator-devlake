@@ -156,6 +156,7 @@ func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.A
 	if err != nil {
 		return nil, err
 	}
+	model = self.executeCleanUp(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
@@ -171,18 +172,19 @@ func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.A
 
 func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var req struct {
-		Data []M `json:"data"`
+		Data []*M `json:"data"`
 	}
 	err := utils.DecodeMapStruct(input.Body, &req, false)
 	if err != nil {
 		return nil, err
 	}
 	for i, item := range req.Data {
-		err := self.dalHelper.CreateOrUpdate(&item)
+		err := self.dalHelper.CreateOrUpdate(item)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("failed to save item %d", i))
 		}
 	}
+	req.Data = self.executeCleanUps(req.Data)
 	return &plugin.ApiResourceOutput{
 		Body: req.Data,
 	}, nil
