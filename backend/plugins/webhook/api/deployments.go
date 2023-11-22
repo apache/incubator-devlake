@@ -117,14 +117,16 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		Result:           request.Result,
 		Status:           devops.STATUS_DONE,
 		Environment:      request.Environment,
-		CreatedDate:      *request.CreatedDate,
-		StartedDate:      request.StartedDate,
-		FinishedDate:     request.FinishedDate,
-		DurationSec:      &duration,
-		CommitSha:        request.CommitSha,
-		RefName:          request.RefName,
-		RepoId:           request.RepoId,
-		RepoUrl:          request.RepoUrl,
+		ItemDateInfo: devops.ItemDateInfo{
+			CreatedDate:  *request.CreatedDate,
+			StartedDate:  request.StartedDate,
+			FinishedDate: request.FinishedDate,
+		},
+		DurationSec: &duration,
+		CommitSha:   request.CommitSha,
+		RefName:     request.RefName,
+		RepoId:      request.RepoId,
+		RepoUrl:     request.RepoUrl,
 	}
 	err = tx.CreateOrUpdate(deploymentCommit)
 	if err != nil {

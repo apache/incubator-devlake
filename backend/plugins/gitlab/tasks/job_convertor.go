@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"reflect"
 )
 
 func init() {
@@ -95,10 +94,12 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					Default:    devops.STATUS_OTHER,
 				}, gitlabJob.Status),
 
-				DurationSec:  gitlabJob.Duration,
-				StartedDate:  *startedAt,
-				FinishedDate: gitlabJob.FinishedAt,
-				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
+				DurationSec: gitlabJob.Duration,
+				ItemDateInfo: devops.ItemDateInfo{
+					StartedDate:  startedAt,
+					FinishedDate: gitlabJob.FinishedAt,
+				},
+				CicdScopeId: projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
 			}
 			domainJob.Type = regexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabJob.Name)
 			domainJob.Environment = regexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabJob.Name)

@@ -97,12 +97,14 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.RUNNING, models.PAUSED, models.BUILDING},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipeline.Status),
-				Type:         bitbucketPipeline.Type,
-				Environment:  bitbucketPipeline.Environment,
-				CreatedDate:  createdAt,
-				DurationSec:  float64(bitbucketPipeline.DurationInSeconds),
-				FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
-				CicdScopeId:  repoId,
+				Type:        bitbucketPipeline.Type,
+				Environment: bitbucketPipeline.Environment,
+				ItemDateInfo: devops.ItemDateInfo{
+					CreatedDate:  createdAt,
+					FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
+				},
+				DurationSec: float64(bitbucketPipeline.DurationInSeconds),
+				CicdScopeId: repoId,
 			}
 			results = append(results, domainPipelineCommit, domainPipeline)
 			return results, nil

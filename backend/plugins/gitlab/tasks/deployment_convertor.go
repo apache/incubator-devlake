@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -30,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/spf13/cast"
+	"reflect"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -103,14 +102,16 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{StatusRunning},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),
-				Environment:  gitlabDeployment.Environment,
-				CreatedDate:  gitlabDeployment.CreatedDate,
-				StartedDate:  gitlabDeployment.DeployableStartedAt,
-				FinishedDate: gitlabDeployment.DeployableFinishedAt,
-				CommitSha:    gitlabDeployment.Sha,
-				RefName:      gitlabDeployment.Ref,
-				RepoId:       projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
-				RepoUrl:      repo.WebUrl,
+				Environment: gitlabDeployment.Environment,
+				ItemDateInfo: devops.ItemDateInfo{
+					CreatedDate:  gitlabDeployment.CreatedDate,
+					StartedDate:  gitlabDeployment.DeployableStartedAt,
+					FinishedDate: gitlabDeployment.DeployableFinishedAt,
+				},
+				CommitSha: gitlabDeployment.Sha,
+				RefName:   gitlabDeployment.Ref,
+				RepoId:    projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				RepoUrl:   repo.WebUrl,
 			}
 			if duration != nil {
 				domainDeployCommit.DurationSec = duration

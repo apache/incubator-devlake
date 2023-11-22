@@ -18,25 +18,22 @@ limitations under the License.
 package devops
 
 import (
-	"strings"
-	"time"
-
 	"github.com/spf13/cast"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type CICDPipeline struct {
 	domainlayer.DomainEntity
-	Name         string `gorm:"type:varchar(255)"`
-	Result       string `gorm:"type:varchar(100)"`
-	Status       string `gorm:"type:varchar(100)"`
-	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
-	DurationSec  float64
-	Environment  string `gorm:"type:varchar(255)"`
-	CreatedDate  time.Time
-	FinishedDate *time.Time
-	CicdScopeId  string `gorm:"index;type:varchar(255)"`
+	Name        string `gorm:"type:varchar(255)"`
+	Result      string `gorm:"type:varchar(100)"`
+	Status      string `gorm:"type:varchar(100)"`
+	Type        string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
+	DurationSec float64
+	Environment string `gorm:"type:varchar(255)"`
+	ItemDateInfo
+	CicdScopeId string `gorm:"index;type:varchar(255)"`
 }
 
 func (CICDPipeline) TableName() string {

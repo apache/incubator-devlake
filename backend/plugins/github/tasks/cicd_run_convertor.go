@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"reflect"
 )
 
 func init() {
@@ -91,12 +90,14 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{Id: runIdGen.Generate(
 					data.Options.ConnectionId, line.RepoId, line.ID),
 				},
-				Name:         line.Name,
-				CreatedDate:  *line.GithubCreatedAt,
-				FinishedDate: line.GithubUpdatedAt,
-				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
-				Type:         line.Type,
-				Environment:  line.Environment,
+				Name: line.Name,
+				ItemDateInfo: devops.ItemDateInfo{
+					CreatedDate:  *line.GithubCreatedAt,
+					FinishedDate: line.GithubUpdatedAt,
+				},
+				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
+				Type:        line.Type,
+				Environment: line.Environment,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{StatusSuccess},
 					Failure: []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},

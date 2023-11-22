@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"reflect"
 )
 
 var ConvertJobBuildsMeta = plugin.SubTaskMeta{
@@ -66,10 +65,12 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{Id: jobBuildIdGen.Generate(data.Options.ConnectionId, line.JobBuildKey)},
 				Name:         line.JobName,
 				DurationSec:  float64(line.BuildDurationInSeconds),
-				StartedDate:  *line.BuildStartedTime,
-				FinishedDate: line.BuildCompletedDate,
-				PipelineId:   planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
-				CicdScopeId:  planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
+				ItemDateInfo: devops.ItemDateInfo{
+					StartedDate:  line.BuildStartedTime,
+					FinishedDate: line.BuildCompletedDate,
+				},
+				PipelineId:  planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
+				CicdScopeId: planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{ResultSuccess, ResultSuccessful},

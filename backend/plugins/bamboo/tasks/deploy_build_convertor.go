@@ -122,12 +122,14 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
 					Default:    devops.STATUS_OTHER,
 				}, input.LifeCycleState),
-				Environment:  input.Environment,
-				StartedDate:  input.StartedDate,
-				FinishedDate: input.FinishedDate,
-				CommitSha:    input.VcsRevisionKey,
-				RefName:      input.PlanBranchName,
-				RepoId:       strconv.Itoa(input.RepositoryId),
+				Environment: input.Environment,
+				ItemDateInfo: devops.ItemDateInfo{
+					StartedDate:  input.StartedDate,
+					FinishedDate: input.FinishedDate,
+				},
+				CommitSha: input.VcsRevisionKey,
+				RefName:   input.PlanBranchName,
+				RepoId:    strconv.Itoa(input.RepositoryId),
 			}
 			deploymentCommit.CreatedDate = time.Now()
 			if input.StartedDate != nil {

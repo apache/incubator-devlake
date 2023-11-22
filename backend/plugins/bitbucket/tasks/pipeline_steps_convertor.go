@@ -84,7 +84,7 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 			if bitbucketPipelineStep.StartedOn == nil {
 				return nil, nil
 			}
-			domainTask.StartedDate = *bitbucketPipelineStep.StartedOn
+			domainTask.StartedDate = bitbucketPipelineStep.StartedOn
 			// rebuild the FinishedDate
 			if domainTask.Status == devops.STATUS_DONE {
 				domainTask.FinishedDate = bitbucketPipelineStep.CompletedOn

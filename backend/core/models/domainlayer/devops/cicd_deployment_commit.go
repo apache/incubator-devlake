@@ -18,22 +18,18 @@ limitations under the License.
 package devops
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type CicdDeploymentCommit struct {
 	domainlayer.DomainEntity
-	CicdScopeId                   string `gorm:"index;type:varchar(255)"`
-	CicdDeploymentId              string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
-	Name                          string `gorm:"type:varchar(255)"`
-	Result                        string `gorm:"type:varchar(100)"`
-	Status                        string `gorm:"type:varchar(100)"`
-	Environment                   string `gorm:"type:varchar(255)"`
-	CreatedDate                   time.Time
-	StartedDate                   *time.Time
-	FinishedDate                  *time.Time
+	CicdScopeId      string `gorm:"index;type:varchar(255)"`
+	CicdDeploymentId string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
+	Name             string `gorm:"type:varchar(255)"`
+	Result           string `gorm:"type:varchar(100)"`
+	Status           string `gorm:"type:varchar(100)"`
+	Environment      string `gorm:"type:varchar(255)"`
+	ItemDateInfo
 	DurationSec                   *float64
 	CommitSha                     string `gorm:"primaryKey;type:varchar(255)"`
 	RefName                       string `gorm:"type:varchar(255)"` // to delete?
@@ -52,14 +48,16 @@ func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment 
 			Id:        cicdDeploymentCommit.CicdDeploymentId,
 			NoPKModel: cicdDeploymentCommit.DomainEntity.NoPKModel,
 		},
-		CicdScopeId:  cicdDeploymentCommit.CicdScopeId,
-		Name:         cicdDeploymentCommit.Name,
-		Result:       cicdDeploymentCommit.Result,
-		Status:       cicdDeploymentCommit.Status,
-		Environment:  cicdDeploymentCommit.Environment,
-		CreatedDate:  cicdDeploymentCommit.CreatedDate,
-		StartedDate:  cicdDeploymentCommit.StartedDate,
-		FinishedDate: cicdDeploymentCommit.FinishedDate,
-		DurationSec:  cicdDeploymentCommit.DurationSec,
+		CicdScopeId: cicdDeploymentCommit.CicdScopeId,
+		Name:        cicdDeploymentCommit.Name,
+		Result:      cicdDeploymentCommit.Result,
+		Status:      cicdDeploymentCommit.Status,
+		Environment: cicdDeploymentCommit.Environment,
+		ItemDateInfo: ItemDateInfo{
+			CreatedDate:  cicdDeploymentCommit.CreatedDate,
+			StartedDate:  cicdDeploymentCommit.StartedDate,
+			FinishedDate: cicdDeploymentCommit.FinishedDate,
+		},
+		DurationSec: cicdDeploymentCommit.DurationSec,
 	}
 }

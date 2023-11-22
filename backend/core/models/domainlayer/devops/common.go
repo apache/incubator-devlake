@@ -17,21 +17,11 @@ limitations under the License.
 
 package devops
 
-import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-)
+import "time"
 
-type CICDDeployment struct {
-	domainlayer.DomainEntity
-	CicdScopeId string `gorm:"index;type:varchar(255)"`
-	Name        string `gorm:"type:varchar(255)"`
-	Result      string `gorm:"type:varchar(100)"`
-	Status      string `gorm:"type:varchar(100)"`
-	Environment string `gorm:"type:varchar(255)"`
-	ItemDateInfo
-	DurationSec *float64
-}
-
-func (CICDDeployment) TableName() string {
-	return "cicd_deployments"
+type ItemDateInfo struct {
+	CreatedDate  time.Time
+	StartedDate  *time.Time
+	QueuedDate   *time.Time
+	FinishedDate *time.Time
 }

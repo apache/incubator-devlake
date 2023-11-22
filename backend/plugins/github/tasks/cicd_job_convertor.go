@@ -89,13 +89,15 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			domainJob := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, line.RunID,
 					line.ID)},
-				Name:         line.Name,
-				StartedDate:  *line.StartedAt,
-				FinishedDate: line.CompletedAt,
-				PipelineId:   runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
-				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
-				Type:         line.Type,
-				Environment:  line.Environment,
+				Name: line.Name,
+				ItemDateInfo: devops.ItemDateInfo{
+					StartedDate:  line.StartedAt,
+					FinishedDate: line.CompletedAt,
+				},
+				PipelineId:  runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
+				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
+				Type:        line.Type,
+				Environment: line.Environment,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{StatusSuccess},
 					Failure: []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
