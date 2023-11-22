@@ -64,7 +64,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
             disabledItems={disabledItems}
             getKey={(it) => it.unique}
             getName={(it) => it.name}
-            getIcon={(it) => it.icon}
+            // getIcon={(it) => it.icon}
             selectedItem={selectedConnection}
             onChangeItem={(selectedItem) => setSelectedConnection(selectedItem)}
           />

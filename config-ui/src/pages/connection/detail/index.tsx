@@ -75,7 +75,7 @@ export const ConnectionDetailPage = () => {
     [version, page, pageSize],
   );
 
-  const { name, icon } = connection;
+  const { name } = connection;
 
   const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
 
@@ -372,7 +372,7 @@ export const ConnectionDetailPage = () => {
           footer={null}
           title={
             <S.DialogTitle>
-              <img src={icon} alt="" />
+              {/* <img src={icon} alt="" /> */}
               <span>Authentication</span>
             </S.DialogTitle>
           }
@@ -388,7 +388,7 @@ export const ConnectionDetailPage = () => {
           footer={null}
           title={
             <S.DialogTitle>
-              <img src={icon} alt="" />
+              {/* <img src={icon} alt="" /> */}
               <span>Add Data Scope: {name}</span>
             </S.DialogTitle>
           }

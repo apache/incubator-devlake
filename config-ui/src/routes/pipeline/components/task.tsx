@@ -38,7 +38,7 @@ export const PipelineTask = ({ task }: Props) => {
 
   const { id, beganAt, finishedAt, status, message, progressDetail } = task;
 
-  const [icon, name] = useMemo(() => {
+  const [, name] = useMemo(() => {
     const config = getPluginConfig(task.plugin);
     const options = task.options;
 
@@ -101,7 +101,7 @@ export const PipelineTask = ({ task }: Props) => {
     <S.Task>
       <div className="info">
         <div className="title">
-          <img src={icon} alt="" />
+          {/* <img src={icon} alt="" /> */}
           <strong>Task{id}</strong>
           <span>
             <TextTooltip content={name}>{name}</TextTooltip>

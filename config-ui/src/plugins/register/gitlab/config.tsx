@@ -18,14 +18,15 @@
 
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 
-export const GitLabConfig = {
+export const GitLabConfig: IPluginConfig = {
   plugin: 'gitlab',
   name: 'GitLab',
-  icon: Icon,
-  sort: 2,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 5,
   connection: {
     docLink: DOC_URL.PLUGIN.GITLAB.BASIS,
     initialValues: {

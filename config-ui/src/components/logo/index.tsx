@@ -25,9 +25,13 @@ const Wrapper = styled.div`
   justify-content: center;
 `;
 
-export const Logo = () => {
+interface Props {
+  style?: React.CSSProperties;
+}
+
+export const Logo = ({ style }: Props) => {
   return (
-    <Wrapper>
+    <Wrapper style={style}>
       <img src={import.meta.env.DEVLAKE_LOGO ?? LogoImg} alt="Logo" />
     </Wrapper>
   );

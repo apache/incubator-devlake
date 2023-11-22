@@ -30,9 +30,9 @@ export const BlueprintDetailPage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: '/blueprints' },
-        { name: 'Blueprints', path: '/blueprints' },
-        { name: id, path: `/blueprints/${id}` },
+        { name: 'Advanced', path: '/advanced/blueprints' },
+        { name: 'Blueprints', path: '/advanced/blueprints' },
+        { name: id, path: `/advanced/blueprints/${id}` },
       ]}
     >
       <BlueprintDetail id={id} from={FromEnum.blueprint} />

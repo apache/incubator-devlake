@@ -60,8 +60,6 @@ export interface IConnection {
   id: ID;
   name: string;
   status: IConnectionStatus;
-  icon: string;
-  isBeta: boolean;
   endpoint: string;
   proxy: string;
   authMethod?: string;
