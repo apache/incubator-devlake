@@ -18,7 +18,7 @@
 
 import { useAppSelector } from '@/app/hook';
 
-import { selectConnection } from '../slice';
+import { selectConnection, selectWebhook } from '../slice';
 
 interface Props {
   plugin: string;
@@ -27,5 +27,6 @@ interface Props {
 
 export const ConnectionName = ({ plugin, connectionId }: Props) => {
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`));
-  return <span>{connection?.name ?? `${plugin}/connections/${connectionId}`}</span>;
+  const webhook = useAppSelector((state) => selectWebhook(state, connectionId));
+  return <span>{connection ? connection.name : webhook ? webhook.name : `${plugin}/connection/${connectionId}`}</span>;
 };
