@@ -93,22 +93,29 @@ export const removeConnection = createAsyncThunk(
 
 export const testConnection = createAsyncThunk(
   'connections/testConnection',
-  async ({ unique, plugin, endpoint, proxy, token, username, password, authMethod, secretKey, appId }: IConnection) => {
-    const res = await API.connection.test(plugin, {
-      endpoint,
-      proxy,
-      token,
-      username,
-      password,
-      authMethod,
-      secretKey,
-      appId,
-    });
+  async (
+    { unique, plugin, endpoint, proxy, token, username, password, authMethod, secretKey, appId }: IConnection,
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await API.connection.test(plugin, {
+        endpoint,
+        proxy,
+        token,
+        username,
+        password,
+        authMethod,
+        secretKey,
+        appId,
+      });
 
-    return {
-      unique,
-      status: res.success ? IConnectionStatus.ONLINE : IConnectionStatus.OFFLINE,
-    };
+      return {
+        unique,
+        status: res.success ? IConnectionStatus.ONLINE : IConnectionStatus.OFFLINE,
+      };
+    } catch (err: any) {
+      return rejectWithValue({ unique, response: err.response });
+    }
   },
 );
 
@@ -183,6 +190,12 @@ export const connectionsSlice = createSlice({
         const existingConnection = state.connections.find((cs) => cs.unique === action.payload.unique);
         if (existingConnection) {
           existingConnection.status = action.payload.status;
+        }
+      })
+      .addCase(testConnection.rejected, (state, action) => {
+        const existingConnection = state.connections.find((cs) => cs.unique === action.meta.arg.unique);
+        if (existingConnection) {
+          existingConnection.status = IConnectionStatus.OFFLINE;
         }
       })
       .addCase(addWebhook.fulfilled, (state, action) => {
