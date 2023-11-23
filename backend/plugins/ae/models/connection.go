@@ -65,6 +65,11 @@ func (AeConnection) TableName() string {
 	return "_tool_ae_connections"
 }
 
+func (connection AeConnection) Sanitize() AeConnection {
+	connection.AeAppKey.SecretKey = ""
+	return connection
+}
+
 func signRequest(query url.Values, appId, secretKey, nonceStr, timestamp string) string {
 	// clone query because we need to add items
 	kvs := make([]string, 0, len(query)+3)

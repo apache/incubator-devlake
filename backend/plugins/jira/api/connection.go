@@ -38,28 +38,16 @@ type JiraTestConnResponse struct {
 	Connection *models.JiraConn
 }
 
-// @Summary test jira connection
-// @Description Test Jira Connection
-// @Tags plugins/jira
-// @Param body body models.JiraConn true "json body"
-// @Success 200  {object} JiraTestConnResponse "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/jira/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// decode
-	var err errors.Error
-	var connection models.JiraConn
-	e := mapstructure.Decode(input.Body, &connection)
-	if e != nil {
-		return nil, errors.Convert(e)
-	}
-	e = vld.StructExcept(connection, "BasicAuth", "AccessToken")
-	if e != nil {
-		return nil, errors.Convert(e)
+func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestConnResponse, errors.Error) {
+	// validate
+	if vld != nil {
+		e := vld.StructExcept(connection, "BasicAuth", "AccessToken")
+		if e != nil {
+			return nil, errors.Convert(e)
+		}
 	}
 	// test connection
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +106,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("%s Unexpected [%s] status code: %d %s", getStatusFail, res.Request.URL, res.StatusCode, errMsg))
 	}
+	connection = connection.Sanitize()
 	body := JiraTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
@@ -125,7 +114,54 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &body, nil
+}
+
+// TestConnection test jira connection
+// @Summary test jira connection
+// @Description Test Jira Connection
+// @Tags plugins/jira
+// @Param body body models.JiraConn true "json body"
+// @Success 200  {object} JiraTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/jira/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// decode
+	var err errors.Error
+	var connection models.JiraConn
+	e := mapstructure.Decode(input.Body, &connection)
+	if e != nil {
+		return nil, errors.Convert(e)
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestExistingConnection test jira connection
+// @Summary test jira connection
+// @Description Test Jira Connection
+// @Tags plugins/jira
+// @Success 200  {object} JiraTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/jira/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.JiraConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection.JiraConn)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create jira connection
@@ -143,7 +179,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch jira connection
@@ -160,7 +196,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
 }
 
 // @Summary delete a jira connection
@@ -172,7 +208,14 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.JiraConnection{}, input)
+	conn := &models.JiraConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.Sanitize()
+	return output, nil
+
 }
 
 // @Summary get all jira connections
@@ -187,6 +230,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
+	}
+	for idx, c := range connections {
+		connections[idx] = c.Sanitize()
 	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
@@ -204,5 +250,5 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }

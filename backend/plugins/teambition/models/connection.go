@@ -34,10 +34,20 @@ type TeambitionConn struct {
 	TenantType            string `mapstructure:"tenantType" validate:"required" json:"tenantType"`
 }
 
+func (tc TeambitionConn) Sanitize() TeambitionConn {
+	tc.SecretKey = ""
+	return tc
+}
+
 // TeambitionConnection holds TeambitionConn plus ID/Name for database storage
 type TeambitionConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	TeambitionConn        `mapstructure:",squash"`
+}
+
+func (connection TeambitionConnection) Sanitize() TeambitionConnection {
+	connection.TeambitionConn = connection.TeambitionConn.Sanitize()
+	return connection
 }
 
 func (tc *TeambitionConn) SetupAuthentication(req *http.Request) errors.Error {

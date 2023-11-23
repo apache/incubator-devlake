@@ -35,22 +35,13 @@ type TeambitionTestConnResponse struct {
 	Connection *models.TeambitionConn
 }
 
-// TestConnection @Summary test teambition connection
-// @Description Test teambition Connection
-// @Tags plugins/teambition
-// @Param body body models.TeambitionConn true "json body"
-// @Success 200  {object} TeambitionTestConnResponse "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/teambition/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func testConnection(ctx context.Context, connection models.TeambitionConn) (*TeambitionTestConnResponse, errors.Error) {
 	// process input
-	var connection models.TeambitionConn
-	err := api.Decode(input.Body, &connection, vld)
-	if err != nil {
-		return nil, err
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
 	}
-
 	// test connection
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
@@ -80,12 +71,58 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.HttpStatus(resBody.Code).New(fmt.Sprintf("unexpected body status code: %d", resBody.Code))
 	}
 
+	connection = connection.Sanitize()
 	body := TeambitionTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
 	// output
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &body, nil
+}
+
+// TestConnection @Summary test teambition connection
+// @Description Test teambition Connection
+// @Tags plugins/teambition
+// @Param body body models.TeambitionConn true "json body"
+// @Success 200  {object} TeambitionTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/teambition/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// process input
+	var connection models.TeambitionConn
+	err := api.Decode(input.Body, &connection, vld)
+	if err != nil {
+		return nil, err
+	}
+
+	// test connection
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestExistingConnection test teambition connection options
+// @Summary test teambition connection
+// @Description Test teambition Connection
+// @Tags plugins/teambition
+// @Success 200  {object} TeambitionTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/teambition/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.TeambitionConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.TeambitionConn)
+	if testConnectionErr != nil {
+		return nil, testConnectionErr
+	}
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
 // PostConnections @Summary create teambition connection
@@ -103,7 +140,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // PatchConnection @Summary patch teambition connection
@@ -120,7 +157,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
 }
 
 // DeleteConnection @Summary delete a teambition connection
@@ -132,7 +169,14 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/teambition/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.TeambitionConnection{}, input)
+	conn := &models.TeambitionConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.Sanitize()
+	return output, nil
+
 }
 
 // ListConnections @Summary get all teambition connections
@@ -148,6 +192,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
+	for idx, c := range connections {
+		connections[idx] = c.Sanitize()
+	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
@@ -161,5 +208,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.TeambitionConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }
