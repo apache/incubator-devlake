@@ -25,39 +25,39 @@ import (
 
 var _ plugin.MigrationScript = (*addOriginalStatusAndResultToDevOpsTables)(nil)
 
-type cicdDeployment2023116 struct {
+type cicdDeployment20231116 struct {
 	OriginalStatus string `gorm:"type:varchar(100)"`
 	OriginalResult string `gorm:"type:varchar(100)"`
 }
 
-func (cicdDeployment2023116) TableName() string {
+func (cicdDeployment20231116) TableName() string {
 	return "cicd_deployments"
 }
 
-type cicdDeploymentCommit2023116 struct {
+type cicdDeploymentCommit20231116 struct {
 	OriginalStatus string `gorm:"type:varchar(100)"`
 	OriginalResult string `gorm:"type:varchar(100)"`
 }
 
-func (cicdDeploymentCommit2023116) TableName() string {
+func (cicdDeploymentCommit20231116) TableName() string {
 	return "cicd_deployment_commits"
 }
 
-type cicdPipeline2023116 struct {
+type cicdPipeline20231116 struct {
 	OriginalStatus string `gorm:"type:varchar(100)"`
 	OriginalResult string `gorm:"type:varchar(100)"`
 }
 
-func (cicdPipeline2023116) TableName() string {
+func (cicdPipeline20231116) TableName() string {
 	return "cicd_pipelines"
 }
 
-type cicdTask2023116 struct {
+type cicdTask20231116 struct {
 	OriginalStatus string `gorm:"type:varchar(100)"`
 	OriginalResult string `gorm:"type:varchar(100)"`
 }
 
-func (cicdTask2023116) TableName() string {
+func (cicdTask20231116) TableName() string {
 	return "cicd_tasks"
 }
 
@@ -65,16 +65,16 @@ type addOriginalStatusAndResultToDevOpsTables struct{}
 
 func (u *addOriginalStatusAndResultToDevOpsTables) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	if err := db.AutoMigrate(&cicdTask2023116{}); err != nil {
+	if err := db.AutoMigrate(&cicdTask20231116{}); err != nil {
 		return err
 	}
-	if err := db.AutoMigrate(&cicdPipeline2023116{}); err != nil {
+	if err := db.AutoMigrate(&cicdPipeline20231116{}); err != nil {
 		return err
 	}
-	if err := db.AutoMigrate(&cicdDeploymentCommit2023116{}); err != nil {
+	if err := db.AutoMigrate(&cicdDeploymentCommit20231116{}); err != nil {
 		return err
 	}
-	if err := db.AutoMigrate(&cicdDeployment2023116{}); err != nil {
+	if err := db.AutoMigrate(&cicdDeployment20231116{}); err != nil {
 		return err
 	}
 	return nil
