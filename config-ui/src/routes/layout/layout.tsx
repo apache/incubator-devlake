@@ -113,13 +113,11 @@ export const Layout = () => {
                 }}
               >
                 {headerItems.map((item, i) => (
-                  <>
-                    <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
-                      {item.icon}
-                      <span style={{ marginLeft: 4 }}>{item.label}</span>
-                    </ExternalLink>
+                  <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
+                    {item.icon}
+                    <span style={{ marginLeft: 4 }}>{item.label}</span>
                     {i !== headerItems.length - 1 && <Divider type="vertical" />}
-                  </>
+                  </ExternalLink>
                 ))}
               </Header>
               <Content style={{ margin: '16px 24px' }}>
