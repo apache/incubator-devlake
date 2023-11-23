@@ -104,26 +104,26 @@ func (self *ModelApiHelper[M]) GetDetail(input *plugin.ApiResourceInput) (*plugi
 	if err != nil {
 		return nil, err
 	}
-	model = self.executeCleanUp(model)
+	model = self.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
 }
 
-func (self *ModelApiHelper[M]) executeCleanUp(model *M) *M {
+func (self *ModelApiHelper[M]) Sanitize(model *M) *M {
 	if self.sterilizers != nil {
-		for _, clean := range self.sterilizers {
-			cleanedModel := clean(*model)
-			model = &cleanedModel
+		for _, sterilizer := range self.sterilizers {
+			sanitizedModel := sterilizer(*model)
+			model = &sanitizedModel
 		}
 	}
 	return model
 }
 
-func (self *ModelApiHelper[M]) executeCleanUps(models []*M) []*M {
+func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
 	for idx, m := range models {
 		model := *m
-		models[idx] = self.executeCleanUp(&model)
+		models[idx] = self.Sanitize(&model)
 	}
 	return models
 }
@@ -141,7 +141,7 @@ func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.Ap
 	if err != nil {
 		return nil, err
 	}
-	model = self.executeCleanUp(model)
+	model = self.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
@@ -156,7 +156,7 @@ func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.A
 	if err != nil {
 		return nil, err
 	}
-	model = self.executeCleanUp(model)
+	model = self.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
@@ -164,7 +164,7 @@ func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.A
 
 func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	all, err := self.dalHelper.GetAll()
-	all = self.executeCleanUps(all)
+	all = self.BatchSanitize(all)
 	return &plugin.ApiResourceOutput{
 		Body: all,
 	}, err
@@ -184,7 +184,7 @@ func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plu
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("failed to save item %d", i))
 		}
 	}
-	req.Data = self.executeCleanUps(req.Data)
+	req.Data = self.BatchSanitize(req.Data)
 	return &plugin.ApiResourceOutput{
 		Body: req.Data,
 	}, nil
