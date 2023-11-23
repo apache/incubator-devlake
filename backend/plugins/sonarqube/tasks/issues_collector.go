@@ -31,6 +31,8 @@ import (
 )
 
 const RAW_ISSUES_TABLE = "sonarqube_api_issues"
+const MAXPAGES = 100
+const MAXPAGESIZE = 10000
 
 var _ plugin.SubTaskEntryPoint = CollectIssues
 
@@ -40,6 +42,7 @@ type SonarqubeIssueIteratorNode struct {
 	Type          string
 	CreatedAfter  *time.Time
 	CreatedBefore *time.Time
+	FilePath      string
 }
 
 func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
@@ -60,6 +63,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 						Type:          typ,
 						CreatedAfter:  nil,
 						CreatedBefore: nil,
+						FilePath:      "",
 					},
 				)
 			}
@@ -74,14 +78,20 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Input:              iterator,
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("componentKeys", fmt.Sprintf("%v", data.Options.ProjectKey))
 			input, ok := reqData.Input.(*SonarqubeIssueIteratorNode)
 			if !ok {
 				return nil, errors.Default.New(fmt.Sprintf("Input to SonarqubeIssueIteratorNode failed:%+v", reqData.Input))
 			}
-			query.Set("severities", reqData.Input.(*SonarqubeIssueIteratorNode).Severity)
-			query.Set("statuses", reqData.Input.(*SonarqubeIssueIteratorNode).Status)
-			query.Set("types", reqData.Input.(*SonarqubeIssueIteratorNode).Type)
+			if input.FilePath != "" {
+				query.Del("facets")
+				query.Set("componentKeys", fmt.Sprintf("%v:%v", data.Options.ProjectKey, input.FilePath))
+			} else {
+				query.Set("componentKeys", fmt.Sprintf("%v", data.Options.ProjectKey))
+				query.Set("facets", "directories")
+			}
+			query.Set("severities", input.Severity)
+			query.Set("statuses", input.Status)
+			query.Set("types", input.Type)
 			if input.CreatedAfter != nil {
 				query.Set("createdAfter", GetFormatTime(input.CreatedAfter))
 			}
@@ -94,7 +104,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			return query, nil
 		},
 		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
-			body := &SonarqubePagination{}
+			body := &SonarqubePageInfo{}
 			err := helper.UnmarshalResponse(res, body)
 			if err != nil {
 				return 0, err
@@ -106,9 +116,11 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			}
 
 			query := res.Request.URL.Query()
-
 			// if get more than 10000 data, that need split it
-			if pages > 100 {
+			if pages > MAXPAGES {
+				severity := query.Get("severities")
+				status := query.Get("statuses")
+				typ := query.Get("types")
 				var createdAfterUnix int64
 				var createdBeforeUnix int64
 
@@ -133,17 +145,43 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					createdBeforeUnix = createdBefore.Unix()
 				}
 
-				// can not split it any more
+				// can not split it by time
 				if createdBeforeUnix-createdAfterUnix <= 10 {
-					return 100, nil
+					// split it by dir/fil
+					for _, facet := range body.Facets {
+						for _, value := range facet.Values {
+							// by dir
+							if value.Count <= MAXPAGESIZE {
+								iterator.Push(&SonarqubeIssueIteratorNode{
+									Severity:      severity,
+									Status:        status,
+									Type:          typ,
+									CreatedAfter:  createdAfter,
+									CreatedBefore: createdBefore,
+									FilePath:      value.Val,
+								})
+								logger.Info("split by dir for it's count:[%d] and val:[%s]", value.Count, value.Val)
+							} else {
+								// by file
+								for _, issue := range body.Issues {
+									iterator.Push(&SonarqubeIssueIteratorNode{
+										Severity:      severity,
+										Status:        status,
+										Type:          typ,
+										CreatedAfter:  createdAfter,
+										CreatedBefore: createdBefore,
+										FilePath:      issue.Component,
+									})
+								}
+								logger.Info("split by file for it's count:[%d] and val:[%s]", value.Count, value.Val)
+							}
+						}
+					}
+					return MAXPAGES, nil
 				}
 
 				// split it
 				MidTime := time.Unix((createdAfterUnix+createdBeforeUnix)/2+1, 0)
-
-				severity := query.Get("severities")
-				status := query.Get("statuses")
-				typ := query.Get("types")
 				// left part
 				iterator.Push(&SonarqubeIssueIteratorNode{
 					Severity:      severity,
@@ -238,4 +276,51 @@ func getTimeFromFormatTime(formatTime string) (*time.Time, errors.Error) {
 	}
 
 	return &t, nil
+}
+
+type SonarqubePageInfo struct {
+	Total  int `json:"total"`
+	P      int `json:"p"`
+	Ps     int `json:"ps"`
+	Paging struct {
+		PageIndex int `json:"pageIndex"`
+		PageSize  int `json:"pageSize"`
+		Total     int `json:"total"`
+	} `json:"paging"`
+	EffortTotal int `json:"effortTotal"`
+	Issues      []struct {
+		Key       string `json:"key"`
+		Rule      string `json:"rule"`
+		Severity  string `json:"severity"`
+		Component string `json:"component"`
+		Project   string `json:"project"`
+		Line      int    `json:"line"`
+		Hash      string `json:"hash"`
+		TextRange struct {
+			StartLine   int `json:"startLine"`
+			EndLine     int `json:"endLine"`
+			StartOffset int `json:"startOffset"`
+			EndOffset   int `json:"endOffset"`
+		} `json:"textRange"`
+		Flows             []any    `json:"flows"`
+		Status            string   `json:"status"`
+		Message           string   `json:"message"`
+		Effort            string   `json:"effort"`
+		Debt              string   `json:"debt"`
+		Author            string   `json:"author"`
+		Tags              []string `json:"tags"`
+		CreationDate      string   `json:"creationDate"`
+		UpdateDate        string   `json:"updateDate"`
+		Type              string   `json:"type"`
+		Scope             string   `json:"scope"`
+		QuickFixAvailable bool     `json:"quickFixAvailable"`
+	} `json:"issues"`
+	Components []any `json:"components"`
+	Facets     []struct {
+		Property string `json:"property"`
+		Values   []struct {
+			Val   string `json:"val"`
+			Count int    `json:"count"`
+		} `json:"values"`
+	} `json:"facets"`
 }
