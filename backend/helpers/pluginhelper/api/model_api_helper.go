@@ -39,14 +39,14 @@ type ModelApiHelper[M dal.Tabler] struct {
 	log            log.Logger
 	modelName      string
 	pkPathVarNames []string
-	cleanUp        []func(m M) M
+	sterilizers    []func(m M) M
 }
 
 func NewModelApiHelper[M dal.Tabler](
 	basicRes context.BasicRes,
 	dalHelper *srvhelper.ModelSrvHelper[M],
 	pkPathVarNames []string, // path variable names of primary key
-	cleanUp func(m M) M,
+	sterilizer func(m M) M,
 ) *ModelApiHelper[M] {
 	m := new(M)
 	modelName := fmt.Sprintf("%T", m)
@@ -57,8 +57,8 @@ func NewModelApiHelper[M dal.Tabler](
 		modelName:      modelName,
 		pkPathVarNames: pkPathVarNames,
 	}
-	if cleanUp != nil {
-		modelApiHelper.cleanUp = []func(m M) M{cleanUp}
+	if sterilizer != nil {
+		modelApiHelper.sterilizers = []func(m M) M{sterilizer}
 	}
 	return modelApiHelper
 }
@@ -111,8 +111,8 @@ func (self *ModelApiHelper[M]) GetDetail(input *plugin.ApiResourceInput) (*plugi
 }
 
 func (self *ModelApiHelper[M]) executeCleanUp(model *M) *M {
-	if self.cleanUp != nil {
-		for _, clean := range self.cleanUp {
+	if self.sterilizers != nil {
+		for _, clean := range self.sterilizers {
 			cleanedModel := clean(*model)
 			model = &cleanedModel
 		}

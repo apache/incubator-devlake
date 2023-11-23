@@ -64,7 +64,7 @@ func testConnection(ctx context.Context, connection models.GitlabConn) (*GitlabT
 		return nil, errors.BadInput.New("token need api or read_api permissions scope")
 	}
 
-	connection = connection.CleanUp()
+	connection = connection.Sanitize()
 	body := GitlabTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
@@ -74,7 +74,6 @@ func testConnection(ctx context.Context, connection models.GitlabConn) (*GitlabT
 }
 
 // TestConnection test gitlab connection
-// Deprecated
 // @Summary test gitlab connection
 // @Description Test gitlab Connection
 // @Tags plugins/gitlab
@@ -97,7 +96,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
-// TestConnectionV2 test gitlab connection
+// TestExistingConnection test gitlab connection
 // @Summary test gitlab connection
 // @Description Test gitlab Connection
 // @Tags plugins/gitlab
@@ -105,7 +104,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/{connectionId}/test [POST]
-func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection, err := dsHelper.ConnApi.FindByPk(input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "find connection from db")

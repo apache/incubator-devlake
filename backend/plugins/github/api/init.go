@@ -44,7 +44,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		p.Name(),
 		[]string{"full_name"},
 		func(c models.GithubConnection) models.GithubConnection {
-			return c.CleanUp()
+			return c.Sanitize()
 		},
 		nil,
 		nil,

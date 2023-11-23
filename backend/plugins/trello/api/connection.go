@@ -57,7 +57,7 @@ func testConnection(ctx context.Context, connection models.TrelloConn) (*TrelloT
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
 	}
-	connection = connection.CleanUp()
+	connection = connection.Sanitize()
 	body := TrelloTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
@@ -66,7 +66,7 @@ func testConnection(ctx context.Context, connection models.TrelloConn) (*TrelloT
 	return &body, nil
 }
 
-// Deprecated
+// TestConnection test trello connection
 // @Summary test trello connection
 // @Description Test trello Connection
 // @Tags plugins/trello
@@ -90,7 +90,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
-// TestConnectionV2 test trello connection options
+// TestExistingConnection test trello connection options
 // @Summary test trello connection
 // @Description Test trello Connection
 // @Tags plugins/trello
@@ -98,7 +98,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/trello/{connectionId}/test [POST]
-func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.TrelloConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -126,7 +126,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch trello connection
@@ -143,7 +143,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
 }
 
 // @Summary delete a trello connection
@@ -160,7 +160,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	if err != nil {
 		return output, err
 	}
-	output.Body = conn.CleanUp()
+	output.Body = conn.Sanitize()
 	return output, nil
 
 }
@@ -179,7 +179,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, err
 	}
 	for idx, c := range connections {
-		connections[idx] = c.CleanUp()
+		connections[idx] = c.Sanitize()
 	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
@@ -194,5 +194,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.TrelloConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }

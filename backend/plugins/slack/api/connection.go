@@ -46,7 +46,7 @@ func testConnection(ctx context.Context, connection models.SlackConn) (*SlackTes
 	if err != nil {
 		return nil, err
 	}
-	connection = connection.CleanUp()
+	connection = connection.Sanitize()
 	body := SlackTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
@@ -55,7 +55,6 @@ func testConnection(ctx context.Context, connection models.SlackConn) (*SlackTes
 }
 
 // TestConnection test slack connection
-// Deprecated
 // @Summary test slack connection
 // @Description Test slack Connection. endpoint: https://open.slack.cn/open-apis/
 // @Tags plugins/slack
@@ -78,7 +77,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
-// TestConnectionV2 test slack connection
+// TestExistingConnection test slack connection
 // @Summary test slack connection
 // @Description Test slack Connection. endpoint: https://open.slack.cn/open-apis/
 // @Tags plugins/slack
@@ -86,7 +85,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/slack/{connectionId}/test [POST]
-func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SlackConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -114,7 +113,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch slack connection
@@ -131,7 +130,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary delete a slack connection
@@ -148,7 +147,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	if err != nil {
 		return output, err
 	}
-	output.Body = conn.CleanUp()
+	output.Body = conn.Sanitize()
 	return output, nil
 }
 
@@ -166,7 +165,7 @@ func ListConnections(_ *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 		return nil, err
 	}
 	for idx, c := range connections {
-		connections[idx] = c.CleanUp()
+		connections[idx] = c.Sanitize()
 	}
 	return &plugin.ApiResourceOutput{Body: connections}, nil
 }
@@ -184,5 +183,5 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }

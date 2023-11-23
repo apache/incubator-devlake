@@ -36,8 +36,8 @@ type BambooConnection struct {
 	BambooConn         `mapstructure:",squash"`
 }
 
-func (connection BambooConnection) CleanUp() BambooConnection {
-	connection.BambooConn = connection.BambooConn.CleanUp()
+func (connection BambooConnection) Sanitize() BambooConnection {
+	connection.BambooConn = connection.BambooConn.Sanitize()
 	return connection
 }
 
@@ -49,7 +49,7 @@ type BambooConn struct {
 	api.BasicAuth `mapstructure:",squash"`
 }
 
-func (conn *BambooConn) CleanUp() BambooConn {
+func (conn *BambooConn) Sanitize() BambooConn {
 	conn.Password = ""
 	return *conn
 }

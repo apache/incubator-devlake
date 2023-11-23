@@ -27,7 +27,7 @@ type SlackConn struct {
 	helper.AccessToken    `mapstructure:",squash"`
 }
 
-func (connection SlackConn) CleanUp() SlackConn {
+func (connection SlackConn) Sanitize() SlackConn {
 	connection.Token = ""
 	return connection
 }
@@ -42,7 +42,7 @@ func (SlackConnection) TableName() string {
 	return "_tool_slack_connections"
 }
 
-func (connection SlackConnection) CleanUp() SlackConnection {
-	connection.SlackConn = connection.SlackConn.CleanUp()
+func (connection SlackConnection) Sanitize() SlackConnection {
+	connection.SlackConn = connection.SlackConn.Sanitize()
 	return connection
 }

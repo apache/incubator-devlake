@@ -38,10 +38,10 @@ func NewDsScopeConfigApiHelper[
 ](
 	basicRes context.BasicRes,
 	dalHelper *srvhelper.ScopeConfigSrvHelper[C, S, SC],
-	cleanUp func(sc SC) SC,
+	sterilizer func(sc SC) SC,
 ) *DsScopeConfigApiHelper[C, S, SC] {
 	return &DsScopeConfigApiHelper[C, S, SC]{
-		ModelApiHelper:       NewModelApiHelper[SC](basicRes, dalHelper.ModelSrvHelper, []string{"scopeConfigId"}, cleanUp),
+		ModelApiHelper:       NewModelApiHelper[SC](basicRes, dalHelper.ModelSrvHelper, []string{"scopeConfigId"}, sterilizer),
 		ScopeConfigSrvHelper: dalHelper,
 	}
 }

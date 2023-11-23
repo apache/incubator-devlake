@@ -27,7 +27,7 @@ type JenkinsConn struct {
 	helper.BasicAuth      `mapstructure:",squash"`
 }
 
-func (connection JenkinsConn) CleanUp() JenkinsConn {
+func (connection JenkinsConn) Sanitize() JenkinsConn {
 	connection.Password = ""
 	return connection
 }
@@ -42,7 +42,7 @@ func (JenkinsConnection) TableName() string {
 	return "_tool_jenkins_connections"
 }
 
-func (connection JenkinsConnection) CleanUp() JenkinsConnection {
-	connection.JenkinsConn = connection.JenkinsConn.CleanUp()
+func (connection JenkinsConnection) Sanitize() JenkinsConnection {
+	connection.JenkinsConn = connection.JenkinsConn.Sanitize()
 	return connection
 }

@@ -181,7 +181,7 @@ func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 			"DELETE": api.DeleteConnection,
 		},
 		"connections/:connectionId/test": {
-			"POST": api.TestConnectionV2,
+			"POST": api.TestExistingConnection,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,

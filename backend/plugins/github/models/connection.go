@@ -98,7 +98,7 @@ func (connection GithubConnection) TableName() string {
 	return "_tool_github_connections"
 }
 
-func (connection GithubConnection) CleanUp() GithubConnection {
+func (connection GithubConnection) Sanitize() GithubConnection {
 	connection.Token = ""
 	return connection
 }

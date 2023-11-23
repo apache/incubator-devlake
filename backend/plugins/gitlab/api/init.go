@@ -43,7 +43,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		p.Name(),
 		[]string{"name"},
 		func(c models.GitlabConnection) models.GitlabConnection {
-			return c.CleanUp()
+			return c.Sanitize()
 		},
 		nil,
 		nil,

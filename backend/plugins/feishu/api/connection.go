@@ -45,7 +45,7 @@ func testConnection(ctx context.Context, connection models.FeishuConn) (*FeishuT
 	if err != nil {
 		return nil, err
 	}
-	connection = connection.CleanUp()
+	connection = connection.Sanitize()
 	body := FeishuTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
@@ -55,7 +55,6 @@ func testConnection(ctx context.Context, connection models.FeishuConn) (*FeishuT
 }
 
 // TestConnection test feishu connection
-// Deprecated
 // @Summary test feishu connection
 // @Description Test feishu Connection. endpoint: https://open.feishu.cn/open-apis/
 // @Tags plugins/feishu
@@ -78,7 +77,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
-// TestConnectionV2 test feishu connection
+// TestExistingConnection test feishu connection
 // @Summary test feishu connection
 // @Description Test feishu Connection. endpoint: https://open.feishu.cn/open-apis/
 // @Tags plugins/feishu
@@ -86,7 +85,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/feishu/{connectionId}/test [POST]
-func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -114,7 +113,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch feishu connection
@@ -131,7 +130,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary delete a feishu connection
@@ -148,7 +147,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	if err != nil {
 		return output, err
 	}
-	output.Body = conn.CleanUp()
+	output.Body = conn.Sanitize()
 	return output, nil
 
 }
@@ -167,7 +166,7 @@ func ListConnections(_ *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 		return nil, err
 	}
 	for idx, c := range connections {
-		connections[idx] = c.CleanUp()
+		connections[idx] = c.Sanitize()
 	}
 	return &plugin.ApiResourceOutput{Body: connections}, nil
 }
@@ -185,5 +184,5 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }

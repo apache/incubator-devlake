@@ -34,7 +34,7 @@ type TeambitionConn struct {
 	TenantType            string `mapstructure:"tenantType" validate:"required" json:"tenantType"`
 }
 
-func (tc TeambitionConn) CleanUp() TeambitionConn {
+func (tc TeambitionConn) Sanitize() TeambitionConn {
 	tc.SecretKey = ""
 	return tc
 }
@@ -45,8 +45,8 @@ type TeambitionConnection struct {
 	TeambitionConn        `mapstructure:",squash"`
 }
 
-func (connection TeambitionConnection) CleanUp() TeambitionConnection {
-	connection.TeambitionConn = connection.TeambitionConn.CleanUp()
+func (connection TeambitionConnection) Sanitize() TeambitionConnection {
+	connection.TeambitionConn = connection.TeambitionConn.Sanitize()
 	return connection
 }
 

@@ -27,7 +27,7 @@ type TapdConn struct {
 	helper.BasicAuth      `mapstructure:",squash"`
 }
 
-func (connection TapdConn) CleanUp() TapdConn {
+func (connection TapdConn) Sanitize() TapdConn {
 	connection.Password = ""
 	return connection
 }
@@ -42,7 +42,7 @@ func (TapdConnection) TableName() string {
 	return "_tool_tapd_connections"
 }
 
-func (connection TapdConnection) CleanUp() TapdConnection {
-	connection.TapdConn = connection.TapdConn.CleanUp()
+func (connection TapdConnection) Sanitize() TapdConnection {
+	connection.TapdConn = connection.TapdConn.Sanitize()
 	return connection
 }

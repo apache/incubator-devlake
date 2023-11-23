@@ -62,7 +62,7 @@ func testConnection(ctx context.Context, connection models.GiteeConn) (*GiteeTes
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code when testing connection")
 	}
-	connection = connection.CleanUp()
+	connection = connection.Sanitize()
 	body := GiteeTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
@@ -72,7 +72,6 @@ func testConnection(ctx context.Context, connection models.GiteeConn) (*GiteeTes
 }
 
 // TestConnection test gitee connection
-// Deprecated
 // @Summary test gitee connection
 // @Description Test gitee Connection. endpoint: https://gitee.com/api/v5/
 // @Tags plugins/gitee
@@ -95,7 +94,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
-// TestConnectionV2 test gitee connection
+// TestExistingConnection test gitee connection
 // @Summary test gitee connection
 // @Description Test gitee Connection. endpoint: https://gitee.com/api/v5/
 // @Tags plugins/gitee
@@ -103,7 +102,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitee/{connectionId}/test [POST]
-func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -131,7 +130,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch gitee connection
@@ -148,7 +147,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary delete a gitee connection
@@ -165,7 +164,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	if err != nil {
 		return output, err
 	}
-	output.Body = conn.CleanUp()
+	output.Body = conn.Sanitize()
 	return output, nil
 
 }
@@ -184,7 +183,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, err
 	}
 	for idx, c := range connections {
-		connections[idx] = c.CleanUp()
+		connections[idx] = c.Sanitize()
 	}
 	return &plugin.ApiResourceOutput{Body: connections}, nil
 }
@@ -199,5 +198,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection.CleanUp()}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }

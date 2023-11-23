@@ -42,7 +42,7 @@ func (conn *GitlabConn) SetupAuthentication(request *http.Request) errors.Error 
 	return nil
 }
 
-func (conn *GitlabConn) CleanUp() GitlabConn {
+func (conn *GitlabConn) Sanitize() GitlabConn {
 	conn.Token = ""
 	return *conn
 }
@@ -145,7 +145,7 @@ func (GitlabConnection) TableName() string {
 	return "_tool_gitlab_connections"
 }
 
-func (connection GitlabConnection) CleanUp() GitlabConnection {
-	connection.GitlabConn = connection.GitlabConn.CleanUp()
+func (connection GitlabConnection) Sanitize() GitlabConnection {
+	connection.GitlabConn = connection.GitlabConn.Sanitize()
 	return connection
 }

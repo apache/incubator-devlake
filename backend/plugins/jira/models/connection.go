@@ -44,7 +44,7 @@ type JiraConn struct {
 	helper.AccessToken    `mapstructure:",squash"`
 }
 
-func (jc *JiraConn) CleanUp() JiraConn {
+func (jc *JiraConn) Sanitize() JiraConn {
 	jc.Password = ""
 	jc.AccessToken.Token = ""
 	return *jc
@@ -66,7 +66,7 @@ func (JiraConnection) TableName() string {
 	return "_tool_jira_connections"
 }
 
-func (connection JiraConnection) CleanUp() JiraConnection {
-	connection.JiraConn = connection.JiraConn.CleanUp()
+func (connection JiraConnection) Sanitize() JiraConnection {
+	connection.JiraConn = connection.JiraConn.Sanitize()
 	return connection
 }

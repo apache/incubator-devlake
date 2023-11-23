@@ -33,7 +33,7 @@ type FeishuConn struct {
 	helper.AppKey         `mapstructure:",squash"`
 }
 
-func (conn *FeishuConn) CleanUp() FeishuConn {
+func (conn *FeishuConn) Sanitize() FeishuConn {
 	conn.SecretKey = ""
 	return *conn
 }
@@ -77,7 +77,7 @@ func (FeishuConnection) TableName() string {
 	return "_tool_feishu_connections"
 }
 
-func (connection FeishuConnection) CleanUp() FeishuConnection {
-	connection.FeishuConn = connection.FeishuConn.CleanUp()
+func (connection FeishuConnection) Sanitize() FeishuConnection {
+	connection.FeishuConn = connection.FeishuConn.Sanitize()
 	return connection
 }

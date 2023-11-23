@@ -42,10 +42,10 @@ func NewDsScopeApiHelper[
 	SC plugin.ToolLayerScopeConfig](
 	basicRes context.BasicRes,
 	srvHelper *srvhelper.ScopeSrvHelper[C, S, SC],
-	cleanUp func(s S) S,
+	sterilizer func(s S) S,
 ) *DsScopeApiHelper[C, S, SC] {
 	return &DsScopeApiHelper[C, S, SC]{
-		ModelApiHelper: NewModelApiHelper[S](basicRes, srvHelper.ModelSrvHelper, []string{"connectionId", "scopeId"}, cleanUp),
+		ModelApiHelper: NewModelApiHelper[S](basicRes, srvHelper.ModelSrvHelper, []string{"connectionId", "scopeId"}, sterilizer),
 		ScopeSrvHelper: srvHelper,
 	}
 }

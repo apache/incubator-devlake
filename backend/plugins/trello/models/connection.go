@@ -30,7 +30,7 @@ type TrelloConn struct {
 	helper.AppKey         `mapstructure:",squash"`
 }
 
-func (tc *TrelloConn) CleanUp() TrelloConn {
+func (tc *TrelloConn) Sanitize() TrelloConn {
 	tc.SecretKey = ""
 	return *tc
 }
@@ -41,8 +41,8 @@ type TrelloConnection struct {
 	TrelloConn            `mapstructure:",squash"`
 }
 
-func (connection TrelloConnection) CleanUp() TrelloConnection {
-	connection.TrelloConn = connection.TrelloConn.CleanUp()
+func (connection TrelloConnection) Sanitize() TrelloConnection {
+	connection.TrelloConn = connection.TrelloConn.Sanitize()
 	return connection
 }
 

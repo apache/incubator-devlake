@@ -65,7 +65,7 @@ func (AeConnection) TableName() string {
 	return "_tool_ae_connections"
 }
 
-func (connection AeConnection) CleanUp() AeConnection {
+func (connection AeConnection) Sanitize() AeConnection {
 	connection.AeAppKey.SecretKey = ""
 	return connection
 }

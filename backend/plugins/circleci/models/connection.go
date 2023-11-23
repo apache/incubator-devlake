@@ -44,7 +44,7 @@ func (CircleciConnection) TableName() string {
 	return "_tool_circleci_connections"
 }
 
-func (connection CircleciConnection) CleanUp() CircleciConnection {
+func (connection CircleciConnection) Sanitize() CircleciConnection {
 	connection.Token = ""
 	return connection
 }

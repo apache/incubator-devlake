@@ -50,7 +50,7 @@ type SonarqubeConn struct {
 	SonarqubeAccessToken  `mapstructure:",squash"`
 }
 
-func (connection SonarqubeConn) CleanUp() SonarqubeConn {
+func (connection SonarqubeConn) Sanitize() SonarqubeConn {
 	connection.Token = ""
 	return connection
 }
@@ -72,7 +72,7 @@ func (SonarqubeConnection) TableName() string {
 	return "_tool_sonarqube_connections"
 }
 
-func (connection SonarqubeConnection) CleanUp() SonarqubeConnection {
-	connection.SonarqubeConn = connection.SonarqubeConn.CleanUp()
+func (connection SonarqubeConnection) Sanitize() SonarqubeConnection {
+	connection.SonarqubeConn = connection.SonarqubeConn.Sanitize()
 	return connection
 }

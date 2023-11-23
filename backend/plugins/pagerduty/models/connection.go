@@ -63,7 +63,7 @@ func (PagerDutyConnection) TableName() string {
 	return "_tool_pagerduty_connections"
 }
 
-func (connection PagerDutyConnection) CleanUp() PagerDutyConnection {
+func (connection PagerDutyConnection) Sanitize() PagerDutyConnection {
 	connection.Token = ""
 	return connection
 }

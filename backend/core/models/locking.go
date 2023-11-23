@@ -43,7 +43,7 @@ func (LockingHistory) TableName() string {
 
 // LockingStub does nothing but offer a locking target
 type LockingStub struct {
-	Stub string
+	Stub string `gorm:"type:varchar(255)"`
 }
 
 func (LockingStub) TableName() string {

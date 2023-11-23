@@ -61,7 +61,6 @@ type GithubTestConnResponse struct {
 }
 
 // TestConnection test github connection
-// Deprecated
 // @Summary test github connection
 // @Description Test github Connection
 // @Tags plugins/github
@@ -258,7 +257,7 @@ func testConnection(ctx context.Context, conn models.GithubConn) (*GithubTestCon
 	return githubApiResponse, nil
 }
 
-// TestConnectionV2 test github connection options
+// TestExistingConnection test github connection options
 // @Summary test github connection
 // @Description Test github Connection
 // @Tags plugins/github
@@ -266,7 +265,7 @@ func testConnection(ctx context.Context, conn models.GithubConn) (*GithubTestCon
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/github/{connectionId}/test [POST]
-func TestConnectionV2(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection, err := dsHelper.ConnApi.FindByPk(input)
 	if err != nil {
 		return nil, err

@@ -40,7 +40,7 @@ type GiteeConn struct {
 	GiteeAccessToken      `mapstructure:",squash"`
 }
 
-func (connection GiteeConn) CleanUp() GiteeConn {
+func (connection GiteeConn) Sanitize() GiteeConn {
 	connection.Token = ""
 	return connection
 }
@@ -73,7 +73,7 @@ func (GiteeConnection) TableName() string {
 	return "_tool_gitee_connections"
 }
 
-func (connection GiteeConnection) CleanUp() GiteeConnection {
-	connection.GiteeConn = connection.GiteeConn.CleanUp()
+func (connection GiteeConnection) Sanitize() GiteeConnection {
+	connection.GiteeConn = connection.GiteeConn.Sanitize()
 	return connection
 }
