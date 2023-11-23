@@ -19,7 +19,6 @@
 import { createBrowserRouter, Navigate, json } from 'react-router-dom';
 
 import {
-  ConnectionHomePage,
   ConnectionDetailPage,
   ProjectHomePage,
   ProjectDetailPage,
@@ -29,6 +28,7 @@ import {
 } from '@/pages';
 import { Layout, loader as layoutLoader } from '@/routes/layout';
 import { Error, ErrorEnum } from '@/routes/error';
+import { Connections } from '@/routes/connection';
 import { Pipelines, Pipeline } from '@/routes/pipeline';
 import { ApiKeys } from '@/routes/api-keys';
 
@@ -53,7 +53,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'connections',
-        element: <ConnectionHomePage />,
+        element: <Connections />,
       },
       {
         path: 'connections/:plugin/:id',
@@ -72,24 +72,29 @@ export const router = createBrowserRouter([
         element: <BlueprintConnectionDetailPage />,
       },
       {
-        path: 'blueprints',
-        element: <BlueprintHomePage />,
-      },
-      {
-        path: 'blueprints/:id',
-        element: <BlueprintDetailPage />,
-      },
-      {
-        path: 'blueprints/:bid/:unique',
-        element: <BlueprintConnectionDetailPage />,
-      },
-      {
-        path: 'pipelines',
-        element: <Pipelines />,
-      },
-      {
-        path: 'pipeline/:id',
-        element: <Pipeline />,
+        path: 'advanced',
+        children: [
+          {
+            path: 'blueprints',
+            element: <BlueprintHomePage />,
+          },
+          {
+            path: 'blueprints/:id',
+            element: <BlueprintDetailPage />,
+          },
+          {
+            path: 'blueprints/:bid/:unique',
+            element: <BlueprintConnectionDetailPage />,
+          },
+          {
+            path: 'pipelines',
+            element: <Pipelines />,
+          },
+          {
+            path: 'pipeline/:id',
+            element: <Pipeline />,
+          },
+        ],
       },
       {
         path: 'keys',

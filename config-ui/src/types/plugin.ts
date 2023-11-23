@@ -19,7 +19,7 @@
 export interface IPluginConfig {
   plugin: string;
   name: string;
-  icon: string;
+  icon: ({ color }: { color: string }) => React.ReactNode;
   sort: number;
   isBeta?: boolean;
   connection: {
