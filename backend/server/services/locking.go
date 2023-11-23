@@ -44,11 +44,12 @@ func lockDatabase() {
 	}
 	errors.Must(db.Create(lockingHistory))
 	// 2. obtain the lock: using a never released transaction
-	// This prevent multiple devlake instances from sharing the same database by locking the migration history table
+	// This prevents multiple devlake instances from sharing the same database by locking the migration history table
 	// However, it would not work if any older devlake instances were already using the database.
 	lockingTx = db.Begin()
 	c := make(chan bool, 1)
 	go func() {
+		errors.Must(lockingTx.DropTables(models.LockingStub{}.TableName()))
 		errors.Must(lockingTx.AutoMigrate(&models.LockingStub{}))
 		errors.Must(lockingTx.LockTables(dal.LockTables{{Table: "_devlake_locking_stub", Exclusive: true}}))
 		lockingHistory.Succeeded = true
