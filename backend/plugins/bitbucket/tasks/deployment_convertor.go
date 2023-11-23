@@ -96,15 +96,16 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{models.IN_PROGRESS},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketDeployment.Status),
-				Environment:  strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
-				CreatedDate:  *bitbucketDeployment.CreatedOn,
-				StartedDate:  bitbucketDeployment.StartedOn,
-				FinishedDate: bitbucketDeployment.CompletedOn,
-				DurationSec:  duration,
-				CommitSha:    bitbucketDeployment.CommitSha,
-				RefName:      bitbucketDeployment.RefName,
-				RepoId:       repoId,
-				RepoUrl:      repo.HTMLUrl,
+				OriginalStatus: bitbucketDeployment.Status,
+				Environment:    strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
+				CreatedDate:    *bitbucketDeployment.CreatedOn,
+				StartedDate:    bitbucketDeployment.StartedOn,
+				FinishedDate:   bitbucketDeployment.CompletedOn,
+				DurationSec:    duration,
+				CommitSha:      bitbucketDeployment.CommitSha,
+				RefName:        bitbucketDeployment.RefName,
+				RepoId:         repoId,
+				RepoUrl:        repo.HTMLUrl,
 			}
 			if domainDeployCommit.Environment == devops.TEST {
 				// Theoretically, environment cannot be "Test" according to

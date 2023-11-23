@@ -60,42 +60,11 @@ func ExtractRuns(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-
-			results := make([]interface{}, 0, 1)
-			githubRunResult := &models.GithubRun{
-				ConnectionId:     data.Options.ConnectionId,
-				ID:               githubRun.ID,
-				RepoId:           repoId,
-				Name:             githubRun.Name,
-				NodeID:           githubRun.NodeID,
-				HeadBranch:       githubRun.HeadBranch,
-				HeadSha:          githubRun.HeadSha,
-				Path:             githubRun.Path,
-				RunNumber:        githubRun.RunNumber,
-				Event:            githubRun.Event,
-				Status:           githubRun.Status,
-				Conclusion:       githubRun.Conclusion,
-				WorkflowID:       githubRun.WorkflowID,
-				CheckSuiteID:     githubRun.CheckSuiteID,
-				CheckSuiteNodeID: githubRun.CheckSuiteNodeID,
-				URL:              githubRun.URL,
-				HTMLURL:          githubRun.HTMLURL,
-				GithubCreatedAt:  githubRun.GithubCreatedAt,
-				GithubUpdatedAt:  githubRun.GithubUpdatedAt,
-				RunAttempt:       githubRun.RunAttempt,
-				RunStartedAt:     githubRun.RunStartedAt,
-				JobsURL:          githubRun.JobsURL,
-				LogsURL:          githubRun.LogsURL,
-				CheckSuiteURL:    githubRun.CheckSuiteURL,
-				ArtifactsURL:     githubRun.ArtifactsURL,
-				CancelURL:        githubRun.CancelURL,
-				RerunURL:         githubRun.RerunURL,
-				WorkflowURL:      githubRun.WorkflowURL,
-				Type:             data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubRun.Name),
-				Environment:      data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubRun.Name, githubRun.HeadBranch),
-			}
-			results = append(results, githubRunResult)
-			return results, nil
+			githubRun.RepoId = repoId
+			githubRun.ConnectionId = data.Options.ConnectionId
+			githubRun.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubRun.Name)
+			githubRun.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubRun.Name, githubRun.HeadBranch)
+			return []interface{}{githubRun}, nil
 		},
 	})
 

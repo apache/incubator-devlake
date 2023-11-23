@@ -102,11 +102,13 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
 					Default: devops.RESULT_DEFAULT,
 				}, line.Conclusion),
+				OriginalResult: line.Conclusion,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusCompleted, StatusSuccess, StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
 					InProgress: []string{StatusInProgress, StatusQueued, StatusWaiting, StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, line.Status),
+				OriginalStatus: line.Status,
 			}
 			if domainPipeline.Status == devops.STATUS_DONE {
 				domainPipeline.DurationSec = line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds()
