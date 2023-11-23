@@ -45,7 +45,7 @@ export const Connections = () => {
 
   const [firstPlugins, secondPlugins] = chunk(
     plugins.filter((p) => p !== 'webhook'),
-    6,
+    7,
   );
 
   const handleShowListDialog = (plugin: string) => {
@@ -145,6 +145,7 @@ export const Connections = () => {
         <Modal
           open
           width={820}
+          centered
           title={
             <S.ModalTitle>
               <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
@@ -161,6 +162,7 @@ export const Connections = () => {
         <Modal
           open
           width={820}
+          centered
           title={
             <S.ModalTitle>
               <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
