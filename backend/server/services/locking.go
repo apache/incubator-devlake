@@ -49,6 +49,7 @@ func lockDatabase() {
 	lockingTx = db.Begin()
 	c := make(chan bool, 1)
 	go func() {
+		errors.Must(lockingTx.DropTables(models.LockingStub{}.TableName()))
 		errors.Must(lockingTx.AutoMigrate(&models.LockingStub{}))
 		errors.Must(lockingTx.LockTables(dal.LockTables{{Table: "_devlake_locking_stub", Exclusive: true}}))
 		lockingHistory.Succeeded = true
