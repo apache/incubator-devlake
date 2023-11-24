@@ -103,14 +103,15 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{StatusRunning},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),
-				Environment:  gitlabDeployment.Environment,
-				CreatedDate:  gitlabDeployment.CreatedDate,
-				StartedDate:  gitlabDeployment.DeployableStartedAt,
-				FinishedDate: gitlabDeployment.DeployableFinishedAt,
-				CommitSha:    gitlabDeployment.Sha,
-				RefName:      gitlabDeployment.Ref,
-				RepoId:       projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
-				RepoUrl:      repo.WebUrl,
+				OriginalStatus: gitlabDeployment.Status,
+				Environment:    gitlabDeployment.Environment,
+				CreatedDate:    gitlabDeployment.CreatedDate,
+				StartedDate:    gitlabDeployment.DeployableStartedAt,
+				FinishedDate:   gitlabDeployment.DeployableFinishedAt,
+				CommitSha:      gitlabDeployment.Sha,
+				RefName:        gitlabDeployment.Ref,
+				RepoId:         projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				RepoUrl:        repo.WebUrl,
 			}
 			if duration != nil {
 				domainDeployCommit.DurationSec = duration

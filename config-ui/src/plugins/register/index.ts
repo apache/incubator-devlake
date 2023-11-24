@@ -30,6 +30,7 @@ import { SonarQubeConfig } from './sonarqube';
 import { TAPDConfig } from './tapd';
 import { WebhookConfig } from './webhook';
 import { ZenTaoConfig } from './zentao';
+import { OpsgenieConfig } from './opsgenie';
 
 export const pluginConfigs: IPluginConfig[] = [
   AzureConfig,
@@ -44,4 +45,5 @@ export const pluginConfigs: IPluginConfig[] = [
   TAPDConfig,
   ZenTaoConfig,
   WebhookConfig,
+  OpsgenieConfig,
 ].sort((a, b) => a.sort - b.sort);

@@ -17,16 +17,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import {
-  QuestionCircleOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  CaretRightOutlined,
-} from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, CaretRightOutlined } from '@ant-design/icons';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { theme, Form, Collapse as AntdCollapse, Input, Tooltip, Tag, Checkbox } from 'antd';
+import { theme, Form, Collapse, Input, Tag, Checkbox } from 'antd';
 
-import { ExternalLink } from '@/components';
+import { HelpTooltip, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
 interface Props {
@@ -75,23 +70,21 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
   };
 
   return (
-    <Form labelCol={{ span: 4 }} wrapperCol={{ span: 16 }}>
-      <AntdCollapse
-        bordered={false}
-        defaultActiveKey={['TICKET', 'CICD']}
-        expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev="" />}
-        style={{ background: token.colorBgContainer }}
-        size="large"
-        items={renderCollapseItems({
-          entities,
-          panelStyle,
-          transformation,
-          onChangeTransformation: setTransformation,
-          useCustom,
-          onChangeUseCustom: handleChangeUseCustom,
-        })}
-      />
-    </Form>
+    <Collapse
+      bordered={false}
+      defaultActiveKey={['TICKET', 'CICD']}
+      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev="" />}
+      style={{ background: token.colorBgContainer }}
+      size="large"
+      items={renderCollapseItems({
+        entities,
+        panelStyle,
+        transformation,
+        onChangeTransformation: setTransformation,
+        useCustom,
+        onChangeUseCustom: handleChangeUseCustom,
+      })}
+    />
   );
 };
 
@@ -175,9 +168,7 @@ const renderCollapseItems = ({
             label={
               <>
                 <span style={{ marginRight: 4 }}>Issue Priority</span>
-                <Tooltip title="Labels that match the RegEx will be set as the priority of an issue.">
-                  <QuestionCircleOutlined rev="" />
-                </Tooltip>
+                <HelpTooltip content="Labels that match the RegEx will be set as the priority of an issue." />
               </>
             }
           >
@@ -196,9 +187,7 @@ const renderCollapseItems = ({
             label={
               <>
                 <span style={{ marginRight: 4 }}>Issue Component</span>
-                <Tooltip title="Labels that match the RegEx will be set as the component of an issue.">
-                  <QuestionCircleOutlined rev="" />
-                </Tooltip>
+                <HelpTooltip content="Labels that match the RegEx will be set as the component of an issue." />
               </>
             }
           >
@@ -217,9 +206,7 @@ const renderCollapseItems = ({
             label={
               <>
                 <span style={{ marginRight: 4 }}>Issue Severity</span>
-                <Tooltip title="Labels that match the RegEx will be set as the serverity of an issue.">
-                  <QuestionCircleOutlined rev="" />
-                </Tooltip>
+                <HelpTooltip content="Labels that match the RegEx will be set as the serverity of an issue." />
               </>
             }
           >
@@ -291,9 +278,7 @@ const renderCollapseItems = ({
               }
             />
             <i style={{ marginRight: 4, color: '#E34040' }}>*</i>
-            <Tooltip title="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow">
-              <QuestionCircleOutlined rev="" />
-            </Tooltip>
+            <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
           </div>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
             <span>If the name or its branch’s name also matches</span>
@@ -309,9 +294,7 @@ const renderCollapseItems = ({
               }
             />
             <span>, this deployment is a ‘Production Deployment’</span>
-            <Tooltip title="If you leave this field empty, all Deployments will be tagged as in the Production environment. ">
-              <QuestionCircleOutlined rev="" />
-            </Tooltip>
+            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
           </div>
         </>
       ),
@@ -331,9 +314,7 @@ const renderCollapseItems = ({
             label={
               <>
                 <span style={{ marginRight: 4 }}>PR Type</span>
-                <Tooltip title="Labels that match the RegEx will be set as the type of a pull request.">
-                  <QuestionCircleOutlined rev="" />
-                </Tooltip>
+                <HelpTooltip content="Labels that match the RegEx will be set as the type of a pull request." />
               </>
             }
           >
@@ -347,9 +328,7 @@ const renderCollapseItems = ({
             label={
               <>
                 <span style={{ marginRight: 4 }}>PR Component</span>
-                <Tooltip title="Labels that match the RegEx will be set as the component of a pull request.">
-                  <QuestionCircleOutlined rev="" />
-                </Tooltip>
+                <HelpTooltip content="Labels that match the RegEx will be set as the component of a pull request." />
               </>
             }
           >
@@ -385,8 +364,8 @@ const renderCollapseItems = ({
             label={
               <div className="label">
                 <span style={{ marginRight: 4 }}>Connect PRs and Issues</span>
-                <Tooltip
-                  title={
+                <HelpTooltip
+                  content={
                     <>
                       <div>
                         <CheckCircleOutlined rev="" style={{ marginRight: 4, color: '#4DB764' }} />
@@ -400,9 +379,7 @@ const renderCollapseItems = ({
                       </div>
                     </>
                   }
-                >
-                  <QuestionCircleOutlined rev="" />
-                </Tooltip>
+                />
               </div>
             }
           >
@@ -421,4 +398,51 @@ const renderCollapseItems = ({
         </>
       ),
     },
-  ].filter((it) => entities.includes(it.key));
+    {
+      key: 'ADDITIONAL',
+      label: 'Additional Settings',
+      style: panelStyle,
+      children: (
+        <>
+          <p>
+            Enable the <ExternalLink link={DOC_URL.PLUGIN.REFDIFF}>RefDiff</ExternalLink> plugin to pre-calculate
+            version-based metrics
+            <HelpTooltip content="Calculate the commits diff between two consecutive tags that match the following RegEx. Issues closed by PRs which contain these commits will also be calculated. The result will be shown in table.refs_commits_diffs and table.refs_issues_diffs." />
+          </p>
+          <div className="refdiff">
+            Compare the last
+            <Input
+              style={{ margin: '0 8px', width: 60 }}
+              placeholder="10"
+              value={transformation.refdiff?.tagsLimit ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  refdiff: {
+                    ...transformation?.refdiff,
+                    tagsLimit: +e.target.value,
+                  },
+                })
+              }
+            />
+            tags that match the
+            <Input
+              style={{ margin: '0 8px', width: 200 }}
+              placeholder="(regex)$"
+              value={transformation.refdiff?.tagsPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  refdiff: {
+                    ...transformation?.refdiff,
+                    tagsPattern: e.target.value,
+                  },
+                })
+              }
+            />
+            for calculation
+          </div>
+        </>
+      ),
+    },
+  ].filter((it) => entities.includes(it.key) || it.key === 'ADDITIONAL');

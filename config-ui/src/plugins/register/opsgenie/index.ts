@@ -16,47 +16,4 @@
  *
  */
 
-import styled from 'styled-components';
-
-export const Transformation = styled.div``;
-
-export const CICD = styled.div`
-  h3 {
-    margin-top: 16px;
-
-    .switch {
-      display: inline-flex;
-      align-items: center;
-      margin-left: 16px;
-      font-size: 14px;
-      font-weight: 400;
-
-      .bp5-switch {
-        margin-bottom: 0;
-      }
-    }
-  }
-
-  .text {
-    display: flex;
-    align-items: baseline;
-    margin-top: 16px;
-    padding-left: 24px;
-
-    .bp5-radio {
-      margin-right: 0;
-    }
-  }
-`;
-
-export const DataScope = styled.div``;
-
-export const JobLoad = styled.div`
-  display: flex;
-  align-items: center;
-
-  & > span.count {
-    margin: 0 8px;
-    color: #7497f7;
-  }
-`;
+export * from './config';

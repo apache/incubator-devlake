@@ -127,16 +127,18 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: stageIdGen.Generate(body.ConnectionId, body.BuildName, body.ID),
 				},
-				Name:         body.Name,
-				PipelineId:   buildIdGen.Generate(body.ConnectionId, body.BuildName),
-				Result:       jenkinsTaskResult,
-				Status:       jenkinsTaskStatus,
-				DurationSec:  durationSec,
-				StartedDate:  startedDate,
-				FinishedDate: jenkinsTaskFinishedDate,
-				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
-				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
-				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),
+				Name:           body.Name,
+				PipelineId:     buildIdGen.Generate(body.ConnectionId, body.BuildName),
+				Result:         jenkinsTaskResult,
+				OriginalResult: body.Result,
+				Status:         jenkinsTaskStatus,
+				OriginalStatus: body.Status,
+				DurationSec:    durationSec,
+				StartedDate:    startedDate,
+				FinishedDate:   jenkinsTaskFinishedDate,
+				CicdScopeId:    jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
+				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
+				Environment:    data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),
 			}
 			results = append(results, jenkinsTask)
 			return results, nil

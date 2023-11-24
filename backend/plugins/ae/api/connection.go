@@ -32,23 +32,14 @@ type ApiMeResponse struct {
 	Name string `json:"name"`
 }
 
-// @Summary test ae connection
-// @Description Test AE Connection
-// @Tags plugins/ae
-// @Param body body models.AeConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/ae/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// decode
-	var err errors.Error
-	var connection models.AeConn
-	if err = api.Decode(input.Body, &connection, vld); err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
+func testConnection(ctx context.Context, connection models.AeConn) (*plugin.ApiResourceOutput, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
 	}
-
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +57,43 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 }
 
+// TestConnection test ae connection
+// @Summary test ae connection
+// @Description Test AE Connection
+// @Tags plugins/ae
+// @Param body body models.AeConn true "json body"
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/ae/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// decode
+	var err errors.Error
+	var connection models.AeConn
+	if err = api.Decode(input.Body, &connection, vld); err != nil {
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
+	}
+	return testConnection(context.TODO(), connection)
+}
+
+// TestExistingConnection test ae connection
+// @Summary test ae connection
+// @Description Test AE Connection
+// @Tags plugins/ae
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/ae/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// decode
+	connection := &models.AeConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	return testConnection(context.TODO(), connection.AeConn)
+}
+
 // @Summary create ae connection
 // @Description Create AE connection
 // @Tags plugins/ae
@@ -80,7 +108,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary get all ae connections
@@ -96,6 +124,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
+	for idx, c := range connections {
+		connections[idx] = c.Sanitize()
+	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
@@ -109,7 +140,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }
 
 // @Summary patch ae connection
@@ -126,7 +157,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary delete a ae connection
@@ -138,5 +169,12 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/ae/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.AeConnection{}, input)
+	conn := &models.AeConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.Sanitize()
+	return output, nil
+
 }

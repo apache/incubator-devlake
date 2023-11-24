@@ -73,12 +73,14 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{models.FAILED, models.ERROR, models.STOPPED},
 					Default: devops.RESULT_DEFAULT,
 				}, bitbucketPipelineStep.Result),
+				OriginalResult: bitbucketPipelineStep.Result,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.ERROR, models.STOPPED},
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING, models.READY},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipelineStep.State),
-				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
+				OriginalStatus: bitbucketPipelineStep.State,
+				CicdScopeId:    repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
 			}
 			// not save to domain layer if StartedOn is empty
 			if bitbucketPipelineStep.StartedOn == nil {

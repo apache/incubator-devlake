@@ -85,14 +85,15 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{StatusInProgress, StatusQueued, StatusWaiting, StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, githubDeployment.State),
-				Environment:  githubDeployment.Environment,
-				CreatedDate:  githubDeployment.CreatedDate,
-				StartedDate:  &githubDeployment.CreatedDate, // fixme there is no such field
-				FinishedDate: &githubDeployment.UpdatedDate, // fixme there is no such field
-				CommitSha:    githubDeployment.CommitOid,
-				RefName:      githubDeployment.RefName,
-				RepoId:       deploymentScopeIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.GithubId),
-				RepoUrl:      githubDeployment.RepositoryUrl,
+				OriginalStatus: githubDeployment.State,
+				Environment:    githubDeployment.Environment,
+				CreatedDate:    githubDeployment.CreatedDate,
+				StartedDate:    &githubDeployment.CreatedDate, // fixme there is no such field
+				FinishedDate:   &githubDeployment.UpdatedDate, // fixme there is no such field
+				CommitSha:      githubDeployment.CommitOid,
+				RefName:        githubDeployment.RefName,
+				RepoId:         deploymentScopeIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.GithubId),
+				RepoUrl:        githubDeployment.RepositoryUrl,
 			}
 
 			durationSec := githubDeployment.UpdatedDate.Sub(githubDeployment.CreatedDate).Seconds()

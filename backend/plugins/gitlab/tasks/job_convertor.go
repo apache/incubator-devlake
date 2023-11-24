@@ -94,11 +94,11 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPreparing, StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabJob.Status),
-
-				DurationSec:  gitlabJob.Duration,
-				StartedDate:  *startedAt,
-				FinishedDate: gitlabJob.FinishedAt,
-				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
+				OriginalStatus: gitlabJob.Status,
+				DurationSec:    gitlabJob.Duration,
+				StartedDate:    *startedAt,
+				FinishedDate:   gitlabJob.FinishedAt,
+				CicdScopeId:    projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
 			}
 			domainJob.Type = regexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabJob.Name)
 			domainJob.Environment = regexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabJob.Name)

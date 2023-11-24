@@ -17,14 +17,13 @@
  */
 
 import { useEffect, useState } from 'react';
-import { FormGroup, Intent, Tag } from '@blueprintjs/core';
+import { uniqWith } from 'lodash';
+import { CaretRightOutlined } from '@ant-design/icons';
+import { theme, Collapse, Tag, Form } from 'antd';
 
 import API from '@/api';
-import { HelpTooltip, MultiSelector, PageLoading } from '@/components';
+import { MultiSelector, PageLoading } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
-
-import * as S from './styled';
-import { uniqWith } from 'lodash';
 
 enum StandardType {
   Requirement = 'Requirement',
@@ -129,175 +128,234 @@ export const TapdTransformation = ({ entities, connectionId, scopeId, transforma
       return acc;
     }, {} as Record<string, string>);
   };
+
+  const { token } = theme.useToken();
+
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: token.colorFillAlter,
+    borderRadius: token.borderRadiusLG,
+    border: 'none',
+  };
+
   return (
-    <S.TransformationWrapper>
-      {entities.includes('TICKET') && (
-        <div className="issue-tracking">
-          <h2>Issue Tracking</h2>
-          <div className="issue-type">
-            <div className="title">
-              <span>Issue Type Mapping</span>
-              <HelpTooltip content="Standardize your issue types to the following issue types to view metrics such as `Requirement lead time` and `Bug age` in built-in dashboards." />
-            </div>
-            <div className="list">
-              <FormGroup inline label="Requirement">
-                <MultiSelector
-                  items={typeList}
-                  disabledItems={typeList.filter((v) => [...bugTypeList, ...incidentTypeList].includes(v.id))}
-                  getKey={(it) => it.id}
-                  getName={(it) => it.name}
-                  selectedItems={typeList.filter((v) => featureTypeList.includes(v.id))}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      typeMappings: {
-                        ...transformaType(
-                          selectedItems.map((v) => v.id),
-                          StandardType.Requirement,
-                        ),
-                        ...transformaType(bugTypeList, StandardType.Bug),
-                        ...transformaType(incidentTypeList, StandardType.Incident),
-                      },
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup inline label="Bug">
-                <MultiSelector
-                  items={typeList}
-                  disabledItems={typeList.filter((v) => [...featureTypeList, ...incidentTypeList].includes(v.id))}
-                  getKey={(it) => it.id}
-                  getName={(it) => it.name}
-                  selectedItems={typeList.filter((v) => bugTypeList.includes(v.id))}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      typeMappings: {
-                        ...transformaType(featureTypeList, StandardType.Requirement),
-                        ...transformaType(
-                          selectedItems.map((v) => v.id),
-                          StandardType.Bug,
-                        ),
-                        ...transformaType(incidentTypeList, StandardType.Incident),
-                      },
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup
-                inline
-                label={
-                  <>
-                    <span>Incident</span>
-                    <Tag intent={Intent.PRIMARY} style={{ marginLeft: 4 }}>
-                      DORA
-                    </Tag>
-                  </>
-                }
-              >
-                <MultiSelector
-                  items={typeList}
-                  disabledItems={typeList.filter((v) => [...featureTypeList, ...bugTypeList].includes(v.id))}
-                  getKey={(it) => it.id}
-                  getName={(it) => it.name}
-                  selectedItems={typeList.filter((v) => incidentTypeList.includes(v.id))}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      typeMappings: {
-                        ...transformaType(featureTypeList, StandardType.Requirement),
-                        ...transformaType(bugTypeList, StandardType.Bug),
-                        ...transformaType(
-                          selectedItems.map((v) => v.id),
-                          StandardType.Incident,
-                        ),
-                      },
-                    })
-                  }
-                />
-              </FormGroup>
-            </div>
-          </div>
-          <div className="issue-status">
-            <div className="title">
-              <span>Issue Status Mapping</span>
-              <HelpTooltip content="Standardize your issue statuses to the following issue statuses to view metrics such as `Requirement Delivery Rate` in built-in dashboards." />
-            </div>
-            <div className="list">
-              <FormGroup inline label="TODO">
-                <MultiSelector
-                  items={statusList}
-                  disabledItems={statusList.filter((v) =>
-                    [...inProgressStatusList, ...doneStatusList].includes(v.name),
-                  )}
-                  getKey={(it) => it.id}
-                  getName={(it) => it.name}
-                  selectedItems={statusList.filter((v) => todoStatusList.includes(v.name))}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      statusMappings: {
-                        ...transformaType(
-                          selectedItems.map((v) => v.name),
-                          StandardStatus.Todo,
-                        ),
-                        ...transformaType(inProgressStatusList, StandardStatus.InProgress),
-                        ...transformaType(doneStatusList, StandardStatus.Done),
-                      },
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup inline label="IN-PROGRESS">
-                <MultiSelector
-                  items={statusList}
-                  disabledItems={statusList.filter((v) => [...todoStatusList, ...doneStatusList].includes(v.name))}
-                  getKey={(it) => it.id}
-                  getName={(it) => it.name}
-                  selectedItems={statusList.filter((v) => inProgressStatusList.includes(v.name))}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      statusMappings: {
-                        ...transformaType(todoStatusList, StandardStatus.Todo),
-                        ...transformaType(
-                          selectedItems.map((v) => v.name),
-                          StandardStatus.InProgress,
-                        ),
-                        ...transformaType(doneStatusList, StandardStatus.Done),
-                      },
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup inline label="DONE">
-                <MultiSelector
-                  items={statusList}
-                  disabledItems={statusList.filter((v) =>
-                    [...todoStatusList, ...inProgressStatusList].includes(v.name),
-                  )}
-                  getKey={(it) => it.id}
-                  getName={(it) => it.name}
-                  selectedItems={statusList.filter((v) => doneStatusList.includes(v.name))}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      statusMappings: {
-                        ...transformaType(todoStatusList, StandardStatus.Todo),
-                        ...transformaType(inProgressStatusList, StandardStatus.InProgress),
-                        ...transformaType(
-                          selectedItems.map((v) => v.name),
-                          StandardStatus.Done,
-                        ),
-                      },
-                    })
-                  }
-                />
-              </FormGroup>
-            </div>
-          </div>
-        </div>
-      )}
-    </S.TransformationWrapper>
+    <Collapse
+      bordered={false}
+      defaultActiveKey={['TICKET', 'CROSS']}
+      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev={undefined} />}
+      style={{ background: token.colorBgContainer }}
+      size="large"
+      items={renderCollapseItems({
+        entities,
+        panelStyle,
+        transformation,
+        onChangeTransformation: setTransformation,
+        typeList,
+        featureTypeList,
+        bugTypeList,
+        incidentTypeList,
+        statusList,
+        todoStatusList,
+        inProgressStatusList,
+        doneStatusList,
+        transformaType,
+      })}
+    />
   );
 };
+
+const renderCollapseItems = ({
+  entities,
+  panelStyle,
+  transformation,
+  onChangeTransformation,
+  typeList,
+  featureTypeList,
+  bugTypeList,
+  incidentTypeList,
+  statusList,
+  todoStatusList,
+  inProgressStatusList,
+  doneStatusList,
+  transformaType,
+}: {
+  entities: string[];
+  panelStyle: React.CSSProperties;
+  transformation: any;
+  onChangeTransformation: any;
+  typeList: Array<{
+    id: string;
+    name: string;
+  }>;
+  featureTypeList: any;
+  bugTypeList: any;
+  incidentTypeList: any;
+  statusList: Array<{
+    id: string;
+    name: string;
+  }>;
+  todoStatusList: any;
+  inProgressStatusList: any;
+  doneStatusList: any;
+  transformaType: any;
+}) =>
+  [
+    {
+      key: 'TICKET',
+      label: 'Issue Tracking',
+      style: panelStyle,
+      children: (
+        <>
+          <p>
+            Standardize your issue types to the following issue types to view metrics such as `Requirement lead time`
+            and `Bug age` in built-in dashboards.
+          </p>
+          <Form.Item label="Requirement">
+            <MultiSelector
+              items={typeList}
+              disabledItems={typeList.filter((v) => [...bugTypeList, ...incidentTypeList].includes(v.id))}
+              getKey={(it) => it.id}
+              getName={(it) => it.name}
+              selectedItems={typeList.filter((v) => featureTypeList.includes(v.id))}
+              onChangeItems={(selectedItems) =>
+                onChangeTransformation({
+                  ...transformation,
+                  typeMappings: {
+                    ...transformaType(
+                      selectedItems.map((v) => v.id),
+                      StandardType.Requirement,
+                    ),
+                    ...transformaType(bugTypeList, StandardType.Bug),
+                    ...transformaType(incidentTypeList, StandardType.Incident),
+                  },
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="Bug">
+            <MultiSelector
+              items={typeList}
+              disabledItems={typeList.filter((v) => [...featureTypeList, ...incidentTypeList].includes(v.id))}
+              getKey={(it) => it.id}
+              getName={(it) => it.name}
+              selectedItems={typeList.filter((v) => bugTypeList.includes(v.id))}
+              onChangeItems={(selectedItems) =>
+                onChangeTransformation({
+                  ...transformation,
+                  typeMappings: {
+                    ...transformaType(featureTypeList, StandardType.Requirement),
+                    ...transformaType(
+                      selectedItems.map((v) => v.id),
+                      StandardType.Bug,
+                    ),
+                    ...transformaType(incidentTypeList, StandardType.Incident),
+                  },
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span>Incident</span>
+                <Tag style={{ marginLeft: 4 }} color="blue">
+                  DORA
+                </Tag>
+              </>
+            }
+          >
+            <MultiSelector
+              items={typeList}
+              disabledItems={typeList.filter((v) => [...featureTypeList, ...bugTypeList].includes(v.id))}
+              getKey={(it) => it.id}
+              getName={(it) => it.name}
+              selectedItems={typeList.filter((v) => incidentTypeList.includes(v.id))}
+              onChangeItems={(selectedItems) =>
+                onChangeTransformation({
+                  ...transformation,
+                  typeMappings: {
+                    ...transformaType(featureTypeList, StandardType.Requirement),
+                    ...transformaType(bugTypeList, StandardType.Bug),
+                    ...transformaType(
+                      selectedItems.map((v) => v.id),
+                      StandardType.Incident,
+                    ),
+                  },
+                })
+              }
+            />
+          </Form.Item>
+          <p>
+            Standardize your issue statuses to the following issue statuses to view metrics such as `Requirement
+            Delivery Rate` in built-in dashboards.
+          </p>
+          <Form.Item label="TODO">
+            <MultiSelector
+              items={statusList}
+              disabledItems={statusList.filter((v) => [...inProgressStatusList, ...doneStatusList].includes(v.name))}
+              getKey={(it) => it.id}
+              getName={(it) => it.name}
+              selectedItems={statusList.filter((v) => todoStatusList.includes(v.name))}
+              onChangeItems={(selectedItems) =>
+                onChangeTransformation({
+                  ...transformation,
+                  statusMappings: {
+                    ...transformaType(
+                      selectedItems.map((v) => v.name),
+                      StandardStatus.Todo,
+                    ),
+                    ...transformaType(inProgressStatusList, StandardStatus.InProgress),
+                    ...transformaType(doneStatusList, StandardStatus.Done),
+                  },
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="IN-PROGRESS">
+            <MultiSelector
+              items={statusList}
+              disabledItems={statusList.filter((v) => [...todoStatusList, ...doneStatusList].includes(v.name))}
+              getKey={(it) => it.id}
+              getName={(it) => it.name}
+              selectedItems={statusList.filter((v) => inProgressStatusList.includes(v.name))}
+              onChangeItems={(selectedItems) =>
+                onChangeTransformation({
+                  ...transformation,
+                  statusMappings: {
+                    ...transformaType(todoStatusList, StandardStatus.Todo),
+                    ...transformaType(
+                      selectedItems.map((v) => v.name),
+                      StandardStatus.InProgress,
+                    ),
+                    ...transformaType(doneStatusList, StandardStatus.Done),
+                  },
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="DONE">
+            <MultiSelector
+              items={statusList}
+              disabledItems={statusList.filter((v) => [...todoStatusList, ...inProgressStatusList].includes(v.name))}
+              getKey={(it) => it.id}
+              getName={(it) => it.name}
+              selectedItems={statusList.filter((v) => doneStatusList.includes(v.name))}
+              onChangeItems={(selectedItems) =>
+                onChangeTransformation({
+                  ...transformation,
+                  statusMappings: {
+                    ...transformaType(todoStatusList, StandardStatus.Todo),
+                    ...transformaType(inProgressStatusList, StandardStatus.InProgress),
+                    ...transformaType(
+                      selectedItems.map((v) => v.name),
+                      StandardStatus.Done,
+                    ),
+                  },
+                })
+              }
+            />
+          </Form.Item>
+        </>
+      ),
+    },
+  ].filter((it) => entities.includes(it.key));

@@ -16,48 +16,57 @@
  *
  */
 
+import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
-export const Transfromation = styled.div`
-  .bp5-form-group {
-    display: flex;
-    align-items: center;
+export const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+`;
 
-    .bp5-label {
-      flex: 0 0 140px;
-    }
+export const LabelInfo = styled.i`
+  color: #ff8b8b;
+`;
 
-    .bp5-form-content {
-      flex: auto;
-    }
+export const LabelDescription = styled.p`
+  margin: 0;
+`;
+
+export const Endpoint = styled.div`
+  p {
+    margin: 10px 0;
   }
 `;
 
-export const CICD = styled.div`
-  h3 {
-    margin-top: 16px;
+export const Input = styled.div`
+  margin-bottom: 8px;
 
-    .switch {
-      display: inline-flex;
-      align-items: center;
-      margin-left: 16px;
-      font-size: 14px;
-      font-weight: 400;
+  .input {
+    display: flex;
+    align-items: center;
 
-      .bp5-switch {
-        margin-bottom: 0;
+    .info {
+      margin-left: 4px;
+
+      span.error {
+        color: ${Colors.RED3};
+      }
+
+      span.success {
+        color: ${Colors.GREEN3};
       }
     }
   }
 
-  .text {
-    display: flex;
-    align-items: baseline;
-    margin-top: 16px;
-    padding-left: 24px;
-
-    .bp5-radio {
-      margin-right: 0;
-    }
+  .warning {
+    margin-top: 8px;
   }
+`;
+
+export const Alert = styled.div`
+  margin-top: 8px;
+  padding: 12px 20px;
+  background: #f9f9fa;
+  border: 1px solid #dbdcdf;
+  border-radius: 4px;
 `;

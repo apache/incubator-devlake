@@ -33,6 +33,27 @@ type BambooTestConnResponse struct {
 	Connection *models.BambooConn
 }
 
+func testConnection(ctx context.Context, connection models.BambooConn) (*BambooTestConnResponse, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	// test connection
+	_, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
+	connection = connection.Sanitize()
+	if err != nil {
+		return nil, err
+	}
+	body := BambooTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	return &body, nil
+}
+
+// TestConnection test bamboo connection
 // @Summary test bamboo connection
 // @Description Test bamboo Connection
 // @Tags plugins/bamboo
@@ -48,23 +69,34 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
-
 	// test connection
-	_, err = api.NewApiClientFromConnection(
-		context.TODO(),
-		basicRes,
-		&connection,
-	)
+	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
 		return nil, err
 	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
 
-	body := BambooTestConnResponse{}
-	body.Success = true
-	body.Message = "success"
-	body.Connection = &connection
-
-	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
+// TestExistingConnection test bamboo connection
+// @Summary test bamboo connection
+// @Description Test bamboo Connection
+// @Tags plugins/bamboo
+// @Success 200  {object} BambooTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/bamboo/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.BambooConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection.BambooConn)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create bamboo connection
@@ -82,7 +114,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch bamboo connection
@@ -100,7 +132,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
 }
 
 // @Summary delete a bamboo connection
@@ -113,7 +145,13 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/bamboo/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.BambooConnection{}, input)
+	conn := &models.BambooConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.Sanitize()
+	return output, nil
 }
 
 // @Summary get all bamboo connections
@@ -129,6 +167,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
+	for idx, c := range connections {
+		connections[idx] = c.Sanitize()
+	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
@@ -143,5 +184,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.BambooConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }

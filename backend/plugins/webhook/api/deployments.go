@@ -116,6 +116,8 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		Name:             fmt.Sprintf(`deployment for %s`, request.CommitSha),
 		Result:           request.Result,
 		Status:           devops.STATUS_DONE,
+		OriginalResult:   request.Result,
+		OriginalStatus:   devops.STATUS_DONE,
 		Environment:      request.Environment,
 		CreatedDate:      *request.CreatedDate,
 		StartedDate:      request.StartedDate,

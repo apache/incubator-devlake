@@ -36,12 +36,22 @@ type BambooConnection struct {
 	BambooConn         `mapstructure:",squash"`
 }
 
+func (connection BambooConnection) Sanitize() BambooConnection {
+	connection.BambooConn = connection.BambooConn.Sanitize()
+	return connection
+}
+
 // TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type BambooConn struct {
 	api.RestConnection `mapstructure:",squash"`
 	//TODO you may need to use helper.BasicAuth instead of helper.AccessToken
 	api.BasicAuth `mapstructure:",squash"`
+}
+
+func (conn *BambooConn) Sanitize() BambooConn {
+	conn.Password = ""
+	return *conn
 }
 
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.

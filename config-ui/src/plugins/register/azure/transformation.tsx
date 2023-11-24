@@ -16,13 +16,11 @@
  *
  */
 
-import { useState, useEffect } from 'react';
-import { Tag, Switch, InputGroup, Intent } from '@blueprintjs/core';
+import { CaretRightOutlined } from '@ant-design/icons';
+import { theme, Collapse, Tag, Input } from 'antd';
 
 import { ExternalLink, HelpTooltip } from '@/components';
 import { DOC_URL } from '@/release';
-
-import * as S from './styled';
 
 interface Props {
   entities: string[];
@@ -31,90 +29,144 @@ interface Props {
 }
 
 export const AzureTransformation = ({ entities, transformation, setTransformation }: Props) => {
-  const [enableCICD, setEnableCICD] = useState(true);
+  const { token } = theme.useToken();
 
-  useEffect(() => {
-    if (!transformation.deploymentPattern) {
-      setEnableCICD(false);
-    }
-  }, []);
-
-  const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
-    const checked = (e.target as HTMLInputElement).checked;
-
-    if (!checked) {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: undefined,
-        productionPattern: undefined,
-      });
-    }
-
-    setEnableCICD(checked);
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: token.colorFillAlter,
+    borderRadius: token.borderRadiusLG,
+    border: 'none',
   };
 
   return (
-    <S.Transfromation>
-      {entities.includes('CICD') && (
-        <S.CICD>
-          <h2>CI/CD</h2>
-          <h3>
-            <span>Deployment</span>
-            <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
-              DORA
-            </Tag>
-            <div className="switch">
-              <span>Enable</span>
-              <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
-            </div>
-          </h3>
-          {enableCICD && (
-            <>
-              <p>
-                Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-                <ExternalLink link={DOC_URL.PLUGIN.AZUREDEVOPS.TRANSFORMATION}>Learn more</ExternalLink>
-              </p>
-              <div style={{ marginTop: 16 }}>Convert a Azure Pipeline Run as a DevLake Deployment when: </div>
-              <div className="text">
-                <span>
-                  The name of the <strong>Azure pipeline</strong> or <strong>one of its jobs</strong> matches
-                </span>
-                <InputGroup
-                  style={{ width: 200, margin: '0 8px' }}
-                  placeholder="(deploy|push-image)"
-                  value={transformation.deploymentPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      deploymentPattern: e.target.value,
-                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                    })
-                  }
-                />
-                <i style={{ color: '#E34040' }}>*</i>
-                <HelpTooltip content="Azure Pipelines: https://learn.microsoft.com/en-us/azure/devops/pipelines/get-started/what-is-azure-pipelines?view=azure-devops#continuous-testing" />
-              </div>
-              <div className="text">
-                <span>If the name also matches</span>
-                <InputGroup
-                  style={{ width: 200, margin: '0 8px' }}
-                  disabled={!transformation.deploymentPattern}
-                  placeholder="prod(.*)"
-                  value={transformation.productionPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      productionPattern: e.target.value,
-                    })
-                  }
-                />
-                <span>, this Deployment is a ‘Production Deployment’</span>
-                <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
-              </div>
-            </>
-          )}
-        </S.CICD>
-      )}
-    </S.Transfromation>
+    <Collapse
+      bordered={false}
+      defaultActiveKey={['CICD']}
+      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev="" />}
+      style={{ background: token.colorBgContainer }}
+      size="large"
+      items={renderCollapseItems({
+        entities,
+        panelStyle,
+        transformation,
+        onChangeTransformation: setTransformation,
+      })}
+    />
   );
 };
+
+const renderCollapseItems = ({
+  entities,
+  panelStyle,
+  transformation,
+  onChangeTransformation,
+}: {
+  entities: string[];
+  panelStyle: React.CSSProperties;
+  transformation: any;
+  onChangeTransformation: any;
+}) =>
+  [
+    {
+      key: 'CICD',
+      label: 'CI/CD',
+      style: panelStyle,
+      children: (
+        <>
+          <h3 style={{ marginBottom: 16 }}>
+            <span>Deployment</span>
+            <Tag style={{ marginLeft: 4 }} color="blue">
+              DORA
+            </Tag>
+          </h3>
+          <p style={{ marginBottom: 16 }}>
+            Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+            <ExternalLink link={DOC_URL.PLUGIN.AZUREDEVOPS.TRANSFORMATION}>Learn more</ExternalLink>
+          </p>
+          <div>Convert a Azure Pipeline Run as a DevLake Deployment when: </div>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <span>
+              The name of the <strong>Azure pipeline</strong> or <strong>one of its jobs</strong> matches
+            </span>
+            <Input
+              style={{ width: 200, margin: '0 8px' }}
+              placeholder="(deploy|push-image)"
+              value={transformation.deploymentPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  deploymentPattern: e.target.value,
+                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                })
+              }
+            />
+            <i style={{ color: '#E34040' }}>*</i>
+            <HelpTooltip content="Azure Pipelines: https://learn.microsoft.com/en-us/azure/devops/pipelines/get-started/what-is-azure-pipelines?view=azure-devops#continuous-testing" />
+          </div>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <span>If the name also matches</span>
+            <Input
+              style={{ width: 200, margin: '0 8px' }}
+              placeholder="prod(.*)"
+              value={transformation.productionPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  productionPattern: e.target.value,
+                })
+              }
+            />
+            <span>, this Deployment is a ‘Production Deployment’</span>
+            <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
+          </div>
+        </>
+      ),
+    },
+    {
+      key: 'ADDITIONAL',
+      label: 'Additional Settings',
+      style: panelStyle,
+      children: (
+        <>
+          <p>
+            Enable the <ExternalLink link={DOC_URL.PLUGIN.REFDIFF}>RefDiff</ExternalLink> plugin to pre-calculate
+            version-based metrics
+            <HelpTooltip content="Calculate the commits diff between two consecutive tags that match the following RegEx. Issues closed by PRs which contain these commits will also be calculated. The result will be shown in table.refs_commits_diffs and table.refs_issues_diffs." />
+          </p>
+          <div className="refdiff">
+            Compare the last
+            <Input
+              style={{ margin: '0 8px', width: 60 }}
+              placeholder="10"
+              value={transformation.refdiff?.tagsLimit ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  refdiff: {
+                    ...transformation?.refdiff,
+                    tagsLimit: +e.target.value,
+                  },
+                })
+              }
+            />
+            tags that match the
+            <Input
+              style={{ margin: '0 8px', width: 200 }}
+              placeholder="(regex)$"
+              value={transformation.refdiff?.tagsPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  refdiff: {
+                    ...transformation?.refdiff,
+                    tagsPattern: e.target.value,
+                  },
+                })
+              }
+            />
+            for calculation
+          </div>
+        </>
+      ),
+    },
+  ].filter((it) => entities.includes(it.key) || it.key === 'ADDITIONAL');

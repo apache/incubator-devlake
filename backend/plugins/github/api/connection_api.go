@@ -60,6 +60,7 @@ type GithubTestConnResponse struct {
 	Installations []models.GithubAppInstallation `json:"installations"`
 }
 
+// TestConnection test github connection
 // @Summary test github connection
 // @Description Test github Connection
 // @Tags plugins/github
@@ -75,132 +76,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if e != nil {
 		return nil, errors.Convert(e)
 	}
-	e = vld.StructExcept(conn, "GithubAppKey", "GithubAccessToken")
-	if e != nil {
-		return nil, errors.Convert(e)
-	}
-
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &conn)
+	testConnectionResult, err := testConnection(context.TODO(), conn)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
-
-	githubApiResponse := &GithubTestConnResponse{}
-
-	if conn.AuthMethod == "AppKey" {
-		jwt, err := conn.GithubAppKey.CreateJwt()
-		if err != nil {
-			return nil, err
-		}
-
-		res, err := apiClient.Get("app", nil, http.Header{
-			"Authorization": []string{fmt.Sprintf("Bearer %s", jwt)},
-		})
-
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "verify token failed")
-		}
-		if res.StatusCode != http.StatusOK {
-			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
-		}
-
-		githubApp := &models.GithubApp{}
-		err = api.UnmarshalResponse(res, githubApp)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "verify token failed")
-		} else if githubApp.Slug == "" {
-			return nil, errors.BadInput.Wrap(err, "invalid token")
-		}
-
-		res, err = apiClient.Get("app/installations", nil, http.Header{
-			"Authorization": []string{fmt.Sprintf("Bearer %s", jwt)},
-		})
-
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "verify token failed")
-		}
-		if res.StatusCode != http.StatusOK {
-			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
-		}
-
-		githubAppInstallations := &[]models.GithubAppInstallation{}
-		err = api.UnmarshalResponse(res, githubAppInstallations)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "verify token failed")
-		}
-
-		githubApiResponse.Success = true
-		githubApiResponse.Message = "success"
-		githubApiResponse.Login = githubApp.Slug
-		githubApiResponse.Installations = *githubAppInstallations
-
-	} else if conn.AuthMethod == "AccessToken" {
-		res, err := apiClient.Get("user", nil, nil)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "verify token failed")
-		}
-
-		if res.StatusCode == http.StatusUnauthorized {
-			return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing connection")
-		}
-
-		if res.StatusCode != http.StatusOK {
-			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
-		}
-
-		githubUserOfToken := &models.GithubUserOfToken{}
-		err = api.UnmarshalResponse(res, githubUserOfToken)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "verify token failed")
-		} else if githubUserOfToken.Login == "" {
-			return nil, errors.BadInput.Wrap(err, "invalid token")
-		}
-
-		success := false
-		warning := false
-		messages := []string{}
-		// for github classic token, check permission
-		if strings.HasPrefix(conn.Token, "ghp_") {
-			scopes := res.Header.Get("X-OAuth-Scopes")
-			// convert "X-OAuth-Scopes" header to user permissions map
-			userPerms := map[string]bool{}
-			for _, userPerm := range strings.Split(scopes, ", ") {
-				userPerms[userPerm] = true
-			}
-			// check public repo permission
-			missingPubPerms := findMissingPerms(userPerms, publicPermissions)
-			success = len(missingPubPerms) == 0
-			if !success {
-				messages = append(messages, fmt.Sprintf(
-					"Please check the field(s) %s",
-					strings.Join(missingPubPerms, ", "),
-				))
-			}
-			// check private repo permission
-			missingPriPerms := findMissingPerms(userPerms, privatePermissions)
-			warning = len(missingPriPerms) > 0
-			if warning {
-				msgFmt := "If you want to collect private repositories, please check the field(s) %s"
-				if success {
-					// @Startrekzky and @yumengwang03 firmly believe that this is critical for users to understand the message
-					msgFmt = "This token is able to collect public repositories. " + msgFmt
-				}
-				messages = append(messages, fmt.Sprintf(
-					msgFmt,
-					strings.Join(missingPriPerms, ", "),
-				))
-			}
-		}
-
-		githubApiResponse.Success = success
-		githubApiResponse.Warning = warning
-		githubApiResponse.Message = strings.Join(messages, ";\n")
-		githubApiResponse.Login = githubUserOfToken.Login
-	} else {
-		return nil, errors.BadInput.New("invalid authentication method")
-	}
-
-	return &plugin.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
 // @Summary create github connection
@@ -259,4 +139,140 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Router /plugins/github/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return dsHelper.ConnApi.GetDetail(input)
+}
+
+func testConnection(ctx context.Context, conn models.GithubConn) (*GithubTestConnResponse, errors.Error) {
+	if vld != nil {
+		if err := vld.StructExcept(conn, "GithubAppKey", "GithubAccessToken"); err != nil {
+			return nil, errors.Convert(err)
+		}
+	}
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &conn)
+	if err != nil {
+		return nil, err
+	}
+	githubApiResponse := &GithubTestConnResponse{}
+	if conn.AuthMethod == "AppKey" {
+		jwt, err := conn.GithubAppKey.CreateJwt()
+		if err != nil {
+			return nil, err
+		}
+		res, err := apiClient.Get("app", nil, http.Header{
+			"Authorization": []string{fmt.Sprintf("Bearer %s", jwt)},
+		})
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+		githubApp := &models.GithubApp{}
+		err = api.UnmarshalResponse(res, githubApp)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		} else if githubApp.Slug == "" {
+			return nil, errors.BadInput.Wrap(err, "invalid token")
+		}
+		res, err = apiClient.Get("app/installations", nil, http.Header{
+			"Authorization": []string{fmt.Sprintf("Bearer %s", jwt)},
+		})
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+		githubAppInstallations := &[]models.GithubAppInstallation{}
+		err = api.UnmarshalResponse(res, githubAppInstallations)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+		githubApiResponse.Success = true
+		githubApiResponse.Message = "success"
+		githubApiResponse.Login = githubApp.Slug
+		githubApiResponse.Installations = *githubAppInstallations
+
+	} else if conn.AuthMethod == "AccessToken" {
+		res, err := apiClient.Get("user", nil, nil)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+		if res.StatusCode == http.StatusUnauthorized {
+			return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing connection")
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+		githubUserOfToken := &models.GithubUserOfToken{}
+		err = api.UnmarshalResponse(res, githubUserOfToken)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		} else if githubUserOfToken.Login == "" {
+			return nil, errors.BadInput.Wrap(err, "invalid token")
+		}
+		success := false
+		warning := false
+		messages := []string{}
+		// for github classic token, check permission
+		if strings.HasPrefix(conn.Token, "ghp_") {
+			scopes := res.Header.Get("X-OAuth-Scopes")
+			// convert "X-OAuth-Scopes" header to user permissions map
+			userPerms := map[string]bool{}
+			for _, userPerm := range strings.Split(scopes, ", ") {
+				userPerms[userPerm] = true
+			}
+			// check public repo permission
+			missingPubPerms := findMissingPerms(userPerms, publicPermissions)
+			success = len(missingPubPerms) == 0
+			if !success {
+				messages = append(messages, fmt.Sprintf(
+					"Please check the field(s) %s",
+					strings.Join(missingPubPerms, ", "),
+				))
+			}
+			// check private repo permission
+			missingPriPerms := findMissingPerms(userPerms, privatePermissions)
+			warning = len(missingPriPerms) > 0
+			if warning {
+				msgFmt := "If you want to collect private repositories, please check the field(s) %s"
+				if success {
+					// @Startrekzky and @yumengwang03 firmly believe that this is critical for users to understand the message
+					msgFmt = "This token is able to collect public repositories. " + msgFmt
+				}
+				messages = append(messages, fmt.Sprintf(
+					msgFmt,
+					strings.Join(missingPriPerms, ", "),
+				))
+			}
+		}
+
+		githubApiResponse.Success = success
+		githubApiResponse.Warning = warning
+		githubApiResponse.Message = strings.Join(messages, ";\n")
+		githubApiResponse.Login = githubUserOfToken.Login
+	} else {
+		return nil, errors.BadInput.New("invalid authentication method")
+	}
+
+	return githubApiResponse, nil
+}
+
+// TestExistingConnection test github connection options
+// @Summary test github connection
+// @Description Test github Connection
+// @Tags plugins/github
+// @Success 200  {object} GithubTestConnResponse
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/github/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection, err := dsHelper.ConnApi.FindByPk(input)
+	if err != nil {
+		return nil, err
+	}
+	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.GithubConn)
+	if testConnectionErr != nil {
+		return nil, testConnectionErr
+	}
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
