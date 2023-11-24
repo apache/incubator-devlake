@@ -33,7 +33,7 @@ import (
 const RAW_ISSUES_TABLE = "sonarqube_api_issues"
 
 const MAXPAGES = 100
-const MAXPAGESIZE = 10000
+const MAXISSUECOUNT = 10000
 const MININTERVAL = 10
 
 var _ plugin.SubTaskEntryPoint = CollectIssues
@@ -153,7 +153,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					// split it by dir/fil
 					for _, facet := range body.Facets {
 						for _, value := range facet.Values {
-							if value.Count <= MAXPAGESIZE {
+							if value.Count <= MAXISSUECOUNT {
 								iterator.Push(&SonarqubeIssueIteratorNode{
 									Severity:      severity,
 									Status:        status,
@@ -183,7 +183,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 									return 0, errors.Default.New(fmt.Sprintf("the facets count [%d] is not 1", len(body2.Facets)))
 								}
 								for _, value2 := range body2.Facets[0].Values {
-									if value2.Count > MAXPAGESIZE {
+									if value2.Count > MAXISSUECOUNT {
 										logger.Warn(fmt.Errorf("the issue count [%d] exceeds the maximum page size", value2.Count), "")
 									} else {
 										iterator.Push(&SonarqubeIssueIteratorNode{
@@ -310,36 +310,10 @@ type SonarqubePageInfo struct {
 		PageSize  int `json:"pageSize"`
 		Total     int `json:"total"`
 	} `json:"paging"`
-	EffortTotal int `json:"effortTotal"`
-	Issues      []struct {
-		Key       string `json:"key"`
-		Rule      string `json:"rule"`
-		Severity  string `json:"severity"`
-		Component string `json:"component"`
-		Project   string `json:"project"`
-		Line      int    `json:"line"`
-		Hash      string `json:"hash"`
-		TextRange struct {
-			StartLine   int `json:"startLine"`
-			EndLine     int `json:"endLine"`
-			StartOffset int `json:"startOffset"`
-			EndOffset   int `json:"endOffset"`
-		} `json:"textRange"`
-		Flows             []any    `json:"flows"`
-		Status            string   `json:"status"`
-		Message           string   `json:"message"`
-		Effort            string   `json:"effort"`
-		Debt              string   `json:"debt"`
-		Author            string   `json:"author"`
-		Tags              []string `json:"tags"`
-		CreationDate      string   `json:"creationDate"`
-		UpdateDate        string   `json:"updateDate"`
-		Type              string   `json:"type"`
-		Scope             string   `json:"scope"`
-		QuickFixAvailable bool     `json:"quickFixAvailable"`
-	} `json:"issues"`
-	Components []any `json:"components"`
-	Facets     []struct {
+	EffortTotal int   `json:"effortTotal"`
+	Issues      []any `json:"issues"`
+	Components  []any `json:"components"`
+	Facets      []struct {
 		Property string `json:"property"`
 		Values   []struct {
 			Val   string `json:"val"`
