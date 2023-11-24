@@ -104,15 +104,11 @@ func CollectAndExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	if collectorWithState.Since != nil {
 		since = helper.DateTime{Time: *collectorWithState.Since}
 	}
-	enableSince := false
 
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
-			if enableSince {
-				return nil, nil, nil
-			}
 			query := &GraphqlQueryDeploymentWrapper{}
 			variables := make(map[string]interface{})
 			if reqData == nil {
@@ -138,7 +134,6 @@ func CollectAndExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			for _, deployment := range deployments {
 				//Skip deployments with createdAt earlier than 'since'
 				if deployment.CreatedAt.Before(since.Time) {
-					enableSince = true
 					continue
 				}
 				githubDeployment, err := convertGithubDeployment(deployment, data.Options.ConnectionId, data.Options.GithubId)
