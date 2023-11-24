@@ -1,6 +1,19 @@
 #!/usr/bin/env node
 /* eslint-disable */
 //prettier-ignore
+/* 
+ * The yarn-3.4.1.cjs file is a part of the Yarn package manager.
+ * This file includes multiple third-party codes, each under its respective license.
+ * 
+ * The licenses for these third-party codes are detailed in the project's LICENSE file.
+ * Users and developers are encouraged to refer to the LICENSE file for specific 
+ * licensing information pertaining to each third-party code segment included herein.
+ *
+ * The primary license for the Yarn package manager is the BSD License, 
+ * with some portions of the code under different licenses, including MIT.
+ *
+ * Please see the LICENSE file for more detailed information on licensing.
+ */
 /*!
 BSD 2-Clause License
 
