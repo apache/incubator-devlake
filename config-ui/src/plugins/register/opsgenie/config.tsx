@@ -17,14 +17,15 @@
  */
 
 import { ExternalLink } from '@/components';
+import { IPluginConfig } from '@/types';
 
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 import { Endpoint } from './connection-fields';
 
-export const OpsgenieConfig = {
+export const OpsgenieConfig: IPluginConfig = {
   plugin: 'opsgenie',
   name: 'Opsgenie',
-  icon: Icon,
+  icon: ({ color }) => <Icon fill={color} />,
   sort: 8,
   connection: {
     docLink: 'TODO',

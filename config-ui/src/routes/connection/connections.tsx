@@ -27,6 +27,8 @@ import { getPluginConfig, ConnectionList, ConnectionForm } from '@/plugins';
 
 import * as S from './styled';
 
+const SORT_START_WITH = ['o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
 export const Connections = () => {
   const [type, setType] = useState<'list' | 'form'>();
   const [plugin, setPlugin] = useState('');
@@ -43,10 +45,15 @@ export const Connections = () => {
   const connections = useAppSelector(selectAllConnections);
   const webhooks = useAppSelector(selectWebhooks);
 
-  const [firstPlugins, secondPlugins] = chunk(
-    plugins.filter((p) => p !== 'webhook'),
-    7,
-  );
+  const filterWebhookPlugins = plugins.filter((p) => p !== 'webhook');
+  const index = filterWebhookPlugins.findIndex((p) => SORT_START_WITH.includes(p[0]));
+
+  const [firstPlugins, secondPlugins] = useMemo(() => {
+    if (index > 0) {
+      return chunk(filterWebhookPlugins, index);
+    }
+    return [filterWebhookPlugins, []];
+  }, [index]);
 
   const handleShowListDialog = (plugin: string) => {
     setType('list');
