@@ -32,12 +32,9 @@ import (
 
 const RAW_ISSUES_TABLE = "sonarqube_api_issues"
 
-// const MAXPAGES = 100
-// const MAXPAGESIZE = 10000
-// const MININTERVAL = 10
-const MAXPAGES = 5
-const MAXPAGESIZE = 100
-const MININTERVAL = 1000000000000
+const MAXPAGES = 100
+const MAXPAGESIZE = 10000
+const MININTERVAL = 10
 
 var _ plugin.SubTaskEntryPoint = CollectIssues
 
@@ -48,7 +45,6 @@ type SonarqubeIssueIteratorNode struct {
 	CreatedAfter  *time.Time
 	CreatedBefore *time.Time
 	FilePath      string
-	IssueCount    int
 }
 
 func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
@@ -70,7 +66,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 						CreatedAfter:  nil,
 						CreatedBefore: nil,
 						FilePath:      "",
-						IssueCount:    0,
 					},
 				)
 			}
@@ -166,7 +161,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 									CreatedAfter:  createdAfter,
 									CreatedBefore: createdBefore,
 									FilePath:      value.Val,
-									IssueCount:    value.Count,
 								})
 								logger.Info("split by dir, and it's issue count:[%d] and file path:[%s]", value.Count, value.Val)
 							} else {
@@ -199,7 +193,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 											CreatedAfter:  createdAfter,
 											CreatedBefore: createdBefore,
 											FilePath:      value2.Val,
-											IssueCount:    value2.Count,
 										})
 										logger.Info(fmt.Sprintf("split by fil, and it's issue count:[%d] and file path:[%s]", value2.Count, value2.Val))
 									}
