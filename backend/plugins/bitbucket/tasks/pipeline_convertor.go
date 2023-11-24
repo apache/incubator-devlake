@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 )
@@ -98,9 +98,9 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.RUNNING, models.PAUSED, models.BUILDING},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipeline.Status),
-        OriginalStatus: bitbucketPipeline.Status,
-				Type:        bitbucketPipeline.Type,
-				Environment: bitbucketPipeline.Environment,
+				OriginalStatus: bitbucketPipeline.Status,
+				Type:           bitbucketPipeline.Type,
+				Environment:    bitbucketPipeline.Environment,
 				ItemDateInfo: devops.ItemDateInfo{
 					CreatedDate:  createdAt,
 					FinishedDate: bitbucketPipeline.BitbucketCompleteOn,

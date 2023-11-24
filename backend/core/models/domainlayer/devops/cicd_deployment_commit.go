@@ -28,8 +28,8 @@ type CicdDeploymentCommit struct {
 	Name             string `gorm:"type:varchar(255)"`
 	Result           string `gorm:"type:varchar(100)"`
 	Status           string `gorm:"type:varchar(100)"`
-  OriginalStatus                string `gorm:"type:varchar(100)"`
-	OriginalResult                string `gorm:"type:varchar(100)"`
+	OriginalStatus   string `gorm:"type:varchar(100)"`
+	OriginalResult   string `gorm:"type:varchar(100)"`
 	Environment      string `gorm:"type:varchar(255)"`
 	ItemDateInfo
 	DurationSec                   *float64
@@ -50,13 +50,13 @@ func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment 
 			Id:        cicdDeploymentCommit.CicdDeploymentId,
 			NoPKModel: cicdDeploymentCommit.DomainEntity.NoPKModel,
 		},
-		CicdScopeId: cicdDeploymentCommit.CicdScopeId,
-		Name:        cicdDeploymentCommit.Name,
-		Result:      cicdDeploymentCommit.Result,
-		Status:      cicdDeploymentCommit.Status,
-    OriginalStatus: cicdDeploymentCommit.OriginalStatus,
+		CicdScopeId:    cicdDeploymentCommit.CicdScopeId,
+		Name:           cicdDeploymentCommit.Name,
+		Result:         cicdDeploymentCommit.Result,
+		Status:         cicdDeploymentCommit.Status,
+		OriginalStatus: cicdDeploymentCommit.OriginalStatus,
 		OriginalResult: cicdDeploymentCommit.OriginalResult,
-		Environment: cicdDeploymentCommit.Environment,
+		Environment:    cicdDeploymentCommit.Environment,
 		ItemDateInfo: ItemDateInfo{
 			CreatedDate:  cicdDeploymentCommit.CreatedDate,
 			StartedDate:  cicdDeploymentCommit.StartedDate,

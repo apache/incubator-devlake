@@ -103,10 +103,10 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 				DomainEntity: domainlayer.DomainEntity{
 					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 				},
-				Name:   jenkinsBuild.FullName,
-				Result: jenkinsPipelineResult,
-				Status: jenkinsPipelineStatus,
-        OriginalResult: jenkinsBuild.Result,
+				Name:           jenkinsBuild.FullName,
+				Result:         jenkinsPipelineResult,
+				Status:         jenkinsPipelineStatus,
+				OriginalResult: jenkinsBuild.Result,
 				OriginalStatus: cast.ToString(jenkinsBuild.Building),
 				ItemDateInfo: devops.ItemDateInfo{
 					FinishedDate: jenkinsPipelineFinishedDate,
@@ -125,12 +125,12 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 					DomainEntity: domainlayer.DomainEntity{
 						Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 					},
-					Name:        data.Options.JobFullName,
-					Result:      jenkinsPipelineResult,
-					Status:      jenkinsPipelineStatus,
-          OriginalResult: jenkinsBuild.Result,
+					Name:           data.Options.JobFullName,
+					Result:         jenkinsPipelineResult,
+					Status:         jenkinsPipelineStatus,
+					OriginalResult: jenkinsBuild.Result,
 					OriginalStatus: cast.ToString(jenkinsBuild.Building),
-					DurationSec: durationSec,
+					DurationSec:    durationSec,
 					ItemDateInfo: devops.ItemDateInfo{
 						StartedDate:  &jenkinsBuild.StartTime,
 						FinishedDate: jenkinsPipelineFinishedDate,

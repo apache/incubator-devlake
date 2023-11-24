@@ -95,8 +95,8 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{models.IN_PROGRESS},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketDeployment.Status),
-        OriginalStatus: bitbucketDeployment.Status,
-				Environment: strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
+				OriginalStatus: bitbucketDeployment.Status,
+				Environment:    strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
 				ItemDateInfo: devops.ItemDateInfo{
 					CreatedDate:  *bitbucketDeployment.CreatedOn,
 					StartedDate:  bitbucketDeployment.StartedOn,
