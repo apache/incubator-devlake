@@ -31,8 +31,13 @@ import (
 )
 
 const RAW_ISSUES_TABLE = "sonarqube_api_issues"
-const MAXPAGES = 100
-const MAXPAGESIZE = 10000
+
+// const MAXPAGES = 100
+// const MAXPAGESIZE = 10000
+// const MININTERVAL = 10
+const MAXPAGES = 5
+const MAXPAGESIZE = 100
+const MININTERVAL = 1000000000000
 
 var _ plugin.SubTaskEntryPoint = CollectIssues
 
@@ -43,6 +48,7 @@ type SonarqubeIssueIteratorNode struct {
 	CreatedAfter  *time.Time
 	CreatedBefore *time.Time
 	FilePath      string
+	IssueCount    int
 }
 
 func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
@@ -64,6 +70,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 						CreatedAfter:  nil,
 						CreatedBefore: nil,
 						FilePath:      "",
+						IssueCount:    0,
 					},
 				)
 			}
@@ -100,6 +107,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			}
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
+
 			query.Encode()
 			return query, nil
 		},
@@ -146,11 +154,10 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				}
 
 				// can not split it by time
-				if createdBeforeUnix-createdAfterUnix <= 10 {
+				if createdBeforeUnix-createdAfterUnix <= MININTERVAL {
 					// split it by dir/fil
 					for _, facet := range body.Facets {
 						for _, value := range facet.Values {
-							// by dir
 							if value.Count <= MAXPAGESIZE {
 								iterator.Push(&SonarqubeIssueIteratorNode{
 									Severity:      severity,
@@ -159,25 +166,48 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 									CreatedAfter:  createdAfter,
 									CreatedBefore: createdBefore,
 									FilePath:      value.Val,
+									IssueCount:    value.Count,
 								})
-								logger.Info("split by dir for it's count:[%d] and val:[%s]", value.Count, value.Val)
+								logger.Info("split by dir, and it's issue count:[%d] and file path:[%s]", value.Count, value.Val)
 							} else {
-								// by file
-								for _, issue := range body.Issues {
-									iterator.Push(&SonarqubeIssueIteratorNode{
-										Severity:      severity,
-										Status:        status,
-										Type:          typ,
-										CreatedAfter:  createdAfter,
-										CreatedBefore: createdBefore,
-										FilePath:      issue.Component,
-									})
+								// split it by dir when it's issue count > 10000
+								res2, err := data.ApiClient.Get("issues/search", url.Values{
+									"componentKeys": {fmt.Sprintf("%v", data.Options.ProjectKey)},
+									"directories":   {value.Val},
+									"facets":        {"files"},
+									"ps":            {"1"},
+								}, nil)
+								if err != nil {
+									return 0, err
 								}
-								logger.Info("split by file for it's count:[%d] and val:[%s]", value.Count, value.Val)
+								body2 := &SonarqubePageInfo{}
+								err = helper.UnmarshalResponse(res2, body2)
+								if err != nil {
+									return 0, err
+								}
+								if len(body2.Facets) != 1 {
+									return 0, errors.Default.New(fmt.Sprintf("the facets count [%d] is not 1", len(body2.Facets)))
+								}
+								for _, value2 := range body2.Facets[0].Values {
+									if value2.Count > MAXPAGESIZE {
+										logger.Warn(fmt.Errorf("the issue count [%d] exceeds the maximum page size", value2.Count), "")
+									} else {
+										iterator.Push(&SonarqubeIssueIteratorNode{
+											Severity:      severity,
+											Status:        status,
+											Type:          typ,
+											CreatedAfter:  createdAfter,
+											CreatedBefore: createdBefore,
+											FilePath:      value2.Val,
+											IssueCount:    value2.Count,
+										})
+										logger.Info(fmt.Sprintf("split by fil, and it's issue count:[%d] and file path:[%s]", value2.Count, value2.Val))
+									}
+								}
 							}
 						}
 					}
-					return MAXPAGES, nil
+					return 0, nil
 				}
 
 				// split it
