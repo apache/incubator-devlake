@@ -138,3 +138,14 @@ func generateFakeRepoUrl(endpoint string, repoId int) (string, error) {
 	}
 	return fmt.Sprintf("fake://%s/repos/%d", endpointURL.Host, repoId), nil
 }
+
+// covertError will indentify some known errors and transform it to a simple form.
+func covertError(err errors.Error) errors.Error {
+	if err == nil {
+		return nil
+	}
+	if strings.Contains(err.Error(), "has expired") {
+		return errors.Default.New("license has expired")
+	}
+	return err
+}
