@@ -95,6 +95,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPending, StatusPreparing},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabPipeline.Status),
+				OriginalStatus: gitlabPipeline.Status,
 				ItemDateInfo: devops.ItemDateInfo{
 					CreatedDate:  startedAt,
 					FinishedDate: gitlabPipeline.GitlabUpdatedAt,

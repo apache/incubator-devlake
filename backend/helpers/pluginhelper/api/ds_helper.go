@@ -44,13 +44,16 @@ func NewDataSourceHelper[
 	basicRes context.BasicRes,
 	pluginName string,
 	scopeSearchColumns []string,
+	connectionSterilizer func(c C) C,
+	scopeSterilizer func(s S) S,
+	scopeConfigSterilizer func(s SC) SC,
 ) *DsHelper[C, S, SC] {
 	connSrv := srvhelper.NewConnectionSrvHelper[C, S, SC](basicRes, pluginName)
-	connApi := NewDsConnectionApiHelper[C, S, SC](basicRes, connSrv)
+	connApi := NewDsConnectionApiHelper[C, S, SC](basicRes, connSrv, connectionSterilizer)
 	scopeSrv := srvhelper.NewScopeSrvHelper[C, S, SC](basicRes, pluginName, scopeSearchColumns)
-	scopeApi := NewDsScopeApiHelper[C, S, SC](basicRes, scopeSrv)
+	scopeApi := NewDsScopeApiHelper[C, S, SC](basicRes, scopeSrv, scopeSterilizer)
 	scSrv := srvhelper.NewScopeConfigSrvHelper[C, S, SC](basicRes, scopeSearchColumns)
-	scApi := NewDsScopeConfigApiHelper[C, S, SC](basicRes, scSrv)
+	scApi := NewDsScopeConfigApiHelper[C, S, SC](basicRes, scSrv, scopeConfigSterilizer)
 	return &DsHelper[C, S, SC]{
 		ConnSrv:        connSrv,
 		ConnApi:        connApi,

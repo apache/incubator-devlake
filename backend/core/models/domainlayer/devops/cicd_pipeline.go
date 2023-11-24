@@ -29,6 +29,8 @@ type CICDPipeline struct {
 	Name        string `gorm:"type:varchar(255)"`
 	Result      string `gorm:"type:varchar(100)"`
 	Status      string `gorm:"type:varchar(100)"`
+  OriginalStatus string `gorm:"type:varchar(100)"`
+	OriginalResult string `gorm:"type:varchar(100)"`
 	Type        string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
 	DurationSec float64
 	Environment string `gorm:"type:varchar(255)"`

@@ -39,22 +39,28 @@ type ModelApiHelper[M dal.Tabler] struct {
 	log            log.Logger
 	modelName      string
 	pkPathVarNames []string
+	sterilizers    []func(m M) M
 }
 
 func NewModelApiHelper[M dal.Tabler](
 	basicRes context.BasicRes,
 	dalHelper *srvhelper.ModelSrvHelper[M],
 	pkPathVarNames []string, // path variable names of primary key
+	sterilizer func(m M) M,
 ) *ModelApiHelper[M] {
 	m := new(M)
 	modelName := fmt.Sprintf("%T", m)
-	return &ModelApiHelper[M]{
+	modelApiHelper := &ModelApiHelper[M]{
 		basicRes:       basicRes,
 		dalHelper:      dalHelper,
 		log:            basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
 		modelName:      modelName,
 		pkPathVarNames: pkPathVarNames,
 	}
+	if sterilizer != nil {
+		modelApiHelper.sterilizers = []func(m M) M{sterilizer}
+	}
+	return modelApiHelper
 }
 
 func (self *ModelApiHelper[M]) Post(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -98,9 +104,28 @@ func (self *ModelApiHelper[M]) GetDetail(input *plugin.ApiResourceInput) (*plugi
 	if err != nil {
 		return nil, err
 	}
+	model = self.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
+}
+
+func (self *ModelApiHelper[M]) Sanitize(model *M) *M {
+	if self.sterilizers != nil {
+		for _, sterilizer := range self.sterilizers {
+			sanitizedModel := sterilizer(*model)
+			model = &sanitizedModel
+		}
+	}
+	return model
+}
+
+func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
+	for idx, m := range models {
+		model := *m
+		models[idx] = self.Sanitize(&model)
+	}
+	return models
 }
 
 func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -116,6 +141,7 @@ func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.Ap
 	if err != nil {
 		return nil, err
 	}
+	model = self.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
@@ -130,6 +156,7 @@ func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.A
 	if err != nil {
 		return nil, err
 	}
+	model = self.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
@@ -137,6 +164,7 @@ func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.A
 
 func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	all, err := self.dalHelper.GetAll()
+	all = self.BatchSanitize(all)
 	return &plugin.ApiResourceOutput{
 		Body: all,
 	}, err
@@ -144,18 +172,19 @@ func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.A
 
 func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var req struct {
-		Data []M `json:"data"`
+		Data []*M `json:"data"`
 	}
 	err := utils.DecodeMapStruct(input.Body, &req, false)
 	if err != nil {
 		return nil, err
 	}
 	for i, item := range req.Data {
-		err := self.dalHelper.CreateOrUpdate(&item)
+		err := self.dalHelper.CreateOrUpdate(item)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("failed to save item %d", i))
 		}
 	}
+	req.Data = self.BatchSanitize(req.Data)
 	return &plugin.ApiResourceOutput{
 		Body: req.Data,
 	}, nil

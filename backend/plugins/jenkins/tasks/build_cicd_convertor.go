@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/spf13/cast"
 	"reflect"
 	"time"
 
@@ -105,6 +106,8 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 				Name:   jenkinsBuild.FullName,
 				Result: jenkinsPipelineResult,
 				Status: jenkinsPipelineStatus,
+        OriginalResult: jenkinsBuild.Result,
+				OriginalStatus: cast.ToString(jenkinsBuild.Building),
 				ItemDateInfo: devops.ItemDateInfo{
 					FinishedDate: jenkinsPipelineFinishedDate,
 					CreatedDate:  jenkinsBuild.StartTime,
@@ -125,6 +128,8 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 					Name:        data.Options.JobFullName,
 					Result:      jenkinsPipelineResult,
 					Status:      jenkinsPipelineStatus,
+          OriginalResult: jenkinsBuild.Result,
+					OriginalStatus: cast.ToString(jenkinsBuild.Building),
 					DurationSec: durationSec,
 					ItemDateInfo: devops.ItemDateInfo{
 						StartedDate:  &jenkinsBuild.StartTime,

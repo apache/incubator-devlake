@@ -16,13 +16,11 @@
  *
  */
 
-import { useState, useEffect } from 'react';
-import { Tag, Intent, Switch, InputGroup } from '@blueprintjs/core';
+import { CaretRightOutlined } from '@ant-design/icons';
+import { theme, Collapse, Tag, Input } from 'antd';
 
 import { ExternalLink, HelpTooltip } from '@/components';
 import { DOC_URL } from '@/release';
-
-import * as S from './styled';
 
 interface Props {
   entities: string[];
@@ -31,90 +29,98 @@ interface Props {
 }
 
 export const JenkinsTransformation = ({ entities, transformation, setTransformation }: Props) => {
-  const [enableCICD, setEnableCICD] = useState(true);
+  const { token } = theme.useToken();
 
-  useEffect(() => {
-    if (!transformation.deploymentPattern) {
-      setEnableCICD(false);
-    }
-  }, []);
-
-  const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
-    const checked = (e.target as HTMLInputElement).checked;
-
-    if (!checked) {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: undefined,
-        productionPattern: undefined,
-      });
-    }
-
-    setEnableCICD(checked);
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: token.colorFillAlter,
+    borderRadius: token.borderRadiusLG,
+    border: 'none',
   };
 
   return (
-    <S.Transformation>
-      {entities.includes('CICD') && (
-        <S.CICD>
-          <h2>CI/CD</h2>
-          <h3>
-            <span>Deployment</span>
-            <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
-              DORA
-            </Tag>
-            <div className="switch">
-              <span>Enable</span>
-              <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
-            </div>
-          </h3>
-          {enableCICD && (
-            <>
-              <p>
-                Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-                <ExternalLink link={DOC_URL.PLUGIN.JENKINS.TRANSFORMATION}>Learn more</ExternalLink>
-              </p>
-              <div style={{ marginTop: 16 }}>Convert a Jenkins Build as a DevLake Deployment when: </div>
-              <div className="text">
-                <span>
-                  The name of the <strong>Jenkins job</strong> or <strong>one of its stages</strong> matches
-                </span>
-                <InputGroup
-                  style={{ width: 200, margin: '0 8px' }}
-                  placeholder="(deploy|push-image)"
-                  value={transformation.deploymentPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      deploymentPattern: e.target.value,
-                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                    })
-                  }
-                />
-                <i style={{ color: '#E34040' }}>*</i>
-                <HelpTooltip content="Jenkins Builds: https://www.jenkins.io/doc/pipeline/steps/pipeline-build-step/" />
-              </div>
-              <div className="text">
-                <span>If the name also matches</span>
-                <InputGroup
-                  style={{ width: 120, margin: '0 8px' }}
-                  disabled={!transformation.deploymentPattern}
-                  placeholder="prod(.*)"
-                  value={transformation.productionPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      productionPattern: e.target.value,
-                    })
-                  }
-                />
-                <span>, this Deployment is a ‘Production Deployment’</span>
-                <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
-              </div>
-            </>
-          )}
-        </S.CICD>
-      )}
-    </S.Transformation>
+    <Collapse
+      bordered={false}
+      defaultActiveKey={['TICKET', 'CICD']}
+      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev="" />}
+      style={{ background: token.colorBgContainer }}
+      size="large"
+      items={renderCollapseItems({
+        entities,
+        panelStyle,
+        transformation,
+        onChangeTransformation: setTransformation,
+      })}
+    />
   );
 };
+
+const renderCollapseItems = ({
+  entities,
+  panelStyle,
+  transformation,
+  onChangeTransformation,
+}: {
+  entities: string[];
+  panelStyle: React.CSSProperties;
+  transformation: any;
+  onChangeTransformation: any;
+}) =>
+  [
+    {
+      key: 'CICD',
+      label: 'CI/CD',
+      style: panelStyle,
+      children: (
+        <>
+          <h3 style={{ marginBottom: 16 }}>
+            <span>Deployment</span>
+            <Tag style={{ marginLeft: 4 }} color="blue">
+              DORA
+            </Tag>
+          </h3>
+          <p style={{ marginBottom: 16 }}>
+            Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+            <ExternalLink link={DOC_URL.PLUGIN.JENKINS.TRANSFORMATION}>Learn more</ExternalLink>
+          </p>
+          <div style={{ marginTop: 16 }}>Convert a Jenkins Build as a DevLake Deployment when: </div>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <span>
+              The name of the <strong>Jenkins job</strong> or <strong>one of its stages</strong> matches
+            </span>
+            <Input
+              style={{ width: 200, margin: '0 8px' }}
+              placeholder="(deploy|push-image)"
+              value={transformation.deploymentPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  deploymentPattern: e.target.value,
+                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                })
+              }
+            />
+            <i style={{ color: '#E34040' }}>*</i>
+            <HelpTooltip content="Jenkins Builds: https://www.jenkins.io/doc/pipeline/steps/pipeline-build-step/" />
+          </div>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <span>If the name also matches</span>
+            <Input
+              style={{ width: 120, margin: '0 8px' }}
+              disabled={!transformation.deploymentPattern}
+              placeholder="prod(.*)"
+              value={transformation.productionPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  productionPattern: e.target.value,
+                })
+              }
+            />
+            <span>, this Deployment is a ‘Production Deployment’</span>
+            <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
+          </div>
+        </>
+      ),
+    },
+  ].filter((it) => entities.includes(it.key));

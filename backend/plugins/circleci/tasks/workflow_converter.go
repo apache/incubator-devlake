@@ -72,6 +72,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error"}, // on_hold
 					Default: devops.STATUS_OTHER,
 				}, userTool.Status),
+				OriginalStatus: userTool.Status,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{"success"},
 					Failure: []string{"failed", "failing", "error"}, // not_run,canceled

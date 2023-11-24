@@ -22,6 +22,7 @@ import { useAppDispatch } from '@/app/hook';
 import { IconButton } from '@/components';
 import { testConnection } from '@/features/connections';
 import { IConnection, IConnectionStatus } from '@/types';
+import { operator } from '@/utils';
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -52,7 +53,7 @@ export const ConnectionStatus = ({ connection }: Props) => {
 
   const dispatch = useAppDispatch();
 
-  const handleTest = () => dispatch(testConnection(connection));
+  const handleTest = () => operator(() => dispatch(testConnection(connection)).unwrap());
 
   return (
     <Wrapper>

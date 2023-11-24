@@ -290,6 +290,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},

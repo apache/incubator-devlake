@@ -45,7 +45,7 @@ func CollectDeploy(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
+	return covertError(collector.Execute())
 }
 
 var CollectDeployMeta = plugin.SubTaskMeta{

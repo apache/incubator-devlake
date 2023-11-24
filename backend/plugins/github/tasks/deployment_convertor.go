@@ -85,6 +85,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{StatusInProgress, StatusQueued, StatusWaiting, StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, githubDeployment.State),
+        OriginalStatus: githubDeployment.State,
 				Environment: githubDeployment.Environment,
 				ItemDateInfo: devops.ItemDateInfo{
 					CreatedDate:  githubDeployment.CreatedDate,

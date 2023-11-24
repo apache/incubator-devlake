@@ -16,29 +16,27 @@
  *
  */
 
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
-import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
+import { Layout as AntdLayout, Menu, Divider } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
 import { init, selectError, selectStatus } from '@/features';
-import { DOC_URL } from '@/release';
 import { TipsContextProvider, TipsContextConsumer } from '@/store';
 
-import DashboardIcon from '@/images/icons/dashboard.svg';
-import FileIcon from '@/images/icons/file.svg';
-import APIIcon from '@/images/icons/api.svg';
-import GitHubIcon from '@/images/icons/github.svg';
-import SlackIcon from '@/images/icons/slack.svg';
-
 import { loader } from './loader';
-import { useMenu, MenuItemType } from './use-menu';
+import { menuItems, menuItemsMatch, headerItems } from './config';
 import * as S from './styled';
 import './tips-transition.css';
 
+const { Sider, Header, Content, Footer } = AntdLayout;
+
 export const Layout = () => {
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+
   const { version, plugins } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
   const navigate = useNavigate();
@@ -48,13 +46,23 @@ export const Layout = () => {
   const status = useAppSelector(selectStatus);
   const error = useAppSelector(selectError);
 
-  const menu = useMenu();
-
   const tipsRef = useRef(null);
 
   useEffect(() => {
     dispatch(init(plugins));
   }, []);
+
+  useEffect(() => {
+    const curMenuItem = menuItemsMatch[pathname];
+    const parentKey = curMenuItem?.parentKey;
+    if (parentKey) {
+      setOpenKeys([parentKey]);
+    }
+  }, []);
+
+  useEffect(() => {
+    setSelectedKeys([pathname]);
+  }, [pathname]);
 
   if (['idle', 'loading'].includes(status)) {
     return <PageLoading />;
@@ -64,122 +72,68 @@ export const Layout = () => {
     throw error.message;
   }
 
-  const handlePushPath = (it: MenuItemType) => {
-    if (!it.path) {
-      return;
-    }
-
-    if (!it.target) {
-      navigate(it.path);
-    } else {
-      window.open(it.path, '_blank');
-    }
-  };
-
-  const getGrafanaUrl = () => {
-    const suffix = '/';
-    const { protocol, hostname } = window.location;
-
-    return import.meta.env.DEV ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
-  };
-
   return (
     <TipsContextProvider>
       <TipsContextConsumer>
         {({ tips, setTips }) => (
-          <S.Wrapper>
-            <S.Sider style={{ userSelect: 'none' }}>
-              <Logo />
-              <Menu className="menu">
-                {menu.map((it) => {
-                  const paths = [it.path, ...(it.children ?? []).map((cit) => cit.path)];
-                  const active = !!paths.find((path) => pathname.includes(path));
-                  return (
-                    <MenuItem
-                      key={it.key}
-                      className="menu-item"
-                      text={it.title}
-                      icon={it.icon}
-                      active={active}
-                      onClick={() => handlePushPath(it)}
-                    >
-                      {it.children?.map((cit) => (
-                        <MenuItem
-                          key={cit.key}
-                          className="sub-menu-item"
-                          text={
-                            <S.SiderMenuItem>
-                              <span>{cit.title}</span>
-                            </S.SiderMenuItem>
-                          }
-                          icon={cit.icon}
-                          active={pathname.includes(cit.path)}
-                          disabled={cit.disabled}
-                          onClick={() => handlePushPath(cit)}
-                        />
-                      ))}
-                    </MenuItem>
-                  );
-                })}
-              </Menu>
-              <div className="copyright">
-                <div>{import.meta.env.DEVLAKE_COPYRIGHT ?? 'Apache 2.0 License'}</div>
-                <div className="version">{version}</div>
+          <AntdLayout style={{ minHeight: '100vh' }}>
+            <Sider
+              style={{
+                position: 'fixed',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                height: '100vh',
+                overflow: 'auto',
+              }}
+            >
+              <Logo style={{ padding: 24 }} />
+              <Menu
+                mode="inline"
+                theme="dark"
+                items={menuItems}
+                openKeys={openKeys}
+                selectedKeys={selectedKeys}
+                onSelect={({ key }) => navigate(key)}
+                onOpenChange={(keys) => setOpenKeys(keys)}
+              />
+              <div style={{ position: 'absolute', right: 0, bottom: 20, left: 0, color: '#fff', textAlign: 'center' }}>
+                {version}
               </div>
-            </S.Sider>
-            <S.Main>
-              <S.Header>
-                <Navbar.Group align={Alignment.RIGHT}>
-                  <S.DashboardIcon>
-                    <ExternalLink link={getGrafanaUrl()}>
-                      <img src={DashboardIcon} alt="dashboards" />
-                      <span>Dashboards</span>
-                    </ExternalLink>
-                  </S.DashboardIcon>
-                  <Navbar.Divider />
-                  <ExternalLink link={DOC_URL.TUTORIAL}>
-                    <img src={FileIcon} alt="documents" />
-                    <span>Docs</span>
+            </Sider>
+            <AntdLayout style={{ marginLeft: 200 }}>
+              <Header
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  padding: '0 24px',
+                  height: 50,
+                  background: 'transparent',
+                }}
+              >
+                {headerItems.map((item, i) => (
+                  <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
+                    {item.icon}
+                    <span style={{ marginLeft: 4 }}>{item.label}</span>
+                    {i !== headerItems.length - 1 && <Divider type="vertical" />}
                   </ExternalLink>
-                  <Navbar.Divider />
-                  <ExternalLink link="/api/swagger/index.html">
-                    <img src={APIIcon} alt="api" />
-                    <span>API</span>
-                  </ExternalLink>
-                  <Navbar.Divider />
-                  <a
-                    href="https://github.com/apache/incubator-devlake"
-                    rel="noreferrer"
-                    target="_blank"
-                    className="navIconLink"
-                  >
-                    <img src={GitHubIcon} alt="github" />
-                    <span>GitHub</span>
-                  </a>
-                  <Navbar.Divider />
-                  <a
-                    href="https://join.slack.com/t/devlake-io/shared_invite/zt-26ulybksw-IDrJYuqY1FrdjlMMJhs53Q"
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    <img src={SlackIcon} alt="slack" />
-                    <span>Slack</span>
-                  </a>
-                </Navbar.Group>
-              </S.Header>
-              <S.Inner>
-                <S.Content>
-                  <Outlet />
-                </S.Content>
-              </S.Inner>
+                ))}
+              </Header>
+              <Content style={{ margin: '0 auto', maxWidth: 1188 }}>
+                <Outlet />
+              </Content>
+              <Footer style={{ color: '#a1a1a1', textAlign: 'center' }}>
+                {import.meta.env.DEVLAKE_COPYRIGHT ?? 'Apache 2.0 License'}
+              </Footer>
               <CSSTransition in={!!tips} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
                 <S.Tips ref={tipsRef}>
                   <div className="content">{tips}</div>
                   <IconButton style={{ color: '#fff' }} icon="cross" tooltip="Close" onClick={() => setTips('')} />
                 </S.Tips>
               </CSSTransition>
-            </S.Main>
-          </S.Wrapper>
+            </AntdLayout>
+          </AntdLayout>
         )}
       </TipsContextConsumer>
     </TipsContextProvider>

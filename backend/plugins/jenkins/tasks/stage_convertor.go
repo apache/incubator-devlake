@@ -136,6 +136,8 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					StartedDate:  &startedDate,
 					FinishedDate: jenkinsTaskFinishedDate,
 				},
+        OriginalResult: body.Result,
+				OriginalStatus: body.Status,
 				CicdScopeId: jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
 				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),

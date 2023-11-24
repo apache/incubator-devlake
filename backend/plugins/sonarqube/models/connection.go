@@ -50,6 +50,11 @@ type SonarqubeConn struct {
 	SonarqubeAccessToken  `mapstructure:",squash"`
 }
 
+func (connection SonarqubeConn) Sanitize() SonarqubeConn {
+	connection.Token = ""
+	return connection
+}
+
 // This object conforms to what the frontend currently sends.
 type SonarqubeConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
@@ -65,4 +70,9 @@ type SonarqubeResponse struct {
 
 func (SonarqubeConnection) TableName() string {
 	return "_tool_sonarqube_connections"
+}
+
+func (connection SonarqubeConnection) Sanitize() SonarqubeConnection {
+	connection.SonarqubeConn = connection.SonarqubeConn.Sanitize()
+	return connection
 }

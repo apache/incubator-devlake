@@ -207,6 +207,9 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/scopes/*scopeId": {
 			"GET":    api.GetScope,
 			"PATCH":  api.UpdateScope,

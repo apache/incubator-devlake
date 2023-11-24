@@ -93,7 +93,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPreparing, StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabJob.Status),
-
+        OriginalStatus: gitlabJob.Status,
 				DurationSec: gitlabJob.Duration,
 				ItemDateInfo: devops.ItemDateInfo{
 					StartedDate:  startedAt,

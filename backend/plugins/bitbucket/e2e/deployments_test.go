@@ -89,6 +89,8 @@ func TestDeloymentsDataFlow(t *testing.T) {
 			"name",
 			"result",
 			"status",
+			"original_result",
+			"original_status",
 			"environment",
 		},
 	)
@@ -100,6 +102,8 @@ func TestDeloymentsDataFlow(t *testing.T) {
 			"name",
 			"result",
 			"status",
+			"original_result",
+			"original_status",
 			"environment",
 		},
 	)

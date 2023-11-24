@@ -85,6 +85,8 @@ func TestBitbucketPipelineStepsDataFlow(t *testing.T) {
 			"pipeline_id",
 			"result",
 			"status",
+			"original_result",
+			"original_status",
 			"type",
 			"duration_sec",
 			"started_date",

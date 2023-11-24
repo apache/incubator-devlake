@@ -117,11 +117,13 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{ResultFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, input.DeploymentState),
+				OriginalResult: input.DeploymentState,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusFinished},
 					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
 					Default:    devops.STATUS_OTHER,
 				}, input.LifeCycleState),
+        OriginalStatus: input.LifeCycleState,
 				Environment: input.Environment,
 				ItemDateInfo: devops.ItemDateInfo{
 					StartedDate:  input.StartedDate,

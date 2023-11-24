@@ -75,12 +75,13 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{ResultFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, line.BuildState),
-
+				OriginalResult: line.BuildState,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusFinished},
 					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
 					Default:    devops.STATUS_OTHER,
 				}, line.LifeCycleState),
+				OriginalStatus: line.LifeCycleState,
 			}
 
 			domainPlanBuild.Type = line.Type

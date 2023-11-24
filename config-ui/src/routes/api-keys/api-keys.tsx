@@ -92,7 +92,7 @@ export const ApiKeys = () => {
 
   return (
     <PageHeader
-      breadcrumbs={[{ name: 'API Keys', path: '/api-keys' }]}
+      breadcrumbs={[{ name: 'API Keys', path: '/keys' }]}
       extra={<Button intent={Intent.PRIMARY} icon="plus" text="New API Key" onClick={() => setModal('create')} />}
     >
       <p>You can generate and manage your API keys to access the DevLake API.</p>

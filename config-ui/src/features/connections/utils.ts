@@ -29,8 +29,6 @@ export const transformConnection = (plugin: string, connection: IConnectionAPI):
     id: connection.id,
     name: connection.name,
     status: IConnectionStatus.IDLE,
-    icon: config.icon,
-    isBeta: config.isBeta ?? false,
     endpoint: connection.endpoint,
     proxy: connection.proxy,
     authMethod: connection.authMethod,

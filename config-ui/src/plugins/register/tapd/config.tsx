@@ -18,15 +18,16 @@
 
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
 import { DataScope } from './data-scope';
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 
-export const TAPDConfig = {
+export const TAPDConfig: IPluginConfig = {
   plugin: 'tapd',
   name: 'TAPD',
-  icon: Icon,
-  sort: 9,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 11,
   connection: {
     docLink: DOC_URL.PLUGIN.TAPD.BASIS,
     initialValues: {
