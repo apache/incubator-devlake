@@ -18,8 +18,16 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 )
 
 var ConvertPrCommentsMeta = plugin.SubTaskMeta{
@@ -31,49 +39,48 @@ var ConvertPrCommentsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
-	// rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
-	// db := taskCtx.GetDal()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_ACTIVITIES_TABLE)
+	db := taskCtx.GetDal()
 
-	// cursor, err := db.Cursor(
-	// 	dal.From(&models.BitbucketServerPrComment{}),
-	// 	dal.Where("connection_id = ? AND repo_id = ?", data.Options.ConnectionId, data.Options.FullName),
-	// )
-	// if err != nil {
-	// 	return err
-	// }
-	// defer cursor.Close()
+	cursor, err := db.Cursor(
+		dal.From(&models.BitbucketServerPrComment{}),
+		dal.Where("connection_id = ? AND repo_id = ?", data.Options.ConnectionId, data.Options.FullName),
+	)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
 
-	// domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.BitbucketServerPrComment{})
-	// prIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerPullRequest{})
-	// accountIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerAccount{})
+	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.BitbucketServerPrComment{})
+	prIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerPullRequest{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerUser{})
 
-	// converter, err := api.NewDataConverter(api.DataConverterArgs{
-	// 	InputRowType:       reflect.TypeOf(models.BitbucketServerPrComment{}),
-	// 	Input:              cursor,
-	// 	RawDataSubTaskArgs: *rawDataSubTaskArgs,
-	// 	Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-	// 		prComment := inputRow.(*models.BitbucketServerPrComment)
-	// 		domainPrComment := &code.PullRequestComment{
-	// 			DomainEntity: domainlayer.DomainEntity{
-	// 				Id: domainIdGeneratorComment.Generate(prComment.ConnectionId, prComment.BitbucketId),
-	// 			},
-	// 			PullRequestId: prIdGen.Generate(prComment.ConnectionId, prComment.RepoId, prComment.PullRequestId),
-	// 			AccountId:     accountIdGen.Generate(prComment.ConnectionId, prComment.AuthorId),
-	// 			CreatedDate:   prComment.CreatedAt,
-	// 			Body:          prComment.Body,
-	// 			Type:          prComment.Type,
-	// 			CommitSha:     "",
-	// 			Position:      0,
-	// 		}
-	// 		return []interface{}{
-	// 			domainPrComment,
-	// 		}, nil
-	// 	},
-	// })
-	// if err != nil {
-	// 	return err
-	// }
+	converter, err := api.NewDataConverter(api.DataConverterArgs{
+		InputRowType:       reflect.TypeOf(models.BitbucketServerPrComment{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
+			prComment := inputRow.(*models.BitbucketServerPrComment)
+			domainPrComment := &code.PullRequestComment{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: domainIdGeneratorComment.Generate(prComment.ConnectionId, prComment.BitbucketId),
+				},
+				PullRequestId: prIdGen.Generate(prComment.ConnectionId, prComment.RepoId, prComment.PullRequestId),
+				AccountId:     accountIdGen.Generate(prComment.ConnectionId, prComment.AuthorId),
+				CreatedDate:   prComment.CreatedAt,
+				Body:          prComment.Body,
+				Type:          "", // TODO
+				CommitSha:     "",
+				Position:      0,
+			}
+			return []interface{}{
+				domainPrComment,
+			}, nil
+		},
+	})
+	if err != nil {
+		return err
+	}
 
-	// return converter.Execute()
-	return nil
+	return converter.Execute()
 }
