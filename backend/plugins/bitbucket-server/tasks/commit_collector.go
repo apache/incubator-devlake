@@ -42,7 +42,7 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
 		Incremental:        false,
-		UrlTemplate:        "projects/{{ .Params.FullName }}/commits",
+		UrlTemplate:        "rest/api/1.0/projects/{{ .Params.FullName }}/commits",
 		Query:              GetQuery,
 		GetTotalPages:      GetTotalPagesFromResponse,
 		ResponseParser:     GetRawMessageFromResponse,

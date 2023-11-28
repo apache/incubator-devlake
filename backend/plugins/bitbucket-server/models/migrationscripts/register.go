@@ -24,6 +24,6 @@ import (
 // All return all the migration scripts
 func All() []plugin.MigrationScript {
 	return []plugin.MigrationScript{
-		new(addInitTables20231019),
+		new(addInitTables20231123),
 	}
 }

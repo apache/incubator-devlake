@@ -46,7 +46,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    50,
-		UrlTemplate: "projects/{{ .Params.FullName }}/pull-requests",
+		UrlTemplate: "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests",
 		Query: GetQueryCreatedAndUpdated(
 			`values.id,values.state,values.title,values.description,`+
 				`values.fromRef.latestCommit,values.links.self.href,values.author.user.name,values.createdDate,values.updatedDate,`+

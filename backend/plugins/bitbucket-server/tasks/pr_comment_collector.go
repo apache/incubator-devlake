@@ -51,7 +51,7 @@ func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/comments",
+		UrlTemplate: "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}",
 		Query: GetQueryFields(
 			`values.id,values.type,values.created_on,values.updated_on,values.content.raw,values.pullrequest.id,values.user,` +
 				`page,pagelen,size`),

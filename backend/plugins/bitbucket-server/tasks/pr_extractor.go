@@ -23,6 +23,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
@@ -39,7 +40,6 @@ var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 
 type BitbucketApiPullRequest struct {
 	BitbucketId int `json:"id"`
-	// CommentCount int `json:"comment_count"`
 	// Type        string `json:"type"`
 	State       string `json:"state"`
 	Title       string `json:"title"`
@@ -55,9 +55,20 @@ type BitbucketApiPullRequest struct {
 		} `json:"html"`
 	} `json:"links"`
 	//ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
-	Author             *BitbucketAccountResponse `json:"author"`
-	BitbucketCreatedAt time.Time                 `json:"createdDate"`
-	BitbucketUpdatedAt time.Time                 `json:"updatedDate"`
+	Author *struct {
+		User *struct {
+			BitbucketID  int    `json:"id"`
+			Name         string `json:"name"`
+			EmailAddress string `json:"emailAddress"`
+			Active       bool   `json:"active"`
+			DisplayName  string `json:"displayName"`
+			Slug         string `json:"slug"`
+			Type         string `json:"type"`
+		} `json:"user"` // TODO: use BitbucketAccountResponse
+	} `json:"author"`
+	BitbucketCreatedAt int64  `json:"createdDate"`
+	BitbucketUpdatedAt int64  `json:"updatedDate"`
+	BitbucketClosedAt  *int64 `json:"closedDate"`
 	BaseRef            *struct {
 		Branch string                   `json:"displayId"`
 		Commit string                   `json:"latestCommit"`
@@ -68,6 +79,11 @@ type BitbucketApiPullRequest struct {
 		Commit string                   `json:"latestCommit"`
 		Repo   *models.BitbucketApiRepo `json:"repository"`
 	} `json:"fromRef"`
+	Properties *struct {
+		ResolvedTaskCount int `json:"resolvedTaskCount"`
+		CommentCount      int `json:"commentCount"`
+		OpenTaskCount     int `json:"openTaskCount"`
+	} `json:"properties"`
 	//Reviewers    []BitbucketAccountResponse `json:"reviewers"`
 	//Participants []BitbucketAccountResponse `json:"participants"`
 }
@@ -94,18 +110,25 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			if rawL.Author != nil {
-				bitbucketUser, err := convertAccount(rawL.Author, data.Options.ConnectionId)
-				if err != nil {
-					return nil, err
-				}
-				results = append(results, bitbucketUser)
-				bitbucketPr.AuthorName = bitbucketUser.DisplayName
-				bitbucketPr.AuthorId = bitbucketUser.AccountId
+				// TODO:
+				// bitbucketUser, err := convertAccount(rawL.Author, data.Options.ConnectionId)
+				// if err != nil {
+				// 	return nil, err
+				// }
+				// results = append(results, bitbucketUser)
+				// bitbucketPr.AuthorName = bitbucketUser.DisplayName
+				// bitbucketPr.AuthorId = bitbucketUser.AccountId
+				bitbucketPr.AuthorName = rawL.Author.User.DisplayName
+				bitbucketPr.AuthorID = rawL.Author.User.BitbucketID
 			}
 			if rawL.MergeCommit != nil {
 				bitbucketPr.MergeCommitSha = rawL.MergeCommit.Hash
 				bitbucketPr.MergedAt = rawL.MergeCommit.Date.ToNullableTime()
+			} else if rawL.State == code.MERGED && rawL.BitbucketClosedAt != nil {
+				mergedAt := time.UnixMilli(*rawL.BitbucketClosedAt)
+				bitbucketPr.MergedAt = &mergedAt
 			}
+
 			results = append(results, bitbucketPr)
 
 			return results, nil
@@ -127,9 +150,8 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		Description:  pull.Description,
 		Url:          pull.Links.Html.Href,
 		// Type:               pull.Type,
-		// CommentCount:       pull.CommentCount,
-		BitbucketCreatedAt: pull.BitbucketCreatedAt,
-		BitbucketUpdatedAt: pull.BitbucketUpdatedAt,
+		BitbucketCreatedAt: time.UnixMilli(pull.BitbucketCreatedAt),
+		BitbucketUpdatedAt: time.UnixMilli(pull.BitbucketUpdatedAt),
 	}
 	if pull.BaseRef != nil {
 		if pull.BaseRef.Repo != nil {
@@ -145,5 +167,13 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		bitbucketPull.HeadRef = pull.HeadRef.Branch
 		bitbucketPull.HeadCommitSha = pull.HeadRef.Commit
 	}
+	if pull.Properties != nil {
+		bitbucketPull.CommentCount = pull.Properties.CommentCount
+	}
+	if pull.BitbucketClosedAt != nil {
+		closedAt := time.UnixMilli(*pull.BitbucketClosedAt)
+		bitbucketPull.ClosedAt = &closedAt
+	}
+
 	return bitbucketPull, nil
 }

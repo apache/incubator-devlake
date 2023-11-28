@@ -136,7 +136,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			query.Set("q", queryString)
 
 			// list repos part
-			res, err := apiClient.Get("repos", query, nil)
+			res, err := apiClient.Get("rest/api/1.0/repos", query, nil)
 			if err != nil {
 				return nil, err
 			}

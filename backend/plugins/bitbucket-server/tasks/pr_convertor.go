@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -72,7 +73,7 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,
-				AuthorId:       domainUserIdGen.Generate(data.Options.ConnectionId, pr.AuthorId),
+				AuthorId:       domainUserIdGen.Generate(data.Options.ConnectionId, strconv.Itoa(pr.AuthorID)),
 				AuthorName:     pr.AuthorName,
 				Description:    pr.Description,
 				CreatedDate:    pr.BitbucketCreatedAt,

@@ -25,8 +25,8 @@ import (
 )
 
 type BitbucketAccountResponse struct {
-	Uuid          string    `json:"uuid"`
-	UserName      string    `json:"username"`
+	BitbucketID   string    `json:"id"`
+	UserName      string    `json:"name"`
 	DisplayName   string    `json:"display_name"`
 	AccountId     string    `json:"account_id"`
 	AccountStatus string    `json:"account_status"`
@@ -42,15 +42,16 @@ type BitbucketAccountResponse struct {
 }
 
 func convertAccount(res *BitbucketAccountResponse, connId uint64) (*models.BitbucketServerAccount, errors.Error) {
-	bitbucketAccount := &models.BitbucketServerAccount{
-		ConnectionId:  connId,
-		UserName:      res.UserName,
-		DisplayName:   res.DisplayName,
-		AccountId:     res.AccountId,
-		Uuid:          res.Uuid,
-		AccountStatus: res.AccountStatus,
-		AvatarUrl:     res.Links.Avatar.Href,
-		HtmlUrl:       res.Links.Html.Href,
-	}
-	return bitbucketAccount, nil
+	return &models.BitbucketServerAccount{}, nil
+	// bitbucketAccount := &models.BitbucketServerAccount{
+	// 	ConnectionId:  connId,
+	// 	UserName:      res.UserName,
+	// 	DisplayName:   res.DisplayName,
+	// 	AccountId:     res.AccountId,
+	// 	Uuid:          res.Uuid,
+	// 	AccountStatus: res.AccountStatus,
+	// 	AvatarUrl:     res.Links.Avatar.Href,
+	// 	HtmlUrl:       res.Links.Html.Href,
+	// }
+	// return bitbucketAccount, nil
 }
