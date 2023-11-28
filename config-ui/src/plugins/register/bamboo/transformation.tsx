@@ -110,7 +110,7 @@ export const BambooTransformation = ({ entities, transformation, setTransformati
               }
             />
             <span>.</span>
-            <HelpTooltip content="View your BitBucket Pipelines: https://support.atlassian.com/bitbucket-cloud/docs/view-your-pipeline/" />
+            <HelpTooltip content="View your Bamboo Builds: https://confluence.atlassian.com/bamboo/viewing-a-plan-s-build-information-289276861.html" />
           </div>
           <div className="sub-text">
             <span>If the name also matches</span>
