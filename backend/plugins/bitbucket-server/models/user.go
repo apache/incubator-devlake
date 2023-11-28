@@ -29,7 +29,6 @@ type BitbucketServerUser struct {
 	Active        bool    `gorm:"type:varchar(255)"`
 	Slug          string  `gorm:"type:varchar(255)"`
 	Type          string  `gorm:"type:varchar(255)"`
-	UserName      string  `gorm:"type:varchar(255)"`
 	AccountStatus string  `gorm:"type:varchar(255)"`
 	DisplayName   string  `gorm:"type:varchar(255)"`
 	HtmlUrl       *string `gorm:"type:varchar(255)"`
