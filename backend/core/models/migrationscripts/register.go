@@ -99,5 +99,6 @@ func All() []plugin.MigrationScript {
 		new(changeDurationSecToFloat64),
 		new(addSomeDateFieldsToDevopsTables),
 		new(addOriginalStatusAndResultToDevOpsTables),
+		new(addQueuedDurationSecFieldToDevopsTables),
 	}
 }

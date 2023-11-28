@@ -26,14 +26,15 @@ import (
 
 type CICDPipeline struct {
 	domainlayer.DomainEntity
-	Name           string `gorm:"type:varchar(255)"`
-	Result         string `gorm:"type:varchar(100)"`
-	Status         string `gorm:"type:varchar(100)"`
-	OriginalStatus string `gorm:"type:varchar(100)"`
-	OriginalResult string `gorm:"type:varchar(100)"`
-	Type           string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
-	DurationSec    float64
-	Environment    string `gorm:"type:varchar(255)"`
+	Name              string `gorm:"type:varchar(255)"`
+	Result            string `gorm:"type:varchar(100)"`
+	Status            string `gorm:"type:varchar(100)"`
+	OriginalStatus    string `gorm:"type:varchar(100)"`
+	OriginalResult    string `gorm:"type:varchar(100)"`
+	Type              string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
+	DurationSec       float64
+	QueuedDurationSec *float64
+	Environment       string `gorm:"type:varchar(255)"`
 	ItemDateInfo
 	CicdScopeId string `gorm:"index;type:varchar(255)"`
 }

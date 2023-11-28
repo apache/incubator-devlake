@@ -21,7 +21,7 @@ import "time"
 
 type ItemDateInfo struct {
 	CreatedDate  time.Time
-	StartedDate  *time.Time
 	QueuedDate   *time.Time
+	StartedDate  *time.Time
 	FinishedDate *time.Time
 }

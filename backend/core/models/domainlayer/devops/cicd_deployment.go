@@ -31,7 +31,8 @@ type CICDDeployment struct {
 	OriginalResult string `gorm:"type:varchar(100)"`
 	Environment    string `gorm:"type:varchar(255)"`
 	ItemDateInfo
-	DurationSec *float64
+	DurationSec       *float64
+	QueuedDurationSec *float64
 }
 
 func (CICDDeployment) TableName() string {
