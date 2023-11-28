@@ -185,17 +185,16 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 								for _, value2 := range body2.Facets[0].Values {
 									if value2.Count > MAXISSUECOUNT {
 										logger.Warn(fmt.Errorf("the issue count [%d] exceeds the maximum page size", value2.Count), "")
-									} else {
-										iterator.Push(&SonarqubeIssueIteratorNode{
-											Severity:      severity,
-											Status:        status,
-											Type:          typ,
-											CreatedAfter:  createdAfter,
-											CreatedBefore: createdBefore,
-											FilePath:      value2.Val,
-										})
-										logger.Info(fmt.Sprintf("split by fil, and it's issue count:[%d] and file path:[%s]", value2.Count, value2.Val))
 									}
+									iterator.Push(&SonarqubeIssueIteratorNode{
+										Severity:      severity,
+										Status:        status,
+										Type:          typ,
+										CreatedAfter:  createdAfter,
+										CreatedBefore: createdBefore,
+										FilePath:      value2.Val,
+									})
+									logger.Info(fmt.Sprintf("split by fil, and it's issue count:[%d] and file path:[%s]", value2.Count, value2.Val))
 								}
 							}
 						}
