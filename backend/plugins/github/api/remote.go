@@ -18,287 +18,229 @@ limitations under the License.
 package api
 
 import (
-	gocontext "context"
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
-	"time"
 
-	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-type org struct {
-	Login string `json:"login"`
-	ID    int    `json:"id"`
-}
-
-func (o org) GroupId() string {
-	return strconv.Itoa(o.ID)
-}
-
-func (o org) GroupName() string {
-	return o.Login
-}
-
-type owner struct {
-	Login string `json:"login"`
-	ID    int    `json:"id"`
-}
-
-func (o owner) GroupId() string {
-	return o.Login
-}
-
-func (o owner) GroupName() string {
-	return o.Login
-}
-
-type repo struct {
-	ID       int    `json:"id"`
-	NodeID   string `json:"node_id"`
-	Name     string `json:"name"`
-	FullName string `json:"full_name"`
-	Owner    struct {
-		Login             string `json:"login"`
-		ID                int    `json:"id"`
-		NodeID            string `json:"node_id"`
-		AvatarURL         string `json:"avatar_url"`
-		GravatarID        string `json:"gravatar_id"`
-		URL               string `json:"url"`
-		HTMLURL           string `json:"html_url"`
-		FollowersURL      string `json:"followers_url"`
-		FollowingURL      string `json:"following_url"`
-		GistsURL          string `json:"gists_url"`
-		StarredURL        string `json:"starred_url"`
-		SubscriptionsURL  string `json:"subscriptions_url"`
-		OrganizationsURL  string `json:"organizations_url"`
-		ReposURL          string `json:"repos_url"`
-		EventsURL         string `json:"events_url"`
-		ReceivedEventsURL string `json:"received_events_url"`
-		Type              string `json:"type"`
-		SiteAdmin         bool   `json:"site_admin"`
-	} `json:"owner"`
-	Private          bool       `json:"private"`
-	HTMLURL          string     `json:"html_url"`
-	Description      string     `json:"description"`
-	Fork             bool       `json:"fork"`
-	URL              string     `json:"url"`
-	ArchiveURL       string     `json:"archive_url"`
-	AssigneesURL     string     `json:"assignees_url"`
-	BlobsURL         string     `json:"blobs_url"`
-	BranchesURL      string     `json:"branches_url"`
-	CollaboratorsURL string     `json:"collaborators_url"`
-	CommentsURL      string     `json:"comments_url"`
-	CommitsURL       string     `json:"commits_url"`
-	CompareURL       string     `json:"compare_url"`
-	ContentsURL      string     `json:"contents_url"`
-	ContributorsURL  string     `json:"contributors_url"`
-	DeploymentsURL   string     `json:"deployments_url"`
-	DownloadsURL     string     `json:"downloads_url"`
-	EventsURL        string     `json:"events_url"`
-	ForksURL         string     `json:"forks_url"`
-	GitCommitsURL    string     `json:"git_commits_url"`
-	GitRefsURL       string     `json:"git_refs_url"`
-	GitTagsURL       string     `json:"git_tags_url"`
-	GitURL           string     `json:"git_url"`
-	IssueCommentURL  string     `json:"issue_comment_url"`
-	IssueEventsURL   string     `json:"issue_events_url"`
-	IssuesURL        string     `json:"issues_url"`
-	KeysURL          string     `json:"keys_url"`
-	LabelsURL        string     `json:"labels_url"`
-	LanguagesURL     string     `json:"languages_url"`
-	MergesURL        string     `json:"merges_url"`
-	MilestonesURL    string     `json:"milestones_url"`
-	NotificationsURL string     `json:"notifications_url"`
-	PullsURL         string     `json:"pulls_url"`
-	ReleasesURL      string     `json:"releases_url"`
-	SSHURL           string     `json:"ssh_url"`
-	StargazersURL    string     `json:"stargazers_url"`
-	StatusesURL      string     `json:"statuses_url"`
-	SubscribersURL   string     `json:"subscribers_url"`
-	SubscriptionURL  string     `json:"subscription_url"`
-	TagsURL          string     `json:"tags_url"`
-	TeamsURL         string     `json:"teams_url"`
-	TreesURL         string     `json:"trees_url"`
-	CloneURL         string     `json:"clone_url"`
-	MirrorURL        string     `json:"mirror_url"`
-	HooksURL         string     `json:"hooks_url"`
-	SvnURL           string     `json:"svn_url"`
-	Homepage         string     `json:"homepage"`
-	ForksCount       int        `json:"forks_count"`
-	StargazersCount  int        `json:"stargazers_count"`
-	WatchersCount    int        `json:"watchers_count"`
-	Size             int        `json:"size"`
-	DefaultBranch    string     `json:"default_branch"`
-	OpenIssuesCount  int        `json:"open_issues_count"`
-	IsTemplate       bool       `json:"is_template"`
-	Topics           []string   `json:"topics"`
-	HasIssues        bool       `json:"has_issues"`
-	HasProjects      bool       `json:"has_projects"`
-	HasWiki          bool       `json:"has_wiki"`
-	HasPages         bool       `json:"has_pages"`
-	HasDownloads     bool       `json:"has_downloads"`
-	HasDiscussions   bool       `json:"has_discussions"`
-	Archived         bool       `json:"archived"`
-	Disabled         bool       `json:"disabled"`
-	Visibility       string     `json:"visibility"`
-	PushedAt         *time.Time `json:"pushed_at"`
-	CreatedAt        *time.Time `json:"created_at"`
-	UpdatedAt        *time.Time `json:"updated_at"`
-	Permissions      struct {
-		Admin bool `json:"admin"`
-		Push  bool `json:"push"`
-		Pull  bool `json:"pull"`
-	} `json:"permissions"`
-	SecurityAndAnalysis struct {
-		AdvancedSecurity struct {
-			Status string `json:"status"`
-		} `json:"advanced_security"`
-		SecretScanning struct {
-			Status string `json:"status"`
-		} `json:"secret_scanning"`
-		SecretScanningPushProtection struct {
-			Status string `json:"status"`
-		} `json:"secret_scanning_push_protection"`
-	} `json:"security_and_analysis"`
-}
-
-func (r repo) ConvertApiScope() plugin.ToolLayerScope {
-	githubRepository := &models.GithubRepo{
-		GithubId:    r.ID,
-		Name:        r.Name,
-		FullName:    r.FullName,
-		HTMLUrl:     r.HTMLURL,
-		Description: r.Description,
-		OwnerId:     r.Owner.ID,
-		CloneUrl:    r.CloneURL,
-		CreatedDate: r.CreatedAt,
-		UpdatedDate: r.UpdatedAt,
+func listGithubRemoteScopes(
+	connection *models.GithubConnection,
+	apiClient plugin.ApiClient,
+	groupId string,
+	page GithubRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo],
+	nextPage *GithubRemotePagination,
+	err errors.Error,
+) {
+	if page.Page == 0 {
+		page.Page = 1
+	}
+	if page.PerPage == 0 {
+		page.PerPage = 100
 	}
 
-	return githubRepository
+	if connection.AuthMethod == plugin.AUTH_METHOD_APPKEY {
+		return listGithubAppInstalledRepos(apiClient, page)
+	}
+	if groupId == "" {
+		return listGithubUserOrgs(apiClient, page)
+	}
+	return listGithubOrgRepos(apiClient, groupId, page)
 }
 
-type GithubAppRepo struct {
-	TotalCount   int `json:"total_count"`
-	Repositories []struct {
-		ID       int    `json:"id"`
-		NodeID   string `json:"node_id"`
-		Name     string `json:"name"`
-		FullName string `json:"full_name"`
-		Owner    struct {
-			Login             string `json:"login"`
-			ID                int    `json:"id"`
-			NodeID            string `json:"node_id"`
-			AvatarURL         string `json:"avatar_url"`
-			GravatarID        string `json:"gravatar_id"`
-			URL               string `json:"url"`
-			HTMLURL           string `json:"html_url"`
-			FollowersURL      string `json:"followers_url"`
-			FollowingURL      string `json:"following_url"`
-			GistsURL          string `json:"gists_url"`
-			StarredURL        string `json:"starred_url"`
-			SubscriptionsURL  string `json:"subscriptions_url"`
-			OrganizationsURL  string `json:"organizations_url"`
-			ReposURL          string `json:"repos_url"`
-			EventsURL         string `json:"events_url"`
-			ReceivedEventsURL string `json:"received_events_url"`
-			Type              string `json:"type"`
-			SiteAdmin         bool   `json:"site_admin"`
-		} `json:"owner"`
-		Private             bool      `json:"private"`
-		HTMLURL             string    `json:"html_url"`
-		Description         string    `json:"description"`
-		Fork                bool      `json:"fork"`
-		URL                 string    `json:"url"`
-		ArchiveURL          string    `json:"archive_url"`
-		AssigneesURL        string    `json:"assignees_url"`
-		BlobsURL            string    `json:"blobs_url"`
-		BranchesURL         string    `json:"branches_url"`
-		CollaboratorsURL    string    `json:"collaborators_url"`
-		CommentsURL         string    `json:"comments_url"`
-		CommitsURL          string    `json:"commits_url"`
-		CompareURL          string    `json:"compare_url"`
-		ContentsURL         string    `json:"contents_url"`
-		ContributorsURL     string    `json:"contributors_url"`
-		DeploymentsURL      string    `json:"deployments_url"`
-		DownloadsURL        string    `json:"downloads_url"`
-		EventsURL           string    `json:"events_url"`
-		ForksURL            string    `json:"forks_url"`
-		GitCommitsURL       string    `json:"git_commits_url"`
-		GitRefsURL          string    `json:"git_refs_url"`
-		GitTagsURL          string    `json:"git_tags_url"`
-		GitURL              string    `json:"git_url"`
-		IssueCommentURL     string    `json:"issue_comment_url"`
-		IssueEventsURL      string    `json:"issue_events_url"`
-		IssuesURL           string    `json:"issues_url"`
-		KeysURL             string    `json:"keys_url"`
-		LabelsURL           string    `json:"labels_url"`
-		LanguagesURL        string    `json:"languages_url"`
-		MergesURL           string    `json:"merges_url"`
-		MilestonesURL       string    `json:"milestones_url"`
-		NotificationsURL    string    `json:"notifications_url"`
-		PullsURL            string    `json:"pulls_url"`
-		ReleasesURL         string    `json:"releases_url"`
-		SSHURL              string    `json:"ssh_url"`
-		StargazersURL       string    `json:"stargazers_url"`
-		StatusesURL         string    `json:"statuses_url"`
-		SubscribersURL      string    `json:"subscribers_url"`
-		SubscriptionURL     string    `json:"subscription_url"`
-		TagsURL             string    `json:"tags_url"`
-		TeamsURL            string    `json:"teams_url"`
-		TreesURL            string    `json:"trees_url"`
-		CloneURL            string    `json:"clone_url"`
-		MirrorURL           string    `json:"mirror_url"`
-		HooksURL            string    `json:"hooks_url"`
-		SvnURL              string    `json:"svn_url"`
-		Homepage            string    `json:"homepage"`
-		Language            any       `json:"language"`
-		ForksCount          int       `json:"forks_count"`
-		StargazersCount     int       `json:"stargazers_count"`
-		WatchersCount       int       `json:"watchers_count"`
-		Size                int       `json:"size"`
-		DefaultBranch       string    `json:"default_branch"`
-		OpenIssuesCount     int       `json:"open_issues_count"`
-		IsTemplate          bool      `json:"is_template"`
-		Topics              []string  `json:"topics"`
-		HasIssues           bool      `json:"has_issues"`
-		HasProjects         bool      `json:"has_projects"`
-		HasWiki             bool      `json:"has_wiki"`
-		HasPages            bool      `json:"has_pages"`
-		HasDownloads        bool      `json:"has_downloads"`
-		Archived            bool      `json:"archived"`
-		Disabled            bool      `json:"disabled"`
-		Visibility          string    `json:"visibility"`
-		PushedAt            time.Time `json:"pushed_at"`
-		CreatedAt           time.Time `json:"created_at"`
-		UpdatedAt           time.Time `json:"updated_at"`
-		AllowRebaseMerge    bool      `json:"allow_rebase_merge"`
-		TemplateRepository  any       `json:"template_repository"`
-		TempCloneToken      string    `json:"temp_clone_token"`
-		AllowSquashMerge    bool      `json:"allow_squash_merge"`
-		AllowAutoMerge      bool      `json:"allow_auto_merge"`
-		DeleteBranchOnMerge bool      `json:"delete_branch_on_merge"`
-		AllowMergeCommit    bool      `json:"allow_merge_commit"`
-		SubscribersCount    int       `json:"subscribers_count"`
-		NetworkCount        int       `json:"network_count"`
-		License             struct {
-			Key     string `json:"key"`
-			Name    string `json:"name"`
-			URL     string `json:"url"`
-			SpdxID  string `json:"spdx_id"`
-			NodeID  string `json:"node_id"`
-			HTMLURL string `json:"html_url"`
-		} `json:"license"`
-		Forks      int `json:"forks"`
-		OpenIssues int `json:"open_issues"`
-		Watchers   int `json:"watchers"`
-	} `json:"repositories"`
+func listGithubUserOrgs(
+	apiClient plugin.ApiClient,
+	page GithubRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo],
+	nextPage *GithubRemotePagination,
+	err errors.Error,
+) {
+	// user's own org
+	if page.Page == 1 {
+		userBody, err := apiClient.Get("user", nil, nil)
+		if err != nil {
+			return nil, nil, err
+		}
+		var o org
+		errors.Must(api.UnmarshalResponse(userBody, &o))
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
+			Type:     api.RAS_ENTRY_TYPE_GROUP,
+			Id:       fmt.Sprintf("%v", o.Login),
+			Name:     fmt.Sprintf("%v", o.Login),
+			FullName: fmt.Sprintf("%v", o.Login),
+		})
+	}
+	// user's orgs
+	orgsBody, err := apiClient.Get(
+		"user/orgs",
+		url.Values{
+			"page":     []string{fmt.Sprintf("%v", page.Page)},
+			"per_page": []string{fmt.Sprintf("%v", page.PerPage)},
+		},
+		nil,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+	var orgs []org
+	errors.Must(api.UnmarshalResponse(orgsBody, &orgs))
+	for _, o := range orgs {
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
+			Type:     api.RAS_ENTRY_TYPE_GROUP,
+			Id:       fmt.Sprintf("%v", o.Login),
+			Name:     fmt.Sprintf("%v", o.Login),
+			FullName: fmt.Sprintf("%v", o.Login),
+		})
+	}
+	// there may be more orgs
+	if len(orgs) == page.PerPage {
+		nextPage = &GithubRemotePagination{
+			Page:    page.Page + 1,
+			PerPage: page.PerPage,
+		}
+	}
+	return children, nextPage, nil
+}
+
+func listGithubOrgRepos(
+	apiClient plugin.ApiClient,
+	org string,
+	page GithubRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo],
+	nextPage *GithubRemotePagination,
+	err errors.Error,
+) {
+	query := url.Values{
+		"page":     []string{fmt.Sprintf("%v", page.Page)},
+		"per_page": []string{fmt.Sprintf("%v", page.PerPage)},
+	}
+	// user's orgs
+	reposBody, err := apiClient.Get(fmt.Sprintf("orgs/%s/repos", org), query, nil)
+	// if not found, try to get user repos
+	if reposBody.StatusCode == http.StatusNotFound {
+		reposBody, err = apiClient.Get(fmt.Sprintf("users/%s/repos", org), query, nil)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+	var repos []repo
+	errors.Must(api.UnmarshalResponse(reposBody, &repos))
+	for _, repo := range repos {
+		children = append(children, toRepoModel(&repo))
+	}
+	// there may be more repos
+	if len(children) == page.PerPage {
+		nextPage = &GithubRemotePagination{
+			Page:    page.Page + 1,
+			PerPage: page.PerPage,
+		}
+	}
+	return children, nextPage, nil
+}
+
+func listGithubAppInstalledRepos(
+	apiClient plugin.ApiClient,
+	page GithubRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo],
+	nextPage *GithubRemotePagination,
+	err errors.Error,
+) {
+	resApp, err := apiClient.Get("installation/repositories",
+		url.Values{
+			"page":     []string{fmt.Sprintf("%v", page.Page)},
+			"per_page": []string{fmt.Sprintf("%v", page.PerPage)},
+		},
+		nil,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+	var appRepos GithubAppRepo
+	errors.Must(api.UnmarshalResponse(resApp, &appRepos))
+	processedOrgs := make(map[string]struct{})
+	for _, r := range appRepos.Repositories {
+		orgName := r.Owner.Login
+		if _, exists := processedOrgs[orgName]; !exists && orgName != "" {
+			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
+				Type:     api.RAS_ENTRY_TYPE_SCOPE,
+				ParentId: &orgName,
+				Id:       fmt.Sprintf("%v", r.ID),
+				Name:     fmt.Sprintf("%v", r.Name),
+				FullName: fmt.Sprintf("%v", r.FullName),
+			})
+			processedOrgs[orgName] = struct{}{}
+		}
+	}
+	if len(appRepos.Repositories) == page.PerPage {
+		nextPage = &GithubRemotePagination{
+			Page:    page.Page + 1,
+			PerPage: page.PerPage,
+		}
+	}
+	return
+}
+
+func searchGithubRepos(
+	apiClient plugin.ApiClient,
+	params *dsmodels.DsRemoteApiScopeSearchParams,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo],
+	err errors.Error,
+) {
+	res, err := apiClient.Get(
+		"search/repositories",
+		url.Values{
+			"q":        []string{params.Search},
+			"page":     []string{fmt.Sprintf("%v", params.Page)},
+			"per_page": []string{fmt.Sprintf("%v", params.PageSize)},
+		},
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	var resBody struct {
+		Items []repo `json:"items"`
+	}
+	err = api.UnmarshalResponse(res, &resBody)
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range resBody.Items {
+		children = append(children, toRepoModel(&r))
+	}
+	return
+}
+
+func toRepoModel(r *repo) dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo] {
+	return dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
+		Type:     api.RAS_ENTRY_TYPE_SCOPE,
+		ParentId: &r.Owner.Login,
+		Id:       fmt.Sprintf("%v", r.ID),
+		Name:     fmt.Sprintf("%v", r.Name),
+		FullName: fmt.Sprintf("%v", r.FullName),
+		Data: &models.GithubRepo{
+			GithubId:    r.ID,
+			Name:        r.Name,
+			FullName:    r.FullName,
+			HTMLUrl:     r.HTMLURL,
+			Description: r.Description,
+			OwnerId:     r.Owner.ID,
+			CloneUrl:    r.CloneURL,
+			CreatedDate: r.CreatedAt,
+			UpdatedDate: r.UpdatedAt,
+		},
+	}
 }
 
 // RemoteScopes list all available scope for users
@@ -313,97 +255,7 @@ type GithubAppRepo struct {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]plugin.ApiGroup, errors.Error) {
-			if gid != "" {
-				return nil, nil
-			}
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-			query := initialQuery(queryData)
-			result := make([]plugin.ApiGroup, 0)
-			var o owner
-			var res *http.Response
-			if connection.AuthMethod == plugin.AUTH_METHOD_APPKEY {
-				resApp, err := apiClient.Get("installation/repositories", query, nil)
-				if err != nil {
-					return nil, err
-				}
-				var resAppBody GithubAppRepo
-				err = api.UnmarshalResponse(resApp, &resAppBody)
-				if err != nil {
-					return nil, err
-				}
-				var resOwner []owner
-				processedOrgs := make(map[string]struct{})
-				for _, v := range resAppBody.Repositories {
-					orgName := v.Owner.Login
-					if _, exists := processedOrgs[orgName]; !exists && orgName != "" {
-						o.ID = v.Owner.ID
-						o.Login = orgName
-						resOwner = append(resOwner, o)
-						processedOrgs[orgName] = struct{}{}
-					}
-				}
-				for _, v := range resOwner {
-					result = append(result, v)
-				}
-			} else {
-				var resBody []org
-				resToken, err := apiClient.Get("user/orgs", query, nil)
-				if err != nil {
-					return nil, err
-				}
-				err = api.UnmarshalResponse(resToken, &resBody)
-				if err != nil {
-					return nil, err
-				}
-				res, err = apiClient.Get("user", nil, nil)
-				if err != nil {
-					return nil, err
-				}
-				err = api.UnmarshalResponse(res, &o)
-				if err != nil {
-					return nil, err
-				}
-				result = append(result, o)
-				for _, v := range resBody {
-					result = append(result, v)
-				}
-			}
-
-			return result, err
-		},
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]repo, errors.Error) {
-			if gid == "" {
-				return nil, nil
-			}
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-			query := initialQuery(queryData)
-			var res *http.Response
-			res, err = apiClient.Get(fmt.Sprintf("orgs/%s/repos", gid), query, nil)
-			if err != nil {
-				return nil, err
-			}
-			// if not found, try to get user repos
-			if res.StatusCode == http.StatusNotFound {
-				res, err = apiClient.Get(fmt.Sprintf("users/%s/repos", gid), query, nil)
-				if err != nil {
-					return nil, err
-				}
-			}
-			var resBody []repo
-			err = api.UnmarshalResponse(res, &resBody)
-			if err != nil {
-				return nil, err
-			}
-			return resBody, err
-		})
+	return raScopeList.Get(input)
 }
 
 // SearchRemoteScopes use the Search API and only return project
@@ -420,35 +272,16 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]repo, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-			query := initialQuery(queryData)
-			if len(queryData.Search) == 0 {
-				return nil, errors.BadInput.New("empty search query")
-			}
-			query.Set("q", queryData.Search[0])
-			res, err := apiClient.Get("search/repositories", query, nil)
-			if err != nil {
-				return nil, err
-			}
-			var resBody struct {
-				Items []repo `json:"items"`
-			}
-			err = api.UnmarshalResponse(res, &resBody)
-			if err != nil {
-				return nil, err
-			}
-			return resBody.Items, err
-		})
+	return raScopeSearch.Get(input)
 }
 
-func initialQuery(queryData *api.RemoteQueryData) url.Values {
-	query := url.Values{}
-	query.Set("page", fmt.Sprintf("%v", queryData.Page))
-	query.Set("per_page", fmt.Sprintf("%v", queryData.PerPage))
-	return query
+// Proxy is a proxy to Github API
+// @Summary Proxy to Github API
+// @Description Proxy to Github API
+// @Tags plugins/github
+// @Param connectionId path int true "connection ID"
+// @Param path path string true "path to Github API"
+// @Router /plugins/github/connections/{connectionId}/proxy/{path} [GET]
+func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return raProxy.Proxy(input)
 }

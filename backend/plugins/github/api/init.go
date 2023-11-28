@@ -21,21 +21,24 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	apihelper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 
-var dsHelper *api.DsHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
-var connectionHelper *api.ConnectionApiHelper
+var dsHelper *apihelper.DsHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
+var connectionHelper *apihelper.ConnectionApiHelper
 var basicRes context.BasicRes
-var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup]
+var raProxy *apihelper.DsRemoteApiProxyHelper[models.GithubConnection]
+var raScopeList *apihelper.DsRemoteApiScopeListHelper[models.GithubConnection, models.GithubRepo, GithubRemotePagination]
+var raScopeSearch *apihelper.DsRemoteApiScopeSearchHelper[models.GithubConnection, models.GithubRepo]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
-	dsHelper = api.NewDataSourceHelper[
+	vld = validator.New()
+	dsHelper = apihelper.NewDataSourceHelper[
 		models.GithubConnection,
 		models.GithubRepo,
 		models.GithubScopeConfig,
@@ -49,16 +52,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 		nil,
 	)
-	// TODO: refactor remoteHelper
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
+	raProxy = apihelper.NewDsRemoteApiProxyHelper[models.GithubConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = apihelper.NewDsRemoteApiScopeListHelper[models.GithubConnection, models.GithubRepo, GithubRemotePagination](raProxy, listGithubRemoteScopes)
+	raScopeSearch = apihelper.NewDsRemoteApiScopeSearchHelper[models.GithubConnection, models.GithubRepo](raProxy, searchGithubRepos)
 }

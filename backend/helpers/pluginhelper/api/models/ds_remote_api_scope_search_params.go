@@ -15,20 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apihelperabstract
+package models
 
-import (
-	"net/http"
-	"net/url"
-
-	"github.com/apache/incubator-devlake/core/errors"
-)
-
-// ApiClientAbstract defines the functionalities needed by all plugins for Synchronized API Request
-type ApiClientAbstract interface {
-	SetData(name string, data interface{})
-	GetData(name string) interface{}
-	SetHeaders(headers map[string]string)
-	Get(path string, query url.Values, headers http.Header) (*http.Response, errors.Error)
-	Post(path string, query url.Values, body interface{}, headers http.Header) (*http.Response, errors.Error)
+type DsRemoteApiScopeSearchParams struct {
+	Search   string `json:"search" mapstructure:"search" validate:"required"`
+	Page     int    `json:"page" mapstructure:"page"`
+	PageSize int    `json:"pageSize" mapstructure:"pageSize"`
 }
