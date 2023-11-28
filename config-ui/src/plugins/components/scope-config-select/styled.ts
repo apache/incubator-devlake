@@ -18,6 +18,8 @@
 
 import styled from 'styled-components';
 
-export const Wrapper = styled.div``;
+export const Wrapper = styled.div`
+  padding-top: 24px;
+`;
 
 export const DialogBody = styled.div``;

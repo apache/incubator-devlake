@@ -46,7 +46,7 @@ const Wrapper = styled.div<{ position?: 'top' | 'bottom'; align: 'left' | 'right
     }
   }}
 
-  .bp5-button + .bp5-button {
+  .ant-btn + .ant-btn {
     margin-left: 8px;
   }
 `;
