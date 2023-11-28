@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"reflect"
+	"time"
 )
 
 var ConvertJobBuildsMeta = plugin.SubTaskMeta{
@@ -61,16 +62,24 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if line.BuildStartedTime == nil {
 				return nil, nil
 			}
+			var createdDate time.Time
+			if line.BuildStartedTime != nil {
+				createdDate = *line.BuildStartedTime
+			}
+			queuedDurationSec := float64(line.QueueDuration / 1e3)
 			domainJobBuild := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobBuildIdGen.Generate(data.Options.ConnectionId, line.JobBuildKey)},
 				Name:         line.JobName,
-				DurationSec:  float64(line.BuildDurationInSeconds),
+				DurationSec:  float64(line.BuildDuration / 1e3),
 				ItemDateInfo: devops.ItemDateInfo{
+					CreatedDate:  createdDate,
+					QueuedDate:   line.QueueStartedTime,
 					StartedDate:  line.BuildStartedTime,
 					FinishedDate: line.BuildCompletedDate,
 				},
-				PipelineId:  planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
-				CicdScopeId: planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
+				QueuedDurationSec: &queuedDurationSec,
+				PipelineId:        planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
+				CicdScopeId:       planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{ResultSuccess, ResultSuccessful},
 					Failure: []string{ResultFailed},

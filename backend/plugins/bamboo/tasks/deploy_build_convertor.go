@@ -105,6 +105,10 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, nil
 			}
 			deploymentCommitId := didgen.NewDomainIdGenerator(&deployBuildWithVcsRevision{}).Generate(data.Options.ConnectionId, input.DeployBuildId, input.RepositoryId)
+			var createdDate time.Time
+			if input.StartedDate != nil {
+				createdDate = *input.StartedDate
+			}
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: deploymentCommitId,
@@ -126,25 +130,20 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: input.LifeCycleState,
 				Environment:    input.Environment,
 				ItemDateInfo: devops.ItemDateInfo{
-					StartedDate:  input.StartedDate,
+					CreatedDate:  createdDate,
+					QueuedDate:   input.QueuedDate,
+					StartedDate:  input.ExecutedDate,
 					FinishedDate: input.FinishedDate,
 				},
 				CommitSha: input.VcsRevisionKey,
 				RefName:   input.PlanBranchName,
 				RepoId:    strconv.Itoa(input.RepositoryId),
 			}
-			deploymentCommit.CreatedDate = time.Now()
-			if input.StartedDate != nil {
-				deploymentCommit.CreatedDate = *input.StartedDate
-			}
-			if input.QueuedDate != nil {
-				deploymentCommit.CreatedDate = *input.QueuedDate
-			}
 			if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, input.Environment) != "" {
 				deploymentCommit.Environment = devops.PRODUCTION
 			}
-			if input.FinishedDate != nil && input.StartedDate != nil {
-				duration := input.FinishedDate.Sub(*input.StartedDate).Seconds()
+			if input.FinishedDate != nil && input.ExecutedDate != nil {
+				duration := float64(input.FinishedDate.Sub(*input.ExecutedDate).Milliseconds() / 1e3)
 				deploymentCommit.DurationSec = &duration
 			}
 			fakeRepoUrl, err := generateFakeRepoUrl(data.ApiClient.GetEndpoint(), input.RepositoryId)

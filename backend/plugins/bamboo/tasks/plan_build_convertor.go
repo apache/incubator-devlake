@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"reflect"
+	"time"
 )
 
 var ConvertPlanBuildsMeta = plugin.SubTaskMeta{
@@ -60,16 +61,20 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if line.BuildStartedTime == nil {
 				return nil, nil
 			}
+			var createdDate time.Time
+			if line.BuildStartedTime != nil {
+				createdDate = *line.BuildStartedTime
+			}
 			domainPlanBuild := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{Id: planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey)},
 				Name:         line.GenerateCICDPipeLineName(),
-				DurationSec:  float64(line.BuildDurationInSeconds),
+				DurationSec:  float64(line.BuildDuration / 1e3),
 				ItemDateInfo: devops.ItemDateInfo{
-					CreatedDate:  *line.BuildStartedTime,
+					CreatedDate:  createdDate,
+					StartedDate:  line.BuildCompletedDate,
 					FinishedDate: line.BuildCompletedDate,
 				},
 				CicdScopeId: planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
-
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{ResultSuccess, ResultSuccessful},
 					Failure: []string{ResultFailed},
