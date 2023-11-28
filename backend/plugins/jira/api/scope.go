@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -117,7 +116,7 @@ func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 	return scopeHelper.Delete(input)
 }
 
-func GetApiJira(op *tasks.JiraOptions, apiClient aha.ApiClientAbstract) (*apiv2models.Board, errors.Error) {
+func GetApiJira(op *tasks.JiraOptions, apiClient plugin.ApiClient) (*apiv2models.Board, errors.Error) {
 	boardRes := &apiv2models.Board{}
 	res, err := apiClient.Get(fmt.Sprintf("agile/1.0/board/%d", op.BoardId), nil, nil)
 	if err != nil {

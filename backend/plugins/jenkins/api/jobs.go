@@ -26,11 +26,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
-func GetJobsPage(apiClient aha.ApiClientAbstract, path string, page int, pageSize int, callback func(job *models.Job) errors.Error) (int, errors.Error) {
+func GetJobsPage(apiClient plugin.ApiClient, path string, page int, pageSize int, callback func(job *models.Job) errors.Error) (int, errors.Error) {
 	i := page * pageSize
 	var data struct {
 		Jobs []json.RawMessage `json:"jobs"`
@@ -70,7 +70,7 @@ func GetJobsPage(apiClient aha.ApiClientAbstract, path string, page int, pageSiz
 	return len(data.Jobs), nil
 }
 
-func GetJobs(apiClient aha.ApiClientAbstract, path string, pageSize int, callback func(job *models.Job) errors.Error) errors.Error {
+func GetJobs(apiClient plugin.ApiClient, path string, pageSize int, callback func(job *models.Job) errors.Error) errors.Error {
 	for i := 0; ; i++ {
 		count, err := GetJobsPage(apiClient, path, i, pageSize, callback)
 		if err != nil {
@@ -84,7 +84,7 @@ func GetJobs(apiClient aha.ApiClientAbstract, path string, pageSize int, callbac
 }
 
 func GetJob(
-	apiClient aha.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 	path string,
 	name string,
 	fullName string,
@@ -115,7 +115,7 @@ func GetJob(
 
 // request all jobs
 func GetAllJobs(
-	apiClient aha.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 	path string,
 	beforename string,
 	pageSize int,

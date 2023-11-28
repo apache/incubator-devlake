@@ -36,7 +36,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
@@ -235,7 +234,7 @@ func addGithub(
 
 func getApiRepo(
 	op *tasks.GithubOptions,
-	apiClient aha.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 ) (*tasks.GithubApiRepo, errors.Error) {
 	repoRes := &tasks.GithubApiRepo{}
 	res, err := apiClient.Get(fmt.Sprintf("repos/%s", op.Name), nil, nil)
@@ -259,7 +258,7 @@ func getApiRepo(
 
 func MemorizedGetApiRepo(
 	repo *tasks.GithubApiRepo,
-	op *tasks.GithubOptions, apiClient aha.ApiClientAbstract,
+	op *tasks.GithubOptions, apiClient plugin.ApiClient,
 ) (*tasks.GithubApiRepo, errors.Error) {
 	if repo == nil {
 		var err errors.Error
