@@ -165,7 +165,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 								logger.Info("split by dir, and it's issue count:[%d] and file path:[%s]", value.Count, value.Val)
 							} else {
 								// split it by dir when it's issue count > 10000
-								res2, err := data.ApiClient.Get("issues/search", url.Values{
+								resWithPath, err := data.ApiClient.Get("issues/search", url.Values{
 									"componentKeys": {fmt.Sprintf("%v", data.Options.ProjectKey)},
 									"directories":   {value.Val},
 									"facets":        {"files"},
@@ -174,15 +174,15 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 								if err != nil {
 									return 0, err
 								}
-								body2 := &SonarqubePageInfo{}
-								err = helper.UnmarshalResponse(res2, body2)
+								bodyWithPath := &SonarqubePageInfo{}
+								err = helper.UnmarshalResponse(resWithPath, bodyWithPath)
 								if err != nil {
 									return 0, err
 								}
-								if len(body2.Facets) != 1 {
-									return 0, errors.Default.New(fmt.Sprintf("the facets count [%d] is not 1", len(body2.Facets)))
+								if len(bodyWithPath.Facets) != 1 {
+									return 0, errors.Default.New(fmt.Sprintf("the facets count [%d] is not 1", len(bodyWithPath.Facets)))
 								}
-								for _, value2 := range body2.Facets[0].Values {
+								for _, value2 := range bodyWithPath.Facets[0].Values {
 									if value2.Count > MAXISSUECOUNT {
 										logger.Warn(fmt.Errorf("the issue count [%d] exceeds the maximum page size", value2.Count), "")
 									}
@@ -194,7 +194,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 										CreatedBefore: createdBefore,
 										FilePath:      value2.Val,
 									})
-									logger.Info(fmt.Sprintf("split by fil, and it's issue count:[%d] and file path:[%s]", value2.Count, value2.Val))
+									logger.Info("split by fil, and it's issue count:[%d] and file path:[%s]", value2.Count, value2.Val)
 								}
 							}
 						}
