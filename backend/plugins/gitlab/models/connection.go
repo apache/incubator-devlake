@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 // GitlabConn holds the essential information to connect to the Gitlab API
@@ -48,7 +47,7 @@ func (conn *GitlabConn) Sanitize() GitlabConn {
 }
 
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.
-func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (conn *GitlabConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	header1 := http.Header{}
 	header1.Set("Authorization", fmt.Sprintf("Bearer %v", conn.Token))
 	// test request for access token

@@ -34,6 +34,7 @@ import (
 	"unicode/utf8"
 
 	aha "github.com/apache/incubator-devlake/core/plugin"
+	plugin "github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -44,8 +45,9 @@ import (
 
 // ErrIgnoreAndContinue is a error which should be ignored
 var (
-	ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
-	ErrEmptyResponse     = errors.Default.New("empty response")
+	ErrIgnoreAndContinue                  = errors.Default.New("ignore and continue")
+	ErrEmptyResponse                      = errors.Default.New("empty response")
+	_                    plugin.ApiClient = (*ApiClient)(nil)
 )
 
 // ApiClient is designed for simple api requests
@@ -69,7 +71,7 @@ func NewApiClientFromConnection(
 	connection aha.ApiConnection,
 ) (*ApiClient, errors.Error) {
 	if reflect.ValueOf(connection).Kind() != reflect.Ptr {
-		return nil, errors.Default.New("connection is not a pointer")
+		panic(fmt.Errorf("connection is not a pointer"))
 	}
 	apiClient, err := NewApiClient(ctx, connection.GetEndpoint(), nil, 0, connection.GetProxy(), br)
 	if err != nil {

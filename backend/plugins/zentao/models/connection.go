@@ -24,12 +24,12 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 // PrepareApiClient fetches token from Zentao API for future requests
-func (connection ZentaoConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (connection ZentaoConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	// request for access token
 	tokenReqBody := &ApiAccessTokenRequest{
 		Account:  connection.Username,
