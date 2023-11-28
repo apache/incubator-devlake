@@ -49,7 +49,7 @@ type BitbucketServerPullRequest struct {
 	HeadCommitSha      string `gorm:"type:varchar(255)"`
 	Url                string `gorm:"type:varchar(255)"`
 	AuthorName         string `gorm:"type:varchar(255)"`
-	AuthorID           int
+	AuthorId           int
 	common.NoPKModel
 }
 

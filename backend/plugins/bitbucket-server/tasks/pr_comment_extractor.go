@@ -37,21 +37,25 @@ var ExtractApiPrCommentsMeta = plugin.SubTaskMeta{
 }
 
 type BitbucketPrCommentsResponse struct {
-	BitbucketId int        `json:"id"`
-	CreatedOn   time.Time  `json:"created_on"`
-	UpdatedOn   *time.Time `json:"updated_on"`
-	Type        string     `json:"type"`
-	Content     struct {
-		Raw string `json:"raw"`
-	} `json:"content"`
-	PullRequest struct {
-		Id int `json:"id"`
-	} `json:"pullrequest"`
-	User *BitbucketAccountResponse `json:"user"`
+	BitbucketId int   `json:"id"`
+	CreatedOn   int64 `json:"createdDate"`
+
+	User *BitbucketUserResponse `json:"user"`
+
+	Action        string  `json:"action"`
+	CommentAction *string `json:"commentAction"`
+	Comment       *struct {
+		BitbucketId int    `json:"id"`
+		Text        string `json:"text"`
+		CreatedAt   int64  `json:"createdDate"`
+		UpdatedAt   *int64 `json:"updatedDate"`
+		Severity    string `json:"severity"`
+		State       string `json:"state"`
+	} `json:"comment"`
 }
 
 func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_ACTIVITIES_TABLE)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -60,22 +64,32 @@ func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 			err := errors.Convert(json.Unmarshal(row.Data, prComment))
 			if err != nil {
 				return nil, err
+			} else if prComment.Action != "COMMENTED" {
+				return []interface{}{}, nil
 			}
 
-			toolprComment, err := convertPullRequestComment(prComment)
-			toolprComment.ConnectionId = data.Options.ConnectionId
-			toolprComment.RepoId = data.Options.FullName
+			input := &PrCommentInput{}
+			err = errors.Convert(json.Unmarshal(row.Input, input))
 			if err != nil {
 				return nil, err
 			}
+
+			toolprComment, err := convertPullRequestComment(prComment)
+			if err != nil {
+				return nil, err
+			}
+			toolprComment.ConnectionId = data.Options.ConnectionId
+			toolprComment.RepoId = data.Options.FullName
+			toolprComment.PullRequestId = input.BitbucketId
+
 			results := make([]interface{}, 0, 2)
 
 			if prComment.User != nil {
-				bitbucketUser, err := convertAccount(prComment.User, data.Options.ConnectionId)
+				bitbucketUser, err := convertUser(prComment.User, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}
-				toolprComment.AuthorId = bitbucketUser.AccountId
+				toolprComment.AuthorId = bitbucketUser.BitbucketId
 				toolprComment.AuthorName = bitbucketUser.DisplayName
 				results = append(results, bitbucketUser)
 			}
@@ -93,14 +107,14 @@ func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 
 func convertPullRequestComment(prComment *BitbucketPrCommentsResponse) (*models.BitbucketServerPrComment, errors.Error) {
 	bitbucketPrComment := &models.BitbucketServerPrComment{
-		BitbucketId:        prComment.BitbucketId,
-		AuthorId:           prComment.User.AccountId,
-		PullRequestId:      prComment.PullRequest.Id,
-		AuthorName:         prComment.User.DisplayName,
-		BitbucketCreatedAt: prComment.CreatedOn,
-		BitbucketUpdatedAt: prComment.UpdatedOn,
-		Type:               prComment.Type,
-		Body:               prComment.Content.Raw,
+		BitbucketId: prComment.BitbucketId,
+		AuthorName:  prComment.User.DisplayName,
+		CreatedAt:   time.UnixMilli(prComment.CreatedOn),
+		Body:        prComment.Comment.Text,
+	}
+	if prComment.Comment.UpdatedAt != nil {
+		updatedAt := time.UnixMilli(int64(*prComment.Comment.UpdatedAt))
+		bitbucketPrComment.UpdatedAt = &updatedAt
 	}
 	return bitbucketPrComment, nil
 }

@@ -21,19 +21,22 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type BitbucketServerAccount struct {
-	ConnectionId  uint64 `gorm:"primaryKey"`
-	AccountId     string `gorm:"primaryKey;type:varchar(255)"`
-	UserName      string `gorm:"type:varchar(255)"`
-	AccountStatus string `gorm:"type:varchar(255)"`
-	DisplayName   string `gorm:"type:varchar(255)"`
-	AvatarUrl     string `gorm:"type:varchar(255)"`
-	HtmlUrl       string `gorm:"type:varchar(255)"`
-	Uuid          string `gorm:"type:varchar(255)"`
+type BitbucketServerUser struct {
+	ConnectionId  uint64  `gorm:"primaryKey"`
+	BitbucketId   int     `gorm:"primaryKey"`
+	Name          string  `gorm:"type:varchar(255)"`
+	EmailAddress  string  `gorm:"type:varchar(255)"`
+	Active        bool    `gorm:"type:varchar(255)"`
+	Slug          string  `gorm:"type:varchar(255)"`
+	Type          string  `gorm:"type:varchar(255)"`
+	UserName      string  `gorm:"type:varchar(255)"`
+	AccountStatus string  `gorm:"type:varchar(255)"`
+	DisplayName   string  `gorm:"type:varchar(255)"`
+	HtmlUrl       *string `gorm:"type:varchar(255)"`
 	Has2FaEnabled bool
 	common.NoPKModel
 }
 
-func (BitbucketServerAccount) TableName() string {
-	return "_tool_bitbucket_server_accounts"
+func (BitbucketServerUser) TableName() string {
+	return "_tool_bitbucket_server_users"
 }

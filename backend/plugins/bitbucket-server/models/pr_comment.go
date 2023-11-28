@@ -24,16 +24,15 @@ import (
 )
 
 type BitbucketServerPrComment struct {
-	ConnectionId       uint64 `gorm:"primaryKey"`
-	BitbucketId        int    `gorm:"primaryKey"`
-	RepoId             string `gorm:"index:pr"` // PullRequestId is not unique across multiple repos of a connection
-	PullRequestId      int    `gorm:"index:pr"`
-	AuthorId           string `gorm:"type:varchar(255)"`
-	AuthorName         string `gorm:"type:varchar(255)"`
-	BitbucketCreatedAt time.Time
-	BitbucketUpdatedAt *time.Time
-	Type               string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
-	Body               string
+	ConnectionId  uint64 `gorm:"primaryKey"`
+	BitbucketId   int    `gorm:"primaryKey"`
+	RepoId        string `gorm:"index:pr"` // PullRequestId is not unique across multiple repos of a connection
+	PullRequestId int    `gorm:"index:pr"`
+	AuthorId      int
+	AuthorName    string `gorm:"type:varchar(255)"`
+	CreatedAt     time.Time
+	UpdatedAt     *time.Time
+	Body          string
 	common.NoPKModel
 }
 

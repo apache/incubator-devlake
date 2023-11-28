@@ -23,19 +23,19 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_PULL_REQUEST_COMMENTS_TABLE = "bitbucket_server_api_pull_request_comments"
+const RAW_PULL_REQUEST_ACTIVITIES_TABLE = "bitbucket_server_api_pull_request_activities"
 
-var CollectApiPrCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequestsComments",
-	EntryPoint:       CollectApiPullRequestsComments,
+var CollectApiPrActivitiesMeta = plugin.SubTaskMeta{
+	Name:             "collectApiPullRequestsActivities",
+	EntryPoint:       CollectApiPullRequestsActivities,
 	EnabledByDefault: true,
 	Required:         false,
-	Description:      "Collect pull requests comments data from Bitbucket Server api",
+	Description:      "Collect pull requests activities data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
+func CollectApiPullRequestsActivities(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_ACTIVITIES_TABLE)
 	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}",
+		UrlTemplate: "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/activities",
 		Query: GetQueryFields(
 			`values.id,values.type,values.created_on,values.updated_on,values.content.raw,values.pullrequest.id,values.user,` +
 				`page,pagelen,size`),

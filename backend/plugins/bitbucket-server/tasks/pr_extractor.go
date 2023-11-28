@@ -56,15 +56,7 @@ type BitbucketApiPullRequest struct {
 	} `json:"links"`
 	//ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
 	Author *struct {
-		User *struct {
-			BitbucketID  int    `json:"id"`
-			Name         string `json:"name"`
-			EmailAddress string `json:"emailAddress"`
-			Active       bool   `json:"active"`
-			DisplayName  string `json:"displayName"`
-			Slug         string `json:"slug"`
-			Type         string `json:"type"`
-		} `json:"user"` // TODO: use BitbucketAccountResponse
+		User *BitbucketUserResponse `json:"user"` // TODO: use BitbucketAccountResponse
 	} `json:"author"`
 	BitbucketCreatedAt int64  `json:"createdDate"`
 	BitbucketUpdatedAt int64  `json:"updatedDate"`
@@ -111,15 +103,14 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			if rawL.Author != nil {
 				// TODO:
-				// bitbucketUser, err := convertAccount(rawL.Author, data.Options.ConnectionId)
-				// if err != nil {
-				// 	return nil, err
-				// }
+
+				bitbucketUser, err := convertUser(rawL.Author.User, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
 				// results = append(results, bitbucketUser)
-				// bitbucketPr.AuthorName = bitbucketUser.DisplayName
-				// bitbucketPr.AuthorId = bitbucketUser.AccountId
-				bitbucketPr.AuthorName = rawL.Author.User.DisplayName
-				bitbucketPr.AuthorID = rawL.Author.User.BitbucketID
+				bitbucketPr.AuthorName = bitbucketUser.DisplayName
+				bitbucketPr.AuthorId = bitbucketUser.BitbucketId
 			}
 			if rawL.MergeCommit != nil {
 				bitbucketPr.MergeCommitSha = rawL.MergeCommit.Hash

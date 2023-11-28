@@ -24,8 +24,23 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 )
 
+type BitbucketUserResponse struct {
+	BitbucketId  int    `json:"id"`
+	Name         string `json:"name"`
+	EmailAddress string `json:"emailAddress"`
+	Active       bool   `json:"active"`
+	DisplayName  string `json:"displayName"`
+	Slug         string `json:"slug"`
+	Type         string `json:"type"`
+	Links        struct {
+		Self []struct {
+			Href string `json:"href"`
+		} `json:"self"`
+	} `json:"links"`
+}
+
 type BitbucketAccountResponse struct {
-	BitbucketID   string    `json:"id"`
+	BitbucketId   string    `json:"id"`
 	UserName      string    `json:"name"`
 	DisplayName   string    `json:"display_name"`
 	AccountId     string    `json:"account_id"`
@@ -41,17 +56,21 @@ type BitbucketAccountResponse struct {
 	}
 }
 
-func convertAccount(res *BitbucketAccountResponse, connId uint64) (*models.BitbucketServerAccount, errors.Error) {
-	return &models.BitbucketServerAccount{}, nil
-	// bitbucketAccount := &models.BitbucketServerAccount{
-	// 	ConnectionId:  connId,
-	// 	UserName:      res.UserName,
-	// 	DisplayName:   res.DisplayName,
-	// 	AccountId:     res.AccountId,
-	// 	Uuid:          res.Uuid,
-	// 	AccountStatus: res.AccountStatus,
-	// 	AvatarUrl:     res.Links.Avatar.Href,
-	// 	HtmlUrl:       res.Links.Html.Href,
-	// }
-	// return bitbucketAccount, nil
+func convertUser(res *BitbucketUserResponse, connId uint64) (*models.BitbucketServerUser, errors.Error) {
+	bitbucketUser := &models.BitbucketServerUser{
+		ConnectionId: connId,
+		BitbucketId:  res.BitbucketId,
+		Name:         res.Name,
+		EmailAddress: res.EmailAddress,
+		Active:       res.Active,
+		DisplayName:  res.DisplayName,
+		Slug:         res.Slug,
+		Type:         res.Type,
+	}
+
+	if len(res.Links.Self) > 0 {
+		bitbucketUser.HtmlUrl = &res.Links.Self[0].Href
+	}
+
+	return bitbucketUser, nil
 }

@@ -17,62 +17,51 @@ limitations under the License.
 
 package tasks
 
-import (
-	"reflect"
-
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	bitbucketModels "github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
-)
+import plugin "github.com/apache/incubator-devlake/core/plugin"
 
 const RAW_ACCOUNT_TABLE = "bitbucket_server_api_accounts"
 
-var ConvertAccountsMeta = plugin.SubTaskMeta{
-	Name:             "convertAccounts",
-	EntryPoint:       ConvertAccounts,
+var ConvertUsersMeta = plugin.SubTaskMeta{
+	Name: "convertAccounts",
+	// EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Required:         false,
 	Description:      "Convert tool layer table bitbucket_accounts into domain layer table accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNT_TABLE)
-	db := taskCtx.GetDal()
+// func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
+// 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNT_TABLE)
+// 	db := taskCtx.GetDal()
 
-	cursor, err := db.Cursor(dal.From(&bitbucketModels.BitbucketServerAccount{}))
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
+// 	cursor, err := db.Cursor(dal.From(&bitbucketModels.BitbucketServerAccount{}))
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketServerAccount{})
+// 	accountIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketServerAccount{})
 
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(bitbucketModels.BitbucketServerAccount{}),
-		Input:              cursor,
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			bitbucketUser := inputRow.(*bitbucketModels.BitbucketServerAccount)
-			domainUser := &crossdomain.Account{
-				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, bitbucketUser.AccountId)},
-				UserName:     bitbucketUser.UserName,
-				FullName:     bitbucketUser.DisplayName,
-				AvatarUrl:    bitbucketUser.AvatarUrl,
-			}
-			return []interface{}{
-				domainUser,
-			}, nil
-		},
-	})
-	if err != nil {
-		return err
-	}
+// 	converter, err := api.NewDataConverter(api.DataConverterArgs{
+// 		InputRowType:       reflect.TypeOf(bitbucketModels.BitbucketServerAccount{}),
+// 		Input:              cursor,
+// 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+// 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
+// 			bitbucketUser := inputRow.(*bitbucketModels.BitbucketServerAccount)
+// 			domainUser := &crossdomain.Account{
+// 				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, bitbucketUser.AccountId)},
+// 				UserName:     bitbucketUser.UserName,
+// 				FullName:     bitbucketUser.DisplayName,
+// 				AvatarUrl:    bitbucketUser.AvatarUrl,
+// 			}
+// 			return []interface{}{
+// 				domainUser,
+// 			}, nil
+// 		},
+// 	})
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return converter.Execute()
-}
+// 	return converter.Execute()
+// }

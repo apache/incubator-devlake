@@ -199,3 +199,7 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	}
 	return nil
 }
+
+type PrCommentInput struct {
+	BitbucketId int
+}

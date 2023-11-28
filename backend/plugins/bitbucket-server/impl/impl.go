@@ -68,7 +68,7 @@ func (p BitbucketServer) Init(basicRes context.BasicRes) errors.Error {
 func (p BitbucketServer) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.BitbucketServerConnection{},
-		&models.BitbucketServerAccount{},
+		&models.BitbucketServerUser{},
 		&models.BitbucketServerCommit{},
 		&models.BitbucketServerPullRequest{},
 		&models.BitbucketServerPrComment{},
@@ -92,7 +92,7 @@ func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectApiPullRequestsMeta,
 		tasks.ExtractApiPullRequestsMeta,
 
-		tasks.CollectApiPrCommentsMeta,
+		tasks.CollectApiPrActivitiesMeta,
 		tasks.ExtractApiPrCommentsMeta,
 
 		tasks.CollectApiPrCommitsMeta,
@@ -102,7 +102,7 @@ func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractApiCommitsMeta,
 
 		tasks.ConvertRepoMeta,
-		tasks.ConvertAccountsMeta,
+		tasks.ConvertUsersMeta,
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPrCommentsMeta,
 		tasks.ConvertPrCommitsMeta,

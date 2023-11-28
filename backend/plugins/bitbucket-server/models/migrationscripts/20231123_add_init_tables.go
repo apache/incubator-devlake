@@ -12,7 +12,7 @@ type addInitTables20231123 struct{}
 func (script *addInitTables20231123) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.BitbucketServerAccount{},
+		&models.BitbucketServerUser{},
 		&models.BitbucketServerCommit{},
 		&models.BitbucketServerConnection{},
 		&models.BitbucketServerPullRequest{},
