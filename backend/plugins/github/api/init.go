@@ -29,7 +29,6 @@ import (
 var vld *validator.Validate
 
 var dsHelper *apihelper.DsHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
-var connectionHelper *apihelper.ConnectionApiHelper
 var basicRes context.BasicRes
 var raProxy *apihelper.DsRemoteApiProxyHelper[models.GithubConnection]
 var raScopeList *apihelper.DsRemoteApiScopeListHelper[models.GithubConnection, models.GithubRepo, GithubRemotePagination]

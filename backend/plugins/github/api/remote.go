@@ -125,6 +125,9 @@ func listGithubOrgRepos(
 	}
 	// user's orgs
 	reposBody, err := apiClient.Get(fmt.Sprintf("orgs/%s/repos", org), query, nil)
+	if err != nil {
+		return nil, nil, err
+	}
 	// if not found, try to get user repos
 	if reposBody.StatusCode == http.StatusNotFound {
 		reposBody, err = apiClient.Get(fmt.Sprintf("users/%s/repos", org), query, nil)
