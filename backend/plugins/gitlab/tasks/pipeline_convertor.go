@@ -73,13 +73,10 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipeline := inputRow.(*models.GitlabPipeline)
 
-			startedAt := time.Now()
-			if gitlabPipeline.StartedAt != nil {
-				startedAt = *gitlabPipeline.StartedAt
-			} else if gitlabPipeline.GitlabCreatedAt != nil {
-				startedAt = *gitlabPipeline.GitlabCreatedAt
+			createdAt := time.Now()
+			if gitlabPipeline.GitlabCreatedAt != nil {
+				createdAt = *gitlabPipeline.GitlabCreatedAt
 			}
-
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
@@ -97,23 +94,16 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				}, gitlabPipeline.Status),
 				OriginalStatus: gitlabPipeline.Status,
 				ItemDateInfo: devops.ItemDateInfo{
-					CreatedDate:  startedAt,
-					FinishedDate: gitlabPipeline.GitlabUpdatedAt,
+					CreatedDate:  createdAt,
+					StartedDate:  gitlabPipeline.StartedAt,
+					FinishedDate: gitlabPipeline.FinishedAt,
 				},
-				CicdScopeId: projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
-				Environment: gitlabPipeline.Environment,
-				Type:        gitlabPipeline.Type,
+				QueuedDurationSec: &gitlabPipeline.QueuedDuration,
+				CicdScopeId:       projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
+				Environment:       gitlabPipeline.Environment,
+				Type:              gitlabPipeline.Type,
+				DurationSec:       float64(gitlabPipeline.Duration),
 			}
-
-			// rebuild the FinishedDate and DurationSec by Status
-			if domainPipeline.Status != devops.STATUS_DONE {
-				domainPipeline.FinishedDate = nil
-				domainPipeline.DurationSec = 0
-			} else if domainPipeline.FinishedDate != nil {
-				durationTime := domainPipeline.FinishedDate.Sub(startedAt)
-				domainPipeline.DurationSec = durationTime.Seconds()
-			}
-
 			return []interface{}{
 				domainPipeline,
 			}, nil

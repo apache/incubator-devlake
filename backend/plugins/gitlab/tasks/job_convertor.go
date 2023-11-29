@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"reflect"
+	"time"
 )
 
 func init() {
@@ -71,16 +72,14 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabJob := inputRow.(*gitlabModels.GitlabJob)
 
-			startedAt := gitlabJob.GitlabCreatedAt
-			if gitlabJob.StartedAt != nil {
-				startedAt = gitlabJob.StartedAt
+			createdAt := time.Now()
+			if gitlabJob.GitlabCreatedAt != nil {
+				createdAt = *gitlabJob.GitlabCreatedAt
 			}
-
 			domainJob := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: jobIdGen.Generate(data.Options.ConnectionId, gitlabJob.GitlabId),
 				},
-
 				Name:       gitlabJob.Name,
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabJob.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
@@ -93,10 +92,12 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPreparing, StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabJob.Status),
-				OriginalStatus: gitlabJob.Status,
-				DurationSec:    gitlabJob.Duration,
+				OriginalStatus:    gitlabJob.Status,
+				DurationSec:       gitlabJob.Duration,
+				QueuedDurationSec: &gitlabJob.QueuedDuration,
 				ItemDateInfo: devops.ItemDateInfo{
-					StartedDate:  startedAt,
+					CreatedDate:  createdAt,
+					StartedDate:  gitlabJob.StartedAt,
 					FinishedDate: gitlabJob.FinishedAt,
 				},
 				CicdScopeId: projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
