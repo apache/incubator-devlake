@@ -40,6 +40,7 @@ type CircleciJob struct {
 	StoppedAt         *common.Iso8601Time `json:"stopped_at"`
 	DurationSec       float64             `json:"duration_sec"`
 	PipelineId        string              `gorm:"type:varchar(100)" json:"pipeline_id"`
+	Duration          int64               `json:"duration"`
 
 	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 }

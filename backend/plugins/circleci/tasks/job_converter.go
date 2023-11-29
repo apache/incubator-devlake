@@ -73,7 +73,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					StartedDate:  userTool.StartedAt.ToNullableTime(),
 					FinishedDate: userTool.StoppedAt.ToNullableTime(),
 				},
-				DurationSec: userTool.DurationSec,
+				DurationSec: float64(userTool.Duration),
 				// reference: https://circleci.com/docs/api/v2/index.html#operation/getJobDetails
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error", "infrastructure_fail", "timedout", "terminated-unknown"}, // on_hold,blocked
@@ -88,7 +88,9 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
 				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
 			}
-
+			if task.DurationSec == 0 {
+				task.DurationSec = userTool.DurationSec
+			}
 			return []interface{}{
 				task,
 			}, nil

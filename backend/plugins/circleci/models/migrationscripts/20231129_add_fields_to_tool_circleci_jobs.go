@@ -17,12 +17,32 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"time"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addFieldsToCircleciJob20231129),
-	}
+type circleciJob20231129 struct {
+	CreatedAt *time.Time `json:"created_at"`
+	QueuedAt  *time.Time `json:"queued_at"`
+	Duration  int64      `json:"duration"`
+}
+
+func (circleciJob20231129) TableName() string {
+	return "_tool_circleci_jobs"
+}
+
+type addFieldsToCircleciJob20231129 struct{}
+
+func (*addFieldsToCircleciJob20231129) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&circleciJob20231129{})
+}
+
+func (*addFieldsToCircleciJob20231129) Version() uint64 {
+	return 20231129211000
+}
+
+func (*addFieldsToCircleciJob20231129) Name() string {
+	return "circleci init schemas"
 }
