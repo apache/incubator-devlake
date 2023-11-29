@@ -206,7 +206,7 @@ export const Connection = () => {
             const scope = await API.scope.get(plugin, connectionId, scopeId);
             return API.scope.update(plugin, connectionId, scopeId, {
               ...scope,
-              scopeConfigId: +trId,
+              scopeConfigId: trId !== 'None' ? +trId : null,
             });
           }),
         ),
