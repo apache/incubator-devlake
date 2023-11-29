@@ -120,9 +120,11 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 
 			var jenkinsTaskFinishedDate *time.Time
 			results := make([]interface{}, 0)
-			startedDate := time.Unix(body.StartTimeMillis/1000, 0)
-			finishedDate := startedDate.Add(time.Duration(durationMillis * int64(time.Millisecond)))
+			finishedDateMillis := body.StartTimeMillis + durationMillis
+			finishedDate := time.Unix(finishedDateMillis/1e3, (finishedDateMillis%1e3)*int64(time.Millisecond))
 			jenkinsTaskFinishedDate = &finishedDate
+			startedDate := time.Unix(body.StartTimeMillis/1e3, 0)
+
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: stageIdGen.Generate(body.ConnectionId, body.BuildName, body.ID),
@@ -133,6 +135,7 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				Status:      jenkinsTaskStatus,
 				DurationSec: durationSec,
 				ItemDateInfo: devops.ItemDateInfo{
+					CreatedDate:  startedDate,
 					StartedDate:  &startedDate,
 					FinishedDate: jenkinsTaskFinishedDate,
 				},

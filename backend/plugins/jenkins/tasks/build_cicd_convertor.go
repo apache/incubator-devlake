@@ -109,8 +109,9 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 				OriginalResult: jenkinsBuild.Result,
 				OriginalStatus: cast.ToString(jenkinsBuild.Building),
 				ItemDateInfo: devops.ItemDateInfo{
-					FinishedDate: jenkinsPipelineFinishedDate,
 					CreatedDate:  jenkinsBuild.StartTime,
+					StartedDate:  &jenkinsBuild.StartTime,
+					FinishedDate: jenkinsPipelineFinishedDate,
 				},
 				DurationSec: durationSec,
 				CicdScopeId: jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
@@ -132,6 +133,7 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 					OriginalStatus: cast.ToString(jenkinsBuild.Building),
 					DurationSec:    durationSec,
 					ItemDateInfo: devops.ItemDateInfo{
+						CreatedDate:  jenkinsBuild.StartTime,
 						StartedDate:  &jenkinsBuild.StartTime,
 						FinishedDate: jenkinsPipelineFinishedDate,
 					},
