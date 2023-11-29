@@ -87,14 +87,14 @@ func (p Sonarqube) GetTablesInfo() []dal.Tabler {
 
 func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.CollectIssuesMeta,
-		tasks.ExtractIssuesMeta,
-		tasks.CollectHotspotsMeta,
-		tasks.ExtractHotspotsMeta,
 		tasks.CollectAdditionalFilemetricsMeta,
 		tasks.ExtractAdditionalFileMetricsMeta,
 		tasks.CollectFilemetricsMeta,
 		tasks.ExtractFilemetricsMeta,
+		tasks.CollectIssuesMeta,
+		tasks.ExtractIssuesMeta,
+		tasks.CollectHotspotsMeta,
+		tasks.ExtractHotspotsMeta,
 		tasks.CollectAccountsMeta,
 		tasks.ExtractAccountsMeta,
 		tasks.ConvertProjectsMeta,
