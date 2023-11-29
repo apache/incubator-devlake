@@ -89,8 +89,8 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				Environment:    githubDeployment.Environment,
 				ItemDateInfo: devops.ItemDateInfo{
 					CreatedDate:  githubDeployment.CreatedDate,
-					StartedDate:  &githubDeployment.CreatedDate, // fixme there is no such field
-					FinishedDate: &githubDeployment.UpdatedDate, // fixme there is no such field
+					StartedDate:  &githubDeployment.CreatedDate,
+					FinishedDate: &githubDeployment.UpdatedDate,
 				},
 				CommitSha: githubDeployment.CommitOid,
 				RefName:   githubDeployment.RefName,
@@ -98,7 +98,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoUrl:   githubDeployment.RepositoryUrl,
 			}
 
-			durationSec := githubDeployment.UpdatedDate.Sub(githubDeployment.CreatedDate).Seconds()
+			durationSec := float64(githubDeployment.UpdatedDate.Sub(githubDeployment.CreatedDate).Milliseconds() / 1e3)
 			deploymentCommit.DurationSec = &durationSec
 
 			if data.RegexEnricher != nil {

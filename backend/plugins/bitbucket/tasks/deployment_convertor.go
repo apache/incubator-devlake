@@ -76,7 +76,7 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			bitbucketDeployment := inputRow.(*bitbucketDeploymentWithRefName)
 
 			var duration *float64
-			if bitbucketDeployment.CompletedOn != nil {
+			if bitbucketDeployment.CompletedOn != nil && bitbucketDeployment.StartedOn != nil {
 				d := float64(bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Milliseconds() / 1e3)
 				duration = &d
 			}

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -86,11 +87,16 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*models.GithubJob)
 
+			createdAt := time.Now()
+			if line.StartedAt != nil {
+				createdAt = *line.StartedAt
+			}
 			domainJob := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, line.RunID,
 					line.ID)},
 				Name: line.Name,
 				ItemDateInfo: devops.ItemDateInfo{
+					CreatedDate:  createdAt,
 					StartedDate:  line.StartedAt,
 					FinishedDate: line.CompletedAt,
 				},
@@ -111,11 +117,9 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				}, line.Status),
 				OriginalStatus: line.Status,
 			}
-
-			if domainJob.Status == devops.STATUS_DONE {
-				domainJob.DurationSec = line.CompletedAt.Sub(*line.StartedAt).Seconds()
+			if line.CompletedAt != nil && line.StartedAt != nil {
+				domainJob.DurationSec = float64(line.CompletedAt.Sub(*line.StartedAt).Milliseconds() / 1e3)
 			}
-
 			return []interface{}{
 				domainJob,
 			}, nil
