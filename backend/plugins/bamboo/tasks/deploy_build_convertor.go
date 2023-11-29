@@ -105,7 +105,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, nil
 			}
 			deploymentCommitId := didgen.NewDomainIdGenerator(&deployBuildWithVcsRevision{}).Generate(data.Options.ConnectionId, input.DeployBuildId, input.RepositoryId)
-			var createdDate time.Time
+			createdDate := time.Now()
 			if input.StartedDate != nil {
 				createdDate = *input.StartedDate
 			}

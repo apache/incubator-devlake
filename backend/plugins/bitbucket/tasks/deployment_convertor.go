@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"reflect"
 	"strings"
+	"time"
 )
 
 var ConvertiDeploymentMeta = plugin.SubTaskMeta{
@@ -76,8 +77,12 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 
 			var duration *float64
 			if bitbucketDeployment.CompletedOn != nil {
-				d := bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Seconds()
+				d := float64(bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Milliseconds() / 1e3)
 				duration = &d
+			}
+			createdAt := time.Now()
+			if bitbucketDeployment.CreatedOn != nil {
+				createdAt = *bitbucketDeployment.CreatedOn
 			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
@@ -98,7 +103,7 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: bitbucketDeployment.Status,
 				Environment:    strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
 				ItemDateInfo: devops.ItemDateInfo{
-					CreatedDate:  *bitbucketDeployment.CreatedOn,
+					CreatedDate:  createdAt,
 					StartedDate:  bitbucketDeployment.StartedOn,
 					FinishedDate: bitbucketDeployment.CompletedOn,
 				},

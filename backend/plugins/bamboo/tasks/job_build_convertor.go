@@ -62,7 +62,7 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if line.BuildStartedTime == nil {
 				return nil, nil
 			}
-			var createdDate time.Time
+			createdDate := time.Now()
 			if line.BuildStartedTime != nil {
 				createdDate = *line.BuildStartedTime
 			}

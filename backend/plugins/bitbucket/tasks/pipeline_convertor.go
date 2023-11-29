@@ -103,6 +103,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Environment:    bitbucketPipeline.Environment,
 				ItemDateInfo: devops.ItemDateInfo{
 					CreatedDate:  createdAt,
+					StartedDate:  bitbucketPipeline.BitbucketCreatedOn,
 					FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
 				},
 				DurationSec: float64(bitbucketPipeline.DurationInSeconds),
