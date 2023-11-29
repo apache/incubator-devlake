@@ -38,20 +38,12 @@ var ExtractApiPrCommitsMeta = plugin.SubTaskMeta{
 }
 
 type ApiPrCommitsResponse struct {
-	//Type   string    `json:"type"`
-	Hash   string    `json:"hash"`
-	Date   time.Time `json:"date"`
-	Author struct {
-		//Type string                   `json:"type"`
-		Raw  string                   `json:"raw"`
-		User BitbucketAccountResponse `json:"user"`
-	} `json:"author"`
-	Message string `json:"message"`
-	Links   struct {
-		Self struct {
-			Href string `json:"href"`
-		} `json:"self"`
-	} `json:"links"`
+	BitbucketId        string                `json:"id"`
+	DisplayId          string                `json:"displayId"`
+	Author             BitbucketUserResponse `json:"author"`
+	Message            string                `json:"message"`
+	AuthorTimestamp    int64                 `json:"authorTimestamp"`
+	CommitterTimestamp int64                 `json:"committerTimestamp"`
 }
 
 func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
@@ -78,7 +70,7 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			bitbucketRepoCommit := &models.BitbucketServerRepoCommit{
 				ConnectionId: data.Options.ConnectionId,
 				RepoId:       repoId,
-				CommitSha:    apiPullRequestCommit.Hash,
+				CommitSha:    apiPullRequestCommit.BitbucketId,
 			}
 			results = append(results, bitbucketRepoCommit)
 
@@ -88,18 +80,14 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			results = append(results, bitbucketCommit)
 
-			authorInfo := apiPullRequestCommit.Author.Raw
-			authorName := strings.TrimRight(strings.Split(authorInfo, "<")[0], " ")
-			authorEmail := strings.Trim(strings.Split(authorInfo, "<")[1], ">")
-
 			bitbucketPullRequestCommit := &models.BitbucketServerPrCommit{
 				ConnectionId:       data.Options.ConnectionId,
 				RepoId:             repoId,
 				PullRequestId:      pull.BitbucketId,
-				CommitSha:          apiPullRequestCommit.Hash,
-				CommitAuthorName:   authorName,
-				CommitAuthorEmail:  authorEmail,
-				CommitAuthoredDate: apiPullRequestCommit.Date,
+				CommitSha:          apiPullRequestCommit.BitbucketId,
+				CommitAuthorName:   apiPullRequestCommit.Author.DisplayName,
+				CommitAuthorEmail:  apiPullRequestCommit.Author.EmailAddress,
+				CommitAuthoredDate: time.UnixMilli(apiPullRequestCommit.AuthorTimestamp),
 			}
 			if err != nil {
 				return nil, err
@@ -118,14 +106,14 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 func convertPullRequestCommit(prCommit *ApiPrCommitsResponse, connId uint64) (*models.BitbucketServerCommit, errors.Error) {
 	bitbucketCommit := &models.BitbucketServerCommit{
-		Sha:           prCommit.Hash,
+		Sha:           prCommit.BitbucketId,
 		Message:       prCommit.Message,
-		AuthorId:      prCommit.Author.User.AccountId,
-		AuthorName:    prCommit.Author.User.DisplayName,
-		AuthorEmail:   prCommit.Author.Raw,
-		AuthoredDate:  prCommit.Date,
-		CommittedDate: prCommit.Date,
-		Url:           prCommit.Links.Self.Href,
+		AuthorId:      prCommit.Author.BitbucketId,
+		AuthorName:    prCommit.Author.Name,
+		AuthorEmail:   prCommit.Author.EmailAddress,
+		AuthoredDate:  time.UnixMilli(prCommit.AuthorTimestamp),
+		CommittedDate: time.UnixMilli(prCommit.CommitterTimestamp),
+		Url:           "",
 	}
 	return bitbucketCommit, nil
 }

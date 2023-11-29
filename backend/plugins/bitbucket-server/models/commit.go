@@ -25,7 +25,7 @@ import (
 
 type BitbucketServerCommit struct {
 	Sha           string `gorm:"primaryKey;type:varchar(40)"`
-	AuthorId      string `gorm:"type:varchar(255)"`
+	AuthorId      int    `gorm:"type:varchar(255)"`
 	AuthorName    string `gorm:"type:varchar(255)"`
 	AuthorEmail   string `gorm:"type:varchar(255)"`
 	AuthoredDate  time.Time

@@ -53,7 +53,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
 		Input:                 iterator,
-		UrlTemplate:           "projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/commits",
+		UrlTemplate:           "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/commits",
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
