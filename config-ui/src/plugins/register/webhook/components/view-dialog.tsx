@@ -51,9 +51,13 @@ const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
     postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
       apiKey ?? '{API_KEY}'
     }' -d '{
-         "commit_sha":"the sha of deployment commit",
-         "repo_url":"the repo URL of the deployment commit",
-         "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
+      "deploymentCommits":[
+        {
+        "commit_sha":"the sha of deployment commit1",
+        "repo_url":"the repo URL of the deployment commit"
+        }
+      ],
+      "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
      }'`,
   };
 };

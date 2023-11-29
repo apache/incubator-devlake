@@ -57,12 +57,11 @@ type WebhookDeployTaskRequest struct {
 }
 
 type DeploymentCommit struct {
-	RepoUrl     string `mapstructure:"repo_url" validate:"required"`
-	Environment string `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
-	Name        string `mapstructure:"name"`
-	RefName     string `mapstructure:"ref_name"`
-	CommitSha   string `mapstructure:"commit_sha" validate:"required"`
-	CommitMsg   string `mapstructure:"commit_msg"`
+	RepoUrl   string `mapstructure:"repo_url" validate:"required"`
+	Name      string `mapstructure:"name"`
+	RefName   string `mapstructure:"ref_name"`
+	CommitSha string `mapstructure:"commit_sha" validate:"required"`
+	CommitMsg string `mapstructure:"commit_msg"`
 }
 
 // PostDeploymentCicdTask
@@ -112,6 +111,9 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if request.Result == "" {
 		request.Result = devops.RESULT_SUCCESS
 	}
+	if request.Environment == "" {
+		request.Environment = devops.PRODUCTION
+	}
 	duration := request.FinishedDate.Sub(*request.StartedDate).Seconds()
 	name := request.Name
 	if name == "" {
@@ -135,10 +137,6 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		if pipelineId == "" {
 			pipelineId = deploymentCommitId
 		}
-		if request.Environment == "" {
-			request.Environment = devops.PRODUCTION
-		}
-
 		// create a deployment_commit record
 		deploymentCommit := &devops.CicdDeploymentCommit{
 			DomainEntity: domainlayer.DomainEntity{
@@ -180,9 +178,6 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 			if pipelineId == "" {
 				pipelineId = deploymentCommitId
 			}
-			if commit.Environment == "" {
-				commit.Environment = devops.PRODUCTION
-			}
 			// create a deployment_commit record
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
@@ -201,7 +196,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 				RepoId:           request.RepoId,
 				Name:             fmt.Sprintf(`deployment for %s`, commit.CommitSha),
 				RepoUrl:          commit.RepoUrl,
-				Environment:      commit.Environment,
+				Environment:      request.Environment,
 				RefName:          commit.RefName,
 				CommitSha:        commit.CommitSha,
 				CommitMsg:        commit.CommitMsg,
