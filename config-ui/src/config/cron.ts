@@ -22,17 +22,17 @@ export const cronPresets = [
   {
     label: 'Daily',
     config: '0 0 * * *',
-    description: '(at 00:00 AM) ',
+    description: '(at 00:00AM UTC)',
   },
   {
     label: 'Weekly',
     config: '0 0 * * 1',
-    description: '(on Monday at 00:00 AM) ',
+    description: '(on Monday at 00:00AM UTC)',
   },
   {
     label: 'Monthly',
     config: '0 0 1 * *',
-    description: '(on first day of the month at 00:00 AM) ',
+    description: '(on first day of the month at 00:00AM UTC)',
   },
 ];
 
