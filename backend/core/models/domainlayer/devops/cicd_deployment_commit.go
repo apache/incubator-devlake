@@ -65,6 +65,6 @@ func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment 
 		CreatedDate:    cicdDeploymentCommit.CreatedDate,
 		StartedDate:    cicdDeploymentCommit.StartedDate,
 		FinishedDate:   cicdDeploymentCommit.FinishedDate,
-		DurationSec:    cicdDeploymentCommit.DurationSec,	
+		DurationSec:    cicdDeploymentCommit.DurationSec,
 	}
 }
