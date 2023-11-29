@@ -44,5 +44,5 @@ func (*addFieldsToCircleciJob20231129) Version() uint64 {
 }
 
 func (*addFieldsToCircleciJob20231129) Name() string {
-	return "circleci init schemas"
+	return "add some fields to _tool_circleci_jobs"
 }
