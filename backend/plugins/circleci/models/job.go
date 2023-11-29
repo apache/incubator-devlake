@@ -29,6 +29,8 @@ type CircleciJob struct {
 	CanceledBy        string              `gorm:"type:varchar(100)" json:"canceled_by"`
 	Dependencies      []string            `gorm:"serializer:json;type:text" json:"dependencies"`
 	JobNumber         int64               `json:"job_number"`
+	CreatedAt         *common.Iso8601Time `json:"created_at"`
+	QueuedAt          *common.Iso8601Time `json:"queued_at"`
 	StartedAt         *common.Iso8601Time `json:"started_at"`
 	Name              string              `gorm:"type:varchar(255)" json:"name"`
 	ApprovedBy        string              `gorm:"type:varchar(100)" json:"approved_by"`

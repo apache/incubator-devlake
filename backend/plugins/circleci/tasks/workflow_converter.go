@@ -56,6 +56,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciWorkflow)
+			createdAt := userTool.CreatedAt.ToTime()
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getPipelineIdGen().Generate(data.Options.ConnectionId, userTool.Id),
@@ -63,7 +64,8 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        userTool.Name,
 				DurationSec: userTool.DurationSec,
 				ItemDateInfo: devops.ItemDateInfo{
-					CreatedDate:  userTool.CreatedAt.ToTime(),
+					CreatedDate:  createdAt,
+					StartedDate:  &createdAt,
 					FinishedDate: userTool.StoppedAt.ToNullableTime(),
 				},
 				CicdScopeId: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),

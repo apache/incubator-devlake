@@ -26,6 +26,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"reflect"
+	"time"
 )
 
 var ConvertJobsMeta = plugin.SubTaskMeta{
@@ -55,7 +56,10 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciJob)
-			startedAt := userTool.StartedAt.ToTime()
+			createdAt := time.Now()
+			if userTool.CreatedAt != nil {
+				createdAt = userTool.CreatedAt.ToTime()
+			}
 			task := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getJobIdGen().Generate(data.Options.ConnectionId, userTool.WorkflowId, userTool.Id),
@@ -64,7 +68,9 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        userTool.Name,
 				PipelineId:  userTool.PipelineId,
 				ItemDateInfo: devops.ItemDateInfo{
-					StartedDate:  &startedAt,
+					CreatedDate:  createdAt,
+					QueuedDate:   userTool.QueuedAt.ToNullableTime(),
+					StartedDate:  userTool.StartedAt.ToNullableTime(),
 					FinishedDate: userTool.StoppedAt.ToNullableTime(),
 				},
 				DurationSec: userTool.DurationSec,
