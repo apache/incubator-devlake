@@ -28,13 +28,15 @@ import (
 
 var vld *validator.Validate
 
-var dsHelper *api.DsHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
-var connectionHelper *api.ConnectionApiHelper
 var basicRes context.BasicRes
-var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup]
+var dsHelper *api.DsHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.GithubConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.GithubConnection, models.GithubRepo, GithubRemotePagination]
+var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.GithubConnection, models.GithubRepo]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
+	vld = validator.New()
 	dsHelper = api.NewDataSourceHelper[
 		models.GithubConnection,
 		models.GithubRepo,
@@ -49,16 +51,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 		nil,
 	)
-	// TODO: refactor remoteHelper
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
+	raProxy = api.NewDsRemoteApiProxyHelper[models.GithubConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[models.GithubConnection, models.GithubRepo, GithubRemotePagination](raProxy, listGithubRemoteScopes)
+	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.GithubConnection, models.GithubRepo](raProxy, searchGithubRepos)
 }

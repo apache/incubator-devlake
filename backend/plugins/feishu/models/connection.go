@@ -22,8 +22,8 @@ import (
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 )
 
@@ -38,7 +38,7 @@ func (conn *FeishuConn) Sanitize() FeishuConn {
 	return *conn
 }
 
-func (conn *FeishuConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (conn *FeishuConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	// request for access token
 	tokenReqBody := &apimodels.ApiAccessTokenRequest{
 		AppId:     conn.AppId,

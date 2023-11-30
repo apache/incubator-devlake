@@ -120,7 +120,7 @@ export const Layout = () => {
                   </ExternalLink>
                 ))}
               </Header>
-              <Content style={{ margin: '0 auto', maxWidth: 1188 }}>
+              <Content style={{ margin: '0 auto', width: 1188 }}>
                 <Outlet />
               </Content>
               <Footer style={{ color: '#a1a1a1', textAlign: 'center' }}>

@@ -30,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
@@ -110,7 +109,7 @@ func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connectionId uint64) 
 
 func GetApiProject(
 	projectKey string,
-	apiClient aha.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 ) (*models.SonarqubeApiProject, errors.Error) {
 	var resData struct {
 		Data []models.SonarqubeApiProject `json:"components"`

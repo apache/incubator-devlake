@@ -16,15 +16,32 @@
  *
  */
 
-import { Link } from 'react-router-dom';
-import { Table } from 'antd';
-import { Button, Intent } from '@blueprintjs/core';
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { EyeOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { theme, Table, Button, Modal } from 'antd';
+import styled from 'styled-components';
 
 import { useAppSelector } from '@/app/hook';
 import { selectConnections } from '@/features/connections';
-import { ConnectionStatus } from '@/plugins';
-
+import { getPluginConfig, ConnectionStatus, ConnectionForm } from '@/plugins';
 import { WebHookConnection } from '@/plugins/register/webhook';
+
+const ModalTitle = styled.div`
+  display: flex;
+  align-items: center;
+
+  .icon {
+    display: inline-flex;
+    margin-right: 8px;
+    width: 24px;
+
+    & > svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+`;
 
 interface Props {
   plugin: string;
@@ -32,11 +49,32 @@ interface Props {
 }
 
 export const ConnectionList = ({ plugin, onCreate }: Props) => {
+  const [open, setOpen] = useState(false);
+  const [connectionId, setConnectionId] = useState<ID>();
+
+  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
+
+  const {
+    token: { colorPrimary },
+  } = theme.useToken();
+
   const connections = useAppSelector((state) => selectConnections(state, plugin));
+
+  const navigate = useNavigate();
 
   if (plugin === 'webhook') {
     return <WebHookConnection />;
   }
+
+  const handleShowForm = (id: ID) => {
+    setOpen(true);
+    setConnectionId(id);
+  };
+
+  const hanldeHideForm = () => {
+    setOpen(false);
+    setConnectionId(undefined);
+  };
 
   return (
     <>
@@ -52,26 +90,50 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
           {
             title: 'Status',
             key: 'status',
-            width: 150,
+            width: 200,
             render: (_, row) => <ConnectionStatus connection={row} />,
           },
           {
             title: '',
             key: 'link',
-            width: 100,
-            render: (_, { plugin, id }) => <Link to={`/connections/${plugin}/${id}`}>Details</Link>,
+            width: 200,
+            render: (_, { plugin, id }) => (
+              <>
+                <Button
+                  type="link"
+                  icon={<EyeOutlined rev={undefined} />}
+                  onClick={() => navigate(`/connections/${plugin}/${id}`)}
+                >
+                  Details
+                </Button>
+                <Button type="link" icon={<EditOutlined rev={undefined} />} onClick={() => handleShowForm(id)}>
+                  Edit
+                </Button>
+              </>
+            ),
           },
         ]}
         dataSource={connections}
         pagination={false}
       />
-      <Button
-        style={{ marginTop: 16 }}
-        intent={Intent.PRIMARY}
-        icon="add"
-        text="Create a New Connection"
-        onClick={onCreate}
-      />
+      <Button style={{ marginTop: 16 }} type="primary" icon={<PlusOutlined rev={undefined} />} onClick={onCreate}>
+        Create a New Connection
+      </Button>
+      <Modal
+        open={open}
+        width={820}
+        centered
+        title={
+          <ModalTitle>
+            <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
+            <span className="name">Manage Connections: {pluginConfig.name}</span>
+          </ModalTitle>
+        }
+        footer={null}
+        onCancel={hanldeHideForm}
+      >
+        <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={hanldeHideForm} />
+      </Modal>
     </>
   );
 };

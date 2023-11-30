@@ -19,7 +19,6 @@
 import { createBrowserRouter, Navigate, json } from 'react-router-dom';
 
 import {
-  ConnectionDetailPage,
   ProjectHomePage,
   ProjectDetailPage,
   BlueprintHomePage,
@@ -28,7 +27,7 @@ import {
 } from '@/pages';
 import { Layout, loader as layoutLoader } from '@/routes/layout';
 import { Error, ErrorEnum } from '@/routes/error';
-import { Connections } from '@/routes/connection';
+import { Connections, Connection } from '@/routes/connection';
 import { Pipelines, Pipeline } from '@/routes/pipeline';
 import { ApiKeys } from '@/routes/api-keys';
 
@@ -57,7 +56,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'connections/:plugin/:id',
-        element: <ConnectionDetailPage />,
+        element: <Connection />,
       },
       {
         path: 'projects',

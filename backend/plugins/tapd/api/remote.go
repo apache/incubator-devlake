@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
@@ -142,7 +141,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	)
 }
 
-func GetApiWorkspace(op *tasks.TapdOptions, apiClient aha.ApiClientAbstract) (*models.TapdWorkspace, errors.Error) {
+func GetApiWorkspace(op *tasks.TapdOptions, apiClient plugin.ApiClient) (*models.TapdWorkspace, errors.Error) {
 	query := url.Values{}
 	query.Set("workspace_id", fmt.Sprintf("%v", op.WorkspaceId))
 	res, err := apiClient.Get("workspaces/get_workspace_info", query, nil)

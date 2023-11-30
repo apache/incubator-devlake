@@ -100,5 +100,6 @@ func All() []plugin.MigrationScript {
 		new(addSomeDateFieldsToDevopsTables),
 		new(addOriginalStatusAndResultToDevOpsTables),
 		new(addQueuedDurationSecFieldToDevopsTables),
+		new(addCommitMsg),
 	}
 }

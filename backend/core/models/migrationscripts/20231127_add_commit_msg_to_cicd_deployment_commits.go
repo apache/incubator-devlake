@@ -15,20 +15,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apihelperabstract
+package migrationscripts
 
 import (
-	"net/http"
-	"net/url"
-
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// ApiClientAbstract defines the functionalities needed by all plugins for Synchronized API Request
-type ApiClientAbstract interface {
-	SetData(name string, data interface{})
-	GetData(name string) interface{}
-	SetHeaders(headers map[string]string)
-	Get(path string, query url.Values, headers http.Header) (*http.Response, errors.Error)
-	Post(path string, query url.Values, body interface{}, headers http.Header) (*http.Response, errors.Error)
+var _ plugin.MigrationScript = (*addCommitMsg)(nil)
+
+type cicdDeploymentCommit20231127 struct {
+	CommitMsg string
+}
+
+func (cicdDeploymentCommit20231127) TableName() string {
+	return "cicd_deployment_commits"
+}
+
+type addCommitMsg struct{}
+
+func (u *addCommitMsg) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if err := db.AutoMigrate(&cicdDeploymentCommit20231127{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*addCommitMsg) Version() uint64 {
+	return 20231127142100
+}
+
+func (*addCommitMsg) Name() string {
+	return "add commit_msg to cicd_deployment_commit table"
 }

@@ -33,7 +33,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	aha "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -44,8 +44,9 @@ import (
 
 // ErrIgnoreAndContinue is a error which should be ignored
 var (
-	ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
-	ErrEmptyResponse     = errors.Default.New("empty response")
+	ErrIgnoreAndContinue                  = errors.Default.New("ignore and continue")
+	ErrEmptyResponse                      = errors.Default.New("empty response")
+	_                    plugin.ApiClient = (*ApiClient)(nil)
 )
 
 // ApiClient is designed for simple api requests
@@ -66,10 +67,10 @@ type ApiClient struct {
 func NewApiClientFromConnection(
 	ctx gocontext.Context,
 	br context.BasicRes,
-	connection aha.ApiConnection,
+	connection plugin.ApiConnection,
 ) (*ApiClient, errors.Error) {
 	if reflect.ValueOf(connection).Kind() != reflect.Ptr {
-		return nil, errors.Default.New("connection is not a pointer")
+		panic(fmt.Errorf("connection is not a pointer"))
 	}
 	apiClient, err := NewApiClient(ctx, connection.GetEndpoint(), nil, 0, connection.GetProxy(), br)
 	if err != nil {
@@ -77,7 +78,7 @@ func NewApiClientFromConnection(
 	}
 
 	// if connection needs to prepare the ApiClient, i.e. fetch token for future requests
-	if prepareApiClient, ok := connection.(aha.PrepareApiClient); ok {
+	if prepareApiClient, ok := connection.(plugin.PrepareApiClient); ok {
 		err = prepareApiClient.PrepareApiClient(apiClient)
 		if err != nil {
 			return nil, err
@@ -85,7 +86,7 @@ func NewApiClientFromConnection(
 	}
 
 	// if connection requires authorization
-	if authenticator, ok := connection.(aha.ApiAuthenticator); ok {
+	if authenticator, ok := connection.(plugin.ApiAuthenticator); ok {
 		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 			return authenticator.SetupAuthentication(req)
 		})

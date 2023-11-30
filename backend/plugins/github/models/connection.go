@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -52,7 +52,7 @@ type GithubConn struct {
 }
 
 // PrepareApiClient splits Token to tokens for SetupAuthentication to utilize
-func (conn *GithubConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (conn *GithubConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 
 	if conn.AuthMethod == "AccessToken" {
 		conn.tokens = strings.Split(conn.Token, ",")
@@ -153,7 +153,7 @@ func (gak *GithubAppKey) CreateJwt() (string, errors.Error) {
 }
 
 func (gak *GithubAppKey) getInstallationAccessToken(
-	apiClient apihelperabstract.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 ) (*InstallationToken, errors.Error) {
 
 	jwt, err := gak.CreateJwt()

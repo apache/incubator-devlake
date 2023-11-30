@@ -26,7 +26,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 var _ plugin.ApiConnection = (*BambooConnection)(nil)
@@ -55,7 +54,7 @@ func (conn *BambooConn) Sanitize() BambooConn {
 }
 
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.
-func (conn *BambooConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (conn *BambooConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	header := http.Header{}
 	header.Set("Authorization", fmt.Sprintf("Basic %v", conn.GetEncodedToken()))
 

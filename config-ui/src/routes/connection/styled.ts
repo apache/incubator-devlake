@@ -106,6 +106,7 @@ export const ModalTitle = styled.div`
   align-items: center;
 
   .icon {
+    display: inline-flex;
     margin-right: 8px;
     width: 24px;
 
