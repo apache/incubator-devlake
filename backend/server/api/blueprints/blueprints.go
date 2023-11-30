@@ -45,19 +45,16 @@ type PaginatedBlueprint struct {
 // @Router /blueprints [post]
 func Post(c *gin.Context) {
 	blueprint := &models.Blueprint{}
-
 	err := c.ShouldBind(blueprint)
 	if err != nil {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-
 	err = services.CreateBlueprint(blueprint)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating blueprint"))
 		return
 	}
-
 	shared.ApiOutputSuccess(c, blueprint, http.StatusCreated)
 }
 
@@ -80,7 +77,7 @@ func Index(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	blueprints, count, err := services.GetBlueprints(&query)
+	blueprints, count, err := services.GetBlueprints(&query, true)
 	if err != nil {
 		shared.ApiOutputAbort(c, errors.Default.Wrap(err, "error getting blueprints"))
 		return
@@ -104,7 +101,7 @@ func Get(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintId format supplied"))
 		return
 	}
-	blueprint, err := services.GetBlueprint(id)
+	blueprint, err := services.GetBlueprint(id, true)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting blueprint"))
 		return
@@ -193,7 +190,7 @@ func Trigger(c *gin.Context) {
 			return
 		}
 	}
-	pipeline, err := services.TriggerBlueprint(id, syncPolicy)
+	pipeline, err := services.TriggerBlueprint(id, syncPolicy, true)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error triggering blueprint"))
 		return
@@ -222,8 +219,7 @@ func GetBlueprintPipelines(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request URI format"))
 		return
 	}
-
-	pipelines, count, err := services.GetPipelines(&query)
+	pipelines, count, err := services.GetPipelines(&query, true)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipelines"))
 		return
