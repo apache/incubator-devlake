@@ -18,6 +18,7 @@ limitations under the License.
 package plugin
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -40,6 +41,40 @@ func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.Api
 		body := shared.ApiBody{
 			Success: false,
 			Message: fmt.Sprintf("Error while testing connection: %s", err.Error()),
+		}
+		return &plugin.ApiResourceOutput{Body: body, Status: 500}, nil
+	} else {
+		body := shared.ApiBody{
+			Success: result.Success,
+			Message: result.Message,
+		}
+		return &plugin.ApiResourceOutput{Body: body, Status: result.Status}, nil
+	}
+}
+
+func (pa *pluginAPI) TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := pa.connType.New()
+	err := pa.connhelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	conn := connection.Unwrap()
+	params := make(map[string]interface{})
+
+	if data, err := json.Marshal(conn); err != nil {
+		return nil, errors.Convert(err)
+	} else {
+		if err := json.Unmarshal(data, params); err != nil {
+			return nil, errors.Convert(err)
+		}
+	}
+
+	var result TestConnectionResult
+	rpcCallErr := pa.invoker.Call("test-connection", bridge.DefaultContext, params).Get(&result)
+	if rpcCallErr != nil {
+		body := shared.ApiBody{
+			Success: false,
+			Message: fmt.Sprintf("Error while testing connection: %s", rpcCallErr.Error()),
 		}
 		return &plugin.ApiResourceOutput{Body: body, Status: 500}, nil
 	} else {
