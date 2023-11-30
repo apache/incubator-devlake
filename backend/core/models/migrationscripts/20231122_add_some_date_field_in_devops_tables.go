@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"time"
 )
 
@@ -63,20 +64,12 @@ func (cicdTask20231122) TableName() string {
 type addSomeDateFieldsToDevopsTables struct{}
 
 func (u *addSomeDateFieldsToDevopsTables) Up(basicRes context.BasicRes) errors.Error {
-	db := basicRes.GetDal()
-	if err := db.AutoMigrate(&cicdPipeline20231122{}); err != nil {
-		return err
-	}
-	if err := db.AutoMigrate(&cicdTask20231122{}); err != nil {
-		return err
-	}
-	if err := db.AutoMigrate(&cicdDeployment20231122{}); err != nil {
-		return err
-	}
-	if err := db.AutoMigrate(&cicdDeploymentCommit20231122{}); err != nil {
-		return err
-	}
-	return nil
+	return migrationhelper.AutoMigrateTables(basicRes,
+		&cicdPipeline20231122{},
+		&cicdTask20231122{},
+		&cicdDeployment20231122{},
+		&cicdDeploymentCommit20231122{},
+	)
 }
 
 func (*addSomeDateFieldsToDevopsTables) Version() uint64 {

@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
 var _ plugin.MigrationScript = (*addSomeDateFieldsToDevopsTables)(nil)
@@ -60,20 +61,12 @@ func (cicdTask20231128) TableName() string {
 type addQueuedDurationSecFieldToDevopsTables struct{}
 
 func (u *addQueuedDurationSecFieldToDevopsTables) Up(basicRes context.BasicRes) errors.Error {
-	db := basicRes.GetDal()
-	if err := db.AutoMigrate(&cicdPipeline20231128{}); err != nil {
-		return err
-	}
-	if err := db.AutoMigrate(&cicdTask20231128{}); err != nil {
-		return err
-	}
-	if err := db.AutoMigrate(&cicdDeployment20231128{}); err != nil {
-		return err
-	}
-	if err := db.AutoMigrate(&cicdDeploymentCommit20231128{}); err != nil {
-		return err
-	}
-	return nil
+	return migrationhelper.AutoMigrateTables(basicRes,
+		&cicdPipeline20231128{},
+		&cicdTask20231128{},
+		&cicdDeployment20231128{},
+		&cicdDeploymentCommit20231128{},
+	)
 }
 
 func (*addQueuedDurationSecFieldToDevopsTables) Version() uint64 {

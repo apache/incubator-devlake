@@ -43,8 +43,8 @@ type WebhookDeployTaskRequest struct {
 	// start_time and end_time is more readable for users,
 	// StartedDate and FinishedDate is same as columns in db.
 	// So they all keep.
-	CreatedDate  *time.Time `mapstructure:"create_time"`
-	QueuedDate   *time.Time `mapstructure:"queue_time"`
+	CreatedDate *time.Time `mapstructure:"create_time"`
+	// QueuedDate   *time.Time `mapstructure:"queue_time"`
 	StartedDate  *time.Time `mapstructure:"start_time" validate:"required"`
 	FinishedDate *time.Time `mapstructure:"end_time"`
 	RepoUrl      string     `mapstructure:"repo_url"`
@@ -135,12 +135,12 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		createdDate = *request.StartedDate
 	}
 	dateInfo := devops.ItemDateInfo{
-		CreatedDate:  createdDate,
-		QueuedDate:   request.QueuedDate,
+		CreatedDate: createdDate,
+		// QueuedDate:   request.QueuedDate,
 		StartedDate:  request.StartedDate,
 		FinishedDate: request.FinishedDate,
 	}
-	queuedDuration := dateInfo.CalculateQueueDuration()
+	// queuedDuration := dateInfo.CalculateQueueDuration()
 	if request.DeploymentCommits == nil {
 		if request.CommitSha == "" || request.RepoUrl == "" {
 			return nil, errors.Convert(fmt.Errorf("commit_sha or repo_url is required"))
@@ -155,22 +155,22 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 			DomainEntity: domainlayer.DomainEntity{
 				Id: deploymentCommitId,
 			},
-			CicdDeploymentId:  pipelineId,
-			CicdScopeId:       scopeId,
-			Name:              name,
-			Result:            request.Result,
-			Status:            devops.STATUS_DONE,
-			OriginalResult:    request.Result,
-			OriginalStatus:    devops.STATUS_DONE,
-			ItemDateInfo:      dateInfo,
-			DurationSec:       &duration,
-			QueuedDurationSec: queuedDuration,
-			RepoId:            request.RepoId,
-			RepoUrl:           request.RepoUrl,
-			Environment:       request.Environment,
-			RefName:           request.RefName,
-			CommitSha:         request.CommitSha,
-			CommitMsg:         request.CommitMsg,
+			CicdDeploymentId: pipelineId,
+			CicdScopeId:      scopeId,
+			Name:             name,
+			Result:           request.Result,
+			Status:           devops.STATUS_DONE,
+			OriginalResult:   request.Result,
+			OriginalStatus:   devops.STATUS_DONE,
+			ItemDateInfo:     dateInfo,
+			DurationSec:      &duration,
+			//QueuedDurationSec: queuedDuration,
+			RepoId:      request.RepoId,
+			RepoUrl:     request.RepoUrl,
+			Environment: request.Environment,
+			RefName:     request.RefName,
+			CommitSha:   request.CommitSha,
+			CommitMsg:   request.CommitMsg,
 		}
 		err = tx.CreateOrUpdate(deploymentCommit)
 		if err != nil {
