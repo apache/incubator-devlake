@@ -86,9 +86,9 @@ class Jobs(Substream):
             environment = devops.CICDEnvironment.PRODUCTION
 
         if j.finish_time:
-            duration_sec = abs(j.finish_time.second-j.start_time.second)
+            duration_sec = abs(j.finish_time.timestamp()-j.start_time.timestamp())
         else:
-            duration_sec = 0
+            duration_sec = float(0.0)
 
         yield devops.CICDTask(
             id=j.id,
@@ -96,6 +96,7 @@ class Jobs(Substream):
             pipeline_id=j.build_id,
             status=status,
             created_date=j.start_time,
+            started_date =j.start_time,
             finished_date=j.finish_time,
             result=result,
             type=type,

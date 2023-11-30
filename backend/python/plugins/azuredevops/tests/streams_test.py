@@ -127,10 +127,12 @@ def test_builds_stream(context):
         devops.CICDPipeline(
             name='deploy_to_prod',
             status=devops.CICDStatus.DONE,
-            created_date='2023-02-25T06:22:32.8097789Z',
+            created_date='2023-02-25T06:22:21.2237625Z',
+            queued_date = '2023-02-25T06:22:21.2237625Z',
+            started_date='2023-02-25T06:22:32.8097789Z',
             finished_date='2023-02-25T06:23:04.0061884Z',
             result=devops.CICDResult.SUCCESS,
-            duration_sec=28,
+            duration_sec=31.196409940719604,
             environment=devops.CICDEnvironment.PRODUCTION,
             type=devops.CICDType.DEPLOYMENT,
             cicd_scope_id=context.scope.domain_id()
@@ -187,10 +189,11 @@ def test_jobs_stream(context):
         pipeline_id='azuredevops:Build:1:12',
         status=devops.CICDStatus.DONE,
         created_date='2023-02-25T06:22:36.8066667Z',
+        started_date='2023-02-25T06:22:36.8066667Z',
         finished_date='2023-02-25T06:22:43.2333333Z',
         result=devops.CICDResult.SUCCESS,
         type=devops.CICDType.DEPLOYMENT,
-        duration_sec=7,
+        duration_sec=6.426667213439941,
         environment=devops.CICDEnvironment.PRODUCTION,
         cicd_scope_id=context.scope.domain_id()
     )

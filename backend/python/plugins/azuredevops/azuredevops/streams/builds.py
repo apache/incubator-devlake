@@ -67,14 +67,16 @@ class Builds(Stream):
             environment = devops.CICDEnvironment.PRODUCTION
 
         if b.finish_time:
-            duration_sec = abs(b.finish_time.second - b.start_time.second)
+            duration_sec = abs(b.finish_time.timestamp() - b.start_time.timestamp())
         else:
-            duration_sec = 0
+            duration_sec = float(0.0)
 
         yield devops.CICDPipeline(
             name=b.name,
             status=status,
-            created_date=b.start_time,
+            created_date=b.queue_time,
+            queued_date=b.queue_time,
+            started_date=b.start_time,
             finished_date=b.finish_time,
             result=result,
             duration_sec=duration_sec,

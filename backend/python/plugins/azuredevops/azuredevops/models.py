@@ -100,6 +100,7 @@ class Build(ToolModel, table=True):
 
     id: int = Field(primary_key=True)
     name: str = Field(source='/definition/name')
+    queue_time: Optional[datetime.datetime] = Field(source='/queueTime')
     start_time: Optional[datetime.datetime]
     finish_time: Optional[datetime.datetime]
     status: BuildStatus

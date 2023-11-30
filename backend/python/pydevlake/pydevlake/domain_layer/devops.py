@@ -14,13 +14,12 @@
 # limitations under the License.
 
 
-from typing import Optional
 from datetime import datetime
 from enum import Enum
-
-from sqlmodel import Field
+from typing import Optional
 
 from pydevlake.model import DomainModel, NoPKModel, DomainScope
+from sqlmodel import Field
 
 
 class CICDResult(Enum):
@@ -53,9 +52,12 @@ class CICDPipeline(DomainModel, table=True):
     name: str
     status: Optional[CICDStatus]
     created_date: Optional[datetime]
+    started_date: Optional[datetime]
+    queued_date: Optional[datetime]
     finished_date: Optional[datetime]
     result: Optional[CICDResult]
-    duration_sec: Optional[int]
+    duration_sec: Optional[float]
+    queued_duration_sec: Optional[float]
     environment: Optional[str]
     type: Optional[CICDType]
     cicd_scope_id: Optional[str]
@@ -87,7 +89,10 @@ class CICDTask(DomainModel, table=True):
     status: Optional[CICDStatus]
     type: Optional[CICDType]
     environment: Optional[CICDEnvironment]
-    duration_sec: int
+    created_date: Optional[datetime]
+    queued_date: Optional[datetime]
     started_date: Optional[datetime]
     finished_date: Optional[datetime]
+    duration_sec: float
+    queued_duration_sec: Optional[float]
     cicd_scope_id: str

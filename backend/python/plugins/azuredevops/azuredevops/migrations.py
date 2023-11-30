@@ -185,3 +185,8 @@ def add_missing_field_in_tool_azuredevops_gitrepositoryconfigs(b: MigrationScrip
 @migration(20231013130201, name="add missing field in _tool_azuredevops_gitrepositories")
 def add_missing_field_in_tool_azuredevops_gitrepositories(b: MigrationScriptBuilder):
     b.add_column('_tool_azuredevops_gitrepositories', 'scope_config_id', 'bigint')
+
+
+@migration(20231130163000, name="add queue_time field in _tool_azuredevops_builds")
+def add_queue_time_field_in_tool_azuredevops_builds(b: MigrationScriptBuilder):
+    b.add_column('_tool_azuredevops_builds', 'queue_time', 'datetime')
