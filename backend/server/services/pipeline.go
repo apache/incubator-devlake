@@ -20,6 +20,8 @@ package services
 import (
 	"context"
 	"fmt"
+	"github.com/spf13/cast"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,6 +41,21 @@ import (
 
 var notificationService *NotificationService
 var globalPipelineLog = logruslog.Global.Nested("pipeline service")
+var pluginOptionSanitizers = map[string]func(map[string]interface{}){
+	"gitextractor": func(options map[string]interface{}) {
+		if v, ok := options["url"]; ok {
+			gitUrl := cast.ToString(v)
+			u, _ := url.Parse(gitUrl)
+			if u != nil && u.User != nil {
+				password, ok := u.User.Password()
+				if ok {
+					gitUrl = strings.Replace(gitUrl, password, strings.Repeat("*", len(password)), -1)
+					options["url"] = gitUrl
+				}
+			}
+		}
+	},
+}
 
 // PipelineQuery is a query for GetPipelines
 type PipelineQuery struct {
@@ -103,16 +120,64 @@ func pipelineServiceInit() {
 }
 
 // CreatePipeline and return the model
-func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.Error) {
+func CreatePipeline(newPipeline *models.NewPipeline, shouldSanitize bool) (*models.Pipeline, errors.Error) {
 	pipeline, err := CreateDbPipeline(newPipeline)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
+	if shouldSanitize {
+		if err := SanitizePipeline(pipeline); err != nil {
+			return nil, errors.Convert(err)
+		}
+	}
 	return pipeline, nil
 }
 
+func SanitizeBlueprint(blueprint *models.Blueprint) error {
+	for planStageIdx, pipelineStage := range blueprint.Plan {
+		for planTaskIdx := range pipelineStage {
+			pipelineTask, err := SanitizeTask(blueprint.Plan[planStageIdx][planTaskIdx])
+			if err != nil {
+				return err
+			}
+			blueprint.Plan[planStageIdx][planTaskIdx] = pipelineTask
+		}
+	}
+	return nil
+}
+
+func SanitizePipeline(pipeline *models.Pipeline) error {
+	for planStageIdx, pipelineStage := range pipeline.Plan {
+		for planTaskIdx := range pipelineStage {
+			pipelineTask, err := SanitizeTask(pipeline.Plan[planStageIdx][planTaskIdx])
+			if err != nil {
+				return err
+			}
+			pipeline.Plan[planStageIdx][planTaskIdx] = pipelineTask
+		}
+	}
+	return nil
+}
+
+func SanitizeTask(pipelineTask *models.PipelineTask) (*models.PipelineTask, error) {
+	pluginName := pipelineTask.Plugin
+	options, err := SanitizePluginOption(pluginName, pipelineTask.Options)
+	if err != nil {
+		return pipelineTask, err
+	}
+	pipelineTask.Options = options
+	return pipelineTask, nil
+}
+
+func SanitizePluginOption(pluginName string, option map[string]interface{}) (map[string]interface{}, error) {
+	if sanitizer, ok := pluginOptionSanitizers[pluginName]; ok {
+		sanitizer(option)
+	}
+	return option, nil
+}
+
 // GetPipelines by query
-func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error) {
+func GetPipelines(query *PipelineQuery, shouldSanitize bool) ([]*models.Pipeline, int64, errors.Error) {
 	pipelines, i, err := GetDbPipelines(query)
 	if err != nil {
 		return nil, 0, errors.Convert(err)
@@ -122,12 +187,17 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 		if err != nil {
 			return nil, 0, err
 		}
+		if shouldSanitize {
+			if err := SanitizePipeline(p); err != nil {
+				return nil, 0, errors.Convert(err)
+			}
+		}
 	}
 	return pipelines, i, nil
 }
 
 // GetPipeline by id
-func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
+func GetPipeline(pipelineId uint64, shouldSanitize bool) (*models.Pipeline, errors.Error) {
 	dbPipeline, err := GetDbPipeline(pipelineId)
 	if err != nil {
 		return nil, err
@@ -135,6 +205,9 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
 	err = fillPipelineDetail(dbPipeline)
 	if err != nil {
 		return nil, err
+	}
+	if err := SanitizePipeline(dbPipeline); err != nil {
+		return nil, errors.Convert(err)
 	}
 	return dbPipeline, nil
 }
@@ -260,7 +333,7 @@ func NotifyExternal(pipelineId uint64) errors.Error {
 		return nil
 	}
 	// send notification to an external web endpoint
-	pipeline, err := GetPipeline(pipelineId)
+	pipeline, err := GetPipeline(pipelineId, true)
 	if err != nil {
 		return err
 	}
@@ -368,7 +441,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 		}
 		failedTasks = append(failedTasks, task)
 	} else {
-		tasks, err := GetTasksWithLastStatus(pipelineId)
+		tasks, err := GetTasksWithLastStatus(pipelineId, false)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error getting tasks")
 		}
