@@ -43,7 +43,7 @@ type StarRocksPipelinePlan [][]struct {
 		Host         string            `json:"host"`
 		Port         int               `json:"port"`
 		User         string            `json:"user"`
-		Password     string            `json:"password"`
+		Password     string            `json:"password"` // notice:
 		Database     string            `json:"database"`
 		BeHost       string            `json:"be_host"`
 		BePort       int               `json:"be_port"`
