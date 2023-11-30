@@ -25,3 +25,14 @@ type ItemDateInfo struct {
 	StartedDate  *time.Time
 	FinishedDate *time.Time
 }
+
+func (date ItemDateInfo) CalculateQueueDuration() *float64 {
+	if date.StartedDate != nil && date.QueuedDate != nil {
+		d := float64(date.StartedDate.Sub(*date.QueuedDate).Milliseconds() / 1e3)
+		if d < 0 {
+			return nil
+		}
+		return &d
+	}
+	return nil
+}
