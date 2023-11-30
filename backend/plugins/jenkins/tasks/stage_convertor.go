@@ -134,7 +134,7 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				Result:      jenkinsTaskResult,
 				Status:      jenkinsTaskStatus,
 				DurationSec: durationSec,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  startedDate,
 					StartedDate:  &startedDate,
 					FinishedDate: jenkinsTaskFinishedDate,

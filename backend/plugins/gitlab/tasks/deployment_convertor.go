@@ -104,7 +104,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				}, gitlabDeployment.Status),
 				OriginalStatus: gitlabDeployment.Status,
 				Environment:    gitlabDeployment.Environment,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  gitlabDeployment.CreatedDate,
 					StartedDate:  gitlabDeployment.DeployableStartedAt,
 					FinishedDate: gitlabDeployment.DeployableFinishedAt,

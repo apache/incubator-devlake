@@ -48,7 +48,7 @@ type CICDTask struct {
 	Environment       string `gorm:"type:varchar(255)"`
 	DurationSec       float64
 	QueuedDurationSec *float64
-	ItemDateInfo
+	TaskDatesInfo
 	//StartedDate  time.Time  // notice here
 	CicdScopeId string `gorm:"index;type:varchar(255)"`
 }

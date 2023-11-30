@@ -30,7 +30,7 @@ type CICDDeployment struct {
 	OriginalStatus string `gorm:"type:varchar(100)"`
 	OriginalResult string `gorm:"type:varchar(100)"`
 	Environment    string `gorm:"type:varchar(255)"`
-	ItemDateInfo
+	TaskDatesInfo
 	DurationSec       *float64
 	QueuedDurationSec *float64
 }

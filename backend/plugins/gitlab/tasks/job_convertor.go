@@ -95,7 +95,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				OriginalStatus:    gitlabJob.Status,
 				DurationSec:       gitlabJob.Duration,
 				QueuedDurationSec: &gitlabJob.QueuedDuration,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  gitlabJob.StartedAt,
 					FinishedDate: gitlabJob.FinishedAt,

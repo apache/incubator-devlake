@@ -108,7 +108,7 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 				Status:         jenkinsPipelineStatus,
 				OriginalResult: jenkinsBuild.Result,
 				OriginalStatus: cast.ToString(jenkinsBuild.Building),
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  jenkinsBuild.StartTime,
 					StartedDate:  &jenkinsBuild.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,
@@ -132,7 +132,7 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 					OriginalResult: jenkinsBuild.Result,
 					OriginalStatus: cast.ToString(jenkinsBuild.Building),
 					DurationSec:    durationSec,
-					ItemDateInfo: devops.ItemDateInfo{
+					TaskDatesInfo: devops.TaskDatesInfo{
 						CreatedDate:  jenkinsBuild.StartTime,
 						StartedDate:  &jenkinsBuild.StartTime,
 						FinishedDate: jenkinsPipelineFinishedDate,

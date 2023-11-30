@@ -71,7 +71,7 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{Id: jobBuildIdGen.Generate(data.Options.ConnectionId, line.JobBuildKey)},
 				Name:         line.JobName,
 				DurationSec:  float64(line.BuildDuration / 1e3),
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdDate,
 					QueuedDate:   line.QueueStartedTime,
 					StartedDate:  line.BuildStartedTime,

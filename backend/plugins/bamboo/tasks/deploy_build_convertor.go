@@ -129,7 +129,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				}, input.LifeCycleState),
 				OriginalStatus: input.LifeCycleState,
 				Environment:    input.Environment,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdDate,
 					QueuedDate:   input.QueuedDate,
 					StartedDate:  input.ExecutedDate,

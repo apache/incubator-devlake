@@ -92,7 +92,7 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: bitbucketPipelineStep.State,
 				CicdScopeId:    repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
 				DurationSec:    float64(bitbucketPipelineStep.DurationInSeconds),
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  bitbucketPipelineStep.StartedOn,
 					FinishedDate: bitbucketPipelineStep.CompletedOn,

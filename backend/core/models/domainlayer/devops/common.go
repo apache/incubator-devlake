@@ -19,14 +19,14 @@ package devops
 
 import "time"
 
-type ItemDateInfo struct {
+type TaskDatesInfo struct {
 	CreatedDate  time.Time
 	QueuedDate   *time.Time
 	StartedDate  *time.Time
 	FinishedDate *time.Time
 }
 
-func (date ItemDateInfo) CalculateQueueDuration() *float64 {
+func (date TaskDatesInfo) CalculateQueueDuration() *float64 {
 	if date.StartedDate != nil && date.QueuedDate != nil {
 		d := float64(date.StartedDate.Sub(*date.QueuedDate).Milliseconds() / 1e3)
 		if d < 0 {

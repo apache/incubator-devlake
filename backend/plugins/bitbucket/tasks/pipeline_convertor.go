@@ -101,7 +101,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: bitbucketPipeline.Status,
 				Type:           bitbucketPipeline.Type,
 				Environment:    bitbucketPipeline.Environment,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  bitbucketPipeline.BitbucketCreatedOn,
 					FinishedDate: bitbucketPipeline.BitbucketCompleteOn,

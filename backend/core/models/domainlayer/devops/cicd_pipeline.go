@@ -35,7 +35,7 @@ type CICDPipeline struct {
 	DurationSec       float64
 	QueuedDurationSec *float64
 	Environment       string `gorm:"type:varchar(255)"`
-	ItemDateInfo
+	TaskDatesInfo
 	CicdScopeId string `gorm:"index;type:varchar(255)"`
 }
 

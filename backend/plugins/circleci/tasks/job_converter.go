@@ -67,7 +67,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId: getProjectIdGen().Generate(data.Options.ConnectionId, data.Project.Id),
 				Name:        userTool.Name,
 				PipelineId:  userTool.PipelineId,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					QueuedDate:   userTool.QueuedAt.ToNullableTime(),
 					StartedDate:  userTool.StartedAt.ToNullableTime(),

@@ -102,7 +102,7 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				}, bitbucketDeployment.Status),
 				OriginalStatus: bitbucketDeployment.Status,
 				Environment:    strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  bitbucketDeployment.StartedOn,
 					FinishedDate: bitbucketDeployment.CompletedOn,

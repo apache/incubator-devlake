@@ -133,7 +133,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalResult:   pipelineCommit.OriginalResult,
 				Status:           pipelineCommit.Status,
 				Environment:      pipelineCommit.Environment,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  *pipelineCommit.CreatedDate,
 					FinishedDate: pipelineCommit.FinishedDate,
 				},

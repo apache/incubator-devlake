@@ -31,7 +31,7 @@ type CicdDeploymentCommit struct {
 	OriginalStatus   string `gorm:"type:varchar(100)"`
 	OriginalResult   string `gorm:"type:varchar(100)"`
 	Environment      string `gorm:"type:varchar(255)"`
-	ItemDateInfo
+	TaskDatesInfo
 	DurationSec                   *float64
 	QueuedDurationSec             *float64
 	CommitSha                     string `gorm:"primaryKey;type:varchar(255)"`
@@ -59,7 +59,7 @@ func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment 
 		OriginalStatus: cicdDeploymentCommit.OriginalStatus,
 		OriginalResult: cicdDeploymentCommit.OriginalResult,
 		Environment:    cicdDeploymentCommit.Environment,
-		ItemDateInfo: ItemDateInfo{
+		TaskDatesInfo: TaskDatesInfo{
 			CreatedDate:  cicdDeploymentCommit.CreatedDate,
 			QueuedDate:   cicdDeploymentCommit.QueuedDate,
 			StartedDate:  cicdDeploymentCommit.StartedDate,

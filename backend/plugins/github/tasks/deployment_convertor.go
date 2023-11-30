@@ -87,7 +87,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				}, githubDeployment.State),
 				OriginalStatus: githubDeployment.State,
 				Environment:    githubDeployment.Environment,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  githubDeployment.CreatedDate,
 					StartedDate:  &githubDeployment.CreatedDate,
 					FinishedDate: &githubDeployment.UpdatedDate,

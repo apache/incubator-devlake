@@ -95,7 +95,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, line.RunID,
 					line.ID)},
 				Name: line.Name,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  line.StartedAt,
 					FinishedDate: line.CompletedAt,

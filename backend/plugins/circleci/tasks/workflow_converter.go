@@ -63,7 +63,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				Name:        userTool.Name,
 				DurationSec: userTool.DurationSec,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  &createdAt,
 					FinishedDate: userTool.StoppedAt.ToNullableTime(),

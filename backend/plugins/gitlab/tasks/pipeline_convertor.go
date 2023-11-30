@@ -93,7 +93,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					Default:    devops.STATUS_OTHER,
 				}, gitlabPipeline.Status),
 				OriginalStatus: gitlabPipeline.Status,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  gitlabPipeline.StartedAt,
 					FinishedDate: gitlabPipeline.FinishedAt,

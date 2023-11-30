@@ -134,7 +134,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	} else if request.StartedDate != nil {
 		createdDate = *request.StartedDate
 	}
-	dateInfo := devops.ItemDateInfo{
+	dateInfo := devops.TaskDatesInfo{
 		CreatedDate: createdDate,
 		// QueuedDate:   request.QueuedDate,
 		StartedDate:  request.StartedDate,
@@ -162,7 +162,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 			Status:           devops.STATUS_DONE,
 			OriginalResult:   request.Result,
 			OriginalStatus:   devops.STATUS_DONE,
-			ItemDateInfo:     dateInfo,
+			TaskDatesInfo:    dateInfo,
 			DurationSec:      &duration,
 			//QueuedDurationSec: queuedDuration,
 			RepoId:      request.RepoId,
@@ -201,7 +201,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 				Status:            devops.STATUS_DONE,
 				OriginalResult:    request.Result,
 				OriginalStatus:    devops.STATUS_DONE,
-				ItemDateInfo:      dateInfo,
+				TaskDatesInfo:     dateInfo,
 				DurationSec:       &duration,
 				QueuedDurationSec: queuedDuration,
 				RepoId:            request.RepoId,

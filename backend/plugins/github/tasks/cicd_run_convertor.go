@@ -96,7 +96,7 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 					data.Options.ConnectionId, line.RepoId, line.ID),
 				},
 				Name: line.Name,
-				ItemDateInfo: devops.ItemDateInfo{
+				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  line.RunStartedAt,
 					FinishedDate: line.GithubUpdatedAt,
