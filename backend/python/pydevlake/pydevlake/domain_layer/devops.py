@@ -25,13 +25,12 @@ from sqlmodel import Field
 class CICDResult(Enum):
     SUCCESS = "SUCCESS"
     FAILURE = "FAILURE"
-    ABORT = "ABORT"
-    MANUAL = "MANUAL"
-
+    RESULT_DEFAULT = ""
 
 class CICDStatus(Enum):
     IN_PROGRESS = "IN_PROGRESS"
     DONE = "DONE"
+    STATUS_OTHER = "OTHER"
 
 
 class CICDType(Enum):
@@ -55,8 +54,8 @@ class CICDPipeline(DomainModel, table=True):
 
     status: Optional[CICDStatus]
     result: Optional[CICDResult]
-    original_status:Optional[str]
-    original_result:Optional[str]
+    original_status: Optional[str]
+    original_result: Optional[str]
 
     created_date: Optional[datetime]
     started_date: Optional[datetime]
@@ -68,8 +67,6 @@ class CICDPipeline(DomainModel, table=True):
 
     type: Optional[CICDType]
     environment: Optional[str]
-
-
 
 
 class CiCDPipelineCommit(NoPKModel, table=True):
@@ -99,8 +96,8 @@ class CICDTask(DomainModel, table=True):
 
     result: Optional[CICDResult]
     status: Optional[CICDStatus]
-    original_status:Optional[str]
-    original_result:Optional[str]
+    original_status: Optional[str]
+    original_result: Optional[str]
 
     type: Optional[CICDType]
     environment: Optional[CICDEnvironment]
@@ -112,4 +109,3 @@ class CICDTask(DomainModel, table=True):
 
     duration_sec: float
     queued_duration_sec: Optional[float]
-

@@ -37,17 +37,17 @@ class Builds(Stream):
         if not b.start_time:
             return
 
-        result = None
+        result = devops.CICDResult.RESULT_DEFAULT
         if b.result == Build.BuildResult.Canceled:
-            result = devops.CICDResult.ABORT
+            result = devops.CICDResult.FAILURE
         elif b.result == Build.BuildResult.Failed:
             result = devops.CICDResult.FAILURE
         elif b.result == Build.BuildResult.PartiallySucceeded:
-            result = devops.CICDResult.SUCCESS
+            result = devops.CICDResult.FAILURE
         elif b.result ==  Build.BuildResult.Succeeded:
             result = devops.CICDResult.SUCCESS
 
-        status = None
+        status = devops.CICDStatus.STATUS_OTHER
         if b.status == Build.BuildStatus.Cancelling:
             status = devops.CICDStatus.DONE
         elif b.status == Build.BuildStatus.Completed:

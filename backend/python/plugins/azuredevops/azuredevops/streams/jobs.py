@@ -56,21 +56,21 @@ class Jobs(Substream):
         if not j.start_time:
             return
 
-        result = None
+        result = devops.CICDResult.RESULT_DEFAULT
         if j.result == Job.JobResult.Abandoned:
-            result = devops.CICDResult.ABORT
+            result = devops.CICDResult.RESULT_DEFAULT
         elif j.result == Job.JobResult.Canceled:
-            result = devops.CICDResult.ABORT
+            result = devops.CICDResult.FAILURE
         elif j.result == Job.JobResult.Failed:
             result = devops.CICDResult.FAILURE
         elif j.result == Job.JobResult.Skipped:
-            result = devops.CICDResult.ABORT
+            result = devops.CICDResult.RESULT_DEFAULT
         elif j.result == Job.JobResult.Succeeded:
             result = devops.CICDResult.SUCCESS
         elif j.result == Job.JobResult.SucceededWithIssues:
             result = devops.CICDResult.FAILURE
 
-        status = None
+        status = devops.CICDStatus.STATUS_OTHER
         if j.state == Job.JobState.Completed:
             status = devops.CICDStatus.DONE
         elif j.state == Job.JobState.InProgress:
