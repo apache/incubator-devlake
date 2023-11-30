@@ -19,7 +19,6 @@ package devops
 
 import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"time"
 )
 
 type CICDDeployment struct {
@@ -31,10 +30,9 @@ type CICDDeployment struct {
 	OriginalStatus string `gorm:"type:varchar(100)"`
 	OriginalResult string `gorm:"type:varchar(100)"`
 	Environment    string `gorm:"type:varchar(255)"`
-	CreatedDate    time.Time
-	StartedDate    *time.Time
-	FinishedDate   *time.Time
-	DurationSec    *float64
+	TaskDatesInfo
+	DurationSec       *float64
+	QueuedDurationSec *float64
 }
 
 func (CICDDeployment) TableName() string {

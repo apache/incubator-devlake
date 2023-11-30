@@ -97,7 +97,9 @@ func All() []plugin.MigrationScript {
 		new(addIssueCustomArrayField),
 		new(removePositionFromPullRequestComments),
 		new(changeDurationSecToFloat64),
+		new(addSomeDateFieldsToDevopsTables),
 		new(addOriginalStatusAndResultToDevOpsTables),
+		new(addQueuedDurationSecFieldToDevopsTables),
 		new(addCommitMsg),
 	}
 }

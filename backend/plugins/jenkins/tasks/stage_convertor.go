@@ -120,22 +120,27 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 
 			var jenkinsTaskFinishedDate *time.Time
 			results := make([]interface{}, 0)
-			startedDate := time.Unix(body.StartTimeMillis/1000, 0)
-			finishedDate := startedDate.Add(time.Duration(durationMillis * int64(time.Millisecond)))
+			finishedDateMillis := body.StartTimeMillis + durationMillis
+			finishedDate := time.Unix(finishedDateMillis/1e3, (finishedDateMillis%1e3)*int64(time.Millisecond))
 			jenkinsTaskFinishedDate = &finishedDate
+			startedDate := time.Unix(body.StartTimeMillis/1e3, 0)
+
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: stageIdGen.Generate(body.ConnectionId, body.BuildName, body.ID),
 				},
-				Name:           body.Name,
-				PipelineId:     buildIdGen.Generate(body.ConnectionId, body.BuildName),
-				Result:         jenkinsTaskResult,
+				Name:        body.Name,
+				PipelineId:  buildIdGen.Generate(body.ConnectionId, body.BuildName),
+				Result:      jenkinsTaskResult,
+				Status:      jenkinsTaskStatus,
+				DurationSec: durationSec,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  startedDate,
+					StartedDate:  &startedDate,
+					FinishedDate: jenkinsTaskFinishedDate,
+				},
 				OriginalResult: body.Result,
-				Status:         jenkinsTaskStatus,
 				OriginalStatus: body.Status,
-				DurationSec:    durationSec,
-				StartedDate:    startedDate,
-				FinishedDate:   jenkinsTaskFinishedDate,
 				CicdScopeId:    jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
 				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
 				Environment:    data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),

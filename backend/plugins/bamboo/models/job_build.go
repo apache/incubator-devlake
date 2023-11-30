@@ -41,6 +41,9 @@ type BambooJobBuild struct {
 	BuildStartedTime         *time.Time `json:"buildStartedTime"`
 	PrettyBuildStartedTime   string     `json:"prettyBuildStartedTime"`
 	BuildCompletedTime       *time.Time `json:"buildCompletedTime"`
+	QueueStartedTime         *time.Time `json:"queueStartedTime"`
+	QueueDuration            int64      `json:"queueDuration"`
+	QueueDurationInSeconds   int64      `json:"queueDurationInSeconds"`
 	BuildCompletedDate       *time.Time `json:"buildCompletedDate"`
 	PrettyBuildCompletedTime string     `json:"prettyBuildCompletedTime"`
 	BuildDurationInSeconds   int        `json:"buildDurationInSeconds"`
@@ -94,6 +97,9 @@ func (apiRes *ApiBambooJobBuild) Convert() *BambooJobBuild {
 		PrettyBuildStartedTime:   apiRes.PrettyBuildStartedTime,
 		BuildCompletedTime:       apiRes.BuildCompletedTime,
 		BuildCompletedDate:       apiRes.BuildCompletedDate,
+		QueueStartedTime:         apiRes.QueueStartedTime,
+		QueueDuration:            apiRes.QueueDuration,
+		QueueDurationInSeconds:   apiRes.QueueTimeInSeconds,
 		PrettyBuildCompletedTime: apiRes.PrettyBuildCompletedTime,
 		BuildDurationInSeconds:   apiRes.BuildDurationInSeconds,
 		BuildDuration:            apiRes.BuildDuration,

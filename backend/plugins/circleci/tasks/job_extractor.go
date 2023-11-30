@@ -58,7 +58,7 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			if userRes.StartedAt != nil && userRes.StoppedAt != nil {
 				startTime := userRes.StartedAt.ToTime()
 				stopTime := userRes.StoppedAt.ToTime()
-				toolL.DurationSec = stopTime.Sub(startTime).Seconds()
+				toolL.DurationSec = float64(stopTime.Sub(startTime).Milliseconds() / 1e3)
 			}
 			return []interface{}{
 				&toolL,

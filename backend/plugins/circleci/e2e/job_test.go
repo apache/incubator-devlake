@@ -61,7 +61,7 @@ func TestCircleciJob(t *testing.T) {
 		e2ehelper.TableOptions{
 			CSVRelPath:   "./snapshot_tables/_tool_circleci_jobs.csv",
 			IgnoreTypes:  []interface{}{common.NoPKModel{}},
-			IgnoreFields: []string{"started_at", "stopped_at"},
+			IgnoreFields: []string{},
 		},
 	)
 
@@ -71,7 +71,7 @@ func TestCircleciJob(t *testing.T) {
 		devops.CICDTask{},
 		e2ehelper.TableOptions{
 			CSVRelPath:   "./snapshot_tables/cicd_tasks.csv",
-			IgnoreFields: []string{"started_date", "finished_date"},
+			IgnoreFields: []string{},
 			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
 		},
 	)

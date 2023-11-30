@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,6 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"reflect"
+	"time"
 )
 
 func init() {
@@ -87,16 +87,23 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*models.GithubRun)
+			createdAt := time.Now()
+			if line.GithubCreatedAt != nil {
+				createdAt = *line.GithubCreatedAt
+			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{Id: runIdGen.Generate(
 					data.Options.ConnectionId, line.RepoId, line.ID),
 				},
-				Name:         line.Name,
-				CreatedDate:  *line.GithubCreatedAt,
-				FinishedDate: line.GithubUpdatedAt,
-				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
-				Type:         line.Type,
-				Environment:  line.Environment,
+				Name: line.Name,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  line.RunStartedAt,
+					FinishedDate: line.GithubUpdatedAt,
+				},
+				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
+				Type:        line.Type,
+				Environment: line.Environment,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{StatusSuccess},
 					Failure: []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
@@ -110,8 +117,8 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				}, line.Status),
 				OriginalStatus: line.Status,
 			}
-			if domainPipeline.Status == devops.STATUS_DONE {
-				domainPipeline.DurationSec = line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds()
+			if line.GithubUpdatedAt != nil && line.RunStartedAt != nil {
+				domainPipeline.DurationSec = float64(line.GithubUpdatedAt.Sub(*line.RunStartedAt).Milliseconds() / 1e3)
 			}
 
 			domainPipelineCommit := &devops.CiCDPipelineCommit{

@@ -125,6 +125,9 @@ type ApiBambooPlanBuild struct {
 	PrettyBuildStartedTime   string     `json:"prettyBuildStartedTime"`
 	BuildCompletedTime       *time.Time `json:"buildCompletedTime"`
 	BuildCompletedDate       *time.Time `json:"buildCompletedDate"`
+	QueueStartedTime         *time.Time `json:"queueStartedTime"`
+	QueueDuration            int64      `json:"queueDuration"`
+	QueueTimeInSeconds       int64      `json:"queueTimeInSeconds"`
 	PrettyBuildCompletedTime string     `json:"prettyBuildCompletedTime"`
 	BuildDurationInSeconds   int        `json:"buildDurationInSeconds"`
 	BuildDuration            int        `json:"buildDuration"`

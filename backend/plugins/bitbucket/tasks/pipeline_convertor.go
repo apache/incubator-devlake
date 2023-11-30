@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 )
@@ -101,10 +101,13 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: bitbucketPipeline.Status,
 				Type:           bitbucketPipeline.Type,
 				Environment:    bitbucketPipeline.Environment,
-				CreatedDate:    createdAt,
-				DurationSec:    float64(bitbucketPipeline.DurationInSeconds),
-				FinishedDate:   bitbucketPipeline.BitbucketCompleteOn,
-				CicdScopeId:    repoId,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  bitbucketPipeline.BitbucketCreatedOn,
+					FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
+				},
+				DurationSec: float64(bitbucketPipeline.DurationInSeconds),
+				CicdScopeId: repoId,
 			}
 			results = append(results, domainPipelineCommit, domainPipeline)
 			return results, nil

@@ -56,15 +56,19 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciWorkflow)
+			createdAt := userTool.CreatedAt.ToTime()
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getPipelineIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
-				Name:         userTool.Name,
-				DurationSec:  userTool.DurationSec,
-				CreatedDate:  userTool.CreatedAt.ToTime(),
-				FinishedDate: userTool.StoppedAt.ToNullableTime(),
-				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
+				Name:        userTool.Name,
+				DurationSec: userTool.DurationSec,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  &createdAt,
+					FinishedDate: userTool.StoppedAt.ToNullableTime(),
+				},
+				CicdScopeId: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
 				// reference: https://circleci.com/docs/api/v2/index.html#operation/getWorkflowById
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error"}, // on_hold

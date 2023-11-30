@@ -15,14 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package devops
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import "time"
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addFieldsToCircleciJob20231129),
+type TaskDatesInfo struct {
+	CreatedDate  time.Time
+	QueuedDate   *time.Time
+	StartedDate  *time.Time
+	FinishedDate *time.Time
+}
+
+func (date TaskDatesInfo) CalculateQueueDuration() *float64 {
+	if date.StartedDate != nil && date.QueuedDate != nil {
+		d := float64(date.StartedDate.Sub(*date.QueuedDate).Milliseconds() / 1e3)
+		if d < 0 {
+			return nil
+		}
+		return &d
 	}
+	return nil
 }
