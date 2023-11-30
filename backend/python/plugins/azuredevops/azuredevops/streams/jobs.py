@@ -95,6 +95,8 @@ class Jobs(Substream):
             name=j.name,
             pipeline_id=j.build_id,
             status=status,
+            original_status = str(j.state),
+            original_result = str(j.result),
             created_date=j.start_time,
             started_date =j.start_time,
             finished_date=j.finish_time,
