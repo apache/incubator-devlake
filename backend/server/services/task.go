@@ -128,6 +128,7 @@ func GetTasksWithLastStatus(pipelineId uint64, shouldSanitize bool) ([]*models.T
 			maxCol = task.PipelineCol
 		}
 	}
+
 	for _, task := range tasks {
 		index := int64(task.PipelineRow)*int64(maxCol) + int64(task.PipelineCol)
 		if shouldSanitize {
@@ -141,8 +142,8 @@ func GetTasksWithLastStatus(pipelineId uint64, shouldSanitize bool) ([]*models.T
 			taskIds[index] = struct{}{}
 			result = append(result, task)
 		}
-
 	}
+
 	runningTasks.FillProgressDetailToTasks(result)
 	return result, nil
 }

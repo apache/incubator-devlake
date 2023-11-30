@@ -135,7 +135,7 @@ func CreatePipeline(newPipeline *models.NewPipeline, shouldSanitize bool) (*mode
 
 func SanitizeBlueprint(blueprint *models.Blueprint) error {
 	for planStageIdx, pipelineStage := range blueprint.Plan {
-		for planTaskIdx, _ := range pipelineStage {
+		for planTaskIdx := range pipelineStage {
 			pipelineTask, err := SanitizeTask(blueprint.Plan[planStageIdx][planTaskIdx])
 			if err != nil {
 				return err
@@ -148,7 +148,7 @@ func SanitizeBlueprint(blueprint *models.Blueprint) error {
 
 func SanitizePipeline(pipeline *models.Pipeline) error {
 	for planStageIdx, pipelineStage := range pipeline.Plan {
-		for planTaskIdx, _ := range pipelineStage {
+		for planTaskIdx := range pipelineStage {
 			pipelineTask, err := SanitizeTask(pipeline.Plan[planStageIdx][planTaskIdx])
 			if err != nil {
 				return err
@@ -188,7 +188,9 @@ func GetPipelines(query *PipelineQuery, shouldSanitize bool) ([]*models.Pipeline
 			return nil, 0, err
 		}
 		if shouldSanitize {
-			SanitizePipeline(p)
+			if err := SanitizePipeline(p); err != nil {
+				return nil, 0, errors.Convert(err)
+			}
 		}
 	}
 	return pipelines, i, nil
