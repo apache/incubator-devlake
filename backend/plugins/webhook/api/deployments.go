@@ -20,10 +20,12 @@ package api
 import (
 	"crypto/md5"
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"github.com/go-playground/validator/v10"
-	"net/http"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -36,18 +38,30 @@ import (
 type WebhookDeployTaskRequest struct {
 	PipelineId string `mapstructure:"pipeline_id"`
 	// RepoUrl should be unique string, fill url or other unique data
-	RepoId    string `mapstructure:"repo_id"`
-	RepoUrl   string `mapstructure:"repo_url" validate:"required"`
-	CommitSha string `mapstructure:"commit_sha" validate:"required"`
-	RefName   string `mapstructure:"ref_name"`
-	Result    string `mapstructure:"result"`
+	RepoId string `mapstructure:"repo_id"`
+	Result string `mapstructure:"result"`
 	// start_time and end_time is more readable for users,
 	// StartedDate and FinishedDate is same as columns in db.
 	// So they all keep.
 	CreatedDate  *time.Time `mapstructure:"create_time"`
 	StartedDate  *time.Time `mapstructure:"start_time" validate:"required"`
 	FinishedDate *time.Time `mapstructure:"end_time"`
+	RepoUrl      string     `mapstructure:"repo_url"`
 	Environment  string     `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
+	Name         string     `mapstructure:"name"`
+	RefName      string     `mapstructure:"ref_name"`
+	CommitSha    string     `mapstructure:"commit_sha"`
+	CommitMsg    string     `mapstructure:"commit_msg"`
+	// DeploymentCommits is used for multiple commits in one deployment
+	DeploymentCommits []DeploymentCommit `mapstructure:"deploymentCommits" validate:"omitempty,dive"`
+}
+
+type DeploymentCommit struct {
+	RepoUrl   string `mapstructure:"repo_url" validate:"required"`
+	Name      string `mapstructure:"name"`
+	RefName   string `mapstructure:"ref_name"`
+	CommitSha string `mapstructure:"commit_sha" validate:"required"`
+	CommitMsg string `mapstructure:"commit_msg"`
 }
 
 // PostDeploymentCicdTask
@@ -62,7 +76,7 @@ type WebhookDeployTaskRequest struct {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 403  {string} errcode.Error "Forbidden"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/webhook/:connectionId/deployments [POST]
+// @Router /plugins/webhook/connections/:connectionId/deployments [POST]
 func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -84,18 +98,11 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	defer txHelper.End()
 	tx := txHelper.Begin()
-	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
-	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
-	deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
+
 	pipelineId := request.PipelineId
-	if pipelineId == "" {
-		pipelineId = deploymentCommitId
-	}
+	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	if request.CreatedDate == nil {
 		request.CreatedDate = request.StartedDate
-	}
-	if request.Environment == "" {
-		request.Environment = devops.PRODUCTION
 	}
 	if request.FinishedDate == nil {
 		now := time.Now()
@@ -104,40 +111,110 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if request.Result == "" {
 		request.Result = devops.RESULT_SUCCESS
 	}
+	if request.Environment == "" {
+		request.Environment = devops.PRODUCTION
+	}
 	duration := request.FinishedDate.Sub(*request.StartedDate).Seconds()
-
-	// create a deployment_commit record
-	deploymentCommit := &devops.CicdDeploymentCommit{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: deploymentCommitId,
-		},
-		CicdDeploymentId: pipelineId,
-		CicdScopeId:      scopeId,
-		Name:             fmt.Sprintf(`deployment for %s`, request.CommitSha),
-		Result:           request.Result,
-		Status:           devops.STATUS_DONE,
-		OriginalResult:   request.Result,
-		OriginalStatus:   devops.STATUS_DONE,
-		Environment:      request.Environment,
-		CreatedDate:      *request.CreatedDate,
-		StartedDate:      request.StartedDate,
-		FinishedDate:     request.FinishedDate,
-		DurationSec:      &duration,
-		CommitSha:        request.CommitSha,
-		RefName:          request.RefName,
-		RepoId:           request.RepoId,
-		RepoUrl:          request.RepoUrl,
-	}
-	err = tx.CreateOrUpdate(deploymentCommit)
-	if err != nil {
-		logger.Error(err, "create deployment commit")
-		return nil, err
+	name := request.Name
+	if name == "" {
+		if request.DeploymentCommits == nil {
+			name = fmt.Sprintf(`deployment for %s`, request.CommitSha)
+		} else {
+			commit_sha_list := []string{}
+			for _, commit := range request.DeploymentCommits {
+				commit_sha_list = append(commit_sha_list, commit.CommitSha)
+			}
+			name = fmt.Sprintf(`deployment for %s`, strings.Join(commit_sha_list, ","))
+		}
 	}
 
-	// create a deployment record
-	if err = tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
-		logger.Error(err, "create deployment")
-		return nil, err
+	if request.DeploymentCommits == nil {
+		if request.CommitSha == "" || request.RepoUrl == "" {
+			return nil, errors.Convert(fmt.Errorf("commit_sha or repo_url is required"))
+		}
+		urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
+		deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
+		if pipelineId == "" {
+			pipelineId = deploymentCommitId
+		}
+		// create a deployment_commit record
+		deploymentCommit := &devops.CicdDeploymentCommit{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: deploymentCommitId,
+			},
+			CicdDeploymentId: pipelineId,
+			CicdScopeId:      scopeId,
+			Name:             name,
+			Result:           request.Result,
+			Status:           devops.STATUS_DONE,
+			OriginalResult:   request.Result,
+			OriginalStatus:   devops.STATUS_DONE,
+			CreatedDate:      *request.CreatedDate,
+			StartedDate:      request.StartedDate,
+			FinishedDate:     request.FinishedDate,
+			DurationSec:      &duration,
+			RepoId:           request.RepoId,
+			RepoUrl:          request.RepoUrl,
+			Environment:      request.Environment,
+			RefName:          request.RefName,
+			CommitSha:        request.CommitSha,
+			CommitMsg:        request.CommitMsg,
+		}
+		err = tx.CreateOrUpdate(deploymentCommit)
+		if err != nil {
+			logger.Error(err, "create deployment commit")
+			return nil, err
+		}
+
+		// create a deployment record
+		if err = tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
+			logger.Error(err, "create deployment")
+			return nil, err
+		}
+	} else {
+		for _, commit := range request.DeploymentCommits {
+			urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(commit.RepoUrl)))[:16]
+			deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, commit.CommitSha)
+			if pipelineId == "" {
+				pipelineId = deploymentCommitId
+			}
+			// create a deployment_commit record
+			deploymentCommit := &devops.CicdDeploymentCommit{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: deploymentCommitId,
+				},
+				CicdDeploymentId: pipelineId,
+				CicdScopeId:      scopeId,
+				Result:           request.Result,
+				Status:           devops.STATUS_DONE,
+				OriginalResult:   request.Result,
+				OriginalStatus:   devops.STATUS_DONE,
+				CreatedDate:      *request.CreatedDate,
+				StartedDate:      request.StartedDate,
+				FinishedDate:     request.FinishedDate,
+				DurationSec:      &duration,
+				RepoId:           request.RepoId,
+				Name:             fmt.Sprintf(`deployment for %s`, commit.CommitSha),
+				RepoUrl:          commit.RepoUrl,
+				Environment:      request.Environment,
+				RefName:          commit.RefName,
+				CommitSha:        commit.CommitSha,
+				CommitMsg:        commit.CommitMsg,
+			}
+			err = tx.CreateOrUpdate(deploymentCommit)
+			if err != nil {
+				logger.Error(err, "create deployment commit")
+				return nil, err
+			}
+
+			// create a deployment record
+			deploymentCommit.Name = name
+			if err = tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
+				logger.Error(err, "create deployment")
+				return nil, err
+			}
+		}
+
 	}
 
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil

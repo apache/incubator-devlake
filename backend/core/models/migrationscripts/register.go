@@ -98,5 +98,6 @@ func All() []plugin.MigrationScript {
 		new(removePositionFromPullRequestComments),
 		new(changeDurationSecToFloat64),
 		new(addOriginalStatusAndResultToDevOpsTables),
+		new(addCommitMsg),
 	}
 }

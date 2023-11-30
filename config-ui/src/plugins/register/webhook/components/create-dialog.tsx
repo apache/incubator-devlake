@@ -85,8 +85,12 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
 }'`,
         closeIssuesEndpoint: `curl ${prefix}${res.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
         postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-    "commit_sha":"the sha of deployment commit",
-    "repo_url":"the repo URL of the deployment commit",
+    "deploymentCommits":[
+      {
+      "commit_sha":"the sha of deployment commit1",
+      "repo_url":"the repo URL of the deployment commit"
+      }
+    ],
     "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
 }'`,
         apiKey: res.apiKey,
