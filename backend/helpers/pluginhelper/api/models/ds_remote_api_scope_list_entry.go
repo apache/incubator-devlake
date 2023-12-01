@@ -27,3 +27,7 @@ type DsRemoteApiScopeListEntry[S plugin.ToolLayerScope] struct {
 	FullName string  `json:"fullName"`
 	Data     *S      `json:"data"`
 }
+
+type DsRemoteApiScopeList[S plugin.ToolLayerScope] struct {
+	Children []DsRemoteApiScopeListEntry[S] `json:"children"`
+}
