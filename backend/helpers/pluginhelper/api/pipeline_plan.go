@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 )
@@ -51,4 +52,34 @@ func MakePipelinePlanSubtasks(subtaskMetas []plugin.SubTaskMeta, entities []stri
 		}
 	}
 	return subtasks, nil
+}
+
+func MakePipelinePlanTask(
+	pluginName string,
+	subtaskMetas []plugin.SubTaskMeta,
+	entities []string,
+	options interface{},
+) (*models.PipelineTask, errors.Error) {
+	subtasks, err := MakePipelinePlanSubtasks(subtaskMetas, entities)
+	if err != nil {
+		return nil, err
+	}
+	op, err := encodeTaskOptions(options)
+	if err != nil {
+		return nil, err
+	}
+	return &models.PipelineTask{
+		Plugin:   pluginName,
+		Subtasks: subtasks,
+		Options:  op,
+	}, nil
+}
+
+func encodeTaskOptions(op interface{}) (map[string]interface{}, errors.Error) {
+	var result map[string]interface{}
+	err := Decode(op, &result, nil)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
