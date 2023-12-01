@@ -66,6 +66,10 @@ func (rss *DsRemoteApiScopeSearchHelper[C, S]) Get(input *plugin.ApiResourceInpu
 	if err != nil {
 		return nil, err
 	}
+	// the config-ui is expecting the parent id to be null
+	for i := range scopes {
+		scopes[i].ParentId = nil
+	}
 	return &plugin.ApiResourceOutput{
 		Body: map[string]interface{}{
 			"children": scopes,
