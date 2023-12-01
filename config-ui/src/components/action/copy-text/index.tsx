@@ -17,9 +17,10 @@
  */
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { message } from 'antd';
 import styled from 'styled-components';
 
-import { TextTooltip, IconButton, toast } from '@/components';
+import { TextTooltip, IconButton } from '@/components';
 
 import CopyIcon from './assets/copy.svg';
 
@@ -41,7 +42,7 @@ export const CopyText = ({ content }: Props) => {
       <TextTooltip style={{ width: '90%' }} content={content}>
         {content}
       </TextTooltip>
-      <CopyToClipboard text={content} onCopy={() => toast.success('Copy successfully.')}>
+      <CopyToClipboard text={content} onCopy={() => message.success('Copy successfully.')}>
         <IconButton image={<img src={CopyIcon} alt="" />} tooltip="Copy" />
       </CopyToClipboard>
     </Wrapper>
