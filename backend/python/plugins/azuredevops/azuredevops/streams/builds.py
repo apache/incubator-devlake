@@ -15,11 +15,11 @@
 
 from typing import Iterable
 
-from azuredevops.api import AzureDevOpsAPI
-from azuredevops.models import GitRepository
-from azuredevops.models import Build
-from pydevlake import Context, DomainType, Stream
 import pydevlake.domain_layer.devops as devops
+from azuredevops.api import AzureDevOpsAPI
+from azuredevops.models import Build
+from azuredevops.models import GitRepository
+from pydevlake import Context, DomainType, Stream
 
 
 class Builds(Stream):
@@ -44,7 +44,7 @@ class Builds(Stream):
             result = devops.CICDResult.FAILURE
         elif b.result == Build.BuildResult.PartiallySucceeded:
             result = devops.CICDResult.FAILURE
-        elif b.result ==  Build.BuildResult.Succeeded:
+        elif b.result == Build.BuildResult.Succeeded:
             result = devops.CICDResult.SUCCESS
 
         status = devops.CICDStatus.STATUS_OTHER
@@ -52,11 +52,11 @@ class Builds(Stream):
             status = devops.CICDStatus.DONE
         elif b.status == Build.BuildStatus.Completed:
             status = devops.CICDStatus.DONE
-        elif b.status ==  Build.BuildStatus.InProgress:
+        elif b.status == Build.BuildStatus.InProgress:
             status = devops.CICDStatus.IN_PROGRESS
         elif b.status == Build.BuildStatus.NotStarted:
             status = devops.CICDStatus.IN_PROGRESS
-        elif b.status ==  Build.BuildStatus.Postponed:
+        elif b.status == Build.BuildStatus.Postponed:
             status = devops.CICDStatus.IN_PROGRESS
 
         type = devops.CICDType.BUILD
@@ -75,8 +75,8 @@ class Builds(Stream):
             name=b.name,
             status=status,
             result=result,
-            original_status = str(b.status),
-            original_result = str(b.result),
+            original_status=str(b.status),
+            original_result=str(b.result),
             created_date=b.queue_time,
             queued_date=b.queue_time,
             started_date=b.start_time,
