@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"testing"
 
 	"github.com/go-playground/validator/v10"
@@ -57,5 +58,130 @@ func TestAppKeyFail(t *testing.T) {
 		assert.Contains(t, err.Error(), "AppId")
 		assert.Contains(t, err.Error(), "SecretKey")
 		println()
+	}
+}
+
+func TestGithubConnection_Sanitize(t *testing.T) {
+	type fields struct {
+		GithubConn GithubConn
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   GithubConnection
+	}{
+		{
+			name: "test-empty",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-empty-1",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: ",",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-1",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "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",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjC********************bL2WGpTP",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-2",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjCiAf91234567tCQX8uombbL2WGpTP,ghp_abcdeqjCiAf91234567tCQX8uombbL2WGpTP",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjC********************bL2WGpTP,ghp_abcdeqjC********************bL2WGpTP",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-3",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjCiAf91234567tCQX8uombbL2WGpTP,ghp_abcdeqjCiAf91234567tCQX8uombbL2WGpTP,",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjC********************bL2WGpTP,ghp_abcdeqjC********************bL2WGpTP",
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			connection := GithubConnection{
+				GithubConn: tt.fields.GithubConn,
+			}
+			assert.Equalf(t, tt.want, connection.Sanitize(), "Sanitize()")
+		})
 	}
 }

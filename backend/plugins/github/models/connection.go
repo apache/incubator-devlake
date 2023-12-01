@@ -99,7 +99,41 @@ func (connection GithubConnection) TableName() string {
 }
 
 func (connection GithubConnection) Sanitize() GithubConnection {
-	connection.Token = ""
+	if connection.Token == "" {
+		return connection
+	}
+	// ghp_ for Personal Access Tokens
+	// gho_ for OAuth Access tokens
+	// ghu_ for GitHub App user-to-server tokens
+	// ghs_ for GitHub App server-to-server tokens
+	// ghr_ for GitHub App refresh tokens
+	// total len is 40, {prefix}{showPrefix}{secret}{showSuffix}
+	prefixLen := 4
+	showPrefixLen := 8
+	hiddenLen := 20 // this value is safe so far
+
+	secret := strings.Repeat("*", hiddenLen)
+	tokens := strings.Split(connection.Token, ",")
+
+	var sanitizedTokens []string
+	for _, token := range tokens {
+		if token == "" {
+			continue
+		}
+		tokenLen := len(token)
+		if tokenLen <= prefixLen {
+			sanitizedTokens = append(sanitizedTokens, token)
+			continue
+		}
+		sanitizedToken := strings.Replace(token, token[prefixLen+showPrefixLen:prefixLen+showPrefixLen+hiddenLen], secret, -1)
+		sanitizedTokens = append(sanitizedTokens, sanitizedToken)
+	}
+
+	if len(sanitizedTokens) > 0 {
+		connection.Token = strings.Join(sanitizedTokens, ",")
+	} else {
+		connection.Token = ""
+	}
 	return connection
 }
 
