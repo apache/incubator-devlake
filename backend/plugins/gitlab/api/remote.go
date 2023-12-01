@@ -177,17 +177,17 @@ func getNextPage(page *GitlabRemotePagination, res *http.Response) *GitlabRemote
 	}
 }
 
-// RemoteScopes list all available scope for users
-// @Summary list all available scope for users
-// @Description list all available scope for users
-// @Tags plugins/gitlab
+// RemoteScopes list all available scopes on the remote server
+// @Summary list all available scopes on the remote server
+// @Description list all available scopes on the remote server
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param groupId query string false "group ID"
 // @Param pageToken query string false "page Token"
-// @Success 200  {object} api.RemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Success 200  {object} dsmodels.DsRemoteApiScopeList[models.GitlabProject]
+// @Tags plugins/gitlab
 // @Router /plugins/gitlab/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raScopeList.Get(input)
@@ -225,30 +225,29 @@ func searchGitlabScopes(
 	return
 }
 
-// SearchRemoteScopes use the Search API and only return project
-// @Summary use the Search API and only return project
-// @Description use the Search API and only return project
-// @Tags plugins/gitlab
+// SearchRemoteScopes searches projects on the remote server
+// @Summary searches projects on the remote server
+// @Description searches projects on the remote server
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param search query string false "search"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
-// @Success 200  {object} api.SearchRemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Success 200  {object} dsmodels.DsRemoteApiScopeList[models.GitlabProject] "the parentIds are always null"
+// @Tags plugins/gitlab
 // @Router /plugins/gitlab/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raScopeSearch.Get(input)
 }
 
-// Proxy is a proxy to Gitlab API
-// @Summary Proxy to Gitlab API
-// @Description Proxy to Gitlab API
-// @Tags plugins/gitlab
+// @Summary Remote server API proxy
+// @Description Forward API requests to the specified remote server
 // @Param connectionId path int true "connection ID"
-// @Param path path string true "path to Gitlab API"
+// @Param path path string true "path to a API endpoint"
 // @Router /plugins/gitlab/connections/{connectionId}/proxy/{path} [GET]
+// @Tags plugins/gitlab
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raProxy.Proxy(input)
 }
