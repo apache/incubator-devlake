@@ -18,10 +18,11 @@
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Alert } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Alert, NoData } from '@/components';
+import { NoData } from '@/components';
 import type { WebhookItemType } from '@/plugins/register/webhook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webhook';
 import { IProject } from '@/types';
@@ -110,8 +111,8 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   return (
     <>
       <Alert
-        style={{ marginBottom: 24, color: '#3C5088' }}
-        content={
+        style={{ marginBottom: 24 }}
+        message={
           <>
             <div>
               The data pushed by Webhooks will only be calculated for DORA in the next run of the Blueprint of this
