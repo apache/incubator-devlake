@@ -20,6 +20,7 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/cast"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -36,6 +37,7 @@ type TestConnectionResult struct {
 
 func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var result TestConnectionResult
+	fmt.Println("body:", input.Body)
 	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Get(&result)
 	if err != nil {
 		body := shared.ApiBody{
@@ -60,17 +62,20 @@ func (pa *pluginAPI) TestExistingConnection(input *plugin.ApiResourceInput) (*pl
 	}
 	conn := connection.Unwrap()
 	params := make(map[string]interface{})
-
 	if data, err := json.Marshal(conn); err != nil {
 		return nil, errors.Convert(err)
 	} else {
-		if err := json.Unmarshal(data, params); err != nil {
+		if err := json.Unmarshal(data, &params); err != nil {
 			return nil, errors.Convert(err)
 		}
 	}
 
+	necessaryParams := make(map[string]string)
+	necessaryParams["proxy"] = cast.ToString(params["proxy"])
+	necessaryParams["token"] = cast.ToString(params["token"])
+
 	var result TestConnectionResult
-	rpcCallErr := pa.invoker.Call("test-connection", bridge.DefaultContext, params).Get(&result)
+	rpcCallErr := pa.invoker.Call("test-connection", bridge.DefaultContext, necessaryParams).Get(&result)
 	if rpcCallErr != nil {
 		body := shared.ApiBody{
 			Success: false,
