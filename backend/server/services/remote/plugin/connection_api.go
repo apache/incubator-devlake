@@ -37,7 +37,6 @@ type TestConnectionResult struct {
 
 func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var result TestConnectionResult
-	fmt.Println("body:", input.Body)
 	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Get(&result)
 	if err != nil {
 		body := shared.ApiBody{
