@@ -27,13 +27,14 @@ import (
 
 var vld *validator.Validate
 
-var dsHelper *api.DsHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
-
-var connectionHelper *api.ConnectionApiHelper
-var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse]
 var basicRes context.BasicRes
+var dsHelper *api.DsHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.GitlabConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.GitlabConnection, models.GitlabProject, GitlabRemotePagination]
+var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.GitlabConnection, models.GitlabProject]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
+	vld = validator.New()
 	basicRes = br
 	dsHelper = api.NewDataSourceHelper[
 		models.GitlabConnection,
@@ -49,15 +50,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 	)
 	// TODO: remove connectionHelper and refactor remoteHelper
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-	remoteHelper = api.NewRemoteHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
+	raProxy = api.NewDsRemoteApiProxyHelper[models.GitlabConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[models.GitlabConnection, models.GitlabProject, GitlabRemotePagination](raProxy, listGitlabRemoteScopes)
+	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.GitlabConnection, models.GitlabProject](raProxy, searchGitlabScopes)
 }

@@ -226,9 +226,10 @@ func searchGithubRepos(
 }
 
 func toRepoModel(r *repo) dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo] {
+	parentId := fmt.Sprintf("%v", r.Owner.Login)
 	return dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
 		Type:     api.RAS_ENTRY_TYPE_SCOPE,
-		ParentId: &r.Owner.Login,
+		ParentId: &parentId,
 		Id:       fmt.Sprintf("%v", r.ID),
 		Name:     fmt.Sprintf("%v", r.Name),
 		FullName: fmt.Sprintf("%v", r.FullName),
