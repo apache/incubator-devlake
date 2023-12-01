@@ -73,6 +73,7 @@ func (self *ModelApiHelper[M]) Post(input *plugin.ApiResourceInput) (*plugin.Api
 	if err != nil {
 		return nil, err
 	}
+	model = self.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Status: http.StatusCreated,
 		Body:   model,
