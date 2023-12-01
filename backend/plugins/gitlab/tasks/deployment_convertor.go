@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -30,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/spf13/cast"
+	"reflect"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -84,8 +83,8 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				duration = &deployableDuration
 			}
 			if duration == nil || *duration == 0 {
-				if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableCreatedAt != nil {
-					deployableDuration := gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableCreatedAt).Seconds()
+				if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableStartedAt != nil {
+					deployableDuration := float64(gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableStartedAt).Milliseconds() / 1e3)
 					duration = &deployableDuration
 				}
 			}
@@ -105,13 +104,16 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				}, gitlabDeployment.Status),
 				OriginalStatus: gitlabDeployment.Status,
 				Environment:    gitlabDeployment.Environment,
-				CreatedDate:    gitlabDeployment.CreatedDate,
-				StartedDate:    gitlabDeployment.DeployableStartedAt,
-				FinishedDate:   gitlabDeployment.DeployableFinishedAt,
-				CommitSha:      gitlabDeployment.Sha,
-				RefName:        gitlabDeployment.Ref,
-				RepoId:         projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
-				RepoUrl:        repo.WebUrl,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  gitlabDeployment.CreatedDate,
+					StartedDate:  gitlabDeployment.DeployableStartedAt,
+					FinishedDate: gitlabDeployment.DeployableFinishedAt,
+				},
+				QueuedDurationSec: gitlabDeployment.QueuedDuration,
+				CommitSha:         gitlabDeployment.Sha,
+				RefName:           gitlabDeployment.Ref,
+				RepoId:            projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				RepoUrl:           repo.WebUrl,
 			}
 			if duration != nil {
 				domainDeployCommit.DurationSec = duration

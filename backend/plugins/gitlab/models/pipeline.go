@@ -26,13 +26,14 @@ import (
 type GitlabPipeline struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
-	GitlabId  int    `gorm:"primaryKey"`
-	ProjectId int    `gorm:"index"`
-	Status    string `gorm:"type:varchar(100)"`
-	Ref       string `gorm:"type:varchar(255)"`
-	Sha       string `gorm:"type:varchar(255)"`
-	WebUrl    string `gorm:"type:varchar(255)"`
-	Duration  int
+	GitlabId       int    `gorm:"primaryKey"`
+	ProjectId      int    `gorm:"index"`
+	Status         string `gorm:"type:varchar(100)"`
+	Ref            string `gorm:"type:varchar(255)"`
+	Sha            string `gorm:"type:varchar(255)"`
+	WebUrl         string `gorm:"type:varchar(255)"`
+	Duration       int
+	QueuedDuration float64
 
 	GitlabCreatedAt *time.Time
 	GitlabUpdatedAt *time.Time

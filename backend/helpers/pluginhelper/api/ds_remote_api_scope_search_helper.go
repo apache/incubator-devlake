@@ -21,8 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	"github.com/mitchellh/mapstructure"
-	// "github.com/apache/incubator-devlake/helpers/utils"
+	"github.com/apache/incubator-devlake/helpers/utils"
 )
 
 type DsSearchRemoteScopes[C plugin.ToolLayerApiConnection, S plugin.ToolLayerScope] func(
@@ -56,19 +55,20 @@ func (rss *DsRemoteApiScopeSearchHelper[C, S]) Get(input *plugin.ApiResourceInpu
 		Page:     1,
 		PageSize: 50,
 	}
-	if e := mapstructure.Decode(input.Query, params); e != nil {
-		return nil, errors.BadInput.Wrap(e, "invalid params")
+	err = utils.DecodeMapStruct(input.Query, params, true)
+	if err != nil {
+		return nil, err
 	}
-	// err = utils.DecodeMapStruct(input.Query, params, true)
-	// if err != nil {
-	// 	return nil, err
-	// }
 	if e := vld.Struct(params); e != nil {
 		return nil, errors.BadInput.Wrap(e, "invalid params")
 	}
 	scopes, err := rss.searchRemoteScopes(apiClient, params)
 	if err != nil {
 		return nil, err
+	}
+	// the config-ui is expecting the parent id to be null
+	for i := range scopes {
+		scopes[i].ParentId = nil
 	}
 	return &plugin.ApiResourceOutput{
 		Body: map[string]interface{}{

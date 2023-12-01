@@ -43,7 +43,8 @@ type WebhookDeployTaskRequest struct {
 	// start_time and end_time is more readable for users,
 	// StartedDate and FinishedDate is same as columns in db.
 	// So they all keep.
-	CreatedDate  *time.Time `mapstructure:"create_time"`
+	CreatedDate *time.Time `mapstructure:"create_time"`
+	// QueuedDate   *time.Time `mapstructure:"queue_time"`
 	StartedDate  *time.Time `mapstructure:"start_time" validate:"required"`
 	FinishedDate *time.Time `mapstructure:"end_time"`
 	RepoUrl      string     `mapstructure:"repo_url"`
@@ -114,20 +115,32 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if request.Environment == "" {
 		request.Environment = devops.PRODUCTION
 	}
-	duration := request.FinishedDate.Sub(*request.StartedDate).Seconds()
+	duration := float64(request.FinishedDate.Sub(*request.StartedDate).Milliseconds() / 1e3)
 	name := request.Name
 	if name == "" {
 		if request.DeploymentCommits == nil {
 			name = fmt.Sprintf(`deployment for %s`, request.CommitSha)
 		} else {
-			commit_sha_list := []string{}
+			var commitShaList []string
 			for _, commit := range request.DeploymentCommits {
-				commit_sha_list = append(commit_sha_list, commit.CommitSha)
+				commitShaList = append(commitShaList, commit.CommitSha)
 			}
-			name = fmt.Sprintf(`deployment for %s`, strings.Join(commit_sha_list, ","))
+			name = fmt.Sprintf(`deployment for %s`, strings.Join(commitShaList, ","))
 		}
 	}
-
+	createdDate := time.Now()
+	if request.CreatedDate != nil {
+		createdDate = *request.CreatedDate
+	} else if request.StartedDate != nil {
+		createdDate = *request.StartedDate
+	}
+	dateInfo := devops.TaskDatesInfo{
+		CreatedDate: createdDate,
+		// QueuedDate:   request.QueuedDate,
+		StartedDate:  request.StartedDate,
+		FinishedDate: request.FinishedDate,
+	}
+	// queuedDuration := dateInfo.CalculateQueueDuration()
 	if request.DeploymentCommits == nil {
 		if request.CommitSha == "" || request.RepoUrl == "" {
 			return nil, errors.Convert(fmt.Errorf("commit_sha or repo_url is required"))
@@ -149,16 +162,15 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 			Status:           devops.STATUS_DONE,
 			OriginalResult:   request.Result,
 			OriginalStatus:   devops.STATUS_DONE,
-			CreatedDate:      *request.CreatedDate,
-			StartedDate:      request.StartedDate,
-			FinishedDate:     request.FinishedDate,
+			TaskDatesInfo:    dateInfo,
 			DurationSec:      &duration,
-			RepoId:           request.RepoId,
-			RepoUrl:          request.RepoUrl,
-			Environment:      request.Environment,
-			RefName:          request.RefName,
-			CommitSha:        request.CommitSha,
-			CommitMsg:        request.CommitMsg,
+			//QueuedDurationSec: queuedDuration,
+			RepoId:      request.RepoId,
+			RepoUrl:     request.RepoUrl,
+			Environment: request.Environment,
+			RefName:     request.RefName,
+			CommitSha:   request.CommitSha,
+			CommitMsg:   request.CommitMsg,
 		}
 		err = tx.CreateOrUpdate(deploymentCommit)
 		if err != nil {
@@ -189,17 +201,16 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 				Status:           devops.STATUS_DONE,
 				OriginalResult:   request.Result,
 				OriginalStatus:   devops.STATUS_DONE,
-				CreatedDate:      *request.CreatedDate,
-				StartedDate:      request.StartedDate,
-				FinishedDate:     request.FinishedDate,
+				TaskDatesInfo:    dateInfo,
 				DurationSec:      &duration,
-				RepoId:           request.RepoId,
-				Name:             fmt.Sprintf(`deployment for %s`, commit.CommitSha),
-				RepoUrl:          commit.RepoUrl,
-				Environment:      request.Environment,
-				RefName:          commit.RefName,
-				CommitSha:        commit.CommitSha,
-				CommitMsg:        commit.CommitMsg,
+				//QueuedDurationSec: queuedDuration,
+				RepoId:      request.RepoId,
+				Name:        fmt.Sprintf(`deployment for %s`, commit.CommitSha),
+				RepoUrl:     commit.RepoUrl,
+				Environment: request.Environment,
+				RefName:     commit.RefName,
+				CommitSha:   commit.CommitSha,
+				CommitMsg:   commit.CommitMsg,
 			}
 			err = tx.CreateOrUpdate(deploymentCommit)
 			if err != nil {
@@ -214,7 +225,6 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 				return nil, err
 			}
 		}
-
 	}
 
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil

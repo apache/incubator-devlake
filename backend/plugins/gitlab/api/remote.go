@@ -18,17 +18,164 @@ limitations under the License.
 package api
 
 import (
-	gocontext "context"
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
-	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
+
+type GitlabRemotePagination struct {
+	Page    int    `json:"page" mapstructure:"page"`
+	PerPage int    `json:"per_page" mapstructure:"per_page"`
+	Step    string `json:"step" mapstructure:"step"`
+}
+
+func (p GitlabRemotePagination) ToQuery() url.Values {
+	return url.Values{
+		"page":     {fmt.Sprintf("%v", p.Page)},
+		"per_page": {fmt.Sprintf("%v", p.PerPage)},
+	}
+}
+
+func listGitlabRemoteScopes(
+	connection *models.GitlabConnection,
+	apiClient plugin.ApiClient,
+	groupId string,
+	page GitlabRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject],
+	nextPage *GitlabRemotePagination,
+	err errors.Error,
+) {
+	if page.Page == 0 {
+		page.Page = 1
+	}
+	if page.PerPage == 0 {
+		page.PerPage = 100
+	}
+	if page.Step == "" {
+		page.Step = "group"
+	}
+
+	// load all groups unless groupId is user's own account
+	if page.Step == "group" && !strings.HasPrefix(groupId, "users/") {
+		children, nextPage, err = listGitlabRemoteGroups(connection, apiClient, groupId, page)
+		if err != nil {
+			return
+		}
+		// no more groups
+		if nextPage == nil {
+			nextPage = &GitlabRemotePagination{
+				Page:    1,
+				PerPage: page.PerPage,
+				Step:    "project",
+			}
+		}
+	} else {
+		// load all project under the group or user's own account
+		children, nextPage, err = listGitlabRemoteProjects(connection, apiClient, groupId, page)
+	}
+	return
+}
+
+func listGitlabRemoteGroups(
+	connection *models.GitlabConnection,
+	apiClient plugin.ApiClient,
+	groupId string,
+	page GitlabRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject],
+	nextPage *GitlabRemotePagination,
+	err errors.Error,
+) {
+	apiPath := ""
+	query := page.ToQuery()
+	var res *http.Response
+	if groupId == "" && page.Page == 1 {
+		// make users own account as a group
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject]{
+			Type:     api.RAS_ENTRY_TYPE_GROUP,
+			Id:       fmt.Sprintf("users/%v", apiClient.GetData("UserId")),
+			Name:     apiClient.GetData("UserName").(string),
+			FullName: apiClient.GetData("UserName").(string),
+		})
+	}
+	if groupId == "" {
+		apiPath = "groups"
+		query.Set("top_level_only", "true")
+	} else {
+		apiPath = fmt.Sprintf("groups/%s/subgroups", groupId)
+	}
+	res, err = apiClient.Get(apiPath, query, nil)
+	var resGroups []models.GroupResponse
+	errors.Must(api.UnmarshalResponse(res, &resGroups))
+	for _, group := range resGroups {
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject]{
+			Type:     api.RAS_ENTRY_TYPE_GROUP,
+			Id:       fmt.Sprintf("%v", group.Id),
+			Name:     group.Name,
+			FullName: group.FullPath,
+		})
+	}
+	nextPage = getNextPage(&page, res)
+	return
+}
+
+func listGitlabRemoteProjects(
+	connection *models.GitlabConnection,
+	apiClient plugin.ApiClient,
+	groupId string,
+	page GitlabRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject],
+	nextPage *GitlabRemotePagination,
+	err errors.Error,
+) {
+	apiPath := ""
+	query := page.ToQuery()
+	query.Set("archived", "false")
+	query.Set("min_access_level", "20")
+	//
+	if strings.HasPrefix(groupId, "users/") {
+		apiPath = fmt.Sprintf("%s/projects", groupId)
+	} else {
+		apiPath = fmt.Sprintf("/groups/%s/projects", groupId)
+	}
+	res, err := apiClient.Get(apiPath, query, nil)
+	var resProjects []models.GitlabApiProject
+	errors.Must(api.UnmarshalResponse(res, &resProjects))
+	for _, project := range resProjects {
+		children = append(children, toProjectModel(&project))
+	}
+	nextPage = getNextPage(&page, res)
+	return
+}
+
+func toProjectModel(project *models.GitlabApiProject) dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject] {
+	return dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject]{
+		Type:     api.RAS_ENTRY_TYPE_SCOPE,
+		Id:       fmt.Sprintf("%v", project.GitlabId),
+		Name:     project.Name,
+		FullName: project.PathWithNamespace,
+	}
+}
+
+func getNextPage(page *GitlabRemotePagination, res *http.Response) *GitlabRemotePagination {
+	if res.Header.Get("x-next-page") == "" {
+		return nil
+	}
+	return &GitlabRemotePagination{
+		Page:    page.Page + 1,
+		PerPage: page.PerPage,
+		Step:    page.Step,
+	}
+}
 
 // RemoteScopes list all available scope for users
 // @Summary list all available scope for users
@@ -43,107 +190,39 @@ import (
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var resGroup []models.GroupResponse
-	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GitlabConnection) ([]models.GroupResponse, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-			query := initialQuery(queryData)
-			var res *http.Response
-			if gid == "" {
-				query.Set("top_level_only", "true")
-				res, err = apiClient.Get("groups", query, nil)
-				if err != nil {
-					return nil, err
-				}
-			} else {
-				if gid[:6] == "group:" {
-					gid = gid[6:]
-				}
-				res, err = apiClient.Get(fmt.Sprintf("groups/%s/subgroups", gid), query, nil)
-				if err != nil {
-					return nil, err
-				}
-			}
-			err = api.UnmarshalResponse(res, &resGroup)
-			if err != nil {
-				return nil, err
-			}
-			return resGroup, err
+	return raScopeList.Get(input)
+}
+
+func searchGitlabScopes(
+	apiClient plugin.ApiClient,
+	params *dsmodels.DsRemoteApiScopeSearchParams,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject],
+	err errors.Error,
+) {
+	res, err := apiClient.Get(
+		"projects",
+		url.Values{
+			"search":           []string{params.Search},
+			"page":             []string{fmt.Sprintf("%v", params.Page)},
+			"per_page":         []string{fmt.Sprintf("%v", params.PageSize)},
+			"archived":         {"false"},
+			"min_access_level": {"20"},
 		},
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GitlabConnection) ([]models.GitlabApiProject, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-			query := initialQuery(queryData)
-			var res *http.Response
-			var resBody []models.GitlabApiProject
-			if gid == "" {
-				var resProjects []models.GitlabApiProject
-				if connection.Endpoint == models.GitlabCloudEndPoint {
-					res, err = apiClient.Get(fmt.Sprintf("users/%d/projects", apiClient.GetData("UserId")), query, nil)
-				} else {
-					res, err = apiClient.Get("/projects", query, nil)
-				}
-				if err != nil {
-					return nil, err
-				}
-				err = api.UnmarshalResponse(res, &resProjects)
-				if err != nil {
-					return nil, err
-				}
-
-				for _, project := range resProjects {
-					skipProject := false
-					for _, group := range resGroup {
-						if project.Namespace.Name == group.Name && project.Namespace.Path == group.Path {
-							skipProject = true
-							break
-						}
-					}
-					if !skipProject {
-						resBody = append(resBody, project)
-					}
-				}
-			} else {
-				if gid[:6] == "group:" {
-					gid = gid[6:]
-				}
-				res, err = apiClient.Get(fmt.Sprintf("/groups/%s/projects", gid), query, nil)
-				if err != nil {
-					return nil, err
-				}
-				err = api.UnmarshalResponse(res, &resBody)
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			// Filter out projects where the user only has Guest permission and archived projects
-			var filteredProjects []models.GitlabApiProject
-			for _, project := range resBody {
-				membersURL := fmt.Sprintf("/projects/%d/members/%d", project.GitlabId, apiClient.GetData("UserId"))
-				membersRes, err := apiClient.Get(membersURL, nil, nil)
-				if err != nil {
-					return nil, err
-				}
-				var member models.GitlabMember
-				err = api.UnmarshalResponse(membersRes, &member)
-				if err != nil {
-					return nil, err
-				}
-				if member.AccessLevel != 10 && !project.Archived {
-					filteredProjects = append(filteredProjects, project)
-				}
-			}
-
-			resBody = filteredProjects
-
-			return resBody, err
-		})
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	var resBody []models.GitlabApiProject
+	err = api.UnmarshalResponse(res, &resBody)
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range resBody {
+		children = append(children, toProjectModel(&r))
+	}
+	return
 }
 
 // SearchRemoteScopes use the Search API and only return project
@@ -160,35 +239,16 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.GitlabConnection) ([]models.GitlabApiProject, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-			query := initialQuery(queryData)
-			query.Set("search", queryData.Search[0])
-			// request search
-			res, err := apiClient.Get("projects", query, nil)
-			if err != nil {
-				return nil, err
-			}
-			var resBody []models.GitlabApiProject
-			err = api.UnmarshalResponse(res, &resBody)
-			if err != nil {
-				return nil, err
-			}
-			for i := 0; i < len(resBody); i++ {
-				// as we need to set PathWithNamespace to name in SearchRemoteScopes, but interface.ScopeName will return name, so we switch it
-				resBody[i].Name, resBody[i].PathWithNamespace = resBody[i].PathWithNamespace, resBody[i].Name
-			}
-			return resBody, err
-		})
+	return raScopeSearch.Get(input)
 }
 
-func initialQuery(queryData *api.RemoteQueryData) url.Values {
-	query := url.Values{}
-	query.Set("page", fmt.Sprintf("%v", queryData.Page))
-	query.Set("per_page", fmt.Sprintf("%v", queryData.PerPage))
-	return query
+// Proxy is a proxy to Gitlab API
+// @Summary Proxy to Gitlab API
+// @Description Proxy to Gitlab API
+// @Tags plugins/gitlab
+// @Param connectionId path int true "connection ID"
+// @Param path path string true "path to Gitlab API"
+// @Router /plugins/gitlab/connections/{connectionId}/proxy/{path} [GET]
+func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return raProxy.Proxy(input)
 }

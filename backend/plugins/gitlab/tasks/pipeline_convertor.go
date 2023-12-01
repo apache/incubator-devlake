@@ -73,13 +73,10 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipeline := inputRow.(*models.GitlabPipeline)
 
-			startedAt := time.Now()
-			if gitlabPipeline.StartedAt != nil {
-				startedAt = *gitlabPipeline.StartedAt
-			} else if gitlabPipeline.GitlabCreatedAt != nil {
-				startedAt = *gitlabPipeline.GitlabCreatedAt
+			createdAt := time.Now()
+			if gitlabPipeline.GitlabCreatedAt != nil {
+				createdAt = *gitlabPipeline.GitlabCreatedAt
 			}
-
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
@@ -96,22 +93,17 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					Default:    devops.STATUS_OTHER,
 				}, gitlabPipeline.Status),
 				OriginalStatus: gitlabPipeline.Status,
-				CreatedDate:    startedAt,
-				FinishedDate:   gitlabPipeline.GitlabUpdatedAt,
-				CicdScopeId:    projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
-				Environment:    gitlabPipeline.Environment,
-				Type:           gitlabPipeline.Type,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  gitlabPipeline.StartedAt,
+					FinishedDate: gitlabPipeline.FinishedAt,
+				},
+				QueuedDurationSec: &gitlabPipeline.QueuedDuration,
+				CicdScopeId:       projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
+				Environment:       gitlabPipeline.Environment,
+				Type:              gitlabPipeline.Type,
+				DurationSec:       float64(gitlabPipeline.Duration),
 			}
-
-			// rebuild the FinishedDate and DurationSec by Status
-			if domainPipeline.Status != devops.STATUS_DONE {
-				domainPipeline.FinishedDate = nil
-				domainPipeline.DurationSec = 0
-			} else if domainPipeline.FinishedDate != nil {
-				durationTime := domainPipeline.FinishedDate.Sub(startedAt)
-				domainPipeline.DurationSec = durationTime.Seconds()
-			}
-
 			return []interface{}{
 				domainPipeline,
 			}, nil

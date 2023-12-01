@@ -18,8 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"testing"
-
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -27,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
+	"testing"
 )
 
 func TestBambooJobBuildDataFlow(t *testing.T) {
@@ -110,6 +109,9 @@ func TestBambooJobBuildDataFlow(t *testing.T) {
 			"job_result_key",
 			"type",
 			"environment",
+			"queue_started_time",
+			"queue_duration",
+			"queue_duration_in_seconds",
 		),
 	)
 

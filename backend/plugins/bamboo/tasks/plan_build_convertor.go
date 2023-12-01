@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,6 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"reflect"
+	"time"
 )
 
 var ConvertPlanBuildsMeta = plugin.SubTaskMeta{
@@ -61,14 +61,20 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if line.BuildStartedTime == nil {
 				return nil, nil
 			}
+			createdDate := time.Now()
+			if line.BuildStartedTime != nil {
+				createdDate = *line.BuildStartedTime
+			}
 			domainPlanBuild := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{Id: planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey)},
 				Name:         line.GenerateCICDPipeLineName(),
-				DurationSec:  float64(line.BuildDurationInSeconds),
-				CreatedDate:  *line.BuildStartedTime,
-				FinishedDate: line.BuildCompletedDate,
-				CicdScopeId:  planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
-
+				DurationSec:  float64(line.BuildDuration / 1e3),
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdDate,
+					StartedDate:  line.BuildCompletedDate,
+					FinishedDate: line.BuildCompletedDate,
+				},
+				CicdScopeId: planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{ResultSuccess, ResultSuccessful},
 					Failure: []string{ResultFailed},

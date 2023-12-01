@@ -36,5 +36,6 @@ func All() []plugin.MigrationScript {
 		new(renameToolBambooDeployEnvironments20230919),
 		new(renameMultiBambooRawTables20230920),
 		new(addMissingPrimaryKeyForBambooPlanBuildVcsRevision),
+		new(addQueuedFieldsInJobBuild20231128),
 	}
 }

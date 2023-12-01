@@ -142,6 +142,7 @@ func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64, gitlabId i
 		DeployableCreatedAt:         r.Deployable.CreatedAt,
 		DeployableFinishedAt:        r.Deployable.FinishedAt,
 		DeployableDuration:          r.Deployable.Duration,
+		QueuedDuration:              r.Deployable.QueuedDuration,
 	}
 }
 
