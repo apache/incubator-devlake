@@ -152,14 +152,6 @@ type GroupResponse struct {
 	ParentId    *int   `json:"parent_id"`
 }
 
-func (p GroupResponse) GroupId() string {
-	return "group:" + strconv.Itoa(p.Id)
-}
-
-func (p GroupResponse) GroupName() string {
-	return p.Name
-}
-
 type GitlabApiParams struct {
 	ConnectionId uint64
 	ProjectId    int

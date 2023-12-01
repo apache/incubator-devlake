@@ -65,7 +65,7 @@ func (rsl *DsRemoteApiScopeListHelper[C, S, P]) Get(input *plugin.ApiResourceInp
 	}
 	groupId := input.Query.Get("groupId")
 	pageInfo := new(P)
-	pageToken := input.Params["pageToken"]
+	pageToken := input.Query.Get("pageToken")
 	// decode page token, we use pageToken because the pagination strategy varies from plugin to plugin
 	// some may use `page` and `size` while some may adopt `offset` and `limit`, even some may use `cursor`
 	if pageToken != "" {

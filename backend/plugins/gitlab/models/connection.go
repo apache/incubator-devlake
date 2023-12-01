@@ -34,6 +34,7 @@ type GitlabConn struct {
 
 const GitlabCloudEndPoint string = "https://gitlab.com/api/v4/"
 const GitlabApiClientData_UserId string = "UserId"
+const GitlabApiClientData_UserName string = "UserName"
 const GitlabApiClientData_ApiVersion string = "ApiVersion"
 
 // this function is used to rewrite the same function of AccessToken
@@ -109,6 +110,7 @@ func (conn *GitlabConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Erro
 	}
 
 	apiClient.SetData(GitlabApiClientData_UserId, userResBody.Id)
+	apiClient.SetData(GitlabApiClientData_UserName, userResBody.Name)
 	apiClient.SetData(GitlabApiClientData_ApiVersion, versionResBody.Version)
 
 	return nil
