@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card } from 'antd';
 import { Button, Switch, Intent, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import API from '@/api';
-import { Card, IconButton, Dialog, Message } from '@/components';
+import { IconButton, Dialog, Message } from '@/components';
 import { getCron } from '@/config';
 import { useAutoRefresh } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';

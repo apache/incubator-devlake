@@ -17,11 +17,12 @@
  */
 
 import { useState } from 'react';
+import { Card } from 'antd';
 import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
 import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
-import { Card, Buttons } from '@/components';
+import { Buttons } from '@/components';
 import { operator } from '@/utils';
 
 export const NeedsDBMigrate = () => {

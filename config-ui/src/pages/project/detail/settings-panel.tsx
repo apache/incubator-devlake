@@ -18,10 +18,11 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card } from 'antd';
 import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Card, FormItem, Buttons, toast, Dialog } from '@/components';
+import { FormItem, Buttons, toast, Dialog } from '@/components';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
