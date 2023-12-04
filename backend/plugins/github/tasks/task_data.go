@@ -67,15 +67,6 @@ func DecodeTaskOptions(options map[string]interface{}) (*GithubOptions, errors.E
 	return &op, nil
 }
 
-func EncodeTaskOptions(op *GithubOptions) (map[string]interface{}, errors.Error) {
-	var result map[string]interface{}
-	err := helper.Decode(op, &result, nil)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
 func ValidateTaskOptions(op *GithubOptions) errors.Error {
 	if op.Name == "" {
 		op.Name = strings.Trim(fmt.Sprintf("%s/%s", op.Owner, op.Repo), " ")
