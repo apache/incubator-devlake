@@ -62,17 +62,20 @@ func (rss *DsRemoteApiScopeSearchHelper[C, S]) Get(input *plugin.ApiResourceInpu
 	if e := vld.Struct(params); e != nil {
 		return nil, errors.BadInput.Wrap(e, "invalid params")
 	}
-	scopes, err := rss.searchRemoteScopes(apiClient, params)
+	children, err := rss.searchRemoteScopes(apiClient, params)
 	if err != nil {
 		return nil, err
 	}
+	if children == nil {
+		children = []models.DsRemoteApiScopeListEntry[S]{}
+	}
 	// the config-ui is expecting the parent id to be null
-	for i := range scopes {
-		scopes[i].ParentId = nil
+	for i := range children {
+		children[i].ParentId = nil
 	}
 	return &plugin.ApiResourceOutput{
 		Body: map[string]interface{}{
-			"children": scopes,
+			"children": children,
 			"page":     params.Page,
 			"pageSize": params.PageSize,
 		},

@@ -75,7 +75,7 @@ func (rsl *DsRemoteApiScopeListHelper[C, S, P]) Get(input *plugin.ApiResourceInp
 		}
 		errors.Must(json.Unmarshal(decoded, pageInfo))
 	}
-	scopes, nextPage, err := rsl.listRemoteScopes(connection, apiClient, groupId, *pageInfo)
+	children, nextPage, err := rsl.listRemoteScopes(connection, apiClient, groupId, *pageInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -85,9 +85,12 @@ func (rsl *DsRemoteApiScopeListHelper[C, S, P]) Get(input *plugin.ApiResourceInp
 		nextPageJson := errors.Must1(json.Marshal(nextPage))
 		nextPageToken = base64.StdEncoding.EncodeToString(nextPageJson)
 	}
+	if children == nil {
+		children = []models.DsRemoteApiScopeListEntry[S]{}
+	}
 	return &plugin.ApiResourceOutput{
 		Body: map[string]interface{}{
-			"children":      scopes,
+			"children":      children,
 			"nextPageToken": nextPageToken,
 		},
 	}, nil
