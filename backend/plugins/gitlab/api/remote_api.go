@@ -30,6 +30,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+const USERS_PREFIX = "user:"
+
 type GitlabRemotePagination struct {
 	Page    int    `json:"page" mapstructure:"page"`
 	PerPage int    `json:"per_page" mapstructure:"per_page"`
@@ -64,23 +66,26 @@ func listGitlabRemoteScopes(
 	}
 
 	// load all groups unless groupId is user's own account
-	if page.Step == "group" && !strings.HasPrefix(groupId, "users/") {
+	if page.Step == "group" && !strings.HasPrefix(groupId, USERS_PREFIX) {
 		children, nextPage, err = listGitlabRemoteGroups(connection, apiClient, groupId, page)
 		if err != nil {
 			return
 		}
-		// no more groups
-		if nextPage == nil {
-			nextPage = &GitlabRemotePagination{
-				Page:    1,
-				PerPage: page.PerPage,
-				Step:    "project",
-			}
-		}
-	} else {
-		// load all project under the group or user's own account
-		children, nextPage, err = listGitlabRemoteProjects(connection, apiClient, groupId, page)
 	}
+	if groupId == "" || nextPage != nil {
+		return
+	}
+	// no more groups, start to load projects under the group
+	var moreChild []dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject]
+	moreChild, nextPage, err = listGitlabRemoteProjects(connection, apiClient, groupId, GitlabRemotePagination{
+		Page:    1,
+		PerPage: page.PerPage,
+		Step:    "project",
+	})
+	if err != nil {
+		return
+	}
+	children = append(children, moreChild...)
 	return
 }
 
@@ -101,16 +106,18 @@ func listGitlabRemoteGroups(
 		// make users own account as a group
 		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject]{
 			Type:     api.RAS_ENTRY_TYPE_GROUP,
-			Id:       fmt.Sprintf("users/%v", apiClient.GetData("UserId")),
+			Id:       USERS_PREFIX + fmt.Sprintf("%v", apiClient.GetData("UserId")),
 			Name:     apiClient.GetData("UserName").(string),
 			FullName: apiClient.GetData("UserName").(string),
 		})
 	}
+	var parentId *string
 	if groupId == "" {
 		apiPath = "groups"
 		query.Set("top_level_only", "true")
 	} else {
 		apiPath = fmt.Sprintf("groups/%s/subgroups", groupId)
+		parentId = &groupId
 	}
 	res, err = apiClient.Get(apiPath, query, nil)
 	var resGroups []models.GroupResponse
@@ -119,6 +126,7 @@ func listGitlabRemoteGroups(
 		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject]{
 			Type:     api.RAS_ENTRY_TYPE_GROUP,
 			Id:       fmt.Sprintf("%v", group.Id),
+			ParentId: parentId,
 			Name:     group.Name,
 			FullName: group.FullPath,
 		})
@@ -142,12 +150,15 @@ func listGitlabRemoteProjects(
 	query.Set("archived", "false")
 	query.Set("min_access_level", "20")
 	//
-	if strings.HasPrefix(groupId, "users/") {
-		apiPath = fmt.Sprintf("%s/projects", groupId)
+	if strings.HasPrefix(groupId, USERS_PREFIX) {
+		apiPath = fmt.Sprintf("users/%s/projects", strings.TrimPrefix(groupId, USERS_PREFIX))
 	} else {
-		apiPath = fmt.Sprintf("/groups/%s/projects", groupId)
+		apiPath = fmt.Sprintf("groups/%s/projects", groupId)
 	}
 	res, err := apiClient.Get(apiPath, query, nil)
+	if err != nil {
+		return nil, nil, err
+	}
 	var resProjects []models.GitlabApiProject
 	errors.Must(api.UnmarshalResponse(res, &resProjects))
 	for _, project := range resProjects {
@@ -158,11 +169,19 @@ func listGitlabRemoteProjects(
 }
 
 func toProjectModel(project *models.GitlabApiProject) dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject] {
+	var parentId string
+	if project.Namespace.Kind == "user" {
+		parentId = USERS_PREFIX + fmt.Sprintf("%v", project.Owner.ID)
+	} else {
+		parentId = fmt.Sprintf("%v", project.Namespace.ID)
+	}
 	return dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject]{
 		Type:     api.RAS_ENTRY_TYPE_SCOPE,
 		Id:       fmt.Sprintf("%v", project.GitlabId),
+		ParentId: &parentId,
 		Name:     project.Name,
 		FullName: project.PathWithNamespace,
+		Data:     project.ConvertApiScope(),
 	}
 }
 

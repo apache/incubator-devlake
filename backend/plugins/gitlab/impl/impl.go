@@ -167,10 +167,9 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 				return nil, err
 			}
 			logger.Debug(fmt.Sprintf("Current project: %d", project.GitlabId))
-			i := project.ConvertApiScope()
-			scope = i.(*models.GitlabProject)
+			scope := project.ConvertApiScope()
 			scope.ConnectionId = op.ConnectionId
-			err = taskCtx.GetDal().CreateIfNotExist(&scope)
+			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {
 				return nil, err
 			}

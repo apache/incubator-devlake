@@ -26,45 +26,29 @@ import (
 )
 
 var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job]
 
 var basicRes context.BasicRes
-var scHelper *api.ScopeConfigHelper[models.JenkinsScopeConfig, *models.JenkinsScopeConfig]
+var dsHelper *api.DsHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.JenkinsConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.JenkinsConnection, models.JenkinsJob, JenkinsRemotePagination]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
+	dsHelper = api.NewDataSourceHelper[
+		models.JenkinsConnection,
+		models.JenkinsJob,
+		models.JenkinsScopeConfig,
+	](
+		br,
 		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "FullName",
-		ScopeIdColumnName:    "full_name",
-		RawScopeParamName:    "FullName",
-		SearchScopeParamName: "full_name",
-	}
-	scopeHelper = api.NewScopeHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
+		[]string{"full_name"},
+		func(c models.JenkinsConnection) models.JenkinsConnection {
+			return c.Sanitize()
+		},
+		nil,
 		nil,
 	)
-	remoteHelper = api.NewRemoteHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
-	scHelper = api.NewScopeConfigHelper[models.JenkinsScopeConfig, *models.JenkinsScopeConfig](
-		basicRes,
-		vld,
-		p.Name(),
-	)
+	raProxy = api.NewDsRemoteApiProxyHelper[models.JenkinsConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[models.JenkinsConnection, models.JenkinsJob, JenkinsRemotePagination](raProxy, listJenkinsRemoteScopes)
 }
