@@ -189,4 +189,6 @@ def add_missing_field_in_tool_azuredevops_gitrepositories(b: MigrationScriptBuil
 
 @migration(20231130163000, name="add queue_time field in _tool_azuredevops_builds")
 def add_queue_time_field_in_tool_azuredevops_builds(b: MigrationScriptBuilder):
-    b.add_column('_tool_azuredevops_builds', 'queue_time', 'datetime')
+    table = '_tool_azuredevops_builds'
+    b.execute(f'ALTER TABLE {table} ADD COLUMN queue_time timestamptz', Dialect.POSTGRESQL)
+    b.execute(f'ALTER TABLE {table} ADD COLUMN queue_time datetime', Dialect.MYSQL)
