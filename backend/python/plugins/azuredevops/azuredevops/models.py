@@ -24,8 +24,8 @@ from pydevlake import ScopeConfig, Field
 from pydevlake.model import ToolScope, ToolModel, Connection
 from pydevlake.pipeline_tasks import RefDiffOptions
 
-
 # needed to be able to run migrations
+from azuredevops.migrations import *
 
 
 class AzureDevOpsConnection(Connection):
