@@ -18,12 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Table } from 'antd';
+import { Table, message } from 'antd';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Dialog, ExternalLink, IconButton, toast } from '@/components';
+import { PageHeader, Dialog, ExternalLink, IconButton } from '@/components';
 import { getCron, cronPresets } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -77,7 +77,7 @@ export const ProjectHomePage = () => {
 
   const handleCreate = async () => {
     if (!validName(name)) {
-      toast.error('Please enter alphanumeric or underscore');
+      message.error('Please enter alphanumeric or underscore');
       return;
     }
 

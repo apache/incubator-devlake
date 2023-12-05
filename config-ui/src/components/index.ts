@@ -29,5 +29,4 @@ export * from './no-data';
 export * from './page-header';
 export * from './pagination';
 export * from './selector';
-export * from './toast';
 export * from './tooltip';
