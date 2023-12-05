@@ -26,7 +26,7 @@ export const JiraConfig: IPluginConfig = {
   plugin: 'jira',
   name: 'Jira',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 7,
+  sort: 8,
   connection: {
     docLink: DOC_URL.PLUGIN.JIRA.BASIS,
     fields: [
