@@ -18,34 +18,31 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
-		new(addHeadRepoIdFieldInGithubPr),
-		new(addEnableGraphqlForConnection),
-		new(addTransformationRule20221124),
-		new(concatOwnerAndName),
-		new(addStdTypeToIssue221230),
-		new(addConnectionIdToTransformationRule),
-		new(addEnvToRunAndJob),
-		new(addGithubCommitAuthorInfo),
-		new(fixRunNameToText),
-		new(addGithubMultiAuth),
-		new(renameTr2ScopeConfig),
-		new(addGithubIssueAssignee),
-		new(addFullName),
-		new(addRawParamTableForScope),
-		new(addDeploymentTable),
-		new(modifyGithubMilestone),
-		new(addEnvNamePattern),
-		new(modifyIssueTypeLength),
-	}
+var _ plugin.MigrationScript = (*modifyIssueTypeLength)(nil)
+
+type modifyIssueTypeLength struct{}
+
+type issue20231205 struct {
+	Type string `gorm:"type:varchar(500)"`
+}
+
+func (issue20231205) TableName() string {
+	return "_tool_github_issues"
+}
+
+func (script *modifyIssueTypeLength) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&issue20231205{})
+}
+
+func (*modifyIssueTypeLength) Version() uint64 {
+	return 20231205145125
+}
+
+func (*modifyIssueTypeLength) Name() string {
+	return "modify github issue type length from 100 to 500"
 }
