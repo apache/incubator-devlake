@@ -39,7 +39,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // ErrIgnoreAndContinue is a error which should be ignored
@@ -57,8 +56,8 @@ type ApiClient struct {
 	data       map[string]interface{}
 	data_mutex sync.Mutex
 
-	beforeRequest common.ApiClientBeforeRequest
-	afterResponse common.ApiClientAfterResponse
+	beforeRequest plugin.ApiClientBeforeRequest
+	afterResponse plugin.ApiClientAfterResponse
 	ctx           gocontext.Context
 	logger        log.Logger
 }
@@ -91,6 +90,17 @@ func NewApiClientFromConnection(
 			return authenticator.SetupAuthentication(req)
 		})
 	}
+
+	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
+		if res.StatusCode >= 400 {
+			bytes, err := io.ReadAll(res.Body)
+			if err != nil {
+				return errors.BadInput.Wrap(err, fmt.Sprintf("request failed with status code %d", res.StatusCode))
+			}
+			return errors.BadInput.New(fmt.Sprintf("request failed with status code %d, body: %s", res.StatusCode, string(bytes)))
+		}
+		return nil
+	})
 
 	return apiClient, nil
 }
@@ -224,23 +234,23 @@ func (apiClient *ApiClient) GetHeaders() map[string]string {
 }
 
 // GetBeforeFunction return beforeResponseFunction
-func (apiClient *ApiClient) GetBeforeFunction() common.ApiClientBeforeRequest {
+func (apiClient *ApiClient) GetBeforeFunction() plugin.ApiClientBeforeRequest {
 	return apiClient.beforeRequest
 }
 
 // SetBeforeFunction will set beforeResponseFunction
-func (apiClient *ApiClient) SetBeforeFunction(callback common.ApiClientBeforeRequest) {
+func (apiClient *ApiClient) SetBeforeFunction(callback plugin.ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
 }
 
 // GetAfterFunction return afterResponseFunction
-func (apiClient *ApiClient) GetAfterFunction() common.ApiClientAfterResponse {
+func (apiClient *ApiClient) GetAfterFunction() plugin.ApiClientAfterResponse {
 	return apiClient.afterResponse
 }
 
 // SetAfterFunction will set afterResponseFunction
 // don't call this function directly in collector, use Collector.AfterResponse instead.
-func (apiClient *ApiClient) SetAfterFunction(callback common.ApiClientAfterResponse) {
+func (apiClient *ApiClient) SetAfterFunction(callback plugin.ApiClientAfterResponse) {
 	apiClient.afterResponse = callback
 }
 
@@ -327,14 +337,15 @@ func (apiClient *ApiClient) Do(
 	if apiClient.beforeRequest != nil {
 		err = apiClient.beforeRequest(req)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running beforeRequest for %s", req.URL.String()))
+			apiClient.logError(err, "[api-client] beforeRequest returned error for %s", req.URL.String())
+			return nil, err
 		}
 	}
 	apiClient.logDebug("[api-client] %v %v", method, *uri)
 	res, err = errors.Convert01(apiClient.client.Do(req))
 	if err != nil {
 		apiClient.logError(err, "[api-client] failed to request %s with error", req.URL.String())
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error requesting %s", req.URL.String()))
+		return nil, err
 	}
 	// after receive
 	if apiClient.afterResponse != nil {
@@ -345,7 +356,8 @@ func (apiClient *ApiClient) Do(
 		}
 		if err != nil {
 			res.Body.Close()
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running afterRequest for %s", req.URL.String()))
+			apiClient.logError(err, "[api-client] afterResponse returned error for %s", req.URL.String())
+			return nil, err
 		}
 	}
 	return res, nil

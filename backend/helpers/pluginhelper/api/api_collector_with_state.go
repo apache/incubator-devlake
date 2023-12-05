@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // ApiCollectorStateManager save collector state in framework table
@@ -302,7 +301,7 @@ type FinalizableApiCollectorCommonArgs struct {
 	Header          func(reqData *RequestData, createdAfter *time.Time) (http.Header, errors.Error) // optional, build header for the request
 	RequestBody     func(reqData *RequestData) map[string]interface{}                               // optional, build request body for the request if the Method set to POST or PUT
 	MinTickInterval *time.Duration                                                                  // optional, minimum interval between two requests, some endpoints might have a more conservative rate limit than others within the same instance, you can mitigate this by setting a higher MinTickInterval to override the connection level rate limit.
-	AfterResponse   common.ApiClientAfterResponse                                                   // optional, hook to run after each response, would be called before the ResponseParser
+	AfterResponse   plugin.ApiClientAfterResponse                                                   // optional, hook to run after each response, would be called before the ResponseParser
 	ResponseParser  func(res *http.Response) ([]json.RawMessage, errors.Error)                      // required, parse the response body and return a list of entities
 }
 
