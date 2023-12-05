@@ -102,6 +102,7 @@ func (pa *pluginAPI) ListConnections(input *plugin.ApiResourceInput) (*plugin.Ap
 	conns := connections.UnwrapSlice()
 	if len(conns) == 0 {
 		conns = []interface{}{}
+		return &plugin.ApiResourceOutput{Body: conns}, nil
 	}
 	results, sanitizeErr := multiSanitizeConnections(conns)
 	if sanitizeErr != nil {
