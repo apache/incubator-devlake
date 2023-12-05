@@ -39,7 +39,7 @@ var ConvertCommitsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMITS_TABLE)
 	db := taskCtx.GetDal()
 	repoId := data.Options.FullName
 

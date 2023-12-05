@@ -46,7 +46,7 @@ type CommitsResponse struct {
 }
 
 func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMITS_TABLE)
 	repoId := data.Options.FullName
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{

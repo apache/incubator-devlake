@@ -18,13 +18,15 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"net/url"
+	"encoding/json"
+	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
+
+const RAW_BUILDS_TABLE = "bitbucket_server_api_builds"
 
 var CollectApiBuildsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiBuilds",
@@ -35,40 +37,32 @@ var CollectApiBuildsMeta = plugin.SubTaskMeta{
 }
 
 func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUILDS_TABLE)
 	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
 
-	iterator, err := GetPullRequestsIterator(taskCtx, collectorWithState)
+	iterator, err := GetCommitsIterator(taskCtx, collectorWithState)
 	if err != nil {
 		return err
 	}
 	defer iterator.Close()
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:             data.ApiClient,
-		PageSize:              100,
-		Input:                 iterator,
-		UrlTemplate:           "rest/build-status/1.0/commits/stats/{{ .Params.CommitSha }}",
-		GetNextPageCustomData: GetNextPageCustomData,
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("state", "all")
-			query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("sort", "created_on")
-			query.Set("fields", "values.hash,values.date,values.message,values.author.raw,values.author.user.username,values.author.user.account_id,values.links.self")
-
-			if reqData.CustomData != nil {
-				query.Set("page", reqData.CustomData.(string))
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Input:       iterator,
+		UrlTemplate: "rest/build-status/1.0/commits/stats/{{ .Input.CommitSha }}",
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+			var rawMessage json.RawMessage
+			err := decodeResponse(res, &rawMessage)
+			if err != nil {
+				return nil, err
 			}
-			return query, nil
+
+			return []json.RawMessage{rawMessage}, nil
 		},
-		ResponseParser: GetRawMessageFromResponse,
-		// some pr have no commit
-		// such as: https://bitbucket.org/amdatulabs/amdatu-kubernetes-deployer/pull-requests/21
-		AfterResponse: ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err

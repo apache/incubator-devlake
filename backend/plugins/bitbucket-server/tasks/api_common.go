@@ -41,8 +41,8 @@ type BitbucketServerInput struct {
 	BitbucketId int
 }
 
-type BitbucketUuidInput struct {
-	BitbucketId string
+type BitbucketServerStringInput struct {
+	CommitSha string
 }
 
 type BitbucketServerPagination struct {
@@ -170,10 +170,10 @@ func GetCommitsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.A
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{
-		dal.Select("bc.bitbucket_id"),
+		dal.Select("bc.commit_sha"),
 		dal.From("_tool_bitbucket_server_commits bc"),
 		dal.Where(
-			`bc.repo_id = ? and bpr.connection_id = ?`,
+			`bc.repo_id = ? and bc.connection_id = ?`,
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
@@ -187,7 +187,7 @@ func GetCommitsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.A
 		return nil, err
 	}
 
-	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerInput{}))
+	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerStringInput{}))
 }
 
 func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {

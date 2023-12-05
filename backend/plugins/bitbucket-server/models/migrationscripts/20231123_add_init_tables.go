@@ -14,6 +14,7 @@ func (script *addInitTables20231123) Up(basicRes context.BasicRes) errors.Error 
 		basicRes,
 		&models.BitbucketServerUser{},
 		&models.BitbucketServerCommit{},
+		&models.BitbucketServerBranch{},
 		&models.BitbucketServerConnection{},
 		&models.BitbucketServerPullRequest{},
 		&models.BitbucketServerPrComment{},

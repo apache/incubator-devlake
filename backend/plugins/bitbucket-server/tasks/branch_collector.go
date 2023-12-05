@@ -23,34 +23,34 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_COMMITS_TABLE = "bitbucket_server_api_commits"
+const RAW_BRANCHES_TABLE = "bitbucket_server_api_branches"
 
-var CollectApiCommitsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiCommits",
-	EntryPoint:       CollectApiCommits,
-	EnabledByDefault: false,
+var CollectApiBranchesMeta = plugin.SubTaskMeta{
+	Name:             "collectApiBranches",
+	EntryPoint:       CollectApiBranches,
+	EnabledByDefault: true,
 	Required:         false,
-	Description:      "Collect commits data from Bitbucket Server api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	Description:      "Collect Branches data from Bitbucket Server api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMITS_TABLE)
-
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		Incremental:        false,
-		UrlTemplate:        "rest/api/1.0/projects/{{ .Params.FullName }}/commits",
-		Query:              GetQuery,
-		GetTotalPages:      GetTotalPagesFromResponse,
-		ResponseParser:     GetRawMessageFromResponse,
-	})
-
+func CollectApiBranches(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BRANCHES_TABLE)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:      data.ApiClient,
+		PageSize:       50,
+		UrlTemplate:    "rest/api/1.0/projects/{{ .Params.FullName }}/branches",
+		GetTotalPages:  GetTotalPagesFromResponse,
+		ResponseParser: GetRawMessageFromResponse,
+	})
+	if err != nil {
+		return err
+	}
+
+	return collectorWithState.Execute()
 }

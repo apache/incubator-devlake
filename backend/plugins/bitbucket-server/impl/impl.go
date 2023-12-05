@@ -89,6 +89,8 @@ func (p BitbucketServer) Name() string {
 
 func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CollectApiBranchesMeta,
+
 		tasks.CollectApiPullRequestsMeta,
 		tasks.ExtractApiPullRequestsMeta,
 
@@ -99,10 +101,11 @@ func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectApiPrCommitsMeta,
 		tasks.ExtractApiPrCommitsMeta,
 
-		tasks.CollectApiBuildsMeta,
-
 		tasks.CollectApiCommitsMeta,
 		tasks.ExtractApiCommitsMeta,
+
+		tasks.CollectApiBuildsMeta,
+		tasks.ExtractApiBranchesMeta,
 
 		tasks.ConvertRepoMeta,
 		tasks.ConvertUsersMeta,
