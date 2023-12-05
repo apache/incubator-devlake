@@ -36,21 +36,29 @@ var CollectApiCommitsMeta = plugin.SubTaskMeta{
 
 func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMITS_TABLE)
-
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		Incremental:        false,
-		UrlTemplate:        "rest/api/1.0/projects/{{ .Params.FullName }}/commits",
-		Query:              GetQuery,
-		GetTotalPages:      GetTotalPagesFromResponse,
-		ResponseParser:     GetRawMessageFromResponse,
-	})
-
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	iterator, err := GetBranchesIterator(taskCtx, collectorWithState)
+	if err != nil {
+		return err
+	}
+	defer iterator.Close()
+
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:      data.ApiClient,
+		PageSize:       100,
+		Input:          iterator,
+		UrlTemplate:    "rest/api/1.0/projects/{{ .Params.FullName }}/commits?until={{ .Input.Branch }}",
+		Query:          GetQuery,
+		GetTotalPages:  GetTotalPagesFromResponse,
+		ResponseParser: GetRawMessageFromResponse,
+	})
+	if err != nil {
+		return err
+	}
+
+	return collectorWithState.Execute()
 }

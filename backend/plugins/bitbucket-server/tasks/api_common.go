@@ -41,7 +41,11 @@ type BitbucketServerInput struct {
 	BitbucketId int
 }
 
-type BitbucketServerStringInput struct {
+type BitbucketServerBranchInput struct {
+	Branch string
+}
+
+type BitbucketServerCommitInput struct {
 	CommitSha string
 }
 
@@ -166,6 +170,30 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	return rawMessages.Values, nil
 }
 
+func GetBranchesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*BitbucketTaskData)
+	clauses := []dal.Clause{
+		dal.Select("bb.branch"),
+		dal.From("_tool_bitbucket_server_branches bb"),
+		dal.Where(
+			`bb.repo_id = ? and bb.connection_id = ?`,
+			data.Options.FullName, data.Options.ConnectionId,
+		),
+	}
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
+	}
+
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, err
+	}
+
+	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerBranchInput{}))
+}
+
 func GetCommitsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
@@ -187,7 +215,7 @@ func GetCommitsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.A
 		return nil, err
 	}
 
-	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerStringInput{}))
+	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerCommitInput{}))
 }
 
 func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
