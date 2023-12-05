@@ -24,16 +24,18 @@ import (
 )
 
 type BitbucketServerCommit struct {
-	Sha           string `gorm:"primaryKey;type:varchar(40)"`
+	ConnectionId  uint64 `gorm:"primaryKey"`
+	RepoId        string `gorm:"primaryKey"` // PullRequestId is not unique across multiple repos of a connection
+	PullRequestId int    `gorm:"primaryKey;autoIncrement:false"`
+	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
 	AuthorId      int    `gorm:"type:varchar(255)"`
 	AuthorName    string `gorm:"type:varchar(255)"`
 	AuthorEmail   string `gorm:"type:varchar(255)"`
 	AuthoredDate  time.Time
 	CommittedDate time.Time
 	Message       string
-	Url           string `gorm:"type:varchar(255)"`
-	Additions     int    `gorm:"comment:Added lines of code"`
-	Deletions     int    `gorm:"comment:Deleted lines of code"`
+	Additions     int `gorm:"comment:Added lines of code"`
+	Deletions     int `gorm:"comment:Deleted lines of code"`
 	common.NoPKModel
 }
 

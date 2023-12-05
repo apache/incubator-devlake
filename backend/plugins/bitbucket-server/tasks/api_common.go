@@ -166,6 +166,30 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	return rawMessages.Values, nil
 }
 
+func GetCommitsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*BitbucketTaskData)
+	clauses := []dal.Clause{
+		dal.Select("bc.bitbucket_id"),
+		dal.From("_tool_bitbucket_server_commits bc"),
+		dal.Where(
+			`bc.repo_id = ? and bpr.connection_id = ?`,
+			data.Options.FullName, data.Options.ConnectionId,
+		),
+	}
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
+	}
+
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, err
+	}
+
+	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerInput{}))
+}
+
 func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)

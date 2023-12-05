@@ -46,7 +46,7 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.From("_tool_bitbucket_server_commits c"),
 		dal.Join(`left join _tool_bitbucket_server_repo_commits rc on (
-			rc.commit_sha = c.sha
+			rc.commit_sha = c.commit_sha
 		)`),
 		dal.Select("c.*"),
 		dal.Where("rc.repo_id = ? AND rc.connection_id = ?", repoId, data.Options.ConnectionId),
@@ -67,7 +67,7 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketCommit := inputRow.(*models.BitbucketServerCommit)
 			domainCommit := &code.Commit{
-				Sha:           bitbucketCommit.Sha,
+				Sha:           bitbucketCommit.CommitSha,
 				Message:       bitbucketCommit.Message,
 				Additions:     bitbucketCommit.Additions,
 				Deletions:     bitbucketCommit.Deletions,

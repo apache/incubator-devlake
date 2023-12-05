@@ -93,10 +93,13 @@ func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractApiPullRequestsMeta,
 
 		tasks.CollectApiPrActivitiesMeta,
+
 		tasks.ExtractApiPrCommentsMeta,
 
 		tasks.CollectApiPrCommitsMeta,
 		tasks.ExtractApiPrCommitsMeta,
+
+		tasks.CollectApiBuildsMeta,
 
 		tasks.CollectApiCommitsMeta,
 		tasks.ExtractApiCommitsMeta,

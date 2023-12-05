@@ -78,6 +78,8 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
+			bitbucketCommit.ConnectionId = data.Options.ConnectionId
+			bitbucketCommit.RepoId = repoId
 			results = append(results, bitbucketCommit)
 
 			bitbucketPullRequestCommit := &models.BitbucketServerPrCommit{
@@ -106,14 +108,13 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 func convertPullRequestCommit(prCommit *ApiPrCommitsResponse, connId uint64) (*models.BitbucketServerCommit, errors.Error) {
 	bitbucketCommit := &models.BitbucketServerCommit{
-		Sha:           prCommit.BitbucketId,
+		CommitSha:     prCommit.BitbucketId,
 		Message:       prCommit.Message,
 		AuthorId:      prCommit.Author.BitbucketId,
 		AuthorName:    prCommit.Author.Name,
 		AuthorEmail:   prCommit.Author.EmailAddress,
 		AuthoredDate:  time.UnixMilli(prCommit.AuthorTimestamp),
 		CommittedDate: time.UnixMilli(prCommit.CommitterTimestamp),
-		Url:           "",
 	}
 	return bitbucketCommit, nil
 }

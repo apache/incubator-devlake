@@ -37,30 +37,17 @@ var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 }
 
 type CommitsResponse struct {
-	//Type string    `json:"type"`
-	Sha  string    `json:"hash"`
-	Date time.Time `json:"date"`
-	//Author *models.BitbucketAccount
-	Message string `json:"message"`
-	Links   struct {
-		Self     struct{ Href string }
-		Html     struct{ Href string }
-		Diff     struct{ Href string }
-		Approve  struct{ Href string }
-		Comments struct{ Href string }
-	} `json:"links"`
-	Parents []struct {
-		Type  string
-		Hash  string
-		Links struct {
-			Self struct{ Href string }
-			Html struct{ Href string }
-		}
-	} `json:"parents"`
+	BitbucketId        string                `json:"id"`
+	DisplayId          string                `json:"displayId"`
+	Author             BitbucketUserResponse `json:"author"`
+	Message            string                `json:"message"`
+	AuthorTimestamp    int64                 `json:"authorTimestamp"`
+	CommitterTimestamp int64                 `json:"committerTimestamp"`
 }
 
 func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
+	repoId := data.Options.FullName
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -70,17 +57,17 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			if commit.Sha == "" {
-				return nil, nil
-			}
 			results := make([]interface{}, 0, 4)
 
 			bitbucketCommit := &models.BitbucketServerCommit{
-				Sha:           commit.Sha,
+				ConnectionId:  data.Options.ConnectionId,
+				RepoId:        repoId,
+				CommitSha:     commit.BitbucketId,
+				AuthorName:    commit.Author.Name,
+				AuthorEmail:   commit.Author.EmailAddress,
 				Message:       commit.Message,
-				AuthoredDate:  commit.Date,
-				Url:           commit.Links.Self.Href,
-				CommittedDate: commit.Date,
+				AuthoredDate:  time.UnixMilli(commit.AuthorTimestamp),
+				CommittedDate: time.UnixMilli(commit.CommitterTimestamp),
 			}
 
 			//if commit.Author != nil {
@@ -92,7 +79,7 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			bitbucketRepoCommit := &models.BitbucketServerRepoCommit{
 				ConnectionId: data.Options.ConnectionId,
 				RepoId:       data.Options.FullName,
-				CommitSha:    commit.Sha,
+				CommitSha:    commit.BitbucketId,
 			}
 
 			results = append(results, bitbucketCommit)
