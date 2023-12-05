@@ -96,5 +96,6 @@ func All() []plugin.MigrationScript {
 		new(addSyncPolicy),
 		new(addIssueCustomArrayField),
 		new(removePositionFromPullRequestComments),
+		new(modifyIssueOriginalTypeLength),
 	}
 }
