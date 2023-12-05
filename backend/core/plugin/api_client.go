@@ -24,11 +24,24 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 )
 
+// ApiAsyncCallback FIXME ...
+type ApiAsyncCallback func(*http.Response) errors.Error
+
+// ApiClientBeforeRequest FIXME ...
+type ApiClientBeforeRequest func(req *http.Request) errors.Error
+
+// ApiClientAfterResponse FIXME ...
+type ApiClientAfterResponse func(res *http.Response) errors.Error
+
 // ApiClientAbstract defines the functionalities needed by all plugins for Synchronized API Request
 type ApiClient interface {
 	SetData(name string, data interface{})
 	GetData(name string) interface{}
 	SetHeaders(headers map[string]string)
+	SetBeforeFunction(callback ApiClientBeforeRequest)
+	GetBeforeFunction() ApiClientBeforeRequest
+	SetAfterFunction(callback ApiClientAfterResponse)
+	GetAfterFunction() ApiClientAfterResponse
 	Get(path string, query url.Values, headers http.Header) (*http.Response, errors.Error)
 	Post(path string, query url.Values, body interface{}, headers http.Header) (*http.Response, errors.Error)
 }
