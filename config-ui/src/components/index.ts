@@ -19,7 +19,6 @@
 export * from './action';
 export * from './alert';
 export * from './buttons';
-export * from './card';
 export * from './dialog';
 export * from './divider';
 export * from './form';
