@@ -30,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type genRegexReq struct {
@@ -64,7 +63,7 @@ type repo struct {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs [POST]
 func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Create(input)
+	return dsHelper.ScopeConfigApi.Post(input)
 }
 
 // UpdateScopeConfig update scope config for Jira
@@ -80,7 +79,7 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [PATCH]
 func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Update(input)
+	return dsHelper.ScopeConfigApi.Patch(input)
 }
 
 // GetScopeConfig return one scope config
@@ -94,7 +93,7 @@ func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [GET]
 func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Get(input)
+	return dsHelper.ScopeConfigApi.GetDetail(input)
 }
 
 // GetScopeConfigList return all scope configs
@@ -109,7 +108,7 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs [GET]
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.List(input)
+	return dsHelper.ScopeConfigApi.GetAll(input)
 }
 
 // DeleteScopeConfig delete a scope config
@@ -123,7 +122,7 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [DELETE]
 func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Delete(input)
+	return dsHelper.ScopeConfigApi.Delete(input)
 }
 
 // GetApplicationTypes return issue application types
@@ -137,8 +136,7 @@ func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/application-types [GET]
 func GetApplicationTypes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connection models.JiraConnection
-	err := connectionHelper.First(&connection, input.Params)
+	connection, err := dsHelper.ConnApi.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +145,7 @@ func GetApplicationTypes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOut
 		return nil, errors.BadInput.New("key is empty")
 	}
 
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
@@ -202,8 +200,7 @@ func GetApplicationTypes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOut
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/dev-panel-commits [GET]
 func GetCommitsURLs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connection models.JiraConnection
-	err := connectionHelper.First(&connection, input.Params)
+	connection, err := dsHelper.ConnApi.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +215,7 @@ func GetCommitsURLs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.BadInput.New("applicationType is empty")
 	}
 	// get issue ID from issue key
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
