@@ -31,12 +31,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
-type ScopeRes struct {
-	models.JiraBoard
-	api.ScopeResDoc[models.JiraScopeConfig]
-}
-
-type ScopeReq api.ScopeReq[models.JiraBoard]
+type PutScopesReqBody api.PutScopesReqBody[models.JiraBoard]
+type ScopeDetail api.ScopeDetail[models.JiraBoard, models.JiraScopeConfig]
 
 // PutScope create or update jira board
 // @Summary create or update jira board
@@ -45,13 +41,13 @@ type ScopeReq api.ScopeReq[models.JiraBoard]
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param searchTerm query string false "search term for scope name"
-// @Param scope body ScopeReq true "json"
+// @Param scope body PutScopesReqBody true "json"
 // @Success 200  {object} []models.JiraBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
 // UpdateScope patch to jira board
@@ -67,7 +63,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+	return dsHelper.ScopeApi.Patch(input)
 }
 
 // GetScopeList get Jira boards
@@ -78,12 +74,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
 // GetScope get one Jira board
@@ -92,12 +88,12 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/jira
 // @Param connectionId path int false "connection ID"
 // @Param scopeId path int false "board ID"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -113,7 +109,7 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }
 
 func GetApiJira(op *tasks.JiraOptions, apiClient plugin.ApiClient) (*apiv2models.Board, errors.Error) {

@@ -151,10 +151,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.JiraConnection{}
-	err := connectionHelper.First(connection, input.Params)
+	connection, err := dsHelper.ConnApi.FindByPk(input)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "find connection from db")
+		return nil, err
 	}
 	// test connection
 	result, err := testConnection(context.TODO(), connection.JiraConn)
@@ -173,13 +172,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// update from request and save to database
-	connection := &models.JiraConnection{}
-	err := connectionHelper.Create(connection, input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.Post(input)
 }
 
 // @Summary patch jira connection
@@ -191,12 +184,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.JiraConnection{}
-	err := connectionHelper.Patch(connection, input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
+	return dsHelper.ConnApi.Patch(input)
 }
 
 // @Summary delete a jira connection
@@ -208,14 +196,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	conn := &models.JiraConnection{}
-	output, err := connectionHelper.Delete(conn, input)
-	if err != nil {
-		return output, err
-	}
-	output.Body = conn.Sanitize()
-	return output, nil
-
+	return dsHelper.ConnApi.Delete(input)
 }
 
 // @Summary get all jira connections
@@ -226,15 +207,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connections []models.JiraConnection
-	err := connectionHelper.List(&connections)
-	if err != nil {
-		return nil, err
-	}
-	for idx, c := range connections {
-		connections[idx] = c.Sanitize()
-	}
-	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.GetAll(input)
 }
 
 // @Summary get jira connection detail
@@ -245,10 +218,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.JiraConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
+	return dsHelper.ConnApi.GetDetail(input)
 }
