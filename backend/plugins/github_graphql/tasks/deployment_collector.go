@@ -23,6 +23,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
@@ -122,7 +123,20 @@ func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			return query.Repository.Deployments.PageInfo, nil
 		},
 		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
-			return nil, nil
+			query := iQuery.(*GraphqlQueryDeploymentWrapper)
+			deployments := query.Repository.Deployments.Deployments
+			isFinish := false
+			for _, rawL := range deployments {
+				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
+					isFinish = true
+					break
+				}
+			}
+			if isFinish {
+				return nil, api.ErrFinishCollect
+			} else {
+				return nil, nil
+			}
 		},
 	})
 	if err != nil {

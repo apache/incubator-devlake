@@ -35,7 +35,7 @@ var ExtractPrsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractPrs,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
