@@ -49,6 +49,9 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		},
 		nil,
 		nil,
+		nil,
+		nil,
+		nil,
 	)
 	raProxy = api.NewDsRemoteApiProxyHelper[models.JiraConnection](dsHelper.ConnApi.ModelApiHelper)
 	raScopeList = api.NewDsRemoteApiScopeListHelper[models.JiraConnection, models.JiraBoard, JiraRemotePagination](raProxy, listJiraRemoteScopes)

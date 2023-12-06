@@ -135,7 +135,7 @@ func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
 }
 
 func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	model := new(M)
+	var model *M
 	var err errors.Error
 	if self.customPatch == nil {
 		model, err = self.FindByPk(input)

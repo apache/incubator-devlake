@@ -129,9 +129,9 @@ func customPatch(modified, existed *models.GithubConnection) (merged *models.Git
 				mergedToken = append(mergedToken, token)
 				mergedTokenMap[token] = struct{}{}
 			}
-		} else {
-			// case 2: not found, deleted or updated, remove it
 		}
+		// else case 2: not found, deleted or updated, remove it
+
 		// check sanitized token
 		if _, ok := modifiedTokenMap[sanitizeToken]; ok {
 			// case 1: find in modified tokens, keep it
@@ -139,9 +139,8 @@ func customPatch(modified, existed *models.GithubConnection) (merged *models.Git
 				mergedToken = append(mergedToken, token)
 				mergedTokenMap[token] = struct{}{}
 			}
-		} else {
-			// case 2: not found, deleted or updated, remove it
 		}
+		// else: case 2: not found, deleted or updated, remove it
 	}
 	//fmt.Printf("debug, after checking exist tokens, merged tokens: %+v, token map: %+v \n", mergedToken, mergedTokenMap)
 	for token, sanitizeToken := range modifiedTokenMap {
