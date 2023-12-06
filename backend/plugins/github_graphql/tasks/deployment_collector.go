@@ -23,7 +23,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
@@ -133,7 +132,7 @@ func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 			}
 			if isFinish {
-				return nil, api.ErrFinishCollect
+				return nil, helper.ErrFinishCollect
 			} else {
 				return nil, nil
 			}
