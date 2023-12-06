@@ -17,10 +17,11 @@
  */
 
 import { useState, useMemo } from 'react';
+import { Modal } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { useAppSelector } from '@/app/hook';
-import { Dialog, FormItem, Selector, Buttons } from '@/components';
+import { FormItem, Selector, Buttons } from '@/components';
 import { selectAllConnections } from '@/features';
 import { DataScopeSelect } from '@/plugins';
 import { IConnection } from '@/types';
@@ -52,7 +53,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
   };
 
   return (
-    <Dialog style={{ width: 820 }} isOpen title={`Add a Connection - Step ${step}`} footer={null} onCancel={onCancel}>
+    <Modal open width={820} centered title={`Add a Connection - Step ${step}`} footer={null} onCancel={onCancel}>
       {step === 1 && (
         <FormItem
           label="Data Connections"
@@ -82,6 +83,6 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
           onSubmit={handleSubmit}
         />
       )}
-    </Dialog>
+    </Modal>
   );
 };

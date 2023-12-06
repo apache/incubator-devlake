@@ -17,10 +17,11 @@
  */
 
 import { useState, useMemo } from 'react';
+import { Modal } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { Dialog, FormItem, CopyText, ExternalLink, Message } from '@/components';
+import { FormItem, CopyText, ExternalLink, Message } from '@/components';
 import { selectWebhook, renewWebhookApiKey } from '@/features';
 import { IWebhook } from '@/types';
 import { operator } from '@/utils';
@@ -63,7 +64,7 @@ const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
 };
 
 export const ViewDialog = ({ initialId, onCancel }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [operating, setOperating] = useState(false);
   const [apiKey, setApiKey] = useState('');
 
@@ -80,12 +81,12 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
 
     if (success) {
       setApiKey(res.apiKey);
-      setIsOpen(false);
+      setOpen(false);
     }
   };
 
   return (
-    <Dialog style={{ width: 820 }} isOpen title="View Webhook" footer={null} onCancel={onCancel}>
+    <Modal open width={820} centered title="View Webhook" footer={null} onCancel={onCancel}>
       <S.Wrapper>
         <p>
           Copy the following CURL commands to your issue tracking or CI/CD tools to push `Incidents` and `Deployments`
@@ -127,7 +128,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
           subLabel="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."
         >
           {!apiKey ? (
-            <Button intent={Intent.PRIMARY} text="Revoke and generate a new key" onClick={() => setIsOpen(true)} />
+            <Button intent={Intent.PRIMARY} text="Revoke and generate a new key" onClick={() => setOpen(true)} />
           ) : (
             <>
               <S.ApiKey>
@@ -141,18 +142,21 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
           )}
         </FormItem>
       </S.Wrapper>
-      <Dialog
-        style={{ width: 820 }}
-        isOpen={isOpen}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Are you sure you want to revoke the previous API key and  generate a new one?"
-        cancelText="Go Back"
         okText="Confirm"
-        okLoading={operating}
-        onCancel={() => setIsOpen(false)}
+        cancelText="Go Back"
+        okButtonProps={{
+          loading: operating,
+        }}
+        onCancel={() => setOpen(false)}
         onOk={handleGenerateNewKey}
       >
         <Message content="Once this action is done, the previous API key will become invalid and you will need to enter the new key in the application that uses this Webhook API." />
-      </Dialog>
-    </Dialog>
+      </Modal>
+    </Modal>
   );
 };

@@ -18,11 +18,11 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, message } from 'antd';
+import { Card, Modal, message } from 'antd';
 import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { FormItem, Buttons, Dialog } from '@/components';
+import { FormItem, Buttons } from '@/components';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
@@ -39,7 +39,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(false);
   const [operating, setOperating] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -81,11 +81,11 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   };
 
   const handleShowDeleteDialog = () => {
-    setIsOpen(true);
+    setOpen(true);
   };
 
   const handleHideDeleteDialog = () => {
-    setIsOpen(false);
+    setOpen(false);
   };
 
   const handleDelete = async () => {
@@ -119,12 +119,15 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
       <Buttons position="bottom" align="center">
         <Button intent={Intent.DANGER} text="Delete Project" onClick={handleShowDeleteDialog} />
       </Buttons>
-      <Dialog
-        isOpen={isOpen}
-        style={{ width: 820 }}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Are you sure you want to delete this Project?"
         okText="Confirm"
-        okLoading={operating}
+        okButtonProps={{
+          loading: operating,
+        }}
         onCancel={handleHideDeleteDialog}
         onOk={handleDelete}
       >
@@ -135,7 +138,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
             this Connection.
           </span>
         </S.DialogBody>
-      </Dialog>
+      </Modal>
     </>
   );
 };

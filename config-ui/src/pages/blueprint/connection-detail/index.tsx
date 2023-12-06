@@ -18,12 +18,12 @@
 
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Table } from 'antd';
+import { Table, Modal } from 'antd';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
 import API from '@/api';
-import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Dialog } from '@/components';
+import { PageLoading, PageHeader, ExternalLink, Message, Buttons } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
 import { DataScopeSelect, getPluginConfig, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
@@ -34,7 +34,7 @@ import * as S from './styled';
 
 export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [operating, setOperating] = useState(false);
 
   const { pname, bid, unique } = useParams() as { pname?: string; bid?: string; unique: string };
@@ -91,8 +91,8 @@ export const BlueprintConnectionDetailPage = () => {
 
   const { blueprint, connection, scopes } = data;
 
-  const handleShowDataScope = () => setIsOpen(true);
-  const handleHideDataScope = () => setIsOpen(false);
+  const handleShowDataScope = () => setOpen(true);
+  const handleHideDataScope = () => setOpen(false);
 
   const handleRunBP = async (skipCollectors: boolean) => {
     const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync: false }), {
@@ -234,13 +234,7 @@ export const BlueprintConnectionDetailPage = () => {
         ]}
         dataSource={scopes}
       />
-      <Dialog
-        isOpen={isOpen}
-        title="Manage Data Scope"
-        footer={null}
-        style={{ width: 820 }}
-        onCancel={handleHideDataScope}
-      >
+      <Modal open={open} width={820} centered title="Manage Data Scope" footer={null} onCancel={handleHideDataScope}>
         <DataScopeSelect
           plugin={connection.plugin}
           connectionId={connection.id}
@@ -249,7 +243,7 @@ export const BlueprintConnectionDetailPage = () => {
           onCancel={handleHideDataScope}
           onSubmit={handleChangeDataScope}
         />
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };
