@@ -38,6 +38,7 @@ import (
 const (
 	PLUGIN_NAME     = "fake"
 	TOKEN           = "this_is_a_valid_token"
+	EMPTY_TOKEN     = ""
 	FAKE_PLUGIN_DIR = "python/test/fakeplugin"
 )
 

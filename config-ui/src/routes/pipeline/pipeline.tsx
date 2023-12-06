@@ -16,8 +16,9 @@
  *
  */
 import { useParams } from 'react-router-dom';
+import { Card } from 'antd';
 
-import { PageHeader, Card } from '@/components';
+import { PageHeader } from '@/components';
 
 import { PipelineInfo, PipelineTasks } from './components';
 

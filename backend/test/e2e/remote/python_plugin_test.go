@@ -34,7 +34,7 @@ func TestCreateConnection(t *testing.T) {
 
 	conns := client.ListConnections(PLUGIN_NAME)
 	require.Equal(t, 1, len(conns))
-	require.Equal(t, TOKEN, conns[0].Token)
+	require.Equal(t, EMPTY_TOKEN, conns[0].Token)
 }
 
 func TestDeleteConnection(t *testing.T) {
@@ -44,7 +44,7 @@ func TestDeleteConnection(t *testing.T) {
 
 	conns := client.ListConnections(PLUGIN_NAME)
 	require.Equal(t, 1, len(conns))
-	require.Equal(t, TOKEN, conns[0].Token)
+	require.Equal(t, EMPTY_TOKEN, conns[0].Token)
 	refs := client.DeleteConnection(PLUGIN_NAME, conns[0].ID)
 	require.Equal(t, 0, len(refs.Projects))
 	require.Equal(t, 0, len(refs.Blueprints))
@@ -55,7 +55,7 @@ func TestDeleteConnection_Conflict(t *testing.T) {
 	params := CreateTestBlueprints(t, client, 1)
 	conns := client.ListConnections(PLUGIN_NAME)
 	require.Equal(t, 1, len(conns))
-	require.Equal(t, TOKEN, conns[0].Token)
+	require.Equal(t, EMPTY_TOKEN, conns[0].Token)
 	refs := client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(PLUGIN_NAME, params.connection.ID)
 	require.Equal(t, 1, len(refs.Projects))
 	require.Equal(t, 1, len(refs.Blueprints))

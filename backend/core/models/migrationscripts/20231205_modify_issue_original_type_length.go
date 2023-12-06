@@ -15,18 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package common
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"net/http"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// ApiAsyncCallback FIXME ...
-type ApiAsyncCallback func(*http.Response) errors.Error
+var _ plugin.MigrationScript = (*modifyIssueOriginalTypeLength)(nil)
 
-// ApiClientBeforeRequest FIXME ...
-type ApiClientBeforeRequest func(req *http.Request) errors.Error
+type modifyIssueOriginalTypeLength struct{}
 
-// ApiClientAfterResponse FIXME ...
-type ApiClientAfterResponse func(res *http.Response) errors.Error
+type issue20231205 struct {
+	OriginalType string `gorm:"type:varchar(500)"`
+}
+
+func (issue20231205) TableName() string {
+	return "issues"
+}
+
+func (script *modifyIssueOriginalTypeLength) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&issue20231205{})
+}
+
+func (*modifyIssueOriginalTypeLength) Version() uint64 {
+	return 20231205155129
+}
+
+func (*modifyIssueOriginalTypeLength) Name() string {
+	return "modify issues original_type length from 100 to 500"
+}

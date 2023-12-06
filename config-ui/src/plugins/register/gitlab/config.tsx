@@ -26,7 +26,7 @@ export const GitLabConfig: IPluginConfig = {
   plugin: 'gitlab',
   name: 'GitLab',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 5,
+  sort: 6,
   connection: {
     docLink: DOC_URL.PLUGIN.GITLAB.BASIS,
     initialValues: {

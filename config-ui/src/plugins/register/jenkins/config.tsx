@@ -25,7 +25,7 @@ export const JenkinsConfig: IPluginConfig = {
   plugin: 'jenkins',
   name: 'Jenkins',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 6,
+  sort: 7,
   connection: {
     docLink: DOC_URL.PLUGIN.JENKINS.BASIS,
     fields: [

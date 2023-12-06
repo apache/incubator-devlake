@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -165,7 +166,19 @@ func (c *ConnectionApiHelper) Delete(connection interface{}, input *plugin.ApiRe
 			Data:    refs,
 		}, Status: err.GetType().GetHttpCode()}, nil
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	data, marshalErr := json.Marshal(connection)
+	if marshalErr != nil {
+		return nil, errors.Convert(marshalErr)
+	}
+	result := make(map[string]interface{})
+
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, errors.Convert(err)
+	}
+	if _, ok := result["token"]; ok {
+		result["token"] = ""
+	}
+	return &plugin.ApiResourceOutput{Body: result}, err
 }
 
 func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) errors.Error {

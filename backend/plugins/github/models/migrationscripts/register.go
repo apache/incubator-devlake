@@ -46,5 +46,6 @@ func All() []plugin.MigrationScript {
 		new(addDeploymentTable),
 		new(modifyGithubMilestone),
 		new(addEnvNamePattern),
+		new(modifyIssueTypeLength),
 	}
 }

@@ -72,7 +72,7 @@ func (p GitlabProject) ScopeParams() interface{} {
 }
 
 // Convert the API response to our DB model instance
-func (gitlabApiProject GitlabApiProject) ConvertApiScope() plugin.ToolLayerScope {
+func (gitlabApiProject GitlabApiProject) ConvertApiScope() *GitlabProject {
 	p := &GitlabProject{}
 	p.GitlabId = gitlabApiProject.GitlabId
 	p.Name = gitlabApiProject.Name
@@ -124,6 +124,10 @@ type GitlabApiProject struct {
 		FullPath string `json:"full_path"`
 		ParentID any    `json:"parent_id"`
 	} `json:"namespace"`
+	Owner struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"owner"`
 }
 
 type Permissions struct {

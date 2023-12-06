@@ -26,7 +26,7 @@ export const OpsgenieConfig: IPluginConfig = {
   plugin: 'opsgenie',
   name: 'Opsgenie',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 8,
+  sort: 9,
   connection: {
     docLink: 'TODO',
     initialValues: {

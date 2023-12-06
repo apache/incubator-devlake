@@ -247,44 +247,43 @@ func toRepoModel(r *repo) dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo] 
 	}
 }
 
-// RemoteScopes list all available scope for users
-// @Summary list all available scope for users
-// @Description list all available scope for users
-// @Tags plugins/github
+// RemoteScopes list all available scopes on the remote server
+// @Summary list all available scopes on the remote server
+// @Description list all available scopes on the remote server
 // @Accept application/json
-// @Param connectionId path int true "connection ID"
-// @Param groupId query string false "organization"
-// @Success 200  {object} api.RemoteScopesOutput
+// @Param connectionId path int false "connection ID"
+// @Param groupId query string false "group ID"
+// @Param pageToken query string false "page Token"
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Success 200  {object} dsmodels.DsRemoteApiScopeList[models.GithubRepo]
+// @Tags plugins/github
 // @Router /plugins/github/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raScopeList.Get(input)
 }
 
-// SearchRemoteScopes use the Search API and only return project
-// @Summary use the Search API and only return project
-// @Description use the Search API and only return project
-// @Tags plugins/github
+// SearchRemoteScopes searches scopes on the remote server
+// @Summary searches scopes on the remote server
+// @Description searches scopes on the remote server
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param search query string false "search"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
-// @Success 200  {object} api.SearchRemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Success 200  {object} dsmodels.DsRemoteApiScopeList[models.GithubRepo] "the parentIds are always null"
+// @Tags plugins/github
 // @Router /plugins/github/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raScopeSearch.Get(input)
 }
 
-// Proxy is a proxy to Github API
-// @Summary Proxy to Github API
-// @Description Proxy to Github API
-// @Tags plugins/github
+// @Summary Remote server API proxy
+// @Description Forward API requests to the specified remote server
 // @Param connectionId path int true "connection ID"
-// @Param path path string true "path to Github API"
+// @Param path path string true "path to a API endpoint"
 // @Router /plugins/github/connections/{connectionId}/proxy/{path} [GET]
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raProxy.Proxy(input)

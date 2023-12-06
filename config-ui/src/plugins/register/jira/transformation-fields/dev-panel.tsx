@@ -17,10 +17,11 @@
  */
 
 import { useEffect, useState } from 'react';
+import { message } from 'antd';
 import { InputGroup, Button, RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Dialog, FormItem, toast } from '@/components';
+import { Dialog, FormItem } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
 import { operator } from '@/utils';
 
@@ -91,7 +92,7 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
       setApplicationTypes(res);
       setApplicationType(res[0]);
     } else {
-      toast.error('Cannot find the Jira issue, please input the right issue key.');
+      message.error('Cannot find the Jira issue, please input the right issue key.');
     }
   };
 

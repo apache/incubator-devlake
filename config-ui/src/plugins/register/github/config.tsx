@@ -28,7 +28,7 @@ export const GitHubConfig: IPluginConfig = {
   plugin: 'github',
   name: 'GitHub',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 4,
+  sort: 5,
   connection: {
     docLink: DOC_URL.PLUGIN.GITHUB.BASIS,
     initialValues: {
@@ -67,6 +67,7 @@ export const GitHubConfig: IPluginConfig = {
           />
         ) : (
           <GithubApp
+            key="github-app"
             endpoint={values.endpoint}
             proxy={values.proxy}
             initialValue={initialValues ? pick(initialValues, ['appId', 'secretKey', 'installationId']) : {}}

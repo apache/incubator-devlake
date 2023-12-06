@@ -16,8 +16,9 @@
  *
  */
 
+import { Card } from 'antd';
+
 import Img from '@/images/no-data.svg';
-import { Card } from '@/components';
 
 import styled from 'styled-components';
 

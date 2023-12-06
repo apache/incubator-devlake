@@ -18,11 +18,12 @@
 
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card } from 'antd';
 import { Icon, Tag, Button, Intent, Colors, IconName } from '@blueprintjs/core';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Card, Buttons } from '@/components';
+import { Buttons } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 
 export const Offline = () => {

@@ -30,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // HttpMinStatusRetryCode is which status will retry
@@ -152,7 +151,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 	query url.Values,
 	body interface{},
 	header http.Header,
-	handler common.ApiAsyncCallback,
+	handler plugin.ApiAsyncCallback,
 	retry int,
 ) {
 	var request func() errors.Error
@@ -224,7 +223,7 @@ func (apiClient *ApiAsyncClient) DoGetAsync(
 	path string,
 	query url.Values,
 	header http.Header,
-	handler common.ApiAsyncCallback,
+	handler plugin.ApiAsyncCallback,
 ) {
 	apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
 }
@@ -235,7 +234,7 @@ func (apiClient *ApiAsyncClient) DoPostAsync(
 	query url.Values,
 	body interface{},
 	header http.Header,
-	handler common.ApiAsyncCallback,
+	handler plugin.ApiAsyncCallback,
 ) {
 	apiClient.DoAsync(http.MethodPost, path, query, body, header, handler, 0)
 }
@@ -247,14 +246,14 @@ func (apiClient *ApiAsyncClient) GetNumOfWorkers() int {
 
 // RateLimitedApiClient FIXME ...
 type RateLimitedApiClient interface {
-	DoGetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
-	DoPostAsync(path string, query url.Values, body interface{}, header http.Header, handler common.ApiAsyncCallback)
+	DoGetAsync(path string, query url.Values, header http.Header, handler plugin.ApiAsyncCallback)
+	DoPostAsync(path string, query url.Values, body interface{}, header http.Header, handler plugin.ApiAsyncCallback)
 	WaitAsync() errors.Error
 	HasError() bool
 	NextTick(task func() errors.Error)
 	GetNumOfWorkers() int
-	GetAfterFunction() common.ApiClientAfterResponse
-	SetAfterFunction(callback common.ApiClientAfterResponse)
+	GetAfterFunction() plugin.ApiClientAfterResponse
+	SetAfterFunction(callback plugin.ApiClientAfterResponse)
 	Reset(d time.Duration)
 	GetTickInterval() time.Duration
 	Release()
