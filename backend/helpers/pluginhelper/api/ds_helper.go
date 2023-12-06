@@ -47,13 +47,17 @@ func NewDataSourceHelper[
 	connectionSterilizer func(c C) C,
 	scopeSterilizer func(s S) S,
 	scopeConfigSterilizer func(s SC) SC,
+
+	connectionCustomPatch func(modified, existed *C) (merged *C),
+	scopeCustomPatch func(modified, existed *S) (merged *S),
+	scopeConfigCustomPatch func(modified, existed *SC) (merged *SC),
 ) *DsHelper[C, S, SC] {
 	connSrv := srvhelper.NewConnectionSrvHelper[C, S, SC](basicRes, pluginName)
-	connApi := NewDsConnectionApiHelper[C, S, SC](basicRes, connSrv, connectionSterilizer)
+	connApi := NewDsConnectionApiHelper[C, S, SC](basicRes, connSrv, connectionSterilizer, connectionCustomPatch)
 	scopeSrv := srvhelper.NewScopeSrvHelper[C, S, SC](basicRes, pluginName, scopeSearchColumns)
-	scopeApi := NewDsScopeApiHelper[C, S, SC](basicRes, scopeSrv, scopeSterilizer)
+	scopeApi := NewDsScopeApiHelper[C, S, SC](basicRes, scopeSrv, scopeSterilizer, scopeCustomPatch)
 	scSrv := srvhelper.NewScopeConfigSrvHelper[C, S, SC](basicRes, scopeSearchColumns)
-	scApi := NewDsScopeConfigApiHelper[C, S, SC](basicRes, scSrv, scopeConfigSterilizer)
+	scApi := NewDsScopeConfigApiHelper[C, S, SC](basicRes, scSrv, scopeConfigSterilizer, scopeConfigCustomPatch)
 	return &DsHelper[C, S, SC]{
 		ConnSrv:        connSrv,
 		ConnApi:        connApi,

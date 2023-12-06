@@ -141,6 +141,47 @@ func (connection GithubConnection) Sanitize() GithubConnection {
 }
 
 func (conn *GithubConn) Sanitize() GithubConn {
+	conn.SanitizeTokens()
+	conn.SanitizeSecret()
+	return *conn
+}
+
+func (conn *GithubConn) SanitizeSecret() GithubConn {
+	if conn.SecretKey == "" {
+		return *conn
+	}
+	secretKey := conn.SecretKey
+	showPrefixLen, showSuffixLen := 50, 50
+	hiddenLen := len(secretKey) - showSuffixLen - showSuffixLen
+	secret := strings.Repeat("*", hiddenLen)
+	conn.SecretKey = strings.Replace(secretKey, conn.SecretKey[showPrefixLen:showPrefixLen+hiddenLen], secret, -1)
+	return *conn
+}
+
+func (conn *GithubConn) SanitizeToken(token string) string {
+	if token == "" {
+		return token
+	}
+	sanitizedToken := token
+	var prefixLen, showPrefixLen, hiddenLen int
+
+	tokenType := conn.typeIs(token)
+	switch tokenType {
+	case GithubTokenTypeClassical:
+		prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeClassicalPrefixLen, GithubTokenTypeClassicalShowPrefixLen, GithubTokenTypeClassicalHiddenLen
+	case GithubTokenTypeFineGrained:
+		prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeFineGrainedPrefixLen, GithubTokenTypeFineGrainedShowPrefixLen, GithubTokenTypeFineGrainedHiddenLen
+	case GithubTokenTypeUnknown:
+	}
+	tokenLen := len(token)
+	if tokenLen >= prefixLen && prefixLen != 0 && hiddenLen != 0 {
+		secret := strings.Repeat("*", hiddenLen)
+		sanitizedToken = strings.Replace(token, token[prefixLen+showPrefixLen:prefixLen+showPrefixLen+hiddenLen], secret, -1)
+	}
+	return sanitizedToken
+}
+
+func (conn *GithubConn) SanitizeTokens() GithubConn {
 	if conn.Token == "" {
 		return *conn
 	}
@@ -150,23 +191,7 @@ func (conn *GithubConn) Sanitize() GithubConn {
 		if token == "" {
 			continue
 		}
-		sanitizedToken := token
-		var prefixLen, showPrefixLen, hiddenLen int
-
-		tokenType := conn.typeIs(token)
-		fmt.Println("type", tokenType)
-		switch tokenType {
-		case GithubTokenTypeClassical:
-			prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeClassicalPrefixLen, GithubTokenTypeClassicalShowPrefixLen, GithubTokenTypeClassicalHiddenLen
-		case GithubTokenTypeFineGrained:
-			prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeFineGrainedPrefixLen, GithubTokenTypeFineGrainedShowPrefixLen, GithubTokenTypeFineGrainedHiddenLen
-		case GithubTokenTypeUnknown:
-		}
-		tokenLen := len(token)
-		if tokenLen >= prefixLen && prefixLen != 0 && hiddenLen != 0 {
-			secret := strings.Repeat("*", hiddenLen)
-			sanitizedToken = strings.Replace(token, token[prefixLen+showPrefixLen:prefixLen+showPrefixLen+hiddenLen], secret, -1)
-		}
+		sanitizedToken := conn.SanitizeToken(token)
 		sanitizedTokens = append(sanitizedTokens, sanitizedToken)
 	}
 

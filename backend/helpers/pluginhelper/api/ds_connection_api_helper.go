@@ -40,9 +40,10 @@ func NewDsConnectionApiHelper[
 	basicRes context.BasicRes,
 	connSrvHelper *srvhelper.ConnectionSrvHelper[C, S, SC],
 	sterilizer func(c C) C,
+	customPatch func(modified, existed *C) (merged *C),
 ) *DsConnectionApiHelper[C, S, SC] {
 	return &DsConnectionApiHelper[C, S, SC]{
-		ModelApiHelper:      NewModelApiHelper[C](basicRes, connSrvHelper.ModelSrvHelper, []string{"connectionId"}, sterilizer),
+		ModelApiHelper:      NewModelApiHelper[C](basicRes, connSrvHelper.ModelSrvHelper, []string{"connectionId"}, sterilizer, customPatch),
 		ConnectionSrvHelper: connSrvHelper,
 	}
 }

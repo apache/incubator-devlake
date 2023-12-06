@@ -182,17 +182,17 @@ type GitHubTestConnResult struct {
 	AuthMethod string `json:"auth_method"`
 
 	// AppKey
-	AppId          string `json:"appId"`
-	InstallationID int    `json:"installationId"`
+	AppId          string `json:"appId,omitempty"`
+	InstallationID int    `json:"installationId,omitempty"`
 
 	// AccessToken
-	Token string `json:"token"`
+	Token string `json:"token,omitempty"`
 
 	Success       bool                           `json:"success"`
-	Message       string                         `json:"message"`
+	Message       string                         `json:"message,omitempty"`
 	Login         string                         `json:"login"`
 	Warning       bool                           `json:"warning"`
-	Installations []models.GithubAppInstallation `json:"installations"`
+	Installations []models.GithubAppInstallation `json:"installations,omitempty"`
 }
 
 type GithubMultiTestConnResponse struct {

@@ -40,6 +40,7 @@ type ModelApiHelper[M dal.Tabler] struct {
 	modelName      string
 	pkPathVarNames []string
 	sterilizers    []func(m M) M
+	customPatch    func(modified, existed *M) (merged *M)
 }
 
 func NewModelApiHelper[M dal.Tabler](
@@ -47,6 +48,7 @@ func NewModelApiHelper[M dal.Tabler](
 	dalHelper *srvhelper.ModelSrvHelper[M],
 	pkPathVarNames []string, // path variable names of primary key
 	sterilizer func(m M) M,
+	customPatch func(modified, existed *M) (merged *M),
 ) *ModelApiHelper[M] {
 	m := new(M)
 	modelName := fmt.Sprintf("%T", m)
@@ -59,6 +61,9 @@ func NewModelApiHelper[M dal.Tabler](
 	}
 	if sterilizer != nil {
 		modelApiHelper.sterilizers = []func(m M) M{sterilizer}
+	}
+	if customPatch != nil {
+		modelApiHelper.customPatch = customPatch
 	}
 	return modelApiHelper
 }
@@ -129,13 +134,28 @@ func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
 }
 
 func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	model, err := self.FindByPk(input)
-	if err != nil {
-		return nil, err
-	}
-	err = utils.DecodeMapStruct(input.Body, model, true)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
+	model := new(M)
+	var err errors.Error
+	if self.customPatch == nil {
+		model, err = self.FindByPk(input)
+		if err != nil {
+			return nil, err
+		}
+		err = utils.DecodeMapStruct(input.Body, model, true)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
+		}
+	} else {
+		existedModel, err := self.FindByPk(input)
+		if err != nil {
+			return nil, err
+		}
+		modifiedModel := new(M)
+		err = utils.DecodeMapStruct(input.Body, modifiedModel, true)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
+		}
+		model = self.customPatch(modifiedModel, existedModel)
 	}
 	err = self.dalHelper.Update(model)
 	if err != nil {
