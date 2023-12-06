@@ -94,47 +94,88 @@ type GithubConnection struct {
 	EnableGraphql         bool `mapstructure:"enableGraphql" json:"enableGraphql"`
 }
 
+const (
+	GithubTokenTypeClassical                = "classical"
+	GithubTokenTypeClassicalPrefixLen       = 4
+	GithubTokenTypeClassicalShowPrefixLen   = 8
+	GithubTokenTypeClassicalHiddenLen       = 20
+	GithubTokenTypeFineGrained              = "fine-grained"
+	GithubTokenTypeFineGrainedPrefixLen     = 11
+	GithubTokenTypeFineGrainedShowPrefixLen = 8
+	GithubTokenTypeFineGrainedHiddenLen     = 66
+	GithubTokenTypeUnknown                  = "unknown"
+)
+
 func (connection GithubConnection) TableName() string {
 	return "_tool_github_connections"
 }
 
-func (connection GithubConnection) Sanitize() GithubConnection {
-	if connection.Token == "" {
-		return connection
-	}
+func (conn *GithubConn) typeIs(token string) string {
+	// classical tokens:
 	// ghp_ for Personal Access Tokens
 	// gho_ for OAuth Access tokens
 	// ghu_ for GitHub App user-to-server tokens
 	// ghs_ for GitHub App server-to-server tokens
 	// ghr_ for GitHub App refresh tokens
 	// total len is 40, {prefix}{showPrefix}{secret}{showSuffix}
-	prefixLen := 4
-	showPrefixLen := 8
-	hiddenLen := 20 // this value is safe so far
+	// fine-grained tokens
+	// github_pat_{82_characters}
+	classicalTokenClassicalPrefixes := []string{"ghp_", "gho_", "ghs_", "ghr_"}
+	classicalTokenFindGrainedPrefixes := []string{"github_pat_"}
+	for _, prefix := range classicalTokenClassicalPrefixes {
+		if strings.HasPrefix(token, prefix) {
+			return GithubTokenTypeClassical
+		}
+	}
+	for _, prefix := range classicalTokenFindGrainedPrefixes {
+		if strings.HasPrefix(token, prefix) {
+			return GithubTokenTypeFineGrained
+		}
+	}
+	return GithubTokenTypeUnknown
+}
 
-	secret := strings.Repeat("*", hiddenLen)
-	tokens := strings.Split(connection.Token, ",")
+func (connection GithubConnection) Sanitize() GithubConnection {
+	connection.GithubConn = connection.GithubConn.Sanitize()
+	return connection
+}
 
+func (conn *GithubConn) Sanitize() GithubConn {
+	if conn.Token == "" {
+		return *conn
+	}
+	tokens := strings.Split(conn.Token, ",")
 	var sanitizedTokens []string
 	for _, token := range tokens {
 		if token == "" {
 			continue
 		}
-		tokenLen := len(token)
-		if tokenLen <= prefixLen {
-			sanitizedTokens = append(sanitizedTokens, token)
-			continue
+		sanitizedToken := token
+		var prefixLen, showPrefixLen, hiddenLen int
+
+		tokenType := conn.typeIs(token)
+		fmt.Println("type", tokenType)
+		switch tokenType {
+		case GithubTokenTypeClassical:
+			prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeClassicalPrefixLen, GithubTokenTypeClassicalShowPrefixLen, GithubTokenTypeClassicalHiddenLen
+		case GithubTokenTypeFineGrained:
+			prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeFineGrainedPrefixLen, GithubTokenTypeFineGrainedShowPrefixLen, GithubTokenTypeFineGrainedHiddenLen
+		case GithubTokenTypeUnknown:
 		}
-		sanitizedToken := strings.Replace(token, token[prefixLen+showPrefixLen:prefixLen+showPrefixLen+hiddenLen], secret, -1)
+		tokenLen := len(token)
+		if tokenLen >= prefixLen && prefixLen != 0 && hiddenLen != 0 {
+			secret := strings.Repeat("*", hiddenLen)
+			sanitizedToken = strings.Replace(token, token[prefixLen+showPrefixLen:prefixLen+showPrefixLen+hiddenLen], secret, -1)
+		}
 		sanitizedTokens = append(sanitizedTokens, sanitizedToken)
 	}
 
 	if len(sanitizedTokens) > 0 {
-		connection.Token = strings.Join(sanitizedTokens, ",")
+		conn.Token = strings.Join(sanitizedTokens, ",")
 	} else {
-		connection.Token = ""
+		conn.Token = ""
 	}
-	return connection
+	return *conn
 }
 
 // Using GithubUserOfToken because it requires authentication, and it is public information anyway.

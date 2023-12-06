@@ -175,6 +175,27 @@ func TestGithubConnection_Sanitize(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "test-4",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "github_pat_11ABMS6RQ0kA7PzN5AThcs_jN8eJeu0BsMa8BDyC12345P9CI67891a2Pu6abcdefk3OEPAJLYMjkfT4U1,",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "github_pat_11ABMS6R******************************************************************MjkfT4U1",
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
