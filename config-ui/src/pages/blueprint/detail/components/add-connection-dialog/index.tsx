@@ -17,11 +17,9 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Modal } from 'antd';
-import { Button, Intent } from '@blueprintjs/core';
+import { Modal, Form, Select, Space, Button } from 'antd';
 
 import { useAppSelector } from '@/app/hook';
-import { FormItem, Selector, Buttons } from '@/components';
 import { selectAllConnections } from '@/features';
 import { DataScopeSelect } from '@/plugins';
 import { IConnection } from '@/types';
@@ -34,13 +32,24 @@ interface Props {
 
 export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props) => {
   const [step, setStep] = useState(1);
-  const [selectedConnection, setSelectedConnection] = useState<IConnection>();
+  const [selectedValue, setSelectedValue] = useState<string>();
 
   const connections = useAppSelector(selectAllConnections);
 
-  const disabledItems = useMemo(
-    () => connections.filter((cs) => (disabled.length ? disabled.includes(cs.unique) : false)),
-    [disabled],
+  const options = useMemo(
+    () =>
+      connections
+        .filter((cs) => (disabled.length ? !disabled.includes(cs.unique) : true))
+        .map((cs) => ({
+          label: cs.name,
+          value: cs.unique,
+        })),
+    [connections, disabled],
+  );
+
+  const selectedConnection = useMemo(
+    () => connections.find((cs) => cs.unique === selectedValue) as IConnection,
+    [selectedValue],
   );
 
   const handleSubmit = (scopeIds: any) => {
@@ -55,25 +64,21 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
   return (
     <Modal open width={820} centered title={`Add a Connection - Step ${step}`} footer={null} onCancel={onCancel}>
       {step === 1 && (
-        <FormItem
-          label="Data Connections"
-          subLabel="Select from existing Data Connections. If you have not created any Data Connections yet, please create and manage Connections first."
-          required
-        >
-          <Selector
-            items={connections}
-            disabledItems={disabledItems}
-            getKey={(it) => it.unique}
-            getName={(it) => it.name}
-            // getIcon={(it) => it.icon}
-            selectedItem={selectedConnection}
-            onChangeItem={(selectedItem) => setSelectedConnection(selectedItem)}
-          />
-          <Buttons position="bottom" align="right">
-            <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-            <Button disabled={!selectedConnection} intent={Intent.PRIMARY} text="Next" onClick={() => setStep(2)} />
-          </Buttons>
-        </FormItem>
+        <Form layout="vertical">
+          <Form.Item
+            label="Data Connections"
+            tooltip="Select from existing Data Connections. If you have not created any Data Connections yet, please create and manage Connections first."
+            required
+          >
+            <Select placeholder="Select..." options={options} onChange={(value) => setSelectedValue(value)} />
+          </Form.Item>
+          <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button onClick={onCancel}>Cancel</Button>
+            <Button type="primary" disabled={!selectedConnection} onClick={() => setStep(2)}>
+              Next
+            </Button>
+          </Space>
+        </Form>
       )}
       {step === 2 && selectedConnection && (
         <DataScopeSelect
