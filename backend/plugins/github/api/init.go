@@ -106,14 +106,12 @@ func customPatch(modified, existed *models.GithubConnection) (merged *models.Git
 		existedTokenMap[token] = existed.SanitizeToken(token)
 		existedSanitizedTokenMap[existed.SanitizeToken(token)] = token
 	}
-	//fmt.Printf("debug, existed, token string: %+v, token map: %+v \n", existedTokenStr, existedTokenMap)
 
 	modifiedTokens := strings.Split(strings.TrimSpace(modified.Token), ",")
 	modifiedTokenMap := make(map[string]string) // {originalToken:sanitizedToken}
 	for _, token := range modifiedTokens {
 		modifiedTokenMap[token] = existed.SanitizeToken(token)
 	}
-	//fmt.Printf("debug, modified, token string: %+v, token map: %+v \n", modified.Token, modifiedTokenMap)
 
 	var mergedToken []string
 	mergedTokenMap := make(map[string]struct{})
@@ -142,7 +140,6 @@ func customPatch(modified, existed *models.GithubConnection) (merged *models.Git
 		}
 		// else: case 2: not found, deleted or updated, remove it
 	}
-	//fmt.Printf("debug, after checking exist tokens, merged tokens: %+v, token map: %+v \n", mergedToken, mergedTokenMap)
 	for token, sanitizeToken := range modifiedTokenMap {
 		// check token
 		if _, ok := existedTokenMap[token]; ok {
@@ -194,9 +191,6 @@ func customPatch(modified, existed *models.GithubConnection) (merged *models.Git
 		}
 	}
 
-	//fmt.Printf("debug, after checking modified tokens, merged tokens: %+v, token map: %+v \n", mergedToken, mergedTokenMap)
-
 	existed.Token = strings.Join(mergedToken, ",")
-	//fmt.Printf("debug, merged, token string: %+v, token map: %+v \n", existed.Token, mergedToken)
 	return existed
 }
