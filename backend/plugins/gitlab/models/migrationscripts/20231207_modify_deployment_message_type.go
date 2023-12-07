@@ -18,30 +18,31 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-		new(addStdTypeToIssue221230),
-		new(addIsDetailRequired20230210),
-		new(addConnectionIdToTransformationRule),
-		new(addGitlabCommitAuthorInfo),
-		new(addTypeEnvToPipeline),
-		new(renameTr2ScopeConfig),
-		new(addGitlabIssueAssignee),
-		new(addMrCommitSha),
-		new(addRawParamTableForScope),
-		new(addProjectArchived),
-		new(addDeployment),
-		new(addEnvNamePattern),
-		new(modifyDeploymentMessageType),
-	}
+var _ plugin.MigrationScript = (*modifyDeploymentMessageType)(nil)
+
+type modifyDeploymentMessageType struct{}
+
+type deployment20231207 struct {
+	DeployableCommitMessage string `json:"deployable_commit_message"`
+}
+
+func (deployment20231207) TableName() string {
+	return "_tool_gitlab_deployments"
+}
+
+func (script *modifyDeploymentMessageType) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&deployment20231207{})
+}
+
+func (*modifyDeploymentMessageType) Version() uint64 {
+	return 20231207155129
+}
+
+func (*modifyDeploymentMessageType) Name() string {
+	return "modify _tool_gitlab_deployments deployable_commit_message from varchar to text"
 }
