@@ -93,9 +93,7 @@ func convertGithubDeployment(deployment GraphqlQueryDeploymentDeployment, connec
 		CreatedDate:       deployment.CreatedAt,
 		UpdatedDate:       deployment.UpdatedAt,
 		LatestStatusState: deployment.LatestStatus.State,
-	}
-	if !deployment.LatestStatus.UpdatedAt.IsZero() {
-		ret.LatestUpdatedDate = deployment.LatestStatus.UpdatedAt
+		LatestUpdatedDate: deployment.LatestStatus.UpdatedAt,
 	}
 	if deployment.Ref != nil {
 		ret.RefName = deployment.Ref.Name
