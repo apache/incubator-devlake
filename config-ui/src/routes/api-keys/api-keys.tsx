@@ -17,12 +17,12 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Table } from 'antd';
+import { Table, Modal } from 'antd';
 import { Button, Tag, Intent, InputGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Dialog, FormItem, Selector, ExternalLink, CopyText, Message } from '@/components';
+import { PageHeader, FormItem, Selector, ExternalLink, CopyText, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
@@ -152,13 +152,16 @@ export const ApiKeys = () => {
         }}
       />
       {modal === 'create' && (
-        <Dialog
-          style={{ width: 820 }}
-          isOpen
+        <Modal
+          open
+          width={820}
+          centered
           title="Generate a New API Key"
-          okLoading={operating}
           okText="Generate"
-          okDisabled={hasError}
+          okButtonProps={{
+            disabled: hasError,
+            loading: operating,
+          }}
           onCancel={handleCancel}
           onOk={handleSubmit}
         >
@@ -201,34 +204,31 @@ export const ApiKeys = () => {
               />
             </S.InputContainer>
           </FormItem>
-        </Dialog>
+        </Modal>
       )}
       {modal === 'show' && (
-        <Dialog
-          style={{ width: 820 }}
-          isOpen
-          title="Your API key has been generated!"
-          footer={null}
-          onCancel={handleCancel}
-        >
+        <Modal open width={820} centered title="Your API key has been generated!" footer={null} onCancel={handleCancel}>
           <div style={{ marginBottom: 16 }}>
             Please make sure to copy your API key now. You will not be able to see it again.
           </div>
           <CopyText content={currentKey} />
-        </Dialog>
+        </Modal>
       )}
       {modal === 'delete' && (
-        <Dialog
-          style={{ width: 820 }}
-          isOpen
+        <Modal
+          open
+          width={820}
+          centered
           title="Are you sure you want to revoke this API key?"
-          okLoading={operating}
           okText="Confirm"
+          okButtonProps={{
+            loading: operating,
+          }}
           onCancel={handleCancel}
           onOk={handleRevoke}
         >
           <Message content="Any applications or scripts using this API key will no longer be able to access the DevLake API. You cannot undo this action." />
-        </Dialog>
+        </Modal>
       )}
     </PageHeader>
   );

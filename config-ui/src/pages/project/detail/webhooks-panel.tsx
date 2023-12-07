@@ -146,9 +146,9 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
               </>
             }
           />
-          {type === 'create' && <WebhookCreateDialog isOpen onCancel={handleCancel} onSubmitAfter={handleCreate} />}
+          {type === 'create' && <WebhookCreateDialog open onCancel={handleCancel} onSubmitAfter={handleCreate} />}
           {type === 'selectExist' && (
-            <WebhookSelectorDialog isOpen saving={operating} onCancel={handleCancel} onSubmit={handleSelect} />
+            <WebhookSelectorDialog open saving={operating} onCancel={handleCancel} onSubmit={handleSelect} />
           )}
         </>
       ) : (
