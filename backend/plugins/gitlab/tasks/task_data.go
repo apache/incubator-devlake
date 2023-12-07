@@ -24,11 +24,11 @@ import (
 )
 
 type GitlabOptions struct {
-	ConnectionId  uint64                    `mapstructure:"connectionId" json:"connectionId"`
-	ProjectId     int                       `mapstructure:"projectId" json:"projectId"`
-	ScopeConfigId uint64                    `mapstructure:"scopeConfigId" json:"scopeConfigId"`
-	ScopeConfig   *models.GitlabScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
-	TimeAfter     string                    `json:"timeAfter,omitempty"`
+	ConnectionId            uint64                    `mapstructure:"connectionId" json:"connectionId"`
+	ProjectId               int                       `mapstructure:"projectId" json:"projectId"`
+	ScopeConfigId           uint64                    `mapstructure:"scopeConfigId" json:"scopeConfigId"`
+	ScopeConfig             *models.GitlabScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 type GitlabTaskData struct {

@@ -23,11 +23,11 @@ import (
 )
 
 type TrelloOptions struct {
-	ConnectionId  uint64 `json:"connectionId"`
-	BoardId       string `json:"boardId"`
-	ScopeId       string
-	ScopeConfigId uint64
-	TimeAfter     string `json:"timeAfter,omitempty"`
+	ConnectionId         uint64 `json:"connectionId"`
+	BoardId              string `json:"boardId"`
+	ScopeId              string
+	ScopeConfigId        uint64
+	api.CollectorOptions `mapstructure:",squash"`
 }
 
 type TrelloTaskData struct {

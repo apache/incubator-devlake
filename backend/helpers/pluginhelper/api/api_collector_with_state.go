@@ -42,6 +42,10 @@ type ApiCollectorStateManager struct {
 	Before        *time.Time
 }
 
+type CollectorOptions struct {
+	TimeAfter string `json:"timeAfter,omitempty"`
+}
+
 // NewStatefulApiCollector create a new ApiCollectorStateManager
 func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
@@ -57,17 +61,20 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	if value.Kind() == reflect.Ptr && value.Elem().Kind() == reflect.Struct {
 		options := value.Elem().FieldByName("Options")
 		if options.IsValid() && options.Kind() == reflect.Ptr && options.Elem().Kind() == reflect.Struct {
-			timeAfter := options.Elem().FieldByName("TimeAfter")
-			if timeAfter.IsValid() && timeAfter.Kind() == reflect.String && timeAfter.String() != "" {
-				optionTimeAfter, parseErr := time.Parse(time.RFC3339, timeAfter.String())
-				if parseErr != nil {
-					return nil, errors.Default.Wrap(parseErr, "Failed to parse timeAfter!")
-				}
-				if syncPolicy != nil {
-					syncPolicy.TimeAfter = &optionTimeAfter
-				} else {
-					syncPolicy = &models.SyncPolicy{
-						TimeAfter: &optionTimeAfter,
+			collectorOptions := options.Elem().FieldByName("CollectorOptions")
+			if collectorOptions.IsValid() && collectorOptions.Kind() == reflect.Struct {
+				timeAfter := collectorOptions.FieldByName("TimeAfter")
+				if timeAfter.IsValid() && timeAfter.Kind() == reflect.String && timeAfter.String() != "" {
+					optionTimeAfter, parseErr := time.Parse(time.RFC3339, timeAfter.String())
+					if parseErr != nil {
+						return nil, errors.Default.Wrap(parseErr, "Failed to parse timeAfter!")
+					}
+					if syncPolicy != nil {
+						syncPolicy.TimeAfter = &optionTimeAfter
+					} else {
+						syncPolicy = &models.SyncPolicy{
+							TimeAfter: &optionTimeAfter,
+						}
 					}
 				}
 			}

@@ -26,13 +26,13 @@ import (
 )
 
 type TapdOptions struct {
-	ConnectionId  uint64 `mapstruct:"connectionId"`
-	WorkspaceId   uint64 `mapstruct:"workspaceId"`
-	PageSize      uint64 `mapstruct:"pageSize"`
-	CstZone       *time.Location
-	ScopeConfigId uint64
-	ScopeConfig   *models.TapdScopeConfig `json:"scopeConfig"`
-	TimeAfter     string                  `json:"timeAfter,omitempty"`
+	ConnectionId            uint64 `mapstruct:"connectionId"`
+	WorkspaceId             uint64 `mapstruct:"workspaceId"`
+	PageSize                uint64 `mapstruct:"pageSize"`
+	CstZone                 *time.Location
+	ScopeConfigId           uint64
+	ScopeConfig             *models.TapdScopeConfig `json:"scopeConfig"`
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 type TapdTaskData struct {

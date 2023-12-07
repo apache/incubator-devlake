@@ -25,12 +25,12 @@ import (
 )
 
 type TeambitionOptions struct {
-	ConnectionId        uint64 `json:"connectionId"`
-	ProjectId           string `json:"projectId"`
-	PageSize            uint64 `mapstruct:"pageSize"`
-	CstZone             *time.Location
-	TransformationRules TransformationRules `json:"transformationRules"`
-	TimeAfter           string              `json:"timeAfter,omitempty"`
+	ConnectionId            uint64 `json:"connectionId"`
+	ProjectId               string `json:"projectId"`
+	PageSize                uint64 `mapstruct:"pageSize"`
+	CstZone                 *time.Location
+	TransformationRules     TransformationRules `json:"transformationRules"`
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 type TeambitionTaskData struct {

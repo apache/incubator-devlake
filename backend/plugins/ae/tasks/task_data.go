@@ -22,9 +22,9 @@ import (
 )
 
 type AeOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	ProjectId    int
-	TimeAfter    string `json:"timeAfter,omitempty"`
+	ConnectionId            uint64 `json:"connectionId"`
+	ProjectId               int
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 type AeTaskData struct {

@@ -24,11 +24,11 @@ import (
 )
 
 type OpsgenieOptions struct {
-	ConnectionId uint64   `json:"connectionId"`
-	ServiceId    string   `json:"service_id,omitempty"`
-	ServiceName  string   `json:"service_name,omitempty"`
-	Tasks        []string `json:"tasks,omitempty"`
-	TimeAfter    string   `json:"timeAfter,omitempty"`
+	ConnectionId         uint64   `json:"connectionId"`
+	ServiceId            string   `json:"service_id,omitempty"`
+	ServiceName          string   `json:"service_name,omitempty"`
+	Tasks                []string `json:"tasks,omitempty"`
+	api.CollectorOptions `mapstructure:",squash"`
 	*models.OpsenieScopeConfig
 }
 

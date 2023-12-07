@@ -29,8 +29,8 @@ type IclaOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
-	Tasks     []string `json:"tasks,omitempty"`
-	TimeAfter string   `json:"timeAfter,omitempty"`
+	Tasks                   []string `json:"tasks,omitempty"`
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 type IclaTaskData struct {
