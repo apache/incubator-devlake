@@ -32,7 +32,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/swag"
 
-	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/impls/logruslog"
@@ -56,17 +55,19 @@ Alternatively, you may downgrade back to the previous DevLake version.
 // @license.name Apache-2.0
 // @host localhost:8080
 // @BasePath /
-func CreateApiService(router *gin.Engine) {
-	// Get configuration
-	v := config.GetConfig()
+func CreateAndRunApiServer() {
+	// Create router
+	router := gin.New()
+	// Setup and run the server
+	SetupApiServer(router)
+	RunApiServer(router)
+}
+
+func SetupApiServer(router *gin.Engine) {
 	// Initialize services
 	services.Init()
 	// Set gin mode
-	gin.SetMode(v.GetString("MODE"))
-	// Create a gin router
-	if router == nil {
-		router = gin.Default()
-	}
+	gin.SetMode(services.GetBasicRes().GetConfig("MODE"))
 
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
@@ -136,8 +137,11 @@ func CreateApiService(router *gin.Engine) {
 
 	// Register API endpoints
 	RegisterRouter(router, basicRes)
+}
+
+func RunApiServer(router *gin.Engine) {
 	// Get port from config
-	port := v.GetString("PORT")
+	port := services.GetBasicRes().GetConfig("PORT")
 	// Trim any : from the start
 	port = strings.TrimLeft(port, ":")
 	// Convert to int
