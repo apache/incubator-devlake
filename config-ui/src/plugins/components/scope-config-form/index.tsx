@@ -18,11 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
-import { Form, Card, Alert } from 'antd';
+import { Form, Card, Alert, Divider } from 'antd';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { ExternalLink, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
+import { ExternalLink, FormItem, MultiSelector, Message, Buttons } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
