@@ -81,20 +81,21 @@ func (p GithubGraphql) GetTablesInfo() []dal.Tabler {
 
 func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		//tasks.CollectRepoMeta,
-
 		// collect millstones
 		githubTasks.CollectMilestonesMeta,
 		githubTasks.ExtractMilestonesMeta,
 
 		// collect issue & pr, deps on millstone
-		tasks.CollectIssueMeta,
-		tasks.CollectPrMeta,
+		tasks.CollectIssuesMeta,
+		tasks.ExtractIssuesMeta,
+		tasks.CollectPrsMeta,
+		tasks.ExtractPrsMeta,
 
 		// collect workflow run & job
 		githubTasks.CollectRunsMeta,
 		githubTasks.ExtractRunsMeta,
-		tasks.CollectGraphqlJobsMeta,
+		tasks.CollectJobsMeta,
+		tasks.ExtractJobsMeta,
 
 		// collect others
 		githubTasks.CollectApiCommentsMeta,
@@ -106,6 +107,7 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 
 		// collect account, deps on all before
 		tasks.CollectAccountMeta,
+		tasks.ExtractAccountsMeta,
 
 		// convert to domain layer
 		githubTasks.ConvertRunsMeta,
@@ -127,7 +129,8 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 		githubTasks.ConvertAccountsMeta,
 
 		// deployment
-		tasks.CollectAndExtractDeploymentsMeta,
+		tasks.CollectDeploymentsMeta,
+		tasks.ExtractDeploymentsMeta,
 		githubTasks.ConvertDeploymentsMeta,
 	}
 }
