@@ -35,6 +35,7 @@ type JenkinsOptions struct {
 	JobPath       string                     `json:"jobPath"`     // "job/path1/job/path2"
 	Tasks         []string                   `json:"tasks,omitempty"`
 	ScopeConfig   *models.JenkinsScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
+	TimeAfter     string
 }
 
 type JenkinsTaskData struct {

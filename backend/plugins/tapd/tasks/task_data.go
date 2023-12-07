@@ -32,6 +32,7 @@ type TapdOptions struct {
 	CstZone       *time.Location
 	ScopeConfigId uint64
 	ScopeConfig   *models.TapdScopeConfig `json:"scopeConfig"`
+	TimeAfter     string
 }
 
 type TapdTaskData struct {

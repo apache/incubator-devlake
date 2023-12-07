@@ -28,6 +28,7 @@ type PagerDutyOptions struct {
 	ServiceId    string   `json:"service_id,omitempty"`
 	ServiceName  string   `json:"service_name,omitempty"`
 	Tasks        []string `json:"tasks,omitempty"`
+	TimeAfter     string
 	*models.PagerdutyScopeConfig
 }
 

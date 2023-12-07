@@ -31,6 +31,7 @@ type JiraOptions struct {
 	ScopeConfig   *models.JiraScopeConfig `json:"scopeConfig"`
 	ScopeConfigId uint64
 	PageSize      int
+	TimeAfter     string
 }
 
 type JiraTaskData struct {

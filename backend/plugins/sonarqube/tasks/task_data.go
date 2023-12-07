@@ -31,6 +31,7 @@ type SonarqubeOptions struct {
 	ConnectionId uint64   `json:"connectionId"`
 	ProjectKey   string   `json:"projectKey"`
 	Tasks        []string `json:"tasks,omitempty"`
+	TimeAfter    string
 }
 
 type SonarqubeTaskData struct {

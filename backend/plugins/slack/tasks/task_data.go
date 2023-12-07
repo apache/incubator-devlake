@@ -27,6 +27,7 @@ type SlackApiParams struct {
 
 type SlackOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
+	TimeAfter    string
 }
 
 type SlackTaskData struct {
