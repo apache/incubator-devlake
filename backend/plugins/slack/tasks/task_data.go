@@ -26,7 +26,8 @@ type SlackApiParams struct {
 }
 
 type SlackOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
+	ConnectionId            uint64 `json:"connectionId"`
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 type SlackTaskData struct {
