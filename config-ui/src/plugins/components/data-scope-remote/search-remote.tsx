@@ -71,7 +71,14 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
     [selectedScope],
   );
 
-  const allItems = useMemo(() => uniqBy([...miller.items, ...search.items], 'id'), [miller.items, search.items]);
+  const allItems = useMemo(
+    () =>
+      uniqBy(
+        [...miller.items, ...search.items].filter((it) => it.type === 'scope'),
+        'id',
+      ),
+    [miller.items, search.items],
+  );
 
   const getItems = async (groupId: ID | null, currentPageToken?: string) => {
     let newItems: McsItem<T.ResItem>[] = [];
