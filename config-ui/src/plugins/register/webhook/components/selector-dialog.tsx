@@ -17,23 +17,24 @@
  */
 
 import { useState } from 'react';
+import { Modal } from 'antd';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { useAppSelector } from '@/app/hook';
-import { Dialog, FormItem, Loading } from '@/components';
+import { FormItem, Loading } from '@/components';
 import { selectWebhooks } from '@/features';
 import { IWebhook } from '@/types';
 
 import * as S from '../styled';
 
 interface Props {
-  isOpen: boolean;
+  open: boolean;
   saving: boolean;
   onCancel: () => void;
   onSubmit: (items: IWebhook[]) => void;
 }
 
-export const SelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) => {
+export const SelectorDialog = ({ open, saving, onCancel, onSubmit }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
   const webhooks = useAppSelector(selectWebhooks);
@@ -41,15 +42,16 @@ export const SelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) =>
   const handleSubmit = () => onSubmit(webhooks.filter((it) => selectedIds.includes(it.id)));
 
   return (
-    <Dialog
-      isOpen={isOpen}
+    <Modal
+      open={open}
+      width={820}
+      centered
       title="Select Existing Webhooks"
-      style={{
-        width: 820,
-      }}
       okText="Confrim"
-      okLoading={saving}
-      okDisabled={!selectedIds.length}
+      okButtonProps={{
+        disabled: !selectedIds.length,
+        loading: saving,
+      }}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
@@ -71,7 +73,7 @@ export const SelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) =>
           />
         </FormItem>
       </S.Wrapper>
-    </Dialog>
+    </Modal>
   );
 };
 

@@ -90,9 +90,7 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
       <Buttons position="bottom">
         <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
       </Buttons>
-      {type === 'add' && (
-        <CreateDialog isOpen onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />
-      )}
+      {type === 'add' && <CreateDialog open onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />}
       {type === 'show' && currentID && <ViewDialog initialId={currentID} onCancel={handleHideDialog} />}
       {type === 'edit' && currentID && <EditDialog initialId={currentID} onCancel={handleHideDialog} />}
       {type === 'delete' && currentID && (

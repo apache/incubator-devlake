@@ -16,15 +16,16 @@
  *
  */
 
-import { useEffect, useMemo, useState } from 'react';
-import { InputGroup } from '@blueprintjs/core';
+import { useState, useEffect, useMemo } from 'react';
+import { SearchOutlined } from '@ant-design/icons';
+import { Form, Select, Input, message } from 'antd';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 import { uniqBy } from 'lodash';
 
 import API from '@/api';
-import { FormItem, MultiSelector, Loading } from '@/components';
+import { Loading } from '@/components';
 import { IPluginConfig } from '@/types';
 
 import * as T from './types';
@@ -43,6 +44,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   const [miller, setMiller] = useState<{
     items: McsItem<T.ResItem>[];
     loadedIds: ID[];
+    errorId?: ID | null;
     nextTokenMap: Record<ID, string>;
   }>({
     items: [],
@@ -64,26 +66,49 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
 
   const searchDebounce = useDebounce(search.query, { wait: 500 });
 
-  const allItems = useMemo(() => uniqBy([...miller.items, ...search.items], 'id'), [miller.items, search.items]);
+  const [selectedIds, selectedOptions] = useMemo(
+    () => [selectedScope.map((sc) => sc.id), selectedScope.map((sc) => ({ label: sc.fullName, value: sc.id }))],
+    [selectedScope],
+  );
+
+  const allItems = useMemo(
+    () =>
+      uniqBy(
+        [...miller.items, ...search.items].filter((it) => it.type === 'scope'),
+        'id',
+      ),
+    [miller.items, search.items],
+  );
 
   const getItems = async (groupId: ID | null, currentPageToken?: string) => {
-    const res = await API.scope.remote(plugin, connectionId, {
-      groupId,
-      pageToken: currentPageToken,
-    });
+    let newItems: McsItem<T.ResItem>[] = [];
+    let nextPageToken = '';
+    let errorId: ID | null;
 
-    const newItems = (res.children ?? []).map((it) => ({
-      ...it,
-      title: it.name,
-    }));
+    try {
+      const res = await API.scope.remote(plugin, connectionId, {
+        groupId,
+        pageToken: currentPageToken,
+      });
 
-    if (res.nextPageToken) {
+      newItems = (res.children ?? []).map((it) => ({
+        ...it,
+        title: it.name,
+      }));
+
+      nextPageToken = res.nextPageToken;
+    } catch (err: any) {
+      errorId = groupId;
+      message.error(err.response.data.message);
+    }
+
+    if (nextPageToken && newItems.length) {
       setMiller((m) => ({
         ...m,
         items: [...m.items, ...newItems],
         nextTokenMap: {
           ...m.nextTokenMap,
-          [`${groupId ? groupId : 'root'}`]: res.nextPageToken,
+          [`${groupId ? groupId : 'root'}`]: nextPageToken,
         },
       }));
     } else {
@@ -91,6 +116,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
         ...m,
         items: [...m.items, ...newItems],
         loadedIds: [...m.loadedIds, groupId ?? 'root'],
+        errorId,
       }));
     }
   };
@@ -105,7 +131,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
     const res = await API.scope.searchRemote(plugin, connectionId, {
       search: searchDebounce,
       page: search.page,
-      pageSize: 50,
+      pageSize: 20,
     });
 
     const items = (res.children ?? []).map((it) => ({
@@ -125,20 +151,21 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   }, [searchDebounce, search.page]);
 
   return (
-    <S.Wrapper>
-      <FormItem label={config.title} required>
-        <MultiSelector
+    <Form layout="vertical">
+      <Form.Item label={config.title} required>
+        <Select
+          style={{ width: '100%' }}
           disabled
-          items={selectedScope}
-          getKey={(it) => it.id}
-          getName={(it) => it.fullName ?? it.name}
-          selectedItems={selectedScope}
+          suffixIcon={null}
+          mode="tags"
+          value={selectedIds}
+          options={selectedOptions}
         />
-      </FormItem>
-      <FormItem>
-        <InputGroup
-          leftIcon="search"
-          placeholder={config.searchPlaceholder}
+      </Form.Item>
+      <Form.Item>
+        <Input
+          prefix={<SearchOutlined rev={undefined} />}
+          placeholder={config.searchPlaceholder ?? 'Search'}
           value={search.query}
           onChange={(e) => setSearch({ ...search, query: e.target.value })}
         />
@@ -149,6 +176,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
             columnHeight={300}
             getCanExpand={(it) => it.type === 'group'}
             getHasMore={(id) => !miller.loadedIds.includes(id ?? 'root')}
+            getHasError={(id) => id === miller.errorId}
             onExpand={(id: McsID) => getItems(id, miller.nextTokenMap[id])}
             onScroll={(id: McsID | null) => getItems(id, miller.nextTokenMap[id ?? 'root'])}
             renderTitle={(column: McsColumn) =>
@@ -158,6 +186,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
               )
             }
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+            renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
             disabledIds={(disabledScope ?? []).map((it) => it.id)}
             selectedIds={selectedScope.map((it) => it.id)}
             onSelectItemIds={(selectedIds: ID[]) => onChange(allItems.filter((it) => selectedIds.includes(it.id)))}
@@ -176,7 +205,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
             onSelectItemIds={(selectedIds: ID[]) => onChange(allItems.filter((it) => selectedIds.includes(it.id)))}
           />
         )}
-      </FormItem>
-    </S.Wrapper>
+      </Form.Item>
+    </Form>
   );
 };

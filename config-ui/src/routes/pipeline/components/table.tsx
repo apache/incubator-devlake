@@ -17,14 +17,14 @@
  */
 
 import { useState } from 'react';
-import { Table } from 'antd';
+import { Table, Modal } from 'antd';
 import { ButtonGroup } from '@blueprintjs/core';
 import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { IconButton, Inspector, Dialog } from '@/components';
+import { IconButton, Inspector } from '@/components';
 import { IPipeline } from '@/types';
 import { formatTime } from '@/utils';
 
@@ -124,9 +124,9 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
       />
       {JSON && <Inspector isOpen title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
       {id && (
-        <Dialog style={{ width: 820 }} isOpen title={`Pipeline ${id}`} footer={null} onCancel={() => setId(null)}>
+        <Modal open width={820} centered title={`Pipeline ${id}`} footer={null} onCancel={() => setId(null)}>
           <PipelineTasks id={id} />
-        </Dialog>
+        </Modal>
       )}
     </>
   );
