@@ -75,12 +75,11 @@ func customPatch(modified, existed *models.GithubConnection) (merged *models.Git
 
 	// handle secret
 	if existSecretKey == "" {
-		if modified.SecretKey == "" {
-			// doesn't input secret key, pass
-		} else {
+		if modified.SecretKey != "" {
 			// add secret key, store it
 			existed.SecretKey = modified.SecretKey
 		}
+		// doesn't input secret key, pass
 	} else {
 		if modified.SecretKey == "" {
 			// delete secret key
