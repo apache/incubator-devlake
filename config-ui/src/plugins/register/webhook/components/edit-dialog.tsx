@@ -17,10 +17,11 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Modal } from 'antd';
 import { InputGroup } from '@blueprintjs/core';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { Dialog, FormItem } from '@/components';
+import { FormItem } from '@/components';
 import { updateWebhook, selectWebhook } from '@/features';
 import { operator } from '@/utils';
 
@@ -51,19 +52,22 @@ export const EditDialog = ({ initialId, onCancel }: Props) => {
   };
 
   return (
-    <Dialog
-      style={{ width: 820 }}
-      isOpen
+    <Modal
+      open
+      width={820}
+      centered
       title="Edit Webhook Name"
-      okLoading={operating}
-      okDisabled={!name}
       okText="Save"
+      okButtonProps={{
+        disabled: !name,
+        loading: operating,
+      }}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
       <FormItem label="Name" required>
         <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
       </FormItem>
-    </Dialog>
+    </Modal>
   );
 };

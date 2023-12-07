@@ -17,9 +17,10 @@
  */
 
 import { useState } from 'react';
+import { Modal } from 'antd';
 
 import { useAppDispatch } from '@/app/hook';
-import { Dialog, Message } from '@/components';
+import { Message } from '@/components';
 import { removeWebhook } from '@/features';
 import { operator } from '@/utils';
 
@@ -46,16 +47,17 @@ export const DeleteDialog = ({ initialId, onCancel, onSubmitAfter }: Props) => {
   };
 
   return (
-    <Dialog
-      isOpen
+    <Modal
+      open
       title="Delete this Webhook?"
-      // style={{ width: 600 }}
       okText="Confirm"
-      okLoading={operating}
+      okButtonProps={{
+        loading: operating,
+      }}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
       <Message content="This Webhook cannot be recovered once it’s deleted." />
-    </Dialog>
+    </Modal>
   );
 };

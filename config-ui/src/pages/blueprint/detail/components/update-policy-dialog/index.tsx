@@ -17,8 +17,8 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Modal } from 'antd';
 
-import { Dialog } from '@/components';
 import { IBlueprint, IBPMode } from '@/types';
 
 import { SyncPolicy } from '../sync-policy';
@@ -57,14 +57,15 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
   };
 
   return (
-    <Dialog
-      isOpen
+    <Modal
+      open
+      width={820}
+      centered
       title="Set Sync Policy"
-      style={{
-        width: 820,
-      }}
       okText="Save"
-      okLoading={operating}
+      okButtonProps={{
+        loading: operating,
+      }}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
@@ -79,6 +80,6 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
         onChangeSkipOnFail={setSkipOnFail}
         onChangeTimeAfter={setTimeAfter}
       />
-    </Dialog>
+    </Modal>
   );
 };

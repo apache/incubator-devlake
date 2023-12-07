@@ -17,22 +17,23 @@
  */
 
 import { useState, useMemo } from 'react';
+import { Modal } from 'antd';
 import { InputGroup, Icon } from '@blueprintjs/core';
 
 import { useAppDispatch } from '@/app/hook';
-import { Dialog, FormItem, CopyText, ExternalLink } from '@/components';
+import { FormItem, CopyText, ExternalLink } from '@/components';
 import { addWebhook } from '@/features';
 import { operator } from '@/utils';
 
 import * as S from '../styled';
 
 interface Props {
-  isOpen: boolean;
+  open: boolean;
   onCancel: () => void;
   onSubmitAfter?: (id: ID) => void;
 }
 
-export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
+export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
   const [operating, setOperating] = useState(false);
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
@@ -100,14 +101,17 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
   };
 
   return (
-    <Dialog
-      isOpen={isOpen}
+    <Modal
+      open={open}
+      width={820}
+      centered
       title="Add a New Webhook"
-      style={{ width: 820 }}
       footer={step === 2 ? null : undefined}
       okText={step === 1 ? 'Generate POST URL' : 'Done'}
-      okDisabled={step === 1 && !name}
-      okLoading={operating}
+      okButtonProps={{
+        disabled: step === 1 && !name,
+        loading: operating,
+      }}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
@@ -165,7 +169,7 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
           </FormItem>
         </S.Wrapper>
       )}
-    </Dialog>
+    </Modal>
   );
 };
 

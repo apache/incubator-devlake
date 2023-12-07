@@ -82,7 +82,7 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
               ))}
             </Menu>
           }
-          renderTarget={({ isOpen, ref, ...targetProps }) => (
+          renderTarget={({ ref, ...targetProps }) => (
             <Button {...targetProps} ref={ref} small text="Load Templates" rightIcon="caret-down" />
           )}
         />

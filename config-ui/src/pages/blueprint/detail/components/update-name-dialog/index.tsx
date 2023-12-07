@@ -17,9 +17,8 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Modal } from 'antd';
 import { InputGroup } from '@blueprintjs/core';
-
-import { Dialog } from '@/components';
 
 interface Props {
   name: string;
@@ -36,18 +35,20 @@ export const UpdateNameDialog = ({ operating, onCancel, onSubmit, ...props }: Pr
   }, [props.name]);
 
   return (
-    <Dialog
-      isOpen
+    <Modal
+      open
       title="Change Blueprint Name"
       okText="Save"
-      okDisabled={!name || name === props.name}
-      okLoading={operating}
+      okButtonProps={{
+        disabled: !name || name === props.name,
+        loading: operating,
+      }}
       onCancel={onCancel}
       onOk={() => onSubmit(name)}
     >
       <h3>Blueprint Name</h3>
       <p>Give your Blueprint a unique name to help you identify it in the future.</p>
       <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
-    </Dialog>
+    </Modal>
   );
 };

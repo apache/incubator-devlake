@@ -67,6 +67,7 @@ export const GitHubConfig: IPluginConfig = {
           />
         ) : (
           <GithubApp
+            key="github-app"
             endpoint={values.endpoint}
             proxy={values.proxy}
             initialValue={initialValues ? pick(initialValues, ['appId', 'secretKey', 'installationId']) : {}}

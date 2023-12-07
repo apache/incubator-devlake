@@ -18,12 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'antd';
+import { Table, Modal } from 'antd';
 import { ButtonGroup, Button, Tag, Intent, FormGroup, InputGroup, RadioGroup, Radio } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, IconButton, TextTooltip, Dialog } from '@/components';
+import { PageHeader, IconButton, TextTooltip } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -37,7 +37,7 @@ export const BlueprintHomePage = () => {
   const [type, setType] = useState('all');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [mode, setMode] = useState(IBPMode.NORMAL);
   const [saving, setSaving] = useState(false);
@@ -50,11 +50,11 @@ export const BlueprintHomePage = () => {
   const [options, presets] = useMemo(() => [getCronOptions(), cronPresets.map((preset) => preset.config)], []);
   const [dataSource, total] = useMemo(() => [data?.blueprints ?? [], data?.count ?? 0], [data]);
 
-  const handleShowDialog = () => setIsOpen(true);
+  const handleShowDialog = () => setOpen(true);
   const handleHideDialog = () => {
     setName('');
     setMode(IBPMode.NORMAL);
-    setIsOpen(false);
+    setOpen(false);
   };
 
   const handleCreate = async () => {
@@ -210,13 +210,16 @@ export const BlueprintHomePage = () => {
           }}
         />
       </S.Wrapper>
-      <Dialog
-        style={{ width: 820 }}
-        isOpen={isOpen}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Create a New Blueprint"
         okText="Save"
-        okDisabled={!name}
-        okLoading={saving}
+        okButtonProps={{
+          disabled: !name,
+          loading: saving,
+        }}
         onOk={handleCreate}
         onCancel={handleHideDialog}
       >
@@ -257,7 +260,7 @@ export const BlueprintHomePage = () => {
             </RadioGroup>
           </FormGroup>
         </S.DialogWrapper>
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };
