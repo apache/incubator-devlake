@@ -32,5 +32,5 @@ type BambooOptions struct {
 	Tasks              []string `json:"tasks,omitempty"`
 	ScopeConfigId      uint64   `mapstructure:"scopeConfigId" json:"scopeConfigId"`
 	*BambooScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
-	TimeAfter          string
+	TimeAfter          string `json:"timeAfter,omitempty"`
 }

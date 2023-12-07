@@ -30,7 +30,7 @@ type GiteeOptions struct {
 	Owner        string
 	Repo         string
 	ScopeConfig  models.GiteeScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
-	TimeAfter    string
+	TimeAfter    string                  `json:"timeAfter,omitempty"`
 }
 
 type GiteeTaskData struct {

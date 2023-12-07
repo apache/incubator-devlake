@@ -29,7 +29,7 @@ type CircleciOptions struct {
 	PageSize      uint64                      `mapstruct:"pageSize"`
 	ScopeConfigId uint64                      `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	ScopeConfig   *models.CircleciScopeConfig `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
-	TimeAfter     string
+	TimeAfter     string                      `json:"timeAfter,omitempty"`
 }
 
 type CircleciTaskData struct {

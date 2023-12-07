@@ -30,7 +30,7 @@ type IclaOptions struct {
 	// Such As How many rows do your want
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	Tasks     []string `json:"tasks,omitempty"`
-	TimeAfter string
+	TimeAfter string   `json:"timeAfter,omitempty"`
 }
 
 type IclaTaskData struct {

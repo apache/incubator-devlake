@@ -26,7 +26,7 @@ type MappingRules struct {
 
 type Options struct {
 	TransformationRules []MappingRules `json:"transformationRules"`
-	TimeAfter           string
+	TimeAfter           string         `json:"timeAfter,omitempty"`
 }
 
 type TaskData struct {

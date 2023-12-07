@@ -28,7 +28,7 @@ type FeishuApiParams struct {
 type FeishuOptions struct {
 	ConnectionId       uint64  `json:"connectionId"`
 	NumOfDaysToCollect float64 `json:"numOfDaysToCollect"`
-	TimeAfter          string
+	TimeAfter          string  `json:"timeAfter,omitempty"`
 }
 
 type FeishuTaskData struct {

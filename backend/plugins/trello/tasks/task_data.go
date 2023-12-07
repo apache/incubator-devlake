@@ -27,7 +27,7 @@ type TrelloOptions struct {
 	BoardId       string `json:"boardId"`
 	ScopeId       string
 	ScopeConfigId uint64
-	TimeAfter     string
+	TimeAfter     string `json:"timeAfter,omitempty"`
 }
 
 type TrelloTaskData struct {

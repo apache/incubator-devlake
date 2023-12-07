@@ -28,7 +28,7 @@ type GitlabOptions struct {
 	ProjectId     int                       `mapstructure:"projectId" json:"projectId"`
 	ScopeConfigId uint64                    `mapstructure:"scopeConfigId" json:"scopeConfigId"`
 	ScopeConfig   *models.GitlabScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
-	TimeAfter     string
+	TimeAfter     string                    `json:"timeAfter,omitempty"`
 }
 
 type GitlabTaskData struct {

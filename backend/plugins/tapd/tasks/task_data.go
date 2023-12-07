@@ -32,7 +32,7 @@ type TapdOptions struct {
 	CstZone       *time.Location
 	ScopeConfigId uint64
 	ScopeConfig   *models.TapdScopeConfig `json:"scopeConfig"`
-	TimeAfter     string
+	TimeAfter     string                  `json:"timeAfter,omitempty"`
 }
 
 type TapdTaskData struct {

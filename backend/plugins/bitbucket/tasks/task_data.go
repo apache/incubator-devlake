@@ -29,7 +29,7 @@ type BitbucketOptions struct {
 	FullName                     string   `json:"fullName" mapstructure:"fullName"`
 	ScopeConfigId                uint64   `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	*models.BitbucketScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
-	TimeAfter                    string
+	TimeAfter                    string `json:"timeAfter,omitempty"`
 }
 
 type BitbucketTaskData struct {

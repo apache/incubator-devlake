@@ -34,7 +34,7 @@ type GithubOptions struct {
 	Repo          string                    `json:"repo"  mapstructure:"repo,omitempty"`
 	Name          string                    `json:"name"  mapstructure:"name,omitempty"`
 	ScopeConfig   *models.GithubScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
-	TimeAfter     string
+	TimeAfter     string                    `json:"timeAfter,omitempty"`
 }
 
 type GithubTaskData struct {

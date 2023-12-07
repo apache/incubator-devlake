@@ -30,7 +30,7 @@ type TeambitionOptions struct {
 	PageSize            uint64 `mapstruct:"pageSize"`
 	CstZone             *time.Location
 	TransformationRules TransformationRules `json:"transformationRules"`
-	TimeAfter           string
+	TimeAfter           string              `json:"timeAfter,omitempty"`
 }
 
 type TeambitionTaskData struct {

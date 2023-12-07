@@ -24,7 +24,7 @@ import (
 type AeOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ProjectId    int
-	TimeAfter    string
+	TimeAfter    string `json:"timeAfter,omitempty"`
 }
 
 type AeTaskData struct {
