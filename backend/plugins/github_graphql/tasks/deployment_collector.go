@@ -70,9 +70,9 @@ type GraphqlQueryDeploymentDeployment struct {
 		Prefix string `graphql:"prefix"`
 	} `graphql:"ref"`
 	LatestStatus struct {
-		Id        string    `graphql:"id"`
-		State     string    `graphql:"state"`
-		UpdatedAt time.Time `json:"updatedAt"`
+		Id        string     `graphql:"id"`
+		State     string     `graphql:"state"`
+		UpdatedAt *time.Time `json:"updatedAt"`
 	} `graphql:"latestStatus"`
 	Repository struct {
 		Id   string `graphql:"id"`
