@@ -115,7 +115,7 @@ func (connection GithubConnection) TableName() string {
 	return "_tool_github_connections"
 }
 
-func (conn *GithubConnection) Merge(existed, modified *GithubConnection) error {
+func (connection *GithubConnection) Merge(existed, modified *GithubConnection) error {
 	// There are many kinds of update, we just update all fields simply.
 	existedTokenStr := existed.Token
 	existSecretKey := existed.SecretKey
