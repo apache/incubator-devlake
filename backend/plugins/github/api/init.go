@@ -18,13 +18,11 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/go-playground/validator/v10"
-	"strings"
 )
 
 var vld *validator.Validate
@@ -51,145 +49,8 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		},
 		nil,
 		nil,
-		customPatch,
-		nil,
-		nil,
 	)
 	raProxy = api.NewDsRemoteApiProxyHelper[models.GithubConnection](dsHelper.ConnApi.ModelApiHelper)
 	raScopeList = api.NewDsRemoteApiScopeListHelper[models.GithubConnection, models.GithubRepo, GithubRemotePagination](raProxy, listGithubRemoteScopes)
 	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.GithubConnection, models.GithubRepo](raProxy, searchGithubRepos)
-}
-
-func customPatch(modified, existed *models.GithubConnection) (merged *models.GithubConnection) {
-	// There are many kinds of update, we just update all fields simply.
-	existedTokenStr := existed.Token
-	existSecretKey := existed.SecretKey
-
-	existed.AppId = modified.AppId
-	existed.SecretKey = modified.SecretKey
-	existed.InstallationID = modified.InstallationID
-	existed.AuthMethod = modified.AuthMethod
-	existed.Proxy = modified.Proxy
-	existed.Endpoint = modified.Endpoint
-	existed.RateLimitPerHour = modified.RateLimitPerHour
-
-	// handle secret
-	if existSecretKey == "" {
-		if modified.SecretKey != "" {
-			// add secret key, store it
-			existed.SecretKey = modified.SecretKey
-		}
-		// doesn't input secret key, pass
-	} else {
-		if modified.SecretKey == "" {
-			// delete secret key
-			existed.SecretKey = modified.SecretKey
-		} else {
-			// update secret key
-			sanitizeSecretKey := existed.SanitizeSecret().SecretKey
-			if sanitizeSecretKey == modified.SecretKey {
-				// change nothing, restore it
-				existed.SecretKey = existSecretKey
-			} else {
-				// has changed, replace it with the new secret key
-				existed.SecretKey = modified.SecretKey
-			}
-		}
-	}
-
-	// handle tokens
-	existedTokens := strings.Split(strings.TrimSpace(existedTokenStr), ",")
-	existedTokenMap := make(map[string]string)          // {originalToken:sanitizedToken}
-	existedSanitizedTokenMap := make(map[string]string) // {sanitizedToken:originalToken}
-	for _, token := range existedTokens {
-		existedTokenMap[token] = existed.SanitizeToken(token)
-		existedSanitizedTokenMap[existed.SanitizeToken(token)] = token
-	}
-
-	modifiedTokens := strings.Split(strings.TrimSpace(modified.Token), ",")
-	modifiedTokenMap := make(map[string]string) // {originalToken:sanitizedToken}
-	for _, token := range modifiedTokens {
-		modifiedTokenMap[token] = existed.SanitizeToken(token)
-	}
-
-	var mergedToken []string
-	mergedTokenMap := make(map[string]struct{})
-	for token, sanitizeToken := range existedTokenMap {
-		// check token
-		if token == sanitizeToken {
-			// something wrong, just ignore sanitized tokens
-			continue
-		}
-		if _, ok := modifiedTokenMap[token]; ok {
-			// case 1: find in modified tokens, keep it
-			if _, ok := mergedTokenMap[token]; !ok {
-				mergedToken = append(mergedToken, token)
-				mergedTokenMap[token] = struct{}{}
-			}
-		}
-		// else case 2: not found, deleted or updated, remove it
-
-		// check sanitized token
-		if _, ok := modifiedTokenMap[sanitizeToken]; ok {
-			// case 1: find in modified tokens, keep it
-			if _, ok := mergedTokenMap[token]; !ok {
-				mergedToken = append(mergedToken, token)
-				mergedTokenMap[token] = struct{}{}
-			}
-		}
-		// else: case 2: not found, deleted or updated, remove it
-	}
-	for token, sanitizeToken := range modifiedTokenMap {
-		// check token
-		if _, ok := existedTokenMap[token]; ok {
-			// find in db, modified but no update, ignore it
-			if _, ok := mergedTokenMap[token]; !ok {
-				mergedToken = append(mergedToken, token)
-				mergedTokenMap[token] = struct{}{}
-			}
-		} else {
-			// not found, a new token, we should keep it
-			// cannot be a sanitized token
-			if _, ok := existedSanitizedTokenMap[token]; !ok {
-				if token != sanitizeToken {
-					if _, ok := mergedTokenMap[token]; !ok {
-						mergedToken = append(mergedToken, token)
-						mergedTokenMap[token] = struct{}{}
-					}
-				}
-			}
-		}
-
-		// token may be a sanitized token
-		if v, ok := existedSanitizedTokenMap[token]; ok {
-			// find in db, modify nothing, just keep it
-			if _, ok := mergedTokenMap[v]; !ok {
-				mergedToken = append(mergedToken, v)
-				mergedTokenMap[v] = struct{}{}
-			}
-		} else {
-			// unexpected
-			fmt.Printf("unexpected, token: %+v\n will be ignored", token)
-		}
-		// check sanitized token
-		if v, ok := existedSanitizedTokenMap[sanitizeToken]; ok {
-			// find in db, modify nothing, just keep it
-			if _, ok := mergedTokenMap[v]; !ok {
-				mergedToken = append(mergedToken, v)
-				mergedTokenMap[v] = struct{}{}
-			}
-		} else {
-			// a new token
-			// but we should check it
-			if sanitizeToken != token {
-				if _, ok := mergedTokenMap[token]; !ok {
-					mergedToken = append(mergedToken, token)
-					mergedTokenMap[token] = struct{}{}
-				}
-			}
-		}
-	}
-
-	existed.Token = strings.Join(mergedToken, ",")
-	return existed
 }

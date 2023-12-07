@@ -48,10 +48,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		},
 		nil,
 		nil,
-
-		nil,
-		nil,
-		nil,
 	)
 	// TODO: remove connectionHelper and refactor remoteHelper
 	raProxy = api.NewDsRemoteApiProxyHelper[models.GitlabConnection](dsHelper.ConnApi.ModelApiHelper)
