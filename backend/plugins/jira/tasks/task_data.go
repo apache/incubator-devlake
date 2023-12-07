@@ -29,7 +29,6 @@ type JiraOptions struct {
 	ConnectionId  uint64                  `json:"connectionId"`
 	BoardId       uint64                  `json:"boardId"`
 	ScopeConfig   *models.JiraScopeConfig `json:"scopeConfig"`
-	ScopeId       string
 	ScopeConfigId uint64
 	PageSize      int
 }

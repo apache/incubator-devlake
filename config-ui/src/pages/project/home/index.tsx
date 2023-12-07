@@ -18,12 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Table } from 'antd';
+import { Table, Modal, message } from 'antd';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Dialog, ExternalLink, IconButton, toast } from '@/components';
+import { PageHeader, ExternalLink, IconButton } from '@/components';
 import { getCron, cronPresets } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -40,7 +40,7 @@ export const ProjectHomePage = () => {
   const [version, setVersion] = useState(1);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -68,16 +68,16 @@ export const ProjectHomePage = () => {
     [data],
   );
 
-  const handleShowDialog = () => setIsOpen(true);
+  const handleShowDialog = () => setOpen(true);
   const handleHideDialog = () => {
-    setIsOpen(false);
+    setOpen(false);
     setName('');
     setEnableDora(true);
   };
 
   const handleCreate = async () => {
     if (!validName(name)) {
-      toast.error('Please enter alphanumeric or underscore');
+      message.error('Please enter alphanumeric or underscore');
       return;
     }
 
@@ -203,13 +203,16 @@ export const ProjectHomePage = () => {
           onChange: setPage,
         }}
       />
-      <Dialog
-        isOpen={isOpen}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Create a New Project"
-        style={{ width: 820 }}
         okText="Save"
-        okDisabled={!name}
-        okLoading={saving}
+        okButtonProps={{
+          disabled: !name,
+          loading: saving,
+        }}
         onOk={handleCreate}
         onCancel={handleHideDialog}
       >
@@ -247,7 +250,7 @@ export const ProjectHomePage = () => {
             />
           </FormGroup>
         </S.DialogWrapper>
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };

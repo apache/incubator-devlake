@@ -18,11 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
-import { Form } from 'antd';
+import { Form, Card, Alert } from 'antd';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Alert, ExternalLink, Card, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
+import { ExternalLink, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
@@ -117,7 +117,7 @@ export const ScopeConfigForm = ({
       {TIPS_MAP[plugin] && (
         <Alert
           style={{ marginBottom: 24 }}
-          content={
+          message={
             <>
               To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
               <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.

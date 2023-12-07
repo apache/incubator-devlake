@@ -15,37 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package migrationscripts
 
 import (
-	"context"
-	"io"
-
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
-func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.JiraConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := apiClient.Get(input.Params["path"], input.Query, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+var _ plugin.MigrationScript = (*modifyIssueTypeLength)(nil)
 
-	body, err := errors.Convert01(io.ReadAll(resp.Body))
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Status: resp.StatusCode, ContentType: resp.Header.Get("Content-Type"), Body: body}, nil
+type modifyIssueTypeLength struct{}
+
+type issue20231205 struct {
+	Type string `gorm:"type:varchar(500)"`
+}
+
+func (issue20231205) TableName() string {
+	return "_tool_github_issues"
+}
+
+func (script *modifyIssueTypeLength) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&issue20231205{})
+}
+
+func (*modifyIssueTypeLength) Version() uint64 {
+	return 20231205145125
+}
+
+func (*modifyIssueTypeLength) Name() string {
+	return "modify github issue type length from 100 to 500"
 }

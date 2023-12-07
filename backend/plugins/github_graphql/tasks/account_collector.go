@@ -123,18 +123,7 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 				// log and ignore
 				taskCtx.GetLogger().Warn(dataError, `query user get error but ignore`)
 			}
-			query := iQuery.(*GraphqlQueryAccountWrapper)
-			accounts := query.Users
-
-			results := make([]interface{}, 0, 1)
-			for _, account := range accounts {
-				relatedUsers, err := convertAccount(account, data.Options.ConnectionId)
-				if err != nil {
-					return nil, err
-				}
-				results = append(results, relatedUsers...)
-			}
-			return results, nil
+			return nil, nil
 		},
 	})
 
@@ -143,32 +132,4 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collector.Execute()
-}
-
-func convertAccount(res GraphqlQueryAccount, connId uint64) ([]interface{}, errors.Error) {
-	results := make([]interface{}, 0, len(res.Organizations.Nodes)+1)
-	githubAccount := &models.GithubAccount{
-		ConnectionId: connId,
-		Id:           res.Id,
-		Login:        res.Login,
-		Name:         res.Name,
-		Company:      res.Company,
-		Email:        res.Email,
-		AvatarUrl:    res.AvatarUrl,
-		//Url:          res.Url,
-		HtmlUrl: res.HtmlUrl,
-		Type:    `User`,
-	}
-	results = append(results, githubAccount)
-	for _, apiAccountOrg := range res.Organizations.Nodes {
-		githubAccountOrg := &models.GithubAccountOrg{
-			ConnectionId: connId,
-			AccountId:    res.Id,
-			OrgId:        apiAccountOrg.DatabaseId,
-			OrgLogin:     apiAccountOrg.Login,
-		}
-		results = append(results, githubAccountOrg)
-	}
-
-	return results, nil
 }

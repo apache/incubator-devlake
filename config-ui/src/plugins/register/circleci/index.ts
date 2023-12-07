@@ -16,20 +16,4 @@
  *
  */
 
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  padding: 24px;
-  background: #f0f4fe;
-  border: 1px solid #bdcefb;
-  border-radius: 4px;
-`;
-
-interface Props {
-  style?: React.CSSProperties;
-  content: React.ReactNode;
-}
-
-export const Alert = ({ style, content }: Props) => {
-  return <Wrapper style={style}>{content}</Wrapper>;
-};
+export * from './config';

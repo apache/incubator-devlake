@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type GithubIssue struct {
@@ -31,7 +32,7 @@ type GithubIssue struct {
 	Title           string
 	Body            string
 	Priority        string `gorm:"type:varchar(255)"`
-	Type            string `gorm:"type:varchar(100)"`
+	Type            string `gorm:"type:varchar(500)"`
 	StdType         string `gorm:"type:varchar(100)"`
 	AuthorId        int
 	AuthorName      string `gorm:"type:varchar(255)"`

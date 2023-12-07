@@ -202,7 +202,7 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.UpdateScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,

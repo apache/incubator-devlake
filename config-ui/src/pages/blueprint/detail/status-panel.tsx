@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card, Modal } from 'antd';
 import { Button, Switch, Intent, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import API from '@/api';
-import { Card, IconButton, Dialog, Message } from '@/components';
+import { IconButton, Message } from '@/components';
 import { getCron } from '@/config';
 import { useAutoRefresh } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
@@ -206,12 +207,15 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
       {/* </PipelineContextProvider> */}
 
       {type === 'delete' && (
-        <Dialog
-          isOpen
-          style={{ width: 820 }}
+        <Modal
+          open
+          width={820}
+          centered
           title="Are you sure you want to delete this Blueprint?"
           okText="Confirm"
-          okLoading={operating}
+          okButtonProps={{
+            loading: operating,
+          }}
           onCancel={handleResetType}
           onOk={handleDelete}
         >
@@ -220,19 +224,22 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
               Blueprint. If you would like to delete the historical data of Data Scopes, please visit the Connection
               page and do so."
           />
-        </Dialog>
+        </Modal>
       )}
 
       {type === 'fullSync' && (
-        <Dialog
-          isOpen
+        <Modal
+          open
+          centered
           okText="Run Now"
-          okLoading={operating}
+          okButtonProps={{
+            loading: operating,
+          }}
           onCancel={handleResetType}
           onOk={() => handleRun({ fullSync: true })}
         >
           <Message content="This operation may take a long time as it will empty all of your existing data and re-collect it." />
-        </Dialog>
+        </Modal>
       )}
     </S.StatusPanel>
   );

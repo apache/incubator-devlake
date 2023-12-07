@@ -17,9 +17,10 @@
  */
 
 import { useNavigate } from 'react-router-dom';
+import { Card } from 'antd';
 import { Icon, Colors, Button, Intent } from '@blueprintjs/core';
 
-import { Card, Buttons } from '@/components';
+import { Buttons } from '@/components';
 
 interface Props {
   error: string | Error;

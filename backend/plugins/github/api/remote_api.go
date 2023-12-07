@@ -263,9 +263,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	return raScopeList.Get(input)
 }
 
-// SearchRemoteScopes searches projects on the remote server
-// @Summary searches projects on the remote server
-// @Description searches projects on the remote server
+// SearchRemoteScopes searches scopes on the remote server
+// @Summary searches scopes on the remote server
+// @Description searches scopes on the remote server
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param search query string false "search"

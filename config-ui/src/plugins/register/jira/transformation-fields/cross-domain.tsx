@@ -36,7 +36,7 @@ interface Props {
 export const CrossDomain = ({ connectionId, transformation, setTransformation }: Props) => {
   const [radio, setRadio] = useState<'remote-link' | 'dev-panel'>('remote-link');
   const [showTip, setShowTip] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (transformation.applicationType) {
@@ -102,14 +102,14 @@ export const CrossDomain = ({ connectionId, transformation, setTransformation }:
                 )}
                 <Button
                   text={!transformation.applicationType ? 'Configure' : 'Edit Configuration'}
-                  onClick={() => setIsOpen(true)}
+                  onClick={() => setOpen(true)}
                 />
                 <DevPanel
                   connectionId={connectionId}
                   transformation={transformation}
                   setTransformation={setTransformation}
-                  isOpen={isOpen}
-                  onCancel={() => setIsOpen(false)}
+                  open={open}
+                  onCancel={() => setOpen(false)}
                 />
               </>
             )}

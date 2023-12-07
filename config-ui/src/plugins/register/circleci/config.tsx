@@ -19,48 +19,44 @@
 import { DOC_URL } from '@/release';
 import { IPluginConfig } from '@/types';
 
-import { DBUrl } from './connection-fields';
 import Icon from './assets/icon.svg?react';
 
-export const ZenTaoConfig: IPluginConfig = {
-  plugin: 'zentao',
-  name: 'ZenTao',
+export const CircleCIConfig: IPluginConfig = {
+  plugin: 'circleci',
+  name: 'CircleCI',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 13,
+  sort: 4,
   connection: {
-    docLink: DOC_URL.PLUGIN.ZENTAO.BASIS,
+    docLink: '',
     fields: [
       'name',
       {
         key: 'endpoint',
-        subLabel:
-          'Provide the Zentao instance API endpoint (Opensource v16+). E.g. http://<host>:<port>/api.php/v1 or http://<host>:<port>/zentao/api.php/v1',
+        multipleVersions: {
+          cloud: 'https://circleci.com/api/',
+          server: '',
+        },
       },
-      'username',
-      'password',
-      ({ initialValues, values, setValues }: any) => (
-        <DBUrl
-          initialValue={initialValues.dbUrl}
-          value={values.dbUrl}
-          setValue={(value) => setValues({ dbUrl: value })}
-        />
-      ),
+      'token',
       'proxy',
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses 10,000 requests/hour for data collection for ZenTao. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: DOC_URL.PLUGIN.ZENTAO.RATE_LIMIT,
-        externalInfo: 'ZenTao does not specify a maximum value of rate limit.',
+          'By default, DevLake uses 10,000 requests/hour for data collection for CircleCI. But you can adjust the collection speed by setting up your desirable rate limit.',
+        learnMore: DOC_URL.PLUGIN.BITBUCKET.RATE_LIMIT,
+        externalInfo: 'CircleCI does not specify a maximum value of rate limit.',
         defaultValue: 10000,
       },
     ],
+    initialValues: {
+      endpoint: 'https://circleci.com/api/',
+    },
   },
   dataScope: {
-    localSearch: true,
-    title: 'Repositories',
-    millerColumn: {
-      columnCount: 2,
-    },
+    title: 'Projects',
+  },
+  scopeConfig: {
+    entities: ['CICD'],
+    transformation: {},
   },
 };
