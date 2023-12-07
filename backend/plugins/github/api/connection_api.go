@@ -361,7 +361,7 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 // @Summary test github connection
 // @Description Test github Connection
 // @Tags plugins/github
-// @Success 200  {object} GithubTestConnResponse
+// @Success 200  {object} GithubMultiTestConnResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/github/{connectionId}/test [POST]
