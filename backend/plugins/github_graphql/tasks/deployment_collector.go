@@ -22,25 +22,23 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
 )
 
-var _ plugin.SubTaskEntryPoint = CollectAndExtractDeployments
+var _ plugin.SubTaskEntryPoint = CollectDeployments
 
 const (
 	RAW_DEPLOYMENT = "github_graphql_deployment"
 )
 
-var CollectAndExtractDeploymentsMeta = plugin.SubTaskMeta{
-	Name:             "CollectAndExtractDeployments",
-	EntryPoint:       CollectAndExtractDeployments,
+var CollectDeploymentsMeta = plugin.SubTaskMeta{
+	Name:             "CollectDeployments",
+	EntryPoint:       CollectDeployments,
 	EnabledByDefault: true,
-	Description:      "collect and extract github deployments to raw and tool layer from GithubGraphql api",
+	Description:      "collect github deployments to raw and tool layer from GithubGraphql api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
@@ -85,9 +83,8 @@ type GraphqlQueryDeploymentDeployment struct {
 	UpdatedAt time.Time
 }
 
-// CollectAndExtractDeployments will request github api via graphql and store the result into raw layer by default
-// ResponseParser's return will be stored to tool layer. So it's called CollectorAndExtractor.
-func CollectAndExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
+// CollectDeployments will request github api via graphql and store the result into raw layer.
+func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
@@ -99,10 +96,6 @@ func CollectAndExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	})
 	if err != nil {
 		return err
-	}
-	since := helper.DateTime{}
-	if collectorWithState.Since != nil {
-		since = helper.DateTime{Time: *collectorWithState.Since}
 	}
 
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
@@ -130,53 +123,16 @@ func CollectAndExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
 			query := iQuery.(*GraphqlQueryDeploymentWrapper)
 			deployments := query.Repository.Deployments.Deployments
-			var results []interface{}
-			for _, deployment := range deployments {
-				//Skip deployments with createdAt earlier than 'since'
-				if deployment.CreatedAt.Before(since.Time) {
-					continue
+			for _, rawL := range deployments {
+				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
+					break
 				}
-				githubDeployment, err := convertGithubDeployment(deployment, data.Options.ConnectionId, data.Options.GithubId)
-				if err != nil {
-					return nil, err
-				}
-				results = append(results, githubDeployment)
 			}
-
-			return results, nil
+			return nil, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
-
 	return collectorWithState.Execute()
-}
-
-func convertGithubDeployment(deployment GraphqlQueryDeploymentDeployment, connectionId uint64, githubId int) (*githubModels.GithubDeployment, error) {
-	ret := &githubModels.GithubDeployment{
-		ConnectionId:      connectionId,
-		GithubId:          githubId,
-		NoPKModel:         common.NewNoPKModel(),
-		Id:                deployment.Id,
-		DatabaseId:        deployment.DatabaseId,
-		Payload:           deployment.Payload,
-		Description:       deployment.Description,
-		CommitOid:         deployment.CommitOid,
-		Environment:       deployment.Environment,
-		State:             deployment.State,
-		RepositoryID:      deployment.Repository.Id,
-		RepositoryName:    deployment.Repository.Name,
-		RepositoryUrl:     deployment.Repository.Url,
-		CreatedDate:       deployment.CreatedAt,
-		UpdatedDate:       deployment.UpdatedAt,
-		LatestStatusState: deployment.LatestStatus.State,
-	}
-	if !deployment.LatestStatus.UpdatedAt.IsZero() {
-		ret.LatestUpdatedDate = deployment.LatestStatus.UpdatedAt
-	}
-	if deployment.Ref != nil {
-		ret.RefName = deployment.Ref.Name
-	}
-	return ret, nil
 }
