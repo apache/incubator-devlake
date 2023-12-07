@@ -85,10 +85,10 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 						//HeadSha:       ``,  // use _tool_github_runs
 						//RunURL:        ``,
 						//CheckRunURL:   ``,
-						//Labels:        ``, // not on use
-						//RunnerID:      ``, // not on use
-						//RunnerName:    ``, // not on use
-						//RunnerGroupID: ``, // not on use
+						//Labels:        ``, // not in use
+						//RunnerID:      ``, // not in use
+						//RunnerName:    ``, // not in use
+						//RunnerGroupID: ``, // not in use
 					}
 					results = append(results, githubJob)
 				}

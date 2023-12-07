@@ -55,15 +55,15 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			accounts := apiAccount.Users
-			results := make([]interface{}, 0, 1)
+			var result []interface{}
 			for _, account := range accounts {
 				relatedUsers, err := convertAccount(account, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}
-				results = append(results, relatedUsers...)
+				result = append(result, relatedUsers...)
 			}
-			return results, nil
+			return result, nil
 		},
 	})
 

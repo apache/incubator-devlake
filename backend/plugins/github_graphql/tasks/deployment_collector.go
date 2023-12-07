@@ -38,7 +38,7 @@ var CollectDeploymentsMeta = plugin.SubTaskMeta{
 	Name:             "CollectDeployments",
 	EntryPoint:       CollectDeployments,
 	EnabledByDefault: true,
-	Description:      "collect and extract github deployments to raw and tool layer from GithubGraphql api",
+	Description:      "collect github deployments to raw and tool layer from GithubGraphql api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
@@ -83,8 +83,7 @@ type GraphqlQueryDeploymentDeployment struct {
 	UpdatedAt time.Time
 }
 
-// CollectDeployments will request github api via graphql and store the result into raw layer by default
-// ResponseParser's return will be stored to tool layer. So it's called CollectorAndExtractor.
+// CollectDeployments will request github api via graphql and store the result into raw layer.
 func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
@@ -124,18 +123,12 @@ func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
 			query := iQuery.(*GraphqlQueryDeploymentWrapper)
 			deployments := query.Repository.Deployments.Deployments
-			isFinish := false
 			for _, rawL := range deployments {
 				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
-					isFinish = true
 					break
 				}
 			}
-			if isFinish {
-				return nil, helper.ErrFinishCollect
-			} else {
-				return nil, nil
-			}
+			return nil, nil
 		},
 	})
 	if err != nil {
