@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -41,13 +42,43 @@ type ApiCollectorStateManager struct {
 	Before        *time.Time
 }
 
+type CollectorOptions struct {
+	TimeAfter string `json:"timeAfter,omitempty"`
+}
+
 // NewStatefulApiCollector create a new ApiCollectorStateManager
 func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
-
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
 	rawDataSubTask, err := NewRawDataSubTask(args)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args")
+	}
+
+	// get optionTimeAfter from options
+	data := args.Ctx.GetData()
+	value := reflect.ValueOf(data)
+	if value.Kind() == reflect.Ptr && value.Elem().Kind() == reflect.Struct {
+		options := value.Elem().FieldByName("Options")
+		if options.IsValid() && options.Kind() == reflect.Ptr && options.Elem().Kind() == reflect.Struct {
+			collectorOptions := options.Elem().FieldByName("CollectorOptions")
+			if collectorOptions.IsValid() && collectorOptions.Kind() == reflect.Struct {
+				timeAfter := collectorOptions.FieldByName("TimeAfter")
+				if timeAfter.IsValid() && timeAfter.Kind() == reflect.String && timeAfter.String() != "" {
+					optionTimeAfter, parseErr := time.Parse(time.RFC3339, timeAfter.String())
+					if parseErr != nil {
+						return nil, errors.Default.Wrap(parseErr, "Failed to parse timeAfter!")
+					}
+					if syncPolicy != nil {
+						syncPolicy.TimeAfter = &optionTimeAfter
+					} else {
+						syncPolicy = &models.SyncPolicy{
+							TimeAfter: &optionTimeAfter,
+						}
+					}
+				}
+			}
+		}
 	}
 
 	// CollectorLatestState retrieves the latest collector state from the database
@@ -68,7 +99,6 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	oldLatestSuccessStart := oldState.LatestSuccessStart
 
 	// Calculate incremental and since based on syncPolicy and old state
-	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
 	var isIncremental bool
 	var since *time.Time
 
