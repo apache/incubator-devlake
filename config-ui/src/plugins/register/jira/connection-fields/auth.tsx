@@ -17,9 +17,10 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Input } from 'antd';
 import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
 
-import { ExternalLink, FormPassword } from '@/components';
+import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
 import * as S from './styled';
@@ -159,7 +160,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
               </S.LabelDescription>
             }
           >
-            <FormPassword placeholder="Your PAT" value={values.password} onChange={handleChangePassword} />
+            <Input.Password placeholder="Your PAT" value={values.password} onChange={handleChangePassword} />
           </FormGroup>
         </>
       )}
@@ -178,7 +179,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
                 <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
               </FormGroup>
               <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <FormPassword placeholder="Your Password" value={values.password} onChange={handleChangePassword} />
+                <Input.Password placeholder="Your Password" value={values.password} onChange={handleChangePassword} />
               </FormGroup>
             </>
           )}
@@ -194,7 +195,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
                 </S.LabelDescription>
               }
             >
-              <FormPassword placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
+              <Input.Password placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
             </FormGroup>
           )}
         </>
