@@ -41,11 +41,6 @@ var parentPermissions = map[string]string{
 	"read:org":        "admin:org",
 }
 
-const (
-	AppKey      = "AppKey"
-	AccessToken = "AccessToken"
-)
-
 // findMissingPerms returns the missing required permissions from the given user permissions
 func findMissingPerms(userPerms map[string]bool, requiredPerms []string) []string {
 	missingPerms := make([]string, 0)
@@ -153,7 +148,7 @@ func testConnection(ctx context.Context, conn models.GithubConn) (*GithubTestCon
 		}
 	}
 	githubApiResponse := &GithubTestConnResponse{}
-	if conn.AuthMethod == AppKey {
+	if conn.AuthMethod == models.AppKey {
 		if tokenTestResult, err := testGithubConnAppKeyAuth(ctx, conn); err != nil {
 			return nil, errors.Convert(err)
 		} else {
@@ -162,7 +157,7 @@ func testConnection(ctx context.Context, conn models.GithubConn) (*GithubTestCon
 			githubApiResponse.Login = tokenTestResult.Login
 			githubApiResponse.Installations = tokenTestResult.Installations
 		}
-	} else if conn.AuthMethod == AccessToken {
+	} else if conn.AuthMethod == models.AccessToken {
 		if tokenTestResult, err := testGithubConnAccessTokenAuth(ctx, conn); err != nil {
 			return nil, errors.Convert(err)
 		} else {
@@ -261,7 +256,7 @@ func testGithubConnAccessTokenAuth(ctx context.Context, conn models.GithubConn) 
 
 	sanitizeConn := conn.Sanitize()
 	tokenTestResult := GitHubTestConnResult{
-		AuthMethod: AccessToken,
+		AuthMethod: models.AccessToken,
 		Token:      sanitizeConn.Token,
 		Success:    success,
 		Message:    strings.Join(messages, ";\n"),
@@ -271,8 +266,7 @@ func testGithubConnAccessTokenAuth(ctx context.Context, conn models.GithubConn) 
 	return &tokenTestResult, nil
 }
 
-func testGithubConnAppKeyAuth(ctx context.Context, conn models.GithubConn) (*GitHubTestConnResult, error) {
-	// AppKey can only have one secretKey
+func getInstallationsWithGithubConnAppKeyAuth(ctx context.Context, conn models.GithubConn) (*GitHubTestConnResult, error) {
 	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &conn)
 	if err != nil {
 		return nil, err
@@ -285,7 +279,7 @@ func testGithubConnAppKeyAuth(ctx context.Context, conn models.GithubConn) (*Git
 		"Authorization": []string{fmt.Sprintf("Bearer %s", jwt)},
 	})
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "verify token failed")
+		return nil, errors.BadInput.Wrap(err, "verify token(get app) failed")
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
@@ -293,7 +287,7 @@ func testGithubConnAppKeyAuth(ctx context.Context, conn models.GithubConn) (*Git
 	githubApp := &models.GithubApp{}
 	err = api.UnmarshalResponse(res, githubApp)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "verify token failed")
+		return nil, errors.BadInput.Wrap(err, "verify token resp failed")
 	} else if githubApp.Slug == "" {
 		return nil, errors.BadInput.Wrap(err, "invalid token")
 	}
@@ -301,7 +295,7 @@ func testGithubConnAppKeyAuth(ctx context.Context, conn models.GithubConn) (*Git
 		"Authorization": []string{fmt.Sprintf("Bearer %s", jwt)},
 	})
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "verify token failed")
+		return nil, errors.BadInput.Wrap(err, "verify token(get app installations) failed")
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
@@ -312,7 +306,7 @@ func testGithubConnAppKeyAuth(ctx context.Context, conn models.GithubConn) (*Git
 		return nil, errors.BadInput.Wrap(err, "verify token failed")
 	}
 	tokenTestResult := GitHubTestConnResult{
-		AuthMethod:     AppKey,
+		AuthMethod:     models.AppKey,
 		AppId:          conn.AppId,
 		InstallationID: conn.InstallationID,
 		Success:        true,
@@ -323,6 +317,15 @@ func testGithubConnAppKeyAuth(ctx context.Context, conn models.GithubConn) (*Git
 	return &tokenTestResult, nil
 }
 
+func testGithubConnAppKeyAuth(ctx context.Context, conn models.GithubConn) (*GitHubTestConnResult, error) {
+	// AppKey can only have one secretKey, can shouldn't have tokens.
+	conn.Token = ""
+	// I think connection with InstallationID needs another test
+	// But it's to be determined. So just ignore it temporarily.
+	conn.InstallationID = 0
+	return getInstallationsWithGithubConnAppKeyAuth(ctx, conn)
+}
+
 func testExistingConnection(ctx context.Context, conn models.GithubConn) (*GithubMultiTestConnResponse, errors.Error) {
 	if vld != nil {
 		if err := vld.StructExcept(conn, "GithubAppKey", "GithubAccessToken"); err != nil {
@@ -330,13 +333,13 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 		}
 	}
 	githubApiResponse := &GithubMultiTestConnResponse{}
-	if conn.AuthMethod == AppKey {
+	if conn.AuthMethod == models.AppKey {
 		if tokenTestResult, err := testGithubConnAppKeyAuth(ctx, conn); err != nil {
 			return nil, errors.Convert(err)
 		} else {
 			githubApiResponse.Tokens = append(githubApiResponse.Tokens, tokenTestResult)
 		}
-	} else if conn.AuthMethod == AccessToken {
+	} else if conn.AuthMethod == models.AccessToken {
 		tokens := strings.Split(conn.Token, ",")
 		for _, token := range tokens {
 			testGithubConn := conn

@@ -31,6 +31,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+const (
+	AccessToken = "AccessToken"
+	AppKey      = "AppKey"
+)
+
 // GithubAccessToken supports fetching data with multiple tokens
 type GithubAccessToken struct {
 	helper.AccessToken `mapstructure:",squash"`
@@ -54,11 +59,11 @@ type GithubConn struct {
 // PrepareApiClient splits Token to tokens for SetupAuthentication to utilize
 func (conn *GithubConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 
-	if conn.AuthMethod == "AccessToken" {
+	if conn.AuthMethod == AccessToken {
 		conn.tokens = strings.Split(conn.Token, ",")
 	}
 
-	if conn.AuthMethod == "AppKey" && conn.InstallationID != 0 {
+	if conn.AuthMethod == AppKey && conn.InstallationID != 0 {
 		token, err := conn.getInstallationAccessToken(apiClient)
 		if err != nil {
 			return err
