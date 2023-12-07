@@ -17,13 +17,14 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
+import { Modal } from 'antd';
 import { Button, InputGroup, Icon, Intent } from '@blueprintjs/core';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import { MillerColumnsSelect } from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 
 import API from '@/api';
-import { FormItem, MultiSelector, Loading, Dialog, Message } from '@/components';
+import { FormItem, MultiSelector, Loading, Message } from '@/components';
 import { IPluginConfig } from '@/types';
 
 import * as T from './types';
@@ -53,7 +54,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
     nextTokenMap: {},
   });
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [status, setStatus] = useState('init');
 
   const [query, setQuery] = useState('');
@@ -142,7 +143,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
   }, [miller]);
 
   const handleLoadAllScopes = async () => {
-    setIsOpen(false);
+    setOpen(false);
     setStatus('loading');
 
     if (!miller.loadedIds.includes('root')) {
@@ -209,7 +210,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
               disabled={!miller.items.length}
               intent={Intent.PRIMARY}
               text="Load all scopes to search by keywords"
-              onClick={() => setIsOpen(true)}
+              onClick={() => setOpen(true)}
             />
           </S.JobLoad>
         )}
@@ -241,9 +242,9 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
           expandedIds={miller.expandedIds}
         />
       </FormItem>
-      <Dialog isOpen={isOpen} okText="Load" onCancel={() => setIsOpen(false)} onOk={handleLoadAllScopes}>
+      <Modal open={open} okText="Load" onCancel={() => setOpen(false)} onOk={handleLoadAllScopes}>
         <Message content={`This operation may take a long time, as it iterates through all the ${config.title}.`} />
-      </Dialog>
+      </Modal>
     </S.Wrapper>
   );
 };

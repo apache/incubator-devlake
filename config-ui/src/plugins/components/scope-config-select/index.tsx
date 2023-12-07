@@ -39,7 +39,7 @@ interface Props {
 export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCancel, onSubmit }: Props) => {
   const [version, setVersion] = useState(1);
   const [trId, setTrId] = useState<ID>();
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [updatedId, setUpdatedId] = useState<ID>();
 
   const { ready, data } = useRefreshData(() => API.scopeConfig.list(plugin, connectionId), [version]);
@@ -54,11 +54,11 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
   }, [scopeConfigId]);
 
   const handleShowDialog = () => {
-    setIsOpen(true);
+    setOpen(true);
   };
 
   const handleHideDialog = () => {
-    setIsOpen(false);
+    setOpen(false);
     setUpdatedId(undefined);
   };
 
@@ -114,7 +114,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         </Button>
       </Buttons>
       <Modal
-        open={isOpen}
+        open={open}
         width={960}
         centered
         footer={null}
