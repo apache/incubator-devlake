@@ -40,7 +40,7 @@ func (script *modifyDeploymentMessageType) Up(basicRes context.BasicRes) errors.
 }
 
 func (*modifyDeploymentMessageType) Version() uint64 {
-	return 20231205155129
+	return 20231207155129
 }
 
 func (*modifyDeploymentMessageType) Name() string {
