@@ -21,7 +21,7 @@ import { DOC_URL } from '@/release';
 import Icon from './assets/icon.svg';
 
 export const BitBucketServerConfig = {
-  plugin: 'bitbucket-server',
+  plugin: 'bitbucket_server',
   name: 'BitBucket Server',
   icon: Icon,
   sort: 5,
