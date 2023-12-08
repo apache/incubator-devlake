@@ -62,7 +62,7 @@ export const SyncPolicy = ({
       const opt = cronOpts.find((it) => it.value === cronConfig);
       setSelectedValue(opt ? opt.label : 'Custom');
     }
-  }, []);
+  }, [isManual, cronConfig]);
 
   const [timezone, quickTimeOpts] = useMemo(() => {
     const timezone = dayjs().format('ZZ').replace('00', '');
