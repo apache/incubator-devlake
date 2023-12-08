@@ -15,22 +15,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package devops
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type CiCDPipelineCommit struct {
-	common.NoPKModel
-	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
-	CommitMsg  string
-	Branch     string `gorm:"type:varchar(255)"`
-	RepoId     string `gorm:"index;type:varchar(255)"`
-	RepoUrl    string
+var _ plugin.MigrationScript = (*addCommitMsgtoPipelineCommit)(nil)
+
+type cicdPipelineCommit20231208 struct {
+	CommitMsg string
 }
 
-func (CiCDPipelineCommit) TableName() string {
+func (cicdPipelineCommit20231208) TableName() string {
 	return "cicd_pipeline_commits"
+}
+
+type addCommitMsgtoPipelineCommit struct{}
+
+func (u *addCommitMsgtoPipelineCommit) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if err := db.AutoMigrate(&cicdPipelineCommit20231208{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*addCommitMsgtoPipelineCommit) Version() uint64 {
+	return 20231208142100
+}
+
+func (*addCommitMsgtoPipelineCommit) Name() string {
+	return "add commit_msg to cicd_pipeline_commits table"
 }

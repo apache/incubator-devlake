@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-var _ plugin.MigrationScript = (*addCommitMsg)(nil)
+var _ plugin.MigrationScript = (*addCommitMsgtoDeploymentCommit)(nil)
 
 type cicdDeploymentCommit20231127 struct {
 	CommitMsg string
@@ -33,9 +33,9 @@ func (cicdDeploymentCommit20231127) TableName() string {
 	return "cicd_deployment_commits"
 }
 
-type addCommitMsg struct{}
+type addCommitMsgtoDeploymentCommit struct{}
 
-func (u *addCommitMsg) Up(basicRes context.BasicRes) errors.Error {
+func (u *addCommitMsgtoDeploymentCommit) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	if err := db.AutoMigrate(&cicdDeploymentCommit20231127{}); err != nil {
 		return err
@@ -43,10 +43,10 @@ func (u *addCommitMsg) Up(basicRes context.BasicRes) errors.Error {
 	return nil
 }
 
-func (*addCommitMsg) Version() uint64 {
+func (*addCommitMsgtoDeploymentCommit) Version() uint64 {
 	return 20231127142100
 }
 
-func (*addCommitMsg) Name() string {
+func (*addCommitMsgtoDeploymentCommit) Name() string {
 	return "add commit_msg to cicd_deployment_commit table"
 }
