@@ -54,11 +54,13 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
 
   const [search, setSearch] = useState<{
     items: McsItem<T.ResItem>[];
+    currentItems: McsItem<T.ResItem>[];
     query: string;
     page: number;
     total: number;
   }>({
     items: [],
+    currentItems: [],
     query: '',
     page: 1,
     total: 0,
@@ -134,14 +136,15 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
       pageSize: 20,
     });
 
-    const items = (res.children ?? []).map((it) => ({
+    const newItems = (res.children ?? []).map((it) => ({
       ...it,
       title: it.name,
     }));
 
     setSearch((s) => ({
       ...s,
-      items,
+      items: [...allItems, ...newItems],
+      currentItems: newItems,
       total: res.count,
     }));
   };
@@ -193,7 +196,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
           />
         ) : (
           <MillerColumnsSelect
-            items={search.items}
+            items={search.currentItems}
             columnCount={1}
             columnHeight={300}
             getCanExpand={() => false}
