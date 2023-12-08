@@ -17,7 +17,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, SearchOutlined } from '@ant-design/icons';
 import { Form, Space, Tag, Button, Input, Modal, message } from 'antd';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import { MillerColumnsSelect } from 'miller-columns-select';
@@ -231,7 +231,9 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
         )}
       </Form.Item>
       <Form.Item>
-        {status === 'loaded' && <Input prefix="search" value={query} onChange={(e) => setQuery(e.target.value)} />}
+        {status === 'loaded' && (
+          <Input prefix={<SearchOutlined rev={undefined} />} value={query} onChange={(e) => setQuery(e.target.value)} />
+        )}
         <MillerColumnsSelect
           items={scopes}
           columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
