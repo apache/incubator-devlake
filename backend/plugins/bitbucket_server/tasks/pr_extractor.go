@@ -136,6 +136,7 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		BitbucketId:  pull.BitbucketId,
 		Number:       pull.BitbucketId,
 		RepoId:       repoId,
+		BaseRepoId:   repoId, // using pull.BaseRef.Repo.Slug is not suitable because we can have same repo name in multiple projects
 		State:        pull.State,
 		Title:        pull.Title,
 		Description:  pull.Description,
@@ -144,10 +145,8 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		BitbucketCreatedAt: time.UnixMilli(pull.BitbucketCreatedAt),
 		BitbucketUpdatedAt: time.UnixMilli(pull.BitbucketUpdatedAt),
 	}
+
 	if pull.BaseRef != nil {
-		if pull.BaseRef.Repo != nil {
-			bitbucketPull.BaseRepoId = pull.BaseRef.Repo.Slug
-		}
 		bitbucketPull.BaseRef = pull.BaseRef.Branch
 		bitbucketPull.BaseCommitSha = pull.BaseRef.Commit
 	}
