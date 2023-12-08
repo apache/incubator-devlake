@@ -18,7 +18,6 @@
 
 export * from './action';
 export * from './buttons';
-export * from './divider';
 export * from './form';
 export * from './inspector';
 export * from './loading';
