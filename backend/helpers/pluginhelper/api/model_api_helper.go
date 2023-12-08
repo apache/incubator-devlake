@@ -129,14 +129,29 @@ func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
 	return models
 }
 
+type CustomMerge[M dal.Tabler] interface {
+	Merge(target, src *M) error
+}
+
 func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	model, err := self.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
-	err = utils.DecodeMapStruct(input.Body, model, true)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
+	if v, ok := (interface{}(model)).(CustomMerge[M]); ok {
+		modifiedModel := new(M)
+		err = utils.DecodeMapStruct(input.Body, modifiedModel, true)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to decode map struct %s", self.modelName))
+		}
+		if err := v.Merge(model, modifiedModel); err != nil {
+			return nil, errors.Convert(err)
+		}
+	} else {
+		err = utils.DecodeMapStruct(input.Body, model, true)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
+		}
 	}
 	err = self.dalHelper.Update(model)
 	if err != nil {
