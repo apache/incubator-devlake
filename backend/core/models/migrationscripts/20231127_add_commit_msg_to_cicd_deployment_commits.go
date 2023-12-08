@@ -48,5 +48,5 @@ func (*addCommitMsgtoDeploymentCommit) Version() uint64 {
 }
 
 func (*addCommitMsgtoDeploymentCommit) Name() string {
-	return "add commit_msg to cicd_deployment_commit table"
+	return "add commit_msg to cicd_deployment_commits table"
 }
