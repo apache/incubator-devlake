@@ -43,7 +43,7 @@ type GraphqlQueryPrWrapper struct {
 			PageInfo   *api.GraphqlQueryPageInfo
 			Prs        []GraphqlQueryPr `graphql:"nodes"`
 			TotalCount graphql.Int
-		} `graphql:"pullRequests(first: $pageSize, after: $skipCursor, orderBy: {field: UPDATED_AT, direction: DESC})"`
+		} `graphql:"pullRequests(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -169,20 +169,12 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
 			query := iQuery.(*GraphqlQueryPrWrapper)
 			prs := query.Repository.PullRequests.Prs
-
-			isFinish := false
 			for _, rawL := range prs {
-				// collect data even though in increment mode because of updating existing data
-				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
-					isFinish = true
-					break
+				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.CreatedAt) {
+					return nil, api.ErrFinishCollect
 				}
 			}
-			if isFinish {
-				return nil, api.ErrFinishCollect
-			} else {
-				return nil, nil
-			}
+			return nil, nil
 		},
 	})
 	if err != nil {

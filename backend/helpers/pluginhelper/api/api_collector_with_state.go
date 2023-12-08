@@ -157,6 +157,7 @@ func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) errors.E
 // InitGraphQLCollector init the embedded collector
 func (m *ApiCollectorStateManager) InitGraphQLCollector(args GraphqlCollectorArgs) errors.Error {
 	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
+	args.Incremental = args.Incremental || m.IsIncremental
 	graphqlCollector, err := NewGraphqlCollector(args)
 	if err != nil {
 		return err
