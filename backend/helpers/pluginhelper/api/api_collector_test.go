@@ -25,7 +25,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
@@ -74,7 +74,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 			},
 			Body: io.NopCloser(bytes.NewBufferString(body)),
 		}
-		handler := args.Get(3).(common.ApiAsyncCallback)
+		handler := args.Get(3).(plugin.ApiAsyncCallback)
 		handler(res)
 	}).Twice()
 	mockApi.On("NextTick", mock.Anything).Run(func(args mock.Arguments) {

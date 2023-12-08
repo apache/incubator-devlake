@@ -22,8 +22,8 @@ import (
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 )
 
@@ -33,7 +33,12 @@ type FeishuConn struct {
 	helper.AppKey         `mapstructure:",squash"`
 }
 
-func (conn *FeishuConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (conn *FeishuConn) Sanitize() FeishuConn {
+	conn.SecretKey = ""
+	return *conn
+}
+
+func (conn *FeishuConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	// request for access token
 	tokenReqBody := &apimodels.ApiAccessTokenRequest{
 		AppId:     conn.AppId,
@@ -70,4 +75,9 @@ type FeishuConnection struct {
 
 func (FeishuConnection) TableName() string {
 	return "_tool_feishu_connections"
+}
+
+func (connection FeishuConnection) Sanitize() FeishuConnection {
+	connection.FeishuConn = connection.FeishuConn.Sanitize()
+	return connection
 }

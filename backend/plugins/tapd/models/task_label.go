@@ -22,8 +22,9 @@ import (
 )
 
 type TapdTaskLabel struct {
-	TaskId    uint64 `gorm:"primaryKey;autoIncrement:false"`
-	LabelName string `gorm:"primaryKey;type:varchar(255)"`
+	ConnectionId uint64 `gorm:"primaryKey;autoIncrement:false"`
+	TaskId       uint64 `gorm:"primaryKey;autoIncrement:false"`
+	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
 

@@ -56,21 +56,21 @@ class Jobs(Substream):
         if not j.start_time:
             return
 
-        result = None
+        result = devops.CICDResult.RESULT_DEFAULT
         if j.result == Job.JobResult.Abandoned:
-            result = devops.CICDResult.ABORT
+            result = devops.CICDResult.RESULT_DEFAULT
         elif j.result == Job.JobResult.Canceled:
-            result = devops.CICDResult.ABORT
+            result = devops.CICDResult.FAILURE
         elif j.result == Job.JobResult.Failed:
             result = devops.CICDResult.FAILURE
         elif j.result == Job.JobResult.Skipped:
-            result = devops.CICDResult.ABORT
+            result = devops.CICDResult.RESULT_DEFAULT
         elif j.result == Job.JobResult.Succeeded:
             result = devops.CICDResult.SUCCESS
         elif j.result == Job.JobResult.SucceededWithIssues:
             result = devops.CICDResult.FAILURE
 
-        status = None
+        status = devops.CICDStatus.STATUS_OTHER
         if j.state == Job.JobState.Completed:
             status = devops.CICDStatus.DONE
         elif j.state == Job.JobState.InProgress:
@@ -86,16 +86,19 @@ class Jobs(Substream):
             environment = devops.CICDEnvironment.PRODUCTION
 
         if j.finish_time:
-            duration_sec = abs(j.finish_time.second-j.start_time.second)
+            duration_sec = abs(j.finish_time.timestamp()-j.start_time.timestamp())
         else:
-            duration_sec = 0
+            duration_sec = float(0.0)
 
         yield devops.CICDTask(
             id=j.id,
             name=j.name,
             pipeline_id=j.build_id,
             status=status,
+            original_status = str(j.state),
+            original_result = str(j.result),
             created_date=j.start_time,
+            started_date =j.start_time,
             finished_date=j.finish_time,
             result=result,
             type=type,

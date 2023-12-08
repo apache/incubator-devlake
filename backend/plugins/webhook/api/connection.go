@@ -19,20 +19,21 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
-	"net/http"
-	"strconv"
 )
 
 // PostConnections
 // @Summary create webhook connection
 // @Description Create webhook connection, example: {"name":"Webhook data connection name"}
 // @Tags plugins/webhook
-// @Param body body models.WebhookConnection true "json body"
+// @Param body body WebhookConnectionResponse true "json body"
 // @Success 200  {object} WebhookConnectionResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -143,7 +144,7 @@ type WebhookConnectionResponse struct {
 // @Summary get all webhook connections
 // @Description Get all webhook connections
 // @Tags plugins/webhook
-// @Success 200  {object} []*WebhookConnectionResponse
+// @Success 200  {object} []WebhookConnectionResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections [GET]
@@ -153,7 +154,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	var responseList []*WebhookConnectionResponse
+	responseList := []*WebhookConnectionResponse{}
 	for _, connection := range connections {
 		webhookConnectionResponse, err := formatConnection(&connection, true)
 		if err != nil {
@@ -185,11 +186,11 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 
 func formatConnection(connection *models.WebhookConnection, withApiKeyInfo bool) (*WebhookConnectionResponse, errors.Error) {
 	response := &WebhookConnectionResponse{WebhookConnection: *connection}
-	response.PostIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/issues`, connection.ID)
-	response.CloseIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/issue/:issueKey/close`, connection.ID)
-	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/cicd_tasks`, connection.ID)
-	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/deployments`, connection.ID)
-	response.ClosePipelineEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
+	response.PostIssuesEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/issues`, connection.ID)
+	response.CloseIssuesEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/issue/:issueKey/close`, connection.ID)
+	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/cicd_tasks`, connection.ID)
+	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/deployments`, connection.ID)
+	response.ClosePipelineEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
 	if withApiKeyInfo {
 		db := basicRes.GetDal()
 		apiKeyName := apiKeyHelper.GenApiKeyNameForPlugin(pluginName, connection.ID)

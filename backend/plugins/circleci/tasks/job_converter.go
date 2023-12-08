@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -27,6 +25,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
+	"reflect"
+	"time"
 )
 
 var ConvertJobsMeta = plugin.SubTaskMeta{
@@ -56,32 +56,41 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciJob)
+			createdAt := time.Now()
+			if userTool.CreatedAt != nil {
+				createdAt = userTool.CreatedAt.ToTime()
+			}
 			task := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getJobIdGen().Generate(data.Options.ConnectionId, userTool.WorkflowId, userTool.Id),
 				},
-				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, data.Project.Id),
-				Name:         userTool.Name,
-				PipelineId:   userTool.PipelineId,
-				StartedDate:  userTool.StartedAt.ToTime(),
-				FinishedDate: userTool.StoppedAt.ToNullableTime(),
-				DurationSec:  userTool.DurationSec,
+				CicdScopeId: getProjectIdGen().Generate(data.Options.ConnectionId, data.Project.Id),
+				Name:        userTool.Name,
+				PipelineId:  userTool.PipelineId,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					QueuedDate:   userTool.QueuedAt.ToNullableTime(),
+					StartedDate:  userTool.StartedAt.ToNullableTime(),
+					FinishedDate: userTool.StoppedAt.ToNullableTime(),
+				},
+				DurationSec: float64(userTool.Duration),
 				// reference: https://circleci.com/docs/api/v2/index.html#operation/getJobDetails
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error", "infrastructure_fail", "timedout", "terminated-unknown"},
-					Manual:  []string{"on_hold", "blocked"},
-					Default: devops.STATUS_IN_PROGRESS,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error", "infrastructure_fail", "timedout", "terminated-unknown"}, // on_hold,blocked
+					Default: devops.STATUS_OTHER,
 				}, userTool.Status),
+				OriginalStatus: userTool.Status,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{"success"},
-					Failed:  []string{"failed", "failing", "error"},
-					Skipped: []string{"not_run"},
-					Abort:   []string{"canceled"},
+					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
+					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
 				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
 			}
-
+			if task.DurationSec == 0 {
+				task.DurationSec = userTool.DurationSec
+			}
 			return []interface{}{
 				task,
 			}, nil

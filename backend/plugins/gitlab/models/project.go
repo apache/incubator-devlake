@@ -72,7 +72,7 @@ func (p GitlabProject) ScopeParams() interface{} {
 }
 
 // Convert the API response to our DB model instance
-func (gitlabApiProject GitlabApiProject) ConvertApiScope() plugin.ToolLayerScope {
+func (gitlabApiProject GitlabApiProject) ConvertApiScope() *GitlabProject {
 	p := &GitlabProject{}
 	p.GitlabId = gitlabApiProject.GitlabId
 	p.Name = gitlabApiProject.Name
@@ -116,6 +116,18 @@ type GitlabApiProject struct {
 	HttpUrlToRepo     string              `json:"http_url_to_repo"`
 	Archived          bool                `json:"archived"`
 	Permissions       Permissions         `json:"permissions"`
+	Namespace         struct {
+		ID       int    `json:"id"`
+		Name     string `json:"name"`
+		Path     string `json:"path"`
+		Kind     string `json:"kind"`
+		FullPath string `json:"full_path"`
+		ParentID any    `json:"parent_id"`
+	} `json:"namespace"`
+	Owner struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"owner"`
 }
 
 type Permissions struct {
@@ -142,14 +154,6 @@ type GroupResponse struct {
 	FullName    string `json:"full_name"`
 	FullPath    string `json:"full_path"`
 	ParentId    *int   `json:"parent_id"`
-}
-
-func (p GroupResponse) GroupId() string {
-	return "group:" + strconv.Itoa(p.Id)
-}
-
-func (p GroupResponse) GroupName() string {
-	return p.Name
 }
 
 type GitlabApiParams struct {

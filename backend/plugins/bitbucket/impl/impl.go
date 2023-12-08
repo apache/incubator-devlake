@@ -45,7 +45,7 @@ var _ interface {
 	plugin.PluginSource
 } = (*Bitbucket)(nil)
 
-type Bitbucket string
+type Bitbucket struct{}
 
 func (p Bitbucket) Connection() dal.Tabler {
 	return &models.BitbucketConnection{}
@@ -206,6 +206,9 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
+		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
 		},
 		"connections/:connectionId/scopes/*scopeId": {
 			"GET":    api.GetScope,

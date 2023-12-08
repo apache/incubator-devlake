@@ -18,14 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
 )
@@ -45,7 +43,7 @@ type GraphqlQueryPrWrapper struct {
 			PageInfo   *api.GraphqlQueryPageInfo
 			Prs        []GraphqlQueryPr `graphql:"nodes"`
 			TotalCount graphql.Int
-		} `graphql:"pullRequests(first: $pageSize, after: $skipCursor, orderBy: {field: UPDATED_AT, direction: DESC})"`
+		} `graphql:"pullRequests(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -119,35 +117,19 @@ type GraphqlQueryCommit struct {
 	Url string
 }
 
-var CollectPrMeta = plugin.SubTaskMeta{
-	Name:             "CollectPr",
-	EntryPoint:       CollectPr,
+var CollectPrsMeta = plugin.SubTaskMeta{
+	Name:             "CollectPrs",
+	EntryPoint:       CollectPrs,
 	EnabledByDefault: true,
 	Description:      "Collect Pr data from GithubGraphql api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-var _ plugin.SubTaskEntryPoint = CollectPr
+var _ plugin.SubTaskEntryPoint = CollectPrs
 
-func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*tasks.GithubTaskData)
-	config := data.Options.ScopeConfig
-	var labelTypeRegex *regexp.Regexp
-	var labelComponentRegex *regexp.Regexp
 	var err errors.Error
-	if config != nil && len(config.PrType) > 0 {
-		labelTypeRegex, err = errors.Convert01(regexp.Compile(config.PrType))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile prType failed")
-		}
-	}
-	if config != nil && len(config.PrComponent) > 0 {
-		labelComponentRegex, err = errors.Convert01(regexp.Compile(config.PrComponent))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
-		}
-	}
-
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: tasks.GithubApiParams{
@@ -187,95 +169,12 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
 			query := iQuery.(*GraphqlQueryPrWrapper)
 			prs := query.Repository.PullRequests.Prs
-
-			results := make([]interface{}, 0, 1)
-			isFinish := false
 			for _, rawL := range prs {
-				// collect data even though in increment mode because of updating existing data
-				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
-					isFinish = true
-					break
-				}
-				githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Options.GithubId)
-				if err != nil {
-					return nil, err
-				}
-				extractGraphqlPreAccount(&results, rawL.Author, data.Options.GithubId, data.Options.ConnectionId)
-				for _, label := range rawL.Labels.Nodes {
-					results = append(results, &models.GithubPrLabel{
-						ConnectionId: data.Options.ConnectionId,
-						PullId:       githubPr.GithubId,
-						LabelName:    label.Name,
-					})
-					// if pr.Type has not been set and prType is set in .env, process the below
-					if labelTypeRegex != nil {
-						groups := labelTypeRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
-							githubPr.Type = groups[1]
-						}
-					}
-
-					// if pr.Component has not been set and prComponent is set in .env, process
-					if labelComponentRegex != nil {
-						groups := labelComponentRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
-							githubPr.Component = groups[1]
-						}
-					}
-				}
-				results = append(results, githubPr)
-
-				for _, apiPullRequestReview := range rawL.Reviews.Nodes {
-					if apiPullRequestReview.State != "PENDING" {
-						githubPrReview := &models.GithubPrReview{
-							ConnectionId:   data.Options.ConnectionId,
-							GithubId:       apiPullRequestReview.DatabaseId,
-							Body:           apiPullRequestReview.Body,
-							State:          apiPullRequestReview.State,
-							CommitSha:      apiPullRequestReview.Commit.Oid,
-							GithubSubmitAt: apiPullRequestReview.SubmittedAt,
-
-							PullRequestId: githubPr.GithubId,
-						}
-
-						if apiPullRequestReview.Author != nil {
-							githubPrReview.AuthorUserId = apiPullRequestReview.Author.Id
-							githubPrReview.AuthorUsername = apiPullRequestReview.Author.Login
-							extractGraphqlPreAccount(&results, apiPullRequestReview.Author, data.Options.GithubId, data.Options.ConnectionId)
-						}
-
-						results = append(results, githubPrReview)
-					}
-				}
-
-				for _, apiPullRequestCommit := range rawL.Commits.Nodes {
-					githubCommit, err := convertPullRequestCommit(apiPullRequestCommit)
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, githubCommit)
-
-					githubPullRequestCommit := &models.GithubPrCommit{
-						ConnectionId:       data.Options.ConnectionId,
-						CommitSha:          apiPullRequestCommit.Commit.Oid,
-						PullRequestId:      githubPr.GithubId,
-						CommitAuthorName:   githubCommit.AuthorName,
-						CommitAuthorEmail:  githubCommit.AuthorEmail,
-						CommitAuthoredDate: githubCommit.AuthoredDate,
-					}
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, githubPullRequestCommit)
-					extractGraphqlPreAccount(&results, apiPullRequestCommit.Commit.Author.User, data.Options.GithubId, data.Options.ConnectionId)
+				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.CreatedAt) {
+					return nil, api.ErrFinishCollect
 				}
 			}
-
-			if isFinish {
-				return results, api.ErrFinishCollect
-			} else {
-				return results, nil
-			}
+			return nil, nil
 		},
 	})
 	if err != nil {
@@ -283,51 +182,4 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collectorWithState.Execute()
-}
-
-func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*models.GithubPullRequest, errors.Error) {
-	githubPull := &models.GithubPullRequest{
-		ConnectionId:    connId,
-		GithubId:        pull.DatabaseId,
-		RepoId:          repoId,
-		Number:          pull.Number,
-		State:           pull.State,
-		Title:           pull.Title,
-		Url:             pull.Url,
-		GithubCreatedAt: pull.CreatedAt,
-		GithubUpdatedAt: pull.UpdatedAt,
-		ClosedAt:        pull.ClosedAt,
-		MergedAt:        pull.MergedAt,
-		Body:            pull.Body,
-		BaseRef:         pull.BaseRefName,
-		BaseCommitSha:   pull.BaseRefOid,
-		HeadRef:         pull.HeadRefName,
-		HeadCommitSha:   pull.HeadRefOid,
-	}
-	if pull.MergeCommit != nil {
-		githubPull.MergeCommitSha = pull.MergeCommit.Oid
-	}
-	if pull.Author != nil {
-		githubPull.AuthorName = pull.Author.Login
-		githubPull.AuthorId = pull.Author.Id
-	}
-	return githubPull, nil
-}
-
-func convertPullRequestCommit(prCommit GraphqlQueryCommit) (*models.GithubCommit, errors.Error) {
-	githubCommit := &models.GithubCommit{
-		Sha:            prCommit.Commit.Oid,
-		Message:        prCommit.Commit.Message,
-		AuthorName:     prCommit.Commit.Author.Name,
-		AuthorEmail:    prCommit.Commit.Author.Email,
-		AuthoredDate:   prCommit.Commit.Author.Date,
-		CommitterName:  prCommit.Commit.Committer.Name,
-		CommitterEmail: prCommit.Commit.Committer.Email,
-		CommittedDate:  prCommit.Commit.Committer.Date,
-		Url:            prCommit.Url,
-	}
-	if prCommit.Commit.Author.User != nil {
-		githubCommit.AuthorId = prCommit.Commit.Author.User.Id
-	}
-	return githubCommit, nil
 }

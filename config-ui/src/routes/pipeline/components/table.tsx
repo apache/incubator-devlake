@@ -16,17 +16,17 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
+import { Table, Modal } from 'antd';
 import { ButtonGroup } from '@blueprintjs/core';
 import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Table, ColumnType, IconButton, Inspector, Dialog } from '@/components';
+import { IconButton, Inspector } from '@/components';
+import { IPipeline } from '@/types';
 import { formatTime } from '@/utils';
-
-import * as T from '../types';
 
 import { PipelineStatus } from './status';
 import { PipelineDuration } from './duration';
@@ -34,7 +34,7 @@ import { PipelineTasks } from './tasks';
 
 interface Props {
   loading: boolean;
-  dataSource: T.Pipeline[];
+  dataSource: IPipeline[];
   pagination?: {
     total: number;
     page: number;
@@ -52,7 +52,7 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
   const [JSON, setJSON] = useState<any>(null);
   const [id, setId] = useState<ID | null>(null);
 
-  const handleShowJSON = (row: T.Pipeline) => {
+  const handleShowJSON = (row: IPipeline) => {
     setJSON(pick(row, ['id', 'name', 'plan', 'skipOnFail']));
   };
 
@@ -67,67 +67,66 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
     setId(id);
   };
 
-  const columns = useMemo(
-    () =>
-      [
-        {
-          title: 'ID',
-          dataIndex: 'id',
-          key: 'id',
-        },
-        {
-          title: 'Status',
-          dataIndex: 'status',
-          key: 'status',
-          render: (val) => <PipelineStatus status={val} />,
-        },
-        {
-          title: 'Started at',
-          dataIndex: 'beganAt',
-          key: 'beganAt',
-          align: 'center',
-          render: (val) => formatTime(val),
-        },
-        {
-          title: 'Completed at',
-          dataIndex: 'finishedAt',
-          key: 'finishedAt',
-          align: 'center',
-          render: (val) => formatTime(val),
-        },
-        {
-          title: 'Duration',
-          dataIndex: ['status', 'beganAt', 'finishedAt'],
-          key: 'duration',
-          render: ({ status, beganAt, finishedAt }) => (
-            <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
-          ),
-        },
-        {
-          title: '',
-          dataIndex: 'id',
-          key: 'action',
-          align: 'center',
-          render: (id: ID, row) => (
-            <ButtonGroup>
-              <IconButton icon="code" tooltip="View JSON" onClick={() => handleShowJSON(row)} />
-              <IconButton icon="document" tooltip="Download Logs" onClick={() => handleDownloadLog(id)} />
-              <IconButton icon="chevron-right" tooltip="View Details" onClick={() => handleShowDetails(id)} />
-            </ButtonGroup>
-          ),
-        },
-      ] as ColumnType<T.Pipeline>,
-    [],
-  );
-
   return (
     <>
-      <Table columns={columns} dataSource={dataSource} pagination={pagination} noData={noData} />
+      <Table
+        rowKey="id"
+        size="middle"
+        columns={[
+          {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+          },
+          {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (val) => <PipelineStatus status={val} />,
+          },
+          {
+            title: 'Started at',
+            dataIndex: 'beganAt',
+            key: 'beganAt',
+            align: 'center',
+            render: (val) => formatTime(val),
+          },
+          {
+            title: 'Completed at',
+            dataIndex: 'finishedAt',
+            key: 'finishedAt',
+            align: 'center',
+            render: (val) => formatTime(val),
+          },
+          {
+            title: 'Duration',
+            key: 'duration',
+            render: (_, { status, beganAt, finishedAt }) => (
+              <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
+            ),
+          },
+          {
+            title: '',
+            dataIndex: 'id',
+            key: 'action',
+            align: 'center',
+            render: (id: ID, row) => (
+              <ButtonGroup>
+                <IconButton icon="code" tooltip="View JSON" onClick={() => handleShowJSON(row)} />
+                <IconButton icon="document" tooltip="Download Logs" onClick={() => handleDownloadLog(id)} />
+                <IconButton icon="chevron-right" tooltip="View Details" onClick={() => handleShowDetails(id)} />
+              </ButtonGroup>
+            ),
+          },
+        ]}
+        dataSource={dataSource}
+        pagination={pagination}
+      />
       {JSON && <Inspector isOpen title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
       {id && (
-        <Dialog style={{ width: 820 }} isOpen title={`Pipeline ${id}`} footer={null} onCancel={() => setId(null)}>
+        <Modal open width={820} centered title={`Pipeline ${id}`} footer={null} onCancel={() => setId(null)}>
           <PipelineTasks id={id} />
-        </Dialog>
+        </Modal>
       )}
     </>
   );

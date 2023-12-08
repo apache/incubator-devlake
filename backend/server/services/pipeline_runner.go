@@ -64,7 +64,7 @@ func GetPipelineLogger(pipeline *models.Pipeline) log.Logger {
 
 // runPipeline start a pipeline actually
 func runPipeline(pipelineId uint64) errors.Error {
-	ppl, err := GetPipeline(pipelineId)
+	ppl, err := GetPipeline(pipelineId, false)
 	if err != nil {
 		return err
 	}

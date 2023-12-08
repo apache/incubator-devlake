@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -86,31 +87,39 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*models.GithubJob)
 
+			createdAt := time.Now()
+			if line.StartedAt != nil {
+				createdAt = *line.StartedAt
+			}
 			domainJob := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, line.RunID,
 					line.ID)},
-				Name:         line.Name,
-				StartedDate:  *line.StartedAt,
-				FinishedDate: line.CompletedAt,
-				PipelineId:   runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
-				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
-				Type:         line.Type,
-				Environment:  line.Environment,
+				Name: line.Name,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  line.StartedAt,
+					FinishedDate: line.CompletedAt,
+				},
+				PipelineId:  runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
+				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
+				Type:        line.Type,
+				Environment: line.Environment,
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"failure"},
-					Success: []string{"success"},
-					Skipped: []string{"skipped", "NEUTRAL"},
+					Success: []string{StatusSuccess},
+					Failure: []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
+					Default: devops.RESULT_DEFAULT,
 				}, line.Conclusion),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"completed", "COMPLETED"},
-					Default: devops.STATUS_IN_PROGRESS,
+				OriginalResult: line.Conclusion,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{StatusCompleted, StatusSuccess, StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
+					InProgress: []string{StatusInProgress, StatusQueued, StatusWaiting, StatusPending},
+					Default:    devops.STATUS_OTHER,
 				}, line.Status),
+				OriginalStatus: line.Status,
 			}
-
-			if domainJob.Status == devops.STATUS_DONE {
-				domainJob.DurationSec = uint64(line.CompletedAt.Sub(*line.StartedAt).Seconds())
+			if line.CompletedAt != nil && line.StartedAt != nil {
+				domainJob.DurationSec = float64(line.CompletedAt.Sub(*line.StartedAt).Milliseconds() / 1e3)
 			}
-
 			return []interface{}{
 				domainJob,
 			}, nil

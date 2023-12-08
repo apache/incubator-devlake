@@ -21,8 +21,10 @@ import { Button, Intent } from '@blueprintjs/core';
 import { pick } from 'lodash';
 
 import API from '@/api';
-import { ExternalLink, PageLoading, Buttons } from '@/components';
-import { useRefreshData } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { ExternalLink, Buttons } from '@/components';
+import { addConnection, updateConnection } from '@/features';
+import { selectConnection } from '@/features/connections';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
@@ -40,22 +42,17 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   const [errors, setErrors] = useState<Record<string, any>>({});
   const [operating, setOperating] = useState(false);
 
+  const dispatch = useAppDispatch();
+  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`));
+
   const {
     name,
     connection: { docLink, fields, initialValues },
-  } = useMemo(() => getPluginConfig(plugin), [plugin]);
+  } = getPluginConfig(plugin);
 
   const disabled = useMemo(() => {
     return Object.values(errors).some((value) => value);
   }, [errors]);
-
-  const { ready, data } = useRefreshData(async () => {
-    if (!connectionId) {
-      return {};
-    }
-
-    return API.connection.get(plugin, connectionId);
-  }, [plugin, connectionId]);
 
   const handleTest = async () => {
     await operator(
@@ -73,6 +70,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
             'secretKey',
             'tenantId',
             'tenantType',
+            'dbUrl',
           ]),
         ),
       {
@@ -85,7 +83,9 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   const handleSave = async () => {
     const [success, res] = await operator(
       () =>
-        !connectionId ? API.connection.create(plugin, values) : API.connection.update(plugin, connectionId, values),
+        !connectionId
+          ? dispatch(addConnection({ plugin, ...values })).unwrap()
+          : dispatch(updateConnection({ plugin, connectionId, ...values })).unwrap(),
       {
         setOperating,
         formatMessage: () => (!connectionId ? 'Create a New Connection Successful.' : 'Update Connection Successful.'),
@@ -97,10 +97,6 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
     }
   };
 
-  if (connectionId && !ready) {
-    return <PageLoading />;
-  }
-
   return (
     <S.Wrapper>
       <S.Tips>
@@ -111,7 +107,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
         <Form
           name={name}
           fields={fields}
-          initialValues={{ ...initialValues, ...data }}
+          initialValues={{ ...initialValues, ...(connection ?? {}) }}
           values={values}
           errors={errors}
           setValues={setValues}

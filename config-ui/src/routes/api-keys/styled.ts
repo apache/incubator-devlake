@@ -26,13 +26,3 @@ export const InputContainer = styled.div`
     margin-right: 4px;
   }
 `;
-
-export const KeyContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 24px;
-  margin-bottom: 16px;
-  padding: 10px 16px;
-  background: #f0f4fe;
-`;

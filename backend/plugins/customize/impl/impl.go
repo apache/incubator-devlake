@@ -37,12 +37,13 @@ var _ interface {
 	plugin.PluginMigration
 } = (*Customize)(nil)
 
+var handlers *api.Handlers
+
 type Customize struct {
-	handlers *api.Handlers
 }
 
-func (p *Customize) Init(basicRes context.BasicRes) errors.Error {
-	p.handlers = api.NewHandlers(basicRes.GetDal())
+func (p Customize) Init(basicRes context.BasicRes) errors.Error {
+	handlers = api.NewHandlers(basicRes.GetDal())
 	return nil
 }
 
@@ -89,23 +90,23 @@ func (p Customize) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/customize"
 }
 
-func (p *Customize) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
+func (p Customize) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		":table/fields": {
-			"GET":  p.handlers.ListFields,
-			"POST": p.handlers.CreateFields,
+			"GET":  handlers.ListFields,
+			"POST": handlers.CreateFields,
 		},
 		":table/fields/:field": {
-			"DELETE": p.handlers.DeleteField,
+			"DELETE": handlers.DeleteField,
 		},
 		"csvfiles/issues.csv": {
-			"POST": p.handlers.ImportIssue,
+			"POST": handlers.ImportIssue,
 		},
 		"csvfiles/issue_commits.csv": {
-			"POST": p.handlers.ImportIssueCommit,
+			"POST": handlers.ImportIssueCommit,
 		},
 		"csvfiles/issue_repo_commits.csv": {
-			"POST": p.handlers.ImportIssueRepoCommit,
+			"POST": handlers.ImportIssueRepoCommit,
 		},
 	}
 }

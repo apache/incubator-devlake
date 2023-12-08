@@ -16,7 +16,7 @@
  *
  */
 
-import { toast } from '@/components';
+import { message } from 'antd';
 
 export type OperateConfig = {
   setOperating?: (success: boolean) => void;
@@ -40,16 +40,16 @@ export const operator = async <T>(request: () => Promise<T>, config?: OperateCon
   try {
     setOperating?.(true);
     const res = await request();
-    const message = formatMessage?.() ?? 'Operation successfully completed';
+    const content = formatMessage?.() ?? 'Operation successfully completed';
     if (!config?.hideToast) {
-      toast.success(message);
+      message.success(content);
     }
     return [true, res];
   } catch (err) {
     console.error('Operation failed.', err);
     const reason = formatReason?.(err) ?? (err as any).response?.data?.message ?? 'Operation failed.';
     if (!config?.hideToast) {
-      toast.error(reason);
+      message.error(reason);
     }
 
     return [false, err];

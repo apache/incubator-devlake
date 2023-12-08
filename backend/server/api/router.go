@@ -77,7 +77,7 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	// api keys api
 	r.GET("/api-keys", apikeys.GetApiKeys)
 	r.POST("/api-keys", apikeys.PostApiKey)
-	r.PUT("/api-keys/:apiKeyId/", apikeys.PutApiKey)
+	r.PUT("/api-keys/:apiKeyId", apikeys.PutApiKey)
 	r.DELETE("/api-keys/:apiKeyId", apikeys.DeleteApiKey)
 
 	// mount all api resources for all plugins

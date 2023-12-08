@@ -18,19 +18,20 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card, Modal, message } from 'antd';
 import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Card, FormItem, Buttons, toast, Dialog } from '@/components';
+import { FormItem, Buttons } from '@/components';
+import { IProject } from '@/types';
 import { operator } from '@/utils';
 
-import type { ProjectType } from '../types';
-import { validName } from '../utils';
+import { validName, encodeName } from '../utils';
 
 import * as S from './styled';
 
 interface Props {
-  project: ProjectType;
+  project: IProject;
   onRefresh: () => void;
 }
 
@@ -38,7 +39,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(false);
   const [operating, setOperating] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -51,13 +52,13 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
   const handleUpdate = async () => {
     if (!validName(name)) {
-      toast.error('Please enter alphanumeric or underscore');
+      message.error('Please enter alphanumeric or underscore');
       return;
     }
 
     const [success] = await operator(
       () =>
-        API.project.update(project.name, {
+        API.project.update(encodeName(project.name), {
           name,
           description: '',
           metrics: [
@@ -75,16 +76,16 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     if (success) {
       onRefresh();
-      navigate(`/projects/${name}?tabId=settings`);
+      navigate(`/projects/${encodeName(name)}?tabId=settings`);
     }
   };
 
   const handleShowDeleteDialog = () => {
-    setIsOpen(true);
+    setOpen(true);
   };
 
   const handleHideDeleteDialog = () => {
-    setIsOpen(false);
+    setOpen(false);
   };
 
   const handleDelete = async () => {
@@ -118,12 +119,15 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
       <Buttons position="bottom" align="center">
         <Button intent={Intent.DANGER} text="Delete Project" onClick={handleShowDeleteDialog} />
       </Buttons>
-      <Dialog
-        isOpen={isOpen}
-        style={{ width: 820 }}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Are you sure you want to delete this Project?"
         okText="Confirm"
-        okLoading={operating}
+        okButtonProps={{
+          loading: operating,
+        }}
         onCancel={handleHideDeleteDialog}
         onOk={handleDelete}
       >
@@ -134,7 +138,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
             this Connection.
           </span>
         </S.DialogBody>
-      </Dialog>
+      </Modal>
     </>
   );
 };

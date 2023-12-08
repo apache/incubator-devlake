@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"testing"
 
 	"github.com/go-playground/validator/v10"
@@ -57,5 +58,172 @@ func TestAppKeyFail(t *testing.T) {
 		assert.Contains(t, err.Error(), "AppId")
 		assert.Contains(t, err.Error(), "SecretKey")
 		println()
+	}
+}
+
+func TestGithubConnection_Sanitize(t *testing.T) {
+	type fields struct {
+		GithubConn GithubConn
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   GithubConnection
+	}{
+		{
+			name: "test-empty",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-empty-1",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: ",",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-1",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "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",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjC********************bL2WGpTP",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-2",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjCiAf91234567tCQX8uombbL2WGpTP,ghp_abcdeqjCiAf91234567tCQX8uombbL2WGpTP",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjC********************bL2WGpTP,ghp_abcdeqjC********************bL2WGpTP",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-3",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjCiAf91234567tCQX8uombbL2WGpTP,ghp_abcdeqjCiAf91234567tCQX8uombbL2WGpTP,",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "ghp_wFxrXqjC********************bL2WGpTP,ghp_abcdeqjC********************bL2WGpTP",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-4",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "github_pat_11ABMS6RQ0kA7PzN5AThcs_jN8eJeu0BsMa8BDyC12345P9CI67891a2Pu6abcdefk3OEPAJLYMjkfT4U1,",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAccessToken: GithubAccessToken{
+						AccessToken: api.AccessToken{
+							Token: "github_pat_11ABMS6R******************************************************************MjkfT4U1",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "test-5",
+			fields: fields{
+				GithubConn: GithubConn{
+					GithubAppKey: GithubAppKey{
+						AppKey: api.AppKey{
+							SecretKey: "-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAuornPO7qIw8xasqbHTrAPO6/D1vNU0k00a/bguoUE3kGMMgp\ni2UOhb3JE5QC8y4mO++6arbqfnPFZVrZtg2W20yUpmsPKF5s2RR02+MwjOvZLYlF\nwdUQBqyjLOeuU0dioUxIQBk5jFKAAN5npe87crinruTH/wlQjYziVkXmlOZbMQ78\nrf/heW6WHwd5bRs/QZw+YY/W+7hVMDWh1/0X8d0b3lAT6VQahUIJRFRDZleWGVXW\nF9LMqGxhJd8N7LXX5Nddwdwdwdwdwdwdwddddddddddddddd7sFfEhyfdVKHlCnM\nwK2L6Jj5IJHO/AfGCuGfMRlhkH3ZhRa9Ii7VEa7EUXvzvxg48J83kv7mIWgSV/me\n6q7JZyxN+Z2+DYMabI2F1QFi0QM7eMAyaH6/Ri4qBPysxHqwXxJsuWPLoPqScGV3\nWj1lNLWSozwLU7VyFOUzs9GzAoGBALntw2jbGiZ9mPUJ8pRXNeP7pyhEdy4iYR6E\nOXKd/6l5ZmyQgju428My7PfqyCWdBkdPffzMHXR4UP8vo71HTqhjCRItNR5wXCfY\nJLj6KfFhhLKjR03cqxDHnRizBT9N6TFebsTqatg/7Dt0fc3a7TUD1/+fuRlvHEwe\n9uH/lm59AoGABhd6dWy1uvEYjTNIE8XxWOlCDLPcCfLqxzaAblVOtQVSVTT2XZUB\n6UGQ13OwqNnkuJLaD6Np1mB+sx2gvukZX9M6rGEuxKdkZleLs171EPOVXPoKA2OU\n0/sqvg4vn7vTy7n0/b2xdkb/HfX6+Q7mJKp+D5sT/3UahsW6dKBeBu8=\n-----END RSA PRIVATE KEY-----\n",
+						},
+					},
+				},
+			},
+			want: GithubConnection{
+				GithubConn: GithubConn{
+					GithubAppKey: GithubAppKey{
+						AppKey: api.AppKey{
+							SecretKey: "-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAuo*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************5sT/3UahsW6dKBeBu8=\n-----END RSA PRIVATE KEY-----\n",
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			connection := GithubConnection{
+				GithubConn: tt.fields.GithubConn,
+			}
+			assert.Equalf(t, tt.want, connection.Sanitize(), "Sanitize()")
+		})
 	}
 }

@@ -385,7 +385,7 @@ func makeProjectOutput(project *models.Project, withLastPipeline bool) (*models.
 					PageSize: 1,
 					Page:     1,
 				},
-			})
+			}, true)
 			if err != nil {
 				logger.Error(err, "GetPipelines, blueprint id: %d", projectOutput.Blueprint.ID)
 				return nil, errors.Default.Wrap(err, "Error to get pipeline by blueprint id")

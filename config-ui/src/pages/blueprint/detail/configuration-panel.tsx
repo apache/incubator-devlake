@@ -18,19 +18,20 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Table } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { IconButton, Table, NoData, Buttons } from '@/components';
+import { IconButton, NoData, Buttons } from '@/components';
 import { getCron } from '@/config';
-import { useConnections } from '@/hooks';
+import { ConnectionName } from '@/features';
 import { getPluginConfig } from '@/plugins';
+import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';
 
 import { encodeName } from '../../project/utils';
 
-import { BlueprintType, FromEnum } from '../types';
-import { ModeEnum } from '../types';
+import { FromEnum } from '../types';
 import { validRawPlan } from '../utils';
 
 import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from './components';
@@ -38,7 +39,7 @@ import * as S from './styled';
 
 interface Props {
   from: FromEnum;
-  blueprint: BlueprintType;
+  blueprint: IBlueprint;
   onRefresh: () => void;
   onChangeTab: (tab: string) => void;
 }
@@ -52,20 +53,16 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
     setRawPlan(JSON.stringify(blueprint.plan, null, '  '));
   }, [blueprint]);
 
-  const { onGet } = useConnections();
-
   const connections = useMemo(
     () =>
       blueprint.connections
         .filter((cs) => cs.pluginName !== 'webhook')
         .map((cs: any) => {
-          const unique = `${cs.pluginName}-${cs.connectionId}`;
           const plugin = getPluginConfig(cs.pluginName);
-          const connection = onGet(unique);
           return {
-            unique,
+            plugin: plugin.plugin,
+            connectionId: cs.connectionId,
             icon: plugin.icon,
-            name: connection?.name,
             scope: cs.scopes,
           };
         })
@@ -138,12 +135,14 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           <IconButton icon="annotation" tooltip="Edit" onClick={handleShowPolicyDialog} />
         </h3>
         <Table
+          rowKey="id"
+          size="middle"
           columns={[
             {
               title: 'Data Time Range',
               dataIndex: 'timeRange',
               key: 'timeRange',
-              render: (val) => (blueprint.mode === ModeEnum.normal ? `${formatTime(val)} to Now` : 'N/A'),
+              render: (val) => (blueprint.mode === IBPMode.NORMAL ? `${formatTime(val)} to Now` : 'N/A'),
             },
             {
               title: 'Sync Frequency',
@@ -165,15 +164,17 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           ]}
           dataSource={[
             {
+              id: blueprint.id,
               timeRange: blueprint.timeAfter,
               frequency: blueprint.cronConfig,
               isManual: blueprint.isManual,
               skipFailed: blueprint.skipOnFail,
             },
           ]}
+          pagination={false}
         />
       </div>
-      {blueprint.mode === ModeEnum.normal && (
+      {blueprint.mode === IBPMode.NORMAL && (
         <div className="block">
           <h3>Data Connections</h3>
           {!connections.length ? (
@@ -205,10 +206,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
               </Buttons>
               <S.ConnectionList>
                 {connections.map((cs) => (
-                  <S.ConnectionItem key={cs.unique}>
+                  <S.ConnectionItem key={`${cs.plugin}-${cs.connectionId}`}>
                     <div className="title">
-                      <img src={cs.icon} alt="" />
-                      <span>{cs.name}</span>
+                      {/* <img src={cs.icon} alt="" /> */}
+                      <ConnectionName plugin={cs.plugin} connectionId={cs.connectionId} />
                     </div>
                     <div className="count">
                       <span>{cs.scope.length} data scope</span>
@@ -217,8 +218,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? `/blueprints/${blueprint.id}/${cs.unique}`
-                            : `/projects/${encodeName(blueprint.projectName)}/${cs.unique}`
+                            ? `/advanced/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
+                            : `/projects/${encodeName(blueprint.projectName)}/${cs.plugin}-${cs.connectionId}`
                         }
                       >
                         Edit Data Scope and Scope Config
@@ -234,7 +235,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           )}
         </div>
       )}
-      {blueprint.mode === ModeEnum.advanced && (
+      {blueprint.mode === IBPMode.ADVANCED && (
         <div className="block">
           <h3>JSON Configuration</h3>
           <AdvancedEditor value={rawPlan} onChange={setRawPlan} />
@@ -273,7 +274,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
       )}
       {type === 'add-connection' && (
         <AddConnectionDialog
-          disabled={connections.map((cs) => cs.unique)}
+          disabled={connections.map((cs) => `${cs.plugin}-${cs.connectionId}`)}
           onCancel={handleCancel}
           onSubmit={(connection) =>
             handleUpdate({

@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,6 +26,9 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"reflect"
+	"strings"
+	"time"
 )
 
 var ConvertiDeploymentMeta = plugin.SubTaskMeta{
@@ -66,7 +67,6 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	idGen := didgen.NewDomainIdGenerator(&models.BitbucketDeployment{})
-	pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipeline{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(bitbucketDeploymentWithRefName{}),
@@ -75,37 +75,53 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketDeployment := inputRow.(*bitbucketDeploymentWithRefName)
 
-			var duration *uint64
-			if bitbucketDeployment.CompletedOn != nil {
-				d := uint64(bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Seconds())
+			var duration *float64
+			if bitbucketDeployment.CompletedOn != nil && bitbucketDeployment.StartedOn != nil {
+				d := float64(bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Milliseconds() / 1e3)
 				duration = &d
+			}
+			createdAt := time.Now()
+			if bitbucketDeployment.CreatedOn != nil {
+				createdAt = *bitbucketDeployment.CreatedOn
 			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: idGen.Generate(data.Options.ConnectionId, bitbucketDeployment.BitbucketId),
 				},
-				CicdScopeId:      repoId,
-				CicdDeploymentId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketDeployment.PipelineId),
-				Name:             bitbucketDeployment.Name,
+				CicdScopeId: repoId,
+				Name:        bitbucketDeployment.Name,
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"UNDEPLOYED"},
-					Success: []string{"COMPLETED"},
-					Default: "",
+					Success: []string{models.COMPLETED, models.SUCCESSFUL},
+					Failure: []string{models.FAILED, models.STOPPED, models.CANCELLED},
+					Default: devops.RESULT_DEFAULT,
 				}, bitbucketDeployment.Status),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"COMPLETED", "UNDEPLOYED"},
-					Default: devops.STATUS_IN_PROGRESS,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.STOPPED, models.CANCELLED},
+					InProgress: []string{models.IN_PROGRESS},
+					Default:    devops.STATUS_OTHER,
 				}, bitbucketDeployment.Status),
-				Environment:  bitbucketDeployment.Environment,
-				CreatedDate:  *bitbucketDeployment.CreatedOn,
-				StartedDate:  bitbucketDeployment.StartedOn,
-				FinishedDate: bitbucketDeployment.CompletedOn,
-				DurationSec:  duration,
-				CommitSha:    bitbucketDeployment.CommitSha,
-				RefName:      bitbucketDeployment.RefName,
-				RepoId:       repoId,
-				RepoUrl:      repo.HTMLUrl,
+				OriginalStatus: bitbucketDeployment.Status,
+				Environment:    strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  bitbucketDeployment.StartedOn,
+					FinishedDate: bitbucketDeployment.CompletedOn,
+				},
+				DurationSec: duration,
+				CommitSha:   bitbucketDeployment.CommitSha,
+				RefName:     bitbucketDeployment.RefName,
+				RepoId:      repoId,
+				RepoUrl:     repo.HTMLUrl,
 			}
+			if domainDeployCommit.Environment == devops.TEST {
+				// Theoretically, environment cannot be "Test" according to
+				// https://developer.atlassian.com/server/bitbucket/rest/v814/api-group-builds-and-deployments/#api-api-latest-projects-projectkey-repos-repositoryslug-commits-commitid-deployments-get
+				// but in practice, we found environment is "Test".
+				// So convert it to devlake's definition.
+				domainDeployCommit.Environment = devops.TESTING
+			}
+
+			domainDeployCommit.CicdDeploymentId = domainDeployCommit.Id
 			return []interface{}{domainDeployCommit, domainDeployCommit.ToDeployment()}, nil
 		},
 	})

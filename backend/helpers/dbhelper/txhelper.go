@@ -19,8 +19,9 @@ package dbhelper
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/log"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/log"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -46,7 +47,7 @@ func (l *TxHelper[E]) Begin() dal.Transaction {
 
 // LockTablesTimeout locks tables with timeout
 func (l *TxHelper[E]) LockTablesTimeout(timeout time.Duration, lockTables dal.LockTables) errors.Error {
-	l.logger.Warn(fmt.Errorf("timeout"), "local tables")
+	l.logger.Info("try locking tables with timeout %v", timeout)
 	c := make(chan errors.Error, 1)
 	go func() {
 		c <- l.tx.LockTables(lockTables)

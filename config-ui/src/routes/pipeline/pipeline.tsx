@@ -16,8 +16,9 @@
  *
  */
 import { useParams } from 'react-router-dom';
+import { Card } from 'antd';
 
-import { PageHeader, Card } from '@/components';
+import { PageHeader } from '@/components';
 
 import { PipelineInfo, PipelineTasks } from './components';
 
@@ -27,8 +28,8 @@ export const Pipeline = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: '/blueprints' },
-        { name: 'Pipelines', path: '/pipelines' },
+        { name: 'Advanced', path: '/advanced/blueprints' },
+        { name: 'Pipelines', path: '/advanced/pipelines' },
         {
           name: id as string,
           path: `/pipelines/${id}`,

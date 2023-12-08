@@ -18,19 +18,21 @@
 
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Table, Modal, message } from 'antd';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, Dialog, ExternalLink, IconButton, toast } from '@/components';
+import { PageHeader, ExternalLink, IconButton } from '@/components';
 import { getCron, cronPresets } from '@/config';
-import { useConnections, useRefreshData } from '@/hooks';
+import { ConnectionName } from '@/features';
+import { useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
+import { IBlueprint, IBPMode } from '@/types';
 
 import { validName, encodeName } from '../utils';
-import { BlueprintType, ModeEnum } from '../../blueprint';
 
 import * as S from './styled';
 
@@ -38,13 +40,12 @@ export const ProjectHomePage = () => {
   const [version, setVersion] = useState(1);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const { ready, data } = useRefreshData(() => API.project.list({ page, pageSize }), [version, page, pageSize]);
-  const { onGet } = useConnections();
 
   const navigate = useNavigate();
 
@@ -67,16 +68,16 @@ export const ProjectHomePage = () => {
     [data],
   );
 
-  const handleShowDialog = () => setIsOpen(true);
+  const handleShowDialog = () => setOpen(true);
   const handleHideDialog = () => {
-    setIsOpen(false);
+    setOpen(false);
     setName('');
     setEnableDora(true);
   };
 
   const handleCreate = async () => {
     if (!validName(name)) {
-      toast.error('Please enter alphanumeric or underscore');
+      message.error('Please enter alphanumeric or underscore');
       return;
     }
 
@@ -96,7 +97,7 @@ export const ProjectHomePage = () => {
         return API.blueprint.create({
           name: `${name}-Blueprint`,
           projectName: name,
-          mode: ModeEnum.normal,
+          mode: IBPMode.NORMAL,
           enable: true,
           cronConfig: presets[0],
           isManual: false,
@@ -122,6 +123,8 @@ export const ProjectHomePage = () => {
       extra={<Button intent={Intent.PRIMARY} icon="plus" text="New Project" onClick={handleShowDialog} />}
     >
       <Table
+        rowKey="name"
+        size="middle"
         loading={!ready}
         columns={[
           {
@@ -138,21 +141,23 @@ export const ProjectHomePage = () => {
             title: 'Data Connections',
             dataIndex: 'connections',
             key: 'connections',
-            render: (val: BlueprintType['connections']) =>
-              !val || !val.length
-                ? 'N/A'
-                : val
-                    .map((it) => {
-                      const cs = onGet(`${it.pluginName}-${it.connectionId}`);
-                      return cs?.name;
-                    })
-                    .join(', '),
+            render: (val: IBlueprint['connections']) =>
+              !val || !val.length ? (
+                'N/A'
+              ) : (
+                <ul>
+                  {val.map((it) => (
+                    <li key={`${it.pluginName}-${it.connectionId}`}>
+                      <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
+                    </li>
+                  ))}
+                </ul>
+              ),
           },
           {
             title: 'Sync Frequency',
-            dataIndex: ['isManual', 'cronConfig'],
             key: 'frequency',
-            render: ({ isManual, cronConfig }) => {
+            render: (_, { isManual, cronConfig }) => {
               const cron = getCron(isManual, cronConfig);
               return cron.label;
             },
@@ -192,24 +197,22 @@ export const ProjectHomePage = () => {
         ]}
         dataSource={dataSource}
         pagination={{
-          page,
+          current: page,
           pageSize,
           total,
           onChange: setPage,
         }}
-        noData={{
-          text: 'Add new projects to see engineering metrics based on projects.',
-          btnText: 'New Project',
-          onCreate: handleShowDialog,
-        }}
       />
-      <Dialog
-        isOpen={isOpen}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Create a New Project"
-        style={{ width: 820 }}
         okText="Save"
-        okDisabled={!name}
-        okLoading={saving}
+        okButtonProps={{
+          disabled: !name,
+          loading: saving,
+        }}
         onOk={handleCreate}
         onCancel={handleHideDialog}
       >
@@ -247,7 +250,7 @@ export const ProjectHomePage = () => {
             />
           </FormGroup>
         </S.DialogWrapper>
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };

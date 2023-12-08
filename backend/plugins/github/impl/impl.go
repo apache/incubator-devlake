@@ -152,6 +152,9 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
+	if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	}
 
 	taskData := &tasks.GithubTaskData{
 		Options:       op,
@@ -183,6 +186,9 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":    api.GetConnection,
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
+		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
 		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,

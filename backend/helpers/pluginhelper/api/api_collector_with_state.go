@@ -21,13 +21,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // ApiCollectorStateManager save collector state in framework table
@@ -35,19 +35,50 @@ type ApiCollectorStateManager struct {
 	RawDataSubTaskArgs
 	// *ApiCollector
 	// *GraphqlCollector
-	subtasks     []plugin.SubTask
-	newState     models.CollectorLatestState
-	IsIncreamtal bool
-	Since        *time.Time
+	subtasks      []plugin.SubTask
+	newState      models.CollectorLatestState
+	IsIncremental bool
+	Since         *time.Time
+	Before        *time.Time
+}
+
+type CollectorOptions struct {
+	TimeAfter string `json:"timeAfter,omitempty"`
 }
 
 // NewStatefulApiCollector create a new ApiCollectorStateManager
 func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
-
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
 	rawDataSubTask, err := NewRawDataSubTask(args)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args")
+	}
+
+	// get optionTimeAfter from options
+	data := args.Ctx.GetData()
+	value := reflect.ValueOf(data)
+	if value.Kind() == reflect.Ptr && value.Elem().Kind() == reflect.Struct {
+		options := value.Elem().FieldByName("Options")
+		if options.IsValid() && options.Kind() == reflect.Ptr && options.Elem().Kind() == reflect.Struct {
+			collectorOptions := options.Elem().FieldByName("CollectorOptions")
+			if collectorOptions.IsValid() && collectorOptions.Kind() == reflect.Struct {
+				timeAfter := collectorOptions.FieldByName("TimeAfter")
+				if timeAfter.IsValid() && timeAfter.Kind() == reflect.String && timeAfter.String() != "" {
+					optionTimeAfter, parseErr := time.Parse(time.RFC3339, timeAfter.String())
+					if parseErr != nil {
+						return nil, errors.Default.Wrap(parseErr, "Failed to parse timeAfter!")
+					}
+					if syncPolicy != nil {
+						syncPolicy.TimeAfter = &optionTimeAfter
+					} else {
+						syncPolicy = &models.SyncPolicy{
+							TimeAfter: &optionTimeAfter,
+						}
+					}
+				}
+			}
+		}
 	}
 
 	// CollectorLatestState retrieves the latest collector state from the database
@@ -68,31 +99,30 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	oldLatestSuccessStart := oldState.LatestSuccessStart
 
 	// Calculate incremental and since based on syncPolicy and old state
-	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
-	var isIncreamtal bool
+	var isIncremental bool
 	var since *time.Time
 
 	if syncPolicy == nil {
 		// 1. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
-		isIncreamtal = true
+		isIncremental = true
 		since = oldLatestSuccessStart
 	} else if oldLatestSuccessStart == nil {
 		// 2. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
-		isIncreamtal = false
+		isIncremental = false
 		since = syncPolicy.TimeAfter
 	} else if syncPolicy.FullSync {
 		// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
-		isIncreamtal = false
+		isIncremental = false
 		since = syncPolicy.TimeAfter
 	} else if syncPolicy.TimeAfter != nil {
 		// 4. If syncPolicy.TimeAfter not nil
 		if oldTimeAfter != nil && syncPolicy.TimeAfter.Before(*oldTimeAfter) {
 			// 4.1 If oldTimeAfter not nil and syncPolicy.TimeAfter before oldTimeAfter, incremental is false and since is syncPolicy.TimeAfter
-			isIncreamtal = false
+			isIncremental = false
 			since = syncPolicy.TimeAfter
 		} else {
 			// 4.2 If oldTimeAfter nil or syncPolicy.TimeAfter after oldTimeAfter, incremental is true and since is oldState.LatestSuccessStart
-			isIncreamtal = true
+			isIncremental = true
 			since = oldLatestSuccessStart
 		}
 	}
@@ -104,8 +134,9 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		newState:           oldState,
-		IsIncreamtal:       isIncreamtal,
+		IsIncremental:      isIncremental,
 		Since:              since,
+		Before:             &currentTime,
 	}, nil
 
 }
@@ -113,7 +144,7 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 // InitCollector init the embedded collector
 func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) errors.Error {
 	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
-	args.Incremental = args.Incremental || m.IsIncreamtal
+	args.Incremental = args.Incremental || m.IsIncremental
 	apiCollector, err := NewApiCollector(args)
 	if err != nil {
 		return err
@@ -125,6 +156,7 @@ func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) errors.E
 // InitGraphQLCollector init the embedded collector
 func (m *ApiCollectorStateManager) InitGraphQLCollector(args GraphqlCollectorArgs) errors.Error {
 	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
+	args.Incremental = args.Incremental || m.IsIncremental
 	graphqlCollector, err := NewGraphqlCollector(args)
 	if err != nil {
 		return err
@@ -180,7 +212,8 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	}
 
 	createdAfter := manager.Since
-	isIncremental := manager.IsIncreamtal
+	isIncremental := manager.IsIncremental
+
 	// step 1: create a collector to collect newly added records
 	err = manager.InitCollector(ApiCollectorArgs{
 		ApiClient: args.ApiClient,
@@ -244,7 +277,8 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		return nil, err
 	}
 
-	if args.CollectUnfinishedDetails == nil {
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
+	if args.CollectUnfinishedDetails == nil || (syncPolicy != nil && syncPolicy.FullSync) {
 		return manager, nil
 	}
 
@@ -298,7 +332,7 @@ type FinalizableApiCollectorCommonArgs struct {
 	Header          func(reqData *RequestData, createdAfter *time.Time) (http.Header, errors.Error) // optional, build header for the request
 	RequestBody     func(reqData *RequestData) map[string]interface{}                               // optional, build request body for the request if the Method set to POST or PUT
 	MinTickInterval *time.Duration                                                                  // optional, minimum interval between two requests, some endpoints might have a more conservative rate limit than others within the same instance, you can mitigate this by setting a higher MinTickInterval to override the connection level rate limit.
-	AfterResponse   common.ApiClientAfterResponse                                                   // optional, hook to run after each response, would be called before the ResponseParser
+	AfterResponse   plugin.ApiClientAfterResponse                                                   // optional, hook to run after each response, would be called before the ResponseParser
 	ResponseParser  func(res *http.Response) ([]json.RawMessage, errors.Error)                      // required, parse the response body and return a list of entities
 }
 

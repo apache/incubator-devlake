@@ -21,15 +21,14 @@ services:
       - mysql-storage:/var/lib/mysql
     restart: always
     ports:
-      - "127.0.0.1:3306:3306"
+      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
       TZ: UTC
-    command: 
-      --character-set-server=utf8mb4
+    command: --character-set-server=utf8mb4
       --collation-server=utf8mb4_bin
       --skip-log-bin
 
@@ -39,7 +38,7 @@ services:
       - postgres-storage:/var/lib/postgresql
     restart: always
     ports:
-      - 127.0.0.1:5432:5432
+      - 5432:5432
     environment:
       POSTGRES_DB: lake
       POSTGRES_USER: merico
@@ -47,11 +46,11 @@ services:
       TZ: UTC
 
   grafana:
-    image: devlake.docker.scarf.sh/mericodev/devlake-dashboard:latest
+    image: devlake.docker.scarf.sh/apache/devlake-dashboard:latest
     build:
       context: grafana/
     ports:
-      - "3002:3000"
+      - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
@@ -67,14 +66,14 @@ services:
       - mysql
 
   devlake:
-    image: devlake.docker.scarf.sh/mericodev/devlake:latest
+    image: devlake.docker.scarf.sh/apache/devlake:latest
     build:
       context: backend
       args:
         HTTPS_PROXY: "${HTTPS_PROXY}"
         GOPROXY: "${GOPROXY}"
     ports:
-      - "127.0.0.1:8080:8080"
+      - 8080:8080
     restart: always
     volumes:
       - devlake-log:/app/logs
@@ -88,11 +87,11 @@ services:
       - mysql
 
   config-ui:
-    image: devlake.docker.scarf.sh/mericodev/devlake-config-ui:latest
+    image: devlake.docker.scarf.sh/apache/devlake-config-ui:latest
     build:
       context: "config-ui"
     ports:
-      - "4000:4000"
+      - 4000:4000
     env_file:
       - ./.env
     environment:
@@ -108,7 +107,7 @@ services:
     image: quay.io/oauth2-proxy/oauth2-proxy:v7.4.0-amd64
     network_mode: "host"
     ports:
-      - "4180:4180"
+      - 4180:4180
     env_file:
       - ./.env
     # environment:

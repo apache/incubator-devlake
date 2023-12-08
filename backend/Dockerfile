@@ -50,7 +50,7 @@ RUN if [ "$(arch)" != "x86_64" ] ; then \
     fi
 
 RUN go install github.com/vektra/mockery/v2@v2.20.0
-RUN go install github.com/swaggo/swag/cmd/swag@v1.8.12
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.1
 
 COPY --from=debian-amd64 /usr/include /rootfs-amd64/usr/include
 COPY --from=debian-amd64 /usr/lib/x86_64-linux-gnu /rootfs-amd64/usr/lib/x86_64-linux-gnu
@@ -102,7 +102,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     fi && \
     export PKG_CONFIG_PATH=/usr/local/deps/target/lib/pkgconfig && \
     export CGO_ENABLED=1 &&\
-    PLUGIN="$GO_PLUGINS" make all
+    DEVLAKE_PLUGINS="$GO_PLUGINS" make all
 
 # remove symlink in lib, we will recreate in final image
 RUN cd /usr/local/deps/target/lib && \

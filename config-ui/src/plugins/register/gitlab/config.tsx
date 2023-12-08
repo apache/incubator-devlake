@@ -18,18 +18,15 @@
 
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
-import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
+import Icon from './assets/icon.svg?react';
 
-import Icon from './assets/icon.svg';
-
-export const GitLabConfig: PluginConfigType = {
-  type: PluginType.Connection,
+export const GitLabConfig: IPluginConfig = {
   plugin: 'gitlab',
   name: 'GitLab',
-  icon: Icon,
-  sort: 2,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 6,
   connection: {
     docLink: DOC_URL.PLUGIN.GITLAB.BASIS,
     initialValues: {
@@ -68,6 +65,7 @@ export const GitLabConfig: PluginConfigType = {
     ],
   },
   dataScope: {
+    searchPlaceholder: 'Please enter at least 3 characters to search',
     title: 'Projects',
     millerColumn: {
       columnCount: 2.5,
@@ -77,8 +75,9 @@ export const GitLabConfig: PluginConfigType = {
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
     transformation: {
-      deploymentPattern: '(deploy|push-image)',
-      productionPattern: 'prod(.*)',
+      envNamePattern: '(?i)prod(.*)',
+      deploymentPattern: '',
+      productionPattern: '',
     },
   },
 };

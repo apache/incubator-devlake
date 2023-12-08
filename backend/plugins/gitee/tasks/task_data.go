@@ -26,10 +26,11 @@ import (
 )
 
 type GiteeOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	Owner        string
-	Repo         string
-	ScopeConfig  models.GiteeScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
+	ConnectionId         uint64 `json:"connectionId"`
+	Owner                string
+	Repo                 string
+	ScopeConfig          models.GiteeScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
+	api.CollectorOptions `mapstructure:",squash"`
 }
 
 type GiteeTaskData struct {

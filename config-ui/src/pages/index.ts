@@ -17,5 +17,4 @@
  */
 
 export * from './blueprint';
-export * from './connection';
 export * from './project';

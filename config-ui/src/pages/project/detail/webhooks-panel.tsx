@@ -17,18 +17,19 @@
  */
 
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { Alert } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Alert, NoData } from '@/components';
-import type { WebhookItemType } from '@/plugins/register/webook';
-import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webook';
+import { NoData } from '@/components';
+import type { WebhookItemType } from '@/plugins/register/webhook';
+import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webhook';
+import { IProject } from '@/types';
 import { operator } from '@/utils';
 
-import type { ProjectType } from '../types';
-
 interface Props {
-  project: ProjectType;
+  project: IProject;
   onRefresh: () => void;
 }
 
@@ -110,8 +111,8 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   return (
     <>
       <Alert
-        style={{ marginBottom: 24, color: '#3C5088' }}
-        content={
+        style={{ marginBottom: 24 }}
+        message={
           <>
             <div>
               The data pushed by Webhooks will only be calculated for DORA in the next run of the Blueprint of this
@@ -120,7 +121,10 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
             </div>
             <div style={{ marginTop: 16 }}>
               To calculate DORA after receiving Webhook data immediately, you can visit the{' '}
-              <b style={{ textDecoration: 'underline' }}>Status tab</b> of the Blueprint page and click on Run Now.
+              <b style={{ textDecoration: 'underline' }}>
+                <Link to={`${window.location.pathname}?tab=status`}>Status tab</Link>
+              </b>{' '}
+              of the Blueprint page and click on Run Now.
             </div>
           </>
         }
@@ -142,9 +146,9 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
               </>
             }
           />
-          {type === 'create' && <WebhookCreateDialog isOpen onCancel={handleCancel} onSubmitAfter={handleCreate} />}
+          {type === 'create' && <WebhookCreateDialog open onCancel={handleCancel} onSubmitAfter={handleCreate} />}
           {type === 'selectExist' && (
-            <WebhookSelectorDialog isOpen saving={operating} onCancel={handleCancel} onSubmit={handleSelect} />
+            <WebhookSelectorDialog open saving={operating} onCancel={handleCancel} onSubmit={handleSelect} />
           )}
         </>
       ) : (

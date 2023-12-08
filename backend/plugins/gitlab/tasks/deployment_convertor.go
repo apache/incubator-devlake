@@ -34,16 +34,16 @@ import (
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
 
 func init() {
-	RegisterSubtaskMeta(ConvertDeploymentMeta)
+	RegisterSubtaskMeta(&ConvertDeploymentMeta)
 }
 
-var ConvertDeploymentMeta = &plugin.SubTaskMeta{
+var ConvertDeploymentMeta = plugin.SubTaskMeta{
 	Name:             "ConvertDeployment",
 	EntryPoint:       ConvertDeployment,
 	EnabledByDefault: true,
 	Description:      "Convert gitlab deployment from tool layer to domain layer",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	Dependencies:     []*plugin.SubTaskMeta{ExtractDeploymentMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractDeploymentMeta},
 }
 
 func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
@@ -77,52 +77,54 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabDeployment := inputRow.(*models.GitlabDeployment)
 
-			var duration *uint64
+			var duration *float64
 			if gitlabDeployment.DeployableDuration != nil {
-				deployableDuration := cast.ToUint64(*gitlabDeployment.DeployableDuration)
+				deployableDuration := cast.ToFloat64(*gitlabDeployment.DeployableDuration)
 				duration = &deployableDuration
 			}
 			if duration == nil || *duration == 0 {
-				if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableCreatedAt != nil {
-					deployableDuration := uint64(gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableCreatedAt).Seconds())
+				if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableStartedAt != nil {
+					deployableDuration := float64(gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableStartedAt).Milliseconds() / 1e3)
 					duration = &deployableDuration
 				}
 			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{
-				DomainEntity:     domainlayer.NewDomainEntity(idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId)),
-				CicdScopeId:      projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
-				CicdDeploymentId: idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId),
-				Name:             fmt.Sprintf("%s:%d", gitlabDeployment.Name, gitlabDeployment.DeploymentId),
+				DomainEntity: domainlayer.NewDomainEntity(idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId)),
+				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				Name:         fmt.Sprintf("%s:%d", gitlabDeployment.Name, gitlabDeployment.DeploymentId),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"UNDEPLOYED", "failed"},
-					Success: []string{"COMPLETED", "success"},
-					Abort:   []string{"created", "canceled"},
-					Manual:  []string{"running", "blocked"},
-					Default: gitlabDeployment.Status,
+					Success: []string{StatusSuccess, StatusCompleted},
+					Failure: []string{StatusCanceled, StatusFailed},
+					Default: devops.RESULT_DEFAULT,
 				}, gitlabDeployment.Status),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:       []string{"COMPLETED", "UNDEPLOYED", "failed", "success", "canceled"},
-					InProgress: []string{"running"},
-					NotStarted: []string{"created"},
-					Manual:     []string{"blocked"},
-					Default:    gitlabDeployment.Status,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled},
+					InProgress: []string{StatusRunning},
+					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),
-				Environment:  gitlabDeployment.Environment,
-				CreatedDate:  gitlabDeployment.CreatedDate,
-				StartedDate:  gitlabDeployment.DeployableStartedAt,
-				FinishedDate: gitlabDeployment.DeployableFinishedAt,
-				CommitSha:    gitlabDeployment.Sha,
-				RefName:      gitlabDeployment.Ref,
-				RepoId:       didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(data.Options.ConnectionId, data.Options.ProjectId),
-				RepoUrl:      repo.WebUrl,
+				OriginalStatus: gitlabDeployment.Status,
+				Environment:    gitlabDeployment.Environment,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  gitlabDeployment.CreatedDate,
+					StartedDate:  gitlabDeployment.DeployableStartedAt,
+					FinishedDate: gitlabDeployment.DeployableFinishedAt,
+				},
+				QueuedDurationSec: gitlabDeployment.QueuedDuration,
+				CommitSha:         gitlabDeployment.Sha,
+				RefName:           gitlabDeployment.Ref,
+				RepoId:            projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				RepoUrl:           repo.WebUrl,
 			}
 			if duration != nil {
 				domainDeployCommit.DurationSec = duration
 			}
 			if data.RegexEnricher != nil {
-				domainDeployCommit.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabDeployment.Environment)
+				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {
+					domainDeployCommit.Environment = devops.PRODUCTION
+				}
 			}
 
+			domainDeployCommit.CicdDeploymentId = domainDeployCommit.Id
 			return []interface{}{
 				domainDeployCommit,
 				domainDeployCommit.ToDeployment(),

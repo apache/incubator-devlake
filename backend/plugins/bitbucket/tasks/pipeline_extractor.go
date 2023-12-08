@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -60,6 +59,7 @@ type BitbucketApiPipeline struct {
 	} `json:"state"`
 	Target            *bitbucketApiPipelineTarget `json:"target"`
 	CreatedOn         *common.Iso8601Time         `json:"created_on"`
+	BuildNumber       int                         `json:"build_number"`
 	CompletedOn       *common.Iso8601Time         `json:"completed_on"`
 	DurationInSeconds uint64                      `json:"duration_in_seconds"`
 	Links             struct {
@@ -98,6 +98,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				RefName:             bitbucketApiPipeline.Target.RefName,
 				CommitSha:           bitbucketApiPipeline.Target.Commit.Hash,
 				RepoId:              data.Options.FullName,
+				BuildNumber:         bitbucketApiPipeline.BuildNumber,
 				DurationInSeconds:   bitbucketApiPipeline.DurationInSeconds,
 				BitbucketCreatedOn:  common.Iso8601TimeToTime(bitbucketApiPipeline.CreatedOn),
 				BitbucketCompleteOn: common.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),

@@ -22,15 +22,15 @@ import { Intent } from '@blueprintjs/core';
 import API from '@/api';
 import { TextTooltip, IconButton } from '@/components';
 import { getPluginConfig } from '@/plugins';
+import { ITask, IPipelineStatus } from '@/types';
 import { operator } from '@/utils';
 
-import * as T from '../types';
 import * as S from '../styled';
 
 import { PipelineDuration } from './duration';
 
 interface Props {
-  task: T.PipelineTask;
+  task: ITask;
 }
 
 export const PipelineTask = ({ task }: Props) => {
@@ -38,7 +38,7 @@ export const PipelineTask = ({ task }: Props) => {
 
   const { id, beganAt, finishedAt, status, message, progressDetail } = task;
 
-  const [icon, name] = useMemo(() => {
+  const [, name] = useMemo(() => {
     const config = getPluginConfig(task.plugin);
     const options = task.options;
 
@@ -101,15 +101,15 @@ export const PipelineTask = ({ task }: Props) => {
     <S.Task>
       <div className="info">
         <div className="title">
-          <img src={icon} alt="" />
+          {/* <img src={icon} alt="" /> */}
           <strong>Task{id}</strong>
           <span>
             <TextTooltip content={name}>{name}</TextTooltip>
           </span>
         </div>
-        {[status === T.PipelineStatus.CREATED, T.PipelineStatus.PENDING].includes(status) && <p>Subtasks pending</p>}
+        {[status === IPipelineStatus.CREATED, IPipelineStatus.PENDING].includes(status) && <p>Subtasks pending</p>}
 
-        {[T.PipelineStatus.ACTIVE, T.PipelineStatus.RUNNING].includes(status) && (
+        {[IPipelineStatus.ACTIVE, IPipelineStatus.RUNNING].includes(status) && (
           <p>
             Subtasks running
             <strong style={{ marginLeft: 8 }}>
@@ -118,23 +118,23 @@ export const PipelineTask = ({ task }: Props) => {
           </p>
         )}
 
-        {status === T.PipelineStatus.COMPLETED && <p>All Subtasks completed</p>}
+        {status === IPipelineStatus.COMPLETED && <p>All Subtasks completed</p>}
 
-        {status === T.PipelineStatus.FAILED && (
+        {status === IPipelineStatus.FAILED && (
           <TextTooltip intent={Intent.DANGER} content={message}>
             <p className="error">Task failed: hover to view the reason</p>
           </TextTooltip>
         )}
 
-        {status === T.PipelineStatus.CANCELLED && <p>Subtasks canceled</p>}
+        {status === IPipelineStatus.CANCELLED && <p>Subtasks canceled</p>}
       </div>
       <div className="duration">
         <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
         {[
-          T.PipelineStatus.COMPLETED,
-          T.PipelineStatus.PARTIAL,
-          T.PipelineStatus.FAILED,
-          T.PipelineStatus.CANCELLED,
+          IPipelineStatus.COMPLETED,
+          IPipelineStatus.PARTIAL,
+          IPipelineStatus.FAILED,
+          IPipelineStatus.CANCELLED,
         ].includes(status) && (
           <IconButton loading={operating} icon="repeat" tooltip="Rerun task" onClick={handleRerun} />
         )}

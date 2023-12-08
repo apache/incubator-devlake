@@ -20,14 +20,16 @@ package models
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 // PrepareApiClient fetches token from Zentao API for future requests
-func (connection ZentaoConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (connection ZentaoConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	// request for access token
 	tokenReqBody := &ApiAccessTokenRequest{
 		Account:  connection.Username,
@@ -67,10 +69,41 @@ type ZentaoConn struct {
 	DbMaxConns     int    `json:"dbMaxConns" mapstructure:"dbMaxConns"`
 }
 
+func (connection ZentaoConn) Sanitize() ZentaoConn {
+	connection.Password = ""
+	if connection.DbUrl != "" {
+		connection.DbUrl = connection.SanitizeDbUrl()
+	}
+	return connection
+}
+
 // ZentaoConnection holds ZentaoConn plus ID/Name for database storage
 type ZentaoConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	ZentaoConn            `mapstructure:",squash"`
+}
+
+func (connection ZentaoConn) SanitizeDbUrl() string {
+	if connection.DbUrl == "" {
+		return connection.DbUrl
+	}
+	dbUrl := connection.DbUrl
+	u, _ := url.Parse(dbUrl)
+	if u != nil && u.User != nil {
+		password, ok := u.User.Password()
+		if ok {
+			dbUrl = strings.Replace(dbUrl, password, strings.Repeat("*", len(password)), -1)
+		}
+	}
+	if dbUrl == connection.DbUrl {
+		dbUrl = ""
+	}
+	return dbUrl
+}
+
+func (connection ZentaoConnection) Sanitize() ZentaoConnection {
+	connection.ZentaoConn = connection.ZentaoConn.Sanitize()
+	return connection
 }
 
 // This object conforms to what the frontend currently expects.

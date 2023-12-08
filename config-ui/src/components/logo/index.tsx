@@ -16,16 +16,23 @@
  *
  */
 
-import LogoImg from '@/images/devlake-logo.svg';
-import LogoTextImg from '@/images/devlake-textmark.svg';
+import styled from 'styled-components';
 
-import * as S from './styled';
+import LogoImg from '@/images/logo.svg';
 
-export const Logo = () => {
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+interface Props {
+  style?: React.CSSProperties;
+}
+
+export const Logo = ({ style }: Props) => {
   return (
-    <S.Wrapper>
-      <img src={LogoImg} alt="" />
-      <img src={LogoTextImg} alt="" />
-    </S.Wrapper>
+    <Wrapper style={style}>
+      <img src={import.meta.env.DEVLAKE_LOGO ?? LogoImg} alt="Logo" />
+    </Wrapper>
   );
 };

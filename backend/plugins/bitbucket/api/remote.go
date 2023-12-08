@@ -126,13 +126,16 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 				return nil, errors.BadInput.New("empty search query")
 			}
 			s := queryData.Search[0]
+			if strings.Contains(s, `"`) {
+				return nil, errors.BadInput.New("search query contains invalid character")
+			}
 			query.Set("sort", "name")
 			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
-			gid, searchName := getSearch(s)
-			query.Set("q", fmt.Sprintf(`name~"%s"`, searchName))
+			query.Set("role", "member")
+			query.Set("q", fmt.Sprintf(`full_name~"%s"`, s))
 
 			// list repos part
-			res, err := apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
+			res, err := apiClient.Get("/repositories", query, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -146,18 +149,6 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			return resBody.Values, err
 		},
 	)
-}
-
-func getSearch(s string) (string, string) {
-	gid := ""
-	if strings.Contains(s, "/") {
-		parts := strings.Split(s, "/")
-		if len(parts) >= 2 {
-			gid = parts[0]
-			s = strings.Join(parts[1:], "/")
-		}
-	}
-	return gid, s
 }
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {

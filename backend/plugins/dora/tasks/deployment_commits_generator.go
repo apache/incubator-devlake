@@ -43,7 +43,9 @@ type pipelineCommitEx struct {
 	PipelineName       string
 	Result             string
 	Status             string
-	DurationSec        *uint64
+	OriginalStatus     string
+	OriginalResult     string
+	DurationSec        *float64
 	CreatedDate        *time.Time
 	FinishedDate       *time.Time
 	Environment        string
@@ -58,6 +60,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*DoraTaskData)
 	// select all cicd_pipeline_commits from all "Deployments" in the project
 	// Note that failed records shall be included as well
+	noneSkippedResult := []string{devops.RESULT_FAILURE, devops.RESULT_SUCCESS}
 	cursor, err := db.Cursor(
 		dal.Select(
 			`
@@ -69,16 +72,18 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				p.finished_date,
 				p.environment,
 				p.cicd_scope_id,
-				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result <> ?)
+				p.original_status,
+				p.original_result,
+				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
 				as has_testing_tasks,
-				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result <> ?)
+				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
 				as has_staging_tasks,
-				EXISTS( SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result <> ?)
+				EXISTS( SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
 				as has_production_tasks
 			`,
-			devops.TESTING, devops.RESULT_SKIPPED,
-			devops.STAGING, devops.RESULT_SKIPPED,
-			devops.PRODUCTION, devops.RESULT_SKIPPED,
+			devops.TESTING, noneSkippedResult,
+			devops.STAGING, noneSkippedResult,
+			devops.PRODUCTION, noneSkippedResult,
 		),
 		dal.From("cicd_pipeline_commits pc"),
 		dal.Join("LEFT JOIN cicd_pipelines p ON (p.id = pc.pipeline_id)"),
@@ -87,15 +92,15 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			`
 			pm.project_name = ? AND (
 				p.type = ? OR EXISTS(
-					SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = ? AND t.result <> ?
+					SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = ? AND t.result IN ?
 				)
-			) AND p.result <> ?
+			) AND p.result IN ?
 			`,
 			data.Options.ProjectName,
 			devops.DEPLOYMENT,
 			devops.DEPLOYMENT,
-			devops.RESULT_SKIPPED,
-			devops.RESULT_SKIPPED,
+			noneSkippedResult,
+			noneSkippedResult,
 		),
 	)
 	if err != nil {
@@ -124,15 +129,19 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdDeploymentId: pipelineCommit.PipelineId,
 				Name:             pipelineCommit.PipelineName,
 				Result:           pipelineCommit.Result,
+				OriginalStatus:   pipelineCommit.OriginalStatus,
+				OriginalResult:   pipelineCommit.OriginalResult,
 				Status:           pipelineCommit.Status,
 				Environment:      pipelineCommit.Environment,
-				CreatedDate:      *pipelineCommit.CreatedDate,
-				FinishedDate:     pipelineCommit.FinishedDate,
-				DurationSec:      pipelineCommit.DurationSec,
-				CommitSha:        pipelineCommit.CommitSha,
-				RefName:          pipelineCommit.Branch,
-				RepoId:           pipelineCommit.RepoId,
-				RepoUrl:          pipelineCommit.RepoUrl,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  *pipelineCommit.CreatedDate,
+					FinishedDate: pipelineCommit.FinishedDate,
+				},
+				DurationSec: pipelineCommit.DurationSec,
+				CommitSha:   pipelineCommit.CommitSha,
+				RefName:     pipelineCommit.Branch,
+				RepoId:      pipelineCommit.RepoId,
+				RepoUrl:     pipelineCommit.RepoUrl,
 			}
 			if pipelineCommit.FinishedDate != nil && pipelineCommit.DurationSec != nil {
 				s := pipelineCommit.FinishedDate.Add(-time.Duration(*pipelineCommit.DurationSec) * time.Second)

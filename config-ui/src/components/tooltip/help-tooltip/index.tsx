@@ -16,21 +16,13 @@
  *
  */
 
-import { Icon, Position } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
+
 import styled from 'styled-components';
 
 const Wrapper = styled.span`
   margin-left: 4px;
-
-  & > .bp5-popover2-target {
-    display: inline-block !important;
-
-    .bp5-icon {
-      display: block;
-      cursor: pointer;
-    }
-  }
 `;
 
 interface Props {
@@ -41,9 +33,9 @@ interface Props {
 export const HelpTooltip = ({ content, style }: Props) => {
   return (
     <Wrapper style={style}>
-      <Tooltip2 position={Position.TOP} content={content}>
-        <Icon icon="help" size={12} color="#94959f" />
-      </Tooltip2>
+      <Tooltip title={content} placement="top">
+        <QuestionCircleOutlined rev={undefined} />
+      </Tooltip>
     </Wrapper>
   );
 };

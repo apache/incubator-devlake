@@ -15,11 +15,10 @@
 
 import pytest
 
-from pydevlake.testing import assert_stream_convert, ContextBuilder
 import pydevlake.domain_layer.code as code
 import pydevlake.domain_layer.devops as devops
-
 from azuredevops.main import AzureDevOpsPlugin
+from pydevlake.testing import assert_stream_convert, ContextBuilder
 
 
 @pytest.fixture
@@ -28,10 +27,11 @@ def context():
         ContextBuilder(AzureDevOpsPlugin())
         .with_connection(token='token')
         .with_scope_config(deployment_pattern='deploy',
-                                  production_pattern='prod')
+                           production_pattern='prod')
         .with_scope('johndoe/test-repo', url='https://github.com/johndoe/test-repo')
         .build()
     )
+
 
 def test_builds_stream(context):
     raw = {
@@ -127,10 +127,14 @@ def test_builds_stream(context):
         devops.CICDPipeline(
             name='deploy_to_prod',
             status=devops.CICDStatus.DONE,
-            created_date='2023-02-25T06:22:32.8097789Z',
+            created_date='2023-02-25T06:22:21.2237625Z',
+            queued_date='2023-02-25T06:22:21.2237625Z',
+            started_date='2023-02-25T06:22:32.8097789Z',
             finished_date='2023-02-25T06:23:04.0061884Z',
             result=devops.CICDResult.SUCCESS,
-            duration_sec=28,
+            original_status='Completed',
+            original_result='Succeeded',
+            duration_sec=31.196409940719604,
             environment=devops.CICDEnvironment.PRODUCTION,
             type=devops.CICDType.DEPLOYMENT,
             cicd_scope_id=context.scope.domain_id()
@@ -186,11 +190,14 @@ def test_jobs_stream(context):
         name='deploy production',
         pipeline_id='azuredevops:Build:1:12',
         status=devops.CICDStatus.DONE,
+        original_status='Completed',
+        original_result='Succeeded',
         created_date='2023-02-25T06:22:36.8066667Z',
+        started_date='2023-02-25T06:22:36.8066667Z',
         finished_date='2023-02-25T06:22:43.2333333Z',
         result=devops.CICDResult.SUCCESS,
         type=devops.CICDType.DEPLOYMENT,
-        duration_sec=7,
+        duration_sec=6.426667213439941,
         environment=devops.CICDEnvironment.PRODUCTION,
         cicd_scope_id=context.scope.domain_id()
     )
@@ -255,7 +262,8 @@ def test_pull_requests_stream(context):
                 'isFlagged': False,
                 'displayName': 'John Doe',
                 'url': 'https://spsprodcus5.vssps.visualstudio.com/A1def512a-251e-4668-9a5d-a4bc1f0da4aa/_apis/Identities/bc538feb-9fdd-6cf8-80e1-7c56950d0289',
-                '_links': {'avatar': {'href': 'https://dev.azure.com/johndoe/_apis/GraphProfile/MemberAvatars/aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5'}},
+                '_links': {'avatar': {
+                    'href': 'https://dev.azure.com/johndoe/_apis/GraphProfile/MemberAvatars/aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5'}},
                 'id': 'bc538feb-9fdd-6cf8-80e1-7c56950d0289',
                 'uniqueName': 'john.doe@merico.dev',
                 'imageUrl': 'https://dev.azure.com/johndoe/_api/_common/identityImage?id=bc538feb-9fdd-6cf8-80e1-7c56950d0289'
@@ -313,7 +321,8 @@ def test_pull_request_commits_stream():
         },
         'comment': 'Fixed main.java',
         'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/commits/85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
-        'pull_request_id': "azuredevops:gitpullrequest:1:12345" # This is not part of the API response, but is added in collect method
+        'pull_request_id': "azuredevops:gitpullrequest:1:12345"
+        # This is not part of the API response, but is added in collect method
     }
 
     expected = code.PullRequestCommit(

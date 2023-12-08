@@ -18,14 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -89,9 +86,9 @@ type SimpleWorkflowRun struct {
 	CheckSuiteNodeID string
 }
 
-var CollectGraphqlJobsMeta = plugin.SubTaskMeta{
-	Name:             "CollectGraphqlJobs",
-	EntryPoint:       CollectGraphqlJobs,
+var CollectJobsMeta = plugin.SubTaskMeta{
+	Name:             "CollectJobs",
+	EntryPoint:       CollectJobs,
 	EnabledByDefault: true,
 	Description:      "Collect Jobs(CheckRun) data from GithubGraphql api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
@@ -99,8 +96,7 @@ var CollectGraphqlJobsMeta = plugin.SubTaskMeta{
 
 var _ plugin.SubTaskEntryPoint = CollectAccount
 
-func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
-	logger := taskCtx.GetLogger()
+func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
@@ -122,7 +118,7 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 		dal.Orderby("github_updated_at DESC"),
 	}
-	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
 		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.Since))
 	}
 
@@ -165,45 +161,7 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				// log and ignore
 				taskCtx.GetLogger().Warn(dataError, `query check run get error but ignore`)
 			}
-			query := iQuery.(*GraphqlQueryCheckRunWrapper)
-			nodes := query.Node
-
-			results := make([]interface{}, 0, 1)
-			for _, node := range nodes {
-				for _, checkRun := range node.CheckSuite.CheckRuns.Nodes {
-
-					paramsBytes, err := json.Marshal(checkRun.Steps.Nodes)
-					if err != nil {
-						logger.Error(err, `Marshal checkRun.Steps.Nodes fail and ignore`)
-					}
-					githubJob := &models.GithubJob{
-						ConnectionId: data.Options.ConnectionId,
-						RunID:        node.CheckSuite.WorkflowRun.DatabaseId,
-						RepoId:       data.Options.GithubId,
-						ID:           checkRun.DatabaseId,
-						NodeID:       checkRun.Id,
-						HTMLURL:      checkRun.DetailsUrl,
-						Status:       strings.ToUpper(checkRun.Status),
-						Conclusion:   strings.ToUpper(checkRun.Conclusion),
-						StartedAt:    checkRun.StartedAt,
-						CompletedAt:  checkRun.CompletedAt,
-						Name:         checkRun.Name,
-						Steps:        paramsBytes,
-						Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, checkRun.Name),
-						Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, checkRun.Name),
-						// these columns can not fill by graphql
-						//HeadSha:       ``,  // use _tool_github_runs
-						//RunURL:        ``,
-						//CheckRunURL:   ``,
-						//Labels:        ``, // not on use
-						//RunnerID:      ``, // not on use
-						//RunnerName:    ``, // not on use
-						//RunnerGroupID: ``, // not on use
-					}
-					results = append(results, githubJob)
-				}
-			}
-			return results, nil
+			return nil, nil
 		},
 	})
 	if err != nil {

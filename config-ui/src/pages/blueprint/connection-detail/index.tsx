@@ -18,13 +18,14 @@
 
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Table, Modal } from 'antd';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
 import API from '@/api';
-import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Table, Dialog } from '@/components';
+import { PageLoading, PageHeader, ExternalLink, Message, Buttons } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
-import { DataScopeSelect, getPluginScopeId } from '@/plugins';
+import { DataScopeSelect, getPluginConfig, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import { encodeName } from '../../project/utils';
@@ -33,7 +34,7 @@ import * as S from './styled';
 
 export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [operating, setOperating] = useState(false);
 
   const { pname, bid, unique } = useParams() as { pname?: string; bid?: string; unique: string };
@@ -50,8 +51,11 @@ export const BlueprintConnectionDetailPage = () => {
     return API.blueprint.get(bid as any);
   };
 
+  const [plugin, connectionId] = unique.split('-');
+
+  const pluginConfig = getPluginConfig(plugin);
+
   const { ready, data } = useRefreshData(async () => {
-    const [plugin, connectionId] = unique.split('-');
     const [blueprint, connection] = await Promise.all([
       getBlueprint(pname, bid),
       API.connection.get(plugin, connectionId),
@@ -87,8 +91,8 @@ export const BlueprintConnectionDetailPage = () => {
 
   const { blueprint, connection, scopes } = data;
 
-  const handleShowDataScope = () => setIsOpen(true);
-  const handleHideDataScope = () => setIsOpen(false);
+  const handleShowDataScope = () => setOpen(true);
+  const handleHideDataScope = () => setOpen(false);
 
   const handleRunBP = async (skipCollectors: boolean) => {
     const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync: false }), {
@@ -97,7 +101,7 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
-      navigate(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`);
     }
   };
 
@@ -109,7 +113,7 @@ export const BlueprintConnectionDetailPage = () => {
           <Button
             loading={operating}
             intent={Intent.PRIMARY}
-            text="Recollect All Data"
+            text="Recollect Data"
             onClick={() => handleRunBP(false)}
           />
         </Buttons>
@@ -130,7 +134,9 @@ export const BlueprintConnectionDetailPage = () => {
     if (success) {
       handleShowTips();
       navigate(
-        pname ? `/projects/${encodeName(pname)}?tab=configuration` : `/blueprints/${blueprint.id}?tab=configuration`,
+        pname
+          ? `/projects/${encodeName(pname)}?tab=configuration`
+          : `/advanced/blueprints/${blueprint.id}?tab=configuration`,
       );
     }
   };
@@ -172,9 +178,9 @@ export const BlueprintConnectionDetailPage = () => {
               { name: `Connection - ${connection.name}`, path: '' },
             ]
           : [
-              { name: 'Advanced', path: '/blueprints' },
-              { name: 'Blueprints', path: '/blueprints' },
-              { name: bid as any, path: `/blueprints/${bid}` },
+              { name: 'Advanced', path: '/advanced/blueprints' },
+              { name: 'Blueprints', path: '/advanced/blueprints' },
+              { name: bid as any, path: `/advanced/blueprints/${bid}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
       }
@@ -205,11 +211,15 @@ export const BlueprintConnectionDetailPage = () => {
       </S.Top>
       <Buttons position="top">
         <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
-        <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
-          <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />
-        </ExternalLink>
+        {pluginConfig.scopeConfig && (
+          <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
+            <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />
+          </ExternalLink>
+        )}
       </Buttons>
       <Table
+        rowKey="id"
+        size="middle"
         columns={[
           {
             title: 'Data Scope',
@@ -218,20 +228,13 @@ export const BlueprintConnectionDetailPage = () => {
           },
           {
             title: 'Scope Config',
-            dataIndex: ['scopeConfigId', 'scopeConfigName'],
             key: 'scopeConfig',
-            render: ({ scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
+            render: (_, { scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
           },
         ]}
         dataSource={scopes}
       />
-      <Dialog
-        isOpen={isOpen}
-        title="Manage Data Scope"
-        footer={null}
-        style={{ width: 820 }}
-        onCancel={handleHideDataScope}
-      >
+      <Modal open={open} width={820} centered title="Manage Data Scope" footer={null} onCancel={handleHideDataScope}>
         <DataScopeSelect
           plugin={connection.plugin}
           connectionId={connection.id}
@@ -240,7 +243,7 @@ export const BlueprintConnectionDetailPage = () => {
           onCancel={handleHideDataScope}
           onSubmit={handleChangeDataScope}
         />
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };

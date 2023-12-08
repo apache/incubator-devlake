@@ -19,19 +19,16 @@
 import { pick } from 'lodash';
 
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
-import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
-
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 import { Token, Graphql, GithubApp, Authentication } from './connection-fields';
 
-export const GitHubConfig: PluginConfigType = {
-  type: PluginType.Connection,
+export const GitHubConfig: IPluginConfig = {
   plugin: 'github',
   name: 'GitHub',
-  icon: Icon,
-  sort: 1,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 5,
   connection: {
     docLink: DOC_URL.PLUGIN.GITHUB.BASIS,
     initialValues: {
@@ -70,6 +67,7 @@ export const GitHubConfig: PluginConfigType = {
           />
         ) : (
           <GithubApp
+            key="github-app"
             endpoint={values.endpoint}
             proxy={values.proxy}
             initialValue={initialValues ? pick(initialValues, ['appId', 'secretKey', 'installationId']) : {}}
@@ -115,8 +113,9 @@ export const GitHubConfig: PluginConfigType = {
       issuePriority: '(highest|high|medium|low|p0|p1|p2|p3)',
       issueComponent: 'component(.*)',
       issueSeverity: 'severity(.*)',
-      deploymentPattern: '(deploy|push-image)',
-      productionPattern: 'prod(.*)',
+      envNamePattern: '(?i)prod(.*)',
+      deploymentPattern: '',
+      productionPattern: '',
       prType: 'type(.*)',
       prComponent: 'component(.*)',
       prBodyClosePattern:

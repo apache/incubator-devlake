@@ -30,10 +30,20 @@ type TrelloConn struct {
 	helper.AppKey         `mapstructure:",squash"`
 }
 
+func (tc *TrelloConn) Sanitize() TrelloConn {
+	tc.SecretKey = ""
+	return *tc
+}
+
 // TrelloConnection holds TrelloConn plus ID/Name for database storage
 type TrelloConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	TrelloConn            `mapstructure:",squash"`
+}
+
+func (connection TrelloConnection) Sanitize() TrelloConnection {
+	connection.TrelloConn = connection.TrelloConn.Sanitize()
+	return connection
 }
 
 // SetupAuthentication sets up the HTTP Request Authentication

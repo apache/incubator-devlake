@@ -17,8 +17,9 @@
  */
 
 import { useEffect, useState } from 'react';
+import { Select } from 'antd';
 import { Button, FormGroup, InputGroup, MenuItem, TextArea } from '@blueprintjs/core';
-import { Select2 } from '@blueprintjs/select';
+// import { Select2 } from '@blueprintjs/select';
 
 import API from '@/api';
 import { ExternalLink } from '@/components';
@@ -145,7 +146,9 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
       subLabel={
         <S.LabelDescription>
           Input information about your Github App{' '}
-          <ExternalLink link="https://TODO">Learn how to create a github app</ExternalLink>
+          <ExternalLink link="https://docs.github.com/en/apps/maintaining-github-apps/modifying-a-github-app-registration#navigating-to-your-github-app-settings">
+            Learn how to create a github app
+          </ExternalLink>
         </S.LabelDescription>
       }
     >
@@ -181,39 +184,19 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
         </div>
       </S.Input>
       <S.Input>
-        <Select2
-          items={settings.installations ?? []}
-          activeItem={settings.installations?.find((e) => e.id === settings.installationId)}
-          itemPredicate={(query, item) => item.account.login.toLowerCase().includes(query.toLowerCase())}
-          itemRenderer={(item, { handleClick, handleFocus, modifiers }) => {
-            return (
-              <MenuItem
-                active={modifiers.active}
-                disabled={modifiers.disabled}
-                key={item.id}
-                label={item.id.toString()}
-                onClick={handleClick}
-                onFocus={handleFocus}
-                roleStructure="listoption"
-                text={item.account.login}
-              />
-            );
-          }}
-          onItemSelect={(item) => {
-            setSettings({ ...settings, installationId: item.id });
-          }}
-          noResults={<option disabled={true}>No results</option>}
-          popoverProps={{ minimal: true }}
-        >
-          <Button
-            text={
-              settings.installations?.find((e) => e.id === settings.installationId)?.account.login ??
-              'Select App installation'
-            }
-            rightIcon="double-caret-vertical"
-            placeholder="Select App installation"
-          />
-        </Select2>
+        <Select
+          style={{ width: 200 }}
+          placeholder="Select App installation"
+          options={
+            settings.installations
+              ? settings.installations.map((it) => ({
+                  value: it.id,
+                  label: it.account.login,
+                }))
+              : []
+          }
+          onChange={(value) => setSettings({ ...settings, installationId: value })}
+        />
       </S.Input>
     </FormGroup>
   );

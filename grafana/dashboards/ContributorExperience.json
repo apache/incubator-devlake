@@ -725,7 +725,9 @@
   "refresh": "",
   "schemaVersion": 30,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "OSS Maintainer Dashboard"
+  ],
   "templating": {
     "list": [
       {

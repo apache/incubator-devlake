@@ -32,7 +32,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 var _ plugin.SubTask = (*ApiCollector)(nil)
@@ -87,7 +86,7 @@ type ApiCollectorArgs struct {
 	// NORMALLY, DO NOT SPECIFY THIS PARAMETER, unless you know what it means
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, errors.Error)
-	AfterResponse  common.ApiClientAfterResponse
+	AfterResponse  plugin.ApiClientAfterResponse
 	RequestBody    func(reqData *RequestData) map[string]interface{}
 	Method         string
 }
@@ -389,12 +388,12 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 }
 
 // GetAfterResponse return apiClient's afterResponseFunction
-func (collector *ApiCollector) GetAfterResponse() common.ApiClientAfterResponse {
+func (collector *ApiCollector) GetAfterResponse() plugin.ApiClientAfterResponse {
 	return collector.args.ApiClient.GetAfterFunction()
 }
 
 // SetAfterResponse set apiClient's afterResponseFunction
-func (collector *ApiCollector) SetAfterResponse(f common.ApiClientAfterResponse) {
+func (collector *ApiCollector) SetAfterResponse(f plugin.ApiClientAfterResponse) {
 	collector.args.ApiClient.SetAfterFunction(f)
 }
 

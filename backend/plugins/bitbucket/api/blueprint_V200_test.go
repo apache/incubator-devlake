@@ -83,6 +83,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Options: map[string]interface{}{
 					"fullName":     "likyh/likyhphp",
 					"connectionId": uint64(1),
+					"TimeAfter":    "",
 				},
 			},
 			{

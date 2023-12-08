@@ -20,22 +20,22 @@ import { Icon, IconName } from '@blueprintjs/core';
 import classNames from 'classnames';
 
 import { Loading } from '@/components';
+import { IPipelineStatus } from '@/types';
 
-import * as T from '../types';
 import * as S from '../styled';
 import * as C from '../constant';
 
 interface Props {
-  status: T.PipelineStatus;
+  status: IPipelineStatus;
 }
 
 export const PipelineStatus = ({ status }: Props) => {
   const cls = classNames({
-    ready: [T.PipelineStatus.CREATED, T.PipelineStatus.PENDING].includes(status),
-    loading: [T.PipelineStatus.ACTIVE, T.PipelineStatus.RUNNING, T.PipelineStatus.RERUN].includes(status),
-    success: [T.PipelineStatus.COMPLETED, T.PipelineStatus.PARTIAL].includes(status),
-    error: status === T.PipelineStatus.FAILED,
-    cancel: status === T.PipelineStatus.CANCELLED,
+    ready: [IPipelineStatus.CREATED, IPipelineStatus.PENDING].includes(status),
+    loading: [IPipelineStatus.ACTIVE, IPipelineStatus.RUNNING, IPipelineStatus.RERUN].includes(status),
+    success: [IPipelineStatus.COMPLETED, IPipelineStatus.PARTIAL].includes(status),
+    error: status === IPipelineStatus.FAILED,
+    cancel: status === IPipelineStatus.CANCELLED,
   });
 
   return (

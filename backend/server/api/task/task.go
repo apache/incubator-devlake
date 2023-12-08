@@ -63,7 +63,7 @@ func GetTaskByPipeline(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid pipeline ID format"))
 		return
 	}
-	tasks, err := services.GetTasksWithLastStatus(pipelineId)
+	tasks, err := services.GetTasksWithLastStatus(pipelineId, true)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks"))
 		return

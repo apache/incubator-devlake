@@ -26,9 +26,14 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/golang-jwt/jwt/v5"
+)
+
+const (
+	AccessToken = "AccessToken"
+	AppKey      = "AppKey"
 )
 
 // GithubAccessToken supports fetching data with multiple tokens
@@ -43,7 +48,7 @@ type GithubAppKey struct {
 	InstallationID int `mapstructure:"installationId" validate:"required" json:"installationId"`
 }
 
-// GithubConn holds the essential information to connect to the Github API
+// GithubConn holds the essential information to connect to the GitHub API
 type GithubConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.MultiAuth      `mapstructure:",squash"`
@@ -52,13 +57,13 @@ type GithubConn struct {
 }
 
 // PrepareApiClient splits Token to tokens for SetupAuthentication to utilize
-func (conn *GithubConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (conn *GithubConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 
-	if conn.AuthMethod == "AccessToken" {
+	if conn.AuthMethod == AccessToken {
 		conn.tokens = strings.Split(conn.Token, ",")
 	}
 
-	if conn.AuthMethod == "AppKey" && conn.InstallationID != 0 {
+	if conn.AuthMethod == AppKey && conn.InstallationID != 0 {
 		token, err := conn.getInstallationAccessToken(apiClient)
 		if err != nil {
 			return err
@@ -94,8 +99,223 @@ type GithubConnection struct {
 	EnableGraphql         bool `mapstructure:"enableGraphql" json:"enableGraphql"`
 }
 
-func (GithubConnection) TableName() string {
+const (
+	GithubTokenTypeClassical                = "classical"
+	GithubTokenTypeClassicalPrefixLen       = 4
+	GithubTokenTypeClassicalShowPrefixLen   = 8
+	GithubTokenTypeClassicalHiddenLen       = 20
+	GithubTokenTypeFineGrained              = "fine-grained"
+	GithubTokenTypeFineGrainedPrefixLen     = 11
+	GithubTokenTypeFineGrainedShowPrefixLen = 8
+	GithubTokenTypeFineGrainedHiddenLen     = 66
+	GithubTokenTypeUnknown                  = "unknown"
+)
+
+func (connection GithubConnection) TableName() string {
 	return "_tool_github_connections"
+}
+
+func (connection *GithubConnection) Merge(existed, modified *GithubConnection) error {
+	// There are many kinds of update, we just update all fields simply.
+	existedTokenStr := existed.Token
+	existSecretKey := existed.SecretKey
+
+	existed.AppId = modified.AppId
+	existed.SecretKey = modified.SecretKey
+	existed.InstallationID = modified.InstallationID
+	existed.AuthMethod = modified.AuthMethod
+	existed.Proxy = modified.Proxy
+	existed.Endpoint = modified.Endpoint
+	existed.RateLimitPerHour = modified.RateLimitPerHour
+
+	// handle secret
+	if existSecretKey == "" {
+		if modified.SecretKey != "" {
+			// add secret key, store it
+			existed.SecretKey = modified.SecretKey
+		}
+		// doesn't input secret key, pass
+	} else {
+		if modified.SecretKey == "" {
+			// delete secret key
+			existed.SecretKey = modified.SecretKey
+		} else {
+			// update secret key
+			sanitizeSecretKey := existed.SanitizeSecret().SecretKey
+			if sanitizeSecretKey == modified.SecretKey {
+				// change nothing, restore it
+				existed.SecretKey = existSecretKey
+			} else {
+				// has changed, replace it with the new secret key
+				existed.SecretKey = modified.SecretKey
+			}
+		}
+	}
+
+	// handle tokens
+	existedTokens := strings.Split(strings.TrimSpace(existedTokenStr), ",")
+	existedTokenMap := make(map[string]string)          // {originalToken:sanitizedToken}
+	existedSanitizedTokenMap := make(map[string]string) // {sanitizedToken:originalToken}
+	for _, token := range existedTokens {
+		existedTokenMap[token] = existed.SanitizeToken(token)
+		existedSanitizedTokenMap[existed.SanitizeToken(token)] = token
+	}
+
+	modifiedTokens := strings.Split(strings.TrimSpace(modified.Token), ",")
+	modifiedTokenMap := make(map[string]string) // {originalToken:sanitizedToken}
+	for _, token := range modifiedTokens {
+		modifiedTokenMap[token] = existed.SanitizeToken(token)
+	}
+
+	var mergedToken []string
+	mergedTokenMap := make(map[string]struct{})
+
+	for token, sanitizeToken := range modifiedTokenMap {
+		// check token
+		if _, ok := existedTokenMap[token]; ok {
+			// find in db, modified but no update, ignore it
+			if _, ok := mergedTokenMap[token]; !ok {
+				mergedToken = append(mergedToken, token)
+				mergedTokenMap[token] = struct{}{}
+			}
+		} else {
+			// not found, a new token, we should keep it
+			// cannot be a sanitized token
+			if _, ok := existedSanitizedTokenMap[token]; !ok {
+				if token != sanitizeToken {
+					if _, ok := mergedTokenMap[token]; !ok {
+						mergedToken = append(mergedToken, token)
+						mergedTokenMap[token] = struct{}{}
+					}
+				}
+			}
+		}
+
+		// token may be a sanitized token
+		if v, ok := existedSanitizedTokenMap[token]; ok {
+			// find in db, modify nothing, just keep it
+			if _, ok := mergedTokenMap[v]; !ok {
+				mergedToken = append(mergedToken, v)
+				mergedTokenMap[v] = struct{}{}
+			}
+		} else {
+			// unexpected
+			fmt.Printf("unexpected token: %+v will be ignored\n", token)
+		}
+		// check sanitized token
+		if v, ok := existedSanitizedTokenMap[sanitizeToken]; ok {
+			// find in db, modify nothing, just keep it
+			if _, ok := mergedTokenMap[v]; !ok {
+				mergedToken = append(mergedToken, v)
+				mergedTokenMap[v] = struct{}{}
+			}
+		} else {
+			// a new token
+			// but we should check it
+			if sanitizeToken != token {
+				if _, ok := mergedTokenMap[token]; !ok {
+					mergedToken = append(mergedToken, token)
+					mergedTokenMap[token] = struct{}{}
+				}
+			}
+		}
+	}
+
+	existed.Token = strings.Join(mergedToken, ",")
+	return nil
+}
+
+func (conn *GithubConn) typeIs(token string) string {
+	// classical tokens:
+	// ghp_ for Personal Access Tokens
+	// gho_ for OAuth Access tokens
+	// ghu_ for GitHub App user-to-server tokens
+	// ghs_ for GitHub App server-to-server tokens
+	// ghr_ for GitHub App refresh tokens
+	// total len is 40, {prefix}{showPrefix}{secret}{showSuffix}
+	// fine-grained tokens
+	// github_pat_{82_characters}
+	classicalTokenClassicalPrefixes := []string{"ghp_", "gho_", "ghs_", "ghr_"}
+	classicalTokenFindGrainedPrefixes := []string{"github_pat_"}
+	for _, prefix := range classicalTokenClassicalPrefixes {
+		if strings.HasPrefix(token, prefix) {
+			return GithubTokenTypeClassical
+		}
+	}
+	for _, prefix := range classicalTokenFindGrainedPrefixes {
+		if strings.HasPrefix(token, prefix) {
+			return GithubTokenTypeFineGrained
+		}
+	}
+	return GithubTokenTypeUnknown
+}
+
+func (connection GithubConnection) Sanitize() GithubConnection {
+	connection.GithubConn = connection.GithubConn.Sanitize()
+	return connection
+}
+
+func (conn *GithubConn) Sanitize() GithubConn {
+	conn.SanitizeTokens()
+	conn.SanitizeSecret()
+	return *conn
+}
+
+func (conn *GithubConn) SanitizeSecret() GithubConn {
+	if conn.SecretKey == "" {
+		return *conn
+	}
+	secretKey := conn.SecretKey
+	showPrefixLen, showSuffixLen := 50, 50
+	hiddenLen := len(secretKey) - showSuffixLen - showSuffixLen
+	secret := strings.Repeat("*", hiddenLen)
+	conn.SecretKey = strings.Replace(secretKey, conn.SecretKey[showPrefixLen:showPrefixLen+hiddenLen], secret, -1)
+	return *conn
+}
+
+func (conn *GithubConn) SanitizeToken(token string) string {
+	if token == "" {
+		return token
+	}
+	sanitizedToken := token
+	var prefixLen, showPrefixLen, hiddenLen int
+
+	tokenType := conn.typeIs(token)
+	switch tokenType {
+	case GithubTokenTypeClassical:
+		prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeClassicalPrefixLen, GithubTokenTypeClassicalShowPrefixLen, GithubTokenTypeClassicalHiddenLen
+	case GithubTokenTypeFineGrained:
+		prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeFineGrainedPrefixLen, GithubTokenTypeFineGrainedShowPrefixLen, GithubTokenTypeFineGrainedHiddenLen
+	case GithubTokenTypeUnknown:
+	}
+	tokenLen := len(token)
+	if tokenLen >= prefixLen && prefixLen != 0 && hiddenLen != 0 {
+		secret := strings.Repeat("*", hiddenLen)
+		sanitizedToken = strings.Replace(token, token[prefixLen+showPrefixLen:prefixLen+showPrefixLen+hiddenLen], secret, -1)
+	}
+	return sanitizedToken
+}
+
+func (conn *GithubConn) SanitizeTokens() GithubConn {
+	if conn.Token == "" {
+		return *conn
+	}
+	tokens := strings.Split(conn.Token, ",")
+	var sanitizedTokens []string
+	for _, token := range tokens {
+		if token == "" {
+			continue
+		}
+		sanitizedToken := conn.SanitizeToken(token)
+		sanitizedTokens = append(sanitizedTokens, sanitizedToken)
+	}
+
+	if len(sanitizedTokens) > 0 {
+		conn.Token = strings.Join(sanitizedTokens, ",")
+	} else {
+		conn.Token = ""
+	}
+	return *conn
 }
 
 // Using GithubUserOfToken because it requires authentication, and it is public information anyway.
@@ -148,7 +368,7 @@ func (gak *GithubAppKey) CreateJwt() (string, errors.Error) {
 }
 
 func (gak *GithubAppKey) getInstallationAccessToken(
-	apiClient apihelperabstract.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 ) (*InstallationToken, errors.Error) {
 
 	jwt, err := gak.CreateJwt()

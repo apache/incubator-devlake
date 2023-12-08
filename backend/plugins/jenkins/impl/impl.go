@@ -183,12 +183,15 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
-		"connections/:connectionId/search-remote-scopes": {
-			"GET": api.SearchRemoteScopes,
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
 		},
+		// "connections/:connectionId/search-remote-scopes": {
+		// 	"GET": api.SearchRemoteScopes,
+		// },
 		"connections/:connectionId/scopes/*scopeId": {
 			"GET":    api.GetScope,
-			"PATCH":  api.UpdateScope,
+			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/scopes": {
@@ -199,7 +202,7 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.UpdateScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
@@ -247,7 +250,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
 		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
 		op.JobPath = job.Path
-		jenkinsJob := job.ConvertApiScope().(*models.JenkinsJob)
+		jenkinsJob := job.ToJenkinsJob()
 
 		jenkinsJob.ConnectionId = op.ConnectionId
 		jenkinsJob.ScopeConfigId = op.ScopeConfigId

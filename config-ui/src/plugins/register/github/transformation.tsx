@@ -17,279 +17,341 @@
  */
 
 import { useState, useEffect } from 'react';
-import { FormGroup, InputGroup, TextArea, Tag, Switch, Icon, Intent, Colors } from '@blueprintjs/core';
+import { CheckCircleOutlined, CloseCircleOutlined, CaretRightOutlined } from '@ant-design/icons';
+import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { theme, Form, Collapse, Input, Tag, Checkbox } from 'antd';
 
-import { ExternalLink, HelpTooltip, Divider } from '@/components';
+import { HelpTooltip, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
-
-import * as S from './styled';
 
 interface Props {
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
+  setHasError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const GitHubTransformation = ({ entities, transformation, setTransformation }: Props) => {
-  const [enableCICD, setEnableCICD] = useState(true);
+export const GitHubTransformation = ({ entities, transformation, setTransformation, setHasError }: Props) => {
+  const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
-    if (!transformation.deploymentPattern) {
-      setEnableCICD(false);
+    if (transformation.deploymentPattern || transformation.productionPattern) {
+      setUseCustom(true);
+    } else {
+      setUseCustom(false);
     }
-  }, []);
+  }, [transformation]);
 
-  const handleChangeEnableCICD = (e: React.FormEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setHasError(useCustom && !transformation.deploymentPattern);
+  }, [useCustom, transformation]);
+
+  const handleChangeUseCustom = (e: CheckboxChangeEvent) => {
     const checked = (e.target as HTMLInputElement).checked;
 
     if (!checked) {
       setTransformation({
         ...transformation,
-        deploymentPattern: undefined,
-        productionPattern: undefined,
+        deploymentPattern: '',
+        productionPattern: '',
       });
     }
 
-    setEnableCICD(checked);
+    setUseCustom(checked);
+  };
+
+  const { token } = theme.useToken();
+
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: token.colorFillAlter,
+    borderRadius: token.borderRadiusLG,
+    border: 'none',
   };
 
   return (
-    <S.Transformation>
-      {entities.includes('TICKET') && (
-        <div className="issue-tracking">
-          <h2>Issue Tracking</h2>
+    <Collapse
+      bordered={false}
+      defaultActiveKey={['TICKET', 'CICD']}
+      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev="" />}
+      style={{ background: token.colorBgContainer }}
+      size="large"
+      items={renderCollapseItems({
+        entities,
+        panelStyle,
+        transformation,
+        onChangeTransformation: setTransformation,
+        useCustom,
+        onChangeUseCustom: handleChangeUseCustom,
+      })}
+    />
+  );
+};
+
+const renderCollapseItems = ({
+  entities,
+  panelStyle,
+  transformation,
+  onChangeTransformation,
+  useCustom,
+  onChangeUseCustom,
+}: {
+  entities: string[];
+  panelStyle: React.CSSProperties;
+  transformation: any;
+  onChangeTransformation: any;
+  useCustom: boolean;
+  onChangeUseCustom: any;
+}) =>
+  [
+    {
+      key: 'TICKET',
+      label: 'Issue Tracking',
+      style: panelStyle,
+      children: (
+        <>
           <p>
             Tell DevLake what your issue labels mean to view metrics such as{' '}
             <ExternalLink link={DOC_URL.METRICS.BUG_AGE}>Bug Age</ExternalLink>,{' '}
             <ExternalLink link={DOC_URL.METRICS.MTTR}>DORA - Median Time to Restore Service</ExternalLink>, etc.
           </p>
-          <div className="issue-type">
-            <div className="title">
-              <span>Issue Type</span>
-              <HelpTooltip content="DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Set your issues to these three types with issue labels that match the RegEx." />
-            </div>
-            <div className="list">
-              <FormGroup inline label="Requirement">
-                <InputGroup
-                  placeholder="(feat|feature|proposal|requirement)"
-                  value={transformation.issueTypeRequirement ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      issueTypeRequirement: e.target.value,
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup inline label="Bug">
-                <InputGroup
-                  placeholder="(bug|broken)"
-                  value={transformation.issueTypeBug ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      issueTypeBug: e.target.value,
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup
-                inline
-                label={
-                  <span>
-                    Incident
-                    <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 4 }}>
-                      DORA
-                    </Tag>
-                  </span>
-                }
-              >
-                <InputGroup
-                  placeholder="(incident|failure)"
-                  value={transformation.issueTypeIncident ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      issueTypeIncident: e.target.value,
-                    })
-                  }
-                />
-              </FormGroup>
-            </div>
-          </div>
-          <FormGroup
-            inline
+          <p>
+            DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Set your issues to these three
+            types with issue labels that match the RegEx.
+          </p>
+          <Form.Item label="Requirement">
+            <Input
+              placeholder="(feat|feature|proposal|requirement)"
+              value={transformation.issueTypeRequirement ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueTypeRequirement: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="Bug">
+            <Input
+              placeholder="(bug|broken)"
+              value={transformation.issueTypeBug ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueTypeBug: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
             label={
               <>
-                <span>Issue Priority</span>
+                <span>Incident</span>
+                <Tag style={{ marginLeft: 4 }} color="blue">
+                  DORA
+                </Tag>
+              </>
+            }
+          >
+            <Input
+              placeholder="(incident|failure)"
+              value={transformation.issueTypeIncident ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueTypeIncident: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span style={{ marginRight: 4 }}>Issue Priority</span>
                 <HelpTooltip content="Labels that match the RegEx will be set as the priority of an issue." />
               </>
             }
           >
-            <InputGroup
+            <Input
               placeholder="(highest|high|medium|low|p0|p1|p2|p3)"
               value={transformation.issuePriority ?? ''}
               onChange={(e) =>
-                setTransformation({
+                onChangeTransformation({
                   ...transformation,
                   issuePriority: e.target.value,
                 })
               }
             />
-          </FormGroup>
-          <FormGroup
-            inline
+          </Form.Item>
+          <Form.Item
             label={
               <>
-                <span>Issue Component</span>
+                <span style={{ marginRight: 4 }}>Issue Component</span>
                 <HelpTooltip content="Labels that match the RegEx will be set as the component of an issue." />
               </>
             }
           >
-            <InputGroup
+            <Input
               placeholder="component(.*)"
               value={transformation.issueComponent ?? ''}
               onChange={(e) =>
-                setTransformation({
+                onChangeTransformation({
                   ...transformation,
                   issueComponent: e.target.value,
                 })
               }
             />
-          </FormGroup>
-          <FormGroup
-            inline
+          </Form.Item>
+          <Form.Item
             label={
               <>
-                <span>Issue Severity</span>
+                <span style={{ marginRight: 4 }}>Issue Severity</span>
                 <HelpTooltip content="Labels that match the RegEx will be set as the serverity of an issue." />
               </>
             }
           >
-            <InputGroup
+            <Input
               placeholder="severity(.*)"
               value={transformation.issueSeverity ?? ''}
               onChange={(e) =>
-                setTransformation({
+                onChangeTransformation({
                   ...transformation,
                   issueSeverity: e.target.value,
                 })
               }
             />
-          </FormGroup>
-          <Divider />
-        </div>
-      )}
-      {entities.includes('CICD') && (
-        <S.CICD>
-          <h2>CI/CD</h2>
-          <h3>
+          </Form.Item>
+        </>
+      ),
+    },
+    {
+      key: 'CICD',
+      label: 'CI/CD',
+      style: panelStyle,
+      children: (
+        <>
+          <h3 style={{ marginBottom: 16 }}>
             <span>Deployment</span>
-            <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
+            <Tag style={{ marginLeft: 4 }} color="blue">
               DORA
             </Tag>
-            <div className="switch">
-              <span>Enable</span>
-              <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeEnableCICD} />
-            </div>
           </h3>
-          {enableCICD && (
-            <>
-              <p>
-                Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-                <ExternalLink link={DOC_URL.PLUGIN.GITHUB.TRANSFORMATION}>Learn more</ExternalLink>
-              </p>
-              <div style={{ marginTop: 16 }}>Convert a GitHub Workflow run as a DevLake Deployment when: </div>
-              <div className="text">
-                <span>
-                  The name of the <strong>GitHub workflow run</strong> or <strong>one of its jobs</strong> matches
-                </span>
-                <InputGroup
-                  style={{ width: 200, margin: '0 8px' }}
-                  placeholder="(deploy|push-image)"
-                  value={transformation.deploymentPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      deploymentPattern: e.target.value,
-                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                    })
-                  }
-                />
-                <i style={{ color: '#E34040' }}>*</i>
-                <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
-              </div>
-              <div className="text">
-                <span>If the name also matches</span>
-                <InputGroup
-                  style={{ width: 200, margin: '0 8px' }}
-                  disabled={!transformation.deploymentPattern}
-                  placeholder="prod(.*)"
-                  value={transformation.productionPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      productionPattern: e.target.value,
-                    })
-                  }
-                />
-                <span>, this Deployment is a ‘Production Deployment’</span>
-                <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
-              </div>
-            </>
-          )}
-          <Divider />
-        </S.CICD>
-      )}
-      {entities.includes('CODEREVIEW') && (
-        <div>
-          <h2>Code Review</h2>
+          <p style={{ marginBottom: 16 }}>
+            Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+            <ExternalLink link={DOC_URL.PLUGIN.GITHUB.TRANSFORMATION}>Learn more</ExternalLink>
+          </p>
+          <Checkbox disabled checked>
+            Convert a GitHub Deployment to a DevLake Deployment
+          </Checkbox>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <span>If its environment name matches</span>
+            <Input
+              style={{ width: 180, margin: '0 8px' }}
+              placeholder="(?i)prod(.*)"
+              value={transformation.envNamePattern}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  envNamePattern: e.target.value,
+                })
+              }
+            />
+            <span>, this deployment is a ‘Production Deployment’</span>
+          </div>
+          <Checkbox checked={useCustom} onChange={onChangeUseCustom}>
+            Convert a GitHub workflow run as a DevLake Deployment when:
+          </Checkbox>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <span>
+              The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
+            </span>
+            <Input
+              style={{ width: 180, margin: '0 8px' }}
+              placeholder="(deploy|push-image)"
+              value={transformation.deploymentPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  deploymentPattern: e.target.value,
+                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                })
+              }
+            />
+            <i style={{ marginRight: 4, color: '#E34040' }}>*</i>
+            <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
+          </div>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <span>If the name or its branch’s name also matches</span>
+            <Input
+              style={{ width: 180, margin: '0 8px' }}
+              placeholder="prod(.*)"
+              value={transformation.productionPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  productionPattern: e.target.value,
+                })
+              }
+            />
+            <span>, this deployment is a ‘Production Deployment’</span>
+            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
+          </div>
+        </>
+      ),
+    },
+    {
+      key: 'CODEREVIEW',
+      label: 'Code Review',
+      style: panelStyle,
+      children: (
+        <>
           <p>
             If you use labels to identify types and components of pull requests, use the following RegExes to extract
             them into corresponding columns.{' '}
             <ExternalLink link={DOC_URL.DATA_MODELS.DEVLAKE_DOMAIN_LAYER_SCHEMA.PULL_REQUEST}>Learn More</ExternalLink>
           </p>
-          <FormGroup
-            inline
+          <Form.Item
             label={
               <>
-                <span>PR Type</span>
+                <span style={{ marginRight: 4 }}>PR Type</span>
                 <HelpTooltip content="Labels that match the RegEx will be set as the type of a pull request." />
               </>
             }
           >
-            <InputGroup
+            <Input
               placeholder="type(.*)$"
               value={transformation.prType ?? ''}
-              onChange={(e) => setTransformation({ ...transformation, prType: e.target.value })}
+              onChange={(e) => onChangeTransformation({ ...transformation, prType: e.target.value })}
             />
-          </FormGroup>
-          <FormGroup
-            inline
+          </Form.Item>
+          <Form.Item
             label={
               <>
-                <span>PR Component</span>
+                <span style={{ marginRight: 4 }}>PR Component</span>
                 <HelpTooltip content="Labels that match the RegEx will be set as the component of a pull request." />
               </>
             }
           >
-            <InputGroup
+            <Input
               placeholder="component(.*)$"
               value={transformation.prComponent ?? ''}
               onChange={(e) =>
-                setTransformation({
+                onChangeTransformation({
                   ...transformation,
                   prComponent: e.target.value,
                 })
               }
             />
-          </FormGroup>
-          <Divider />
-        </div>
-      )}
-      {entities.includes('CROSS') && (
-        <div>
-          <h2>Cross-domain</h2>
+          </Form.Item>
+        </>
+      ),
+    },
+    {
+      key: 'CROSS',
+      label: 'Cross-domain',
+      style: panelStyle,
+      children: (
+        <>
           <p>
             Connect entities across domains to measure metrics such as{' '}
             <ExternalLink link={DOC_URL.METRICS.BUG_COUNT_PER_1K_LINES_OF_CODE}>
@@ -297,21 +359,21 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
             </ExternalLink>
             .
           </p>
-          <FormGroup
-            inline
+          <Form.Item
+            labelCol={{ span: 6 }}
             label={
               <div className="label">
-                <span>Connect PRs and Issues</span>
+                <span style={{ marginRight: 4 }}>Connect PRs and Issues</span>
                 <HelpTooltip
                   content={
                     <>
                       <div>
-                        <Icon icon="tick-circle" size={12} color={Colors.GREEN4} style={{ marginRight: '4px' }} />
+                        <CheckCircleOutlined rev="" style={{ marginRight: 4, color: '#4DB764' }} />
                         Example 1: PR #321 body contains "<strong>Closes #1234</strong>" (PR #321 and issue #1234 will
                         be mapped by the following RegEx)
                       </div>
                       <div>
-                        <Icon icon="delete" size={12} color={Colors.RED4} style={{ marginRight: '4px' }} />
+                        <CloseCircleOutlined rev="" style={{ marginRight: 4, color: '#E34040' }} />
                         Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234
                         will NOT be mapped by the following RegEx)
                       </div>
@@ -321,22 +383,66 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
               </div>
             }
           >
-            <TextArea
+            <Input.TextArea
               value={transformation.prBodyClosePattern ?? ''}
               placeholder="(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)"
               onChange={(e) =>
-                setTransformation({
+                onChangeTransformation({
                   ...transformation,
                   prBodyClosePattern: e.target.value,
                 })
               }
-              fill
               rows={2}
             />
-          </FormGroup>
-          <Divider />
-        </div>
-      )}
-    </S.Transformation>
-  );
-};
+          </Form.Item>
+        </>
+      ),
+    },
+    {
+      key: 'ADDITIONAL',
+      label: 'Additional Settings',
+      style: panelStyle,
+      children: (
+        <>
+          <p>
+            Enable the <ExternalLink link={DOC_URL.PLUGIN.REFDIFF}>RefDiff</ExternalLink> plugin to pre-calculate
+            version-based metrics
+            <HelpTooltip content="Calculate the commits diff between two consecutive tags that match the following RegEx. Issues closed by PRs which contain these commits will also be calculated. The result will be shown in table.refs_commits_diffs and table.refs_issues_diffs." />
+          </p>
+          <div className="refdiff">
+            Compare the last
+            <Input
+              style={{ margin: '0 8px', width: 60 }}
+              placeholder="10"
+              value={transformation.refdiff?.tagsLimit ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  refdiff: {
+                    ...transformation?.refdiff,
+                    tagsLimit: +e.target.value,
+                  },
+                })
+              }
+            />
+            tags that match the
+            <Input
+              style={{ margin: '0 8px', width: 200 }}
+              placeholder="(regex)$"
+              value={transformation.refdiff?.tagsPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  refdiff: {
+                    ...transformation?.refdiff,
+                    tagsPattern: e.target.value,
+                  },
+                })
+              }
+            />
+            for calculation
+          </div>
+        </>
+      ),
+    },
+  ].filter((it) => entities.includes(it.key) || it.key === 'ADDITIONAL');

@@ -16,28 +16,28 @@
  *
  */
 
-import * as T from './types';
+import { IPipelineStatus } from '@/types';
 
 export const PipeLineStatusIcon = {
-  [T.PipelineStatus.CREATED]: 'stopwatch',
-  [T.PipelineStatus.PENDING]: 'stopwatch',
-  [T.PipelineStatus.ACTIVE]: 'loading',
-  [T.PipelineStatus.RUNNING]: 'loading',
-  [T.PipelineStatus.RERUN]: 'loading',
-  [T.PipelineStatus.COMPLETED]: 'tick-circle',
-  [T.PipelineStatus.PARTIAL]: 'tick-circle',
-  [T.PipelineStatus.FAILED]: 'delete',
-  [T.PipelineStatus.CANCELLED]: 'undo',
+  [IPipelineStatus.CREATED]: 'stopwatch',
+  [IPipelineStatus.PENDING]: 'stopwatch',
+  [IPipelineStatus.ACTIVE]: 'loading',
+  [IPipelineStatus.RUNNING]: 'loading',
+  [IPipelineStatus.RERUN]: 'loading',
+  [IPipelineStatus.COMPLETED]: 'tick-circle',
+  [IPipelineStatus.PARTIAL]: 'tick-circle',
+  [IPipelineStatus.FAILED]: 'delete',
+  [IPipelineStatus.CANCELLED]: 'undo',
 };
 
 export const PipeLineStatusLabel = {
-  [T.PipelineStatus.CREATED]: 'Created (Pending)',
-  [T.PipelineStatus.PENDING]: 'Created (Pending)',
-  [T.PipelineStatus.ACTIVE]: 'In Progress',
-  [T.PipelineStatus.RUNNING]: 'In Progress',
-  [T.PipelineStatus.RERUN]: 'In Progress',
-  [T.PipelineStatus.COMPLETED]: 'Succeeded',
-  [T.PipelineStatus.PARTIAL]: 'Partial Success',
-  [T.PipelineStatus.FAILED]: 'Failed',
-  [T.PipelineStatus.CANCELLED]: 'Cancelled',
+  [IPipelineStatus.CREATED]: 'Created (Pending)',
+  [IPipelineStatus.PENDING]: 'Created (Pending)',
+  [IPipelineStatus.ACTIVE]: 'In Progress',
+  [IPipelineStatus.RUNNING]: 'In Progress',
+  [IPipelineStatus.RERUN]: 'In Progress',
+  [IPipelineStatus.COMPLETED]: 'Succeeded',
+  [IPipelineStatus.PARTIAL]: 'Partial Success',
+  [IPipelineStatus.FAILED]: 'Failed',
+  [IPipelineStatus.CANCELLED]: 'Cancelled',
 };

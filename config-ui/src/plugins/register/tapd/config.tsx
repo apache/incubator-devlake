@@ -18,19 +18,16 @@
 
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
-
-import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
+import { IPluginConfig } from '@/types';
 
 import { DataScope } from './data-scope';
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 
-export const TAPDConfig: PluginConfigType = {
-  type: PluginType.Connection,
+export const TAPDConfig: IPluginConfig = {
   plugin: 'tapd',
   name: 'TAPD',
-  icon: Icon,
-  sort: 9,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 12,
   connection: {
     docLink: DOC_URL.PLUGIN.TAPD.BASIS,
     initialValues: {
@@ -71,7 +68,7 @@ export const TAPDConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    render: ({ ...props }) => <DataScope {...props} />,
+    render: ({ ...props }: any) => <DataScope {...props} />,
   },
   scopeConfig: {
     entities: ['TICKET', 'CROSS'],

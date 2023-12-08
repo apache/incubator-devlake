@@ -17,10 +17,11 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { PlusOutlined, EditOutlined } from '@ant-design/icons';
+import { Table, Button, Modal } from 'antd';
 
 import API from '@/api';
-import { Buttons, Table, IconButton, Dialog } from '@/components';
+import { Buttons } from '@/components';
 import { useRefreshData } from '@/hooks';
 
 import { ScopeConfigForm } from '../scope-config-form';
@@ -38,23 +39,26 @@ interface Props {
 export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCancel, onSubmit }: Props) => {
   const [version, setVersion] = useState(1);
   const [trId, setTrId] = useState<ID>();
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [updatedId, setUpdatedId] = useState<ID>();
 
   const { ready, data } = useRefreshData(() => API.scopeConfig.list(plugin, connectionId), [version]);
 
-  const dataSource = useMemo(() => (data ? data : []), [data]);
+  const dataSource = useMemo(
+    () => (data ? (data.length ? [{ id: 'None', name: 'No Scope Config' }].concat(data) : []) : []),
+    [data],
+  );
 
   useEffect(() => {
     setTrId(scopeConfigId);
   }, [scopeConfigId]);
 
   const handleShowDialog = () => {
-    setIsOpen(true);
+    setOpen(true);
   };
 
   const handleHideDialog = () => {
-    setIsOpen(false);
+    setOpen(false);
     setUpdatedId(undefined);
   };
 
@@ -72,9 +76,13 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
   return (
     <S.Wrapper>
       <Buttons position="top">
-        <Button icon="add" intent={Intent.PRIMARY} text="Add New Scope Config" onClick={handleShowDialog} />
+        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowDialog}>
+          Add New Scope Config
+        </Button>
       </Buttons>
       <Table
+        rowKey="id"
+        size="small"
         loading={!ready}
         columns={[
           { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -83,7 +91,10 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
             dataIndex: 'id',
             key: 'id',
             width: 100,
-            render: (id) => <IconButton icon="annotation" tooltip="Edit" onClick={() => handleUpdate(id)} />,
+            render: (id) =>
+              id !== 'None' ? (
+                <Button type="link" icon={<EditOutlined rev={undefined} />} onClick={() => handleUpdate(id)} />
+              ) : null,
           },
         ]}
         dataSource={dataSource}
@@ -92,16 +103,21 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
           selectedRowKeys: trId ? [trId] : [],
           onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0]),
         }}
-        noShadow
+        pagination={false}
       />
       <Buttons position="bottom" align="right">
-        <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-        <Button disabled={!trId} intent={Intent.PRIMARY} text="Save" onClick={() => trId && onSubmit?.(trId)} />
+        <Button style={{}} onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="primary" disabled={!trId} onClick={() => trId && onSubmit?.(trId)}>
+          Save
+        </Button>
       </Buttons>
-      <Dialog
-        style={{ width: 960 }}
+      <Modal
+        open={open}
+        width={960}
+        centered
         footer={null}
-        isOpen={isOpen}
         title={!updatedId ? 'Add Scope Config' : 'Edit Scope Config'}
         onCancel={handleHideDialog}
       >
@@ -113,7 +129,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
           onCancel={onCancel}
           onSubmit={handleSubmit}
         />
-      </Dialog>
+      </Modal>
     </S.Wrapper>
   );
 };

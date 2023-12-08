@@ -44,7 +44,7 @@ var _ interface {
 
 var _ plugin.PluginSource = (*Gitee)(nil)
 
-type Gitee string
+type Gitee struct{}
 
 func (p Gitee) Connection() dal.Tabler {
 	return &models.GiteeConnection{}
@@ -195,6 +195,9 @@ func (p Gitee) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":    api.GetConnection,
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
+		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
 		},
 	}
 }

@@ -41,5 +41,8 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(addProjectArchived),
 		new(addDeployment),
+		new(addEnvNamePattern),
+		new(addQueuedDuration20231129),
+		new(modifyDeploymentMessageType),
 	}
 }

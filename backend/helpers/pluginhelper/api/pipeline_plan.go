@@ -19,7 +19,9 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 )
@@ -27,8 +29,9 @@ import (
 // MakePipelinePlanSubtasks generates subtasks list based on sub-task meta information and entities wanted by user
 func MakePipelinePlanSubtasks(subtaskMetas []plugin.SubTaskMeta, entities []string) ([]string, errors.Error) {
 	subtasks := make([]string, 0)
+	// if no entities specified, use all entities enabled by default
 	if len(entities) == 0 {
-		return subtasks, nil
+		entities = plugin.DOMAIN_TYPES
 	}
 	wanted := make(map[string]bool, len(entities))
 	for _, entity := range entities {
@@ -49,4 +52,34 @@ func MakePipelinePlanSubtasks(subtaskMetas []plugin.SubTaskMeta, entities []stri
 		}
 	}
 	return subtasks, nil
+}
+
+func MakePipelinePlanTask(
+	pluginName string,
+	subtaskMetas []plugin.SubTaskMeta,
+	entities []string,
+	options interface{},
+) (*models.PipelineTask, errors.Error) {
+	subtasks, err := MakePipelinePlanSubtasks(subtaskMetas, entities)
+	if err != nil {
+		return nil, err
+	}
+	op, err := encodeTaskOptions(options)
+	if err != nil {
+		return nil, err
+	}
+	return &models.PipelineTask{
+		Plugin:   pluginName,
+		Subtasks: subtasks,
+		Options:  op,
+	}, nil
+}
+
+func encodeTaskOptions(op interface{}) (map[string]interface{}, errors.Error) {
+	var result map[string]interface{}
+	err := Decode(op, &result, nil)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

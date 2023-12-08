@@ -18,10 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
+import { Form, Card, Alert, Divider } from 'antd';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Alert, ExternalLink, Card, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
+import { ExternalLink, FormItem, MultiSelector, Message, Buttons } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
@@ -34,7 +35,6 @@ import { TapdTransformation } from '@/plugins/register/tapd';
 import { BambooTransformation } from '@/plugins/register/bamboo';
 import { operator } from '@/utils';
 
-import { AdditionalSettings } from './fields';
 import { TIPS_MAP } from './misc';
 import * as S from './styled';
 
@@ -61,13 +61,12 @@ export const ScopeConfigForm = ({
   const [name, setName] = useState('');
   const [entities, setEntities] = useState<string[]>([]);
   const [transformation, setTransformation] = useState<any>({});
-  const [hasRefDiff, setHasRefDiff] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [operating, setOperating] = useState(false);
 
   const config = useMemo(() => getPluginConfig(plugin), []);
 
   useEffect(() => {
-    setHasRefDiff(!!config.scopeConfig?.transformation.refdiff);
     setTransformation(config.scopeConfig?.transformation ?? {});
   }, [config.scopeConfig?.transformation]);
 
@@ -82,7 +81,7 @@ export const ScopeConfigForm = ({
       try {
         const res = await API.scopeConfig.get(plugin, connectionId, scopeConfigId);
         setName(res.name);
-        setEntities(res.entities);
+        setEntities(res.entities ?? []);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
       } catch {}
     })();
@@ -118,7 +117,7 @@ export const ScopeConfigForm = ({
       {TIPS_MAP[plugin] && (
         <Alert
           style={{ marginBottom: 24 }}
-          content={
+          message={
             <>
               To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
               <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
@@ -182,78 +181,86 @@ export const ScopeConfigForm = ({
               />
             )}
 
-            {plugin === 'github' && (
-              <GitHubTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+            <Form labelCol={{ span: 4 }} wrapperCol={{ span: 16 }}>
+              {plugin === 'azuredevops' && (
+                <AzureTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'jira' && (
-              <JiraTransformation
-                entities={entities}
-                connectionId={connectionId}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'bamboo' && (
+                <BambooTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'gitlab' && (
-              <GitLabTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'bitbucket' && (
+                <BitbucketTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'jenkins' && (
-              <JenkinsTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'github' && (
+                <GitHubTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                  setHasError={setHasError}
+                />
+              )}
 
-            {plugin === 'bitbucket' && (
-              <BitbucketTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'gitlab' && (
+                <GitLabTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                  setHasError={setHasError}
+                />
+              )}
 
-            {plugin === 'azuredevops' && (
-              <AzureTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'jenkins' && (
+                <JenkinsTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'tapd' && scopeId && (
-              <TapdTransformation
-                entities={entities}
-                connectionId={connectionId}
-                scopeId={scopeId}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'jira' && (
+                <JiraTransformation
+                  entities={entities}
+                  connectionId={connectionId}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'bamboo' && (
-              <BambooTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
-
-            {hasRefDiff && <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />}
+              {plugin === 'tapd' && scopeId && (
+                <TapdTransformation
+                  entities={entities}
+                  connectionId={connectionId}
+                  scopeId={scopeId}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
+            </Form>
           </Card>
           <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
-            <Button loading={operating} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
+            <Button
+              loading={operating}
+              disabled={hasError}
+              intent={Intent.PRIMARY}
+              text="Save"
+              onClick={handleSubmit}
+            />
           </Buttons>
         </>
       )}

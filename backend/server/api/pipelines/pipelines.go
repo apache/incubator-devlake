@@ -49,7 +49,7 @@ func Post(c *gin.Context) {
 		return
 	}
 
-	pipeline, err := services.CreatePipeline(newPipeline)
+	pipeline, err := services.CreatePipeline(newPipeline, true)
 	// Return all created tasks to the User
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating pipeline"))
@@ -78,7 +78,7 @@ func Index(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	pipelines, count, err := services.GetPipelines(&query)
+	pipelines, count, err := services.GetPipelines(&query, true)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipelines"))
 		return
@@ -107,7 +107,7 @@ func Get(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied"))
 		return
 	}
-	pipeline, err := services.GetPipeline(id)
+	pipeline, err := services.GetPipeline(id, true)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipeline"))
 		return
@@ -154,7 +154,7 @@ func DownloadLogs(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipeline ID format supplied"))
 		return
 	}
-	pipeline, err := services.GetPipeline(id)
+	pipeline, err := services.GetPipeline(id, true)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipeline"))
 		return
@@ -188,6 +188,15 @@ func PostRerun(c *gin.Context) {
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "failed to rerun pipeline"))
 		return
+	}
+	for idx, task := range rerunTasks {
+		taskOption, err := services.SanitizePluginOption(task.Plugin, task.Options)
+		if err != nil {
+			shared.ApiOutputError(c, errors.Default.Wrap(err, "failed to sanitize task"))
+			return
+		}
+		task.Options = taskOption
+		rerunTasks[idx] = task
 	}
 	shared.ApiOutputSuccess(c, rerunTasks, http.StatusOK)
 }

@@ -18,24 +18,24 @@ limitations under the License.
 package devops
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type CicdDeploymentCommit struct {
 	domainlayer.DomainEntity
-	CicdScopeId                   string `gorm:"index;type:varchar(255)"`
-	CicdDeploymentId              string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
-	Name                          string `gorm:"type:varchar(255)"`
-	Result                        string `gorm:"type:varchar(100)"`
-	Status                        string `gorm:"type:varchar(100)"`
-	Environment                   string `gorm:"type:varchar(255)"`
-	CreatedDate                   time.Time
-	StartedDate                   *time.Time
-	FinishedDate                  *time.Time
-	DurationSec                   *uint64
+	CicdScopeId      string `gorm:"index;type:varchar(255)"`
+	CicdDeploymentId string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
+	Name             string `gorm:"type:varchar(255)"`
+	Result           string `gorm:"type:varchar(100)"`
+	Status           string `gorm:"type:varchar(100)"`
+	OriginalStatus   string `gorm:"type:varchar(100)"`
+	OriginalResult   string `gorm:"type:varchar(100)"`
+	Environment      string `gorm:"type:varchar(255)"`
+	TaskDatesInfo
+	DurationSec                   *float64
+	QueuedDurationSec             *float64
 	CommitSha                     string `gorm:"primaryKey;type:varchar(255)"`
+	CommitMsg                     string
 	RefName                       string `gorm:"type:varchar(255)"` // to delete?
 	RepoId                        string `gorm:"type:varchar(255)"`
 	RepoUrl                       string `gorm:"index;not null"`
@@ -52,14 +52,20 @@ func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment 
 			Id:        cicdDeploymentCommit.CicdDeploymentId,
 			NoPKModel: cicdDeploymentCommit.DomainEntity.NoPKModel,
 		},
-		CicdScopeId:  cicdDeploymentCommit.CicdScopeId,
-		Name:         cicdDeploymentCommit.Name,
-		Result:       cicdDeploymentCommit.Result,
-		Status:       cicdDeploymentCommit.Status,
-		Environment:  cicdDeploymentCommit.Environment,
-		CreatedDate:  cicdDeploymentCommit.CreatedDate,
-		StartedDate:  cicdDeploymentCommit.StartedDate,
-		FinishedDate: cicdDeploymentCommit.FinishedDate,
-		DurationSec:  cicdDeploymentCommit.DurationSec,
+		CicdScopeId:    cicdDeploymentCommit.CicdScopeId,
+		Name:           cicdDeploymentCommit.Name,
+		Result:         cicdDeploymentCommit.Result,
+		Status:         cicdDeploymentCommit.Status,
+		OriginalStatus: cicdDeploymentCommit.OriginalStatus,
+		OriginalResult: cicdDeploymentCommit.OriginalResult,
+		Environment:    cicdDeploymentCommit.Environment,
+		TaskDatesInfo: TaskDatesInfo{
+			CreatedDate:  cicdDeploymentCommit.CreatedDate,
+			QueuedDate:   cicdDeploymentCommit.QueuedDate,
+			StartedDate:  cicdDeploymentCommit.StartedDate,
+			FinishedDate: cicdDeploymentCommit.FinishedDate,
+		},
+		QueuedDurationSec: cicdDeploymentCommit.QueuedDurationSec,
+		DurationSec:       cicdDeploymentCommit.DurationSec,
 	}
 }

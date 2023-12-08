@@ -24,7 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-var _ plugin.MigrationScript = (*addEnvNamePattern)(nil)
+var _ plugin.MigrationScript = (*addPlanResultKey)(nil)
 
 type deployBuild20220807 struct {
 	PlanResultKey  string `gorm:"primaryKey"`

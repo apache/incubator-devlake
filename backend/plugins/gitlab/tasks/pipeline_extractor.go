@@ -44,13 +44,14 @@ type ApiDetailedStatus struct {
 }
 
 type ApiPipeline struct {
-	Id       int `json:"id"`
-	Ref      string
-	Sha      string
-	Status   string
-	Tag      bool
-	Duration int
-	WebUrl   string `json:"web_url"`
+	Id             int `json:"id"`
+	Ref            string
+	Sha            string
+	Status         string
+	Tag            bool
+	Duration       int
+	QueuedDuration float64 `json:"queued_duration"`
+	WebUrl         string  `json:"web_url"`
 
 	CreatedAt  *common.Iso8601Time `json:"created_at"`
 	UpdatedAt  *common.Iso8601Time `json:"updated_at"`
@@ -98,6 +99,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				StartedAt:       common.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
 				FinishedAt:      common.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
 				Duration:        gitlabApiPipeline.Duration,
+				QueuedDuration:  gitlabApiPipeline.QueuedDuration,
 				ConnectionId:    data.Options.ConnectionId,
 
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),

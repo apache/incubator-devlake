@@ -17,10 +17,11 @@
  */
 
 import { useEffect, useState } from 'react';
+import { Modal, message } from 'antd';
 import { InputGroup, Button, RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Dialog, FormItem, toast } from '@/components';
+import { FormItem } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
 import { operator } from '@/utils';
 
@@ -30,11 +31,11 @@ interface Props {
   connectionId: ID;
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
-  isOpen: boolean;
+  open: boolean;
   onCancel: () => void;
 }
 
-export const DevPanel = ({ connectionId, transformation, setTransformation, isOpen, onCancel }: Props) => {
+export const DevPanel = ({ connectionId, transformation, setTransformation, open, onCancel }: Props) => {
   const [step, setStep] = useState(1);
   const [issueKey, setIssueKey] = useState('');
   const [searching, setSearching] = useState(false);
@@ -91,7 +92,7 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
       setApplicationTypes(res);
       setApplicationType(res[0]);
     } else {
-      toast.error('Cannot find the Jira issue, please input the right issue key.');
+      message.error('Cannot find the Jira issue, please input the right issue key.');
     }
   };
 
@@ -125,13 +126,16 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
   };
 
   return (
-    <Dialog
-      style={{ width: 820 }}
-      isOpen={isOpen}
+    <Modal
+      open={open}
+      width={820}
+      centered
       title="Configure the `Application Type` and `Commit Pattern` by sending request(s) to Jira."
       okText={step === 1 ? 'Next' : 'Save'}
-      okDisabled={(step === 1 && !applicationType) || (step === 2 && (!pattern || !regex))}
-      okLoading={operating}
+      okButtonProps={{
+        disabled: (step === 1 && !applicationType) || (step === 2 && (!pattern || !regex)),
+        loading: operating,
+      }}
       cancelText={step === 2 ? 'Prev' : 'Cancel'}
       onOk={handleSubmit}
       onCancel={handleCancel}
@@ -207,6 +211,6 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
           </>
         )}
       </S.DialogBody>
-    </Dialog>
+    </Modal>
   );
 };

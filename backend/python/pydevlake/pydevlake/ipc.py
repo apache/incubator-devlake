@@ -106,7 +106,7 @@ class PluginCommands:
     @plugin_method
     def remote_scopes(self, connection: dict, group_id: Optional[str] = None):
         c = self._plugin.connection_type(**connection)
-        return self._plugin.make_remote_scopes(c, group_id)
+        yield from self._plugin.make_remote_scopes(c, group_id)
 
     def _mk_context(self, data: dict):
         db_url = data['db_url']

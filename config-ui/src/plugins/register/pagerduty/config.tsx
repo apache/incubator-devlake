@@ -17,18 +17,15 @@
  */
 
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
-import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
+import Icon from './assets/icon.svg?react';
 
-import Icon from './assets/icon.svg';
-
-export const PagerDutyConfig: PluginConfigType = {
-  type: PluginType.Connection,
+export const PagerDutyConfig: IPluginConfig = {
   plugin: 'pagerduty',
   name: 'PagerDuty',
-  icon: Icon,
-  sort: 8,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 10,
   connection: {
     docLink: DOC_URL.PLUGIN.PAGERDUTY.BASIS,
     initialValues: {

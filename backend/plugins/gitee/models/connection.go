@@ -40,6 +40,11 @@ type GiteeConn struct {
 	GiteeAccessToken      `mapstructure:",squash"`
 }
 
+func (connection GiteeConn) Sanitize() GiteeConn {
+	connection.Token = ""
+	return connection
+}
+
 // GiteeConnection holds GiteeConn plus ID/Name for database storage
 type GiteeConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
@@ -66,4 +71,9 @@ type GiteeScopeConfig struct {
 
 func (GiteeConnection) TableName() string {
 	return "_tool_gitee_connections"
+}
+
+func (connection GiteeConnection) Sanitize() GiteeConnection {
+	connection.GiteeConn = connection.GiteeConn.Sanitize()
+	return connection
 }

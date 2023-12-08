@@ -25,17 +25,18 @@ import (
 type GitlabJob struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
-	GitlabId     int     `gorm:"primaryKey"`
-	ProjectId    int     `gorm:"index"`
-	PipelineId   int     `gorm:"index"`
-	Status       string  `gorm:"type:varchar(255)"`
-	Stage        string  `gorm:"type:varchar(255)"`
-	Name         string  `gorm:"type:varchar(255)"`
-	Ref          string  `gorm:"type:varchar(255)"`
-	Tag          bool    `gorm:"type:boolean"`
-	AllowFailure bool    `json:"allow_failure"`
-	Duration     float64 `gorm:"type:float8"`
-	WebUrl       string  `gorm:"type:varchar(255)"`
+	GitlabId       int     `gorm:"primaryKey"`
+	ProjectId      int     `gorm:"index"`
+	PipelineId     int     `gorm:"index"`
+	Status         string  `gorm:"type:varchar(255)"`
+	Stage          string  `gorm:"type:varchar(255)"`
+	Name           string  `gorm:"type:varchar(255)"`
+	Ref            string  `gorm:"type:varchar(255)"`
+	Tag            bool    `gorm:"type:boolean"`
+	AllowFailure   bool    `json:"allow_failure"`
+	Duration       float64 `gorm:"type:float8"`
+	WebUrl         string  `gorm:"type:varchar(255)"`
+	QueuedDuration float64
 
 	GitlabCreatedAt *time.Time
 	StartedAt       *time.Time

@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 
@@ -75,6 +76,9 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 	if err != nil {
 		return err
 	}
+	if err := SanitizeBlueprint(blueprint); err != nil {
+		return errors.Convert(err)
+	}
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
 		return errors.Internal.Wrap(err, "error reloading blueprints")
@@ -83,8 +87,8 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 }
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
-func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
-	return bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
+func GetBlueprints(query *BlueprintQuery, shouldSanitize bool) ([]*models.Blueprint, int64, errors.Error) {
+	blueprints, count, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
 		Enable:      query.Enable,
 		IsManual:    query.IsManual,
 		Label:       query.Label,
@@ -92,16 +96,34 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Er
 		PageSize:    query.GetPageSize(),
 		Type:        query.Type,
 	})
+	if err != nil {
+		return nil, 0, err
+	}
+	if shouldSanitize {
+		for idx, bp := range blueprints {
+			if err := SanitizeBlueprint(bp); err != nil {
+				return nil, 0, errors.Convert(err)
+			} else {
+				blueprints[idx] = bp
+			}
+		}
+	}
+	return blueprints, count, nil
 }
 
 // GetBlueprint returns the detail of a given Blueprint ID
-func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
+func GetBlueprint(blueprintId uint64, shouldSanitize bool) (*models.Blueprint, errors.Error) {
 	blueprint, err := bpManager.GetDbBlueprint(blueprintId)
 	if err != nil {
 		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.New("blueprint not found")
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
+	}
+	if shouldSanitize {
+		if err := SanitizeBlueprint(blueprint); err != nil {
+			return nil, errors.Convert(err)
+		}
 	}
 	return blueprint, nil
 }
@@ -193,7 +215,7 @@ func saveBlueprint(blueprint *models.Blueprint) (*models.Blueprint, errors.Error
 // PatchBlueprint FIXME ...
 func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, errors.Error) {
 	// load record from db
-	blueprint, err := GetBlueprint(id)
+	blueprint, err := GetBlueprint(id, false)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +240,9 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
-
+	if err := SanitizeBlueprint(blueprint); err != nil {
+		return nil, errors.Convert(err)
+	}
 	return blueprint, nil
 }
 
@@ -235,8 +259,15 @@ func DeleteBlueprint(id uint64) errors.Error {
 	return nil
 }
 
+var blueprintReloadLock sync.Mutex
+
 // ReloadBlueprints FIXME ...
-func ReloadBlueprints(c *cron.Cron) errors.Error {
+func ReloadBlueprints(c *cron.Cron) (err errors.Error) {
+	// preventing concurrent reloads. It would be better to use Table Lock , however, it requires massive refactor
+	// like the `bpManager` must accept transaction. Use mutex as a temporary fix.
+	blueprintReloadLock.Lock()
+	defer blueprintReloadLock.Unlock()
+
 	enable := true
 	isManual := false
 	blueprints, _, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
@@ -303,7 +334,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.S
 	if !shouldCreatePipeline {
 		return nil, ErrEmptyPlan
 	}
-	pipeline, err := CreatePipeline(&newPipeline)
+	pipeline, err := CreatePipeline(&newPipeline, false)
 	// Return all created tasks to the User
 	if err != nil {
 		blueprintLog.Error(err, fmt.Sprintf("%s on blueprint:[%d][%s]", failToCreateCronJob, blueprint.ID, blueprint.Name))
@@ -368,15 +399,23 @@ func SequencializePipelinePlans(plans ...models.PipelinePlan) models.PipelinePla
 }
 
 // TriggerBlueprint triggers blueprint immediately
-func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy) (*models.Pipeline, errors.Error) {
+func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy, shouldSanitize bool) (*models.Pipeline, errors.Error) {
 	// load record from db
-	blueprint, err := GetBlueprint(id)
+	blueprint, err := GetBlueprint(id, false)
 	if err != nil {
 		logger.Error(err, "GetBlueprint, id: %d", id)
 		return nil, err
 	}
 	blueprint.SkipCollectors = syncPolicy.SkipCollectors
 	blueprint.FullSync = syncPolicy.FullSync
-
-	return createPipelineByBlueprint(blueprint, syncPolicy)
+	pipeline, err := createPipelineByBlueprint(blueprint, syncPolicy)
+	if err != nil {
+		return nil, err
+	}
+	if shouldSanitize {
+		if err := SanitizePipeline(pipeline); err != nil {
+			return nil, errors.Convert(err)
+		}
+	}
+	return pipeline, nil
 }

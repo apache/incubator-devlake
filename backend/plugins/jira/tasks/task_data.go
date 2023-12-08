@@ -26,12 +26,12 @@ import (
 )
 
 type JiraOptions struct {
-	ConnectionId  uint64                  `json:"connectionId"`
-	BoardId       uint64                  `json:"boardId"`
-	ScopeConfig   *models.JiraScopeConfig `json:"scopeConfig"`
-	ScopeId       string
-	ScopeConfigId uint64
-	PageSize      int
+	ConnectionId         uint64                  `json:"connectionId"`
+	BoardId              uint64                  `json:"boardId"`
+	ScopeConfig          *models.JiraScopeConfig `json:"scopeConfig"`
+	ScopeConfigId        uint64
+	PageSize             int
+	api.CollectorOptions `mapstructure:",squash"`
 }
 
 type JiraTaskData struct {

@@ -73,45 +73,37 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipeline := inputRow.(*models.GitlabPipeline)
 
-			startedAt := time.Now()
-			if gitlabPipeline.StartedAt != nil {
-				startedAt = *gitlabPipeline.StartedAt
-			} else if gitlabPipeline.GitlabCreatedAt != nil {
-				startedAt = *gitlabPipeline.GitlabCreatedAt
+			createdAt := time.Now()
+			if gitlabPipeline.GitlabCreatedAt != nil {
+				createdAt = *gitlabPipeline.GitlabCreatedAt
 			}
-
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				},
 				Name: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"failed"},
-					Abort:   []string{"canceled"},
-					Success: []string{"success"},
-					Skipped: []string{"skipped"},
-					Default: "",
+					Success: []string{StatusSuccess, StatusCompleted},
+					Failure: []string{StatusFailed, StatusCanceled},
+					Default: devops.RESULT_DEFAULT,
 				}, gitlabPipeline.Status),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
-					Default:    devops.STATUS_DONE,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled},
+					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPending, StatusPreparing},
+					Default:    devops.STATUS_OTHER,
 				}, gitlabPipeline.Status),
-				CreatedDate:  startedAt,
-				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
-				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
-				Environment:  gitlabPipeline.Environment,
-				Type:         gitlabPipeline.Type,
+				OriginalStatus: gitlabPipeline.Status,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  gitlabPipeline.StartedAt,
+					FinishedDate: gitlabPipeline.FinishedAt,
+				},
+				QueuedDurationSec: &gitlabPipeline.QueuedDuration,
+				CicdScopeId:       projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
+				Environment:       gitlabPipeline.Environment,
+				Type:              gitlabPipeline.Type,
+				DurationSec:       float64(gitlabPipeline.Duration),
 			}
-
-			// rebuild the FinishedDate and DurationSec by Status
-			if domainPipeline.Status != devops.STATUS_DONE {
-				domainPipeline.FinishedDate = nil
-				domainPipeline.DurationSec = 0
-			} else if domainPipeline.FinishedDate != nil {
-				durationTime := domainPipeline.FinishedDate.Sub(startedAt)
-				domainPipeline.DurationSec = uint64(durationTime.Seconds())
-			}
-
 			return []interface{}{
 				domainPipeline,
 			}, nil

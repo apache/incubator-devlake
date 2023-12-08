@@ -24,10 +24,11 @@ import (
 )
 
 type GitlabOptions struct {
-	ConnectionId  uint64                    `mapstructure:"connectionId" json:"connectionId"`
-	ProjectId     int                       `mapstructure:"projectId" json:"projectId"`
-	ScopeConfigId uint64                    `mapstructure:"scopeConfigId" json:"scopeConfigId"`
-	ScopeConfig   *models.GitlabScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
+	ConnectionId            uint64                    `mapstructure:"connectionId" json:"connectionId"`
+	ProjectId               int                       `mapstructure:"projectId" json:"projectId"`
+	ScopeConfigId           uint64                    `mapstructure:"scopeConfigId" json:"scopeConfigId"`
+	ScopeConfig             *models.GitlabScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 type GitlabTaskData struct {
@@ -48,9 +49,6 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 	}
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
-	}
-	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
-		op.ScopeConfig = new(models.GitlabScopeConfig)
 	}
 	return &op, nil
 }

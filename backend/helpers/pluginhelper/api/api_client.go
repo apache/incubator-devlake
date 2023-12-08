@@ -33,19 +33,19 @@ import (
 	"time"
 	"unicode/utf8"
 
-	aha "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // ErrIgnoreAndContinue is a error which should be ignored
 var (
-	ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
-	ErrEmptyResponse     = errors.Default.New("empty response")
+	ErrIgnoreAndContinue                  = errors.Default.New("ignore and continue")
+	ErrEmptyResponse                      = errors.Default.New("empty response")
+	_                    plugin.ApiClient = (*ApiClient)(nil)
 )
 
 // ApiClient is designed for simple api requests
@@ -56,8 +56,8 @@ type ApiClient struct {
 	data       map[string]interface{}
 	data_mutex sync.Mutex
 
-	beforeRequest common.ApiClientBeforeRequest
-	afterResponse common.ApiClientAfterResponse
+	beforeRequest plugin.ApiClientBeforeRequest
+	afterResponse plugin.ApiClientAfterResponse
 	ctx           gocontext.Context
 	logger        log.Logger
 }
@@ -66,10 +66,10 @@ type ApiClient struct {
 func NewApiClientFromConnection(
 	ctx gocontext.Context,
 	br context.BasicRes,
-	connection aha.ApiConnection,
+	connection plugin.ApiConnection,
 ) (*ApiClient, errors.Error) {
 	if reflect.ValueOf(connection).Kind() != reflect.Ptr {
-		return nil, errors.Default.New("connection is not a pointer")
+		panic(fmt.Errorf("connection is not a pointer"))
 	}
 	apiClient, err := NewApiClient(ctx, connection.GetEndpoint(), nil, 0, connection.GetProxy(), br)
 	if err != nil {
@@ -77,7 +77,7 @@ func NewApiClientFromConnection(
 	}
 
 	// if connection needs to prepare the ApiClient, i.e. fetch token for future requests
-	if prepareApiClient, ok := connection.(aha.PrepareApiClient); ok {
+	if prepareApiClient, ok := connection.(plugin.PrepareApiClient); ok {
 		err = prepareApiClient.PrepareApiClient(apiClient)
 		if err != nil {
 			return nil, err
@@ -85,11 +85,22 @@ func NewApiClientFromConnection(
 	}
 
 	// if connection requires authorization
-	if authenticator, ok := connection.(aha.ApiAuthenticator); ok {
+	if authenticator, ok := connection.(plugin.ApiAuthenticator); ok {
 		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 			return authenticator.SetupAuthentication(req)
 		})
 	}
+
+	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
+		if res.StatusCode >= 400 {
+			bytes, err := io.ReadAll(res.Body)
+			if err != nil {
+				return errors.BadInput.Wrap(err, fmt.Sprintf("request failed with status code %d", res.StatusCode))
+			}
+			return errors.BadInput.New(fmt.Sprintf("request failed with status code %d, body: %s", res.StatusCode, string(bytes)))
+		}
+		return nil
+	})
 
 	return apiClient, nil
 }
@@ -223,23 +234,23 @@ func (apiClient *ApiClient) GetHeaders() map[string]string {
 }
 
 // GetBeforeFunction return beforeResponseFunction
-func (apiClient *ApiClient) GetBeforeFunction() common.ApiClientBeforeRequest {
+func (apiClient *ApiClient) GetBeforeFunction() plugin.ApiClientBeforeRequest {
 	return apiClient.beforeRequest
 }
 
 // SetBeforeFunction will set beforeResponseFunction
-func (apiClient *ApiClient) SetBeforeFunction(callback common.ApiClientBeforeRequest) {
+func (apiClient *ApiClient) SetBeforeFunction(callback plugin.ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
 }
 
 // GetAfterFunction return afterResponseFunction
-func (apiClient *ApiClient) GetAfterFunction() common.ApiClientAfterResponse {
+func (apiClient *ApiClient) GetAfterFunction() plugin.ApiClientAfterResponse {
 	return apiClient.afterResponse
 }
 
 // SetAfterFunction will set afterResponseFunction
 // don't call this function directly in collector, use Collector.AfterResponse instead.
-func (apiClient *ApiClient) SetAfterFunction(callback common.ApiClientAfterResponse) {
+func (apiClient *ApiClient) SetAfterFunction(callback plugin.ApiClientAfterResponse) {
 	apiClient.afterResponse = callback
 }
 
@@ -326,14 +337,15 @@ func (apiClient *ApiClient) Do(
 	if apiClient.beforeRequest != nil {
 		err = apiClient.beforeRequest(req)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running beforeRequest for %s", req.URL.String()))
+			apiClient.logError(err, "[api-client] beforeRequest returned error for %s", req.URL.String())
+			return nil, err
 		}
 	}
 	apiClient.logDebug("[api-client] %v %v", method, *uri)
 	res, err = errors.Convert01(apiClient.client.Do(req))
 	if err != nil {
 		apiClient.logError(err, "[api-client] failed to request %s with error", req.URL.String())
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error requesting %s", req.URL.String()))
+		return nil, err
 	}
 	// after receive
 	if apiClient.afterResponse != nil {
@@ -344,7 +356,8 @@ func (apiClient *ApiClient) Do(
 		}
 		if err != nil {
 			res.Body.Close()
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running afterRequest for %s", req.URL.String()))
+			apiClient.logError(err, "[api-client] afterResponse returned error for %s", req.URL.String())
+			return nil, err
 		}
 	}
 	return res, nil

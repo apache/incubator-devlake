@@ -19,6 +19,9 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -28,8 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"time"
 )
 
 type StoryChangelogItemResult struct {
@@ -69,10 +70,10 @@ func ConvertStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdStory{})
 	stdTypeMappings := getStdTypeMappings(data)
 	clauses := []dal.Clause{
-		dal.Select("tc.created, tc.id, tc.workspace_id, tc.story_id, tc.creator, _tool_tapd_story_changelog_items.*"),
-		dal.From(&models.TapdStoryChangelogItem{}),
-		dal.Join("left join _tool_tapd_story_changelogs tc on tc.id = _tool_tapd_story_changelog_items.changelog_id "),
-		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Select("c.created, c.id, c.workspace_id, c.story_id, c.creator, i.*"),
+		dal.From("_tool_tapd_story_changelog_items i"),
+		dal.Join("left join _tool_tapd_story_changelogs c on c.id = i.changelog_id and c.connection_id = i.connection_id"),
+		dal.Where("c.connection_id = ? AND c.workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Orderby("created DESC"),
 	}
 

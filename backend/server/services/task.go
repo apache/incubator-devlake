@@ -111,7 +111,7 @@ func GetTasks(query *TaskQuery) ([]*models.Task, int64, errors.Error) {
 
 // GetTasksWithLastStatus returns task list of the pipeline, only the most recently tasks would be returned
 // TODO: adopts GetLatestTasksOfPipeline
-func GetTasksWithLastStatus(pipelineId uint64) ([]*models.Task, errors.Error) {
+func GetTasksWithLastStatus(pipelineId uint64, shouldSanitize bool) ([]*models.Task, errors.Error) {
 	var tasks []*models.Task
 	err := db.All(&tasks, dal.Where("pipeline_id = ?", pipelineId), dal.Orderby("id DESC"))
 	if err != nil {
@@ -128,13 +128,22 @@ func GetTasksWithLastStatus(pipelineId uint64) ([]*models.Task, errors.Error) {
 			maxCol = task.PipelineCol
 		}
 	}
+
 	for _, task := range tasks {
 		index := int64(task.PipelineRow)*int64(maxCol) + int64(task.PipelineCol)
+		if shouldSanitize {
+			taskOption, err := SanitizePluginOption(task.Plugin, task.Options)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+			task.Options = taskOption
+		}
 		if _, ok := taskIds[index]; !ok {
 			taskIds[index] = struct{}{}
 			result = append(result, task)
 		}
 	}
+
 	runningTasks.FillProgressDetailToTasks(result)
 	return result, nil
 }
@@ -217,5 +226,11 @@ func RerunTask(taskId uint64) (*models.Task, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	return rerunTasks[0], nil
+	rerunTask := rerunTasks[0]
+	taskOption, sanitizePluginOptionErr := SanitizePluginOption(rerunTask.Plugin, rerunTask.Options)
+	if sanitizePluginOptionErr != nil {
+		return nil, errors.Convert(err)
+	}
+	rerunTask.Options = taskOption
+	return rerunTask, nil
 }

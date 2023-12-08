@@ -23,7 +23,7 @@ import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import API from '@/api';
-import { FormItem, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
+import { Loading, FormItem, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
 
@@ -46,6 +46,7 @@ export const DataScopeSelect = ({
   onSubmit,
   onCancel,
 }: Props) => {
+  const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<McsItem<{ data: any }>[]>([]);
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
@@ -59,19 +60,21 @@ export const DataScopeSelect = ({
   }, []);
 
   const getDataScope = async (page: number) => {
+    setLoading(true);
     const res = await API.scope.list(plugin, connectionId, { page, pageSize });
     setItems([
       ...items,
       ...res.scopes.map((sc) => ({
         parentId: null,
         id: getPluginScopeId(plugin, sc.scope),
-        title: sc.scope.fullName,
+        title: sc.scope.fullName ?? sc.scope.name,
         data: sc.scope,
       })),
     ]);
     if (page === 1) {
       setTotal(res.count);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -110,7 +113,9 @@ export const DataScopeSelect = ({
       }
       required
     >
-      {items.length ? (
+      {loading ? (
+        <Loading />
+      ) : items.length ? (
         <S.Wrapper>
           {showWarning ? (
             <Message

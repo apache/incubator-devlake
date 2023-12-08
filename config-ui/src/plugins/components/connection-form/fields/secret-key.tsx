@@ -34,9 +34,8 @@
  */
 
 import { useEffect } from 'react';
+import { Input } from 'antd';
 import { FormGroup } from '@blueprintjs/core';
-
-import { FormPassword } from '@/components';
 
 import * as S from './styled';
 
@@ -79,7 +78,7 @@ export const ConnectionSecretKey = ({
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
       subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
     >
-      <FormPassword placeholder={placeholder ?? 'Your SecretKey'} value={value} onChange={handleChange} />
+      <Input.Password placeholder={placeholder ?? 'Your SecretKey'} value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

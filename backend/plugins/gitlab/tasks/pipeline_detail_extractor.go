@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -69,6 +68,7 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				StartedAt:       common.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
 				FinishedAt:      common.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
 				Duration:        gitlabApiPipeline.Duration,
+				QueuedDuration:  gitlabApiPipeline.QueuedDuration,
 				ConnectionId:    data.Options.ConnectionId,
 
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),

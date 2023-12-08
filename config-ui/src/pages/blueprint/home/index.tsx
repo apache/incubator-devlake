@@ -18,16 +18,17 @@
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Table, Modal } from 'antd';
 import { ButtonGroup, Button, Tag, Intent, FormGroup, InputGroup, RadioGroup, Radio } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, IconButton, TextTooltip, Dialog } from '@/components';
+import { PageHeader, IconButton, TextTooltip } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
-import { useConnections, useRefreshData } from '@/hooks';
+import { ConnectionName } from '@/features';
+import { useRefreshData } from '@/hooks';
+import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';
-
-import { ModeEnum } from '../types';
 
 import * as S from './styled';
 
@@ -36,40 +37,24 @@ export const BlueprintHomePage = () => {
   const [type, setType] = useState('all');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [mode, setMode] = useState(ModeEnum.normal);
+  const [mode, setMode] = useState(IBPMode.NORMAL);
   const [saving, setSaving] = useState(false);
 
-  const { onGet } = useConnections();
   const { ready, data } = useRefreshData(
     () => API.blueprint.list({ type: type.toLocaleUpperCase(), page, pageSize }),
     [version, type, page, pageSize],
   );
 
   const [options, presets] = useMemo(() => [getCronOptions(), cronPresets.map((preset) => preset.config)], []);
-  const [dataSource, total] = useMemo(
-    () => [
-      (data?.blueprints ?? []).map((it) => {
-        const connections =
-          it.connections
-            .filter((cs) => cs.pluginName !== 'webhook')
-            .map((cs) => onGet(`${cs.pluginName}-${cs.connectionId}`) || `${cs.pluginName}-${cs.connectionId}`) ?? [];
-        return {
-          ...it,
-          connections: connections.map((cs) => cs.name),
-        };
-      }),
-      data?.count ?? 0,
-    ],
-    [data],
-  );
+  const [dataSource, total] = useMemo(() => [data?.blueprints ?? [], data?.count ?? 0], [data]);
 
-  const handleShowDialog = () => setIsOpen(true);
+  const handleShowDialog = () => setOpen(true);
   const handleHideDialog = () => {
     setName('');
-    setMode(ModeEnum.normal);
-    setIsOpen(false);
+    setMode(IBPMode.NORMAL);
+    setOpen(false);
   };
 
   const handleCreate = async () => {
@@ -82,12 +67,12 @@ export const BlueprintHomePage = () => {
       skipOnFail: true,
     };
 
-    if (mode === ModeEnum.normal) {
+    if (mode === IBPMode.NORMAL) {
       payload.timeAfter = formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ');
       payload.connections = [];
     }
 
-    if (mode === ModeEnum.advanced) {
+    if (mode === IBPMode.ADVANCED) {
       payload.timeAfter = undefined;
       payload.connections = undefined;
       payload.plan = [[]];
@@ -106,8 +91,8 @@ export const BlueprintHomePage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: '/blueprints' },
-        { name: 'Blueprints', path: '/blueprints' },
+        { name: 'Advanced', path: '/advanced/blueprints' },
+        { name: 'Blueprints', path: '/advanced/blueprints' },
       ]}
     >
       <S.Wrapper>
@@ -127,48 +112,54 @@ export const BlueprintHomePage = () => {
           <Button icon="plus" intent={Intent.PRIMARY} text="New Blueprint" onClick={handleShowDialog} />
         </div>
         <Table
+          rowKey="id"
+          size="middle"
           loading={!ready}
           columns={[
             {
               title: 'Blueprint Name',
-              dataIndex: ['id', 'name'],
               key: 'name',
-              render: ({ id, name }) => (
-                <Link to={`/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
+              render: (_, { id, name }) => (
+                <Link to={`/advanced/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
               ),
             },
             {
               title: 'Data Connections',
-              dataIndex: ['mode', 'connections'],
               key: 'connections',
-              align: 'center',
-              render: ({ mode, connections }) => {
-                if (mode === ModeEnum.advanced) {
+              render: (_, { mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
+                if (mode === IBPMode.ADVANCED) {
                   return 'Advanced Mode';
                 }
-                return connections.join(',');
+
+                if (!connections.length) {
+                  return 'N/A';
+                }
+
+                return (
+                  <ul>
+                    {connections.map((it) => (
+                      <li key={`${it.pluginName}-${it.connectionId}`}>
+                        <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
+                      </li>
+                    ))}
+                  </ul>
+                );
               },
             },
             {
               title: 'Frequency',
-              dataIndex: ['isManual', 'cronConfig'],
               key: 'frequency',
-              width: 100,
-              align: 'center',
-              render: ({ isManual, cronConfig }) => {
+              render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return cron.label;
               },
             },
             {
               title: 'Next Run Time',
-              dataIndex: ['isManual', 'cronConfig'],
               key: 'nextRunTime',
-              width: 200,
-              align: 'center',
-              render: ({ isManual, cronConfig }) => {
+              render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return formatTime(cron.nextTime);
               },
@@ -177,7 +168,6 @@ export const BlueprintHomePage = () => {
               title: 'Project',
               dataIndex: 'projectName',
               key: 'project',
-              align: 'center',
               render: (val) =>
                 val ? (
                   <Link to={`/projects/${window.encodeURIComponent(val)}`}>
@@ -192,7 +182,6 @@ export const BlueprintHomePage = () => {
               dataIndex: 'enable',
               key: 'enable',
               align: 'center',
-              width: 100,
               render: (val) => (
                 <Tag minimal intent={val ? Intent.SUCCESS : Intent.DANGER}>
                   {val ? 'Enabled' : 'Disabled'}
@@ -206,7 +195,7 @@ export const BlueprintHomePage = () => {
               width: 100,
               align: 'center',
               render: (val) => (
-                <Link to={`/blueprints/${val}?tab=configuration`}>
+                <Link to={`/advanced/blueprints/${val}?tab=configuration`}>
                   <IconButton icon="cog" tooltip="Detail" />
                 </Link>
               ),
@@ -214,25 +203,23 @@ export const BlueprintHomePage = () => {
           ]}
           dataSource={dataSource}
           pagination={{
-            page,
+            current: page,
             pageSize,
             total,
             onChange: setPage,
           }}
-          noData={{
-            text: 'There is no Blueprint yet. Please add a new Blueprint here or from a Project.',
-            btnText: 'New Blueprint',
-            onCreate: handleShowDialog,
-          }}
         />
       </S.Wrapper>
-      <Dialog
-        style={{ width: 820 }}
-        isOpen={isOpen}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Create a New Blueprint"
         okText="Save"
-        okDisabled={!name}
-        okLoading={saving}
+        okButtonProps={{
+          disabled: !name,
+          loading: saving,
+        }}
         onOk={handleCreate}
         onCancel={handleHideDialog}
       >
@@ -266,14 +253,14 @@ export const BlueprintHomePage = () => {
             <RadioGroup
               inline
               selectedValue={mode}
-              onChange={(e) => setMode((e.target as HTMLInputElement).value as ModeEnum)}
+              onChange={(e) => setMode((e.target as HTMLInputElement).value as IBPMode)}
             >
-              <Radio value={ModeEnum.normal}>Normal Mode</Radio>
-              <Radio value={ModeEnum.advanced}>Advanced Mode</Radio>
+              <Radio value={IBPMode.NORMAL}>Normal Mode</Radio>
+              <Radio value={IBPMode.ADVANCED}>Advanced Mode</Radio>
             </RadioGroup>
           </FormGroup>
         </S.DialogWrapper>
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };

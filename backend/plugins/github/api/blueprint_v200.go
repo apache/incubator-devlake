@@ -36,7 +36,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
@@ -112,11 +111,7 @@ func makeDataSourcePipelinePlanV200(
 			GithubId:     githubRepo.GithubId,
 			Name:         githubRepo.FullName,
 		}
-		options, err := tasks.EncodeTaskOptions(op)
-		if err != nil {
-			return nil, err
-		}
-		stage, err = addGithub(subtaskMetas, connection, scopeConfig.Entities, stage, options)
+		stage, err := addGithub(subtaskMetas, connection, scopeConfig.Entities, stage, op)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +147,10 @@ func makeScopesV200(
 	scopes := make([]plugin.Scope, 0)
 	for _, scopeDetail := range scopeDetails {
 		githubRepo, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
-
+		// if no entities specified, use all entities enabled by default
+		if len(scopeConfig.Entities) == 0 {
+			scopeConfig.Entities = plugin.DOMAIN_TYPES
+		}
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CROSS) {
@@ -197,7 +195,7 @@ func addGithub(
 	connection *models.GithubConnection,
 	entities []string,
 	stage coreModels.PipelineStage,
-	options map[string]interface{},
+	options *tasks.GithubOptions,
 ) (coreModels.PipelineStage, errors.Error) {
 	// construct github(graphql) task
 	if connection.EnableGraphql {
@@ -207,35 +205,27 @@ func addGithub(
 			return nil, err
 		}
 		if pluginGq, ok := p.(plugin.PluginTask); ok {
-			subtasks, err := helper.MakePipelinePlanSubtasks(pluginGq.SubTaskMetas(), entities)
+			task, err := helper.MakePipelinePlanTask("github_graphql", pluginGq.SubTaskMetas(), entities, options)
 			if err != nil {
 				return nil, err
 			}
-			stage = append(stage, &coreModels.PipelineTask{
-				Plugin:   "github_graphql",
-				Subtasks: subtasks,
-				Options:  options,
-			})
+			stage = append(stage, task)
 		} else {
 			return nil, errors.BadInput.New("plugin github_graphql does not support SubTaskMetas")
 		}
 	} else {
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, entities)
+		task, err := helper.MakePipelinePlanTask("github", subtaskMetas, entities, options)
 		if err != nil {
 			return nil, err
 		}
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "github",
-			Subtasks: subtasks,
-			Options:  options,
-		})
+		stage = append(stage, task)
 	}
 	return stage, nil
 }
 
 func getApiRepo(
 	op *tasks.GithubOptions,
-	apiClient aha.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 ) (*tasks.GithubApiRepo, errors.Error) {
 	repoRes := &tasks.GithubApiRepo{}
 	res, err := apiClient.Get(fmt.Sprintf("repos/%s", op.Name), nil, nil)
@@ -259,7 +249,7 @@ func getApiRepo(
 
 func MemorizedGetApiRepo(
 	repo *tasks.GithubApiRepo,
-	op *tasks.GithubOptions, apiClient aha.ApiClientAbstract,
+	op *tasks.GithubOptions, apiClient plugin.ApiClient,
 ) (*tasks.GithubApiRepo, errors.Error) {
 	if repo == nil {
 		var err errors.Error

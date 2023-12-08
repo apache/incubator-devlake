@@ -36,8 +36,9 @@ type ZentaoOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ProjectId    int64  `json:"projectId" mapstructure:"projectId"`
 	// TODO not support now
-	ScopeConfigId uint64                    `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
-	ScopeConfig   *models.ZentaoScopeConfig `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
+	ScopeConfigId           uint64                    `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	ScopeConfig             *models.ZentaoScopeConfig `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 func (o *ZentaoOptions) GetParams() any {

@@ -18,24 +18,25 @@
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card, Modal } from 'antd';
 import { Button, Switch, Intent, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import API from '@/api';
-import { Card, IconButton, Dialog, Message } from '@/components';
+import { IconButton, Message } from '@/components';
 import { getCron } from '@/config';
 import { useAutoRefresh } from '@/hooks';
-import * as PipelineT from '@/routes/pipeline/types';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
+import { IBlueprint, IPipeline, IPipelineStatus } from '@/types';
 import { formatTime, operator } from '@/utils';
 
-import { BlueprintType, FromEnum } from '../types';
+import { FromEnum } from '../types';
 
 import * as S from './styled';
 
 interface Props {
   from: FromEnum;
-  blueprint: BlueprintType;
+  blueprint: IBlueprint;
   pipelineId?: ID;
   onRefresh: () => void;
 }
@@ -48,7 +49,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
-  const { loading, data } = useAutoRefresh<PipelineT.Pipeline[]>(
+  const { loading, data } = useAutoRefresh<IPipeline[]>(
     async () => {
       const res = await API.blueprint.pipelines(blueprint.id);
       return res.pipelines;
@@ -60,10 +61,10 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           data &&
           data.every((it) =>
             [
-              PipelineT.PipelineStatus.COMPLETED,
-              PipelineT.PipelineStatus.PARTIAL,
-              PipelineT.PipelineStatus.CANCELLED,
-              PipelineT.PipelineStatus.FAILED,
+              IPipelineStatus.COMPLETED,
+              IPipelineStatus.PARTIAL,
+              IPipelineStatus.CANCELLED,
+              IPipelineStatus.FAILED,
             ].includes(it.status),
           )
         ),
@@ -116,7 +117,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     });
 
     if (success) {
-      navigate('/blueprints');
+      navigate('/advanced/blueprints');
     }
   };
 
@@ -125,7 +126,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
       {from === FromEnum.project && (
         <S.ProjectACtion>
           <span>
-            {cron.value === 'manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
+            {cron.label === 'Manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
           </span>
           <Tooltip2
             position={Position.TOP}
@@ -143,13 +144,13 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             disabled={!blueprint.enable}
             loading={operating}
             intent={Intent.PRIMARY}
-            text="Collect All Data"
+            text="Collect Data"
             onClick={() => handleRun({})}
           />
           <Popover
             content={
               <Menu>
-                <MenuItem text="Collect All Data in Full Sync Mode" onClick={() => setType('fullSync')} />
+                <MenuItem text="Collect Data in Full Refresh Mode" onClick={() => setType('fullSync')} />
               </Menu>
             }
             placement="bottom"
@@ -206,12 +207,15 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
       {/* </PipelineContextProvider> */}
 
       {type === 'delete' && (
-        <Dialog
-          isOpen
-          style={{ width: 820 }}
+        <Modal
+          open
+          width={820}
+          centered
           title="Are you sure you want to delete this Blueprint?"
           okText="Confirm"
-          okLoading={operating}
+          okButtonProps={{
+            loading: operating,
+          }}
           onCancel={handleResetType}
           onOk={handleDelete}
         >
@@ -220,19 +224,22 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
               Blueprint. If you would like to delete the historical data of Data Scopes, please visit the Connection
               page and do so."
           />
-        </Dialog>
+        </Modal>
       )}
 
       {type === 'fullSync' && (
-        <Dialog
-          isOpen
+        <Modal
+          open
+          centered
           okText="Run Now"
-          okLoading={operating}
+          okButtonProps={{
+            loading: operating,
+          }}
           onCancel={handleResetType}
           onOk={() => handleRun({ fullSync: true })}
         >
           <Message content="This operation may take a long time as it will empty all of your existing data and re-collect it." />
-        </Dialog>
+        </Modal>
       )}
     </S.StatusPanel>
   );

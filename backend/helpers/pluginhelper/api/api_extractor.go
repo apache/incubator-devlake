@@ -98,7 +98,7 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 	// batch save divider
 	divider := NewBatchSaveDivider(extractor.args.Ctx, extractor.args.BatchSize, extractor.table, extractor.params)
 
-	// prgress
+	// progress
 	extractor.args.Ctx.SetProgress(0, -1)
 	ctx := extractor.args.Ctx.GetContext()
 	// iterate all rows

@@ -22,7 +22,6 @@ import { Navbar } from '@blueprintjs/core';
 export const Wrapper = styled.div`
   display: flex;
   height: 100vh;
-  background-color: #f9f9fa;
   overflow: hidden;
 `;
 
@@ -49,8 +48,13 @@ export const Sider = styled.div`
       outline: none;
       cursor: pointer;
 
-      &:hover {
-        background-color: rgba(167, 182, 194, 0.3);
+      &.bp5-active {
+        color: #fff;
+        background-color: #7497f7;
+
+        .bp5-menu-item-icon {
+          color: #fff;
+        }
       }
 
       .bp5-icon {
@@ -84,7 +88,6 @@ export const Sider = styled.div`
 
 export const Header = styled(Navbar)`
   flex: 0 0 50px;
-  background-color: #f9f9fa;
   box-shadow: none;
 
   a {

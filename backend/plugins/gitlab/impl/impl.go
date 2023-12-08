@@ -46,7 +46,7 @@ var _ interface {
 	plugin.CloseablePluginTask
 } = (*Gitlab)(nil)
 
-type Gitlab string
+type Gitlab struct{}
 
 func init() {
 	// check subtask meta loop when init subtask meta
@@ -149,13 +149,17 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, err
 	}
-
 	if op.ProjectId != 0 {
 		var scope *models.GitlabProject
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
 		err = db.First(&scope, dal.Where("connection_id = ? AND gitlab_id = ?", op.ConnectionId, op.ProjectId))
+		if err == nil {
+			if op.ScopeConfigId == 0 && scope.ScopeConfigId != 0 {
+				op.ScopeConfigId = scope.ScopeConfigId
+			}
+		}
 		if err != nil && db.IsErrorNotFound(err) {
 			var project *models.GitlabApiProject
 			project, err = api.GetApiProject(op, apiClient)
@@ -163,10 +167,9 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 				return nil, err
 			}
 			logger.Debug(fmt.Sprintf("Current project: %d", project.GitlabId))
-			i := project.ConvertApiScope()
-			scope = i.(*models.GitlabProject)
+			scope := project.ConvertApiScope()
 			scope.ConnectionId = op.ConnectionId
-			err = taskCtx.GetDal().CreateIfNotExist(&scope)
+			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {
 				return nil, err
 			}
@@ -176,17 +179,21 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		}
 	}
 
-	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
-		var scopeConfig models.GitlabScopeConfig
-		db := taskCtx.GetDal()
-		err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
-		if err != nil {
-			if db.IsErrorNotFound(err) {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+	if op.ScopeConfig == nil {
+		if op.ScopeConfigId != 0 {
+			var scopeConfig models.GitlabScopeConfig
+			db := taskCtx.GetDal()
+			err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+			if err != nil {
+				if db.IsErrorNotFound(err) {
+					return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+				}
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
 			}
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+			op.ScopeConfig = &scopeConfig
+		} else {
+			op.ScopeConfig = &models.GitlabScopeConfig{}
 		}
-		op.ScopeConfig = &scopeConfig
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
@@ -195,6 +202,9 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	}
+	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
 	}
 
 	taskData := tasks.GitlabTaskData{
@@ -228,6 +238,9 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
 			"PATCH":  api.PatchScope,
@@ -247,7 +260,7 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,

@@ -37,6 +37,7 @@ import (
 	icla "github.com/apache/incubator-devlake/plugins/icla/impl"
 	jenkins "github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	jira "github.com/apache/incubator-devlake/plugins/jira/impl"
+	opsgenie "github.com/apache/incubator-devlake/plugins/opsgenie/impl"
 	org "github.com/apache/incubator-devlake/plugins/org/impl"
 	pagerduty "github.com/apache/incubator-devlake/plugins/pagerduty/impl"
 	refdiff "github.com/apache/incubator-devlake/plugins/refdiff/impl"
@@ -57,16 +58,16 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	})
 	checker.FeedIn("ae/models", ae.AE{}.GetTablesInfo)
 	checker.FeedIn("bamboo/models", bamboo.Bamboo{}.GetTablesInfo)
-	checker.FeedIn("bitbucket/models", bitbucket.Bitbucket("").GetTablesInfo)
+	checker.FeedIn("bitbucket/models", bitbucket.Bitbucket{}.GetTablesInfo)
 	checker.FeedIn("customize/models", customize.Customize{}.GetTablesInfo)
 	checker.FeedIn("dbt", dbt.Dbt{}.GetTablesInfo)
 	checker.FeedIn("dora/models", dora.Dora{}.GetTablesInfo)
 	checker.FeedIn("feishu/models", feishu.Feishu{}.GetTablesInfo)
-	checker.FeedIn("gitee/models", gitee.Gitee("").GetTablesInfo)
+	checker.FeedIn("gitee/models", gitee.Gitee{}.GetTablesInfo)
 	checker.FeedIn("gitextractor/models", gitextractor.GitExtractor{}.GetTablesInfo)
 	checker.FeedIn("github/models", github.Github{}.GetTablesInfo)
 	checker.FeedIn("github_graphql", githubGraphql.GithubGraphql{}.GetTablesInfo)
-	checker.FeedIn("gitlab/models", gitlab.Gitlab("").GetTablesInfo)
+	checker.FeedIn("gitlab/models", gitlab.Gitlab{}.GetTablesInfo)
 	checker.FeedIn("icla/models", icla.Icla{}.GetTablesInfo)
 	checker.FeedIn("jenkins/models", jenkins.Jenkins{}.GetTablesInfo)
 	checker.FeedIn("jira/models", jira.Jira{}.GetTablesInfo)
@@ -75,13 +76,14 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("refdiff/models", refdiff.RefDiff{}.GetTablesInfo)
 	checker.FeedIn("slack/models", slack.Slack{}.GetTablesInfo)
 	checker.FeedIn("sonarqube/models", sonarqube.Sonarqube{}.GetTablesInfo)
-	checker.FeedIn("starrocks", starrocks.StarRocks("").GetTablesInfo)
+	checker.FeedIn("starrocks", starrocks.StarRocks{}.GetTablesInfo)
 	checker.FeedIn("tapd/models", tapd.Tapd{}.GetTablesInfo)
 	checker.FeedIn("teambition/models", teambition.Teambition{}.GetTablesInfo)
 	checker.FeedIn("trello/models", trello.Trello{}.GetTablesInfo)
 	checker.FeedIn("webhook/models", webhook.Webhook{}.GetTablesInfo)
 	checker.FeedIn("zentao/models", zentao.Zentao{}.GetTablesInfo)
 	checker.FeedIn("circleci/models", circleci.Circleci{}.GetTablesInfo)
+	checker.FeedIn("opsgenie/models", opsgenie.Opsgenie{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)

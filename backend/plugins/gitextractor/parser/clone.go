@@ -19,11 +19,15 @@ package parser
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/go-git/go-git/v5/plumbing/protocol/packp/capability"
+	"github.com/go-git/go-git/v5/plumbing/transport"
+
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/client"
 	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -105,7 +109,14 @@ func (l *GitRepoCreator) CloneOverHTTP(ctx plugin.SubTaskContext, repoId, url, u
 				Password: password,
 			}
 		}
-		//fmt.Printf("CloneOverHTTP clone opt: %+v\n dir: %v, repo: %v, id: %v, user: %v, passwd: %v, proxy: %v\n", cloneOptions, dir, url, repoId, user, password, proxy)
+		// fmt.Printf("CloneOverHTTP clone opt: %+v\ndir: %v, repo: %v, id: %v, user: %v, passwd: %v, proxy: %v\n", cloneOptions, dir, url, repoId, user, password, proxy)
+		if isAzureRepo(ctx.GetContext(), url) {
+			// https://github.com/go-git/go-git/issues/64
+			// https://github.com/go-git/go-git/blob/master/_examples/azure_devops/main.go#L34
+			transport.UnsupportedCapabilities = []capability.Capability{
+				capability.ThinPack,
+			}
+		}
 		_, err := gogit.PlainCloneContext(ctx.GetContext(), dir, true, cloneOptions)
 		if err != nil {
 			l.logger.Error(err, "PlainCloneContext")
@@ -187,4 +198,8 @@ func refreshCloneProgress(subTaskCtx plugin.SubTaskContext, done chan struct{}, 
 			}
 		}
 	}()
+}
+
+func isAzureRepo(ctx context.Context, repoUrl string) bool {
+	return strings.Contains(repoUrl, "dev.azure.com")
 }

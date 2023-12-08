@@ -31,8 +31,6 @@ import * as task from './task';
 const migrate = () => request('/proceed-db-migration');
 const ping = () => request('/ping');
 const version = (signal?: AbortSignal): Promise<{ version: string }> => request('/version', { signal });
-const userInfo = (signal?: AbortSignal): Promise<{ user: string; email: string; logoutURI: string }> =>
-  request('/userinfo', { signal });
 
 export const API = {
   apiKey,
@@ -47,7 +45,6 @@ export const API = {
   migrate,
   ping,
   version,
-  userInfo,
 };
 
 export default API;

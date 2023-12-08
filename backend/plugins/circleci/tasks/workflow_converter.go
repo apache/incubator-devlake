@@ -56,26 +56,29 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciWorkflow)
+			createdAt := userTool.CreatedAt.ToTime()
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getPipelineIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
-				Name:         userTool.Name,
-				DurationSec:  userTool.DurationSec,
-				CreatedDate:  userTool.CreatedAt.ToTime(),
-				FinishedDate: userTool.StoppedAt.ToNullableTime(),
-				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
+				Name:        userTool.Name,
+				DurationSec: userTool.DurationSec,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  &createdAt,
+					FinishedDate: userTool.StoppedAt.ToNullableTime(),
+				},
+				CicdScopeId: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
 				// reference: https://circleci.com/docs/api/v2/index.html#operation/getWorkflowById
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error"},
-					Manual:  []string{"on_hold"},
-					Default: devops.STATUS_IN_PROGRESS,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error"}, // on_hold
+					Default: devops.STATUS_OTHER,
 				}, userTool.Status),
+				OriginalStatus: userTool.Status,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{"success"},
-					Failed:  []string{"failed", "failing", "error"},
-					Skipped: []string{"not_run"},
-					Abort:   []string{"canceled"},
+					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
+					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
 				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),

@@ -34,6 +34,7 @@ type BitbucketPipeline struct {
 	WebUrl            string `gorm:"type:varchar(255)"`
 	Type              string `gorm:"type:varchar(255)"`
 	Environment       string `gorm:"type:varchar(255)"`
+	BuildNumber       int
 	DurationInSeconds uint64
 
 	BitbucketCreatedOn  *time.Time
@@ -47,6 +48,11 @@ func (BitbucketPipeline) TableName() string {
 }
 
 const (
+	// https://github.com/juan-carlos-duarte/bitbucket-api-client-lib/blob/main/docs/PipelineState.md
+	// https://community.atlassian.com/t5/Bitbucket-questions/Possible-value-for-status-filtering-in-API-pipelines/qaq-p/1755200
+	// https://github.com/juan-carlos-duarte/bitbucket-api-client-lib/blob/main/docs/PipelineState.md
+	// https://developer.atlassian.com/server/bitbucket/rest/v815/api-group-builds-and-deployments/#api-api-latest-projects-projectkey-repos-repositoryslug-commits-commitid-deployments-get
+	// https://github.com/juan-carlos-duarte/bitbucket-api-client-lib/blob/main/docs/DeploymentStateCompleted.md
 	FAILED      = "FAILED"
 	ERROR       = "ERROR"
 	UNDEPLOYED  = "UNDEPLOYED"
@@ -54,9 +60,15 @@ const (
 	SKIPPED     = "SKIPPED"
 	SUCCESSFUL  = "SUCCESSFUL"
 	COMPLETED   = "COMPLETED"
-	PAUSED      = "COMPLETED"
+	PAUSED      = "PAUSED"
 	HALTED      = "HALTED"
 	IN_PROGRESS = "IN_PROGRESS"
 	PENDING     = "PENDING"
 	BUILDING    = "BUILDING"
+	EXPIRED     = "EXPIRED"
+	RUNNING     = "RUNNING"
+	READY       = "READY"
+	PASSED      = "PASSED"
+	NOT_RUN     = "NOT_RUN"
+	CANCELLED   = "CANCELLED"
 )

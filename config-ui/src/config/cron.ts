@@ -22,17 +22,17 @@ export const cronPresets = [
   {
     label: 'Daily',
     config: '0 0 * * *',
-    description: '(at 00:00 AM) ',
+    description: '(at 00:00AM UTC)',
   },
   {
     label: 'Weekly',
     config: '0 0 * * 1',
-    description: '(on Monday at 00:00 AM) ',
+    description: '(on Monday at 00:00AM UTC)',
   },
   {
     label: 'Monthly',
     config: '0 0 1 * *',
-    description: '(on first day of the month at 00:00 AM) ',
+    description: '(on first day of the month at 00:00AM UTC)',
   },
 ];
 
@@ -59,9 +59,8 @@ export const getCron = (isManual: boolean, config: string) => {
   if (isManual) {
     return {
       label: 'Manual',
-      value: 'manual',
-      description: '',
       config: '',
+      description: '',
       nextTime: '',
       nextTimes: [],
     };
@@ -72,15 +71,13 @@ export const getCron = (isManual: boolean, config: string) => {
   return preset
     ? {
         ...preset,
-        value: preset.config,
         nextTime: getNextTime(preset.config),
         nextTimes: getNextTimes(preset.config),
       }
     : {
         label: 'Custom',
-        value: '',
-        description: '',
         config,
+        description: '',
         nextTime: getNextTime(config),
         nextTimes: getNextTimes(config),
       };
@@ -89,22 +86,22 @@ export const getCron = (isManual: boolean, config: string) => {
 export const getCronOptions = () => {
   return [
     {
-      value: 'manual',
       label: 'Manual',
+      value: 'manual',
       subLabel: '',
     },
   ]
     .concat(
       cronPresets.map((cp) => ({
-        value: cp.config,
         label: cp.label,
+        value: cp.config,
         subLabel: cp.description,
       })),
     )
     .concat([
       {
-        value: '',
         label: 'Custom',
+        value: 'custom',
         subLabel: '',
       },
     ]);

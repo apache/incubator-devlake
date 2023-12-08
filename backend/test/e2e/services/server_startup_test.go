@@ -18,6 +18,8 @@ limitations under the License.
 package services
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/plugin"
 	ae "github.com/apache/incubator-devlake/plugins/ae/impl"
 	bamboo "github.com/apache/incubator-devlake/plugins/bamboo/impl"
@@ -47,7 +49,6 @@ import (
 	zentao "github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestStartup(t *testing.T) {
@@ -60,16 +61,16 @@ func loadGoPlugins() []plugin.PluginMeta {
 	return []plugin.PluginMeta{
 		ae.AE{},
 		bamboo.Bamboo{},
-		bitbucket.Bitbucket(""),
+		bitbucket.Bitbucket{},
 		customize.Customize{},
 		dbt.Dbt{},
 		dora.Dora{},
 		feishu.Feishu{},
-		gitee.Gitee(""),
+		gitee.Gitee{},
 		gitextractor.GitExtractor{},
 		github.Github{},
 		githubGraphql.GithubGraphql{},
-		gitlab.Gitlab(""),
+		gitlab.Gitlab{},
 		icla.Icla{},
 		jenkins.Jenkins{},
 		jira.Jira{},
@@ -78,7 +79,7 @@ func loadGoPlugins() []plugin.PluginMeta {
 		refdiff.RefDiff{},
 		slack.Slack{},
 		sonarqube.Sonarqube{},
-		starrocks.StarRocks(""),
+		starrocks.StarRocks{},
 		tapd.Tapd{},
 		teambition.Teambition{},
 		trello.Trello{},

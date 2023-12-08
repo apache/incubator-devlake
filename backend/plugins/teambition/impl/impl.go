@@ -177,6 +177,9 @@ func (p Teambition) ApiResources() map[string]map[string]plugin.ApiResourceHandl
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 	}
 }
 

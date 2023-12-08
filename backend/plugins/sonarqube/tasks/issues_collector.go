@@ -32,24 +32,45 @@ import (
 
 const RAW_ISSUES_TABLE = "sonarqube_api_issues"
 
+const MAXPAGES = 100
+const MAXISSUECOUNT = 10000
+const MININTERVAL = 10
+
 var _ plugin.SubTaskEntryPoint = CollectIssues
 
-type SonarqubeIssueTimeIteratorNode struct {
+type SonarqubeIssueIteratorNode struct {
+	Severity      string
+	Status        string
+	Type          string
 	CreatedAfter  *time.Time
 	CreatedBefore *time.Time
+	FilePath      string
 }
 
 func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issues")
-	iterator := helper.NewQueueIterator()
-	iterator.Push(
-		&SonarqubeIssueTimeIteratorNode{
-			CreatedAfter:  nil,
-			CreatedBefore: nil,
-		},
-	)
 
+	iterator := helper.NewQueueIterator()
+	severities := []string{"BLOCKER", "CRITICAL", "MAJOR", "MINOR", "INFO"}
+	statuses := []string{"OPEN", "CONFIRMED", "REOPENED", "RESOLVED", "CLOSED"}
+	types := []string{"BUG", "VULNERABILITY", "CODE_SMELL"}
+	for _, severity := range severities {
+		for _, status := range statuses {
+			for _, typ := range types {
+				iterator.Push(
+					&SonarqubeIssueIteratorNode{
+						Severity:      severity,
+						Status:        status,
+						Type:          typ,
+						CreatedAfter:  nil,
+						CreatedBefore: nil,
+						FilePath:      "",
+					},
+				)
+			}
+		}
+	}
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -59,27 +80,34 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Input:              iterator,
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("componentKeys", fmt.Sprintf("%v", data.Options.ProjectKey))
-			input, ok := reqData.Input.(*SonarqubeIssueTimeIteratorNode)
+			input, ok := reqData.Input.(*SonarqubeIssueIteratorNode)
 			if !ok {
-				return nil, errors.Default.New(fmt.Sprintf("Input to SonarqubeIssueTimeIteratorNode failed:%+v", reqData.Input))
+				return nil, errors.Default.New(fmt.Sprintf("Input to SonarqubeIssueIteratorNode failed:%+v", reqData.Input))
 			}
-
+			if input.FilePath != "" {
+				query.Del("facets")
+				query.Set("componentKeys", fmt.Sprintf("%v:%v", data.Options.ProjectKey, input.FilePath))
+			} else {
+				query.Set("componentKeys", fmt.Sprintf("%v", data.Options.ProjectKey))
+				query.Set("facets", "directories")
+			}
+			query.Set("severities", input.Severity)
+			query.Set("statuses", input.Status)
+			query.Set("types", input.Type)
 			if input.CreatedAfter != nil {
 				query.Set("createdAfter", GetFormatTime(input.CreatedAfter))
 			}
-
 			if input.CreatedBefore != nil {
 				query.Set("createdBefore", GetFormatTime(input.CreatedBefore))
 			}
-
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
+
 			query.Encode()
 			return query, nil
 		},
 		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
-			body := &SonarqubePagination{}
+			body := &SonarqubePageInfo{}
 			err := helper.UnmarshalResponse(res, body)
 			if err != nil {
 				return 0, err
@@ -91,9 +119,11 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			}
 
 			query := res.Request.URL.Query()
-
 			// if get more than 10000 data, that need split it
-			if pages > 100 {
+			if pages > MAXPAGES {
+				severity := query.Get("severities")
+				status := query.Get("statuses")
+				typ := query.Get("types")
 				var createdAfterUnix int64
 				var createdBeforeUnix int64
 
@@ -118,22 +148,76 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					createdBeforeUnix = createdBefore.Unix()
 				}
 
-				// can not split it any more
-				if createdBeforeUnix-createdAfterUnix <= 10 {
-					return 100, nil
+				// can not split it by time
+				if createdBeforeUnix-createdAfterUnix <= MININTERVAL {
+					// split it by dir/fil
+					for _, facet := range body.Facets {
+						for _, value := range facet.Values {
+							if value.Count <= MAXISSUECOUNT {
+								iterator.Push(&SonarqubeIssueIteratorNode{
+									Severity:      severity,
+									Status:        status,
+									Type:          typ,
+									CreatedAfter:  createdAfter,
+									CreatedBefore: createdBefore,
+									FilePath:      value.Val,
+								})
+								logger.Info("split by dir, and it's issue count:[%d] and file path:[%s]", value.Count, value.Val)
+							} else {
+								// split it by dir when it's issue count > 10000
+								resWithPath, err := data.ApiClient.Get("issues/search", url.Values{
+									"componentKeys": {fmt.Sprintf("%v", data.Options.ProjectKey)},
+									"directories":   {value.Val},
+									"facets":        {"files"},
+									"ps":            {"1"},
+								}, nil)
+								if err != nil {
+									return 0, err
+								}
+								bodyWithPath := &SonarqubePageInfo{}
+								err = helper.UnmarshalResponse(resWithPath, bodyWithPath)
+								if err != nil {
+									return 0, err
+								}
+								if len(bodyWithPath.Facets) != 1 {
+									return 0, errors.Default.New(fmt.Sprintf("the facets count [%d] is not 1", len(bodyWithPath.Facets)))
+								}
+								for _, value2 := range bodyWithPath.Facets[0].Values {
+									if value2.Count > MAXISSUECOUNT {
+										logger.Warn(fmt.Errorf("the issue count [%d] exceeds the maximum page size", value2.Count), "")
+									}
+									iterator.Push(&SonarqubeIssueIteratorNode{
+										Severity:      severity,
+										Status:        status,
+										Type:          typ,
+										CreatedAfter:  createdAfter,
+										CreatedBefore: createdBefore,
+										FilePath:      value2.Val,
+									})
+									logger.Info("split by fil, and it's issue count:[%d] and file path:[%s]", value2.Count, value2.Val)
+								}
+							}
+						}
+					}
+					return 0, nil
 				}
 
 				// split it
 				MidTime := time.Unix((createdAfterUnix+createdBeforeUnix)/2+1, 0)
-
 				// left part
-				iterator.Push(&SonarqubeIssueTimeIteratorNode{
+				iterator.Push(&SonarqubeIssueIteratorNode{
+					Severity:      severity,
+					Status:        status,
+					Type:          typ,
 					CreatedAfter:  createdAfter,
 					CreatedBefore: &MidTime,
 				})
 
 				// right part
-				iterator.Push(&SonarqubeIssueTimeIteratorNode{
+				iterator.Push(&SonarqubeIssueIteratorNode{
+					Severity:      severity,
+					Status:        status,
+					Type:          typ,
 					CreatedAfter:  &MidTime,
 					CreatedBefore: createdBefore,
 				})
@@ -149,7 +233,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				return pages, nil
 			}
 		},
-
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var resData struct {
 				Data []json.RawMessage `json:"issues"`
@@ -215,4 +298,25 @@ func getTimeFromFormatTime(formatTime string) (*time.Time, errors.Error) {
 	}
 
 	return &t, nil
+}
+
+type SonarqubePageInfo struct {
+	Total  int `json:"total"`
+	P      int `json:"p"`
+	Ps     int `json:"ps"`
+	Paging struct {
+		PageIndex int `json:"pageIndex"`
+		PageSize  int `json:"pageSize"`
+		Total     int `json:"total"`
+	} `json:"paging"`
+	EffortTotal int   `json:"effortTotal"`
+	Issues      []any `json:"issues"`
+	Components  []any `json:"components"`
+	Facets      []struct {
+		Property string `json:"property"`
+		Values   []struct {
+			Val   string `json:"val"`
+			Count int    `json:"count"`
+		} `json:"values"`
+	} `json:"facets"`
 }

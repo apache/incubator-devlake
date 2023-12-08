@@ -27,6 +27,11 @@ type TapdConn struct {
 	helper.BasicAuth      `mapstructure:",squash"`
 }
 
+func (connection TapdConn) Sanitize() TapdConn {
+	connection.Password = ""
+	return connection
+}
+
 // TapdConnection holds TapdConn plus ID/Name for database storage
 type TapdConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
@@ -35,4 +40,9 @@ type TapdConnection struct {
 
 func (TapdConnection) TableName() string {
 	return "_tool_tapd_connections"
+}
+
+func (connection TapdConnection) Sanitize() TapdConnection {
+	connection.TapdConn = connection.TapdConn.Sanitize()
+	return connection
 }

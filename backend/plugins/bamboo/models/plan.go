@@ -20,6 +20,7 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"strings"
 )
 
 var _ plugin.ToolLayerScope = (*BambooPlan)(nil)
@@ -106,6 +107,12 @@ type SearchEntity struct {
 	BranchName  string `json:"branchName"`
 	Description string `json:"description"`
 	Type        string `json:"type"`
+}
+
+// Name trys to keep plan's name field the same with name in /remote-scopes.
+// In /remote-scopes, plan's name is "{projectName - planName}".
+func (entity SearchEntity) Name() string {
+	return strings.Join([]string{entity.ProjectName, entity.PlanName}, " - ")
 }
 
 type ApiSearchResult struct {
