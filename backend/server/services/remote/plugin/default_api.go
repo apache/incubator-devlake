@@ -61,6 +61,9 @@ func GetDefaultAPI(
 			"PATCH":  papi.PatchConnection,
 			"DELETE": papi.DeleteConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": papi.TestExistingConnection,
+		},
 		"connections/:connectionId/scopes": {
 			"PUT": papi.PutScope,
 			"GET": papi.ListScopes,
