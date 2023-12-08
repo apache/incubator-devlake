@@ -125,7 +125,7 @@ func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			deployments := query.Repository.Deployments.Deployments
 			for _, rawL := range deployments {
 				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
-					break
+					return nil, helper.ErrFinishCollect
 				}
 			}
 			return nil, nil
