@@ -138,7 +138,7 @@ export const DataScopeSelect = ({
             <MultiSelector
               loading={!ready}
               items={searchItems}
-              getName={(it) => it.name}
+              getName={(it) => it.fullName ?? it.name}
               getKey={(it) => getPluginScopeId(plugin, it)}
               noResult="No Data Scopes Available."
               onQueryChange={(query) => setQuery(query)}
