@@ -39,7 +39,7 @@ type GraphqlQueryIssueWrapper struct {
 			TotalCount graphql.Int
 			Issues     []GraphqlQueryIssue `graphql:"nodes"`
 			PageInfo   *helper.GraphqlQueryPageInfo
-		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: UPDATED_AT, direction: DESC}, filterBy: {since: $since})"`
+		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: UPDATED_AT, direction: DESC})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -96,19 +96,14 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
-		PageSize:      100,
+		PageSize:      10,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			query := &GraphqlQueryIssueWrapper{}
 			if reqData == nil {
 				return query, map[string]interface{}{}, nil
 			}
-			since := helper.DateTime{}
-			if collectorWithState.Since != nil {
-				since = helper.DateTime{Time: *collectorWithState.Since}
-			}
 			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{
-				"since":      since,
 				"pageSize":   graphql.Int(reqData.Pager.Size),
 				"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
 				"owner":      graphql.String(ownerName[0]),
@@ -121,6 +116,13 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return query.Repository.IssueList.PageInfo, nil
 		},
 		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
+			query := iQuery.(*GraphqlQueryIssueWrapper)
+			issues := query.Repository.IssueList.Issues
+			for _, rawL := range issues {
+				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
+					return nil, helper.ErrFinishCollect
+				}
+			}
 			return nil, nil
 		},
 	})
