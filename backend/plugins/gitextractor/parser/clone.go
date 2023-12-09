@@ -67,6 +67,7 @@ func cloneOverSSH(ctx plugin.SubTaskContext, url, dir, passphrase string, pk []b
 		Auth:     key,
 		Progress: buf,
 	})
+	done <- struct{}{}
 	if err != nil {
 		return errors.Convert(err)
 	}
@@ -118,6 +119,7 @@ func (l *GitRepoCreator) CloneOverHTTP(ctx plugin.SubTaskContext, repoId, url, u
 			}
 		}
 		_, err := gogit.PlainCloneContext(ctx.GetContext(), dir, true, cloneOptions)
+		done <- struct{}{}
 		if err != nil {
 			l.logger.Error(err, "PlainCloneContext")
 			return nil, err
@@ -184,7 +186,7 @@ func setCloneProgress(subTaskCtx plugin.SubTaskContext, cloneProgressInfo string
 }
 
 func refreshCloneProgress(subTaskCtx plugin.SubTaskContext, done chan struct{}, buf *bytes.Buffer) {
-	ticker := time.NewTicker(time.Second * 3)
+	ticker := time.NewTicker(time.Second * 1)
 	func() {
 		for {
 			select {
