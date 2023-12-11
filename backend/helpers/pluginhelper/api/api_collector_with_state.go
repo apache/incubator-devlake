@@ -43,7 +43,7 @@ type ApiCollectorStateManager struct {
 }
 
 type CollectorOptions struct {
-	TimeAfter string `json:"timeAfter,omitempty"`
+	TimeAfter string `json:"timeAfter,omitempty" mapstructure:"timeAfter"`
 }
 
 // NewStatefulApiCollector create a new ApiCollectorStateManager
