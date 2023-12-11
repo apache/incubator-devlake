@@ -34,16 +34,28 @@ type TokenItem = {
 };
 
 interface Props {
+  type: 'create' | 'update';
+  connectionId?: ID;
   endpoint?: string;
   proxy: string;
   initialValue: string;
   value: string;
   error: string;
-  setValue: (value: string) => void;
-  setError: (error: string) => void;
+  setValue: (value?: string) => void;
+  setError: (error?: string) => void;
 }
 
-export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, setError }: Props) => {
+export const Token = ({
+  type,
+  connectionId,
+  endpoint,
+  proxy,
+  initialValue,
+  value,
+  error,
+  setValue,
+  setError,
+}: Props) => {
   const [tokens, setTokens] = useState<TokenItem[]>([{ value: '' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
@@ -54,7 +66,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
     }
 
     try {
-      const res = await API.connection.test('github', {
+      const res = await API.connection.testOld('github', {
         authMethod: 'AccessToken',
         endpoint,
         proxy,
@@ -74,22 +86,31 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
     }
   };
 
-  const checkTokens = async (value: string) => {
-    const res = await Promise.all((value ?? '').split(',').map((it) => testToken(it)));
-    setTokens(res);
+  const checkTokens = async (connectionId: ID) => {
+    const res = await API.connection.test('github', connectionId);
+    setTokens(
+      (res.tokens ?? []).map((it) => ({
+        value: it.token,
+        isValid: it.success || it.warning,
+        from: it.login,
+        status: !it.success ? 'error' : it.warning ? 'warning' : 'success',
+      })),
+    );
   };
 
   useEffect(() => {
-    checkTokens(initialValue);
-  }, [initialValue, endpoint]);
+    if (connectionId) {
+      checkTokens(connectionId);
+    }
+  }, [connectionId]);
 
   useEffect(() => {
-    setError(value ? '' : 'token is required');
+    setError(type === 'create' && !value ? 'token is required' : undefined);
 
     return () => {
       setError('');
     };
-  }, [value]);
+  }, [type, value]);
 
   useEffect(() => {
     setValue(tokens.map((it) => it.value).join(','));
@@ -128,7 +149,9 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
         <S.Input key={i}>
           <div className="input">
             <Input.Password
+              style={{ width: 386 }}
               placeholder="Token"
+              value={value}
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />

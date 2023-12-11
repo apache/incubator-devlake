@@ -16,7 +16,7 @@
  *
  */
 
-import { IConnectionAPI, IConnectionTestResult } from '@/types';
+import { IConnectionAPI, IConnectionTestResult, IConnectionOldTestResult } from '@/types';
 import { request } from '@/utils';
 
 export const list = (plugin: string): Promise<IConnectionAPI[]> => request(`/plugins/${plugin}/connections`);
@@ -38,8 +38,20 @@ export const update = (plugin: string, id: ID, payload: Omit<IConnectionAPI, 'id
 
 export const test = (
   plugin: string,
+  connectionId: ID,
+  payload?: Partial<
+    Pick<
+      IConnectionAPI,
+      'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy' | 'dbUrl'
+    >
+  >,
+): Promise<IConnectionTestResult> =>
+  request(`/plugins/${plugin}/connections/${connectionId}/test`, { method: 'post', data: payload });
+
+export const testOld = (
+  plugin: string,
   payload: Pick<
     IConnectionAPI,
     'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy' | 'dbUrl'
   >,
-): Promise<IConnectionTestResult> => request(`/plugins/${plugin}/test`, { method: 'post', data: payload });
+): Promise<IConnectionOldTestResult> => request(`/plugins/${plugin}/test`, { method: 'post', data: payload });
