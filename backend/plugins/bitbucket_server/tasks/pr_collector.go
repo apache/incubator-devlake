@@ -25,6 +25,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -53,11 +54,16 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:  25,
 		GetNextPageCustomData: func(prevReqData *helper.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
 			var rawMessages struct {
-				NextPageStart int `json:"nextPageStart"`
+				NextPageStart int  `json:"nextPageStart"`
+				IsLastPage    bool `json:"isLastPage"`
 			}
 			err := decodeResponse(prevPageResponse, &rawMessages)
 			if err != nil {
 				return nil, err
+			}
+
+			if rawMessages.IsLastPage {
+				return nil, api.ErrFinishCollect
 			}
 
 			return strconv.Itoa(rawMessages.NextPageStart), nil
