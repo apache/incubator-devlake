@@ -53,10 +53,12 @@ export const GitHubConfig: IPluginConfig = {
           setValue={(value) => setValues({ authMethod: value })}
         />
       ),
-      ({ initialValues, values, errors, setValues, setErrors }: any) =>
+      ({ type, initialValues, values, errors, setValues, setErrors }: any) =>
         (values.authMethod || initialValues.authMethod) === 'AccessToken' ? (
           <Token
             key="token"
+            type={type}
+            connectionId={initialValues.id}
             endpoint={values.endpoint}
             proxy={values.proxy}
             initialValue={initialValues.token ?? ''}

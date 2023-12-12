@@ -87,7 +87,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
     }
 
     try {
-      const res = await API.connection.test('github', {
+      const res = await API.connection.testOld('github', {
         authMethod: 'AppKey',
         endpoint,
         proxy,

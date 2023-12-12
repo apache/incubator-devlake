@@ -160,7 +160,12 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
               </S.LabelDescription>
             }
           >
-            <Input.Password placeholder="Your PAT" value={values.password} onChange={handleChangePassword} />
+            <Input.Password
+              style={{ width: 386 }}
+              placeholder="Your PAT"
+              value={values.password}
+              onChange={handleChangePassword}
+            />
           </FormGroup>
         </>
       )}
@@ -179,7 +184,12 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
                 <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
               </FormGroup>
               <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <Input.Password placeholder="Your Password" value={values.password} onChange={handleChangePassword} />
+                <Input.Password
+                  style={{ width: 386 }}
+                  placeholder="Your Password"
+                  value={values.password}
+                  onChange={handleChangePassword}
+                />
               </FormGroup>
             </>
           )}
@@ -195,7 +205,12 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
                 </S.LabelDescription>
               }
             >
-              <Input.Password placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
+              <Input.Password
+                style={{ width: 386 }}
+                placeholder="Your PAT"
+                value={values.token}
+                onChange={handleChangeToken}
+              />
             </FormGroup>
           )}
         </>
