@@ -22,7 +22,7 @@ import { Button, Tag, Intent, InputGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, FormItem, Selector, ExternalLink, CopyText, Message } from '@/components';
+import { PageHeader, Block, Selector, ExternalLink, CopyText, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
@@ -165,15 +165,15 @@ export const ApiKeys = () => {
           onCancel={handleCancel}
           onOk={handleSubmit}
         >
-          <FormItem label="API Key Name" subLabel="Give your API key a unique name to identify in the future." required>
+          <Block title="API Key Name" description="Give your API key a unique name to identify in the future." required>
             <InputGroup
               style={{ width: 386 }}
               placeholder="My API Key"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
-          </FormItem>
-          <FormItem label="Expiration" subLabel="Set an expiration time for your API key." required>
+          </Block>
+          <Block title="Expiration" description="Set an expiration time for your API key." required>
             <div style={{ width: 386 }}>
               <Selector
                 items={C.timeOptions}
@@ -183,10 +183,10 @@ export const ApiKeys = () => {
                 onChangeItem={(it) => setForm({ ...form, expiredAt: it.value ? it.value : undefined })}
               />
             </div>
-          </FormItem>
-          <FormItem
-            label="Allowed Path"
-            subLabel={
+          </Block>
+          <Block
+            title="Allowed Path"
+            description={
               <p>
                 Enter a Regular Expression that matches the API URL(s) from the{' '}
                 <ExternalLink link="/api/swagger/index.html">DevLake API docs</ExternalLink>. The default Regular
@@ -203,7 +203,7 @@ export const ApiKeys = () => {
                 onChange={(e) => setForm({ ...form, allowedPath: e.target.value })}
               />
             </S.InputContainer>
-          </FormItem>
+          </Block>
         </Modal>
       )}
       {modal === 'show' && (

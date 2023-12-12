@@ -22,7 +22,7 @@ import { Form, Card, Alert, Divider } from 'antd';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { ExternalLink, FormItem, MultiSelector, Message, Buttons } from '@/components';
+import { ExternalLink, Block, MultiSelector, Message, Buttons } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
@@ -128,18 +128,18 @@ export const ScopeConfigForm = ({
       {step === 1 && (
         <>
           <Card>
-            <FormItem
-              label="Scope Config Name"
-              subLabel="Give this Scope Config a unique name so that you can identify it in the future."
+            <Block
+              title="Scope Config Name"
+              description="Give this Scope Config a unique name so that you can identify it in the future."
               required
             >
               <InputGroup placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
-            </FormItem>
+            </Block>
           </Card>
           <Card>
-            <FormItem
-              label="Data Entities"
-              subLabel={
+            <Block
+              title="Data Entities"
+              description={
                 <>
                   Select the data entities you wish to collect for the Data Scope.
                   <ExternalLink link="">Learn about data entities</ExternalLink>
@@ -154,7 +154,7 @@ export const ScopeConfigForm = ({
                 selectedItems={entities.map((it) => ({ label: EntitiesLabel[it], value: it }))}
                 onChangeItems={(its) => setEntities(its.map((it) => it.value))}
               />
-            </FormItem>
+            </Block>
             {showWarning && (
               <Message
                 content="Please note: if you edit Data Entities and expect to see the Dashboards updated, you will need to visit

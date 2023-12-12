@@ -21,7 +21,7 @@ import { Modal } from 'antd';
 import { InputGroup } from '@blueprintjs/core';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { FormItem } from '@/components';
+import { Block } from '@/components';
 import { updateWebhook, selectWebhook } from '@/features';
 import { operator } from '@/utils';
 
@@ -65,9 +65,9 @@ export const EditDialog = ({ initialId, onCancel }: Props) => {
       onCancel={onCancel}
       onOk={handleSubmit}
     >
-      <FormItem label="Name" required>
+      <Block title="Name" required>
         <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
-      </FormItem>
+      </Block>
     </Modal>
   );
 };

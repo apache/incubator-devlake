@@ -21,7 +21,7 @@ import { Modal, message } from 'antd';
 import { InputGroup, Button, RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
 
 import API from '@/api';
-import { FormItem } from '@/components';
+import { Block } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
 import { operator } from '@/utils';
 
@@ -143,9 +143,9 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
       <S.DialogBody>
         {step === 1 && (
           <>
-            <FormItem
-              label="Jira Issue Key"
-              subLabel="Input any issue key that has connected commit(s) in the development panel"
+            <Block
+              title="Jira Issue Key"
+              description="Input any issue key that has connected commit(s) in the development panel"
               required
             >
               <div className="search">
@@ -156,9 +156,9 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
                 />
                 <Button loading={searching} disabled={!issueKey} text="See Results" onClick={handleSearch} />
               </div>
-            </FormItem>
+            </Block>
             {applicationTypes.length > 0 && (
-              <FormItem label="Application Type" subLabel="Please choose an application type." required>
+              <Block title="Application Type" description="Please choose an application type." required>
                 <RadioGroup
                   selectedValue={applicationType}
                   onChange={(e) => setApplicationType((e.target as HTMLInputElement).value)}
@@ -167,24 +167,24 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
                     <Radio key={at} value={at} label={at} />
                   ))}
                 </RadioGroup>
-              </FormItem>
+              </Block>
             )}
           </>
         )}
         {step === 2 && (
           <>
-            <FormItem label="Jira Issue Key">{issueKey}</FormItem>
-            <FormItem label="Application Type">{applicationType}</FormItem>
-            <FormItem label="Commit Url Preview" subLabel="The latest five commit(s) associated with the issue.">
+            <Block title="Jira Issue Key">{issueKey}</Block>
+            <Block title="Application Type">{applicationType}</Block>
+            <Block title="Commit Url Preview" description="The latest five commit(s) associated with the issue.">
               <ul>
                 {devPanelCommits.map((commit) => (
                   <li key={commit}>{commit}</li>
                 ))}
               </ul>
-            </FormItem>
-            <FormItem
-              label="Commit Pattern"
-              subLabel={
+            </Block>
+            <Block
+              title="Commit Pattern"
+              description={
                 <>
                   <p style={{ display: 'flex', alignItems: 'center' }} onClick={() => setShowTip(!showTip)}>
                     Input pattern(s) to match and parse commits and repo identifiers from above commit URLs. See
@@ -202,12 +202,12 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
                 value={pattern}
                 onChange={(e) => setPattern(e.target.value)}
               />
-            </FormItem>
-            <FormItem label="Configuration Results Preview">
+            </Block>
+            <Block title="Configuration Results Preview">
               <code>
                 <pre>{JSON.stringify(preview, null, '  ')}</pre>
               </code>
-            </FormItem>
+            </Block>
           </>
         )}
       </S.DialogBody>
