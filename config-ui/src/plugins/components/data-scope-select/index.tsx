@@ -17,17 +17,16 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
+import { Flex } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 import { useDebounce } from 'ahooks';
 import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import API from '@/api';
-import { Loading, Block, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
+import { Loading, Block, ExternalLink, Message, MultiSelector } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
-
-import * as S from './styled';
 
 interface Props {
   plugin: string;
@@ -116,7 +115,7 @@ export const DataScopeSelect = ({
       {loading ? (
         <Loading />
       ) : items.length ? (
-        <S.Wrapper>
+        <Flex vertical gap="middle">
           {showWarning ? (
             <Message
               style={{ marginBottom: 24 }}
@@ -130,22 +129,20 @@ export const DataScopeSelect = ({
               }
             />
           ) : (
-            <Buttons position="top">
+            <Flex>
               <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
-            </Buttons>
+            </Flex>
           )}
-          <div className="search">
-            <MultiSelector
-              loading={!ready}
-              items={searchItems}
-              getName={(it) => it.name}
-              getKey={(it) => getPluginScopeId(plugin, it)}
-              noResult="No Data Scopes Available."
-              onQueryChange={(query) => setQuery(query)}
-              selectedItems={searchItems.filter((it) => selectedIds.includes(getPluginScopeId(plugin, it)))}
-              onChangeItems={(selectedItems) => setSelectedIds(selectedItems.map((it) => getPluginScopeId(plugin, it)))}
-            />
-          </div>
+          <MultiSelector
+            loading={!ready}
+            items={searchItems}
+            getName={(it) => it.name}
+            getKey={(it) => getPluginScopeId(plugin, it)}
+            noResult="No Data Scopes Available."
+            onQueryChange={(query) => setQuery(query)}
+            selectedItems={searchItems.filter((it) => selectedIds.includes(getPluginScopeId(plugin, it)))}
+            onChangeItems={(selectedItems) => setSelectedIds(selectedItems.map((it) => getPluginScopeId(plugin, it)))}
+          />
           <MillerColumnsSelect
             showSelectAll
             columnCount={1}
@@ -156,17 +153,17 @@ export const DataScopeSelect = ({
             selectedIds={selectedIds}
             onSelectItemIds={setSelectedIds}
           />
-          <Buttons position="bottom" align="right">
+          <Flex justify="flex-end" gap="small">
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
             <Button disabled={!selectedIds.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
-          </Buttons>
-        </S.Wrapper>
+          </Flex>
+        </Flex>
       ) : (
-        <S.Wrapper>
+        <Flex>
           <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
             <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" />
           </ExternalLink>
-        </S.Wrapper>
+        </Flex>
       )}
     </Block>
   );

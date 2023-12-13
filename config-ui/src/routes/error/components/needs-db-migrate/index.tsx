@@ -17,12 +17,11 @@
  */
 
 import { useState } from 'react';
-import { Card } from 'antd';
+import { Card, Flex } from 'antd';
 import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
 import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
-import { Buttons } from '@/components';
 import { operator } from '@/utils';
 
 export const NeedsDBMigrate = () => {
@@ -53,14 +52,14 @@ export const NeedsDBMigrate = () => {
       <p className="warning">
         Warning: Performing migration may wipe collected data for consistency and re-collecting data may be required.
       </p>
-      <Buttons position="bottom" align="center">
+      <Flex justify="center">
         <Button
           loading={operating}
           text="Proceed to Database Migration"
           intent={Intent.PRIMARY}
           onClick={handleSubmit}
         />
-      </Buttons>
+      </Flex>
     </Card>
   );
 };

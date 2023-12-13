@@ -18,7 +18,6 @@
 
 export * from './action';
 export * from './block';
-export * from './buttons';
 export * from './inspector';
 export * from './loading';
 export * from './logo';

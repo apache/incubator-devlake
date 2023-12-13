@@ -18,11 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
-import { Form, Card, Alert, Divider } from 'antd';
+import { Flex, Form, Card, Alert, Divider } from 'antd';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { ExternalLink, Block, MultiSelector, Message, Buttons } from '@/components';
+import { ExternalLink, Block, MultiSelector, Message } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
@@ -113,10 +113,9 @@ export const ScopeConfigForm = ({
   };
 
   return (
-    <S.Wrapper>
+    <Flex vertical gap="middle">
       {TIPS_MAP[plugin] && (
         <Alert
-          style={{ marginBottom: 24 }}
           message={
             <>
               To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
@@ -163,15 +162,15 @@ export const ScopeConfigForm = ({
               />
             )}
           </Card>
-          <Buttons position="bottom" align="right">
+          <Flex justify="flex-end" gap="small">
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
             <Button disabled={!name || !entities.length} intent={Intent.PRIMARY} text="Next" onClick={handleNextStep} />
-          </Buttons>
+          </Flex>
         </>
       )}
       {step === 2 && (
         <>
-          <Card style={{ margin: 0 }}>
+          <Card>
             <h1 style={{ marginBottom: 16 }}>Transformations</h1>
             <Divider />
             {showWarning && (
@@ -252,7 +251,7 @@ export const ScopeConfigForm = ({
               )}
             </Form>
           </Card>
-          <Buttons position="bottom" align="right">
+          <Flex justify="flex-end" gap="small">
             <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
             <Button
               loading={operating}
@@ -261,9 +260,9 @@ export const ScopeConfigForm = ({
               text="Save"
               onClick={handleSubmit}
             />
-          </Buttons>
+          </Flex>
         </>
       )}
-    </S.Wrapper>
+    </Flex>
   );
 };

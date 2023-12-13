@@ -17,10 +17,8 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { Card } from 'antd';
+import { Card, Flex } from 'antd';
 import { Icon, Colors, Button, Intent } from '@blueprintjs/core';
-
-import { Buttons } from '@/components';
 
 interface Props {
   error: string | Error;
@@ -41,13 +39,13 @@ export const Exception = ({ error }: Props) => {
         <strong>GitHub</strong>. You can also message us on <strong>Slack</strong> to engage with community members for
         solutions to common issues.
       </p>
-      <Buttons position="bottom" align="center">
+      <Flex justify="center">
         <Button text="Continue" intent={Intent.PRIMARY} onClick={handleResetError} />
         <Button
           text="Visit GitHub"
           onClick={() => window.open('https://github.com/apache/incubator-devlake', '_blank', 'noopener,noreferrer')}
         />
-      </Buttons>
+      </Flex>
     </Card>
   );
 };

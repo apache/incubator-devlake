@@ -18,11 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'antd';
+import { Flex, Table } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { IconButton, NoData, Buttons } from '@/components';
+import { IconButton, NoData } from '@/components';
 import { getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { getPluginConfig } from '@/plugins';
@@ -195,15 +195,15 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
               }
             />
           ) : (
-            <>
-              <Buttons position="top">
+            <Flex vertical gap="middle">
+              <Flex>
                 <Button
                   intent={Intent.PRIMARY}
                   icon="add"
                   text="Add a Connection"
                   onClick={handleShowAddConnectionDialog}
                 />
-              </Buttons>
+              </Flex>
               <S.ConnectionList>
                 {connections.map((cs) => (
                   <S.ConnectionItem key={`${cs.plugin}-${cs.connectionId}`}>
@@ -228,10 +228,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                   </S.ConnectionItem>
                 ))}
               </S.ConnectionList>
-              <Buttons position="bottom" align="center">
+              <Flex justify="center">
                 <Button intent={Intent.PRIMARY} text="Collect Data" onClick={handleRun} />
-              </Buttons>
-            </>
+              </Flex>
+            </Flex>
           )}
         </div>
       )}
