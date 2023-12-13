@@ -36,7 +36,6 @@ import { BambooTransformation } from '@/plugins/register/bamboo';
 import { operator } from '@/utils';
 
 import { TIPS_MAP } from './misc';
-import * as S from './styled';
 
 interface Props {
   plugin: string;

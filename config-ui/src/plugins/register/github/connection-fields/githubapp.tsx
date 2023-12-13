@@ -18,8 +18,7 @@
 
 import { useEffect, useState } from 'react';
 import { Select } from 'antd';
-import { Button, FormGroup, InputGroup, MenuItem, TextArea } from '@blueprintjs/core';
-// import { Select2 } from '@blueprintjs/select';
+import { FormGroup, InputGroup, TextArea } from '@blueprintjs/core';
 
 import API from '@/api';
 import { ExternalLink } from '@/components';
