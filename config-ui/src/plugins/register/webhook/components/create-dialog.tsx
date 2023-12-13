@@ -21,7 +21,7 @@ import { Modal } from 'antd';
 import { InputGroup, Icon } from '@blueprintjs/core';
 
 import { useAppDispatch } from '@/app/hook';
-import { FormItem, CopyText, ExternalLink } from '@/components';
+import { Block, CopyText, ExternalLink } from '@/components';
 import { addWebhook } from '@/features';
 import { operator } from '@/utils';
 
@@ -117,13 +117,13 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
     >
       {step === 1 && (
         <S.Wrapper>
-          <FormItem
-            label="Webhook Name"
-            subLabel="Give your Webhook a unique name to help you identify it in the future."
+          <Block
+            title="Webhook Name"
+            description="Give your Webhook a unique name to help you identify it in the future."
             required
           >
             <InputGroup placeholder="Webhook Name" value={name} onChange={(e) => setName(e.target.value)} />
-          </FormItem>
+          </Block>
         </S.Wrapper>
       )}
       {step === 2 && (
@@ -136,7 +136,7 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
             A non-expired API key is automatically generated for the authentication of the webhook. This key will only
             show now. You can revoke it in the webhook page at any time.
           </p>
-          <FormItem label="Incident">
+          <Block title="Incident">
             <h5>Post to register/update an incident</h5>
             <CopyText content={record.postIssuesEndpoint} />
             <p>
@@ -155,8 +155,8 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
               </ExternalLink>
               .
             </p>
-          </FormItem>
-          <FormItem label="Deployments">
+          </Block>
+          <Block title="Deployments">
             <h5>Post to register a deployment</h5>
             <CopyText content={record.postDeploymentsCurl} />
             <p>
@@ -166,7 +166,7 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
               </ExternalLink>
               .
             </p>
-          </FormItem>
+          </Block>
         </S.Wrapper>
       )}
     </Modal>

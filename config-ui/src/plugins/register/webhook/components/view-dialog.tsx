@@ -21,7 +21,7 @@ import { Modal } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { FormItem, CopyText, ExternalLink, Message } from '@/components';
+import { Block, CopyText, ExternalLink, Message } from '@/components';
 import { selectWebhook, renewWebhookApiKey } from '@/features';
 import { IWebhook } from '@/types';
 import { operator } from '@/utils';
@@ -92,7 +92,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
           Copy the following CURL commands to your issue tracking or CI/CD tools to push `Incidents` and `Deployments`
           by making a POST to DevLake. Please replace the {'{'}API_KEY{'}'} in the following URLs.
         </p>
-        <FormItem label="Incident">
+        <Block title="Incident">
           <h5>Post to register/update an incident</h5>
           <CopyText content={URI.postIssuesEndpoint} />
           <p>
@@ -111,8 +111,8 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
             </ExternalLink>
             .
           </p>
-        </FormItem>
-        <FormItem label="Deployments">
+        </Block>
+        <Block title="Deployments">
           <h5>Post to register a deployment</h5>
           <CopyText content={URI.postDeploymentsCurl} />
           <p>
@@ -122,10 +122,10 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
             </ExternalLink>
             .
           </p>
-        </FormItem>
-        <FormItem
-          label="API Key"
-          subLabel="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."
+        </Block>
+        <Block
+          title="API Key"
+          description="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."
         >
           {!apiKey ? (
             <Button intent={Intent.PRIMARY} text="Revoke and generate a new key" onClick={() => setOpen(true)} />
@@ -140,7 +140,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
               </S.Tips>
             </>
           )}
-        </FormItem>
+        </Block>
       </S.Wrapper>
       <Modal
         open={open}

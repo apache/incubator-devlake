@@ -17,8 +17,8 @@
  */
 
 export * from './action';
+export * from './block';
 export * from './buttons';
-export * from './form';
 export * from './inspector';
 export * from './loading';
 export * from './logo';

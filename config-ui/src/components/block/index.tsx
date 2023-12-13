@@ -16,4 +16,46 @@
  *
  */
 
-export * from './item';
+import styled from 'styled-components';
+
+const Wrapper = styled.div`
+  & > h4 {
+    display: flex;
+
+    & > i {
+      margin-left: 4px;
+      color: #ff8b8b;
+    }
+  }
+
+  & > p {
+    margin-top: 0;
+  }
+
+  & + & {
+    margin-top: 16px;
+  }
+`;
+
+interface Props {
+  style?: React.CSSProperties;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  required?: boolean;
+  children: React.ReactNode;
+}
+
+export const Block = ({ style, title, description, required, children }: Props) => {
+  return (
+    <Wrapper style={style}>
+      {title && (
+        <h4>
+          {title}
+          {required && <i>*</i>}
+        </h4>
+      )}
+      {description && <p>{description}</p>}
+      {children}
+    </Wrapper>
+  );
+};

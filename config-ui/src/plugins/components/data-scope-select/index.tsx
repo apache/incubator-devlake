@@ -23,7 +23,7 @@ import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import API from '@/api';
-import { Loading, FormItem, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
+import { Loading, Block, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
 
@@ -92,9 +92,9 @@ export const DataScopeSelect = ({
   const handleSubmit = () => onSubmit?.(selectedIds);
 
   return (
-    <FormItem
-      label="Select Data Scope"
-      subLabel={
+    <Block
+      title="Select Data Scope"
+      description={
         items.length ? (
           <>
             Select the data scope in this Connection that you wish to associate with this Project. If you wish to add
@@ -168,6 +168,6 @@ export const DataScopeSelect = ({
           </ExternalLink>
         </S.Wrapper>
       )}
-    </FormItem>
+    </Block>
   );
 };
