@@ -18,15 +18,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
-import { Table, Button, Modal } from 'antd';
+import { Flex, Table, Button, Modal } from 'antd';
 
 import API from '@/api';
-import { Buttons } from '@/components';
 import { useRefreshData } from '@/hooks';
 
 import { ScopeConfigForm } from '../scope-config-form';
-
-import * as S from './styled';
 
 interface Props {
   plugin: string;
@@ -74,12 +71,12 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
   };
 
   return (
-    <S.Wrapper>
-      <Buttons position="top">
+    <Flex vertical gap="middle">
+      <Flex>
         <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowDialog}>
           Add New Scope Config
         </Button>
-      </Buttons>
+      </Flex>
       <Table
         rowKey="id"
         size="small"
@@ -105,14 +102,14 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         }}
         pagination={false}
       />
-      <Buttons position="bottom" align="right">
+      <Flex justify="flex-end" gap="small">
         <Button style={{}} onClick={onCancel}>
           Cancel
         </Button>
         <Button type="primary" disabled={!trId} onClick={() => trId && onSubmit?.(trId)}>
           Save
         </Button>
-      </Buttons>
+      </Flex>
       <Modal
         open={open}
         width={960}
@@ -130,6 +127,6 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
           onSubmit={handleSubmit}
         />
       </Modal>
-    </S.Wrapper>
+    </Flex>
   );
 };

@@ -18,11 +18,11 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Modal, message } from 'antd';
+import { Flex, Card, Modal, message } from 'antd';
 import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Block, Buttons } from '@/components';
+import { Block } from '@/components';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
@@ -100,7 +100,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   };
 
   return (
-    <>
+    <Flex vertical>
       <Card>
         <Block title="Project Name" description="Edit your project name with letters, numbers, -, _ or /" required>
           <InputGroup style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
@@ -112,13 +112,13 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
             onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
           />
         </Block>
-        <Buttons position="bottom">
+        <Flex>
           <Button text="Save" loading={operating} disabled={!name} intent={Intent.PRIMARY} onClick={handleUpdate} />
-        </Buttons>
+        </Flex>
       </Card>
-      <Buttons position="bottom" align="center">
+      <Flex justify="center">
         <Button intent={Intent.DANGER} text="Delete Project" onClick={handleShowDeleteDialog} />
-      </Buttons>
+      </Flex>
       <Modal
         open={open}
         width={820}
@@ -139,6 +139,6 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           </span>
         </S.DialogBody>
       </Modal>
-    </>
+    </Flex>
   );
 };
