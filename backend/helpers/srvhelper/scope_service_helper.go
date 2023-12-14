@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -29,6 +30,8 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+type ScopeSyncState map[string]time.Time
 
 type ScopePagination struct {
 	Pagination   `mapstructure:",squash"`
@@ -93,6 +96,40 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeDetail(includeBlueprints bool,
 	return scopeDetail, nil
 }
 
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeLatestSyncState(pkv ...interface{}) (ScopeSyncState, errors.Error) {
+	scope, err := scopeSrv.ModelSrvHelper.FindByPk(pkv...)
+	if err != nil {
+		return nil, err
+	}
+	s := *scope
+	params := plugin.MarshalScopeParams(s.ScopeParams())
+	scopeSrv.log.Debug("scope: %#+v, params: %+v", s, params)
+	rows, err := scopeSrv.db.Cursor(
+		dal.Select("raw_data_table, MAX(latest_success_start) as latest_success_start"),
+		dal.From("_devlake_collector_latest_state"),
+		dal.Where("raw_data_params = ?", params),
+		dal.Groupby("raw_data_table"),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	type Result struct {
+		RawDataTable       string    `json:"raw_data_table"`
+		LatestSuccessStart time.Time `json:"latest_success_start"`
+	}
+	scopeSyncState := make(map[string]time.Time)
+	for rows.Next() {
+		var result Result
+		if err := scopeSrv.db.Fetch(rows, &result); err != nil {
+			return nil, err
+		}
+		scopeSyncState[result.RawDataTable] = result.LatestSuccessStart
+	}
+	scopeSrv.log.Debug("param: %+v, resp: %+v", scopeSyncState)
+	return scopeSyncState, nil
+}
+
 // MapScopeDetails returns scope details (scope and scopeConfig) for the given blueprint scopes
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) MapScopeDetails(connectionId uint64, bpScopes []*models.BlueprintScope) ([]*ScopeDetail[S, SC], errors.Error) {
 	var err errors.Error
@@ -124,7 +161,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePaginat
 	data := make([]*ScopeDetail[S, SC], len(scopes))
 	for i, s := range scopes {
 		// load blueprints
-		scope := (*s)
+		scope := *s
 		scopeDetail := &ScopeDetail[S, SC]{
 			Scope:       scope,
 			ScopeConfig: scopeSrv.getScopeConfig(scope.ScopeScopeConfigId()),
@@ -139,7 +176,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePaginat
 
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) DeleteScope(scope *S, dataOnly bool) (refs *DsRefs, err errors.Error) {
 	err = scopeSrv.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
-		s := (*scope)
+		s := *scope
 		// check referencing blueprints
 		if !dataOnly {
 			refs = toDsRefs(scopeSrv.getAllBlueprinsByScope(s.ScopeConnectionId(), s.ScopeId()))
