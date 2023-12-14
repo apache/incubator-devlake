@@ -18,7 +18,7 @@
 
 import styled from 'styled-components';
 
-export const Container = styled.div`
+export const Wrapper = styled.div`
   padding: 16px 24px;
   background-color: #f3f3f3;
 

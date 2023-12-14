@@ -34,7 +34,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
+import { FormGroup, RadioGroup, Radio } from '@blueprintjs/core';
 
 import * as S from './styled';
 
@@ -114,7 +115,7 @@ export const ConnectionEndpoint = ({
               </S.LabelDescription>
             }
           >
-            <InputGroup placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
+            <Input placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
           </FormGroup>
         )}
       </FormGroup>
@@ -127,7 +128,7 @@ export const ConnectionEndpoint = ({
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
       subLabel={<S.LabelDescription>{subLabel ?? `Provide the ${name} instance API endpoint.`}</S.LabelDescription>}
     >
-      <InputGroup disabled={disabled} placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
+      <Input disabled={disabled} placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
     </FormGroup>
   );
 };

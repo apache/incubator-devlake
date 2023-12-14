@@ -18,8 +18,8 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Flex, Card, Modal, message } from 'antd';
-import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
+import { Flex, Card, Modal, Input, message } from 'antd';
+import { Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -103,7 +103,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
     <Flex vertical>
       <Card>
         <Block title="Project Name" description="Edit your project name with letters, numbers, -, _ or /" required>
-          <InputGroup style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
+          <Input style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
         </Block>
         <Block description="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
           <Checkbox

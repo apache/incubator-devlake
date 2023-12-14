@@ -18,12 +18,13 @@
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Modal } from 'antd';
-import { Button, Switch, Intent, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
+import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Modal, Button, Tooltip } from 'antd';
+import { Switch, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import API from '@/api';
-import { IconButton, Message } from '@/components';
+import { Message } from '@/components';
 import { getCron } from '@/config';
 import { useAutoRefresh } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
@@ -133,20 +134,17 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             content="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
           >
             <Button
+              type="primary"
               disabled={!blueprint.enable}
               loading={operating}
-              intent={Intent.PRIMARY}
-              text="Re-transform Data"
               onClick={() => handleRun({ skipCollectors: true })}
-            />
+            >
+              Re-transform Data
+            </Button>
           </Tooltip2>
-          <Button
-            disabled={!blueprint.enable}
-            loading={operating}
-            intent={Intent.PRIMARY}
-            text="Collect Data"
-            onClick={() => handleRun({})}
-          />
+          <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
+            Collect Data
+          </Button>
           <Popover
             content={
               <Menu>
@@ -155,14 +153,14 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             }
             placement="bottom"
           >
-            <IconButton icon="more" tooltip="" />
+            <Button icon={<MoreOutlined rev={undefined} />} />
           </Popover>
         </S.ProjectACtion>
       )}
 
       {from === FromEnum.blueprint && (
         <S.BlueprintAction>
-          <Button text="Run Now" onClick={() => handleRun({})} />
+          <Button onClick={() => handleRun({})}>Run Now</Button>
           <Switch
             style={{ marginBottom: 0 }}
             label="Blueprint Enabled"
@@ -170,13 +168,15 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             checked={blueprint.enable}
             onChange={(e) => handleUpdate({ enable: (e.target as HTMLInputElement).checked })}
           />
-          <IconButton
-            loading={operating}
-            disabled={!!blueprint.projectName}
-            icon="trash"
-            tooltip="Delete Blueprint"
-            onClick={() => setType('delete')}
-          />
+          <Tooltip title="Delete Blueprint">
+            <Button
+              type="primary"
+              loading={operating}
+              disabled={!!blueprint.projectName}
+              icon={<DeleteOutlined rev={undefined} />}
+              onClick={() => setType('delete')}
+            />
+          </Tooltip>
         </S.BlueprintAction>
       )}
 

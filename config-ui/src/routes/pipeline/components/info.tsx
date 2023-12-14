@@ -17,9 +17,11 @@
  */
 
 import { useState } from 'react';
+import { StopOutlined, RedoOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 
 import API from '@/api';
-import { Loading, IconButton } from '@/components';
+import { Loading } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 import { IPipeline, IPipelineStatus } from '@/types';
 import { formatTime, operator } from '@/utils';
@@ -107,7 +109,7 @@ export const PipelineInfo = ({ id }: Props) => {
         </li>
         <li>
           {[IPipelineStatus.ACTIVE, IPipelineStatus.RUNNING, IPipelineStatus.RERUN].includes(status) && (
-            <IconButton loading={operating} icon="disable" tooltip="Cancel" onClick={handleCancel} />
+            <Button loading={operating} icon={<StopOutlined rev={undefined} />} onClick={handleCancel} />
           )}
           {[
             IPipelineStatus.COMPLETED,
@@ -115,7 +117,7 @@ export const PipelineInfo = ({ id }: Props) => {
             IPipelineStatus.FAILED,
             IPipelineStatus.CANCELLED,
           ].includes(status) && (
-            <IconButton loading={operating} icon="repeat" tooltip="Rerun failed tasks" onClick={handleRerun} />
+            <Button loading={operating} icon={<RedoOutlined rev={undefined} />} onClick={handleRerun} />
           )}
         </li>
       </ul>

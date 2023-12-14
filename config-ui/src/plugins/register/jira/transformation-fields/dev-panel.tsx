@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Modal, message } from 'antd';
-import { InputGroup, Button, RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
+import { Modal, Input, message } from 'antd';
+import { Button, RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -149,11 +149,7 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
               required
             >
               <div className="search">
-                <InputGroup
-                  placeholder="Please enter..."
-                  value={issueKey}
-                  onChange={(e) => setIssueKey(e.target.value)}
-                />
+                <Input placeholder="Please enter..." value={issueKey} onChange={(e) => setIssueKey(e.target.value)} />
                 <Button loading={searching} disabled={!issueKey} text="See Results" onClick={handleSearch} />
               </div>
             </Block>
@@ -197,7 +193,7 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
               }
               required
             >
-              <InputGroup
+              <Input
                 placeholder="eg. https://gitlab.com/{namespace}/{repo_name}/commit/{commit_sha}"
                 value={pattern}
                 onChange={(e) => setPattern(e.target.value)}
