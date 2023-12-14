@@ -17,14 +17,14 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Flex } from 'antd';
+import { Flex, Select } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 import { useDebounce } from 'ahooks';
 import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import API from '@/api';
-import { Loading, Block, ExternalLink, Message, MultiSelector } from '@/components';
+import { Loading, Block, ExternalLink, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
 
@@ -133,15 +133,14 @@ export const DataScopeSelect = ({
               <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
             </Flex>
           )}
-          <MultiSelector
+          <Select
             loading={!ready}
-            items={searchItems}
-            getName={(it) => it.name}
-            getKey={(it) => getPluginScopeId(plugin, it)}
-            noResult="No Data Scopes Available."
-            onQueryChange={(query) => setQuery(query)}
-            selectedItems={searchItems.filter((it) => selectedIds.includes(getPluginScopeId(plugin, it)))}
-            onChangeItems={(selectedItems) => setSelectedIds(selectedItems.map((it) => getPluginScopeId(plugin, it)))}
+            showSearch
+            mode="multiple"
+            options={searchItems.map((it) => ({ label: it.fullName, value: getPluginScopeId(plugin, it) }))}
+            value={selectedIds}
+            onChange={(value) => setSelectedIds(value)}
+            onSearch={(value) => setQuery(value)}
           />
           <MillerColumnsSelect
             showSelectAll
