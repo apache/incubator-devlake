@@ -30,6 +30,7 @@ var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.SonarqubeConnection, models.SonarqubeProject, interface{}]
 var remoteHelper *api.RemoteApiHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
+var dsHelper *api.DsHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 
@@ -59,5 +60,17 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 		connectionHelper,
+	)
+	dsHelper = api.NewDataSourceHelper[
+		models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"full_name"},
+		func(c models.SonarqubeConnection) models.SonarqubeConnection {
+			return c.Sanitize()
+		},
+		nil,
+		nil,
 	)
 }

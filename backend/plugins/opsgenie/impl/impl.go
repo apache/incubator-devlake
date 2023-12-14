@@ -173,6 +173,9 @@ func (p Opsgenie) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
+		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
 			"PATCH":  api.UpdateScope,

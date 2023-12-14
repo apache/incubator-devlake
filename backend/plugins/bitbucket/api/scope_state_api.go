@@ -15,22 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package api
 
 import (
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addOpsgenieConnectionFields20230905),
-		new(addEndpointAndProxyToConnection),
-		new(addTransformationRulesToService20230303),
-		new(addRawParamTableForScope),
-		new(renameTr2ScopeConfig),
-		new(removeScopeConfig),
-		new(addOpsenieScopeConfig20231214),
-	}
+// GetScopeLatestSyncState get one BitBucket repo's latest sync state
+// @Summary get one BitBucket repo's latest sync state
+// @Description get one BitBucket repo's latest sync state
+// @Tags plugins/bitbucket
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path int true "scope ID"
+// @Success 200  {object} []models.LatestSyncState
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId}/latest-sync-state [GET]
+func GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.GetScopeLatestSyncState(input)
 }

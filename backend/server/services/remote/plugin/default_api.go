@@ -69,7 +69,7 @@ func GetDefaultAPI(
 			"GET": papi.ListScopes,
 		},
 		// Use `*` to match scopeId with `/` in it
-		"connections/:connectionId/scopes/*scopeId": {
+		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    papi.GetScope,
 			"PATCH":  papi.UpdateScope,
 			"DELETE": papi.DeleteScope,

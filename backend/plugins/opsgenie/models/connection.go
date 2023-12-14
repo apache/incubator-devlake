@@ -40,10 +40,20 @@ type OpsgenieConn struct {
 	OpsgenieGenieKey      `mapstructure:",squash"`
 }
 
+func (connection OpsgenieConn) Sanitize() OpsgenieConn {
+	connection.Token = ""
+	return connection
+}
+
 // OpsgenieConnection holds OpsgenieConn plus ID/Name for database storage
 type OpsgenieConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	OpsgenieConn          `mapstructure:",squash"`
+}
+
+func (connection OpsgenieConnection) Sanitize() OpsgenieConnection {
+	connection.OpsgenieConn = connection.OpsgenieConn.Sanitize()
+	return connection
 }
 
 // This object conforms to what the frontend currently expects.

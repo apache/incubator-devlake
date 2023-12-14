@@ -29,7 +29,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 
 var scopeHelper *api.ScopeApiHelper[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig]
-
+var dsHelper *api.DsHelper[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
@@ -56,4 +56,18 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		params,
 		&api.ScopeHelperOptions{},
 	)
+
+	dsHelper = api.NewDataSourceHelper[
+		models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"full_name"},
+		func(c models.OpsgenieConnection) models.OpsgenieConnection {
+			return c.Sanitize()
+		},
+		nil,
+		nil,
+	)
+
 }

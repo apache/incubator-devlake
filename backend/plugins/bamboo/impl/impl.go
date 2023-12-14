@@ -231,6 +231,9 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
+		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
