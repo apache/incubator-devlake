@@ -19,19 +19,16 @@ package srvhelper
 
 import (
 	"fmt"
-	"reflect"
-	"strings"
-	"time"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"reflect"
+	"sort"
+	"strings"
 )
-
-type ScopeSyncState map[string]time.Time
 
 type ScopePagination struct {
 	Pagination   `mapstructure:",squash"`
@@ -96,7 +93,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeDetail(includeBlueprints bool,
 	return scopeDetail, nil
 }
 
-func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeLatestSyncState(pkv ...interface{}) (ScopeSyncState, errors.Error) {
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeLatestSyncState(pkv ...interface{}) ([]*models.LatestSyncState, errors.Error) {
 	scope, err := scopeSrv.ModelSrvHelper.FindByPk(pkv...)
 	if err != nil {
 		return nil, err
@@ -114,20 +111,24 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeLatestSyncState(pkv ...interfa
 		return nil, err
 	}
 	defer rows.Close()
-	type Result struct {
-		RawDataTable       string    `json:"raw_data_table"`
-		LatestSuccessStart time.Time `json:"latest_success_start"`
-	}
-	scopeSyncState := make(map[string]time.Time)
+	var scopeSyncStates []*models.LatestSyncState
 	for rows.Next() {
-		var result Result
+		var result models.LatestSyncState
 		if err := scopeSrv.db.Fetch(rows, &result); err != nil {
 			return nil, err
 		}
-		scopeSyncState[result.RawDataTable] = result.LatestSuccessStart
+		result.RawDataParams = params
+		scopeSyncStates = append(scopeSyncStates, &result)
 	}
-	scopeSrv.log.Debug("param: %+v, resp: %+v", scopeSyncState)
-	return scopeSyncState, nil
+
+	scopeSrv.log.Debug("param: %+v, resp: %+v", scopeSyncStates)
+	sort.Slice(scopeSyncStates, func(i, j int) bool {
+		if scopeSyncStates[i].LatestSuccessStart != nil && scopeSyncStates[j].LatestSuccessStart != nil {
+			return scopeSyncStates[i].LatestSuccessStart.After(*scopeSyncStates[j].LatestSuccessStart)
+		}
+		return false
+	})
+	return scopeSyncStates, nil
 }
 
 // MapScopeDetails returns scope details (scope and scopeConfig) for the given blueprint scopes

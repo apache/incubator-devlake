@@ -86,12 +86,12 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeLatestSyncState(input *plugi
 	if err != nil {
 		return nil, err
 	}
-	scopeLatestSyncState, err := scopeApi.ScopeSrvHelper.GetScopeLatestSyncState(pkv...)
+	scopeLatestSyncStates, err := scopeApi.ScopeSrvHelper.GetScopeLatestSyncState(pkv...)
 	if err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{
-		Body: scopeLatestSyncState,
+		Body: scopeLatestSyncStates,
 	}, nil
 }
 

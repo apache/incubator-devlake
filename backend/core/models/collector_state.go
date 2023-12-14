@@ -30,6 +30,12 @@ type CollectorLatestState struct {
 	LatestSuccessStart *time.Time
 }
 
+type LatestSyncState struct {
+	RawDataTable       string     `json:"raw_data_table"`
+	RawDataParams      string     `json:"raw_data_params"`
+	LatestSuccessStart *time.Time `json:"latest_success_start"`
+}
+
 func (CollectorLatestState) TableName() string {
 	return "_devlake_collector_latest_state"
 }
