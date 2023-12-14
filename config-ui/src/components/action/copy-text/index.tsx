@@ -17,12 +17,11 @@
  */
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { message } from 'antd';
+import { CopyOutlined } from '@ant-design/icons';
+import { Button, message } from 'antd';
 import styled from 'styled-components';
 
-import { TextTooltip, IconButton } from '@/components';
-
-import CopyIcon from './assets/copy.svg';
+import { TextTooltip } from '@/components';
 
 const Wrapper = styled.div`
   display: flex;
@@ -43,7 +42,7 @@ export const CopyText = ({ content }: Props) => {
         {content}
       </TextTooltip>
       <CopyToClipboard text={content} onCopy={() => message.success('Copy successfully.')}>
-        <IconButton image={<img src={CopyIcon} alt="" />} tooltip="Copy" />
+        <Button icon={<CopyOutlined rev={undefined} />} />
       </CopyToClipboard>
     </Wrapper>
   );

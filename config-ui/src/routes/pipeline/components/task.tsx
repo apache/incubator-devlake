@@ -17,10 +17,12 @@
  */
 
 import { useState, useMemo } from 'react';
+import { RedoOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 import { Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { TextTooltip, IconButton } from '@/components';
+import { TextTooltip } from '@/components';
 import { getPluginConfig } from '@/plugins';
 import { ITask, IPipelineStatus } from '@/types';
 import { operator } from '@/utils';
@@ -136,7 +138,7 @@ export const PipelineTask = ({ task }: Props) => {
           IPipelineStatus.FAILED,
           IPipelineStatus.CANCELLED,
         ].includes(status) && (
-          <IconButton loading={operating} icon="repeat" tooltip="Rerun task" onClick={handleRerun} />
+          <Button loading={operating} icon={<RedoOutlined rev={undefined} />} onClick={handleRerun} />
         )}
       </div>
     </S.Task>

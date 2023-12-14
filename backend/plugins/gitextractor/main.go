@@ -78,7 +78,7 @@ func main() {
 		"git extractor",
 		nil,
 	)
-	repo, err := tasks.NewGitRepo(subTaskCtx.GetContext(), logger, storage, &tasks.GitExtractorOptions{
+	repo, err := tasks.NewGitRepo(subTaskCtx, logger, storage, &tasks.GitExtractorOptions{
 		RepoId:   *id,
 		Url:      *url,
 		User:     *user,

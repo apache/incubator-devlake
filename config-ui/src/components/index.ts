@@ -17,14 +17,12 @@
  */
 
 export * from './action';
-export * from './buttons';
-export * from './form';
+export * from './block';
 export * from './inspector';
 export * from './loading';
 export * from './logo';
 export * from './message';
 export * from './no-data';
 export * from './page-header';
-export * from './pagination';
 export * from './selector';
 export * from './tooltip';

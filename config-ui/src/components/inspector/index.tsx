@@ -16,35 +16,21 @@
  *
  */
 
-import { Drawer, DrawerSize, Classes, IconName } from '@blueprintjs/core';
+import { Drawer } from 'antd';
 
 import * as S from './styled';
 
 interface Props {
-  isOpen: boolean;
+  open: boolean;
   data: any;
   title?: string;
   onClose?: () => void;
 }
 
-export const Inspector = ({ isOpen, data, title, onClose }: Props) => {
-  const props = {
-    icon: 'code' as IconName,
-    size: DrawerSize.SMALL,
-    autoFocus: true,
-    canEscapeKeyClose: true,
-    canOutsideClickClose: true,
-    enforceFocus: true,
-    hasBackdrop: false,
-    usePortal: true,
-    isOpen,
-    title,
-    onClose,
-  };
-
+export const Inspector = ({ open, data, title, onClose }: Props) => {
   return (
-    <Drawer {...props}>
-      <S.Container className={Classes.DRAWER_BODY}>
+    <Drawer bodyStyle={{ padding: 0 }} open={open} title={title} onClose={onClose}>
+      <S.Wrapper>
         <div className="title">
           <h3>JSON CONFIGURATION</h3>
           <span>application/json</span>
@@ -55,7 +41,7 @@ export const Inspector = ({ isOpen, data, title, onClose }: Props) => {
             <pre>{JSON.stringify(data, null, '  ')}</pre>
           </code>
         </div>
-      </S.Container>
+      </S.Wrapper>
     </Drawer>
   );
 };

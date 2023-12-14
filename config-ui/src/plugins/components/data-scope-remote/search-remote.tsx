@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
-import { Form, Select, Input, message } from 'antd';
+import { Form, Space, Tag, Input, message } from 'antd';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
@@ -67,11 +67,6 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   });
 
   const searchDebounce = useDebounce(search.query, { wait: 500 });
-
-  const [selectedIds, selectedOptions] = useMemo(
-    () => [selectedScope.map((sc) => sc.id), selectedScope.map((sc) => ({ label: sc.fullName, value: sc.id }))],
-    [selectedScope],
-  );
 
   const allItems = useMemo(
     () =>
@@ -156,14 +151,22 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   return (
     <Form layout="vertical">
       <Form.Item label={config.title} required>
-        <Select
-          style={{ width: '100%' }}
-          disabled
-          suffixIcon={null}
-          mode="tags"
-          value={selectedIds}
-          options={selectedOptions}
-        />
+        <Space wrap>
+          {selectedScope.length ? (
+            selectedScope.map((sc) => (
+              <Tag
+                key={sc.id}
+                color="blue"
+                closable
+                onClose={() => onChange(selectedScope.filter((it) => it.id !== sc.id))}
+              >
+                {sc.fullName}
+              </Tag>
+            ))
+          ) : (
+            <span>Please select scope...</span>
+          )}
+        </Space>
       </Form.Item>
       <Form.Item>
         <Input

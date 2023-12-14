@@ -18,11 +18,11 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Modal, message } from 'antd';
-import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
+import { Flex, Card, Modal, Input, message } from 'antd';
+import { Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { FormItem, Buttons } from '@/components';
+import { Block } from '@/components';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
@@ -100,25 +100,25 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   };
 
   return (
-    <>
+    <Flex vertical>
       <Card>
-        <FormItem label="Project Name" subLabel="Edit your project name with letters, numbers, -, _ or /" required>
-          <InputGroup style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
-        </FormItem>
-        <FormItem subLabel="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
+        <Block title="Project Name" description="Edit your project name with letters, numbers, -, _ or /" required>
+          <Input style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
+        </Block>
+        <Block description="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
           <Checkbox
             label="Enable DORA Metrics"
             checked={enableDora}
             onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
           />
-        </FormItem>
-        <Buttons position="bottom">
+        </Block>
+        <Flex>
           <Button text="Save" loading={operating} disabled={!name} intent={Intent.PRIMARY} onClick={handleUpdate} />
-        </Buttons>
+        </Flex>
       </Card>
-      <Buttons position="bottom" align="center">
+      <Flex justify="center">
         <Button intent={Intent.DANGER} text="Delete Project" onClick={handleShowDeleteDialog} />
-      </Buttons>
+      </Flex>
       <Modal
         open={open}
         width={820}
@@ -139,6 +139,6 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           </span>
         </S.DialogBody>
       </Modal>
-    </>
+    </Flex>
   );
 };

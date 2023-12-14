@@ -34,7 +34,8 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup, InputGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
+import { FormGroup } from '@blueprintjs/core';
 
 import * as S from './styled';
 
@@ -69,7 +70,7 @@ export const ConnectionAppId = ({ label, subLabel, placeholder, initialValue, va
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
       subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
     >
-      <InputGroup placeholder={placeholder ?? 'Your AppId'} value={value} onChange={handleChange} />
+      <Input placeholder={placeholder ?? 'Your AppId'} value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

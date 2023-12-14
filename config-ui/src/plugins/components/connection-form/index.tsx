@@ -16,20 +16,19 @@
  *
  */
 
-import { useMemo, useState } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
-import { pick } from 'lodash';
+import { useState, useEffect, useMemo } from 'react';
+import { isEqual, pick } from 'lodash';
+import { Flex, Alert, Button } from 'antd';
 
 import API from '@/api';
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { ExternalLink, Buttons } from '@/components';
+import { ExternalLink } from '@/components';
 import { addConnection, updateConnection } from '@/features';
 import { selectConnection } from '@/features/connections';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
 import { Form } from './fields';
-import * as S from './styled';
 
 interface Props {
   plugin: string;
@@ -38,12 +37,17 @@ interface Props {
 }
 
 export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
+  const [type, setType] = useState<'create' | 'update'>('create');
   const [values, setValues] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, any>>({});
   const [operating, setOperating] = useState(false);
 
   const dispatch = useAppDispatch();
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`));
+
+  useEffect(() => {
+    setType(connectionId ? 'update' : 'create');
+  }, [connectionId]);
 
   const {
     name,
@@ -57,22 +61,34 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   const handleTest = async () => {
     await operator(
       () =>
-        API.connection.test(
-          plugin,
-          pick(values, [
-            'endpoint',
-            'token',
-            'username',
-            'password',
-            'proxy',
-            'authMethod',
-            'appId',
-            'secretKey',
-            'tenantId',
-            'tenantType',
-            'dbUrl',
-          ]),
-        ),
+        type === 'update' && connectionId
+          ? API.connection.test(plugin, connectionId, {
+              endpoint: isEqual(connection?.endpoint, values.endpoint) ? undefined : values.endpoint,
+              authMethod: isEqual(connection?.authMethod, values.authMethod) ? undefined : values.authMethod,
+              username: isEqual(connection?.username, values.username) ? undefined : values.username,
+              password: isEqual(connection?.password, values.password) ? undefined : values.password,
+              token: isEqual(connection?.token, values.token) ? undefined : values.token,
+              appId: isEqual(connection?.appId, values.appId) ? undefined : values.appId,
+              secretKey: isEqual(connection?.secretKey, values.secretKey) ? undefined : values.secretKey,
+              proxy: isEqual(connection?.proxy, values.proxy) ? undefined : values.proxy,
+              dbUrl: isEqual(connection?.dbUrl, values.dbUrl) ? undefined : values.dbUrl,
+            })
+          : API.connection.testOld(
+              plugin,
+              pick(values, [
+                'endpoint',
+                'token',
+                'username',
+                'password',
+                'proxy',
+                'authMethod',
+                'appId',
+                'secretKey',
+                'tenantId',
+                'tenantType',
+                'dbUrl',
+              ]),
+            ),
       {
         setOperating,
         formatMessage: () => 'Test Connection Successfully.',
@@ -98,33 +114,34 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   };
 
   return (
-    <S.Wrapper>
-      <S.Tips>
-        If you run into any problems while creating a new connection for {name},{' '}
-        <ExternalLink link={docLink}>check out this doc</ExternalLink>.
-      </S.Tips>
-      <S.Form>
-        <Form
-          name={name}
-          fields={fields}
-          initialValues={{ ...initialValues, ...(connection ?? {}) }}
-          values={values}
-          errors={errors}
-          setValues={setValues}
-          setErrors={setErrors}
-        />
-        <Buttons position="bottom" align="right">
-          <Button loading={operating} disabled={disabled} outlined text="Test Connection" onClick={handleTest} />
-          <Button
-            loading={operating}
-            disabled={disabled}
-            intent={Intent.PRIMARY}
-            outlined
-            text="Save Connection"
-            onClick={handleSave}
-          />
-        </Buttons>
-      </S.Form>
-    </S.Wrapper>
+    <Flex vertical gap="small">
+      <Alert
+        message={
+          <>
+            {' '}
+            If you run into any problems while creating a new connection for {name},{' '}
+            <ExternalLink link={docLink}>check out this doc</ExternalLink>.
+          </>
+        }
+      />
+      <Form
+        type={type}
+        name={name}
+        fields={fields}
+        initialValues={{ ...initialValues, ...(connection ?? {}) }}
+        values={values}
+        errors={errors}
+        setValues={setValues}
+        setErrors={setErrors}
+      />
+      <Flex justify="flex-end" gap="small">
+        <Button loading={operating} disabled={disabled} onClick={handleTest}>
+          Test Connection
+        </Button>
+        <Button type="primary" loading={operating} disabled={disabled} onClick={handleSave}>
+          Save Connection
+        </Button>
+      </Flex>
+    </Flex>
   );
 };

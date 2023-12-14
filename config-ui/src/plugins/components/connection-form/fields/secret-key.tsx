@@ -40,6 +40,7 @@ import { FormGroup } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
+  type: 'create' | 'update';
   label?: string;
   subLabel?: string;
   placeholder?: string;
@@ -47,11 +48,12 @@ interface Props {
   initialValue: string;
   value: string;
   error: string;
-  setValue: (value: string) => void;
-  setError: (value: string) => void;
+  setValue: (value?: string) => void;
+  setError: (value?: string) => void;
 }
 
 export const ConnectionSecretKey = ({
+  type,
   label,
   subLabel,
   placeholder,
@@ -61,12 +63,12 @@ export const ConnectionSecretKey = ({
   setError,
 }: Props) => {
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(type === 'create' ? initialValue : undefined);
+  }, [type, initialValue]);
 
   useEffect(() => {
-    setError(value ? '' : 'SecretKey is required');
-  }, [value]);
+    setError(type === 'create' && !value ? 'SecretKey is required' : undefined);
+  }, [type, value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
@@ -78,7 +80,12 @@ export const ConnectionSecretKey = ({
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
       subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
     >
-      <Input.Password placeholder={placeholder ?? 'Your SecretKey'} value={value} onChange={handleChange} />
+      <Input.Password
+        style={{ width: 386 }}
+        placeholder={placeholder ?? 'Your SecretKey'}
+        value={value}
+        onChange={handleChange}
+      />
     </FormGroup>
   );
 };

@@ -133,6 +133,7 @@ RUN apt-get update && \
 EXPOSE 8080
 
 RUN useradd -ms /bin/bash -d /app devlake -u 1010
+RUN chown -R devlake:devlake /etc/ssl/certs
 USER devlake
 ENV PYTHONUNBUFFERED=1
 

@@ -17,14 +17,14 @@
  */
 
 import { useState } from 'react';
-import { Table, Modal } from 'antd';
-import { ButtonGroup } from '@blueprintjs/core';
+import { CodeOutlined, FileZipOutlined, RightOutlined } from '@ant-design/icons';
+import { Table, Space, Button, Modal } from 'antd';
 import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { IconButton, Inspector } from '@/components';
+import { Inspector } from '@/components';
 import { IPipeline } from '@/types';
 import { formatTime } from '@/utils';
 
@@ -111,18 +111,18 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
             key: 'action',
             align: 'center',
             render: (id: ID, row) => (
-              <ButtonGroup>
-                <IconButton icon="code" tooltip="View JSON" onClick={() => handleShowJSON(row)} />
-                <IconButton icon="document" tooltip="Download Logs" onClick={() => handleDownloadLog(id)} />
-                <IconButton icon="chevron-right" tooltip="View Details" onClick={() => handleShowDetails(id)} />
-              </ButtonGroup>
+              <Space>
+                <Button icon={<CodeOutlined rev={undefined} />} onClick={() => handleShowJSON(row)} />
+                <Button icon={<FileZipOutlined rev={undefined} />} onClick={() => handleDownloadLog(id)} />
+                <Button icon={<RightOutlined rev={undefined} />} onClick={() => handleShowDetails(id)} />
+              </Space>
             ),
           },
         ]}
         dataSource={dataSource}
         pagination={pagination}
       />
-      {JSON && <Inspector isOpen title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
+      {JSON && <Inspector open title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
       {id && (
         <Modal open width={820} centered title={`Pipeline ${id}`} footer={null} onCancel={() => setId(null)}>
           <PipelineTasks id={id} />

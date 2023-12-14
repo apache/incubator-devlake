@@ -18,12 +18,11 @@
 
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from 'antd';
+import { Card, Flex } from 'antd';
 import { Icon, Tag, Button, Intent, Colors, IconName } from '@blueprintjs/core';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Buttons } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 
 export const Offline = () => {
@@ -76,7 +75,7 @@ export const Offline = () => {
             Please wait for the&nbsp;
             <strong>Lake API</strong> to start before accessing the <strong>Configuration Interface</strong>.
           </p>
-          <Buttons position="bottom" align="center">
+          <Flex justify="center">
             <Button
               loading={loading}
               icon="refresh"
@@ -84,12 +83,12 @@ export const Offline = () => {
               text="Refresh"
               onClick={() => setVersion((v) => v + 1)}
             />
-          </Buttons>
+          </Flex>
         </>
       ) : (
         <>
           <p>Connectivity to the Lake API service was successful.</p>
-          <Buttons position="bottom" align="center">
+          <Flex justify="center">
             <Button intent={Intent.PRIMARY} text="Continue" onClick={handleContinue} />
             <Button
               icon="help"
@@ -102,7 +101,7 @@ export const Offline = () => {
                 )
               }
             />
-          </Buttons>
+          </Flex>
         </>
       )}
     </Card>

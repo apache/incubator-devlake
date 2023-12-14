@@ -18,7 +18,7 @@
 
 import { useState, useEffect } from 'react';
 import { Input } from 'antd';
-import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
+import { FormGroup, RadioGroup, Radio } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
@@ -142,14 +142,14 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
             </S.LabelDescription>
           }
         >
-          <InputGroup placeholder="Your Endpoint URL" value={values.endpoint} onChange={handleChangeEndpoint} />
+          <Input placeholder="Your Endpoint URL" value={values.endpoint} onChange={handleChangeEndpoint} />
         </FormGroup>
       </FormGroup>
 
       {version === 'cloud' && (
         <>
           <FormGroup label={<S.Label>E-Mail</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-            <InputGroup placeholder="Your E-Mail" value={values.username} onChange={handleChangeUsername} />
+            <Input placeholder="Your E-Mail" value={values.username} onChange={handleChangeUsername} />
           </FormGroup>
           <FormGroup
             label={<S.Label>API Token</S.Label>}
@@ -160,7 +160,12 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
               </S.LabelDescription>
             }
           >
-            <Input.Password placeholder="Your PAT" value={values.password} onChange={handleChangePassword} />
+            <Input.Password
+              style={{ width: 386 }}
+              placeholder="Your PAT"
+              value={values.password}
+              onChange={handleChangePassword}
+            />
           </FormGroup>
         </>
       )}
@@ -176,10 +181,15 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
           {values.authMethod === 'BasicAuth' && (
             <>
               <FormGroup label={<S.Label>Username</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
+                <Input placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
               </FormGroup>
               <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <Input.Password placeholder="Your Password" value={values.password} onChange={handleChangePassword} />
+                <Input.Password
+                  style={{ width: 386 }}
+                  placeholder="Your Password"
+                  value={values.password}
+                  onChange={handleChangePassword}
+                />
               </FormGroup>
             </>
           )}
@@ -195,7 +205,12 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
                 </S.LabelDescription>
               }
             >
-              <Input.Password placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
+              <Input.Password
+                style={{ width: 386 }}
+                placeholder="Your PAT"
+                value={values.token}
+                onChange={handleChangeToken}
+              />
             </FormGroup>
           )}
         </>

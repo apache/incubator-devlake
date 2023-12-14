@@ -17,11 +17,11 @@
  */
 
 import { useEffect, useState } from 'react';
-import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import { Input, Button } from 'antd';
 import { useDebounce } from 'ahooks';
 
 import API from '@/api';
-import { IconButton } from '@/components';
 import { operator } from '@/utils';
 
 import * as S from './styled';
@@ -83,7 +83,7 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
       {links.map((link, i) => (
         <div key={i} className="input">
           <div className="inner">
-            <InputGroup
+            <Input
               key={i}
               placeholder="E.g. https://gitlab.com/{namespace}/{repo_name}/-/commit/{commit_sha}"
               value={index === i ? pattern : link.pattern}
@@ -98,20 +98,25 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
               }}
             />
             {links.length > 1 && (
-              <IconButton loading={generating} icon="cross" tooltip="Delete" onClick={() => handleDeleteLink(i)} />
+              <Button
+                type="primary"
+                loading={generating}
+                icon={<CloseOutlined rev={undefined} />}
+                onClick={() => handleDeleteLink(i)}
+              />
             )}
           </div>
           {index === i && error && <div className="error">{error}</div>}
         </div>
       ))}
       <Button
-        outlined
+        type="primary"
         loading={generating}
-        intent={Intent.PRIMARY}
-        icon="add"
-        text="Add a Pattern"
+        icon={<PlusOutlined rev={undefined} />}
         onClick={() => handleAddLink()}
-      />
+      >
+        Add a Pattern
+      </Button>
     </S.RemoteLinkWrapper>
   );
 };

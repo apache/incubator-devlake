@@ -40,24 +40,25 @@ import { FormGroup } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
+  type: 'create' | 'update';
   label?: string;
   subLabel?: string;
   name: string;
   initialValue: string;
   value: string;
   error: string;
-  setValue: (value: string) => void;
-  setError: (value: string) => void;
+  setValue: (value?: string) => void;
+  setError: (value?: string) => void;
 }
 
-export const ConnectionToken = ({ label, subLabel, initialValue, value, setValue, setError }: Props) => {
+export const ConnectionToken = ({ type, label, subLabel, initialValue, value, setValue, setError }: Props) => {
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(type === 'create' ? initialValue : undefined);
+  }, [type, initialValue]);
 
   useEffect(() => {
-    setError(value ? '' : 'token is required');
-  }, [value]);
+    setError(type === 'create' && !value ? 'token is required' : undefined);
+  }, [type, value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
@@ -69,7 +70,7 @@ export const ConnectionToken = ({ label, subLabel, initialValue, value, setValue
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
       subLabel={subLabel && <S.LabelDescription>{subLabel}</S.LabelDescription>}
     >
-      <Input.Password placeholder="Your Token" value={value} onChange={handleChange} />
+      <Input.Password style={{ width: 386 }} placeholder="Your Token" value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

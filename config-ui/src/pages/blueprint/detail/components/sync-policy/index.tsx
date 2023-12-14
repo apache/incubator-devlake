@@ -18,11 +18,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Tag, Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
+import { Tag, Checkbox, FormGroup, Radio, RadioGroup } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
 import { DateInput2 } from '@blueprintjs/datetime2';
 
-import { FormItem, ExternalLink } from '@/components';
+import { Block, ExternalLink } from '@/components';
 import { getCron, getCronOptions } from '@/config';
 import { formatTime } from '@/utils';
 
@@ -100,9 +101,9 @@ export const SyncPolicy = ({
         Your local time zone is <strong>UTC {timezone}</strong>. All time listed below is shown in your local time.
       </div>
       {showTimeFilter && (
-        <FormItem
-          label="Time Range"
-          subLabel="Select the time range for the data you wish to collect. DevLake will collect the last six months of data by default."
+        <Block
+          title="Time Range"
+          description="Select the time range for the data you wish to collect. DevLake will collect the last six months of data by default."
         >
           <div className="quick-selection">
             {quickTimeOpts.map((opt, i) => (
@@ -131,13 +132,13 @@ export const SyncPolicy = ({
             />
             <strong>to Now</strong>
           </div>
-        </FormItem>
+        </Block>
       )}
       <div className="cron">
-        <FormItem
+        <Block
           style={{ flex: '0 0 450px', marginRight: 20 }}
-          label="Sync Frequency"
-          subLabel="Blueprints will run on creation and recurringly based on the schedule."
+          title="Sync Frequency"
+          description="Blueprints will run on creation and recurringly based on the schedule."
         >
           <RadioGroup selectedValue={selectedValue} onChange={handleChangeFrequency}>
             {cronOpts.map(({ label, subLabel }) => (
@@ -148,31 +149,31 @@ export const SyncPolicy = ({
             <>
               <S.Input>
                 <FormGroup label="Minute">
-                  <InputGroup
+                  <Input
                     value={mintue}
                     onChange={(e) => onChangeCronConfig([e.target.value, hour, day, month, week].join(' '))}
                   />
                 </FormGroup>
                 <FormGroup label="Hour">
-                  <InputGroup
+                  <Input
                     value={hour}
                     onChange={(e) => onChangeCronConfig([mintue, e.target.value, day, month, week].join(' '))}
                   />
                 </FormGroup>
                 <FormGroup label="Day">
-                  <InputGroup
+                  <Input
                     value={day}
                     onChange={(e) => onChangeCronConfig([mintue, hour, e.target.value, month, week].join(' '))}
                   />
                 </FormGroup>
                 <FormGroup label="Month">
-                  <InputGroup
+                  <Input
                     value={month}
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, e.target.value, week].join(' '))}
                   />
                 </FormGroup>
                 <FormGroup label="Week">
-                  <InputGroup
+                  <Input
                     value={week}
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, month, e.target.value].join(' '))}
                   />
@@ -185,8 +186,8 @@ export const SyncPolicy = ({
             <ExternalLink link="https://crontab.cronhub.io/">Learn how to use cron code</ExternalLink> or{' '}
             <ExternalLink link="https://cron-ai.vercel.app/">auto-convert English to cron code</ExternalLink>
           </div>
-        </FormItem>
-        <FormItem label="Next Three Runs:">
+        </Block>
+        <Block title="Next Three Runs:">
           {cron.nextTimes.length ? (
             <ul>
               {cron.nextTimes.map((it, i) => (
@@ -198,9 +199,9 @@ export const SyncPolicy = ({
           ) : (
             'N/A'
           )}
-        </FormItem>
+        </Block>
       </div>
-      <FormItem label="Running Policy">
+      <Block title="Running Policy">
         <Checkbox
           label="Skip failed tasks (Recommended when collecting a large volume of data, eg. 10+ GitHub repos, Jira boards, etc.)"
           checked={skipOnFail}
@@ -212,7 +213,7 @@ export const SyncPolicy = ({
           pipeline will continue to run, and the data collected by successful tasks will not be affected. After the
           pipeline is finished, you can rerun these failed tasks.
         </p>
-      </FormItem>
+      </Block>
     </S.Wrapper>
   );
 };

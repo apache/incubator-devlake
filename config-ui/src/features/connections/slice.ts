@@ -92,21 +92,9 @@ export const removeConnection = createAsyncThunk(
 
 export const testConnection = createAsyncThunk(
   'connections/testConnection',
-  async (
-    { unique, plugin, endpoint, proxy, token, username, password, authMethod, secretKey, appId }: IConnection,
-    { rejectWithValue },
-  ) => {
+  async ({ plugin, id, unique }: IConnection, { rejectWithValue }) => {
     try {
-      const res = await API.connection.test(plugin, {
-        endpoint,
-        proxy,
-        token,
-        username,
-        password,
-        authMethod,
-        secretKey,
-        appId,
-      });
+      const res = await API.connection.test(plugin, id);
 
       return {
         unique,

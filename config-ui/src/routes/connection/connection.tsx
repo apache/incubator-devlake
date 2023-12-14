@@ -18,15 +18,14 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { DeleteOutlined, PlusOutlined, NodeIndexOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, NodeIndexOutlined, LinkOutlined, ClearOutlined } from '@ant-design/icons';
 import { theme, Table, Button, Modal, message } from 'antd';
 
 import API from '@/api';
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { PageHeader, IconButton, Message } from '@/components';
+import { PageHeader, Message } from '@/components';
 import { selectConnection, removeConnection } from '@/features';
 import { useTips, useRefreshData } from '@/hooks';
-import ClearImg from '@/images/icons/clear.svg';
 import {
   ConnectionStatus,
   DataScopeRemote,
@@ -301,9 +300,9 @@ export const Connection = () => {
               <>
                 <span>{configId ? configName : 'N/A'}</span>
                 {pluginConfig.scopeConfig && (
-                  <IconButton
-                    icon="link"
-                    tooltip="Associate Scope Config"
+                  <Button
+                    type="primary"
+                    icon={<LinkOutlined rev={undefined} />}
                     onClick={() => {
                       handleShowScopeConfigSelectDialog([id]);
                       setScopeConfigId(configId);
@@ -320,14 +319,14 @@ export const Connection = () => {
             width: 100,
             render: (id) => (
               <>
-                <IconButton
-                  image={<img src={ClearImg} alt="clear" />}
-                  tooltip="Clear historical data"
+                <Button
+                  type="primary"
+                  icon={<ClearOutlined rev={undefined} />}
                   onClick={() => handleShowClearDataScopeDialog(id)}
                 />
-                <IconButton
-                  icon="trash"
-                  tooltip="Delete Data Scope"
+                <Button
+                  type="primary"
+                  icon={<DeleteOutlined rev={undefined} />}
                   onClick={() => handleShowDeleteDataScopeDialog(id)}
                 />
               </>

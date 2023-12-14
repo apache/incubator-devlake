@@ -18,12 +18,13 @@
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Modal } from 'antd';
-import { ButtonGroup, Button, Tag, Intent, FormGroup, InputGroup, RadioGroup, Radio } from '@blueprintjs/core';
+import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { Flex, Table, Modal, Radio, Button, Input } from 'antd';
+import { Tag, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, IconButton, TextTooltip } from '@/components';
+import { PageHeader, TextTooltip } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -95,22 +96,23 @@ export const BlueprintHomePage = () => {
         { name: 'Blueprints', path: '/advanced/blueprints' },
       ]}
     >
-      <S.Wrapper>
-        <p>This is a complete list of all Blueprints you have created, whether they belong to Projects or not.</p>
-        <div className="action">
-          <ButtonGroup>
-            <Button intent={type === 'all' ? Intent.PRIMARY : Intent.NONE} text="All" onClick={() => setType('all')} />
+      <Flex vertical gap="middle">
+        <p style={{ margin: 0 }}>
+          This is a complete list of all Blueprints you have created, whether they belong to Projects or not.
+        </p>
+        <Flex justify="space-between">
+          <Radio.Group optionType="button" value={type} onChange={({ target: { value } }) => setType(value)}>
+            <Radio value="all">All</Radio>
             {options.map(({ label }) => (
-              <Button
-                key={label}
-                intent={type === label ? Intent.PRIMARY : Intent.NONE}
-                text={label}
-                onClick={() => setType(label)}
-              />
+              <Radio key={label} value={label}>
+                {label}
+              </Radio>
             ))}
-          </ButtonGroup>
-          <Button icon="plus" intent={Intent.PRIMARY} text="New Blueprint" onClick={handleShowDialog} />
-        </div>
+          </Radio.Group>
+          <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowDialog}>
+            New Blueprint
+          </Button>
+        </Flex>
         <Table
           rowKey="id"
           size="middle"
@@ -196,7 +198,7 @@ export const BlueprintHomePage = () => {
               align: 'center',
               render: (val) => (
                 <Link to={`/advanced/blueprints/${val}?tab=configuration`}>
-                  <IconButton icon="cog" tooltip="Detail" />
+                  <Button type="primary" icon={<SettingOutlined rev={undefined} />} />
                 </Link>
               ),
             },
@@ -209,7 +211,7 @@ export const BlueprintHomePage = () => {
             onChange: setPage,
           }}
         />
-      </S.Wrapper>
+      </Flex>
       <Modal
         open={open}
         width={820}
@@ -233,7 +235,7 @@ export const BlueprintHomePage = () => {
             }
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
           >
-            <InputGroup
+            <Input
               style={{ width: 386 }}
               placeholder="Your Blueprint Name"
               value={name}
@@ -250,14 +252,10 @@ export const BlueprintHomePage = () => {
             }
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
           >
-            <RadioGroup
-              inline
-              selectedValue={mode}
-              onChange={(e) => setMode((e.target as HTMLInputElement).value as IBPMode)}
-            >
+            <Radio.Group value={mode} onChange={({ target: { value } }) => setMode(value)}>
               <Radio value={IBPMode.NORMAL}>Normal Mode</Radio>
               <Radio value={IBPMode.ADVANCED}>Advanced Mode</Radio>
-            </RadioGroup>
+            </Radio.Group>
           </FormGroup>
         </S.DialogWrapper>
       </Modal>

@@ -17,7 +17,8 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup, InputGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
+import { FormGroup } from '@blueprintjs/core';
 
 import * as S from './styled';
 
@@ -53,7 +54,7 @@ export const ConnectionName = ({ initialValue, value, setValue, setError }: Prop
         </S.LabelDescription>
       }
     >
-      <InputGroup placeholder="Your Connection Name" value={value} onChange={handleChange} />
+      <Input placeholder="Your Connection Name" value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

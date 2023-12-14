@@ -24,18 +24,30 @@ export interface IConnectionAPI {
   token?: string;
   username?: string;
   password?: string;
-  apiKey?: string;
-  dbUrl?: string;
   appId?: string;
   secretKey?: string;
+  dbUrl?: string;
   enableGraphql?: boolean;
   proxy: string;
   rateLimitPerHour?: number;
 }
 
 export interface IConnectionTestResult {
-  message: string;
   success: boolean;
+  message: string;
+  causes?: null;
+  data?: null;
+  tokens?: Array<{
+    token: string;
+    success: boolean;
+    login: string;
+    warning: boolean;
+  }>;
+}
+
+export interface IConnectionOldTestResult {
+  success: boolean;
+  message: string;
   login?: string;
   installations?: Array<{
     id: number;
@@ -61,13 +73,14 @@ export interface IConnection {
   name: string;
   status: IConnectionStatus;
   endpoint: string;
-  proxy: string;
   authMethod?: string;
   token?: string;
   username?: string;
   password?: string;
   appId?: string;
   secretKey?: string;
+  dbUrl?: string;
   enableGraphql?: boolean;
+  proxy: string;
   rateLimitPerHour?: number;
 }

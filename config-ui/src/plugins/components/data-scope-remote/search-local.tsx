@@ -17,8 +17,8 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { CheckCircleFilled } from '@ant-design/icons';
-import { Form, Select, Button, Input, Modal, message } from 'antd';
+import { CheckCircleFilled, SearchOutlined } from '@ant-design/icons';
+import { Form, Space, Tag, Button, Input, Modal, message } from 'antd';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import { MillerColumnsSelect } from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
@@ -60,11 +60,6 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
 
   const [query, setQuery] = useState('');
   const search = useDebounce(query, { wait: 500 });
-
-  const [selectedIds, selectedOptions] = useMemo(
-    () => [selectedScope.map((sc) => sc.id), selectedScope.map((sc) => ({ label: sc.fullName, value: sc.id }))],
-    [selectedScope],
-  );
 
   const scopes = useMemo(
     () =>
@@ -192,14 +187,22 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
   return (
     <Form layout="vertical">
       <Form.Item label={config.title} required>
-        <Select
-          style={{ width: '100%' }}
-          disabled
-          suffixIcon={null}
-          mode="tags"
-          value={selectedIds}
-          options={selectedOptions}
-        />
+        <Space wrap>
+          {selectedScope.length ? (
+            selectedScope.map((sc) => (
+              <Tag
+                key={sc.id}
+                color="blue"
+                closable
+                onClose={() => onChange(selectedScope.filter((it) => it.id !== sc.id))}
+              >
+                {sc.fullName}
+              </Tag>
+            ))
+          ) : (
+            <span>Please select scope...</span>
+          )}
+        </Space>
       </Form.Item>
       <Form.Item>
         {(status === 'loading' || status === 'cancel') && (
@@ -228,7 +231,9 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
         )}
       </Form.Item>
       <Form.Item>
-        {status === 'loaded' && <Input prefix="search" value={query} onChange={(e) => setQuery(e.target.value)} />}
+        {status === 'loaded' && (
+          <Input prefix={<SearchOutlined rev={undefined} />} value={query} onChange={(e) => setQuery(e.target.value)} />
+        )}
         <MillerColumnsSelect
           items={scopes}
           columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}

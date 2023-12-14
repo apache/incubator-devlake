@@ -18,24 +18,29 @@ limitations under the License.
 package parser
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-git/go-git/v5/plumbing/protocol/packp/capability"
 	"github.com/go-git/go-git/v5/plumbing/transport"
-	"github.com/go-git/go-git/v5/plumbing/transport/client"
-	"net"
-	"net/http"
-	"os"
-	"strings"
 
 	gogit "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/transport/client"
 	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
+	"github.com/spf13/cast"
 	ssh2 "golang.org/x/crypto/ssh"
+	"net"
+	"net/http"
 	neturl "net/url"
+	"os"
+	"regexp"
+	"strings"
+	"time"
 )
 
 // We have done comparison experiments for git2go and go-git, and the results show that git2go has better performance.
@@ -43,7 +48,7 @@ import (
 
 const DefaultUser = "git"
 
-func cloneOverSSH(ctx context.Context, url, dir, passphrase string, pk []byte) errors.Error {
+func cloneOverSSH(ctx plugin.SubTaskContext, url, dir, passphrase string, pk []byte) errors.Error {
 	key, err := ssh.NewPublicKeys(DefaultUser, pk, passphrase)
 	if err != nil {
 		return errors.Convert(err)
@@ -53,19 +58,32 @@ func cloneOverSSH(ctx context.Context, url, dir, passphrase string, pk []byte) e
 			return nil
 		},
 	}
-	_, err = gogit.PlainCloneContext(ctx, dir, true, &gogit.CloneOptions{
-		URL:  url,
-		Auth: key,
+	var data []byte
+	buf := bytes.NewBuffer(data)
+	done := make(chan struct{}, 1)
+	go refreshCloneProgress(ctx, done, buf)
+	_, err = gogit.PlainCloneContext(ctx.GetContext(), dir, true, &gogit.CloneOptions{
+		URL:      url,
+		Auth:     key,
+		Progress: buf,
 	})
+	done <- struct{}{}
 	if err != nil {
 		return errors.Convert(err)
 	}
 	return nil
 }
 
-func (l *GitRepoCreator) CloneOverHTTP(ctx context.Context, repoId, url, user, password, proxy string) (*GitRepo, errors.Error) {
+func (l *GitRepoCreator) CloneOverHTTP(ctx plugin.SubTaskContext, repoId, url, user, password, proxy string) (*GitRepo, errors.Error) {
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
-		cloneOptions := &gogit.CloneOptions{URL: url}
+		var data []byte
+		buf := bytes.NewBuffer(data)
+		done := make(chan struct{}, 1)
+		go refreshCloneProgress(ctx, done, buf)
+		cloneOptions := &gogit.CloneOptions{
+			URL:      url,
+			Progress: buf,
+		}
 		if proxy != "" {
 			proxyUrl, err := neturl.Parse(proxy)
 			if err != nil {
@@ -93,14 +111,15 @@ func (l *GitRepoCreator) CloneOverHTTP(ctx context.Context, repoId, url, user, p
 			}
 		}
 		// fmt.Printf("CloneOverHTTP clone opt: %+v\ndir: %v, repo: %v, id: %v, user: %v, passwd: %v, proxy: %v\n", cloneOptions, dir, url, repoId, user, password, proxy)
-		if isAzureRepo(ctx, url) {
+		if isAzureRepo(ctx.GetContext(), url) {
 			// https://github.com/go-git/go-git/issues/64
 			// https://github.com/go-git/go-git/blob/master/_examples/azure_devops/main.go#L34
 			transport.UnsupportedCapabilities = []capability.Capability{
 				capability.ThinPack,
 			}
 		}
-		_, err := gogit.PlainCloneContext(ctx, dir, true, cloneOptions)
+		_, err := gogit.PlainCloneContext(ctx.GetContext(), dir, true, cloneOptions)
+		done <- struct{}{}
 		if err != nil {
 			l.logger.Error(err, "PlainCloneContext")
 			return nil, err
@@ -109,7 +128,7 @@ func (l *GitRepoCreator) CloneOverHTTP(ctx context.Context, repoId, url, user, p
 	})
 }
 
-func (l *GitRepoCreator) CloneOverSSH(ctx context.Context, repoId, url, privateKey, passphrase string) (*GitRepo, errors.Error) {
+func (l *GitRepoCreator) CloneOverSSH(ctx plugin.SubTaskContext, repoId, url, privateKey, passphrase string) (*GitRepo, errors.Error) {
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
 		pk, err := base64.StdEncoding.DecodeString(privateKey)
 		if err != nil {
@@ -142,6 +161,45 @@ func withTempDirectory(f func(tempDir string) (*GitRepo, error)) (*GitRepo, erro
 	}
 	repo.cleanup = cleanup
 	return repo, errors.Convert(err)
+}
+
+func setCloneProgress(subTaskCtx plugin.SubTaskContext, cloneProgressInfo string) {
+	if cloneProgressInfo == "" {
+		return
+	}
+	re, err := regexp.Compile(`\d+/\d+`) // find strings like 12/123.
+	if err != nil {
+		panic(err)
+	}
+	progress := re.FindAllString(cloneProgressInfo, -1)
+	lenProgress := len(progress)
+	if lenProgress == 0 {
+		return
+	}
+	latestProgress := progress[lenProgress-1]
+	latestProgressInfo := strings.Split(latestProgress, "/")
+	if len(latestProgressInfo) == 2 {
+		step := latestProgressInfo[0]
+		total := latestProgressInfo[1]
+		subTaskCtx.SetProgress(cast.ToInt(step), cast.ToInt(total))
+	}
+}
+
+func refreshCloneProgress(subTaskCtx plugin.SubTaskContext, done chan struct{}, buf *bytes.Buffer) {
+	ticker := time.NewTicker(time.Second * 1)
+	func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				if buf != nil {
+					cloneProgressInfo := buf.String()
+					setCloneProgress(subTaskCtx, cloneProgressInfo)
+				}
+			}
+		}
+	}()
 }
 
 func isAzureRepo(ctx context.Context, repoUrl string) bool {

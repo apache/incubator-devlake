@@ -18,11 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
-import { Form, Card, Alert, Divider } from 'antd';
-import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { Flex, Form, Input, Card, Alert, Divider } from 'antd';
+import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { ExternalLink, FormItem, MultiSelector, Message, Buttons } from '@/components';
+import { ExternalLink, Block, MultiSelector, Message } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
@@ -36,7 +36,6 @@ import { BambooTransformation } from '@/plugins/register/bamboo';
 import { operator } from '@/utils';
 
 import { TIPS_MAP } from './misc';
-import * as S from './styled';
 
 interface Props {
   plugin: string;
@@ -113,10 +112,9 @@ export const ScopeConfigForm = ({
   };
 
   return (
-    <S.Wrapper>
+    <Flex vertical gap="middle">
       {TIPS_MAP[plugin] && (
         <Alert
-          style={{ marginBottom: 24 }}
           message={
             <>
               To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
@@ -128,18 +126,18 @@ export const ScopeConfigForm = ({
       {step === 1 && (
         <>
           <Card>
-            <FormItem
-              label="Scope Config Name"
-              subLabel="Give this Scope Config a unique name so that you can identify it in the future."
+            <Block
+              title="Scope Config Name"
+              description="Give this Scope Config a unique name so that you can identify it in the future."
               required
             >
-              <InputGroup placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
-            </FormItem>
+              <Input placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
+            </Block>
           </Card>
           <Card>
-            <FormItem
-              label="Data Entities"
-              subLabel={
+            <Block
+              title="Data Entities"
+              description={
                 <>
                   Select the data entities you wish to collect for the Data Scope.
                   <ExternalLink link="">Learn about data entities</ExternalLink>
@@ -154,7 +152,7 @@ export const ScopeConfigForm = ({
                 selectedItems={entities.map((it) => ({ label: EntitiesLabel[it], value: it }))}
                 onChangeItems={(its) => setEntities(its.map((it) => it.value))}
               />
-            </FormItem>
+            </Block>
             {showWarning && (
               <Message
                 content="Please note: if you edit Data Entities and expect to see the Dashboards updated, you will need to visit
@@ -163,15 +161,15 @@ export const ScopeConfigForm = ({
               />
             )}
           </Card>
-          <Buttons position="bottom" align="right">
+          <Flex justify="flex-end" gap="small">
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
             <Button disabled={!name || !entities.length} intent={Intent.PRIMARY} text="Next" onClick={handleNextStep} />
-          </Buttons>
+          </Flex>
         </>
       )}
       {step === 2 && (
         <>
-          <Card style={{ margin: 0 }}>
+          <Card>
             <h1 style={{ marginBottom: 16 }}>Transformations</h1>
             <Divider />
             {showWarning && (
@@ -252,7 +250,7 @@ export const ScopeConfigForm = ({
               )}
             </Form>
           </Card>
-          <Buttons position="bottom" align="right">
+          <Flex justify="flex-end" gap="small">
             <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
             <Button
               loading={operating}
@@ -261,9 +259,9 @@ export const ScopeConfigForm = ({
               text="Save"
               onClick={handleSubmit}
             />
-          </Buttons>
+          </Flex>
         </>
       )}
-    </S.Wrapper>
+    </Flex>
   );
 };
