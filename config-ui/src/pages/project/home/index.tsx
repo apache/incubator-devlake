@@ -18,12 +18,13 @@
 
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Table, Modal, message } from 'antd';
-import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
+import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, message } from 'antd';
+import { InputGroup, Checkbox, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, ExternalLink, IconButton } from '@/components';
+import { PageHeader, ExternalLink } from '@/components';
 import { getCron, cronPresets } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -120,7 +121,11 @@ export const ProjectHomePage = () => {
   return (
     <PageHeader
       breadcrumbs={[{ name: 'Projects', path: '/projects' }]}
-      extra={<Button intent={Intent.PRIMARY} icon="plus" text="New Project" onClick={handleShowDialog} />}
+      extra={
+        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowDialog}>
+          New Project
+        </Button>
+      }
     >
       <Table
         rowKey="name"
@@ -187,9 +192,9 @@ export const ProjectHomePage = () => {
             width: 100,
             align: 'center',
             render: (name: any) => (
-              <IconButton
-                icon="cog"
-                tooltip="Detail"
+              <Button
+                type="primary"
+                icon={<SettingOutlined rev={undefined} />}
                 onClick={() => navigate(`/projects/${encodeName(name)}?tab=configuration`)}
               />
             ),

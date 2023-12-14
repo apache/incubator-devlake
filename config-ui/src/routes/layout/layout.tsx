@@ -19,10 +19,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
-import { Layout as AntdLayout, Menu, Divider } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import { Layout as AntdLayout, Menu, Divider, Button } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
+import { PageLoading, Logo, ExternalLink } from '@/components';
 import { init, selectError, selectStatus } from '@/features';
 import { TipsContextProvider, TipsContextConsumer } from '@/store';
 
@@ -129,7 +130,7 @@ export const Layout = () => {
               <CSSTransition in={!!tips} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
                 <S.Tips ref={tipsRef}>
                   <div className="content">{tips}</div>
-                  <IconButton style={{ color: '#fff' }} icon="cross" tooltip="Close" onClick={() => setTips('')} />
+                  <Button type="primary" icon={<CloseOutlined rev={undefined} />} onClick={() => setTips('')} />
                 </S.Tips>
               </CSSTransition>
             </AntdLayout>

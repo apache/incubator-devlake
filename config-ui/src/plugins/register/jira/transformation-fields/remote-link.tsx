@@ -17,11 +17,12 @@
  */
 
 import { useEffect, useState } from 'react';
-import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
+import { InputGroup } from '@blueprintjs/core';
 import { useDebounce } from 'ahooks';
 
 import API from '@/api';
-import { IconButton } from '@/components';
 import { operator } from '@/utils';
 
 import * as S from './styled';
@@ -98,20 +99,25 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
               }}
             />
             {links.length > 1 && (
-              <IconButton loading={generating} icon="cross" tooltip="Delete" onClick={() => handleDeleteLink(i)} />
+              <Button
+                type="primary"
+                loading={generating}
+                icon={<CloseOutlined rev={undefined} />}
+                onClick={() => handleDeleteLink(i)}
+              />
             )}
           </div>
           {index === i && error && <div className="error">{error}</div>}
         </div>
       ))}
       <Button
-        outlined
+        type="primary"
         loading={generating}
-        intent={Intent.PRIMARY}
-        icon="add"
-        text="Add a Pattern"
+        icon={<PlusOutlined rev={undefined} />}
         onClick={() => handleAddLink()}
-      />
+      >
+        Add a Pattern
+      </Button>
     </S.RemoteLinkWrapper>
   );
 };

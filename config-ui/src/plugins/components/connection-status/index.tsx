@@ -16,10 +16,11 @@
  *
  */
 
+import { RedoOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 import styled from 'styled-components';
 
 import { useAppDispatch } from '@/app/hook';
-import { IconButton } from '@/components';
 import { testConnection } from '@/features/connections';
 import { IConnection, IConnectionStatus } from '@/types';
 import { operator } from '@/utils';
@@ -59,7 +60,11 @@ export const ConnectionStatus = ({ connection }: Props) => {
     <Wrapper>
       <span className={status}>{STATUS_MAP[status]}</span>
       {status !== IConnectionStatus.ONLINE && (
-        <IconButton loading={status === IConnectionStatus.TESTING} icon="repeat" tooltip="Retry" onClick={handleTest} />
+        <Button
+          loading={status === IConnectionStatus.TESTING}
+          icon={<RedoOutlined rev={undefined} />}
+          onClick={handleTest}
+        />
       )}
     </Wrapper>
   );

@@ -17,17 +17,14 @@
  */
 
 import { useState } from 'react';
-import { Flex, Table, Space } from 'antd';
-import { Button, Intent } from '@blueprintjs/core';
+import { EyeOutlined, FormOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Flex, Table, Space, Button } from 'antd';
 
 import { useAppSelector } from '@/app/hook';
-import { IconButton } from '@/components';
 import { selectWebhooks } from '@/features/connections';
 import { IWebhook } from '@/types';
 
 import { CreateDialog, ViewDialog, EditDialog, DeleteDialog } from './components';
-
-import * as S from './styled';
 
 type Type = 'add' | 'edit' | 'show' | 'delete';
 
@@ -77,9 +74,21 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
             align: 'center',
             render: (_, row) => (
               <Space>
-                <IconButton icon="eye-open" tooltip="View" onClick={() => handleShowDialog('show', row)} />
-                <IconButton icon="annotation" tooltip="Edit" onClick={() => handleShowDialog('edit', row)} />
-                <IconButton icon="trash" tooltip="Delete" onClick={() => handleShowDialog('delete', row)} />
+                <Button
+                  type="primary"
+                  icon={<EyeOutlined rev={undefined} />}
+                  onClick={() => handleShowDialog('show', row)}
+                />
+                <Button
+                  type="primary"
+                  icon={<FormOutlined rev={undefined} />}
+                  onClick={() => handleShowDialog('edit', row)}
+                />
+                <Button
+                  type="primary"
+                  icon={<DeleteOutlined rev={undefined} />}
+                  onClick={() => handleShowDialog('delete', row)}
+                />
               </Space>
             ),
           },
@@ -88,7 +97,9 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
         pagination={false}
       />
       <Flex>
-        <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
+        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={() => handleShowDialog('add')}>
+          Add a Webhook
+        </Button>
       </Flex>
       {type === 'add' && <CreateDialog open onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />}
       {type === 'show' && currentID && <ViewDialog initialId={currentID} onCancel={handleHideDialog} />}
