@@ -86,6 +86,7 @@ type SonarqubeApiParams struct {
 }
 
 type SonarqubeScopeConfig struct {
+	common.ScopeConfig
 }
 
 func (s SonarqubeScopeConfig) TableName() string {

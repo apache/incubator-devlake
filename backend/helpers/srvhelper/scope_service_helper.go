@@ -111,7 +111,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeLatestSyncState(pkv ...interfa
 		return nil, err
 	}
 	defer rows.Close()
-	var scopeSyncStates []*models.LatestSyncState
+	scopeSyncStates := []*models.LatestSyncState{}
 	for rows.Next() {
 		var result models.LatestSyncState
 		if err := scopeSrv.db.Fetch(rows, &result); err != nil {
