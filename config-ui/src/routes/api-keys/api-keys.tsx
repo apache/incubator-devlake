@@ -17,12 +17,12 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Table, Modal, Input } from 'antd';
+import { Table, Modal, Input, Select } from 'antd';
 import { Button, Tag, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Block, Selector, ExternalLink, CopyText, Message } from '@/components';
+import { PageHeader, Block, ExternalLink, CopyText, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
@@ -53,8 +53,8 @@ export const ApiKeys = () => {
   const [dataSource, total] = useMemo(() => [data?.apikeys ?? [], data?.count ?? 0], [data]);
   const hasError = useMemo(() => !form.name || !form.allowedPath, [form]);
 
-  const timeSelectedItem = useMemo(() => {
-    return C.timeOptions.find((it) => it.value === form.expiredAt || !it.value);
+  const timeSelectedValue = useMemo(() => {
+    return C.timeOptions.find((it) => it.value === form.expiredAt || !it.value)?.value;
   }, [form.expiredAt]);
 
   const handleCancel = () => {
@@ -174,15 +174,12 @@ export const ApiKeys = () => {
             />
           </Block>
           <Block title="Expiration" description="Set an expiration time for your API key." required>
-            <div style={{ width: 386 }}>
-              <Selector
-                items={C.timeOptions}
-                getKey={(it) => it.value}
-                getName={(it) => it.label}
-                selectedItem={timeSelectedItem}
-                onChangeItem={(it) => setForm({ ...form, expiredAt: it.value ? it.value : undefined })}
-              />
-            </div>
+            <Select
+              style={{ width: 386 }}
+              options={C.timeOptions}
+              value={timeSelectedValue}
+              onChange={(value) => setForm({ ...form, expiredAt: value ? value : undefined })}
+            />
           </Block>
           <Block
             title="Allowed Path"

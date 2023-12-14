@@ -19,10 +19,10 @@
 import { useEffect, useState } from 'react';
 import { uniqWith } from 'lodash';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { theme, Collapse, Tag, Form } from 'antd';
+import { theme, Collapse, Tag, Form, Select } from 'antd';
 
 import API from '@/api';
-import { MultiSelector, PageLoading } from '@/components';
+import { PageLoading } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
 
 enum StandardType {
@@ -211,20 +211,15 @@ const renderCollapseItems = ({
             and `Bug age` in built-in dashboards.
           </p>
           <Form.Item label="Requirement">
-            <MultiSelector
-              items={typeList}
-              disabledItems={typeList.filter((v) => [...bugTypeList, ...incidentTypeList].includes(v.id))}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              selectedItems={typeList.filter((v) => featureTypeList.includes(v.id))}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={typeList.map((it) => ({ label: it.name, value: it.id }))}
+              value={featureTypeList}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
-                    ...transformaType(
-                      selectedItems.map((v) => v.id),
-                      StandardType.Requirement,
-                    ),
+                    ...transformaType(value, StandardType.Requirement),
                     ...transformaType(bugTypeList, StandardType.Bug),
                     ...transformaType(incidentTypeList, StandardType.Incident),
                   },
@@ -233,21 +228,16 @@ const renderCollapseItems = ({
             />
           </Form.Item>
           <Form.Item label="Bug">
-            <MultiSelector
-              items={typeList}
-              disabledItems={typeList.filter((v) => [...featureTypeList, ...incidentTypeList].includes(v.id))}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              selectedItems={typeList.filter((v) => bugTypeList.includes(v.id))}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={typeList.map((it) => ({ label: it.name, value: it.id }))}
+              value={bugTypeList}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
                     ...transformaType(featureTypeList, StandardType.Requirement),
-                    ...transformaType(
-                      selectedItems.map((v) => v.id),
-                      StandardType.Bug,
-                    ),
+                    ...transformaType(value, StandardType.Bug),
                     ...transformaType(incidentTypeList, StandardType.Incident),
                   },
                 })
@@ -264,22 +254,17 @@ const renderCollapseItems = ({
               </>
             }
           >
-            <MultiSelector
-              items={typeList}
-              disabledItems={typeList.filter((v) => [...featureTypeList, ...bugTypeList].includes(v.id))}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              selectedItems={typeList.filter((v) => incidentTypeList.includes(v.id))}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={typeList.map((it) => ({ label: it.name, value: it.id }))}
+              value={incidentTypeList}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
                     ...transformaType(featureTypeList, StandardType.Requirement),
                     ...transformaType(bugTypeList, StandardType.Bug),
-                    ...transformaType(
-                      selectedItems.map((v) => v.id),
-                      StandardType.Incident,
-                    ),
+                    ...transformaType(value, StandardType.Incident),
                   },
                 })
               }
@@ -290,20 +275,15 @@ const renderCollapseItems = ({
             Delivery Rate` in built-in dashboards.
           </p>
           <Form.Item label="TODO">
-            <MultiSelector
-              items={statusList}
-              disabledItems={statusList.filter((v) => [...inProgressStatusList, ...doneStatusList].includes(v.name))}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              selectedItems={statusList.filter((v) => todoStatusList.includes(v.name))}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={statusList.map((it) => ({ label: it.name, value: it.id }))}
+              value={todoStatusList}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   statusMappings: {
-                    ...transformaType(
-                      selectedItems.map((v) => v.name),
-                      StandardStatus.Todo,
-                    ),
+                    ...transformaType(value, StandardStatus.Todo),
                     ...transformaType(inProgressStatusList, StandardStatus.InProgress),
                     ...transformaType(doneStatusList, StandardStatus.Done),
                   },
@@ -312,21 +292,16 @@ const renderCollapseItems = ({
             />
           </Form.Item>
           <Form.Item label="IN-PROGRESS">
-            <MultiSelector
-              items={statusList}
-              disabledItems={statusList.filter((v) => [...todoStatusList, ...doneStatusList].includes(v.name))}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              selectedItems={statusList.filter((v) => inProgressStatusList.includes(v.name))}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={statusList.map((it) => ({ label: it.name, value: it.id }))}
+              value={inProgressStatusList}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   statusMappings: {
                     ...transformaType(todoStatusList, StandardStatus.Todo),
-                    ...transformaType(
-                      selectedItems.map((v) => v.name),
-                      StandardStatus.InProgress,
-                    ),
+                    ...transformaType(value, StandardStatus.InProgress),
                     ...transformaType(doneStatusList, StandardStatus.Done),
                   },
                 })
@@ -334,22 +309,17 @@ const renderCollapseItems = ({
             />
           </Form.Item>
           <Form.Item label="DONE">
-            <MultiSelector
-              items={statusList}
-              disabledItems={statusList.filter((v) => [...todoStatusList, ...inProgressStatusList].includes(v.name))}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              selectedItems={statusList.filter((v) => doneStatusList.includes(v.name))}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={statusList.map((it) => ({ label: it.name, value: it.id }))}
+              value={doneStatusList}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   statusMappings: {
                     ...transformaType(todoStatusList, StandardStatus.Todo),
                     ...transformaType(inProgressStatusList, StandardStatus.InProgress),
-                    ...transformaType(
-                      selectedItems.map((v) => v.name),
-                      StandardStatus.Done,
-                    ),
+                    ...transformaType(value, StandardStatus.Done),
                   },
                 })
               }

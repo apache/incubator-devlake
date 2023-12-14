@@ -18,9 +18,9 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { theme, Collapse, Tag, Form, Input, Checkbox } from 'antd';
+import { theme, Collapse, Tag, Form, Input, Checkbox, Select } from 'antd';
 
-import { ExternalLink, HelpTooltip, MultiSelector } from '@/components';
+import { ExternalLink, HelpTooltip } from '@/components';
 import { DOC_URL } from '@/release';
 
 import ExampleJpg from './assets/bitbucket-example.jpg';
@@ -127,55 +127,53 @@ const renderCollapseItems = ({
       children: (
         <div className="list">
           <Form.Item label="TODO">
-            <MultiSelector
-              items={ALL_STATES}
-              disabledItems={selectedStates}
-              selectedItems={transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={ALL_STATES.map((it) => ({ label: it, value: it }))}
+              value={transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
-                  issueStatusTodo: selectedItems.join(','),
+                  issueStatusTodo: value.join(','),
                 })
               }
             />
           </Form.Item>
           <Form.Item label="IN-PROGRESS">
-            <MultiSelector
-              items={ALL_STATES}
-              disabledItems={selectedStates}
-              selectedItems={
-                transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []
-              }
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={ALL_STATES.map((it) => ({ label: it, value: it }))}
+              value={transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
-                  issueStatusInProgress: selectedItems.join(','),
+                  issueStatusInProgress: value.join(','),
                 })
               }
             />
           </Form.Item>
           <Form.Item label="DONE">
-            <MultiSelector
-              items={ALL_STATES}
-              disabledItems={selectedStates}
-              selectedItems={transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={ALL_STATES.map((it) => ({ label: it, value: it }))}
+              value={transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
-                  issueStatusDone: selectedItems.join(','),
+                  issueStatusDone: value.join(','),
                 })
               }
             />
           </Form.Item>
           <Form.Item label="OTHER">
-            <MultiSelector
-              items={ALL_STATES}
-              disabledItems={selectedStates}
-              selectedItems={transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={ALL_STATES.map((it) => ({ label: it, value: it }))}
+              value={transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
-                  issueStatusOther: selectedItems.join(','),
+                  issueStatusOther: value.join(','),
                 })
               }
             />
