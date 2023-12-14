@@ -122,7 +122,7 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
         dataSource={dataSource}
         pagination={pagination}
       />
-      {JSON && <Inspector isOpen title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
+      {JSON && <Inspector open title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
       {id && (
         <Modal open width={820} centered title={`Pipeline ${id}`} footer={null} onCancel={() => setId(null)}>
           <PipelineTasks id={id} />
