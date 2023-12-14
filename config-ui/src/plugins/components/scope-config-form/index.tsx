@@ -18,8 +18,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
-import { Flex, Form, Card, Alert, Divider } from 'antd';
-import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { Flex, Form, Input, Card, Alert, Divider } from 'antd';
+import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
 import { ExternalLink, Block, MultiSelector, Message } from '@/components';
@@ -131,7 +131,7 @@ export const ScopeConfigForm = ({
               description="Give this Scope Config a unique name so that you can identify it in the future."
               required
             >
-              <InputGroup placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
             </Block>
           </Card>
           <Card>

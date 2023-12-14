@@ -18,8 +18,7 @@
 
 import { useEffect, useState } from 'react';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
-import { InputGroup } from '@blueprintjs/core';
+import { Input, Button } from 'antd';
 import { useDebounce } from 'ahooks';
 
 import API from '@/api';
@@ -84,7 +83,7 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
       {links.map((link, i) => (
         <div key={i} className="input">
           <div className="inner">
-            <InputGroup
+            <Input
               key={i}
               placeholder="E.g. https://gitlab.com/{namespace}/{repo_name}/-/commit/{commit_sha}"
               value={index === i ? pattern : link.pattern}

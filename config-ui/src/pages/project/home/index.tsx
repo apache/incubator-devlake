@@ -19,8 +19,8 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import { Table, Button, Modal, message } from 'antd';
-import { InputGroup, Checkbox, FormGroup } from '@blueprintjs/core';
+import { Table, Button, Modal, Input, message } from 'antd';
+import { Checkbox, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -229,7 +229,7 @@ export const ProjectHomePage = () => {
             }
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
           >
-            <InputGroup
+            <Input
               style={{ width: 386 }}
               placeholder="Your Project Name"
               value={name}

@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Select } from 'antd';
-import { FormGroup, InputGroup, TextArea } from '@blueprintjs/core';
+import { Select, Input } from 'antd';
+import { FormGroup, TextArea } from '@blueprintjs/core';
 
 import API from '@/api';
 import { ExternalLink } from '@/components';
@@ -153,7 +153,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
     >
       <S.Input>
         <div className="input">
-          <InputGroup
+          <Input
             placeholder="App Id"
             type="text"
             value={settings.appId ?? ''}

@@ -17,8 +17,8 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Table, Modal } from 'antd';
-import { Button, Tag, Intent, InputGroup } from '@blueprintjs/core';
+import { Table, Modal, Input } from 'antd';
+import { Button, Tag, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -166,7 +166,7 @@ export const ApiKeys = () => {
           onOk={handleSubmit}
         >
           <Block title="API Key Name" description="Give your API key a unique name to identify in the future." required>
-            <InputGroup
+            <Input
               style={{ width: 386 }}
               placeholder="My API Key"
               value={form.name}
@@ -197,7 +197,7 @@ export const ApiKeys = () => {
           >
             <S.InputContainer>
               <span>{prefix}</span>
-              <InputGroup
+              <Input
                 placeholder=""
                 value={form.allowedPath}
                 onChange={(e) => setForm({ ...form, allowedPath: e.target.value })}
