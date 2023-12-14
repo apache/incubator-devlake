@@ -20,10 +20,7 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
 )
-
-type ScopeSyncState = srvhelper.ScopeSyncState
 
 // GetScopeLatestSyncState get one GitHub repo's latest sync state
 // @Summary get one GitHub repo's latest sync state
@@ -31,7 +28,7 @@ type ScopeSyncState = srvhelper.ScopeSyncState
 // @Tags plugins/github
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
-// @Success 200  {object} ScopeSyncState
+// @Success 200  {object} []models.LatestSyncState
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId}/latest-sync-state [GET]
