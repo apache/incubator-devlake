@@ -19,8 +19,8 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import { Flex, Table, Modal, Radio, Button } from 'antd';
-import { Tag, Intent, FormGroup, InputGroup } from '@blueprintjs/core';
+import { Flex, Table, Modal, Radio, Button, Input } from 'antd';
+import { Tag, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -235,7 +235,7 @@ export const BlueprintHomePage = () => {
             }
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
           >
-            <InputGroup
+            <Input
               style={{ width: 386 }}
               placeholder="Your Blueprint Name"
               value={name}

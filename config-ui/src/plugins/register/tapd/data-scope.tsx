@@ -17,7 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Button, ControlGroup, InputGroup, Intent } from '@blueprintjs/core';
+import { Input } from 'antd';
+import { Button, ControlGroup, Intent } from '@blueprintjs/core';
 import type { McsID, McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
@@ -92,7 +93,7 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
       </ExternalLink>
 
       <ControlGroup fill={false} vertical={false} style={{ padding: '8px 0' }}>
-        <InputGroup
+        <Input
           placeholder="Your company ID"
           value={companyId}
           style={{ width: 300 }}

@@ -18,7 +18,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Tag, Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
+import { Tag, Checkbox, FormGroup, Radio, RadioGroup } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
 import { DateInput2 } from '@blueprintjs/datetime2';
 
@@ -148,31 +149,31 @@ export const SyncPolicy = ({
             <>
               <S.Input>
                 <FormGroup label="Minute">
-                  <InputGroup
+                  <Input
                     value={mintue}
                     onChange={(e) => onChangeCronConfig([e.target.value, hour, day, month, week].join(' '))}
                   />
                 </FormGroup>
                 <FormGroup label="Hour">
-                  <InputGroup
+                  <Input
                     value={hour}
                     onChange={(e) => onChangeCronConfig([mintue, e.target.value, day, month, week].join(' '))}
                   />
                 </FormGroup>
                 <FormGroup label="Day">
-                  <InputGroup
+                  <Input
                     value={day}
                     onChange={(e) => onChangeCronConfig([mintue, hour, e.target.value, month, week].join(' '))}
                   />
                 </FormGroup>
                 <FormGroup label="Month">
-                  <InputGroup
+                  <Input
                     value={month}
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, e.target.value, week].join(' '))}
                   />
                 </FormGroup>
                 <FormGroup label="Week">
-                  <InputGroup
+                  <Input
                     value={week}
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, month, e.target.value].join(' '))}
                   />

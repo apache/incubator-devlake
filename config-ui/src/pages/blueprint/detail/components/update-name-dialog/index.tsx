@@ -17,8 +17,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Modal } from 'antd';
-import { InputGroup } from '@blueprintjs/core';
+import { Modal, Input } from 'antd';
 
 interface Props {
   name: string;
@@ -48,7 +47,7 @@ export const UpdateNameDialog = ({ operating, onCancel, onSubmit, ...props }: Pr
     >
       <h3>Blueprint Name</h3>
       <p>Give your Blueprint a unique name to help you identify it in the future.</p>
-      <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
+      <Input value={name} onChange={(e) => setName(e.target.value)} />
     </Modal>
   );
 };

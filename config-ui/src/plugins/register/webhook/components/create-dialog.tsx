@@ -17,8 +17,8 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Modal } from 'antd';
-import { InputGroup, Icon } from '@blueprintjs/core';
+import { Modal, Input } from 'antd';
+import { Icon } from '@blueprintjs/core';
 
 import { useAppDispatch } from '@/app/hook';
 import { Block, CopyText, ExternalLink } from '@/components';
@@ -122,7 +122,7 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
             description="Give your Webhook a unique name to help you identify it in the future."
             required
           >
-            <InputGroup placeholder="Webhook Name" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input placeholder="Webhook Name" value={name} onChange={(e) => setName(e.target.value)} />
           </Block>
         </S.Wrapper>
       )}

@@ -17,8 +17,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Modal } from 'antd';
-import { InputGroup } from '@blueprintjs/core';
+import { Modal, Input } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { Block } from '@/components';
@@ -66,7 +65,7 @@ export const EditDialog = ({ initialId, onCancel }: Props) => {
       onOk={handleSubmit}
     >
       <Block title="Name" required>
-        <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
+        <Input value={name} onChange={(e) => setName(e.target.value)} />
       </Block>
     </Modal>
   );
