@@ -17,7 +17,9 @@
  */
 
 import { useState } from 'react';
-import { Button, Collapse, Icon } from '@blueprintjs/core';
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
+import { Collapse, Icon } from '@blueprintjs/core';
 import { groupBy, sortBy } from 'lodash';
 
 import API from '@/api';
@@ -112,9 +114,9 @@ export const PipelineTasks = ({ id, style }: Props) => {
         </Collapse>
       </div>
       <Button
+        size="small"
         className="collapse-control"
-        minimal
-        icon={isOpen ? 'chevron-down' : 'chevron-up'}
+        icon={isOpen ? <DownOutlined rev={undefined} /> : <UpOutlined rev={undefined} />}
         onClick={handleToggleOpen}
       />
     </S.Tasks>

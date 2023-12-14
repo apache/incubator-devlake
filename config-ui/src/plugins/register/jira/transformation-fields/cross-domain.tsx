@@ -17,7 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Radio, Icon, Collapse, Button } from '@blueprintjs/core';
+import { Button } from 'antd';
+import { Radio, Icon, Collapse } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
@@ -100,10 +101,9 @@ export const CrossDomain = ({ connectionId, transformation, setTransformation }:
                     <span>{transformation.remotelinkRepoPattern[0]?.pattern}</span>
                   </div>
                 )}
-                <Button
-                  text={!transformation.applicationType ? 'Configure' : 'Edit Configuration'}
-                  onClick={() => setOpen(true)}
-                />
+                <Button onClick={() => setOpen(true)}>
+                  {!transformation.applicationType ? 'Configure' : 'Edit Configuration'}
+                </Button>
                 <DevPanel
                   connectionId={connectionId}
                   transformation={transformation}

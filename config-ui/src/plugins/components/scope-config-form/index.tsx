@@ -18,12 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
-import { Flex, Form, Input, Card, Alert, Divider, Select } from 'antd';
-import { Button, Intent } from '@blueprintjs/core';
+import { Flex, Form, Input, Card, Alert, Divider, Select, Button } from 'antd';
 
 import API from '@/api';
 import { ExternalLink, Block, Message } from '@/components';
-import { transformEntities, EntitiesLabel } from '@/config';
+import { transformEntities } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
 import { JiraTransformation } from '@/plugins/register/jira';
@@ -162,8 +161,10 @@ export const ScopeConfigForm = ({
             )}
           </Card>
           <Flex justify="flex-end" gap="small">
-            <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-            <Button disabled={!name || !entities.length} intent={Intent.PRIMARY} text="Next" onClick={handleNextStep} />
+            <Button onClick={onCancel}>Cancel</Button>
+            <Button type="primary" disabled={!name || !entities.length} onClick={handleNextStep}>
+              Next
+            </Button>
           </Flex>
         </>
       )}
@@ -251,14 +252,10 @@ export const ScopeConfigForm = ({
             </Form>
           </Card>
           <Flex justify="flex-end" gap="small">
-            <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
-            <Button
-              loading={operating}
-              disabled={hasError}
-              intent={Intent.PRIMARY}
-              text="Save"
-              onClick={handleSubmit}
-            />
+            <Button onClick={handlePrevStep}>Prev</Button>
+            <Button type="primary" loading={operating} disabled={hasError} onClick={handleSubmit}>
+              Save
+            </Button>
           </Flex>
         </>
       )}

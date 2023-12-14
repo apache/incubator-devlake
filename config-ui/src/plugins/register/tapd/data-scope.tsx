@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Input } from 'antd';
-import { Button, ControlGroup, Intent } from '@blueprintjs/core';
+import { Input, Button } from 'antd';
+import { ControlGroup } from '@blueprintjs/core';
 import type { McsID, McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
@@ -102,7 +102,7 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
             localStorage.setItem(`plugin/tapd/connections/${connectionId}/company_id`, e.target.value);
           }}
         />
-        <Button intent={Intent.PRIMARY} onClick={() => getPageToken(companyId)}>
+        <Button type="primary" onClick={() => getPageToken(companyId)}>
           Search
         </Button>
       </ControlGroup>

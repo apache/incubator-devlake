@@ -17,8 +17,8 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { Card, Flex } from 'antd';
-import { Icon, Colors, Button, Intent } from '@blueprintjs/core';
+import { Card, Flex, Button } from 'antd';
+import { Icon, Colors } from '@blueprintjs/core';
 
 interface Props {
   error: string | Error;
@@ -40,11 +40,14 @@ export const Exception = ({ error }: Props) => {
         solutions to common issues.
       </p>
       <Flex justify="center">
-        <Button text="Continue" intent={Intent.PRIMARY} onClick={handleResetError} />
+        <Button type="primary" onClick={handleResetError}>
+          Continue
+        </Button>
         <Button
-          text="Visit GitHub"
           onClick={() => window.open('https://github.com/apache/incubator-devlake', '_blank', 'noopener,noreferrer')}
-        />
+        >
+          Visit GitHub
+        </Button>
       </Flex>
     </Card>
   );

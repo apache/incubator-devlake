@@ -18,8 +18,8 @@
 
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Flex, Table, Popconfirm, Modal } from 'antd';
-import { Button, Intent } from '@blueprintjs/core';
+import { DeleteOutlined, FormOutlined } from '@ant-design/icons';
+import { Flex, Table, Popconfirm, Modal, Button } from 'antd';
 
 import API from '@/api';
 import { PageLoading, PageHeader, ExternalLink, Message } from '@/components';
@@ -108,7 +108,9 @@ export const BlueprintConnectionDetailPage = () => {
     setTips(
       <Flex gap="middle">
         <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
-        <Button loading={operating} intent={Intent.PRIMARY} text="Recollect Data" onClick={() => handleRunBP(false)} />
+        <Button type="primary" loading={operating} onClick={() => handleRunBP(false)}>
+          Recollect Data
+        </Button>
       </Flex>,
     );
   };
@@ -196,17 +198,21 @@ export const BlueprintConnectionDetailPage = () => {
           okText="Confirm"
           onConfirm={handleRemoveConnection}
         >
-          <Button intent={Intent.DANGER} icon="trash">
+          <Button type="primary" danger icon={<DeleteOutlined rev={undefined} />}>
             Remove this Connection
           </Button>
         </Popconfirm>
       </S.Top>
       <Flex vertical gap="middle">
         <Flex>
-          <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
+          <Button type="primary" icon={<FormOutlined rev={undefined} />} onClick={handleShowDataScope}>
+            Manage Data Scope
+          </Button>
           {pluginConfig.scopeConfig && (
             <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
-              <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />
+              <Button type="primary" icon={<FormOutlined rev={undefined} />}>
+                Edit Scope Config
+              </Button>
             </ExternalLink>
           )}
         </Flex>
