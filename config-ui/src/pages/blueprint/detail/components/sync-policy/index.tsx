@@ -18,8 +18,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Input } from 'antd';
-import { Tag, Checkbox, Radio, RadioGroup } from '@blueprintjs/core';
+import type { RadioChangeEvent } from 'antd';
+import { Radio, Space, Input } from 'antd';
+import { Tag, Checkbox } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
 import { DateInput2 } from '@blueprintjs/datetime2';
 
@@ -80,8 +81,8 @@ export const SyncPolicy = ({
 
   const [mintue, hour, day, month, week] = useMemo(() => cronConfig.split(' '), [cronConfig]);
 
-  const handleChangeFrequency = (e: React.FormEvent<HTMLInputElement>) => {
-    const value = (e.target as HTMLInputElement).value;
+  const handleChangeFrequency = (e: RadioChangeEvent) => {
+    const value = e.target.value;
     setSelectedValue(value);
     if (value === 'Manual') {
       onChangeIsManual(true);
@@ -140,11 +141,13 @@ export const SyncPolicy = ({
           title="Sync Frequency"
           description="Blueprints will run on creation and recurringly based on the schedule."
         >
-          <RadioGroup selectedValue={selectedValue} onChange={handleChangeFrequency}>
-            {cronOpts.map(({ label, subLabel }) => (
-              <Radio key={label} label={`${label} ${subLabel}`} value={label} />
-            ))}
-          </RadioGroup>
+          <Radio.Group value={selectedValue} onChange={handleChangeFrequency}>
+            <Space direction="vertical">
+              {cronOpts.map(({ label, subLabel }) => (
+                <Radio key={label} value={label}>{`${label} ${subLabel}`}</Radio>
+              ))}
+            </Space>
+          </Radio.Group>
           {selectedValue === 'Custom' && (
             <>
               <S.Input>
