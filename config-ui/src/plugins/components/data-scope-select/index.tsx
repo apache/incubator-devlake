@@ -17,8 +17,8 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Flex, Select } from 'antd';
-import { Button, Intent } from '@blueprintjs/core';
+import { RedoOutlined, PlusOutlined } from '@ant-design/icons';
+import { Flex, Select, Button } from 'antd';
 import { useDebounce } from 'ahooks';
 import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
@@ -130,7 +130,9 @@ export const DataScopeSelect = ({
             />
           ) : (
             <Flex>
-              <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
+              <Button type="primary" icon={<RedoOutlined rev={undefined} />}>
+                Refresh Data Scope
+              </Button>
             </Flex>
           )}
           <Select
@@ -153,14 +155,18 @@ export const DataScopeSelect = ({
             onSelectItemIds={setSelectedIds}
           />
           <Flex justify="flex-end" gap="small">
-            <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-            <Button disabled={!selectedIds.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
+            <Button onClick={onCancel}>Cancel</Button>
+            <Button type="primary" disabled={!selectedIds.length} onClick={handleSubmit}>
+              Save
+            </Button>
           </Flex>
         </Flex>
       ) : (
         <Flex>
           <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
-            <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" />
+            <Button type="primary" icon={<PlusOutlined rev={undefined} />}>
+              Add Data Scope
+            </Button>
           </ExternalLink>
         </Flex>
       )}

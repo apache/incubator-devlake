@@ -17,8 +17,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Modal } from 'antd';
-import { Button, Intent } from '@blueprintjs/core';
+import { Modal, Button } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { Block, CopyText, ExternalLink, Message } from '@/components';
@@ -128,7 +127,9 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
           description="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."
         >
           {!apiKey ? (
-            <Button intent={Intent.PRIMARY} text="Revoke and generate a new key" onClick={() => setOpen(true)} />
+            <Button type="primary" onClick={() => setOpen(true)}>
+              Revoke and generate a new key
+            </Button>
           ) : (
             <>
               <S.ApiKey>

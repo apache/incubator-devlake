@@ -17,8 +17,8 @@
  */
 
 import { useState } from 'react';
-import { Card, Flex } from 'antd';
-import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
+import { Card, Flex, Button } from 'antd';
+import { Icon, Colors } from '@blueprintjs/core';
 import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
@@ -53,12 +53,9 @@ export const NeedsDBMigrate = () => {
         Warning: Performing migration may wipe collected data for consistency and re-collecting data may be required.
       </p>
       <Flex justify="center">
-        <Button
-          loading={operating}
-          text="Proceed to Database Migration"
-          intent={Intent.PRIMARY}
-          onClick={handleSubmit}
-        />
+        <Button type="primary" loading={operating} onClick={handleSubmit}>
+          Proceed to Database Migration
+        </Button>
       </Flex>
     </Card>
   );

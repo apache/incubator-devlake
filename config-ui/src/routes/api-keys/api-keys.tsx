@@ -17,8 +17,9 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Table, Modal, Input, Select } from 'antd';
-import { Button, Tag, Intent } from '@blueprintjs/core';
+import { PlusOutlined } from '@ant-design/icons';
+import { Table, Modal, Input, Select, Button } from 'antd';
+import { Tag } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -93,7 +94,11 @@ export const ApiKeys = () => {
   return (
     <PageHeader
       breadcrumbs={[{ name: 'API Keys', path: '/keys' }]}
-      extra={<Button intent={Intent.PRIMARY} icon="plus" text="New API Key" onClick={() => setModal('create')} />}
+      extra={
+        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={() => setModal('create')}>
+          New API Key
+        </Button>
+      }
     >
       <p>You can generate and manage your API keys to access the DevLake API.</p>
       <Table
@@ -132,14 +137,16 @@ export const ApiKeys = () => {
             width: 100,
             render: (id) => (
               <Button
-                small
-                intent={Intent.DANGER}
-                text="Revoke"
+                size="small"
+                type="primary"
+                danger
                 onClick={() => {
                   setCurrentId(id);
                   setModal('delete');
                 }}
-              />
+              >
+                Revoke
+              </Button>
             ),
           },
         ]}
