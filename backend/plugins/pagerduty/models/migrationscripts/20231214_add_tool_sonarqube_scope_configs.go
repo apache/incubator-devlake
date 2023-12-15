@@ -29,6 +29,7 @@ var _ plugin.MigrationScript = (*addPagerDutyScopeConfig20231214)(nil)
 
 type PagerDutyScopeConfig20231214 struct {
 	archived.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	Name                 string `gorm:"type:varchar(255);index:idx_name_pagerduty,unique" validate:"required" mapstructure:"name" json:"name"`
 }
 
 func (o PagerDutyScopeConfig20231214) TableName() string {

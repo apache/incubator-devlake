@@ -29,6 +29,7 @@ var _ plugin.MigrationScript = (*addOpsenieScopeConfig20231214)(nil)
 
 type OpsenieScopeConfig20231214 struct {
 	archived.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	Name                 string `gorm:"type:varchar(255);index:idx_name_opsgenie,unique" validate:"required" mapstructure:"name" json:"name"`
 }
 
 func (o OpsenieScopeConfig20231214) TableName() string {

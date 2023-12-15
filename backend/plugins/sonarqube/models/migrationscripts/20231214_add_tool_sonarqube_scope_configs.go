@@ -29,6 +29,7 @@ var _ plugin.MigrationScript = (*addSonarQubeScopeConfig20231214)(nil)
 
 type SonarQubeScopeConfig20231214 struct {
 	archived.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	Name                 string `gorm:"type:varchar(255);index:idx_name_sonarqube,unique" validate:"required" mapstructure:"name" json:"name"`
 }
 
 func (o SonarQubeScopeConfig20231214) TableName() string {
