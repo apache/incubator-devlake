@@ -18,11 +18,11 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -30,7 +30,9 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
 )
 
 func MakeDataSourcePipelinePlanV200(
@@ -38,12 +40,28 @@ func MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId)
+	// load connection, scope and scopeConfig from the db
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopes, err := makeScopesV200(bpScopes, connectionId)
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// needed for the connection to populate its access tokens
+	// if AppKey authentication method is selected
+	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopes, err := makeScopesV200(scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -53,57 +71,55 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan coreModels.PipelinePlan,
-	bpScopes []*coreModels.BlueprintScope,
-	connectionId uint64,
+	scopeDetails []*srvhelper.ScopeDetail[models.SonarqubeProject, srvhelper.NoScopeConfig],
+	connection *models.SonarqubeConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
-	for i, bpScope := range bpScopes {
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
+	for i, scopeDetail := range scopeDetails {
 		stage := plan[i]
 		if stage == nil {
 			stage = coreModels.PipelineStage{}
 		}
-		// construct task options for Sonarqube
-		options := make(map[string]interface{})
-		options["connectionId"] = connectionId
-		options["projectKey"] = bpScope.ScopeId
 
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, plugin.DOMAIN_TYPES)
+		scope := scopeDetail.Scope
+		// construct task options for Jira
+		task, err := helper.MakePipelinePlanTask(
+			"sonarqube",
+			subtaskMetas,
+			nil,
+			tasks.SonarqubeOptions{
+				ConnectionId: scope.ConnectionId,
+				ProjectKey:   scope.ProjectKey,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "sonarqube",
-			Subtasks: subtasks,
-			Options:  options,
-		})
+
+		stage = append(stage, task)
 		plan[i] = stage
 	}
 
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connectionId uint64) ([]plugin.Scope, errors.Error) {
+func makeScopesV200(
+	scopeDetails []*srvhelper.ScopeDetail[models.SonarqubeProject, srvhelper.NoScopeConfig],
+	connection *models.SonarqubeConnection,
+) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
-	for _, bpScope := range bpScopes {
-		sonarqubeProject := &models.SonarqubeProject{}
-		// get repo from db
-		err := basicRes.GetDal().First(sonarqubeProject,
-			dal.Where("connection_id = ? and project_key = ?",
-				connectionId, bpScope.ScopeId))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find sonarqube project %s", bpScope.ScopeId))
-		}
+	for _, scopeDetail := range scopeDetails {
+		sonarqubeProject := scopeDetail.Scope
 		// add board to scopes
-		// if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {
-		stProject := &codequality.CqProject{
+		domainBoard := &codequality.CqProject{
 			DomainEntity: domainlayer.DomainEntity{
 				Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.ProjectKey),
 			},
 			Name: sonarqubeProject.Name,
 		}
-		scopes = append(scopes, stProject)
-		// }
+		scopes = append(scopes, domainBoard)
 	}
+
 	return scopes, nil
 }
 
