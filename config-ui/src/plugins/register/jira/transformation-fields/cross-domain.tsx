@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Button } from 'antd';
-import { Radio, Icon, Collapse } from '@blueprintjs/core';
+import { Radio, Button } from 'antd';
+import { Icon, Collapse } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';

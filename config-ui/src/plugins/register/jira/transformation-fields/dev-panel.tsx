@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Modal, Input, Button, message } from 'antd';
-import { RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
+import { Modal, Radio, Input, Button, message } from 'antd';
+import { Icon, Collapse } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -157,14 +157,13 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
             </Block>
             {applicationTypes.length > 0 && (
               <Block title="Application Type" description="Please choose an application type." required>
-                <RadioGroup
-                  selectedValue={applicationType}
-                  onChange={(e) => setApplicationType((e.target as HTMLInputElement).value)}
-                >
+                <Radio.Group value={applicationType} onChange={(e) => setApplicationType(e.target.value)}>
                   {applicationTypes.map((at) => (
-                    <Radio key={at} value={at} label={at} />
+                    <Radio key={at} value={at}>
+                      {at}
+                    </Radio>
                   ))}
-                </RadioGroup>
+                </Radio.Group>
               </Block>
             )}
           </>
