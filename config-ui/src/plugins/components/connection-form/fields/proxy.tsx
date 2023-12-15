@@ -35,9 +35,8 @@
 
 import { useEffect } from 'react';
 import { Input } from 'antd';
-import { FormGroup } from '@blueprintjs/core';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
   name: string;
@@ -58,11 +57,8 @@ export const ConnectionProxy = ({ name, initialValue, value, setValue }: Props) 
   };
 
   return (
-    <FormGroup
-      label={<S.Label>Proxy URL</S.Label>}
-      subLabel={<S.LabelDescription>Add a proxy if you cannot access {name} directly.</S.LabelDescription>}
-    >
+    <Block title="Proxy" description={`Add a proxy if you cannot access ${name} directly.`}>
       <Input placeholder="e.g. http://proxy.localhost:8080" value={value} onChange={handleChange} />
-    </FormGroup>
+    </Block>
   );
 };

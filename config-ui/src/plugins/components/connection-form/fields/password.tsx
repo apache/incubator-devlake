@@ -18,9 +18,8 @@
 
 import { useEffect } from 'react';
 import { Input } from 'antd';
-import { FormGroup } from '@blueprintjs/core';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
   type: 'create' | 'update';
@@ -58,17 +57,13 @@ export const ConnectionPassword = ({
   };
 
   return (
-    <FormGroup
-      label={<S.Label>{label ?? 'Password'}</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
-    >
+    <Block title={label ?? 'Password'} description={subLabel ? subLabel : null} required>
       <Input.Password
         style={{ width: 386 }}
         placeholder={placeholder ?? 'Your Password'}
         value={value}
         onChange={handleChange}
       />
-    </FormGroup>
+    </Block>
   );
 };

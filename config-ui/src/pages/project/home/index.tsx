@@ -20,11 +20,11 @@ import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Table, Button, Modal, Input, message } from 'antd';
-import { Checkbox, FormGroup } from '@blueprintjs/core';
+import { Checkbox } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, ExternalLink } from '@/components';
+import { PageHeader, Block, ExternalLink } from '@/components';
 import { getCron, cronPresets } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -222,12 +222,10 @@ export const ProjectHomePage = () => {
         onCancel={handleHideDialog}
       >
         <S.DialogWrapper>
-          <FormGroup
-            label={<S.Label>Project Name</S.Label>}
-            subLabel={
-              <S.LabelDescription>Give your project a unique name with letters, numbers, -, _ or /</S.LabelDescription>
-            }
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+          <Block
+            title="Project Name"
+            description="Give your project a unique name with letters, numbers, -, _ or /"
+            required
           >
             <Input
               style={{ width: 386 }}
@@ -235,17 +233,16 @@ export const ProjectHomePage = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </FormGroup>
-
-          <FormGroup
-            label={<S.Label>Project Settings</S.Label>}
-            subLabel={
-              <S.LabelDescription>
+          </Block>
+          <Block
+            title="Project Settings"
+            description={
+              <>
                 <ExternalLink link={DOC_URL.DORA}>DORA metrics</ExternalLink>
                 <span style={{ marginLeft: 4 }}>
                   are four widely-adopted metrics for measuring software delivery performance.
                 </span>
-              </S.LabelDescription>
+              </>
             }
           >
             <Checkbox
@@ -253,7 +250,7 @@ export const ProjectHomePage = () => {
               checked={enableDora}
               onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
             />
-          </FormGroup>
+          </Block>
         </S.DialogWrapper>
       </Modal>
     </PageHeader>
