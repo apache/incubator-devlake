@@ -18,7 +18,6 @@
 
 import { useEffect, useState } from 'react';
 import { Select, Input } from 'antd';
-import { TextArea } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block, ExternalLink } from '@/components';
@@ -168,7 +167,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
       </S.Input>
       <S.Input>
         <div className="input">
-          <TextArea
+          <Input.TextArea
             cols={90}
             rows={15}
             placeholder="Private key"

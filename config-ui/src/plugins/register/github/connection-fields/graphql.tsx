@@ -17,7 +17,7 @@
  */
 
 import { useEffect } from 'react';
-import { Switch } from '@blueprintjs/core';
+import { Switch } from 'antd';
 
 import { Block } from '@/components';
 
@@ -32,8 +32,8 @@ export const Graphql = ({ initialValue, value, setValue }: Props) => {
     setValue(initialValue);
   }, [initialValue]);
 
-  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setValue((e.target as HTMLInputElement).checked);
+  const handleChange = (checked: boolean) => {
+    setValue(checked);
   };
 
   return (
