@@ -82,6 +82,25 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	return scopeHelper.GetScopeList(input)
 }
 
+// GetScopeDispatcher process BitBucket repos get request
+// @Summary process BitBucket repos get request
+// @Description process BitBucket repos get request
+// @Tags plugins/bitbucket
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path string true "repo ID"
+// @Success 200  {object} ScopeRes
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [GET]
+func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scopeIdWithSuffix := strings.TrimLeft(input.Params["scopeId"], "/")
+	if strings.HasSuffix(scopeIdWithSuffix, "/latest-sync-state") {
+		input.Params["scopeId"] = strings.TrimSuffix(scopeIdWithSuffix, "/latest-sync-state")
+		return GetScopeLatestSyncState(input)
+	}
+	return GetScope(input)
+}
+
 // GetScope get one repo
 // @Summary get one repo
 // @Description get one repo

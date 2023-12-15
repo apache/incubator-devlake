@@ -89,6 +89,7 @@ func (p PagerDuty) GetTablesInfo() []dal.Tabler {
 		&models.User{},
 		&models.Assignment{},
 		&models.PagerDutyConnection{},
+		&models.PagerdutyScopeConfig{},
 	}
 }
 

@@ -88,6 +88,7 @@ func (p Opsgenie) GetTablesInfo() []dal.Tabler {
 		&models.Assignment{},
 		&models.User{},
 		&models.Team{},
+		&models.OpsenieScopeConfig{},
 	}
 }
 

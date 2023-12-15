@@ -210,13 +210,10 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"connections/:connectionId/test": {
 			"POST": api.TestExistingConnection,
 		},
-		"connections/:connectionId/scopes/:scopeId": {
-			"GET":    api.GetScope,
+		"connections/:connectionId/scopes/*scopeId": {
+			"GET":    api.GetScopeDispatcher,
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
-		},
-		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
-			"GET": api.GetScopeLatestSyncState,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
