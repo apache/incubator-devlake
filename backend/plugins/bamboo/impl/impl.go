@@ -49,7 +49,6 @@ type Bamboo struct{}
 
 func (p Bamboo) Init(br context.BasicRes) errors.Error {
 	api.Init(br, p)
-
 	return nil
 }
 
