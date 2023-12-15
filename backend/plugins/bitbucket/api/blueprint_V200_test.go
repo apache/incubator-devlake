@@ -152,8 +152,8 @@ func mockBasicRes(t *testing.T) {
 			Model: common.Model{
 				ID: 1,
 			},
+			Name: "Bitbucket scope config",
 		},
-		Name:            "Bitbucket scope config",
 		IssueStatusTodo: "new,open,wantfix",
 		Refdiff: map[string]interface{}{
 			"tagsPattern": "pattern",

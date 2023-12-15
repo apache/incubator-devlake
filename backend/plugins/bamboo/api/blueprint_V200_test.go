@@ -73,8 +73,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				ID: testScopeConfigId,
 			},
 			Entities: []string{plugin.DOMAIN_TYPE_CICD},
+			Name:     testScopeConfigName,
 		},
-		Name: testScopeConfigName,
 	}
 
 	var testColumTypes = []dal.ColumnMeta{

@@ -16,7 +16,7 @@
  *
  */
 
-import { Icon } from '@blueprintjs/core';
+import { WarningOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -37,7 +37,7 @@ interface Props {
 export const Message = ({ style, size = 20, content }: Props) => {
   return (
     <Wrapper style={style}>
-      <Icon icon="warning-sign" size={size} color="#f4be55" />
+      <WarningOutlined rev={undefined} size={size} color="#f4be55" />
       <span>{content}</span>
     </Wrapper>
   );

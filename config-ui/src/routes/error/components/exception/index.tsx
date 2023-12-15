@@ -17,8 +17,8 @@
  */
 
 import { useNavigate } from 'react-router-dom';
+import { CloseCircleOutlined } from '@ant-design/icons';
 import { Card, Flex, Button } from 'antd';
-import { Icon, Colors } from '@blueprintjs/core';
 
 interface Props {
   error: string | Error;
@@ -31,7 +31,7 @@ export const Exception = ({ error }: Props) => {
   return (
     <Card>
       <h2>
-        <Icon icon="error" color={Colors.RED5} size={20} />
+        <CloseCircleOutlined rev={undefined} size={20} color="#f5222d" />
         <span>{error.toString() || 'Unknown Error'}</span>
       </h2>
       <p>

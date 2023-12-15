@@ -17,8 +17,9 @@
  */
 
 import { useEffect, useState } from 'react';
+import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import { Radio, Button } from 'antd';
-import { Icon, Collapse } from '@blueprintjs/core';
+import { Collapse } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
@@ -73,7 +74,11 @@ export const CrossDomain = ({ connectionId, transformation, setTransformation }:
             <h5>Connect Jira issues and commits via Jira issues’ remote links that match the following pattern</h5>
             <p style={{ display: 'flex', alignItems: 'center' }} onClick={() => setShowTip(!showTip)}>
               Input pattern(s) to match and parse commits and repo identifiers from issue remote links. See examples{' '}
-              <Icon icon={showTip ? 'chevron-up' : 'chevron-down'} style={{ cursor: 'pointer' }} />
+              {showTip ? (
+                <UpOutlined rev={undefined} style={{ cursor: 'pointer' }} />
+              ) : (
+                <DownOutlined rev={undefined} style={{ cursor: 'pointer' }} />
+              )}
             </p>
             <Collapse isOpen={showTip}>
               <img src={JiraIssueTipsImg} width="100%" alt="" />

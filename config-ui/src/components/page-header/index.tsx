@@ -17,7 +17,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import { Icon } from '@blueprintjs/core';
+import { RightOutlined } from '@ant-design/icons';
 
 import * as S from './styled';
 
@@ -40,7 +40,7 @@ export const PageHeader = ({ breadcrumbs, extra, children }: Props) => {
               {breadcrumbs.length !== i + 1 ? (
                 <Link to={path}>
                   {name}
-                  <Icon icon="chevron-right" />
+                  <RightOutlined rev={undefined} />
                 </Link>
               ) : (
                 <span>{name}</span>
