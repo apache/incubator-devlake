@@ -17,8 +17,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Input } from 'antd';
-import { RadioGroup, Radio } from '@blueprintjs/core';
+import type { RadioChangeEvent } from 'antd';
+import { Radio, Input } from 'antd';
 
 import { Block, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
@@ -70,8 +70,8 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
     });
   }, [values]);
 
-  const handleChangeVersion = (e: React.FormEvent<HTMLInputElement>) => {
-    const version = (e.target as HTMLInputElement).value;
+  const handleChangeVersion = (e: RadioChangeEvent) => {
+    const version = e.target.value;
 
     setValues({
       endpoint: '',
@@ -90,7 +90,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
     });
   };
 
-  const handleChangeMethod = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleChangeMethod = (e: RadioChangeEvent) => {
     setValues({
       authMethod: (e.target as HTMLInputElement).value as Method,
       username: undefined,
@@ -120,10 +120,10 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
   return (
     <>
       <Block title="Jira Version" required>
-        <RadioGroup inline selectedValue={version} onChange={handleChangeVersion}>
+        <Radio.Group value={version} onChange={handleChangeVersion}>
           <Radio value="cloud">Jira Cloud</Radio>
           <Radio value="server">Jira Server</Radio>
-        </RadioGroup>
+        </Radio.Group>
 
         <Block
           style={{ marginTop: 8, marginBottom: 0 }}
@@ -169,10 +169,10 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
       {version === 'server' && (
         <>
           <Block title="Authentication Method" required>
-            <RadioGroup inline selectedValue={values.authMethod} onChange={handleChangeMethod}>
+            <Radio.Group value={values.authMethod} onChange={handleChangeMethod}>
               <Radio value="BasicAuth">Basic Authentication</Radio>
               <Radio value="AccessToken">Using Personal Access Token</Radio>
-            </RadioGroup>
+            </Radio.Group>
           </Block>
           {values.authMethod === 'BasicAuth' && (
             <>

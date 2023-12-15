@@ -17,8 +17,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Input } from 'antd';
-import { RadioGroup, Radio } from '@blueprintjs/core';
+import type { RadioChangeEvent } from 'antd';
+import { Radio, Input } from 'antd';
 
 import { Block } from '@/components';
 
@@ -57,8 +57,8 @@ export const ConnectionEndpoint = ({
     setError(value ? '' : 'endpoint is required');
   }, [value]);
 
-  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    const version = (e.target as HTMLInputElement).value as VersionType;
+  const handleChange = (e: RadioChangeEvent) => {
+    const version = e.target.value;
     if (version === 'cloud') {
       setValue(multipleVersions?.cloud ?? '');
     }
@@ -77,12 +77,12 @@ export const ConnectionEndpoint = ({
   if (multipleVersions) {
     return (
       <Block title={name} required>
-        <RadioGroup inline selectedValue={version} onChange={handleChange}>
+        <Radio.Group value={version} onChange={handleChange}>
           <Radio value="cloud">{name} Cloud</Radio>
           <Radio value="server" disabled={!multipleVersions.server}>
             {name} Server {multipleVersions.server ? multipleVersions.server : '(to be supported)'}
           </Radio>
-        </RadioGroup>
+        </Radio.Group>
         {version === 'cloud' && (
           <p style={{ margin: 0 }}>
             If you are using {name} Cloud, you do not need to enter the endpoint URL, which is {multipleVersions.cloud}.
