@@ -23,8 +23,6 @@ import (
 
 type TapdScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId       uint64            `mapstructure:"connectionId" json:"connectionId"`
-	Name               string            `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
 	TypeMappings       map[string]string `mapstructure:"typeMappings,omitempty" json:"typeMappings" gorm:"serializer:json"`
 	StatusMappings     map[string]string `mapstructure:"statusMappings,omitempty" json:"statusMappings" gorm:"serializer:json"`
 }
