@@ -35,9 +35,8 @@
 
 import { useEffect } from 'react';
 import { Input } from 'antd';
-import { FormGroup } from '@blueprintjs/core';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
   type: 'create' | 'update';
@@ -65,12 +64,8 @@ export const ConnectionToken = ({ type, label, subLabel, initialValue, value, se
   };
 
   return (
-    <FormGroup
-      label={<S.Label>{label ?? 'Token'}</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={subLabel && <S.LabelDescription>{subLabel}</S.LabelDescription>}
-    >
+    <Block title={label ?? 'Token'} description={subLabel ? subLabel : null} required>
       <Input.Password style={{ width: 386 }} placeholder="Your Token" value={value} onChange={handleChange} />
-    </FormGroup>
+    </Block>
   );
 };

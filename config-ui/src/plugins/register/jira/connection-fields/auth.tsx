@@ -18,12 +18,10 @@
 
 import { useState, useEffect } from 'react';
 import { Input } from 'antd';
-import { FormGroup, RadioGroup, Radio } from '@blueprintjs/core';
+import { RadioGroup, Radio } from '@blueprintjs/core';
 
-import { ExternalLink } from '@/components';
+import { Block, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
-
-import * as S from './styled';
 
 const JIRA_CLOUD_REGEX = /^https:\/\/\w+.atlassian.net\/rest\/$/;
 
@@ -121,44 +119,42 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
 
   return (
     <>
-      <FormGroup label={<S.Label>Jira Version</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+      <Block title="Jira Version" required>
         <RadioGroup inline selectedValue={version} onChange={handleChangeVersion}>
           <Radio value="cloud">Jira Cloud</Radio>
           <Radio value="server">Jira Server</Radio>
         </RadioGroup>
 
-        <FormGroup
+        <Block
           style={{ marginTop: 8, marginBottom: 0 }}
-          label={<S.Label>Endpoint URL</S.Label>}
-          labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-          subLabel={
-            <S.LabelDescription>
+          title="Endpoint URL"
+          description={
+            <>
               {version === 'cloud'
                 ? 'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/. Please note that the endpoint URL should end with /.'
                 : ''}
               {version === 'server'
                 ? 'Provide the Jira instance API endpoint. For Jira Server, e.g. https://jira.your-company.com/rest/. Please note that the endpoint URL should end with /.'
                 : ''}
-            </S.LabelDescription>
+            </>
           }
+          required
         >
           <Input placeholder="Your Endpoint URL" value={values.endpoint} onChange={handleChangeEndpoint} />
-        </FormGroup>
-      </FormGroup>
+        </Block>
+      </Block>
 
       {version === 'cloud' && (
         <>
-          <FormGroup label={<S.Label>E-Mail</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+          <Block title="E-Mail" required>
             <Input placeholder="Your E-Mail" value={values.username} onChange={handleChangeUsername} />
-          </FormGroup>
-          <FormGroup
-            label={<S.Label>API Token</S.Label>}
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-            subLabel={
-              <S.LabelDescription>
-                <ExternalLink link={DOC_URL.PLUGIN.JIRA.API_TOKEN}>Learn about how to create an API Token</ExternalLink>
-              </S.LabelDescription>
+          </Block>
+          <Block
+            title="API Token"
+            description={
+              <ExternalLink link={DOC_URL.PLUGIN.JIRA.API_TOKEN}>Learn about how to create an API Token</ExternalLink>
             }
+            required
           >
             <Input.Password
               style={{ width: 386 }}
@@ -166,44 +162,42 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
               value={values.password}
               onChange={handleChangePassword}
             />
-          </FormGroup>
+          </Block>
         </>
       )}
 
       {version === 'server' && (
         <>
-          <FormGroup label={<S.Label>Authentication Method</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+          <Block title="Authentication Method" required>
             <RadioGroup inline selectedValue={values.authMethod} onChange={handleChangeMethod}>
               <Radio value="BasicAuth">Basic Authentication</Radio>
               <Radio value="AccessToken">Using Personal Access Token</Radio>
             </RadioGroup>
-          </FormGroup>
+          </Block>
           {values.authMethod === 'BasicAuth' && (
             <>
-              <FormGroup label={<S.Label>Username</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+              <Block title="Username" required>
                 <Input placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
-              </FormGroup>
-              <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+              </Block>
+              <Block title="Password" required>
                 <Input.Password
                   style={{ width: 386 }}
                   placeholder="Your Password"
                   value={values.password}
                   onChange={handleChangePassword}
                 />
-              </FormGroup>
+              </Block>
             </>
           )}
           {values.authMethod === 'AccessToken' && (
-            <FormGroup
-              label={<S.Label>Personal Access Token</S.Label>}
-              labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-              subLabel={
-                <S.LabelDescription>
-                  <ExternalLink link={DOC_URL.PLUGIN.JIRA.PERSONAL_ACCESS_TOKEN}>
-                    Learn about how to create a PAT
-                  </ExternalLink>
-                </S.LabelDescription>
+            <Block
+              title="Personal Access Token"
+              description={
+                <ExternalLink link={DOC_URL.PLUGIN.JIRA.PERSONAL_ACCESS_TOKEN}>
+                  Learn about how to create a PAT
+                </ExternalLink>
               }
+              required
             >
               <Input.Password
                 style={{ width: 386 }}
@@ -211,7 +205,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
                 value={values.token}
                 onChange={handleChangeToken}
               />
-            </FormGroup>
+            </Block>
           )}
         </>
       )}

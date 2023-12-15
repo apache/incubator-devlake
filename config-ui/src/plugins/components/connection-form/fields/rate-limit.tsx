@@ -34,9 +34,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { FormGroup, Switch, NumericInput } from '@blueprintjs/core';
+import { Switch, NumericInput } from '@blueprintjs/core';
 
-import { ExternalLink } from '@/components';
+import { Block, ExternalLink } from '@/components';
 
 import * as S from './styled';
 
@@ -87,12 +87,12 @@ export const ConnectionRateLimit = ({
   };
 
   return (
-    <FormGroup
-      label={<S.Label>Custom Rate Limit</S.Label>}
-      subLabel={
-        <S.LabelDescription>
+    <Block
+      title="Custom Rate Limit"
+      description={
+        <>
           {subLabel} {learnMore && <ExternalLink link={learnMore}>Learn more</ExternalLink>}
-        </S.LabelDescription>
+        </>
       }
     >
       <S.RateLimit>
@@ -105,6 +105,6 @@ export const ConnectionRateLimit = ({
         )}
       </S.RateLimit>
       {checked && externalInfo && <S.RateLimitInfo dangerouslySetInnerHTML={{ __html: externalInfo }} />}
-    </FormGroup>
+    </Block>
   );
 };
