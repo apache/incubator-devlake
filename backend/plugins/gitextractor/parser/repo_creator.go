@@ -21,12 +21,14 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
+	gogit "github.com/go-git/go-git/v5"
 	git "github.com/libgit2/git2go/v33"
 )
 
 const (
-	BRANCH = "BRANCH"
-	TAG    = "TAG"
+	BRANCH      = "BRANCH"
+	TAG         = "TAG"
+	EnableGoGit = true
 )
 
 type GitRepoCreator struct {
@@ -48,14 +50,23 @@ func (l *GitRepoCreator) LocalRepo(repoPath, repoId string) (*GitRepo, errors.Er
 		l.logger.Error(err, "OpenRepository")
 		return nil, errors.Convert(err)
 	}
-	return l.newGitRepo(repoId, repo), nil
+	var goGitRepo *gogit.Repository
+	if EnableGoGit {
+		var err error
+		goGitRepo, err = gogit.PlainOpen(repoPath)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+	}
+	return l.newGitRepo(repoId, repo, goGitRepo), nil
 }
 
-func (l *GitRepoCreator) newGitRepo(repoId string, repo *git.Repository) *GitRepo {
+func (l *GitRepoCreator) newGitRepo(repoId string, repo *git.Repository, goGitRespo *gogit.Repository) *GitRepo {
 	return &GitRepo{
-		store:  l.store,
-		logger: l.logger,
-		id:     repoId,
-		repo:   repo,
+		store:     l.store,
+		logger:    l.logger,
+		id:        repoId,
+		repo:      repo,
+		goGitRepo: goGitRespo,
 	}
 }

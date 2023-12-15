@@ -22,10 +22,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"regexp"
-	"sort"
-	"strconv"
-
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -34,6 +30,13 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
+	gogit "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/storer"
+	"regexp"
+	"sort"
+	"strconv"
 
 	git "github.com/libgit2/git2go/v33"
 )
@@ -43,11 +46,12 @@ const SkipCommitFiles = "SKIP_COMMIT_FILES"
 var TypeNotMatchError = "the requested type does not match the type in the ODB"
 
 type GitRepo struct {
-	store   models.Store
-	logger  log.Logger
-	id      string
-	repo    *git.Repository
-	cleanup func()
+	store     models.Store
+	logger    log.Logger
+	id        string
+	repo      *git.Repository
+	goGitRepo *gogit.Repository
+	cleanup   func()
 }
 
 // CollectAll The main parser subtask
@@ -87,6 +91,21 @@ func (r *GitRepo) CountTags() (int, errors.Error) {
 	return len(tags), nil
 }
 
+// CountTagsWithGoGit Count git tags subtask
+func (r *GitRepo) CountTagsWithGoGit() (int, error) {
+	repo := r.goGitRepo
+	iter, err := repo.Tags()
+	if err != nil {
+		return 0, err
+	}
+	var tagsCount int
+	iter.ForEach(func(reference *plumbing.Reference) error {
+		tagsCount += 1
+		return nil
+	})
+	return tagsCount, nil
+}
+
 // CountBranches count the number of branches in a git repo
 func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 	var branchIter *git.BranchIterator
@@ -112,6 +131,35 @@ func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 	return count, errors.Convert(err)
 }
 
+// CountBranchesWithGoGit count the number of branches in a git repo
+func (r *GitRepo) CountBranchesWithGoGit(ctx context.Context) (int, error) {
+	repo := r.goGitRepo
+	refIter, err := repo.Storer.IterReferences()
+	if err != nil {
+		return 0, err
+	}
+	branchIter := storer.NewReferenceFilteredIter(
+		func(r *plumbing.Reference) bool {
+			return r.Name().IsBranch() || r.Name().IsRemote()
+		}, refIter)
+	if err != nil {
+		return 0, err
+	}
+	var branchesCount int
+
+	headRef, err := repo.Head()
+	if err != nil {
+		return 0, err
+	}
+	branchIter.ForEach(func(reference *plumbing.Reference) error {
+		if reference.Name() != headRef.Name() {
+			branchesCount += 1
+		}
+		return nil
+	})
+	return branchesCount, errors.Convert(err)
+}
+
 // CountCommits count the number of commits in a git repo
 func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 	odb, err := r.repo.Odb()
@@ -135,6 +183,21 @@ func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 		return nil
 	})
 	return count, errors.Convert(err)
+}
+
+// CountCommitsWithGoGit count the number of commits in a git repo
+func (r *GitRepo) CountCommitsWithGoGit(ctx context.Context) (int, error) {
+	repo := r.goGitRepo
+	iter, err := repo.CommitObjects()
+	if err != nil {
+		return 0, err
+	}
+	var count int
+	iter.ForEach(func(commit *object.Commit) error {
+		count += 1
+		return nil
+	})
+	return count, nil
 }
 
 // CollectTags Collect Tags data
@@ -485,7 +548,7 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx plugin.SubTaskContext) errors.Error
 			var lastFile string
 			lastFile = ""
 			err = diff.ForEach(func(file git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
-				//if doesn't exist in snapshot, create a new one
+				// if it doesn't exist in snapshot, create a new one
 				if _, ok := snapshot[file.OldFile.Path]; !ok {
 					fileBlame, err := models.NewFileBlame()
 					if err != nil {
@@ -498,7 +561,7 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx plugin.SubTaskContext) errors.Error
 					lastFile = file.NewFile.Path
 				} else if lastFile != file.NewFile.Path {
 					updateSnapshotFileBlame(curcommit, deleted, added, lastFile, snapshot)
-					//reset the deleted and added,last_file now is current file
+					// reset the deleted and added,last_file now is current file
 					deleted = make([]git.DiffLine, 0)
 					added = make([]git.DiffLine, 0)
 					lastFile = file.NewFile.Path
