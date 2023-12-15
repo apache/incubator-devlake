@@ -17,8 +17,9 @@
  */
 
 import { useEffect, useState } from 'react';
+import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import { Modal, Radio, Input, Button, message } from 'antd';
-import { Icon, Collapse } from '@blueprintjs/core';
+import { Collapse } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -185,7 +186,12 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
                 <>
                   <p style={{ display: 'flex', alignItems: 'center' }} onClick={() => setShowTip(!showTip)}>
                     Input pattern(s) to match and parse commits and repo identifiers from above commit URLs. See
-                    examples <Icon icon={showTip ? 'chevron-up' : 'chevron-down'} style={{ cursor: 'pointer' }} />
+                    examples{' '}
+                    {showTip ? (
+                      <UpOutlined rev={undefined} style={{ cursor: 'pointer' }} />
+                    ) : (
+                      <DownOutlined rev={undefined} style={{ cursor: 'pointer' }} />
+                    )}
                   </p>
                   <Collapse isOpen={showTip}>
                     <img src={JiraIssueTipsImg} width="100%" alt="" />

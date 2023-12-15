@@ -16,11 +16,11 @@
  *
  */
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RedoOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, RedoOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Card, Flex, Button } from 'antd';
-import { Icon, Tag, Colors, IconName } from '@blueprintjs/core';
+import { Tag } from '@blueprintjs/core';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
@@ -51,11 +51,6 @@ export const Offline = () => {
 
   const { online } = data || { online: false };
 
-  const [icon, color, text] = useMemo(
-    () => [online ? 'endorsed' : 'offline', online ? Colors.GREEN3 : Colors.RED3, data ? 'Online' : 'Offline'],
-    [online],
-  );
-
   const handleContinue = () => {
     navigate('/');
   };
@@ -63,9 +58,15 @@ export const Offline = () => {
   return (
     <Card>
       <h2>
-        <Icon icon={icon as IconName} color={color} size={30} />
+        {online ? (
+          <CheckCircleOutlined rev={undefined} color="#a0d911" size={30} />
+        ) : (
+          <CloseCircleOutlined rev={undefined} color="#f5222d" size={30} />
+        )}
         <span>DevLake API</span>
-        <strong style={{ marginLeft: 4, color }}>{text}</strong>
+        <strong style={{ marginLeft: 4, color: online ? '#a0d911' : '#f5222d' }}>
+          {online ? 'Online' : 'Offline'}
+        </strong>
       </h2>
       <p>
         <Tag>DEVLAKE_ENDPOINT: {DEVLAKE_ENDPOINT}</Tag>
