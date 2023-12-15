@@ -19,8 +19,7 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import { Table, Button, Modal, Input, message } from 'antd';
-import { Checkbox } from '@blueprintjs/core';
+import { Table, Button, Modal, Input, Checkbox, message } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -245,11 +244,9 @@ export const ProjectHomePage = () => {
               </>
             }
           >
-            <Checkbox
-              label="Enable DORA Metrics"
-              checked={enableDora}
-              onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
-            />
+            <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
+              Enable DORA Metrics
+            </Checkbox>
           </Block>
         </S.DialogWrapper>
       </Modal>

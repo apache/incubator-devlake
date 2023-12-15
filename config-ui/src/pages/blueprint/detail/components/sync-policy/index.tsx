@@ -19,8 +19,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import type { RadioChangeEvent } from 'antd';
-import { Radio, Space, Input } from 'antd';
-import { Tag, Checkbox } from '@blueprintjs/core';
+import { Radio, Space, Checkbox, Input } from 'antd';
+import { Tag } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
 import { DateInput2 } from '@blueprintjs/datetime2';
 
@@ -205,11 +205,10 @@ export const SyncPolicy = ({
         </Block>
       </div>
       <Block title="Running Policy">
-        <Checkbox
-          label="Skip failed tasks (Recommended when collecting a large volume of data, eg. 10+ GitHub repos, Jira boards, etc.)"
-          checked={skipOnFail}
-          onChange={(e) => onChangeSkipOnFail((e.target as HTMLInputElement).checked)}
-        />
+        <Checkbox checked={skipOnFail} onChange={(e) => onChangeSkipOnFail(e.target.checked)}>
+          Skip failed tasks (Recommended when collecting a large volume of data, eg. 10+ GitHub repos, Jira boards,
+          etc.)
+        </Checkbox>
         <p style={{ paddingLeft: 28 }}>
           A task is a unit of a pipeline, an execution of a blueprint. By default, when a task is failed, the whole
           pipeline will fail and all the data that has been collected will be discarded. By skipping failed tasks, the
