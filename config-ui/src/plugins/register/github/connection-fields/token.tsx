@@ -17,8 +17,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Input } from 'antd';
-import { FormGroup, Button, Icon, Intent } from '@blueprintjs/core';
+import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import { Input, Button } from 'antd';
+import { FormGroup, Icon } from '@blueprintjs/core';
 
 import API from '@/api';
 import { ExternalLink } from '@/components';
@@ -155,7 +156,7 @@ export const Token = ({
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />
-            <Button minimal icon="cross" onClick={() => handleRemoveToken(i)} />
+            <Button size="small" icon={<CloseOutlined rev={undefined} />} onClick={() => handleRemoveToken(i)} />
             <div className="info">
               {isValid === false && <span className="error">Invalid</span>}
               {isValid === true && <span className="success">Valid From: {from}</span>}
@@ -187,7 +188,9 @@ export const Token = ({
         </S.Input>
       ))}
       <div className="action">
-        <Button outlined small intent={Intent.PRIMARY} text="Another Token" icon="plus" onClick={handleCreateToken} />
+        <Button type="primary" size="small" icon={<PlusOutlined rev={undefined} />} onClick={handleCreateToken}>
+          Another Token
+        </Button>
       </div>
     </FormGroup>
   );

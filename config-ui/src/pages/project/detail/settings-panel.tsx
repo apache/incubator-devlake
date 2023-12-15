@@ -18,8 +18,8 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Flex, Card, Modal, Input, message } from 'antd';
-import { Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
+import { Flex, Card, Modal, Input, Button, message } from 'antd';
+import { Checkbox, Icon } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -113,11 +113,15 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           />
         </Block>
         <Flex>
-          <Button text="Save" loading={operating} disabled={!name} intent={Intent.PRIMARY} onClick={handleUpdate} />
+          <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
+            Save
+          </Button>
         </Flex>
       </Card>
       <Flex justify="center">
-        <Button intent={Intent.DANGER} text="Delete Project" onClick={handleShowDeleteDialog} />
+        <Button type="primary" danger onClick={handleShowDeleteDialog}>
+          Delete Project
+        </Button>
       </Flex>
       <Modal
         open={open}

@@ -87,10 +87,11 @@ class Builds(Stream):
             cicd_scope_id=ctx.scope.domain_id(),
         )
 
-        yield devops.CiCDPipelineCommit(
-            pipeline_id=b.domain_id(),
-            commit_sha=b.source_version,
-            branch=b.source_branch,
-            repo_id=ctx.scope.domain_id(),
-            repo_url=ctx.scope.url,
-        )
+        if b.source_version is not None:
+            yield devops.CiCDPipelineCommit(
+                pipeline_id=b.domain_id(),
+                commit_sha=b.source_version,
+                branch=b.source_branch,
+                repo_id=ctx.scope.domain_id(),
+                repo_url=ctx.scope.url,
+            )

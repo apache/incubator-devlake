@@ -18,8 +18,8 @@
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Alert } from 'antd';
-import { Button, Intent } from '@blueprintjs/core';
+import { PlusOutlined } from '@ant-design/icons';
+import { Alert, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
@@ -135,14 +135,13 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
             text="Push `incidents` or `deployments` from your tools by incoming webhooks."
             action={
               <>
-                <Button intent={Intent.PRIMARY} icon="plus" text="Add a Webhook" onClick={() => setType('create')} />
+                <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={() => setType('create')}>
+                  Add a Webhook
+                </Button>
                 <div style={{ margin: '8px 0' }}>or</div>
-                <Button
-                  outlined
-                  intent={Intent.PRIMARY}
-                  text="Select Existing Webhooks"
-                  onClick={() => setType('selectExist')}
-                />
+                <Button type="primary" onClick={() => setType('selectExist')}>
+                  Select Existing Webhooks
+                </Button>
               </>
             }
           />

@@ -168,6 +168,7 @@ func CheckDbConnection(dbUrl string, d time.Duration) errors.Error {
 		db, err := getDbConnection(dbUrl, &gorm.Config{})
 		if err != nil {
 			result <- errors.Convert(err)
+			return
 		}
 		if d > 0 {
 			var cancel context.CancelFunc

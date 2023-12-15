@@ -19,10 +19,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { uniqWith } from 'lodash';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { theme, Collapse, Tag, Form } from 'antd';
+import { theme, Collapse, Tag, Form, Select } from 'antd';
 
 import API from '@/api';
-import { PageLoading, HelpTooltip, ExternalLink, MultiSelector, Selector } from '@/components';
+import { PageLoading, HelpTooltip, ExternalLink } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
 
@@ -165,14 +165,26 @@ const renderCollapseItems = ({
   transformation: any;
   onChangeTransformation: any;
   connectionId: ID;
-  issueTypes: any;
+  issueTypes: Array<{
+    id: string;
+    name: string;
+  }>;
   fields: Array<{
     id: string;
     name: string;
   }>;
-  requirementItems: any;
-  bugItems: any;
-  incidentItems: any;
+  requirementItems: Array<{
+    id: string;
+    name: string;
+  }>;
+  bugItems: Array<{
+    id: string;
+    name: string;
+  }>;
+  incidentItems: Array<{
+    id: string;
+    name: string;
+  }>;
   transformaType: any;
 }) =>
   [
@@ -194,18 +206,18 @@ const renderCollapseItems = ({
             <ExternalLink link={DOC_URL.METRICS.MTTR}>DORA - Median Time to Restore Service</ExternalLink>, etc.
           </p>
           <Form.Item label="Requirement">
-            <MultiSelector
-              items={issueTypes}
-              disabledItems={[...bugItems, ...incidentItems]}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              getIcon={(it) => it.iconUrl}
-              selectedItems={requirementItems}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={issueTypes.map((it) => ({ label: it.name, value: it.id }))}
+              value={requirementItems.map((it) => it.id)}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
-                    ...transformaType(selectedItems, StandardType.Requirement),
+                    ...transformaType(
+                      requirementItems.filter((it) => value.includes(it.id)),
+                      StandardType.Requirement,
+                    ),
                     ...transformaType(bugItems, StandardType.Bug),
                     ...transformaType(incidentItems, StandardType.Incident),
                   },
@@ -214,19 +226,19 @@ const renderCollapseItems = ({
             />
           </Form.Item>
           <Form.Item label="Bug">
-            <MultiSelector
-              items={issueTypes}
-              disabledItems={[...requirementItems, ...incidentItems]}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              getIcon={(it) => it.iconUrl}
-              selectedItems={bugItems}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={issueTypes.map((it) => ({ label: it.name, value: it.id }))}
+              value={bugItems.map((it) => it.id)}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
                     ...transformaType(requirementItems, StandardType.Requirement),
-                    ...transformaType(selectedItems, StandardType.Bug),
+                    ...transformaType(
+                      bugItems.filter((it) => value.includes(it.id)),
+                      StandardType.Bug,
+                    ),
                     ...transformaType(incidentItems, StandardType.Incident),
                   },
                 })
@@ -243,20 +255,21 @@ const renderCollapseItems = ({
               </>
             }
           >
-            <MultiSelector
-              items={issueTypes}
-              disabledItems={[...requirementItems, ...bugItems]}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              getIcon={(it) => it.iconUrl}
-              selectedItems={incidentItems}
-              onChangeItems={(selectedItems) =>
+            <Select
+              mode="multiple"
+              options={issueTypes.map((it) => ({ label: it.name, value: it.id }))}
+              value={incidentItems.map((it) => it.id)}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
                     ...transformaType(requirementItems, StandardType.Requirement),
                     ...transformaType(bugItems, StandardType.Bug),
-                    ...transformaType(selectedItems, StandardType.Incident),
+                    ...transformaType(
+                      incidentItems.filter((it) => value.includes(it.id)),
+
+                      StandardType.Incident,
+                    ),
                   },
                 })
               }
@@ -270,15 +283,13 @@ const renderCollapseItems = ({
               </>
             }
           >
-            <Selector
-              items={fields}
-              getKey={(it) => it.id}
-              getName={(it) => it.name}
-              selectedItem={fields.find((it) => it.id === transformation.storyPointField)}
-              onChangeItem={(selectedItem) =>
+            <Select
+              options={fields.map((it) => ({ label: it.name, value: it.id }))}
+              value={transformation.storyPointField}
+              onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
-                  storyPointField: selectedItem.id,
+                  storyPointField: value,
                 })
               }
             />

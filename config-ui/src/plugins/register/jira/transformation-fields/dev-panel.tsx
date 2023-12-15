@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Modal, Input, message } from 'antd';
-import { Button, RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
+import { Modal, Input, Button, message } from 'antd';
+import { RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -150,7 +150,9 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
             >
               <div className="search">
                 <Input placeholder="Please enter..." value={issueKey} onChange={(e) => setIssueKey(e.target.value)} />
-                <Button loading={searching} disabled={!issueKey} text="See Results" onClick={handleSearch} />
+                <Button loading={searching} disabled={!issueKey} onClick={handleSearch}>
+                  See Results
+                </Button>
               </div>
             </Block>
             {applicationTypes.length > 0 && (

@@ -18,8 +18,9 @@
 
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Flex } from 'antd';
-import { Icon, Tag, Button, Intent, Colors, IconName } from '@blueprintjs/core';
+import { RedoOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Card, Flex, Button } from 'antd';
+import { Icon, Tag, Colors, IconName } from '@blueprintjs/core';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
@@ -77,22 +78,24 @@ export const Offline = () => {
           </p>
           <Flex justify="center">
             <Button
+              type="primary"
               loading={loading}
-              icon="refresh"
-              intent={Intent.PRIMARY}
-              text="Refresh"
+              icon={<RedoOutlined rev={undefined} />}
               onClick={() => setVersion((v) => v + 1)}
-            />
+            >
+              Refresh
+            </Button>
           </Flex>
         </>
       ) : (
         <>
           <p>Connectivity to the Lake API service was successful.</p>
           <Flex justify="center">
-            <Button intent={Intent.PRIMARY} text="Continue" onClick={handleContinue} />
+            <Button type="primary" onClick={handleContinue}>
+              Continue
+            </Button>
             <Button
-              icon="help"
-              text="Read Documentation"
+              icon={<QuestionCircleOutlined rev={undefined} />}
               onClick={() =>
                 window.open(
                   'https://github.com/apache/incubator-devlake/blob/main/README.md',
@@ -100,7 +103,9 @@ export const Offline = () => {
                   'noopener,noreferrer',
                 )
               }
-            />
+            >
+              Read Documentation
+            </Button>
           </Flex>
         </>
       )}
