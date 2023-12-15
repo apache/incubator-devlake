@@ -17,7 +17,7 @@
  */
 
 import { useEffect } from 'react';
-import { RadioGroup, Radio } from '@blueprintjs/core';
+import { Radio } from 'antd';
 
 import { Block } from '@/components';
 
@@ -34,16 +34,10 @@ export const Endpoint = ({ initialValue, value, setValue }: Props) => {
 
   return (
     <Block title="Opsgenie Instance Location (us or eu)" required>
-      <RadioGroup
-        inline
-        selectedValue={value || initialValue}
-        onChange={(e) => {
-          setValue((e.target as any).value);
-        }}
-      >
+      <Radio.Group value={value || initialValue} onChange={(e) => setValue(e.target.value)}>
         <Radio value="https://api.opsgenie.com/">United States</Radio>
         <Radio value="https://api.eu.opsgenie.com/">Europe</Radio>
-      </RadioGroup>
+      </Radio.Group>
     </Block>
   );
 };

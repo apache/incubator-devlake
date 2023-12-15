@@ -17,7 +17,7 @@
  */
 
 import { useEffect } from 'react';
-import { RadioGroup, Radio } from '@blueprintjs/core';
+import { Radio } from 'antd';
 
 import { Block } from '@/components';
 
@@ -34,16 +34,10 @@ export const Authentication = ({ initialValue, value, setValue }: Props) => {
 
   return (
     <Block title="Authentication type" required>
-      <RadioGroup
-        inline
-        selectedValue={value || initialValue}
-        onChange={(e) => {
-          setValue((e.target as any).value);
-        }}
-      >
+      <Radio.Group value={value || initialValue} onChange={(e) => setValue(e.target.value)}>
         <Radio value="AccessToken">Github Access Token</Radio>
         <Radio value="AppKey">Github App</Radio>
-      </RadioGroup>
+      </Radio.Group>
     </Block>
   );
 };
