@@ -112,7 +112,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/github
 // @Success 200  {object} models.GithubConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
+// @Failure 409  {object} srvhelper.DsRefs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/github/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
