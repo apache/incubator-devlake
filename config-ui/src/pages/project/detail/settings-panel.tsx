@@ -18,8 +18,8 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Flex, Card, Modal, Input, Button, message } from 'antd';
-import { Checkbox, Icon } from '@blueprintjs/core';
+import { Flex, Card, Modal, Input, Checkbox, Button, message } from 'antd';
+import { Icon } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -106,17 +106,15 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           <Input style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
         </Block>
         <Block description="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
-          <Checkbox
-            label="Enable DORA Metrics"
-            checked={enableDora}
-            onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
-          />
+          <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
+            Enable DORA Metrics
+          </Checkbox>
         </Block>
-        <Flex>
+        <Block>
           <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
             Save
           </Button>
-        </Flex>
+        </Block>
       </Card>
       <Flex justify="center">
         <Button type="primary" danger onClick={handleShowDeleteDialog}>
