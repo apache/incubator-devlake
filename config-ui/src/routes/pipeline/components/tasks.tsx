@@ -17,9 +17,9 @@
  */
 
 import { useState } from 'react';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, StopOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import { Collapse, Icon } from '@blueprintjs/core';
+import { Collapse } from '@blueprintjs/core';
 import { groupBy, sortBy } from 'lodash';
 
 import API from '@/api';
@@ -94,9 +94,9 @@ export const PipelineTasks = ({ id, style }: Props) => {
               <li key={key} className={status}>
                 <strong>Stage {key}</strong>
                 {status === 'loading' && <Loading size={14} />}
-                {status === 'success' && <Icon icon="tick-circle" />}
-                {status === 'error' && <Icon icon="cross-circle" />}
-                {status === 'cancel' && <Icon icon="disable" />}
+                {status === 'success' && <CheckCircleOutlined rev={undefined} />}
+                {status === 'error' && <CloseCircleOutlined rev={undefined} />}
+                {status === 'cancel' && <StopOutlined rev={undefined} />}
               </li>
             );
           })}

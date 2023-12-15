@@ -16,10 +16,8 @@
  *
  */
 
-import { Icon, IconName } from '@blueprintjs/core';
 import classNames from 'classnames';
 
-import { Loading } from '@/components';
 import { IPipelineStatus } from '@/types';
 
 import * as S from '../styled';
@@ -40,11 +38,7 @@ export const PipelineStatus = ({ status }: Props) => {
 
   return (
     <S.StatusWrapper className={cls}>
-      {C.PipeLineStatusIcon[status] === 'loading' ? (
-        <Loading style={{ marginRight: 4 }} size={14} />
-      ) : (
-        <Icon style={{ marginRight: 4 }} icon={C.PipeLineStatusIcon[status] as IconName} />
-      )}
+      {C.PipeLineStatusIcon[status]}
       <span>{C.PipeLineStatusLabel[status]}</span>
     </S.StatusWrapper>
   );

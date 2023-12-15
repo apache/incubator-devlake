@@ -16,18 +16,26 @@
  *
  */
 
+import {
+  FieldTimeOutlined,
+  LoadingOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  UndoOutlined,
+} from '@ant-design/icons';
+
 import { IPipelineStatus } from '@/types';
 
 export const PipeLineStatusIcon = {
-  [IPipelineStatus.CREATED]: 'stopwatch',
-  [IPipelineStatus.PENDING]: 'stopwatch',
-  [IPipelineStatus.ACTIVE]: 'loading',
-  [IPipelineStatus.RUNNING]: 'loading',
-  [IPipelineStatus.RERUN]: 'loading',
-  [IPipelineStatus.COMPLETED]: 'tick-circle',
-  [IPipelineStatus.PARTIAL]: 'tick-circle',
-  [IPipelineStatus.FAILED]: 'delete',
-  [IPipelineStatus.CANCELLED]: 'undo',
+  [IPipelineStatus.CREATED]: <FieldTimeOutlined rev={undefined} />,
+  [IPipelineStatus.PENDING]: <FieldTimeOutlined rev={undefined} />,
+  [IPipelineStatus.ACTIVE]: <LoadingOutlined rev={undefined} />,
+  [IPipelineStatus.RUNNING]: <LoadingOutlined rev={undefined} />,
+  [IPipelineStatus.RERUN]: <LoadingOutlined rev={undefined} />,
+  [IPipelineStatus.COMPLETED]: <CheckCircleOutlined rev={undefined} />,
+  [IPipelineStatus.PARTIAL]: <CheckCircleOutlined rev={undefined} />,
+  [IPipelineStatus.FAILED]: <CloseCircleOutlined rev={undefined} />,
+  [IPipelineStatus.CANCELLED]: <UndoOutlined rev={undefined} />,
 };
 
 export const PipeLineStatusLabel = {
