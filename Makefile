@@ -101,7 +101,7 @@ test: unit-test e2e-test
 unit-test: mock unit-test-only
 
 unit-test-only:
-	make unit-test-only -C backend
+	make unit-test -C backend
 
 python-unit-test:
 	make python-unit-test -C backend
