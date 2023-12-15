@@ -19,7 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { Input } from 'antd';
-import { Tag, Checkbox, FormGroup, Radio, RadioGroup } from '@blueprintjs/core';
+import { Tag, Checkbox, Radio, RadioGroup } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
 import { DateInput2 } from '@blueprintjs/datetime2';
 
@@ -148,36 +148,36 @@ export const SyncPolicy = ({
           {selectedValue === 'Custom' && (
             <>
               <S.Input>
-                <FormGroup label="Minute">
+                <Block title="Minute">
                   <Input
                     value={mintue}
                     onChange={(e) => onChangeCronConfig([e.target.value, hour, day, month, week].join(' '))}
                   />
-                </FormGroup>
-                <FormGroup label="Hour">
+                </Block>
+                <Block title="Hour">
                   <Input
                     value={hour}
                     onChange={(e) => onChangeCronConfig([mintue, e.target.value, day, month, week].join(' '))}
                   />
-                </FormGroup>
-                <FormGroup label="Day">
+                </Block>
+                <Block title="Day">
                   <Input
                     value={day}
                     onChange={(e) => onChangeCronConfig([mintue, hour, e.target.value, month, week].join(' '))}
                   />
-                </FormGroup>
-                <FormGroup label="Month">
+                </Block>
+                <Block title="Month">
                   <Input
                     value={month}
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, e.target.value, week].join(' '))}
                   />
-                </FormGroup>
-                <FormGroup label="Week">
+                </Block>
+                <Block title="Week">
                   <Input
                     value={week}
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, month, e.target.value].join(' '))}
                   />
-                </FormGroup>
+                </Block>
               </S.Input>
               {!cron.nextTime && <S.Error>Invalid Cron code, please enter again.</S.Error>}
             </>

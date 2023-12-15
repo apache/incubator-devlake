@@ -17,9 +17,9 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup, RadioGroup, Radio } from '@blueprintjs/core';
+import { RadioGroup, Radio } from '@blueprintjs/core';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
   initialValue: string;
@@ -33,10 +33,7 @@ export const Endpoint = ({ initialValue, value, setValue }: Props) => {
   }, [initialValue]);
 
   return (
-    <FormGroup
-      label={<S.Label>Opsgenie Instance Location (us or eu)</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-    >
+    <Block title="Opsgenie Instance Location (us or eu)" required>
       <RadioGroup
         inline
         selectedValue={value || initialValue}
@@ -47,6 +44,6 @@ export const Endpoint = ({ initialValue, value, setValue }: Props) => {
         <Radio value="https://api.opsgenie.com/">United States</Radio>
         <Radio value="https://api.eu.opsgenie.com/">Europe</Radio>
       </RadioGroup>
-    </FormGroup>
+    </Block>
   );
 };

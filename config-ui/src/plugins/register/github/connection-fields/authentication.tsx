@@ -17,9 +17,9 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup, RadioGroup, Radio } from '@blueprintjs/core';
+import { RadioGroup, Radio } from '@blueprintjs/core';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
   initialValue: string;
@@ -33,7 +33,7 @@ export const Authentication = ({ initialValue, value, setValue }: Props) => {
   }, [initialValue]);
 
   return (
-    <FormGroup label={<S.Label>Authentication type</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+    <Block title="Authentication type" required>
       <RadioGroup
         inline
         selectedValue={value || initialValue}
@@ -44,6 +44,6 @@ export const Authentication = ({ initialValue, value, setValue }: Props) => {
         <Radio value="AccessToken">Github Access Token</Radio>
         <Radio value="AppKey">Github App</Radio>
       </RadioGroup>
-    </FormGroup>
+    </Block>
   );
 };

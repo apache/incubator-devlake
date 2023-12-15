@@ -15,29 +15,12 @@
  * limitations under the License.
  *
  */
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 
 import { useState, useEffect } from 'react';
 import { Input } from 'antd';
-import { FormGroup, RadioGroup, Radio } from '@blueprintjs/core';
+import { RadioGroup, Radio } from '@blueprintjs/core';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 type VersionType = 'cloud' | 'server';
 
@@ -93,7 +76,7 @@ export const ConnectionEndpoint = ({
 
   if (multipleVersions) {
     return (
-      <FormGroup label={<S.Label>{name} Version</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+      <Block title={name} required>
         <RadioGroup inline selectedValue={version} onChange={handleChange}>
           <Radio value="cloud">{name} Cloud</Radio>
           <Radio value="server" disabled={!multipleVersions.server}>
@@ -106,29 +89,21 @@ export const ConnectionEndpoint = ({
           </p>
         )}
         {version === 'server' && (
-          <FormGroup
-            label={<S.Label>Endpoint URL</S.Label>}
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-            subLabel={
-              <S.LabelDescription>
-                {subLabel ?? `If you are using ${name} Server, please enter the endpoint URL.`}
-              </S.LabelDescription>
-            }
+          <Block
+            title="Endpoint URL"
+            description={subLabel ?? `If you are using ${name} Server, please enter the endpoint URL.`}
+            required
           >
             <Input placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
-          </FormGroup>
+          </Block>
         )}
-      </FormGroup>
+      </Block>
     );
   }
 
   return (
-    <FormGroup
-      label={<S.Label>Endpoint URL</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={<S.LabelDescription>{subLabel ?? `Provide the ${name} instance API endpoint.`}</S.LabelDescription>}
-    >
+    <Block title="Endpoint URL" description={subLabel ?? `Provide the ${name} instance API endpoint.`} required>
       <Input disabled={disabled} placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
-    </FormGroup>
+    </Block>
   );
 };

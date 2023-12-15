@@ -20,11 +20,11 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Flex, Table, Modal, Radio, Button, Input } from 'antd';
-import { Tag, Intent, FormGroup } from '@blueprintjs/core';
+import { Tag, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, TextTooltip } from '@/components';
+import { PageHeader, Block, TextTooltip } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -226,14 +226,10 @@ export const BlueprintHomePage = () => {
         onCancel={handleHideDialog}
       >
         <S.DialogWrapper>
-          <FormGroup
-            label={<S.Label>Blueprint Name</S.Label>}
-            subLabel={
-              <S.LabelDescription>
-                Give your Blueprint a unique name to help you identify it in the future.
-              </S.LabelDescription>
-            }
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+          <Block
+            title="Blueprint Name"
+            description="Give your Blueprint a unique name to help you identify it in the future."
+            required
           >
             <Input
               style={{ width: 386 }}
@@ -241,22 +237,18 @@ export const BlueprintHomePage = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </FormGroup>
-          <FormGroup
-            label={<S.Label>Blueprint Mode</S.Label>}
-            subLabel={
-              <S.LabelDescription>
-                Normal Mode is usually adequate for most usages. But if you need to customize how tasks are executed in
-                the Blueprint, please use Advanced Mode to create a Blueprint.
-              </S.LabelDescription>
-            }
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+          </Block>
+          <Block
+            title="Blueprint Mode"
+            description="Normal Mode is usually adequate for most usages. But if you need to customize how tasks are executed in
+            the Blueprint, please use Advanced Mode to create a Blueprint."
+            required
           >
             <Radio.Group value={mode} onChange={({ target: { value } }) => setMode(value)}>
               <Radio value={IBPMode.NORMAL}>Normal Mode</Radio>
               <Radio value={IBPMode.ADVANCED}>Advanced Mode</Radio>
             </Radio.Group>
-          </FormGroup>
+          </Block>
         </S.DialogWrapper>
       </Modal>
     </PageHeader>

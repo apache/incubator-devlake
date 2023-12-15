@@ -18,10 +18,10 @@
 
 import { useEffect, useState } from 'react';
 import { Select, Input } from 'antd';
-import { FormGroup, TextArea } from '@blueprintjs/core';
+import { TextArea } from '@blueprintjs/core';
 
 import API from '@/api';
-import { ExternalLink } from '@/components';
+import { Block, ExternalLink } from '@/components';
 
 import * as S from './styled';
 
@@ -139,17 +139,17 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
   }, [settings.appId, settings.secretKey, settings.installationId]);
 
   return (
-    <FormGroup
-      label={<S.Label>Github App settings</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={
-        <S.LabelDescription>
+    <Block
+      title="Github App settings"
+      description={
+        <>
           Input information about your Github App{' '}
           <ExternalLink link="https://docs.github.com/en/apps/maintaining-github-apps/modifying-a-github-app-registration#navigating-to-your-github-app-settings">
             Learn how to create a github app
           </ExternalLink>
-        </S.LabelDescription>
+        </>
       }
+      required
     >
       <S.Input>
         <div className="input">
@@ -197,6 +197,6 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
           onChange={(value) => setSettings({ ...settings, installationId: value })}
         />
       </S.Input>
-    </FormGroup>
+    </Block>
   );
 };

@@ -19,10 +19,10 @@
 import { useEffect, useState } from 'react';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import { Input, Button } from 'antd';
-import { FormGroup, Icon } from '@blueprintjs/core';
+import { Icon } from '@blueprintjs/core';
 
 import API from '@/api';
-import { ExternalLink } from '@/components';
+import { Block, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
 import * as S from './styled';
@@ -133,18 +133,18 @@ export const Token = ({
   };
 
   return (
-    <FormGroup
-      label={<S.Label>Personal Access Token(s) </S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={
-        <S.LabelDescription>
+    <Block
+      title="Personal Access Token(s)"
+      description={
+        <>
           Add one or more personal token(s) for authentication from you and your organization members. Multiple tokens
           (from different GitHub accounts, NOT from one account) can help speed up the data collection process.{' '}
           <ExternalLink link={DOC_URL.PLUGIN.GITHUB.AUTH_TOKEN}>
             Learn how to create a personal access token
           </ExternalLink>
-        </S.LabelDescription>
+        </>
       }
+      required
     >
       {tokens.map(({ value, isValid, status, from }, i) => (
         <S.Input key={i}>
@@ -192,6 +192,6 @@ export const Token = ({
           Another Token
         </Button>
       </div>
-    </FormGroup>
+    </Block>
   );
 };
