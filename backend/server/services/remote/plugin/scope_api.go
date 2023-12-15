@@ -19,6 +19,8 @@ package plugin
 
 import (
 	"net/http"
+	"sort"
+	"strings"
 
 	"github.com/apache/incubator-devlake/server/services/remote/models"
 	"github.com/mitchellh/mapstructure"
@@ -87,6 +89,29 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 		Count:  paginated.Count,
 	}
 	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
+}
+
+func (pa *pluginAPI) GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scopeIdWithSuffix := strings.TrimLeft(input.Params["scopeId"], "/")
+	if strings.HasSuffix(scopeIdWithSuffix, "/latest-sync-state") {
+		input.Params["scopeId"] = strings.TrimSuffix(scopeIdWithSuffix, "/latest-sync-state")
+		return pa.GetScopeLatestSyncState(input)
+	}
+	return pa.GetScope(input)
+}
+
+func (pa *pluginAPI) GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scopeSyncStates, err := pa.scopeHelper.GetScopeLatestSyncState(input)
+	if err != nil {
+		return nil, err
+	}
+	sort.Slice(scopeSyncStates, func(i, j int) bool {
+		if scopeSyncStates[i].LatestSuccessStart != nil && scopeSyncStates[j].LatestSuccessStart != nil {
+			return scopeSyncStates[i].LatestSuccessStart.After(*scopeSyncStates[j].LatestSuccessStart)
+		}
+		return false
+	})
+	return &plugin.ApiResourceOutput{Body: scopeSyncStates, Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
