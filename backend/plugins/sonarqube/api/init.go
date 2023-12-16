@@ -66,7 +66,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	](
 		br,
 		p.Name(),
-		[]string{"full_name"},
+		[]string{"name"},
 		func(c models.SonarqubeConnection) models.SonarqubeConnection {
 			return c.Sanitize()
 		},
