@@ -19,9 +19,8 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Card, Modal, Switch, Button, Tooltip } from 'antd';
-import { Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { Card, Modal, Switch, Button, Tooltip, Popover } from 'antd';
+import { Menu, MenuItem } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Message } from '@/components';
@@ -129,9 +128,9 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           <span>
             {cron.label === 'Manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
           </span>
-          <Tooltip2
-            position={Position.TOP}
-            content="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
+          <Tooltip
+            placement="top"
+            title="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
           >
             <Button
               type="primary"
@@ -141,7 +140,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             >
               Re-transform Data
             </Button>
-          </Tooltip2>
+          </Tooltip>
           <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
             Collect Data
           </Button>
@@ -151,7 +150,6 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
                 <MenuItem text="Collect Data in Full Refresh Mode" onClick={() => setType('fullSync')} />
               </Menu>
             }
-            placement="bottom"
           >
             <Button icon={<MoreOutlined rev={undefined} />} />
           </Popover>

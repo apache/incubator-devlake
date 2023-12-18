@@ -17,9 +17,8 @@
  */
 
 import { ClearOutlined, CaretDownOutlined } from '@ant-design/icons';
-import { Space, Input, Button } from 'antd';
-import { Menu, MenuItem, Position } from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
+import { Space, Input, Button, Popover } from 'antd';
+import { Menu, MenuItem } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 import { ExternalLink } from '@/components';
@@ -76,8 +75,7 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
         >
           Reset
         </Button>
-        <Popover2
-          placement={Position.TOP}
+        <Popover
           content={
             <Menu>
               {EXAMPLE_CONFIG.map((it) => (
@@ -90,12 +88,11 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
               ))}
             </Menu>
           }
-          renderTarget={({ ref, ...targetProps }) => (
-            <Button {...targetProps} ref={ref} size="small" icon={<CaretDownOutlined rev={undefined} />}>
-              Load Templates
-            </Button>
-          )}
-        />
+        >
+          <Button size="small" icon={<CaretDownOutlined rev={undefined} />}>
+            Load Templates
+          </Button>
+        </Popover>
       </Space>
     </Wrapper>
   );
