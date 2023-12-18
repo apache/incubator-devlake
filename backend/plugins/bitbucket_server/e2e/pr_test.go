@@ -97,39 +97,6 @@ func TestPrDataFlow(t *testing.T) {
 	// verify pr conversion
 	dataflowTester.FlushTabler(&code.PullRequest{})
 	dataflowTester.Subtask(tasks.ConvertPullRequestsMeta, taskData)
-	// dataflowTester.VerifyTableWithOptions(
-	// 	&code.PullRequest{},
-	// 	e2ehelper.TableOptions{
-	// 		CSVRelPath: "./snapshot_tables/pull_requests.csv",
-	// 		TargetFields: e2ehelper.ColumnWithRawData(
-	// 			"base_repo_id",
-	// 			"head_repo_id",
-	// 			"status",
-	// 			"title",
-	// 			"description",
-	// 			"url",
-	// 			"author_name",
-	// 			"author_id",
-	// 			"parent_pr_id",
-	// 			"pull_request_key",
-	// 			"created_date",
-	// 			"merged_date",
-	// 			"closed_date",
-	// 			"type",
-	// 			"component",
-	// 			"merge_commit_sha",
-	// 			"head_ref",
-	// 			"base_ref",
-	// 			"base_commit_sha",
-	// 			"head_commit_sha",
-	// 			"original_status",
-	// 		),
-	// 		IgnoreFields: []string{
-	// 			"_raw_data_id",
-	// 		},
-	// 	},
-	// )
-
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
 		"./snapshot_tables/pull_requests.csv",

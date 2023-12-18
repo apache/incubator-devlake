@@ -29,31 +29,29 @@ import (
 )
 
 func TestPrCommitDataFlow(t *testing.T) {
-	// 1. BranchCollector
-	// 2. BranchExtractor
-	// 3. CommitCollector
-	// 4. CommitExtractor
-
 	var plugin impl.BitbucketServer
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket_server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId: 1,
-			FullName:     "likyh/likyhphp",
+			ConnectionId: 3,
+			FullName:     "TP/repos/first-repo",
 		},
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pull_request_commits.csv", "_raw_bitbucket_api_pull_request_commits")
+	dataflowTester.ImportCsvIntoRawTable(
+		"./raw_tables/_raw_bitbucket_server_api_pull_request_commits.csv",
+		"_raw_bitbucket_server_api_pull_request_commits",
+	)
 
-	// verify pr extraction
-	dataflowTester.FlushTabler(&models.BitbucketServerPrCommit{})
+	// verify commit extraction
 	dataflowTester.FlushTabler(&models.BitbucketServerCommit{})
-	dataflowTester.FlushTabler(&models.BitbucketServerRepoCommit{})
+	dataflowTester.FlushTabler(&models.BitbucketServerPrCommit{})
 	dataflowTester.Subtask(tasks.ExtractApiPrCommitsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(
-		models.BitbucketServerPrCommit{}, e2ehelper.TableOptions{
+		models.BitbucketServerPrCommit{},
+		e2ehelper.TableOptions{
 			CSVRelPath:  "./snapshot_tables/_tool_bitbucket_pull_request_commits.csv",
 			IgnoreTypes: []interface{}{common.NoPKModel{}},
 		},
