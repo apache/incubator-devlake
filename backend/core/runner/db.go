@@ -167,7 +167,7 @@ func CheckDbConnection(dbUrl string, d time.Duration) errors.Error {
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				result <- errors.Default.New("panic when checking database connections")
+				result <- errors.Default.New(fmt.Sprintf("panic when checking db connection: %v", err))
 			}
 		}()
 		db, err := getDbConnection(dbUrl, &gorm.Config{})
