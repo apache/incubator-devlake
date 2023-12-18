@@ -18,8 +18,7 @@
 
 import { useState, useMemo } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Table, Modal, Input, Select, Button } from 'antd';
-import { Tag } from '@blueprintjs/core';
+import { Table, Modal, Input, Select, Button, Tag } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';

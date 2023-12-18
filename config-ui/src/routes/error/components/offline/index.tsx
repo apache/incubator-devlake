@@ -19,8 +19,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, CloseCircleOutlined, RedoOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { Card, Flex, Button } from 'antd';
-import { Tag } from '@blueprintjs/core';
+import { Card, Flex, Button, Tag } from 'antd';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';

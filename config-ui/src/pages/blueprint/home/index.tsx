@@ -19,8 +19,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import { Flex, Table, Modal, Radio, Button, Input } from 'antd';
-import { Tag, Intent } from '@blueprintjs/core';
+import { Flex, Table, Modal, Radio, Button, Input, Tag } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -184,11 +183,7 @@ export const BlueprintHomePage = () => {
               dataIndex: 'enable',
               key: 'enable',
               align: 'center',
-              render: (val) => (
-                <Tag minimal intent={val ? Intent.SUCCESS : Intent.DANGER}>
-                  {val ? 'Enabled' : 'Disabled'}
-                </Tag>
-              ),
+              render: (val) => <Tag color={val ? 'blue' : 'red'}>{val ? 'Enabled' : 'Disabled'}</Tag>,
             },
             {
               title: '',

@@ -19,8 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import type { RadioChangeEvent } from 'antd';
-import { Radio, Space, Checkbox, Input } from 'antd';
-import { Tag } from '@blueprintjs/core';
+import { Radio, Space, Checkbox, Input, Tag } from 'antd';
 import { TimePrecision } from '@blueprintjs/datetime';
 import { DateInput2 } from '@blueprintjs/datetime2';
 
@@ -111,8 +110,7 @@ export const SyncPolicy = ({
               <Tag
                 key={i}
                 style={{ marginRight: 5, cursor: 'pointer' }}
-                minimal={formatTime(opt.date) !== formatTime(timeAfter)}
-                intent="primary"
+                color={formatTime(opt.date) === formatTime(timeAfter) ? 'blue' : 'default'}
                 onClick={() => onChangeTimeAfter(dayjs(opt.date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ'))}
               >
                 {opt.label}
