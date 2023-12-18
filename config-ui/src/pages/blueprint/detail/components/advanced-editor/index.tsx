@@ -16,7 +16,9 @@
  *
  */
 
-import { TextArea, ButtonGroup, Button, Menu, MenuItem, Position } from '@blueprintjs/core';
+import { ClearOutlined, CaretDownOutlined } from '@ant-design/icons';
+import { Space, Input, Button } from 'antd';
+import { Menu, MenuItem, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 import styled from 'styled-components';
 
@@ -65,9 +67,15 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
         <span>Enter JSON Configuration or preload from a template.</span>
         <ExternalLink link={DOC_URL.ADVANCED_MODE.EXAMPLES}>See examples</ExternalLink>
       </p>
-      <TextArea fill value={value} onChange={(e) => onChange(e.target.value)} />
-      <ButtonGroup minimal>
-        <Button small text="Reset" icon="eraser" onClick={() => onChange(JSON.stringify([[]], null, '  '))} />
+      <Input.TextArea rows={6} value={value} onChange={(e) => onChange(e.target.value)} />
+      <Space>
+        <Button
+          size="small"
+          icon={<ClearOutlined rev={undefined} />}
+          onClick={() => onChange(JSON.stringify([[]], null, '  '))}
+        >
+          Reset
+        </Button>
         <Popover2
           placement={Position.TOP}
           content={
@@ -83,10 +91,12 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
             </Menu>
           }
           renderTarget={({ ref, ...targetProps }) => (
-            <Button {...targetProps} ref={ref} small text="Load Templates" rightIcon="caret-down" />
+            <Button {...targetProps} ref={ref} size="small" icon={<CaretDownOutlined rev={undefined} />}>
+              Load Templates
+            </Button>
           )}
         />
-      </ButtonGroup>
+      </Space>
     </Wrapper>
   );
 };

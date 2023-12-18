@@ -19,8 +19,8 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Card, Modal, Button, Tooltip } from 'antd';
-import { Switch, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
+import { Card, Modal, Switch, Button, Tooltip } from 'antd';
+import { Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import API from '@/api';
@@ -163,11 +163,11 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           <Button onClick={() => handleRun({})}>Run Now</Button>
           <Switch
             style={{ marginBottom: 0 }}
-            label="Blueprint Enabled"
             disabled={!!blueprint.projectName}
             checked={blueprint.enable}
-            onChange={(e) => handleUpdate({ enable: (e.target as HTMLInputElement).checked })}
+            onChange={(enable) => handleUpdate({ enable })}
           />
+          Blueprint Enabled
           <Tooltip title="Delete Blueprint">
             <Button
               type="primary"
