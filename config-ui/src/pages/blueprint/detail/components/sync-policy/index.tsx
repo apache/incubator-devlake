@@ -19,9 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import type { RadioChangeEvent } from 'antd';
-import { Radio, Space, Checkbox, Input, Tag } from 'antd';
-import { TimePrecision } from '@blueprintjs/datetime';
-import { DateInput2 } from '@blueprintjs/datetime2';
+import { Radio, Space, Checkbox, Input, Tag, DatePicker } from 'antd';
 
 import { Block, ExternalLink } from '@/components';
 import { getCron, getCronOptions } from '@/config';
@@ -119,15 +117,12 @@ export const SyncPolicy = ({
           </div>
 
           <div className="time-selection">
-            <DateInput2
-              timePrecision={TimePrecision.MINUTE}
-              showTimezoneSelect={false}
-              formatDate={formatTime}
-              parseDate={(str: string) => new Date(str)}
+            <DatePicker
+              value={timeAfter ? dayjs(timeAfter) : null}
               placeholder="Select start from"
-              popoverProps={{ placement: 'bottom' }}
-              value={timeAfter}
-              onChange={(date) => onChangeTimeAfter(date ? dayjs(date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ') : null)}
+              onChange={(_, date) =>
+                onChangeTimeAfter(date ? dayjs(date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ') : null)
+              }
             />
             <strong>to Now</strong>
           </div>

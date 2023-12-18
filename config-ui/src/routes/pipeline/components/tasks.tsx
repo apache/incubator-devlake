@@ -19,7 +19,6 @@
 import { useState } from 'react';
 import { CheckCircleOutlined, CloseCircleOutlined, StopOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import { Collapse } from '@blueprintjs/core';
 import { groupBy, sortBy } from 'lodash';
 
 import API from '@/api';
@@ -101,17 +100,15 @@ export const PipelineTasks = ({ id, style }: Props) => {
             );
           })}
         </S.TasksHeader>
-        <Collapse isOpen={isOpen}>
-          <S.TasksList>
-            {Object.keys(stages).map((key) => (
-              <li key={key}>
-                {stages[key].map((task) => (
-                  <PipelineTask key={task.id} task={task} />
-                ))}
-              </li>
-            ))}
-          </S.TasksList>
-        </Collapse>
+        <S.TasksList style={{ display: isOpen ? 'flex' : 'none' }}>
+          {Object.keys(stages).map((key) => (
+            <li key={key}>
+              {stages[key].map((task) => (
+                <PipelineTask key={task.id} task={task} />
+              ))}
+            </li>
+          ))}
+        </S.TasksList>
       </div>
       <Button
         size="small"
