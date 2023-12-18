@@ -35,7 +35,6 @@ interface Props {
 
 export const CrossDomain = ({ connectionId, transformation, setTransformation }: Props) => {
   const [radio, setRadio] = useState<'remote-link' | 'dev-panel'>('remote-link');
-  const [showTip, setShowTip] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
