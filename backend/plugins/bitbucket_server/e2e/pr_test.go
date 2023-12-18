@@ -33,28 +33,31 @@ func TestPrDataFlow(t *testing.T) {
 
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId: 1,
-			FullName:     "likyh/likyhphp",
+			ConnectionId: 3,
+			FullName:     "TP/repos/first-repo",
 		},
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pull_requests.csv", "_raw_bitbucket_api_pull_requests")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_server_api_pull_requests.csv", "_raw_bitbucket_server_api_pull_requests")
 
 	// verify pr extraction
 	dataflowTester.FlushTabler(&models.BitbucketServerPullRequest{})
-	dataflowTester.FlushTabler(&models.BitbucketServerAccount{})
+	dataflowTester.FlushTabler(&models.BitbucketServerUser{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketServerPullRequest{},
-		"./snapshot_tables/_tool_bitbucket_pull_requests.csv",
+		"./snapshot_tables/_tool_bitbucket_server_pull_requests.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
-			"bitbucket_id",
 			"repo_id",
+			"bitbucket_id",
 			"number",
+			"base_repo_id",
+			"head_repo_id",
 			"state",
 			"title",
+			"description",
 			"closed_at",
 			"comment_count",
 			"commits",
@@ -74,17 +77,19 @@ func TestPrDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		models.BitbucketServerAccount{},
-		"./snapshot_tables/_tool_bitbucket_accounts_in_pr.csv",
+		models.BitbucketServerUser{},
+		"./snapshot_tables/_tool_bitbucket_server_users_in_pr.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
-			"user_name",
-			"account_id",
+			"bitbucket_id",
+			"name",
+			"email_address",
+			"active",
+			"slug",
+			"type",
 			"account_status",
 			"display_name",
-			"avatar_url",
 			"html_url",
-			"uuid",
 			"has2_fa_enabled",
 		),
 	)
@@ -92,15 +97,46 @@ func TestPrDataFlow(t *testing.T) {
 	// verify pr conversion
 	dataflowTester.FlushTabler(&code.PullRequest{})
 	dataflowTester.Subtask(tasks.ConvertPullRequestsMeta, taskData)
+	// dataflowTester.VerifyTableWithOptions(
+	// 	&code.PullRequest{},
+	// 	e2ehelper.TableOptions{
+	// 		CSVRelPath: "./snapshot_tables/pull_requests.csv",
+	// 		TargetFields: e2ehelper.ColumnWithRawData(
+	// 			"base_repo_id",
+	// 			"head_repo_id",
+	// 			"status",
+	// 			"title",
+	// 			"description",
+	// 			"url",
+	// 			"author_name",
+	// 			"author_id",
+	// 			"parent_pr_id",
+	// 			"pull_request_key",
+	// 			"created_date",
+	// 			"merged_date",
+	// 			"closed_date",
+	// 			"type",
+	// 			"component",
+	// 			"merge_commit_sha",
+	// 			"head_ref",
+	// 			"base_ref",
+	// 			"base_commit_sha",
+	// 			"head_commit_sha",
+	// 			"original_status",
+	// 		),
+	// 		IgnoreFields: []string{
+	// 			"_raw_data_id",
+	// 		},
+	// 	},
+	// )
+
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
 		"./snapshot_tables/pull_requests.csv",
 		e2ehelper.ColumnWithRawData(
-			"id",
 			"base_repo_id",
 			"head_repo_id",
 			"status",
-			"original_status",
 			"title",
 			"description",
 			"url",
@@ -108,6 +144,7 @@ func TestPrDataFlow(t *testing.T) {
 			"author_id",
 			"parent_pr_id",
 			"pull_request_key",
+			"created_date",
 			"merged_date",
 			"closed_date",
 			"type",
@@ -117,7 +154,7 @@ func TestPrDataFlow(t *testing.T) {
 			"base_ref",
 			"base_commit_sha",
 			"head_commit_sha",
+			"original_status",
 		),
 	)
-
 }

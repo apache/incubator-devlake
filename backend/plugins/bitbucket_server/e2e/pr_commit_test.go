@@ -29,6 +29,11 @@ import (
 )
 
 func TestPrCommitDataFlow(t *testing.T) {
+	// 1. BranchCollector
+	// 2. BranchExtractor
+	// 3. CommitCollector
+	// 4. CommitExtractor
+
 	var plugin impl.BitbucketServer
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket_server", plugin)
 
