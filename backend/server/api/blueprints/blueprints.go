@@ -165,7 +165,7 @@ func Patch(c *gin.Context) {
 // @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
-// @Param skipCollectors body models.SyncPolicy true "json"
+// @Param skipCollectors body models.SyncPolicy false "json"
 // @Success 200 {object} models.Pipeline
 // @Failure 400 {object} shared.ApiBody "Bad Request"
 // @Failure 500 {object} shared.ApiBody "Internal Error"
