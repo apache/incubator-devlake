@@ -165,6 +165,11 @@ func CheckDbConnection(dbUrl string, d time.Duration) errors.Error {
 	result := make(chan errors.Error, 1)
 	done := make(chan struct{}, 1)
 	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				result <- errors.Default.New("panic when checking database connections")
+			}
+		}()
 		db, err := getDbConnection(dbUrl, &gorm.Config{})
 		if err != nil {
 			result <- errors.Convert(err)
