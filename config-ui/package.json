@@ -42,7 +42,7 @@
     "react-router-dom": "^6.14.1",
     "react-transition-group": "^4.4.5",
     "redux": "^4.2.1",
-    "styled-components": "^5.3.6"
+    "styled-components": "^6.1.1"
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.5",
@@ -52,7 +52,7 @@
     "@types/react-dom": "^18.0.10",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-transition-group": "^4.4.6",
-    "@types/styled-components": "^5.1.26",
+    "@types/styled-components": "^5.1.34",
     "@vitejs/plugin-react": "^3.1.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^8.10.0",
