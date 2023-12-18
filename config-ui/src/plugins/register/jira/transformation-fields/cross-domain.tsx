@@ -17,9 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { UpOutlined, DownOutlined } from '@ant-design/icons';
-import { Radio, Button } from 'antd';
-import { Collapse } from '@blueprintjs/core';
+import { Radio, Button, Collapse } from 'antd';
 
 import { ExternalLink } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
@@ -72,17 +70,18 @@ export const CrossDomain = ({ connectionId, transformation, setTransformation }:
           <Radio checked={radio === 'remote-link'} onChange={() => handleChangeRadio('remote-link')} />
           <div className="content">
             <h5>Connect Jira issues and commits via Jira issues’ remote links that match the following pattern</h5>
-            <p style={{ display: 'flex', alignItems: 'center' }} onClick={() => setShowTip(!showTip)}>
-              Input pattern(s) to match and parse commits and repo identifiers from issue remote links. See examples{' '}
-              {showTip ? (
-                <UpOutlined rev={undefined} style={{ cursor: 'pointer' }} />
-              ) : (
-                <DownOutlined rev={undefined} style={{ cursor: 'pointer' }} />
-              )}
-            </p>
-            <Collapse isOpen={showTip}>
-              <img src={JiraIssueTipsImg} width="100%" alt="" />
-            </Collapse>
+            <Collapse
+              ghost
+              expandIconPosition="end"
+              items={[
+                {
+                  key: '1',
+                  label:
+                    'Input pattern(s) to match and parse commits and repo identifiers from issue remote links. See examples',
+                  children: <img src={JiraIssueTipsImg} width="100%" alt="" />,
+                },
+              ]}
+            />
             {radio === 'remote-link' && (
               <RemoteLink transformation={transformation} setTransformation={setTransformation} />
             )}

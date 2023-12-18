@@ -18,7 +18,6 @@
 
 import { useEffect, useState } from 'react';
 import { Input, Button } from 'antd';
-import { ControlGroup } from '@blueprintjs/core';
 import type { McsID, McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
@@ -92,7 +91,7 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
         Learn about how to get your company ID
       </ExternalLink>
 
-      <ControlGroup fill={false} vertical={false} style={{ padding: '8px 0' }}>
+      <div>
         <Input
           placeholder="Your company ID"
           value={companyId}
@@ -105,7 +104,7 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
         <Button type="primary" onClick={() => getPageToken(companyId)}>
           Search
         </Button>
-      </ControlGroup>
+      </div>
 
       {pageToken && (
         <MillerColumnsSelect

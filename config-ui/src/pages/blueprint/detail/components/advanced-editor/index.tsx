@@ -17,8 +17,7 @@
  */
 
 import { ClearOutlined, CaretDownOutlined } from '@ant-design/icons';
-import { Space, Input, Button, Popover } from 'antd';
-import { Menu, MenuItem } from '@blueprintjs/core';
+import { Space, Input, Button, Dropdown } from 'antd';
 import styled from 'styled-components';
 
 import { ExternalLink } from '@/components';
@@ -75,24 +74,24 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
         >
           Reset
         </Button>
-        <Popover
-          content={
-            <Menu>
-              {EXAMPLE_CONFIG.map((it) => (
-                <MenuItem
-                  key={it.id}
-                  icon="code"
-                  text={it.name}
-                  onClick={() => onChange(JSON.stringify(it.config, null, '  '))}
-                />
-              ))}
-            </Menu>
-          }
+        <Dropdown
+          menu={{
+            items: EXAMPLE_CONFIG.map((it) => ({
+              key: it.id,
+              label: it.name,
+            })),
+            onClick: ({ key }) => {
+              const config = EXAMPLE_CONFIG.find((it) => it.id === key)?.config;
+              if (config) {
+                onChange(JSON.stringify(config, null, '  '));
+              }
+            },
+          }}
         >
           <Button size="small" icon={<CaretDownOutlined rev={undefined} />}>
             Load Templates
           </Button>
-        </Popover>
+        </Dropdown>
       </Space>
     </Wrapper>
   );

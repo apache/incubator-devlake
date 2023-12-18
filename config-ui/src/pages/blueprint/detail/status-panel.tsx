@@ -19,8 +19,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Card, Modal, Switch, Button, Tooltip, Popover } from 'antd';
-import { Menu, MenuItem } from '@blueprintjs/core';
+import { Card, Modal, Switch, Button, Tooltip, Dropdown } from 'antd';
 
 import API from '@/api';
 import { Message } from '@/components';
@@ -144,15 +143,23 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
             Collect Data
           </Button>
-          <Popover
-            content={
-              <Menu>
-                <MenuItem text="Collect Data in Full Refresh Mode" onClick={() => setType('fullSync')} />
-              </Menu>
-            }
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Collect Data in Full Refresh Mode',
+                },
+              ],
+              onClick: ({ key }) => {
+                if (key === '1') {
+                  setType('fullSync');
+                }
+              },
+            }}
           >
             <Button icon={<MoreOutlined rev={undefined} />} />
-          </Popover>
+          </Dropdown>
         </S.ProjectACtion>
       )}
 
