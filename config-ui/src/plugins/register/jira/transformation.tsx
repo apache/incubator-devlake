@@ -127,7 +127,7 @@ export const JiraTransformation = ({ entities, connectionId, transformation, set
     <Collapse
       bordered={false}
       defaultActiveKey={['TICKET', 'CROSS']}
-      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev={undefined} />}
+      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
       style={{ background: token.colorBgContainer }}
       size="large"
       items={renderCollapseItems({

@@ -47,9 +47,9 @@
   "devDependencies": {
     "@types/file-saver": "^2.0.5",
     "@types/node": "^18.15.1",
-    "@types/react": "^18.0.24",
+    "@types/react": "^17.0.73",
     "@types/react-copy-to-clipboard": "^5.0.4",
-    "@types/react-dom": "^18.0.10",
+    "@types/react-dom": "^17.0.25",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-transition-group": "^4.4.6",
     "@types/styled-components": "^5.1.34",

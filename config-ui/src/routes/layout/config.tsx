@@ -41,17 +41,17 @@ export const menuItems: MenuItem[] = [
   {
     key: '/connections',
     label: 'Connections',
-    icon: <AppstoreOutlined rev={undefined} />,
+    icon: <AppstoreOutlined />,
   },
   {
     key: '/projects',
     label: 'Projects',
-    icon: <ProjectOutlined rev={undefined} />,
+    icon: <ProjectOutlined />,
   },
   {
     key: '/advanced',
     label: 'Advanced',
-    icon: <ExperimentOutlined rev={undefined} />,
+    icon: <ExperimentOutlined />,
     children: [
       {
         key: '/advanced/blueprints',
@@ -66,7 +66,7 @@ export const menuItems: MenuItem[] = [
   {
     key: '/keys',
     label: 'API Keys',
-    icon: <KeyOutlined rev={undefined} />,
+    icon: <KeyOutlined />,
   },
 ];
 
@@ -91,26 +91,26 @@ export const headerItems = [
   {
     link: import.meta.env.DEV ? `${window.location.protocol}//${window.location.hostname}:3002` : `/grafana`,
     label: 'Dashboards',
-    icon: <DashboardOutlined rev={undefined} />,
+    icon: <DashboardOutlined />,
   },
   {
     link: DOC_URL.TUTORIAL,
     label: 'Docs',
-    icon: <FileSearchOutlined rev={undefined} />,
+    icon: <FileSearchOutlined />,
   },
   {
     link: '/api/swagger/index.html',
     label: 'API',
-    icon: <ApiOutlined rev={undefined} />,
+    icon: <ApiOutlined />,
   },
   {
     link: 'https://github.com/apache/incubator-devlake',
     label: 'GitHub',
-    icon: <GithubOutlined rev={undefined} />,
+    icon: <GithubOutlined />,
   },
   {
     link: 'https://join.slack.com/t/devlake-io/shared_invite/zt-26ulybksw-IDrJYuqY1FrdjlMMJhs53Q',
     label: 'Slack',
-    icon: <SlackOutlined rev={undefined} />,
+    icon: <SlackOutlined />,
   },
 ];

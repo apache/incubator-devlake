@@ -73,7 +73,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
   return (
     <Flex vertical gap="middle">
       <Flex>
-        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowDialog}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           Add New Scope Config
         </Button>
       </Flex>
@@ -89,9 +89,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
             key: 'id',
             width: 100,
             render: (id) =>
-              id !== 'None' ? (
-                <Button type="link" icon={<EditOutlined rev={undefined} />} onClick={() => handleUpdate(id)} />
-              ) : null,
+              id !== 'None' ? <Button type="link" icon={<EditOutlined />} onClick={() => handleUpdate(id)} /> : null,
           },
         ]}
         dataSource={dataSource}

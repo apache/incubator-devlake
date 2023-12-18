@@ -93,9 +93,9 @@ export const PipelineTasks = ({ id, style }: Props) => {
               <li key={key} className={status}>
                 <strong>Stage {key}</strong>
                 {status === 'loading' && <Loading size={14} />}
-                {status === 'success' && <CheckCircleOutlined rev={undefined} />}
-                {status === 'error' && <CloseCircleOutlined rev={undefined} />}
-                {status === 'cancel' && <StopOutlined rev={undefined} />}
+                {status === 'success' && <CheckCircleOutlined />}
+                {status === 'error' && <CloseCircleOutlined />}
+                {status === 'cancel' && <StopOutlined />}
               </li>
             );
           })}
@@ -113,7 +113,7 @@ export const PipelineTasks = ({ id, style }: Props) => {
       <Button
         size="small"
         className="collapse-control"
-        icon={isOpen ? <DownOutlined rev={undefined} /> : <UpOutlined rev={undefined} />}
+        icon={isOpen ? <DownOutlined /> : <UpOutlined />}
         onClick={handleToggleOpen}
       />
     </S.Tasks>

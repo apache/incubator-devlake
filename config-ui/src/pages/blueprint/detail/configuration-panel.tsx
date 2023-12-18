@@ -126,14 +126,14 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
         <h3>Blueprint Name</h3>
         <Space>
           <span>{blueprint.name}</span>
-          <Button type="primary" icon={<FormOutlined rev={undefined} />} onClick={handleShowNameDialog} />
+          <Button type="primary" icon={<FormOutlined />} onClick={handleShowNameDialog} />
         </Space>
       </div>
       <div className="block">
         <h3>
           <Space>
             <span>Sync Policy</span>
-            <Button type="primary" icon={<FormOutlined rev={undefined} />} onClick={handleShowPolicyDialog} />
+            <Button type="primary" icon={<FormOutlined />} onClick={handleShowPolicyDialog} />
           </Space>
         </h3>
         <Table
@@ -188,7 +188,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                 </>
               }
               action={
-                <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowAddConnectionDialog}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleShowAddConnectionDialog}>
                   Add a Connection
                 </Button>
               }
@@ -196,7 +196,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           ) : (
             <Flex vertical gap="middle">
               <Flex>
-                <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowAddConnectionDialog}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleShowAddConnectionDialog}>
                   Add a Connection
                 </Button>
               </Flex>

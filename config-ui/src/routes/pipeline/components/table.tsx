@@ -112,9 +112,9 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
             align: 'center',
             render: (id: ID, row) => (
               <Space>
-                <Button icon={<CodeOutlined rev={undefined} />} onClick={() => handleShowJSON(row)} />
-                <Button icon={<FileZipOutlined rev={undefined} />} onClick={() => handleDownloadLog(id)} />
-                <Button icon={<RightOutlined rev={undefined} />} onClick={() => handleShowDetails(id)} />
+                <Button icon={<CodeOutlined />} onClick={() => handleShowJSON(row)} />
+                <Button icon={<FileZipOutlined />} onClick={() => handleDownloadLog(id)} />
+                <Button icon={<RightOutlined />} onClick={() => handleShowDetails(id)} />
               </Space>
             ),
           },

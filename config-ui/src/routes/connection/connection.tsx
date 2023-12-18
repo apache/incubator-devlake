@@ -234,7 +234,7 @@ export const Connection = () => {
         { name, path: '' },
       ]}
       extra={
-        <Button type="primary" danger icon={<DeleteOutlined rev={undefined} />} onClick={handleShowDeleteDialog}>
+        <Button type="primary" danger icon={<DeleteOutlined />} onClick={handleShowDeleteDialog}>
           Delete Connection
         </Button>
       }
@@ -247,7 +247,7 @@ export const Connection = () => {
         Please note: In order to view DORA metrics, you will need to add Scope Configs.
       </div>
       <div style={{ marginBottom: 36 }}>
-        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowCreateDataScopeDialog}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleShowCreateDataScopeDialog}>
           Add Data Scope
         </Button>
         {plugin !== 'tapd' && pluginConfig.scopeConfig && (
@@ -255,7 +255,7 @@ export const Connection = () => {
             style={{ marginLeft: 8 }}
             type="primary"
             disabled={!scopeIds.length}
-            icon={<NodeIndexOutlined rev={undefined} />}
+            icon={<NodeIndexOutlined />}
             onClick={() => handleShowScopeConfigSelectDialog(scopeIds)}
           >
             Associate Scope Config
@@ -302,7 +302,7 @@ export const Connection = () => {
                 {pluginConfig.scopeConfig && (
                   <Button
                     type="primary"
-                    icon={<LinkOutlined rev={undefined} />}
+                    icon={<LinkOutlined />}
                     onClick={() => {
                       handleShowScopeConfigSelectDialog([id]);
                       setScopeConfigId(configId);
@@ -319,16 +319,8 @@ export const Connection = () => {
             width: 100,
             render: (id) => (
               <>
-                <Button
-                  type="primary"
-                  icon={<ClearOutlined rev={undefined} />}
-                  onClick={() => handleShowClearDataScopeDialog(id)}
-                />
-                <Button
-                  type="primary"
-                  icon={<DeleteOutlined rev={undefined} />}
-                  onClick={() => handleShowDeleteDataScopeDialog(id)}
-                />
+                <Button type="primary" icon={<ClearOutlined />} onClick={() => handleShowClearDataScopeDialog(id)} />
+                <Button type="primary" icon={<DeleteOutlined />} onClick={() => handleShowDeleteDataScopeDialog(id)} />
               </>
             ),
           },

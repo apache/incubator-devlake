@@ -2598,12 +2598,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.10":
-  version: 18.0.11
-  resolution: "@types/react-dom@npm:18.0.11"
+"@types/react-dom@npm:^17.0.25":
+  version: 17.0.25
+  resolution: "@types/react-dom@npm:17.0.25"
   dependencies:
-    "@types/react": "*"
-  checksum: 579691e4d5ec09688087568037c35edf8cfb1ab3e07f6c60029280733ee7b5c06d66df6fcc90786702c93ac8cb13bc7ff16c79ddfc75d082938fbaa36e1cdbf4
+    "@types/react": ^17
+  checksum: d1e582682478e0848c8d54ea3e89d02047bac6d916266b85ce63731b06987575919653ea7159d98fda47ade3362b8c4d5796831549564b83088e7aa9ce8b60ed
   languageName: node
   linkType: hard
 
@@ -2637,7 +2637,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.0.24":
+"@types/react@npm:*":
   version: 18.0.28
   resolution: "@types/react@npm:18.0.28"
   dependencies:
@@ -2645,6 +2645,17 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: e752df961105e5127652460504785897ca6e77259e0da8f233f694f9e8f451cde7fa0709d4456ade0ff600c8ce909cfe29f9b08b9c247fa9b734e126ec53edd7
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^17, @types/react@npm:^17.0.73":
+  version: 17.0.73
+  resolution: "@types/react@npm:17.0.73"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: 08107645acdd734c8ddb4d26f1b43dfa0d75f7a8d268eaacb897337e103eaa620fe8c3c6972dab9860aaa47bbee1da587cf06b11bb4e655588e38485daf48a6c
   languageName: node
   linkType: hard
 
@@ -3592,9 +3603,9 @@ __metadata:
     "@reduxjs/toolkit": ^1.9.7
     "@types/file-saver": ^2.0.5
     "@types/node": ^18.15.1
-    "@types/react": ^18.0.24
+    "@types/react": ^17.0.73
     "@types/react-copy-to-clipboard": ^5.0.4
-    "@types/react-dom": ^18.0.10
+    "@types/react-dom": ^17.0.25
     "@types/react-router-dom": ^5.3.3
     "@types/react-transition-group": ^4.4.6
     "@types/styled-components": ^5.1.34

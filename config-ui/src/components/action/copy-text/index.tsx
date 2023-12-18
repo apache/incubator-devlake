@@ -42,7 +42,7 @@ export const CopyText = ({ content }: Props) => {
         {content}
       </TextTooltip>
       <CopyToClipboard text={content} onCopy={() => message.success('Copy successfully.')}>
-        <Button icon={<CopyOutlined rev={undefined} />} />
+        <Button icon={<CopyOutlined />} />
       </CopyToClipboard>
     </Wrapper>
   );

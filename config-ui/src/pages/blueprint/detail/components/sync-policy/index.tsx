@@ -117,6 +117,7 @@ export const SyncPolicy = ({
           </div>
 
           <div className="time-selection">
+            {/* @ts-ignore */}
             <DatePicker
               value={timeAfter ? dayjs(timeAfter) : null}
               placeholder="Select start from"

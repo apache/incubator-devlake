@@ -134,7 +134,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
         onOk={handleDelete}
       >
         <S.DialogBody>
-          <WarningOutlined rev={undefined} />
+          <WarningOutlined />
           <span>
             This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in
             this Connection.
