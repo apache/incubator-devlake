@@ -73,12 +73,12 @@ func (script *normalizeBpSettings) Up(basicRes context.BasicRes) errors.Error {
 		return errors.BadInput.New("invalid encKey")
 	}
 	db := basicRes.GetDal()
-	bp := &blueprint20230829{}
-	cursor := errors.Must1(db.Cursor(dal.From(bp)))
+	cursor := errors.Must1(db.Cursor(dal.From(&blueprint20230829{})))
 	defer cursor.Close()
 
 	for cursor.Next() {
 		// load row
+		bp := &blueprint20230829{}
 		errors.Must(db.Fetch(cursor, bp))
 		// decrypt and unmarshal settings
 		settingsJson := errors.Must1(plugin.Decrypt(encKey, bp.Settings))
