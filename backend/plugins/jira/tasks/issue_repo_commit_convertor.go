@@ -101,8 +101,8 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			if commitRepoUrlRegex != nil {
 				groups := commitRepoUrlRegex.FindStringSubmatch(issueCommit.CommitUrl)
-				if len(groups) > 0 {
-					item.RepoUrl = groups[0]
+				if len(groups) > 1 {
+					item.RepoUrl = groups[1]
 				}
 			}
 			api.RefineIssueRepoCommit(item, commitRepoUrlRegexps, issueCommit.CommitUrl)
