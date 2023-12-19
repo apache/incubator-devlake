@@ -136,7 +136,7 @@ func makePipelinePlanV200(
 		})
 
 		// collect git data by gitextractor if CODE was requested
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) || len(scopeConfig.Entities) == 0 {
 			cloneUrl, err := errors.Convert01(url.Parse(gitlabProject.HttpUrlToRepo))
 			if err != nil {
 				return nil, err
