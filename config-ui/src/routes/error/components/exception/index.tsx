@@ -31,7 +31,7 @@ export const Exception = ({ error }: Props) => {
   return (
     <Card>
       <h2>
-        <CloseCircleOutlined rev={undefined} size={20} color="#f5222d" />
+        <CloseCircleOutlined size={20} color="#f5222d" />
         <span>{error.toString() || 'Unknown Error'}</span>
       </h2>
       <p>

@@ -16,7 +16,6 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 export const StatusWrapper = styled.div`
@@ -30,11 +29,11 @@ export const StatusWrapper = styled.div`
   }
 
   &.success {
-    color: ${Colors.GREEN3};
+    color: #a0d911;
   }
 
   &.error {
-    color: ${Colors.RED3};
+    color: #f5222d;
   }
 `;
 
@@ -69,7 +68,7 @@ export const Info = styled.div`
 
   p.message {
     margin: 8px 0 0;
-    color: ${Colors.RED3};
+    color: #f5222d;
   }
 `;
 
@@ -182,7 +181,7 @@ export const Task = styled.div`
       text-overflow: ellipsis;
 
       &.error {
-        color: ${Colors.RED3};
+        color: #f5222d;
       }
     }
   }
@@ -193,10 +192,5 @@ export const Task = styled.div`
     align-items: center;
     flex: 0 0 80px;
     text-align: right;
-
-    .bp5-icon {
-      margin-top: 4px;
-      cursor: pointer;
-    }
   }
 `;

@@ -44,10 +44,6 @@ export const Breadcrumb = styled.li`
     display: flex;
     align-items: center;
     color: #292b3f;
-
-    .bp5-icon {
-      margin: 0 10px;
-    }
   }
 `;
 export const Extra = styled.div``;

@@ -44,18 +44,6 @@ export const Wrapper = styled.div`
 export const Input = styled.div`
   display: flex;
   align-items: center;
-
-  .bp5-form-group {
-    margin-bottom: 4px;
-  }
-
-  .bp5-form-group + .bp5-form-group {
-    margin-left: 8px;
-  }
-
-  .bp5-input {
-    width: 60px;
-  }
 `;
 
 export const Error = styled.div`

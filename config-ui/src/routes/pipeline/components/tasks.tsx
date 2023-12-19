@@ -19,7 +19,6 @@
 import { useState } from 'react';
 import { CheckCircleOutlined, CloseCircleOutlined, StopOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import { Collapse } from '@blueprintjs/core';
 import { groupBy, sortBy } from 'lodash';
 
 import API from '@/api';
@@ -94,29 +93,27 @@ export const PipelineTasks = ({ id, style }: Props) => {
               <li key={key} className={status}>
                 <strong>Stage {key}</strong>
                 {status === 'loading' && <Loading size={14} />}
-                {status === 'success' && <CheckCircleOutlined rev={undefined} />}
-                {status === 'error' && <CloseCircleOutlined rev={undefined} />}
-                {status === 'cancel' && <StopOutlined rev={undefined} />}
+                {status === 'success' && <CheckCircleOutlined />}
+                {status === 'error' && <CloseCircleOutlined />}
+                {status === 'cancel' && <StopOutlined />}
               </li>
             );
           })}
         </S.TasksHeader>
-        <Collapse isOpen={isOpen}>
-          <S.TasksList>
-            {Object.keys(stages).map((key) => (
-              <li key={key}>
-                {stages[key].map((task) => (
-                  <PipelineTask key={task.id} task={task} />
-                ))}
-              </li>
-            ))}
-          </S.TasksList>
-        </Collapse>
+        <S.TasksList style={{ display: isOpen ? 'flex' : 'none' }}>
+          {Object.keys(stages).map((key) => (
+            <li key={key}>
+              {stages[key].map((task) => (
+                <PipelineTask key={task.id} task={task} />
+              ))}
+            </li>
+          ))}
+        </S.TasksList>
       </div>
       <Button
         size="small"
         className="collapse-control"
-        icon={isOpen ? <DownOutlined rev={undefined} /> : <UpOutlined rev={undefined} />}
+        icon={isOpen ? <DownOutlined /> : <UpOutlined />}
         onClick={handleToggleOpen}
       />
     </S.Tasks>
