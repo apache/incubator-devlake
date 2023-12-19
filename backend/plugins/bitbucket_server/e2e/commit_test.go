@@ -17,79 +17,56 @@ limitations under the License.
 
 package e2e
 
-// func TestRepoDataFlow(t *testing.T) {
-// 	var plugin impl.BitbucketServer
-// 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket_server", plugin)
+import (
+	"testing"
 
-// 	taskData := &tasks.BitbucketTaskData{
-// 		Options: &tasks.BitbucketOptions{
-// 			ConnectionId: 1,
-// 			FullName:     "DEV/repos/devlake-test-1",
-// 		},
-// 	}
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/plugins/bitbucket_server/impl"
+	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
+	"github.com/apache/incubator-devlake/plugins/bitbucket_server/tasks"
+)
 
-// 	// import raw data table
-// 	csvIter, _ := pluginhelper.NewCsvFileIterator("./raw_tables/_raw_bitbucket_api_repositories.csv")
-// 	defer csvIter.Close()
-// 	apiRepo := &models.BitbucketApiRepo{}
-// 	// load rows and insert into target table
-// 	for csvIter.HasNext() {
-// 		toInsertValues := csvIter.Fetch()
-// 		data := json.RawMessage(toInsertValues[`data`].(string))
-// 		err := errors.Convert(json.Unmarshal(data, apiRepo))
-// 		assert.Nil(t, err)
-// 		break
-// 	}
+func TestCommitDataFlow(t *testing.T) {
+	var plugin impl.BitbucketServer
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket_server", plugin)
 
-// 	// verify extraction
-// 	dataflowTester.FlushTabler(&models.BitbucketServerRepo{})
-// 	scope := apiRepo.ConvertApiScope().(*models.BitbucketServerRepo)
-// 	scope.ConnectionId = 1
-// 	err := dataflowTester.Dal.CreateIfNotExist(scope)
-// 	assert.Nil(t, err)
-// 	dataflowTester.VerifyTable(
-// 		models.BitbucketServerRepo{},
-// 		"./snapshot_tables/_tool_bitbucket_server_repos.csv",
-// 		e2ehelper.ColumnWithRawData(
-// 			"connection_id",
-// 			"bitbucket_id",
-// 			"name",
-// 			"html_url",
-// 			"description",
-// 			"owner",
-// 			"language",
-// 			"clone_url",
-// 		),
-// 	)
+	taskData := &tasks.BitbucketTaskData{
+		Options: &tasks.BitbucketOptions{
+			ConnectionId: 3,
+			FullName:     "TP/repos/first-repo",
+		},
+	}
 
-// 	// verify extraction
-// 	dataflowTester.FlushTabler(&code.Repo{})
-// 	dataflowTester.FlushTabler(&ticket.Board{})
-// 	dataflowTester.FlushTabler(&devops.CicdScope{})
-// 	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
-// 	dataflowTester.VerifyTable(
-// 		code.Repo{},
-// 		"./snapshot_tables/repos.csv",
-// 		e2ehelper.ColumnWithRawData(
-// 			"id",
-// 			"name",
-// 			"url",
-// 			"description",
-// 			"owner_id",
-// 			"language",
-// 			"forked_from",
-// 			"deleted",
-// 		),
-// 	)
-// 	dataflowTester.VerifyTable(
-// 		devops.CicdScope{},
-// 		"./snapshot_tables/cicd_scopes.csv",
-// 		e2ehelper.ColumnWithRawData(
-// 			"id",
-// 			"name",
-// 			"description",
-// 			"url",
-// 			"created_date",
-// 		),
-// 	)
-// }
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable(
+		"./raw_tables/_raw_bitbucket_server_api_commits.csv",
+		"_raw_bitbucket_server_api_commits",
+	)
+
+	// verify commit extraction
+	dataflowTester.FlushTabler(&models.BitbucketServerUser{})
+	dataflowTester.FlushTabler(&models.BitbucketServerCommit{})
+	dataflowTester.FlushTabler(&models.BitbucketServerRepoCommit{})
+	dataflowTester.Subtask(tasks.ExtractApiCommitsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(
+		models.BitbucketServerCommit{},
+		e2ehelper.TableOptions{
+			CSVRelPath:  "./snapshot_tables/_tool_bitbucket_server_commits.csv",
+			IgnoreTypes: []interface{}{common.NoPKModel{}},
+		},
+	)
+
+	// verify commit conversion
+	dataflowTester.FlushTabler(&code.Commit{})
+	dataflowTester.FlushTabler(&code.RepoCommit{})
+	dataflowTester.Subtask(tasks.ConvertCommitsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(
+		code.Commit{},
+		e2ehelper.TableOptions{
+			CSVRelPath:  "./snapshot_tables/commits.csv",
+			IgnoreTypes: []interface{}{common.NoPKModel{}},
+		},
+	)
+}

@@ -1,0 +1,35 @@
+"connection_id","repo_id","pull_request_id","commit_sha","author_id","author_name","author_email","authored_date","committed_date","message","additions","deletions","created_at","updated_at","_raw_data_params","_raw_data_table","_raw_data_id","_raw_data_remark"
+"3","TP/repos/first-repo","0","24a6fdc2c6512337b3dc665906c694872de041f0","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:25:07.000+00:00","2023-12-18T08:25:07.000+00:00","feat: login-page","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","22",""
+"3","TP/repos/first-repo","0","3312945e63b00ed5b2a1d908d20da0f9008ffd77","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:31:09.000+00:00","2023-12-18T08:31:09.000+00:00","fix: security hole","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","15",""
+"3","TP/repos/first-repo","0","3fc042b494b75032c29ae39d7f1059f52584e690","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:29:34.000+00:00","2023-12-18T08:29:34.000+00:00","feat: error screen","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","16",""
+"3","TP/repos/first-repo","0","40f16572e160c9ac9f7c71da2d0d28c1c6834655","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:28:33.000+00:00","2023-12-18T08:28:33.000+00:00","feat: password hashing","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","18",""
+"3","TP/repos/first-repo","0","4fd115a90a039a93ff2ca18356744d3b2f5e36c6","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:22:16.000+00:00","2023-12-18T08:22:16.000+00:00","feat: routing system","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","24",""
+"3","TP/repos/first-repo","0","6ea43f12ac53f53cbb54b0ae15a2fc26d45b5a62","0","usr123","temp@abv.bg","2023-12-18T08:27:04.000+00:00","2023-12-18T08:27:04.000+00:00","Pull request #1: Feat/user system
+
+Merge in TP/first-repo from feat/user-system to develop
+
+* commit '7bc78c9044ccbc36bbe9af435905f26fea56a87c':
+  feat: register page
+  feat: login-page","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","20",""
+"3","TP/repos/first-repo","0","7bc78c9044ccbc36bbe9af435905f26fea56a87c","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:25:24.000+00:00","2023-12-18T08:25:24.000+00:00","feat: register page","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","21",""
+"3","TP/repos/first-repo","0","8aa23dcdf26611c2f41202c0d5a3de76dc305d7e","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:21:26.000+00:00","2023-12-18T08:21:26.000+00:00","feat: initial commit","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","25",""
+"3","TP/repos/first-repo","0","938e0d13f71df1786a90dc4c6602819b1baa0789","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:29:21.000+00:00","2023-12-18T08:29:21.000+00:00","feat: loading screen","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","17",""
+"3","TP/repos/first-repo","0","9d3e8c35660a92606468aea25cd974e8ae776002","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:22:52.000+00:00","2023-12-18T08:22:52.000+00:00","feat: main-page","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","23",""
+"3","TP/repos/first-repo","0","bfebdee820699c83654c12feb8d1a02933d03594","0","usr123","temp@abv.bg","2023-12-18T08:31:33.000+00:00","2023-12-18T08:31:33.000+00:00","Pull request #3: Feat/user system backend
+
+Merge in TP/first-repo from feat/user-system-backend to develop
+
+* commit '3312945e63b00ed5b2a1d908d20da0f9008ffd77':
+  fix: security hole
+  feat: password hashing
+  feat: controller, repo, db connection","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","14",""
+"3","TP/repos/first-repo","0","c25c8d6eea78bdf75cf2e012ba949109b987496d","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:28:12.000+00:00","2023-12-18T08:28:12.000+00:00","feat: controller, repo, db connection","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","19",""
+"3","TP/repos/first-repo","0","ce3d52ba4cacb367e3de4366c19650e3e5a52609","0","Viktor Grigorov","viktor.grigorov@cleverpine.com","2023-12-18T08:32:26.000+00:00","2023-12-18T08:32:26.000+00:00","fix: error screen compatibility","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","13",""
+"3","TP/repos/first-repo","0","deea34e71c04cd85941cc94c31be7aac937ed619","0","usr123","temp@abv.bg","2023-12-18T08:32:55.000+00:00","2023-12-18T08:32:55.000+00:00","Pull request #4: Feat/loading screen
+
+Merge in TP/first-repo from feat/loading-screen to develop
+
+* commit 'ce3d52ba4cacb367e3de4366c19650e3e5a52609':
+  fix: error screen compatibility
+  feat: error screen
+  feat: loading screen","0","0","2023-12-19T14:07:33.227+00:00","2023-12-19T14:07:33.227+00:00","{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}","_raw_bitbucket_server_api_commits","12",""

@@ -70,17 +70,17 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				CommittedDate: time.UnixMilli(commit.CommitterTimestamp),
 			}
 
-			//if commit.Author != nil {
-			//	bitbucketCommit.AuthorName = commit.Author.User.FullDisplayName
-			//	bitbucketCommit.AuthorId = commit.Author.User.AccountId
-			//	results = append(results, commit.Author)
-			//}
-
 			bitbucketRepoCommit := &models.BitbucketServerRepoCommit{
 				ConnectionId: data.Options.ConnectionId,
 				RepoId:       data.Options.FullName,
 				CommitSha:    commit.BitbucketId,
 			}
+
+			bitbucketUser, err := convertUser(&commit.Author, data.Options.ConnectionId)
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, bitbucketUser)
 
 			results = append(results, bitbucketCommit)
 			results = append(results, bitbucketRepoCommit)
