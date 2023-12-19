@@ -156,13 +156,13 @@ func loadCommitGraph(ctx context.Context, db dal.Dal, data *RefdiffTaskData) (*u
 	}
 	defer cursor.Close()
 
-	commitParent := &code.CommitParent{}
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
 			return nil, errors.Convert(ctx.Err())
 		default:
 		}
+		commitParent := &code.CommitParent{}
 		err = db.Fetch(cursor, commitParent)
 		if err != nil {
 			return nil, err

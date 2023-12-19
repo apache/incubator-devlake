@@ -145,9 +145,8 @@ func ComputePipelineStatus(pipeline *models.Pipeline, isCancelled bool) (string,
 
 // GetLatestTasksOfPipeline returns latest tasks (reran tasks are excluding) of specified pipeline
 func GetLatestTasksOfPipeline(pipeline *models.Pipeline) ([]*models.Task, errors.Error) {
-	task := &models.Task{}
 	cursor, err := db.Cursor(
-		dal.From(task),
+		dal.From(&models.Task{}),
 		dal.Where("pipeline_id = ?", pipeline.ID),
 		dal.Orderby("id DESC"), // sort it by id so we can hit the latest task first for the RERUNed row/col
 	)
@@ -160,6 +159,7 @@ func GetLatestTasksOfPipeline(pipeline *models.Pipeline) ([]*models.Task, errors
 	type rowcol struct{ row, col int }
 	memorized := make(map[rowcol]bool)
 	for cursor.Next() {
+		task := &models.Task{}
 		if e := db.Fetch(cursor, task); e != nil {
 			return nil, errors.Convert(e)
 		}

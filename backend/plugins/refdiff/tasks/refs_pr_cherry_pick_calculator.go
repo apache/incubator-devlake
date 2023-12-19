@@ -68,7 +68,6 @@ func CalculatePrCherryPick(taskCtx plugin.SubTaskContext) errors.Error {
 
 	defer cursor.Close()
 
-	pr := &code.PullRequest{}
 	var parentPrKeyInt int
 	taskCtx.SetProgress(0, -1)
 
@@ -79,7 +78,7 @@ func CalculatePrCherryPick(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Convert(ctx.Err())
 		default:
 		}
-
+		pr := &code.PullRequest{}
 		err = db.Fetch(cursor, pr)
 		if err != nil {
 			return errors.Convert(err)
