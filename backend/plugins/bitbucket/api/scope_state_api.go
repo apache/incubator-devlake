@@ -27,7 +27,7 @@ import (
 // @Description get one BitBucket repo's latest sync state
 // @Tags plugins/bitbucket
 // @Param connectionId path int true "connection ID"
-// @Param scopeId path int true "scope ID"
+// @Param scopeId path string true "scope ID"
 // @Success 200  {object} []models.LatestSyncState
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
