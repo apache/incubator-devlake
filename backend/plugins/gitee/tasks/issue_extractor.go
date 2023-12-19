@@ -180,21 +180,21 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				if issueSeverityRegex != nil {
 					groups := issueSeverityRegex.FindStringSubmatch(label.Name)
 					if len(groups) > 0 {
-						giteeIssue.Severity = groups[1]
+						giteeIssue.Severity = groups[0]
 					}
 				}
 
 				if issueComponentRegex != nil {
 					groups := issueComponentRegex.FindStringSubmatch(label.Name)
 					if len(groups) > 0 {
-						giteeIssue.Component = groups[1]
+						giteeIssue.Component = groups[0]
 					}
 				}
 
 				if issuePriorityRegex != nil {
 					groups := issuePriorityRegex.FindStringSubmatch(label.Name)
 					if len(groups) > 0 {
-						giteeIssue.Priority = groups[1]
+						giteeIssue.Priority = groups[0]
 					}
 				}
 

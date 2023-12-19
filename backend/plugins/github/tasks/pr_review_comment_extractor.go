@@ -127,7 +127,7 @@ func ExtractApiPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 
 func enrichGithubPrComment(data *GithubTaskData, db dal.Dal, prUrlRegex *regexp.Regexp, prUrl string) (int, errors.Error) {
 	groups := prUrlRegex.FindStringSubmatch(prUrl)
-	if len(groups) > 0 {
+	if len(groups) > 1 {
 		prNumber, err := strconv.Atoi(groups[1])
 		if err != nil {
 			return 0, errors.Default.Wrap(err, "parse prId failed")
