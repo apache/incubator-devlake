@@ -30,19 +30,19 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
 )
 
-const RAW_ACCOUNT_TABLE = "bitbucket_server_api_accounts"
+const RAW_USER_TABLE = "bitbucket_server_api_users"
 
 var ConvertUsersMeta = plugin.SubTaskMeta{
 	Name:             "convertUsers",
 	EntryPoint:       ConvertUsers,
 	EnabledByDefault: true,
 	Required:         false,
-	Description:      "Convert tool layer table bitbucket_accounts into domain layer table accounts",
+	Description:      "Convert tool layer table bitbucket_users into domain layer table users",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertUsers(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNT_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 	db := taskCtx.GetDal()
 
 	cursor, err := db.Cursor(dal.From(&models.BitbucketServerUser{}))
@@ -51,7 +51,7 @@ func ConvertUsers(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerUser{})
+	userIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerUser{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.BitbucketServerUser{}),
@@ -60,7 +60,7 @@ func ConvertUsers(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketUser := inputRow.(*models.BitbucketServerUser)
 			domainUser := &crossdomain.Account{
-				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, bitbucketUser.BitbucketId)},
+				DomainEntity: domainlayer.DomainEntity{Id: userIdGen.Generate(data.Options.ConnectionId, bitbucketUser.BitbucketId)},
 				Email:        bitbucketUser.EmailAddress,
 				UserName:     bitbucketUser.Slug,
 				FullName:     bitbucketUser.Name,
