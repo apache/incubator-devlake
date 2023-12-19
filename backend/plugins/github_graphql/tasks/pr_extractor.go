@@ -90,7 +90,7 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 					// if pr.Type has not been set and prType is set in .env, process the below
 					if labelTypeRegex != nil {
 						groups := labelTypeRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
+						if len(groups) > 1 {
 							githubPr.Type = groups[1]
 						}
 					}
@@ -98,7 +98,7 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 					// if pr.Component has not been set and prComponent is set in .env, process
 					if labelComponentRegex != nil {
 						groups := labelComponentRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
+						if len(groups) > 1 {
 							githubPr.Component = groups[1]
 						}
 					}
