@@ -291,6 +291,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
+		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,

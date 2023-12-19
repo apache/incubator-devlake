@@ -22,3 +22,7 @@ import "github.com/apache/incubator-devlake/core/models/common"
 type OpsenieScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
 }
+
+func (o OpsenieScopeConfig) TableName() string {
+	return "_tool_opsgenie_scope_configs"
+}

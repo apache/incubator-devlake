@@ -29,5 +29,6 @@ func All() []plugin.MigrationScript {
 		new(addScopeConfigIdToProject),
 		new(modifyFileMetricsKeyLength),
 		new(modifyComponentLength),
+		new(addSonarQubeScopeConfig20231214),
 	}
 }

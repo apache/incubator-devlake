@@ -15,23 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package api
 
 import (
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addEndpointAndProxyToConnection),
-		new(addPagerdutyConnectionFields20230123),
-		new(addTransformationRulesToService20230303),
-		new(renameTr2ScopeConfig),
-		new(removeScopeConfig),
-		new(addRawParamTableForScope),
-		new(addIncidentPriority),
-		new(addPagerDutyScopeConfig20231214),
-	}
+// GetScopeLatestSyncState get one zentao project's latest sync state
+// @Summary get one zentao project's latest sync state
+// @Description get one zentao project's latest sync state
+// @Tags plugins/zentao
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path int true "scope ID"
+// @Success 200  {object} []models.LatestSyncState
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/zentao/connections/{connectionId}/scopes/{scopeId}/latest-sync-state [GET]
+func GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.GetScopeLatestSyncState(input)
 }
