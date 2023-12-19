@@ -127,7 +127,7 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				if labelTypeRegex != nil {
 					groups := labelTypeRegex.FindStringSubmatch(label.Name)
 					if len(groups) > 0 {
-						giteePr.Type = groups[1]
+						giteePr.Type = groups[0]
 					}
 				}
 
@@ -135,7 +135,7 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				if labelComponentRegex != nil {
 					groups := labelComponentRegex.FindStringSubmatch(label.Name)
 					if len(groups) > 0 {
-						giteePr.Component = groups[1]
+						giteePr.Component = groups[0]
 					}
 				}
 			}

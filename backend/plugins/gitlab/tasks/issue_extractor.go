@@ -211,22 +211,22 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				})
 				if issueSeverityRegex != nil {
 					groups := issueSeverityRegex.FindStringSubmatch(label)
-					if len(groups) > 1 {
-						gitlabIssue.Severity = groups[1]
+					if len(groups) > 0 {
+						gitlabIssue.Severity = groups[0]
 					}
 				}
 
 				if issueComponentRegex != nil {
 					groups := issueComponentRegex.FindStringSubmatch(label)
-					if len(groups) > 1 {
-						gitlabIssue.Component = groups[1]
+					if len(groups) > 0 {
+						gitlabIssue.Component = groups[0]
 					}
 				}
 
 				if issuePriorityRegex != nil {
 					groups := issuePriorityRegex.FindStringSubmatch(label)
-					if len(groups) > 1 {
-						gitlabIssue.Priority = groups[1]
+					if len(groups) > 0 {
+						gitlabIssue.Priority = groups[0]
 					}
 				}
 

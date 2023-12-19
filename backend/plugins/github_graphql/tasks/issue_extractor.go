@@ -175,20 +175,20 @@ func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQu
 
 		if issueRegexes.SeverityRegex != nil {
 			groups := issueRegexes.SeverityRegex.FindStringSubmatch(label.Name)
-			if len(groups) > 1 {
-				githubIssue.Severity = groups[1]
+			if len(groups) > 0 {
+				githubIssue.Severity = groups[0]
 			}
 		}
 		if issueRegexes.ComponentRegex != nil {
 			groups := issueRegexes.ComponentRegex.FindStringSubmatch(label.Name)
-			if len(groups) > 1 {
-				githubIssue.Component = groups[1]
+			if len(groups) > 0 {
+				githubIssue.Component = groups[0]
 			}
 		}
 		if issueRegexes.PriorityRegex != nil {
 			groups := issueRegexes.PriorityRegex.FindStringSubmatch(label.Name)
-			if len(groups) > 1 {
-				githubIssue.Priority = groups[1]
+			if len(groups) > 0 {
+				githubIssue.Priority = groups[0]
 			}
 		}
 		if issueRegexes.TypeRequirementRegex != nil && issueRegexes.TypeRequirementRegex.MatchString(label.Name) {
