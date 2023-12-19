@@ -103,8 +103,8 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	var isIncremental bool
 	var since *time.Time
 
-	if syncPolicy == nil {
-		// 1. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
+	if syncPolicy == nil || (syncPolicy != nil && syncPolicy.TimeAfter == nil) {
+		// 1. If no syncPolicy TimeAfter, incremental and since is oldState.LatestSuccessStart
 		isIncremental = true
 		since = oldLatestSuccessStart
 	} else if oldLatestSuccessStart == nil {
