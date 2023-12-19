@@ -136,9 +136,7 @@ export const PipelineTask = ({ task }: Props) => {
           IPipelineStatus.PARTIAL,
           IPipelineStatus.FAILED,
           IPipelineStatus.CANCELLED,
-        ].includes(status) && (
-          <Button loading={operating} icon={<RedoOutlined rev={undefined} />} onClick={handleRerun} />
-        )}
+        ].includes(status) && <Button loading={operating} icon={<RedoOutlined />} onClick={handleRerun} />}
       </div>
     </S.Task>
   );

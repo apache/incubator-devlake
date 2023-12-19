@@ -40,7 +40,6 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, open
   const [searching, setSearching] = useState(false);
   const [applicationTypes, setApplicationTypes] = useState<string[]>([]);
   const [applicationType, setApplicationType] = useState<string>();
-  const [showTip, setShowTip] = useState(false);
   const [operating, setOperating] = useState(false);
   const [devPanelCommits, setDevPanelCommits] = useState<string[]>([]);
   const [pattern, setPattern] = useState('');

@@ -5,7 +5,7 @@ The **Config-UI Application** is a **React.js** SPA (Single-Page-Application) th
 #### Technology / Stack Overview
 
 - React
-- Blueprint
+- Antd
 - Vite
 - TypeScript
 - Yarn3

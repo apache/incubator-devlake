@@ -42,7 +42,7 @@ export const NeedsDBMigrate = () => {
   return (
     <Card>
       <h2>
-        <ExclamationCircleOutlined rev={undefined} size={20} color="#fa541c" />
+        <ExclamationCircleOutlined size={20} color="#fa541c" />
         <span>New Migration Scripts Detected</span>
       </h2>
       <p>

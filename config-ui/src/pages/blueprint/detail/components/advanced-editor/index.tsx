@@ -67,11 +67,7 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
       </p>
       <Input.TextArea rows={6} value={value} onChange={(e) => onChange(e.target.value)} />
       <Space>
-        <Button
-          size="small"
-          icon={<ClearOutlined rev={undefined} />}
-          onClick={() => onChange(JSON.stringify([[]], null, '  '))}
-        >
+        <Button size="small" icon={<ClearOutlined />} onClick={() => onChange(JSON.stringify([[]], null, '  '))}>
           Reset
         </Button>
         <Dropdown
@@ -88,7 +84,7 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
             },
           }}
         >
-          <Button size="small" icon={<CaretDownOutlined rev={undefined} />}>
+          <Button size="small" icon={<CaretDownOutlined />}>
             Load Templates
           </Button>
         </Dropdown>

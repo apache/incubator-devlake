@@ -198,19 +198,19 @@ export const BlueprintConnectionDetailPage = () => {
           okText="Confirm"
           onConfirm={handleRemoveConnection}
         >
-          <Button type="primary" danger icon={<DeleteOutlined rev={undefined} />}>
+          <Button type="primary" danger icon={<DeleteOutlined />}>
             Remove this Connection
           </Button>
         </Popconfirm>
       </S.Top>
       <Flex vertical gap="middle">
         <Flex>
-          <Button type="primary" icon={<FormOutlined rev={undefined} />} onClick={handleShowDataScope}>
+          <Button type="primary" icon={<FormOutlined />} onClick={handleShowDataScope}>
             Manage Data Scope
           </Button>
           {pluginConfig.scopeConfig && (
             <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
-              <Button type="primary" icon={<FormOutlined rev={undefined} />}>
+              <Button type="primary" icon={<FormOutlined />}>
                 Edit Scope Config
               </Button>
             </ExternalLink>

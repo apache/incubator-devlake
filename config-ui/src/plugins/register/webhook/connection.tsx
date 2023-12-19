@@ -74,21 +74,9 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
             align: 'center',
             render: (_, row) => (
               <Space>
-                <Button
-                  type="primary"
-                  icon={<EyeOutlined rev={undefined} />}
-                  onClick={() => handleShowDialog('show', row)}
-                />
-                <Button
-                  type="primary"
-                  icon={<FormOutlined rev={undefined} />}
-                  onClick={() => handleShowDialog('edit', row)}
-                />
-                <Button
-                  type="primary"
-                  icon={<DeleteOutlined rev={undefined} />}
-                  onClick={() => handleShowDialog('delete', row)}
-                />
+                <Button type="primary" icon={<EyeOutlined />} onClick={() => handleShowDialog('show', row)} />
+                <Button type="primary" icon={<FormOutlined />} onClick={() => handleShowDialog('edit', row)} />
+                <Button type="primary" icon={<DeleteOutlined />} onClick={() => handleShowDialog('delete', row)} />
               </Space>
             ),
           },
@@ -97,7 +85,7 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
         pagination={false}
       />
       <Flex>
-        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={() => handleShowDialog('add')}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => handleShowDialog('add')}>
           Add a Webhook
         </Button>
       </Flex>

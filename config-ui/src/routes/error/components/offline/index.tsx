@@ -57,11 +57,7 @@ export const Offline = () => {
   return (
     <Card>
       <h2>
-        {online ? (
-          <CheckCircleOutlined rev={undefined} color="#a0d911" size={30} />
-        ) : (
-          <CloseCircleOutlined rev={undefined} color="#f5222d" size={30} />
-        )}
+        {online ? <CheckCircleOutlined color="#a0d911" size={30} /> : <CloseCircleOutlined color="#f5222d" size={30} />}
         <span>DevLake API</span>
         <strong style={{ marginLeft: 4, color: online ? '#a0d911' : '#f5222d' }}>
           {online ? 'Online' : 'Offline'}
@@ -77,12 +73,7 @@ export const Offline = () => {
             <strong>Lake API</strong> to start before accessing the <strong>Configuration Interface</strong>.
           </p>
           <Flex justify="center">
-            <Button
-              type="primary"
-              loading={loading}
-              icon={<RedoOutlined rev={undefined} />}
-              onClick={() => setVersion((v) => v + 1)}
-            >
+            <Button type="primary" loading={loading} icon={<RedoOutlined />} onClick={() => setVersion((v) => v + 1)}>
               Refresh
             </Button>
           </Flex>
@@ -95,7 +86,7 @@ export const Offline = () => {
               Continue
             </Button>
             <Button
-              icon={<QuestionCircleOutlined rev={undefined} />}
+              icon={<QuestionCircleOutlined />}
               onClick={() =>
                 window.open(
                   'https://github.com/apache/incubator-devlake/blob/main/README.md',

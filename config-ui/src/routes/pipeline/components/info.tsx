@@ -109,16 +109,14 @@ export const PipelineInfo = ({ id }: Props) => {
         </li>
         <li>
           {[IPipelineStatus.ACTIVE, IPipelineStatus.RUNNING, IPipelineStatus.RERUN].includes(status) && (
-            <Button loading={operating} icon={<StopOutlined rev={undefined} />} onClick={handleCancel} />
+            <Button loading={operating} icon={<StopOutlined />} onClick={handleCancel} />
           )}
           {[
             IPipelineStatus.COMPLETED,
             IPipelineStatus.PARTIAL,
             IPipelineStatus.FAILED,
             IPipelineStatus.CANCELLED,
-          ].includes(status) && (
-            <Button loading={operating} icon={<RedoOutlined rev={undefined} />} onClick={handleRerun} />
-          )}
+          ].includes(status) && <Button loading={operating} icon={<RedoOutlined />} onClick={handleRerun} />}
         </li>
       </ul>
       {IPipelineStatus.FAILED === status && <p className="'message'">{message}</p>}

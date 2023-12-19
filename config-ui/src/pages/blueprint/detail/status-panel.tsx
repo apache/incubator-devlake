@@ -158,7 +158,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
               },
             }}
           >
-            <Button icon={<MoreOutlined rev={undefined} />} />
+            <Button icon={<MoreOutlined />} />
           </Dropdown>
         </S.ProjectACtion>
       )}
@@ -178,7 +178,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
               type="primary"
               loading={operating}
               disabled={!!blueprint.projectName}
-              icon={<DeleteOutlined rev={undefined} />}
+              icon={<DeleteOutlined />}
               onClick={() => setType('delete')}
             />
           </Tooltip>

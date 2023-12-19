@@ -94,7 +94,7 @@ export const ApiKeys = () => {
     <PageHeader
       breadcrumbs={[{ name: 'API Keys', path: '/keys' }]}
       extra={
-        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={() => setModal('create')}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal('create')}>
           New API Key
         </Button>
       }

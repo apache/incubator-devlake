@@ -33,7 +33,7 @@ interface Props {
 export const Message = ({ style, size = 20, content }: Props) => {
   return (
     <Wrapper style={style}>
-      <WarningOutlined rev={undefined} size={size} color="#f4be55" />
+      <WarningOutlined size={size} color="#f4be55" />
       <span>{content}</span>
     </Wrapper>
   );

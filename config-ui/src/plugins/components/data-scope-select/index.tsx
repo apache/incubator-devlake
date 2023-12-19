@@ -130,7 +130,7 @@ export const DataScopeSelect = ({
             />
           ) : (
             <Flex>
-              <Button type="primary" icon={<RedoOutlined rev={undefined} />}>
+              <Button type="primary" icon={<RedoOutlined />}>
                 Refresh Data Scope
               </Button>
             </Flex>
@@ -164,7 +164,7 @@ export const DataScopeSelect = ({
       ) : (
         <Flex>
           <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
-            <Button type="primary" icon={<PlusOutlined rev={undefined} />}>
+            <Button type="primary" icon={<PlusOutlined />}>
               Add Data Scope
             </Button>
           </ExternalLink>

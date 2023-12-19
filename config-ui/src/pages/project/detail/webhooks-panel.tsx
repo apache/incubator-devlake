@@ -135,7 +135,7 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
             text="Push `incidents` or `deployments` from your tools by incoming webhooks."
             action={
               <>
-                <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={() => setType('create')}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setType('create')}>
                   Add a Webhook
                 </Button>
                 <div style={{ margin: '8px 0' }}>or</div>

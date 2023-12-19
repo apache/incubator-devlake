@@ -108,7 +108,7 @@ export const BlueprintHomePage = () => {
               </Radio>
             ))}
           </Radio.Group>
-          <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowDialog}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
             New Blueprint
           </Button>
         </Flex>
@@ -193,7 +193,7 @@ export const BlueprintHomePage = () => {
               align: 'center',
               render: (val) => (
                 <Link to={`/advanced/blueprints/${val}?tab=configuration`}>
-                  <Button type="primary" icon={<SettingOutlined rev={undefined} />} />
+                  <Button type="primary" icon={<SettingOutlined />} />
                 </Link>
               ),
             },
