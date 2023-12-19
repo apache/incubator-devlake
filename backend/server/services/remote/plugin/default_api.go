@@ -70,6 +70,10 @@ func GetDefaultAPI(
 		},
 		// Use `*` to match scopeId with `/` in it
 		"connections/:connectionId/scopes/*scopeId": {
+			// Behind 'GetScopeDispatcher', there are two paths so far:
+			// GetScopeLatestSyncState "connections/:connectionId/scopes/:scopeId/latest-sync-state"
+			// GetScope "connections/:connectionId/scopes/:scopeId"
+			// Because there may be slash in scopeId, so we handle it manually.
 			"GET":    papi.GetScopeDispatcher,
 			"PATCH":  papi.UpdateScope,
 			"DELETE": papi.DeleteScope,
