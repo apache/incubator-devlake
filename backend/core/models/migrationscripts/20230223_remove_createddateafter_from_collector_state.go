@@ -40,13 +40,13 @@ type removeCreatedDateAfterFromCollectorMeta20230223 struct{}
 func (script *removeCreatedDateAfterFromCollectorMeta20230223) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	// step 1: rename bp.settings.createdDateAfter to timeAfter
-	bp := &blueprint20230223{}
-	cursor, err := db.Cursor(dal.From(bp), dal.Where("mode = ?", "NORMAL"))
+	cursor, err := db.Cursor(dal.From(&blueprint20230223{}), dal.Where("mode = ?", "NORMAL"))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	for cursor.Next() {
+		bp := &blueprint20230223{}
 		err = db.Fetch(cursor, bp)
 		if err != nil {
 			return err
