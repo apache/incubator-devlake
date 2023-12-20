@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
 )
@@ -37,23 +35,6 @@ type BitbucketUserResponse struct {
 			Href string `json:"href"`
 		} `json:"self"`
 	} `json:"links"`
-}
-
-type BitbucketAccountResponse struct {
-	BitbucketId   string    `json:"id"`
-	UserName      string    `json:"name"`
-	DisplayName   string    `json:"display_name"`
-	AccountId     string    `json:"account_id"`
-	AccountStatus string    `json:"account_status"`
-	CreateOn      time.Time `json:"create_on"`
-	Links         struct {
-		//Self       struct{ Href string } `json:"self"`
-		Html   struct{ Href string } `json:"html"`
-		Avatar struct{ Href string } `json:"avatar"`
-		//Followers  struct{ Href string } `json:"followers"`
-		//Following  struct{ Href string } `json:"following"`
-		//Repository struct{ Href string } `json:"repository"`
-	}
 }
 
 func convertUser(res *BitbucketUserResponse, connId uint64) (*models.BitbucketServerUser, errors.Error) {

@@ -54,9 +54,8 @@ type BitbucketApiPullRequest struct {
 			Href string `json:"href"`
 		} `json:"html"`
 	} `json:"links"`
-	//ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
 	Author *struct {
-		User *BitbucketUserResponse `json:"user"` // TODO: use BitbucketAccountResponse
+		User *BitbucketUserResponse `json:"user"`
 	} `json:"author"`
 	BitbucketCreatedAt int64  `json:"createdDate"`
 	BitbucketUpdatedAt int64  `json:"updatedDate"`
@@ -76,8 +75,6 @@ type BitbucketApiPullRequest struct {
 		CommentCount      int `json:"commentCount"`
 		OpenTaskCount     int `json:"openTaskCount"`
 	} `json:"properties"`
-	//Reviewers    []BitbucketAccountResponse `json:"reviewers"`
-	//Participants []BitbucketAccountResponse `json:"participants"`
 }
 
 func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
