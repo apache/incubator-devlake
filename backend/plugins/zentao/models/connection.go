@@ -107,6 +107,7 @@ func (connection ZentaoConnection) Sanitize() ZentaoConnection {
 	return connection
 }
 
+// Merge works with the new connection helper.
 func (connection ZentaoConnection) Merge(existed, modified *ZentaoConnection) error {
 	existedDBUrl := existed.DbUrl
 	if existedDBUrl == "" && modified.DbUrl == "" {

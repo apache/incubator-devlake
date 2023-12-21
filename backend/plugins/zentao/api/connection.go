@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"github.com/apache/incubator-devlake/core/runner"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"net/http"
 	"time"
 
@@ -147,8 +148,22 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Router /plugins/zentao/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.ZentaoConnection{}
-	err := connectionHelper.Patch(connection, input)
-	if err != nil {
+	if err := utils.Decode(input.Body, connection, nil); err != nil {
+		return nil, err
+	}
+	if err := connectionHelper.Merge(connection, input.Body); err != nil {
+		return nil, err
+	}
+	// make sure zentao config's db url field is not in secret format
+	existedConnection := &models.ZentaoConnection{}
+	if err := connectionHelper.First(existedConnection, input.Params); err != nil {
+		return nil, err
+	}
+	if err := (models.ZentaoConnection{}).Merge(existedConnection, connection); err != nil {
+		return nil, errors.Convert(err)
+	}
+	connection.DbUrl = existedConnection.DbUrl
+	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
