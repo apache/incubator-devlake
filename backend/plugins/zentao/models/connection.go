@@ -74,6 +74,7 @@ func (connection ZentaoConn) Sanitize() ZentaoConn {
 	if connection.DbUrl != "" {
 		connection.DbUrl = connection.SanitizeDbUrl()
 	}
+	connection.Password = ""
 	return connection
 }
 
@@ -104,6 +105,30 @@ func (connection ZentaoConn) SanitizeDbUrl() string {
 func (connection ZentaoConnection) Sanitize() ZentaoConnection {
 	connection.ZentaoConn = connection.ZentaoConn.Sanitize()
 	return connection
+}
+
+func (connection ZentaoConnection) Merge(existed, modified *ZentaoConnection) error {
+	existedDBUrl := existed.DbUrl
+	if existedDBUrl == "" && modified.DbUrl == "" {
+		return nil
+	}
+	if existedDBUrl != "" && modified.DbUrl == "" {
+		existed.DbUrl = ""
+		return nil
+	}
+	if existedDBUrl == "" && modified.DbUrl != "" {
+		existed.DbUrl = modified.DbUrl
+		return nil
+	}
+	if existedDBUrl != "" && modified.DbUrl != "" {
+		existedSanitizedConnection := existed.Sanitize()
+		if existedSanitizedConnection.DbUrl != modified.DbUrl {
+			// db url is updated
+			existed.DbUrl = modified.DbUrl
+		}
+		return nil
+	}
+	return nil
 }
 
 // This object conforms to what the frontend currently expects.
