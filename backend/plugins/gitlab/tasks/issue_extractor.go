@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"regexp"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -202,55 +203,38 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-
+			var joinedLabels []string
 			for _, label := range body.Labels {
 				results = append(results, &models.GitlabIssueLabel{
 					IssueId:      gitlabIssue.GitlabId,
 					LabelName:    label,
 					ConnectionId: data.Options.ConnectionId,
 				})
-				if issueSeverityRegex != nil {
-					groups := issueSeverityRegex.FindStringSubmatch(label)
-					if len(groups) > 0 {
-						gitlabIssue.Severity = groups[0]
-					}
+				if issueSeverityRegex != nil && issueSeverityRegex.MatchString(label) {
+					gitlabIssue.Severity = label
+				}
+				if issueComponentRegex != nil && issueComponentRegex.MatchString(label) {
+					gitlabIssue.Component = label
+				}
+				if issuePriorityRegex != nil && issuePriorityRegex.MatchString(label) {
+					gitlabIssue.Priority = label
 				}
 
-				if issueComponentRegex != nil {
-					groups := issueComponentRegex.FindStringSubmatch(label)
-					if len(groups) > 0 {
-						gitlabIssue.Component = groups[0]
-					}
-				}
-
-				if issuePriorityRegex != nil {
-					groups := issuePriorityRegex.FindStringSubmatch(label)
-					if len(groups) > 0 {
-						gitlabIssue.Priority = groups[0]
-					}
-				}
-
-				if issueTypeBugRegex != nil {
-					if ok := issueTypeBugRegex.MatchString(label); ok {
-						gitlabIssue.StdType = ticket.BUG
-						gitlabIssue.Type = label
-					}
-				}
-
-				if issueTypeRequirementRegex != nil {
-					if ok := issueTypeRequirementRegex.MatchString(label); ok {
-						gitlabIssue.StdType = ticket.REQUIREMENT
-						gitlabIssue.Type = label
-					}
-				}
-
-				if issueTypeIncidentRegex != nil {
-					if ok := issueTypeIncidentRegex.MatchString(label); ok {
-						gitlabIssue.StdType = ticket.INCIDENT
-						gitlabIssue.Type = label
-					}
+				if issueTypeRequirementRegex != nil && issueTypeRequirementRegex.MatchString(label) {
+					gitlabIssue.StdType = ticket.REQUIREMENT
+					joinedLabels = append(joinedLabels, label)
+				} else if issueTypeBugRegex != nil && issueTypeBugRegex.MatchString(label) {
+					gitlabIssue.StdType = ticket.BUG
+					joinedLabels = append(joinedLabels, label)
+				} else if issueTypeIncidentRegex != nil && issueTypeIncidentRegex.MatchString(label) {
+					gitlabIssue.StdType = ticket.INCIDENT
+					joinedLabels = append(joinedLabels, label)
 				}
 			}
+			if len(joinedLabels) > 0 {
+				gitlabIssue.Type = strings.Join(joinedLabels, ",")
+			}
+
 			gitlabIssue.ConnectionId = data.Options.ConnectionId
 			if body.Author != nil {
 				gitlabAuthor, err := convertGitlabAuthor(body, data.Options.ConnectionId)

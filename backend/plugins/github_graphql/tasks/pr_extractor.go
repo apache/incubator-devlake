@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -52,6 +53,7 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}
 	if config != nil && len(config.PrComponent) > 0 {
+		fmt.Println("config.PrComponent1", config.PrComponent)
 		labelComponentRegex, err = errors.Convert01(regexp.Compile(config.PrComponent))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
@@ -88,19 +90,13 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 						LabelName:    label.Name,
 					})
 					// if pr.Type has not been set and prType is set in .env, process the below
-					if labelTypeRegex != nil {
-						groups := labelTypeRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
-							githubPr.Type = groups[0]
-						}
+					if labelTypeRegex != nil && labelTypeRegex.MatchString(label.Name) {
+						githubPr.Type = label.Name
 					}
-
 					// if pr.Component has not been set and prComponent is set in .env, process
-					if labelComponentRegex != nil {
-						groups := labelComponentRegex.FindStringSubmatch(label.Name)
-						if len(groups) > 0 {
-							githubPr.Component = groups[0]
-						}
+					if labelComponentRegex != nil && labelComponentRegex.MatchString(label.Name) {
+						githubPr.Component = label.Name
+
 					}
 				}
 				results = append(results, githubPr)
