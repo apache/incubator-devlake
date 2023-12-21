@@ -41,4 +41,10 @@ func Test_validateQuery(t *testing.T) {
 	} {
 		assert.EqualError(t, validateQuery(target), "illegal invocation, use the `Begin()` method instead", "failed text: `%s`", target)
 	}
+	for _, target := range []string{
+		"select 1",
+		"update a set b = c",
+	} {
+		assert.Nil(t, validateQuery(target), "failed text: `%s`", target)
+	}
 }
