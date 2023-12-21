@@ -31,5 +31,6 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(renameTr2ScopeConfig),
 		new(removeScopeConfig),
+		new(addOpsenieScopeConfig20231214),
 	}
 }

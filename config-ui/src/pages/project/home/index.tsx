@@ -121,7 +121,7 @@ export const ProjectHomePage = () => {
     <PageHeader
       breadcrumbs={[{ name: 'Projects', path: '/projects' }]}
       extra={
-        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowDialog}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           New Project
         </Button>
       }
@@ -193,7 +193,7 @@ export const ProjectHomePage = () => {
             render: (name: any) => (
               <Button
                 type="primary"
-                icon={<SettingOutlined rev={undefined} />}
+                icon={<SettingOutlined />}
                 onClick={() => navigate(`/projects/${encodeName(name)}?tab=configuration`)}
               />
             ),

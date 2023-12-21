@@ -217,7 +217,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
 
         {status === 'loaded' && (
           <S.JobLoad>
-            <CheckCircleFilled style={{ color: '#4DB764' }} rev={undefined} />
+            <CheckCircleFilled style={{ color: '#4DB764' }} />
             <span className="count">{miller.items.length}</span> scopes found
           </S.JobLoad>
         )}
@@ -232,7 +232,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
       </Form.Item>
       <Form.Item>
         {status === 'loaded' && (
-          <Input prefix={<SearchOutlined rev={undefined} />} value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input prefix={<SearchOutlined />} value={query} onChange={(e) => setQuery(e.target.value)} />
         )}
         <MillerColumnsSelect
           items={scopes}

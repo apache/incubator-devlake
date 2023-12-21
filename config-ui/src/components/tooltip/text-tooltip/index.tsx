@@ -16,37 +16,26 @@
  *
  */
 
-import type { IntentProps } from '@blueprintjs/core';
-import { Position, Tooltip } from '@blueprintjs/core';
+import { Tooltip } from 'antd';
+
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  width: 100%;
-
-  & > .bp5-popover-target {
-    width: 100%;
-
-    & > span {
-      display: block;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-  }
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
-interface Props extends IntentProps {
+interface Props {
   content: string;
   children: React.ReactNode;
   style?: React.CSSProperties;
 }
 
-export const TextTooltip = ({ intent, content, children, style }: Props) => {
+export const TextTooltip = ({ content, children, style }: Props) => {
   return (
-    <Wrapper style={style}>
-      <Tooltip intent={intent} position={Position.TOP} content={content}>
-        {children}
-      </Tooltip>
-    </Wrapper>
+    <Tooltip placement="top" title={content}>
+      <Wrapper style={style}>{children}</Wrapper>
+    </Tooltip>
   );
 };

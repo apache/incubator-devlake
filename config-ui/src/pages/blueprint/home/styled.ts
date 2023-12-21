@@ -27,12 +27,7 @@ export const Wrapper = styled.div`
   }
 `;
 
-export const DialogWrapper = styled.div`
-  .bp5-form-group + .bp5-form-group {
-    margin-top: 40px;
-    margin-bottom: 0;
-  }
-`;
+export const DialogWrapper = styled.div``;
 
 export const Label = styled.label`
   font-size: 16px;

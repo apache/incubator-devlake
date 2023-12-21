@@ -82,3 +82,19 @@ type SonarqubeApiParams struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ProjectKey   string
 }
+
+type SonarqubeScopeConfig struct {
+	common.ScopeConfig
+}
+
+func (s SonarqubeScopeConfig) TableName() string {
+	return "_tool_sonarqube_scope_configs"
+}
+
+func (s SonarqubeScopeConfig) ScopeConfigId() uint64 {
+	panic("implement me")
+}
+
+func (s SonarqubeScopeConfig) ScopeConfigConnectionId() uint64 {
+	panic("implement me")
+}

@@ -34,7 +34,7 @@ export const HelpTooltip = ({ content, style }: Props) => {
   return (
     <Wrapper style={style}>
       <Tooltip title={content} placement="top">
-        <QuestionCircleOutlined rev={undefined} />
+        <QuestionCircleOutlined />
       </Tooltip>
     </Wrapper>
   );

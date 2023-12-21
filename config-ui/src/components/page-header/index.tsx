@@ -40,7 +40,7 @@ export const PageHeader = ({ breadcrumbs, extra, children }: Props) => {
               {breadcrumbs.length !== i + 1 ? (
                 <Link to={path}>
                   {name}
-                  <RightOutlined rev={undefined} />
+                  <RightOutlined />
                 </Link>
               ) : (
                 <span>{name}</span>

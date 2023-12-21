@@ -29,6 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -71,7 +72,7 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopeDetails []*srvhelper.ScopeDetail[models.SonarqubeProject, srvhelper.NoScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.SonarqubeProject, models.SonarqubeScopeConfig],
 	connection *models.SonarqubeConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
@@ -81,43 +82,47 @@ func makeDataSourcePipelinePlanV200(
 			stage = coreModels.PipelineStage{}
 		}
 
-		scope := scopeDetail.Scope
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		// construct task options for Jira
-		task, err := helper.MakePipelinePlanTask(
-			"sonarqube",
-			subtaskMetas,
-			nil,
-			tasks.SonarqubeOptions{
-				ConnectionId: scope.ConnectionId,
-				ProjectKey:   scope.ProjectKey,
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {
+			task, err := helper.MakePipelinePlanTask(
+				"sonarqube",
+				subtaskMetas,
+				nil,
+				tasks.SonarqubeOptions{
+					ConnectionId: scope.ConnectionId,
+					ProjectKey:   scope.ProjectKey,
+				},
+			)
+			if err != nil {
+				return nil, err
+			}
 
-		stage = append(stage, task)
-		plan[i] = stage
+			stage = append(stage, task)
+			plan[i] = stage
+		}
 	}
 
 	return plan, nil
 }
 
 func makeScopesV200(
-	scopeDetails []*srvhelper.ScopeDetail[models.SonarqubeProject, srvhelper.NoScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.SonarqubeProject, models.SonarqubeScopeConfig],
 	connection *models.SonarqubeConnection,
 ) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, scopeDetail := range scopeDetails {
-		sonarqubeProject := scopeDetail.Scope
+		sonarqubeProject, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		// add board to scopes
-		domainBoard := &codequality.CqProject{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.ProjectKey),
-			},
-			Name: sonarqubeProject.Name,
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {
+			domainBoard := &codequality.CqProject{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.ProjectKey),
+				},
+				Name: sonarqubeProject.Name,
+			}
+			scopes = append(scopes, domainBoard)
 		}
-		scopes = append(scopes, domainBoard)
 	}
 
 	return scopes, nil

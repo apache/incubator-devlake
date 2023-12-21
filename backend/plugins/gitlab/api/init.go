@@ -37,8 +37,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	vld = validator.New()
 	basicRes = br
 	dsHelper = api.NewDataSourceHelper[
-		models.GitlabConnection,
-		models.GitlabProject, models.GitlabScopeConfig,
+		models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig,
 	](
 		br,
 		p.Name(),

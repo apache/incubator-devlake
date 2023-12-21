@@ -27,15 +27,15 @@ import {
 import { IPipelineStatus } from '@/types';
 
 export const PipeLineStatusIcon = {
-  [IPipelineStatus.CREATED]: <FieldTimeOutlined rev={undefined} />,
-  [IPipelineStatus.PENDING]: <FieldTimeOutlined rev={undefined} />,
-  [IPipelineStatus.ACTIVE]: <LoadingOutlined rev={undefined} />,
-  [IPipelineStatus.RUNNING]: <LoadingOutlined rev={undefined} />,
-  [IPipelineStatus.RERUN]: <LoadingOutlined rev={undefined} />,
-  [IPipelineStatus.COMPLETED]: <CheckCircleOutlined rev={undefined} />,
-  [IPipelineStatus.PARTIAL]: <CheckCircleOutlined rev={undefined} />,
-  [IPipelineStatus.FAILED]: <CloseCircleOutlined rev={undefined} />,
-  [IPipelineStatus.CANCELLED]: <UndoOutlined rev={undefined} />,
+  [IPipelineStatus.CREATED]: <FieldTimeOutlined />,
+  [IPipelineStatus.PENDING]: <FieldTimeOutlined />,
+  [IPipelineStatus.ACTIVE]: <LoadingOutlined />,
+  [IPipelineStatus.RUNNING]: <LoadingOutlined />,
+  [IPipelineStatus.RERUN]: <LoadingOutlined />,
+  [IPipelineStatus.COMPLETED]: <CheckCircleOutlined />,
+  [IPipelineStatus.PARTIAL]: <CheckCircleOutlined />,
+  [IPipelineStatus.FAILED]: <CloseCircleOutlined />,
+  [IPipelineStatus.CANCELLED]: <UndoOutlined />,
 };
 
 export const PipeLineStatusLabel = {

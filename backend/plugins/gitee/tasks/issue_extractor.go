@@ -177,43 +177,22 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 					IssueId:      giteeIssue.GiteeId,
 					LabelName:    label.Name,
 				})
-				if issueSeverityRegex != nil {
-					groups := issueSeverityRegex.FindStringSubmatch(label.Name)
-					if len(groups) > 0 {
-						giteeIssue.Severity = groups[1]
-					}
+				if issueSeverityRegex != nil && issueSeverityRegex.MatchString(label.Name) {
+					giteeIssue.Severity = label.Name
+				}
+				if issueComponentRegex != nil && issueComponentRegex.MatchString(label.Name) {
+					giteeIssue.Component = label.Name
+				}
+				if issuePriorityRegex != nil && issuePriorityRegex.MatchString(label.Name) {
+					giteeIssue.Priority = label.Name
 				}
 
-				if issueComponentRegex != nil {
-					groups := issueComponentRegex.FindStringSubmatch(label.Name)
-					if len(groups) > 0 {
-						giteeIssue.Component = groups[1]
-					}
-				}
-
-				if issuePriorityRegex != nil {
-					groups := issuePriorityRegex.FindStringSubmatch(label.Name)
-					if len(groups) > 0 {
-						giteeIssue.Priority = groups[1]
-					}
-				}
-
-				if issueTypeBugRegex != nil {
-					if ok := issueTypeBugRegex.MatchString(label.Name); ok {
-						giteeIssue.Type = ticket.BUG
-					}
-				}
-
-				if issueTypeRequirementRegex != nil {
-					if ok := issueTypeRequirementRegex.MatchString(label.Name); ok {
-						giteeIssue.Type = ticket.REQUIREMENT
-					}
-				}
-
-				if issueTypeIncidentRegex != nil {
-					if ok := issueTypeIncidentRegex.MatchString(label.Name); ok {
-						giteeIssue.Type = ticket.INCIDENT
-					}
+				if issueTypeRequirementRegex != nil && issueTypeRequirementRegex.MatchString(label.Name) {
+					giteeIssue.Type = ticket.REQUIREMENT
+				} else if issueTypeBugRegex != nil && issueTypeBugRegex.MatchString(label.Name) {
+					giteeIssue.Type = ticket.BUG
+				} else if issueTypeIncidentRegex != nil && issueTypeIncidentRegex.MatchString(label.Name) {
+					giteeIssue.Type = ticket.INCIDENT
 				}
 			}
 			results = append(results, giteeIssue)

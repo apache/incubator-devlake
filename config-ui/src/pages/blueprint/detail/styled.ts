@@ -25,11 +25,6 @@ export const Wrapper = styled.div`
 export const DialogBody = styled.div`
   display: flex;
   align-items: center;
-
-  .bp5-icon {
-    margin-right: 8px;
-    color: #f4be55;
-  }
 `;
 
 export const ConfigurationPanel = styled.div`
@@ -107,8 +102,4 @@ export const BlueprintAction = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  & > .bp5-switch {
-    margin: 0 8px;
-  }
 `;

@@ -19,9 +19,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Card, Modal, Button, Tooltip } from 'antd';
-import { Switch, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { Card, Modal, Switch, Button, Tooltip, Dropdown } from 'antd';
 
 import API from '@/api';
 import { Message } from '@/components';
@@ -129,9 +127,9 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           <span>
             {cron.label === 'Manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
           </span>
-          <Tooltip2
-            position={Position.TOP}
-            content="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
+          <Tooltip
+            placement="top"
+            title="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
           >
             <Button
               type="primary"
@@ -141,20 +139,27 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             >
               Re-transform Data
             </Button>
-          </Tooltip2>
+          </Tooltip>
           <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
             Collect Data
           </Button>
-          <Popover
-            content={
-              <Menu>
-                <MenuItem text="Collect Data in Full Refresh Mode" onClick={() => setType('fullSync')} />
-              </Menu>
-            }
-            placement="bottom"
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Collect Data in Full Refresh Mode',
+                },
+              ],
+              onClick: ({ key }) => {
+                if (key === '1') {
+                  setType('fullSync');
+                }
+              },
+            }}
           >
-            <Button icon={<MoreOutlined rev={undefined} />} />
-          </Popover>
+            <Button icon={<MoreOutlined />} />
+          </Dropdown>
         </S.ProjectACtion>
       )}
 
@@ -163,17 +168,17 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           <Button onClick={() => handleRun({})}>Run Now</Button>
           <Switch
             style={{ marginBottom: 0 }}
-            label="Blueprint Enabled"
             disabled={!!blueprint.projectName}
             checked={blueprint.enable}
-            onChange={(e) => handleUpdate({ enable: (e.target as HTMLInputElement).checked })}
+            onChange={(enable) => handleUpdate({ enable })}
           />
+          Blueprint Enabled
           <Tooltip title="Delete Blueprint">
             <Button
               type="primary"
               loading={operating}
               disabled={!!blueprint.projectName}
-              icon={<DeleteOutlined rev={undefined} />}
+              icon={<DeleteOutlined />}
               onClick={() => setType('delete')}
             />
           </Tooltip>

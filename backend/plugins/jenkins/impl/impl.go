@@ -190,7 +190,11 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		// 	"GET": api.SearchRemoteScopes,
 		// },
 		"connections/:connectionId/scopes/*scopeId": {
-			"GET":    api.GetScope,
+			// Behind 'GetScopeDispatcher', there are two paths so far:
+			// GetScopeLatestSyncState "connections/:connectionId/scopes/:scopeId/latest-sync-state"
+			// GetScope "connections/:connectionId/scopes/:scopeId"
+			// Because there may be slash in scopeId, so we handle it manually.
+			"GET":    api.GetScopeDispatcher,
 			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
 		},

@@ -17,7 +17,7 @@
  */
 
 import { useState } from 'react';
-import { Tabs, Tab } from '@blueprintjs/core';
+import { Tabs } from 'antd';
 import useUrlState from '@ahooksjs/use-url-state';
 
 import API from '@/api';
@@ -61,27 +61,32 @@ export const BlueprintDetail = ({ id, from }: Props) => {
 
   return (
     <S.Wrapper>
-      <Tabs selectedTabId={query.tab} onChange={(tab) => setQuery({ tab })}>
-        <Tab
-          id="status"
-          title="Status"
-          panel={
-            <StatusPanel from={from} blueprint={blueprint} pipelineId={lastPipeline?.id} onRefresh={handlRefresh} />
-          }
-        />
-        <Tab
-          id="configuration"
-          title="Configuration"
-          panel={
-            <ConfigurationPanel
-              from={from}
-              blueprint={blueprint}
-              onRefresh={handlRefresh}
-              onChangeTab={handleChangeTab}
-            />
-          }
-        />
-      </Tabs>
+      <Tabs
+        centered
+        items={[
+          {
+            key: 'status',
+            label: 'Status',
+            children: (
+              <StatusPanel from={from} blueprint={blueprint} pipelineId={lastPipeline?.id} onRefresh={handlRefresh} />
+            ),
+          },
+          {
+            key: 'configuration',
+            label: 'Configuration',
+            children: (
+              <ConfigurationPanel
+                from={from}
+                blueprint={blueprint}
+                onRefresh={handlRefresh}
+                onChangeTab={handleChangeTab}
+              />
+            ),
+          },
+        ]}
+        activeKey={query.tab}
+        onChange={(tab) => setQuery({ tab })}
+      />
     </S.Wrapper>
   );
 };

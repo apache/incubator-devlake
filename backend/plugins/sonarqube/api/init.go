@@ -21,7 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"github.com/go-playground/validator/v10"
 )
@@ -29,7 +28,7 @@ import (
 var vld *validator.Validate
 var basicRes context.BasicRes
 
-var dsHelper *api.DsHelper[models.SonarqubeConnection, models.SonarqubeProject, srvhelper.NoScopeConfig]
+var dsHelper *api.DsHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeScopeConfig]
 var raProxy *api.DsRemoteApiProxyHelper[models.SonarqubeConnection]
 var raScopeList *api.DsRemoteApiScopeListHelper[models.SonarqubeConnection, models.SonarqubeProject, SonarqubeRemotePagination]
 var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.SonarqubeConnection, models.SonarqubeProject]
@@ -40,11 +39,11 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	dsHelper = api.NewDataSourceHelper[
 		models.SonarqubeConnection,
 		models.SonarqubeProject,
-		srvhelper.NoScopeConfig,
+		models.SonarqubeScopeConfig,
 	](
 		br,
 		p.Name(),
-		[]string{"full_name"},
+		[]string{"name"},
 		func(c models.SonarqubeConnection) models.SonarqubeConnection {
 			return c.Sanitize()
 		},

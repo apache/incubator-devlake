@@ -49,11 +49,6 @@ export const RemoteLinkWrapper = styled.div`
   .inner {
     display: flex;
     align-items: center;
-
-    .bp5-input-group {
-      margin-right: 8px;
-      width: 680px;
-    }
   }
 
   .error {
@@ -74,10 +69,5 @@ export const DialogBody = styled.div`
   .search {
     display: flex;
     align-items: center;
-
-    .bp5-input-group {
-      margin-right: 24px;
-      width: 360px;
-    }
   }
 `;

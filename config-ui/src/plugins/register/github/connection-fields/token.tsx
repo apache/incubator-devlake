@@ -161,7 +161,7 @@ export const Token = ({
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />
-            <Button size="small" icon={<CloseOutlined rev={undefined} />} onClick={() => handleRemoveToken(i)} />
+            <Button size="small" icon={<CloseOutlined />} onClick={() => handleRemoveToken(i)} />
             <div className="info">
               {isValid === false && <span className="error">Invalid</span>}
               {isValid === true && <span className="success">Valid From: {from}</span>}
@@ -170,9 +170,9 @@ export const Token = ({
           {status && (
             <S.Alert>
               <h4>
-                {status === 'success' && <CheckCircleOutlined rev={undefined} color="#4DB764" />}
-                {status === 'warning' && <WarningOutlined rev={undefined} color="#F4BE55" />}
-                {status === 'error' && <CloseCircleOutlined rev={undefined} color="#E34040" />}
+                {status === 'success' && <CheckCircleOutlined color="#4DB764" />}
+                {status === 'warning' && <WarningOutlined color="#F4BE55" />}
+                {status === 'error' && <CloseCircleOutlined color="#E34040" />}
                 <span style={{ marginLeft: 8 }}>Token Permissions</span>
               </h4>
               {status === 'success' && <p>All required fields are checked.</p>}
@@ -193,7 +193,7 @@ export const Token = ({
         </S.Input>
       ))}
       <div className="action">
-        <Button type="primary" size="small" icon={<PlusOutlined rev={undefined} />} onClick={handleCreateToken}>
+        <Button type="primary" size="small" icon={<PlusOutlined />} onClick={handleCreateToken}>
           Another Token
         </Button>
       </div>

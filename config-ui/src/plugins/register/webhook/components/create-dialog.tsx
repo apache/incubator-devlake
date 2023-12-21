@@ -129,7 +129,7 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
       {step === 2 && (
         <S.Wrapper>
           <h2>
-            <CheckCircleOutlined rev={undefined} size={30} />
+            <CheckCircleOutlined size={30} />
             <span>CURL commands generated. Please copy them now.</span>
           </h2>
           <p>

@@ -28,6 +28,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.BambooConnection, models.BambooPlan, models.BambooScopeConfig]
+var dsHelper *api.DsHelper[models.BambooConnection, models.BambooPlan, models.BambooScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.BambooConnection, models.BambooPlan, models.ApiBambooPlan, api.NoRemoteGroupResponse]
 var scopeConfigHelper *api.ScopeConfigHelper[models.BambooScopeConfig, *models.BambooScopeConfig]
 
@@ -66,5 +67,19 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 		p.Name(),
+	)
+	dsHelper = api.NewDataSourceHelper[
+		models.BambooConnection,
+		models.BambooPlan,
+		models.BambooScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
+		func(c models.BambooConnection) models.BambooConnection {
+			return c.Sanitize()
+		},
+		nil,
+		nil,
 	)
 }

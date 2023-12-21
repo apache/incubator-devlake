@@ -16,7 +16,6 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
@@ -28,11 +27,7 @@ export const Wrapper = styled.div`
     margin-bottom: 16px;
     padding: 0;
     font-weight: 600;
-    color: ${Colors.GREEN5};
-
-    .bp5-icon {
-      margin-right: 8px;
-    }
+    color: #a0d911;
   }
 
   h5 {

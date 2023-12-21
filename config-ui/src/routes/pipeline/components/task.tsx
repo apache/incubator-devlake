@@ -19,7 +19,6 @@
 import { useState, useMemo } from 'react';
 import { RedoOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import { Intent } from '@blueprintjs/core';
 
 import API from '@/api';
 import { TextTooltip } from '@/components';
@@ -123,7 +122,7 @@ export const PipelineTask = ({ task }: Props) => {
         {status === IPipelineStatus.COMPLETED && <p>All Subtasks completed</p>}
 
         {status === IPipelineStatus.FAILED && (
-          <TextTooltip intent={Intent.DANGER} content={message}>
+          <TextTooltip content={message}>
             <p className="error">Task failed: hover to view the reason</p>
           </TextTooltip>
         )}
@@ -137,9 +136,7 @@ export const PipelineTask = ({ task }: Props) => {
           IPipelineStatus.PARTIAL,
           IPipelineStatus.FAILED,
           IPipelineStatus.CANCELLED,
-        ].includes(status) && (
-          <Button loading={operating} icon={<RedoOutlined rev={undefined} />} onClick={handleRerun} />
-        )}
+        ].includes(status) && <Button loading={operating} icon={<RedoOutlined />} onClick={handleRerun} />}
       </div>
     </S.Task>
   );

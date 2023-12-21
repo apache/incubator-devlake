@@ -298,6 +298,9 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
+		},
 		"connections/:connectionId/remote-scopes-prepare-token": {
 			"GET": api.PrepareFirstPageToken,
 		},

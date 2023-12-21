@@ -76,7 +76,6 @@ func CalculateCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
 	insertCountLimitOfCommitsDiff := int(65535 / reflect.ValueOf(code.CommitsDiff{}).NumField())
 
 	// load commits from db
-	commitParent := &code.CommitParent{}
 	cursor, err := db.Cursor(
 		dal.Select("cp.*"),
 		dal.Join("LEFT JOIN repo_commits rc ON (rc.commit_sha = cp.commit_sha)"),
@@ -94,6 +93,7 @@ func CalculateCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Convert(ctx.Err())
 		default:
 		}
+		commitParent := &code.CommitParent{}
 		err = db.Fetch(cursor, commitParent)
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to read commit from database")

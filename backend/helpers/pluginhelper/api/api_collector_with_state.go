@@ -102,20 +102,26 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	var isIncremental bool
 	var since *time.Time
 
-	if syncPolicy == nil {
-		// 1. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
+	if oldLatestSuccessStart == nil {
+		// 1. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
+		isIncremental = false
+		if syncPolicy != nil {
+			since = syncPolicy.TimeAfter
+		}
+	} else if syncPolicy == nil {
+		// 2. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
 		isIncremental = true
 		since = oldLatestSuccessStart
-	} else if oldLatestSuccessStart == nil {
-		// 2. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
-		isIncremental = false
-		since = syncPolicy.TimeAfter
 	} else if syncPolicy.FullSync {
 		// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
 		isIncremental = false
 		since = syncPolicy.TimeAfter
-	} else if syncPolicy.TimeAfter != nil {
-		// 4. If syncPolicy.TimeAfter not nil
+	} else if syncPolicy.TimeAfter == nil {
+		// 4. If no syncPolicy TimeAfter, incremental and since is oldState.LatestSuccessStart
+		isIncremental = true
+		since = oldLatestSuccessStart
+	} else {
+		// 5. If syncPolicy.TimeAfter not nil
 		if oldTimeAfter != nil && syncPolicy.TimeAfter.Before(*oldTimeAfter) {
 			// 4.1 If oldTimeAfter not nil and syncPolicy.TimeAfter before oldTimeAfter, incremental is false and since is syncPolicy.TimeAfter
 			isIncremental = false

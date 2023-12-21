@@ -186,10 +186,13 @@ func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
-		"connections/:connectionId/scopes/*scopeId": {
+		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,

@@ -18,6 +18,9 @@ limitations under the License.
 package api
 
 import (
+	"database/sql"
+	"github.com/apache/incubator-devlake/core/dal"
+	"gorm.io/gorm/migrator"
 	"testing"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -145,6 +148,15 @@ func mockBasicRes(t *testing.T) {
 		Name: "test/testRepo",
 		Type: `project`,
 	}
+	var testColumTypes = []dal.ColumnMeta{
+		migrator.ColumnType{
+			NameValue: sql.NullString{
+				String: "abc",
+				Valid:  true,
+			},
+		},
+	}
+
 	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
 		mockDal.On("First", mock.AnythingOfType("*models.ZentaoProject"), mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.ZentaoProject)
@@ -159,6 +171,12 @@ func mockBasicRes(t *testing.T) {
 		mockDal.On("First", mock.AnythingOfType("*models.ZentaoScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
 			panic("The empty scope should not call First() for ZentaoScopeConfig")
 		}).Return(nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.ZentaoConnection"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.ZentaoProject"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.ZentaoScopeConfig"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
 	})
 	p := mockplugin.NewPluginMeta(t)
 	p.On("Name").Return("dummy").Maybe()
