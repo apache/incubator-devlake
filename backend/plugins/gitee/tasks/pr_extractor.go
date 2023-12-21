@@ -124,19 +124,12 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 					LabelName:    label.Name,
 				})
 				// if pr.Type has not been set and prType is set in .env, process the below
-				if labelTypeRegex != nil {
-					groups := labelTypeRegex.FindStringSubmatch(label.Name)
-					if len(groups) > 0 {
-						giteePr.Type = groups[0]
-					}
+				if labelTypeRegex != nil && labelTypeRegex.MatchString(label.Name) {
+					giteePr.Type = label.Name
 				}
-
 				// if pr.Component has not been set and prComponent is set in .env, process
-				if labelComponentRegex != nil {
-					groups := labelComponentRegex.FindStringSubmatch(label.Name)
-					if len(groups) > 0 {
-						giteePr.Component = groups[0]
-					}
+				if labelComponentRegex != nil && labelComponentRegex.MatchString(label.Name) {
+					giteePr.Component = label.Name
 				}
 			}
 			results = append(results, giteePr)
