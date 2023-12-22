@@ -146,9 +146,20 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.ZentaoConnection{}
-	err := connectionHelper.Patch(connection, input)
-	if err != nil {
+	existedConnection := models.ZentaoConnection{}
+	if err := connectionHelper.First(&existedConnection, input.Params); err != nil {
+		return nil, err
+	}
+	connection := existedConnection
+	if err := connectionHelper.Merge(connection, input.Body); err != nil {
+		return nil, err
+	}
+	// make sure zentao config's db url field is not in secret format
+	if err := (models.ZentaoConnection{}).Merge(&existedConnection, &connection); err != nil {
+		return nil, errors.Convert(err)
+	}
+	connection.DbUrl = existedConnection.DbUrl
+	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil

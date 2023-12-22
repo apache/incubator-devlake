@@ -164,6 +164,9 @@ func (p Opsgenie) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
