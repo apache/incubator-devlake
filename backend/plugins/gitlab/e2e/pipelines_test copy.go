@@ -20,6 +20,7 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -28,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
-func TestGitlabPipelineDataFlow(t *testing.T) {
+func TestGitlabPipelineDataFlowq(t *testing.T) {
 
 	var gitlab impl.Gitlab
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)
@@ -45,13 +46,44 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 		RegexEnricher: regexEnricher,
 	}
 
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline.csv", "_raw_gitlab_api_pipeline")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
+
 	// verify env when production is omitted
+	dataflowTester.FlushTabler(&models.GitlabPipeline{})
+	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
+	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.GitlabPipeline{},
+		"./snapshot_tables/_tool_gitlab_pipelines_no_prod_regex.csv",
+		e2ehelper.ColumnWithRawData(
+			"environment",
+		),
+	)
+
+	// verify extraction
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, "EE-7121")
+	dataflowTester.FlushTabler(&models.GitlabPipeline{})
 	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
 	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabPipeline{},
 		"./snapshot_tables/_tool_gitlab_pipelines.csv",
 		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"gitlab_id",
+			"gitlab_created_at",
+			"project_id",
+			"status",
+			"ref",
+			"sha",
+			"web_url",
+			"duration",
+			"started_at",
+			"finished_at",
+			"coverage",
+			"type",
 			"environment",
 		),
 	)
@@ -67,4 +99,19 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 			"sha",
 		),
 	)
+
+	// verify conversion
+	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
+	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertPipelineCommitMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.VerifyTableWithOptions(&devops.CiCDPipelineCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipeline_commits.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

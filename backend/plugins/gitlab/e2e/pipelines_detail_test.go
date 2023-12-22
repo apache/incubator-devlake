@@ -48,16 +48,15 @@ func TestGitlabPipelineDetailDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline.csv", "_raw_gitlab_api_pipeline_details")
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
+	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline_details.csv", "_raw_gitlab_api_pipeline_details")
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_gitlab_pipeline_projects.csv", &models.GitlabPipelineProject{})
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.GitlabPipeline{})
-	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
 	dataflowTester.Subtask(tasks.ExtractApiPipelineDetailsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabPipeline{},
-		"./snapshot_tables/_raw_gitlab_api_pipeline_details.csv",
+		"./snapshot_tables/_tool_gitlab_pipelines.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
@@ -76,19 +75,8 @@ func TestGitlabPipelineDetailDataFlow(t *testing.T) {
 		),
 	)
 
-	dataflowTester.VerifyTable(
-		models.GitlabPipelineProject{},
-		"./snapshot_tables/_tool_gitlab_pipeline_projects_details.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"pipeline_id",
-			"project_id",
-			"ref",
-			"sha",
-		),
-	)
-
 	// verify conversion
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
