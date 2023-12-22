@@ -117,6 +117,8 @@ func (connection ZentaoConnection) Merge(existed, modified *ZentaoConnection) er
 			existed.DbUrl = modified.DbUrl
 		} else {
 			// there is no change with db url field.
+			// existedDBUrl = origin(modified.DbUrl)
+			return nil
 		}
 	} else {
 		existed.DbUrl = modified.DbUrl
