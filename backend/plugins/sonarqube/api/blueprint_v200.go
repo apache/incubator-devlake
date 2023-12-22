@@ -83,7 +83,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 
 		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
-		// construct task options for Jira
+		// construct task options
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {
 			task, err := helper.MakePipelinePlanTask(
 				"sonarqube",
