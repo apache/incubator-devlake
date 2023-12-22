@@ -49,6 +49,7 @@ func TestGitlabPipelineDetailDataFlow(t *testing.T) {
 
 	// import raw data table
 	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
+	dataflowTester.FlushTabler(models.GitlabPipeline{})
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline_details.csv", "_raw_gitlab_api_pipeline_details")
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_gitlab_pipeline_projects.csv", &models.GitlabPipelineProject{})
 
