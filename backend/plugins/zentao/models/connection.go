@@ -110,24 +110,16 @@ func (connection ZentaoConnection) Sanitize() ZentaoConnection {
 // Merge works with the new connection helper.
 func (connection ZentaoConnection) Merge(existed, modified *ZentaoConnection) error {
 	existedDBUrl := existed.DbUrl
-	if existedDBUrl == "" && modified.DbUrl == "" {
-		return nil
-	}
-	if existedDBUrl != "" && modified.DbUrl == "" {
-		existed.DbUrl = ""
-		return nil
-	}
-	if existedDBUrl == "" && modified.DbUrl != "" {
-		existed.DbUrl = modified.DbUrl
-		return nil
-	}
 	if existedDBUrl != "" && modified.DbUrl != "" {
 		existedSanitizedConnection := existed.Sanitize()
 		if existedSanitizedConnection.DbUrl != modified.DbUrl {
 			// db url is updated
 			existed.DbUrl = modified.DbUrl
+		} else {
+			// there is no change with db url field.
 		}
-		return nil
+	} else {
+		existed.DbUrl = modified.DbUrl
 	}
 	return nil
 }
