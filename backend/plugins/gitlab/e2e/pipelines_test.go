@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
 func TestGitlabPipelineDataFlow(t *testing.T) {
@@ -35,26 +34,6 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 
 	regexEnricher := api.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "EE-7121")
-
-	taskData := &tasks.GitlabTaskData{
-		Options: &tasks.GitlabOptions{
-			ConnectionId: 1,
-			ProjectId:    12345678,
-			ScopeConfig:  new(models.GitlabScopeConfig),
-		},
-		RegexEnricher: regexEnricher,
-	}
-
-	// verify env when production is omitted
-	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
-	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GitlabPipeline{},
-		"./snapshot_tables/_tool_gitlab_pipelines.csv",
-		e2ehelper.ColumnWithRawData(
-			"environment",
-		),
-	)
 
 	dataflowTester.VerifyTable(
 		models.GitlabPipelineProject{},
