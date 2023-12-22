@@ -22,14 +22,12 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-type ScopeRes struct {
-	models.SonarqubeProject
-}
-
-type ScopeReq api.ScopeReq[models.SonarqubeProject]
+type PutScopesReqBody api.PutScopesReqBody[models.SonarqubeProject]
+type ScopeDetail api.ScopeDetail[models.SonarqubeProject, srvhelper.NoScopeConfig]
 
 // PutScope create or update sonarqube project
 // @Summary create or update sonarqube project
@@ -37,14 +35,17 @@ type ScopeReq api.ScopeReq[models.SonarqubeProject]
 // @Tags plugins/sonarqube
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param scope body ScopeReq true "json"
+// @Param scope body PutScopesReqBody true "json"
 // @Success 200  {object} []models.SonarqubeProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode request body to scope, deal with lastAnalysisDate format
-	data := input.Body["data"].([]interface{})
+	data, ok := input.Body["data"].([]interface{})
+	if !ok {
+		return nil, errors.BadInput.New("invalid `data`")
+	}
 	for _, item := range data {
 		dateStr, ok := item.(map[string]interface{})["lastAnalysisDate"].(string)
 		if !ok {
@@ -59,7 +60,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 
 	}
 
-	return scopeHelper.Put(input)
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
 // UpdateScope patch to sonarqube project
@@ -75,7 +76,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+	return dsHelper.ScopeApi.Patch(input)
 }
 
 // GetScopeList get Sonarqube projects
@@ -87,12 +88,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
 // GetScope get one Sonarqube project
@@ -101,12 +102,12 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/sonarqube
 // @Param connectionId path int false "connection ID"
 // @Param scopeId path string false "project key"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -118,9 +119,9 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
-// @Failure 409  {object} api.ScopeRefDoc "References exist to this scope"
+// @Failure 409  {object} srvhelper.DsRefs "References exist to this scope"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }

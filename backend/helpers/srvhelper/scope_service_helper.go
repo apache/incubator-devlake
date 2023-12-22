@@ -19,15 +19,16 @@ package srvhelper
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"reflect"
-	"sort"
-	"strings"
 )
 
 type ScopePagination struct {
@@ -132,6 +133,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) MapScopeDetails(connectionId uint64, b
 		if scopeDetails[i].ScopeConfig == nil {
 			scopeDetails[i].ScopeConfig = new(SC)
 		}
+		setDefaultEntities(scopeDetails[i].ScopeConfig)
 	}
 	return scopeDetails, nil
 }
@@ -317,4 +319,20 @@ func reflectType(obj any) reflect.Type {
 		kind = typ.Kind()
 	}
 	return typ
+}
+
+func setDefaultEntities(sc interface{}) {
+	v := reflect.ValueOf(sc)
+	if v.Kind() != reflect.Pointer {
+		panic(fmt.Errorf("sc must be a pointer"))
+	}
+	entities := v.Elem().FieldByName("Entities")
+	if !entities.IsValid() ||
+		!(entities.Kind() == reflect.Array || entities.Kind() == reflect.Slice) ||
+		entities.Type().Elem().Kind() != reflect.String {
+		return
+	}
+	if entities.IsNil() || entities.Len() == 0 {
+		entities.Set(reflect.ValueOf(plugin.DOMAIN_TYPES))
+	}
 }
