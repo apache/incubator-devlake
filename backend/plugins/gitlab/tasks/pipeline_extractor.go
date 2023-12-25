@@ -43,14 +43,13 @@ type ApiDetailedStatus struct {
 }
 
 type ApiPipeline struct {
-	Id             int `json:"id"`
-	Ref            string
-	Sha            string
-	Status         string
-	Tag            bool
-	Duration       int
-	QueuedDuration float64 `json:"queued_duration"`
-	WebUrl         string  `json:"web_url"`
+	Id       int `json:"id"`
+	Ref      string
+	Sha      string
+	Status   string
+	Tag      bool
+	Duration int
+	WebUrl   string `json:"web_url"`
 
 	CreatedAt  *common.Iso8601Time `json:"created_at"`
 	UpdatedAt  *common.Iso8601Time `json:"updated_at"`

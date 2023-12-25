@@ -42,7 +42,6 @@ func All() []plugin.MigrationScript {
 		new(addProjectArchived),
 		new(addDeployment),
 		new(addEnvNamePattern),
-		new(addQueuedDuration20231129),
 		new(modifyDeploymentMessageType),
 		new(addTimeToGitlabPipelineProject),
 	}
