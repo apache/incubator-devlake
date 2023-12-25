@@ -47,6 +47,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 
 	// verify env when production is omitted
 	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline.csv", "_raw_gitlab_api_pipeline")
 	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
 
 	dataflowTester.VerifyTable(
