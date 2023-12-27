@@ -60,7 +60,12 @@ export const ConnectionStatus = ({ connection }: Props) => {
     <Wrapper>
       <span className={status}>{STATUS_MAP[status]}</span>
       {status !== IConnectionStatus.ONLINE && (
-        <Button loading={status === IConnectionStatus.TESTING} icon={<RedoOutlined />} onClick={handleTest} />
+        <Button
+          type="text"
+          loading={status === IConnectionStatus.TESTING}
+          icon={<RedoOutlined />}
+          onClick={handleTest}
+        />
       )}
     </Wrapper>
   );
