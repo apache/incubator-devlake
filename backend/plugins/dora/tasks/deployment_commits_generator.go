@@ -157,7 +157,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 					domainDeployCommit.Environment = devops.TESTING
 				}
 			}
-			return []interface{}{domainDeployCommit, domainDeployCommit.ToDeployment()}, nil
+			return []interface{}{domainDeployCommit}, nil
 		},
 	})
 	if err != nil {

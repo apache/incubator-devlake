@@ -89,6 +89,7 @@ func (p Dora) Settings() interface{} {
 
 func (p Dora) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.DeploymentGeneratorMeta,
 		tasks.DeploymentCommitsGeneratorMeta,
 		tasks.EnrichPrevSuccessDeploymentCommitMeta,
 		tasks.EnrichTaskEnvMeta,
@@ -130,6 +131,7 @@ func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.
 					"projectName": projectName,
 				},
 				Subtasks: []string{
+					tasks.DeploymentGeneratorMeta.Name,
 					"generateDeploymentCommits",
 					"enrichPrevSuccessDeploymentCommits",
 				},
