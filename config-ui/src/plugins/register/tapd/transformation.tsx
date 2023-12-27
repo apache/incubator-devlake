@@ -55,6 +55,8 @@ export const TapdTransformation = ({ entities, connectionId, scopeId, transforma
 
   const prefix = useProxyPrefix({ plugin: 'tapd', connectionId });
 
+  const { token } = theme.useToken();
+
   const { ready, data } = useRefreshData<{
     statusList: Array<{
       id: string;
@@ -128,8 +130,6 @@ export const TapdTransformation = ({ entities, connectionId, scopeId, transforma
       return acc;
     }, {} as Record<string, string>);
   };
-
-  const { token } = theme.useToken();
 
   const panelStyle: React.CSSProperties = {
     marginBottom: 24,
@@ -205,7 +205,7 @@ const renderCollapseItems = ({
       label: 'Issue Tracking',
       style: panelStyle,
       children: (
-        <>
+        <Form labelCol={{ span: 5 }}>
           <p>
             Standardize your issue types to the following issue types to view metrics such as `Requirement lead time`
             and `Bug age` in built-in dashboards.
@@ -325,7 +325,7 @@ const renderCollapseItems = ({
               }
             />
           </Form.Item>
-        </>
+        </Form>
       ),
     },
   ].filter((it) => entities.includes(it.key));
