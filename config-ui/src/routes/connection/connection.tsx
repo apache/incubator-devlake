@@ -211,7 +211,8 @@ export const Connection = () => {
         ),
       {
         setOperating,
-        formatMessage: () => `Associate scope config successful.`,
+        formatMessage: () =>
+          trId !== 'None' ? 'Associate scope config successful.' : 'Dis-associate scope config successful.',
       },
     );
 
