@@ -42,8 +42,8 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
   const { ready, data } = useRefreshData(() => API.scopeConfig.list(plugin, connectionId), [version]);
 
   const dataSource = useMemo(
-    () => (data ? (data.length ? [{ id: 'None', name: 'No Scope Config' }].concat(data) : []) : []),
-    [data],
+    () => (data ? (scopeConfigId ? [{ id: 'None', name: 'No Scope Config' }].concat(data) : data) : []),
+    [data, scopeConfigId],
   );
 
   useEffect(() => {
