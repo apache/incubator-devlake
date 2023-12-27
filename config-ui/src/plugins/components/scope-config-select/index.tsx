@@ -109,6 +109,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         </Button>
       </Flex>
       <Modal
+        destroyOnClose
         open={open}
         width={960}
         centered
@@ -121,7 +122,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
           connectionId={connectionId}
           showWarning={!!updatedId}
           scopeConfigId={updatedId}
-          onCancel={onCancel}
+          onCancel={handleHideDialog}
           onSubmit={handleSubmit}
         />
       </Modal>
