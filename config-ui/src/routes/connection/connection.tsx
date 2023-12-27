@@ -19,7 +19,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { DeleteOutlined, PlusOutlined, NodeIndexOutlined, LinkOutlined, ClearOutlined } from '@ant-design/icons';
-import { theme, Table, Button, Modal, message } from 'antd';
+import { theme, Table, Button, Modal, message, Space } from 'antd';
 
 import API from '@/api';
 import { useAppDispatch, useAppSelector } from '@/app/hook';
@@ -211,7 +211,8 @@ export const Connection = () => {
         ),
       {
         setOperating,
-        formatMessage: () => `Associate scope config successful.`,
+        formatMessage: () =>
+          trId !== 'None' ? 'Associate scope config successful.' : 'Dis-associate scope config successful.',
       },
     );
 
@@ -295,13 +296,14 @@ export const Connection = () => {
           {
             title: 'Scope Config',
             key: 'scopeConfig',
+            align: 'center',
             width: 400,
             render: (_, { id, configId, configName }) => (
               <>
                 <span>{configId ? configName : 'N/A'}</span>
                 {pluginConfig.scopeConfig && (
                   <Button
-                    type="primary"
+                    type="link"
                     icon={<LinkOutlined />}
                     onClick={() => {
                       handleShowScopeConfigSelectDialog([id]);
@@ -316,12 +318,13 @@ export const Connection = () => {
             title: '',
             dataIndex: 'id',
             key: 'id',
-            width: 100,
+            align: 'center',
+            width: 200,
             render: (id) => (
-              <>
+              <Space>
                 <Button type="primary" icon={<ClearOutlined />} onClick={() => handleShowClearDataScopeDialog(id)} />
                 <Button type="primary" icon={<DeleteOutlined />} onClick={() => handleShowDeleteDataScopeDialog(id)} />
-              </>
+              </Space>
             ),
           },
         ]}

@@ -154,14 +154,14 @@ export const Token = ({
       {tokens.map(({ value, isValid, status, from }, i) => (
         <S.Input key={i}>
           <div className="input">
-            <Input.Password
+            <Input
               style={{ width: 386 }}
               placeholder="Token"
               value={value}
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />
-            <Button size="small" icon={<CloseOutlined />} onClick={() => handleRemoveToken(i)} />
+            <Button type="text" icon={<CloseOutlined />} onClick={() => handleRemoveToken(i)} />
             <div className="info">
               {isValid === false && <span className="error">Invalid</span>}
               {isValid === true && <span className="success">Valid From: {from}</span>}
