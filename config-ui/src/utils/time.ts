@@ -17,6 +17,8 @@
  */
 
 import dayjs from 'dayjs';
+import weekday from 'dayjs/plugin/weekday';
+import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
@@ -40,6 +42,8 @@ const localeConfiguration = {
   },
 };
 
+dayjs.extend(weekday);
+dayjs.extend(localeData);
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
 dayjs.extend(LocalizedFormat);
