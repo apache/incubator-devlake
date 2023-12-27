@@ -144,7 +144,7 @@ export const SyncPolicy = ({
           </Radio.Group>
           {selectedValue === 'Custom' && (
             <>
-              <S.Input>
+              <Space>
                 <Block title="Minute">
                   <Input
                     value={mintue}
@@ -175,7 +175,7 @@ export const SyncPolicy = ({
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, month, e.target.value].join(' '))}
                   />
                 </Block>
-              </S.Input>
+              </Space>
               {!cron.nextTime && <S.Error>Invalid Cron code, please enter again.</S.Error>}
             </>
           )}
