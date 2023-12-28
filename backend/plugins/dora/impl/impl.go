@@ -131,7 +131,7 @@ func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.
 					"projectName": projectName,
 				},
 				Subtasks: []string{
-					tasks.DeploymentGeneratorMeta.Name,
+					"generateDeployments",
 					"generateDeploymentCommits",
 					"enrichPrevSuccessDeploymentCommits",
 				},
