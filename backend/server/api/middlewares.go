@@ -110,7 +110,7 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 		path := c.Request.URL.Path
 		// Only open api needs to check api key
 		if !strings.HasPrefix(path, "/rest") {
-			logger.Info("path %s will continue", path)
+			logger.Debug("path %s will continue", path)
 			c.Next()
 			return
 		}
