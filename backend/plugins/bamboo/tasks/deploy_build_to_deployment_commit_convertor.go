@@ -34,11 +34,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-var ConvertDeployBuildsMeta = plugin.SubTaskMeta{
-	Name:             "convertDeployBuilds",
-	EntryPoint:       ConvertDeployBuilds,
+var ConvertDeployBuildsToDeploymentCommitsMeta = plugin.SubTaskMeta{
+	Name:             "convertDeployBuildsToDeploymentCommits",
+	EntryPoint:       ConvertDeployBuildsToDeploymentCommits,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table bamboo_deploy_builds into  domain layer table deployBuilds",
+	Description:      "Convert tool layer table bamboo_deploy_builds into domain layer table cicd_deployment_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
@@ -77,7 +77,7 @@ func (deployBuildWithVcsRevision deployBuildWithVcsRevision) GenerateCICDDeploym
 	return deployBuildWithVcsRevision.DeploymentVersionName
 }
 
-func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertDeployBuildsToDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
@@ -153,7 +153,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				deploymentCommit.RepoUrl = fakeRepoUrl
 			}
 
-			return []interface{}{deploymentCommit, deploymentCommit.ToDeployment()}, nil
+			return []interface{}{deploymentCommit}, nil
 		},
 	})
 

@@ -46,6 +46,8 @@ var ConvertDeploymentMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&ExtractDeploymentMeta},
 }
 
+// ConvertDeployment should be split into two task theoretically
+// But in GitLab, all deployments have commits, so there is no need to change it.
 func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
 	db := taskCtx.GetDal()
@@ -68,7 +70,6 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	idGen := didgen.NewDomainIdGenerator(&models.GitlabDeployment{})
-	//pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipeline{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.GitlabDeployment{}),
