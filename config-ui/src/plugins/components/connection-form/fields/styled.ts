@@ -35,10 +35,6 @@ export const RateLimit = styled.div`
   display: flex;
   align-items: center;
 
-  .bp5-input-group {
-    width: 80px !important;
-  }
-
   & > span {
     margin-left: 8px;
   }

@@ -27,22 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/opsgenie/models"
 )
 
-// @Summary test opsgenie connection
-// @Description Test Opsgenie Connection
-// @Tags plugins/opsgenie
-// @Param body body models.OpsgenieConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/opsgenie/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connection models.OpsgenieConn
-
-	err := api.Decode(input.Body, &connection, vld)
-	if err != nil {
-		return nil, err
-	}
-
+func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plugin.ApiResourceOutput, errors.Error) {
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
@@ -73,6 +58,41 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return &plugin.ApiResourceOutput{Body: nil, Status: response.StatusCode}, errors.HttpStatus(response.StatusCode).Wrap(err, "could not validate connection")
 }
 
+// TestExistingConnection test an existing opsgenie connection
+// @Summary test opsgenie connection
+// @Description Test Opsgenie Connection
+// @Tags plugins/opsgenie
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/opsgenie/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := models.OpsgenieConnection{}
+	err := connectionHelper.First(&connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	return testOpsgenieConn(context.Background(), connection.OpsgenieConn)
+}
+
+// TestConnection test opsgenie connection
+// @Summary test opsgenie connection
+// @Description Test Opsgenie Connection
+// @Tags plugins/opsgenie
+// @Param body body models.OpsgenieConn true "json body"
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/opsgenie/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	var connection models.OpsgenieConn
+	err := api.Decode(input.Body, &connection, vld)
+	if err != nil {
+		return nil, err
+	}
+	return testOpsgenieConn(context.Background(), connection)
+}
+
 // @Summary create opsgenie connection
 // @Description Create Opsgenie connection
 // @Tags plugins/opsgenie
@@ -87,7 +107,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch opsgenie connection
@@ -104,7 +124,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary delete opsgenie connection
@@ -132,7 +152,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-
+	for idx, c := range connections {
+		connections[idx] = c.Sanitize()
+	}
 	return &plugin.ApiResourceOutput{Body: connections}, nil
 }
 
@@ -149,5 +171,5 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
 }

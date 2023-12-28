@@ -23,8 +23,6 @@ import (
 
 type ZentaoScopeConfig struct {
 	common.ScopeConfig  `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId        uint64            `mapstructure:"connectionId" json:"connectionId"`
-	Name                string            `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
 	TypeMappings        map[string]string `mapstructure:"typeMappings,omitempty" json:"typeMappings" gorm:"serializer:json"`
 	BugStatusMappings   map[string]string `mapstructure:"bugStatusMappings,omitempty" json:"bugStatusMappings" gorm:"serializer:json"`
 	StoryStatusMappings map[string]string `mapstructure:"storyStatusMappings,omitempty" json:"storyStatusMappings" gorm:"serializer:json"`

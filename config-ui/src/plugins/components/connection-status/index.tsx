@@ -61,8 +61,9 @@ export const ConnectionStatus = ({ connection }: Props) => {
       <span className={status}>{STATUS_MAP[status]}</span>
       {status !== IConnectionStatus.ONLINE && (
         <Button
+          type="text"
           loading={status === IConnectionStatus.TESTING}
-          icon={<RedoOutlined rev={undefined} />}
+          icon={<RedoOutlined />}
           onClick={handleTest}
         />
       )}

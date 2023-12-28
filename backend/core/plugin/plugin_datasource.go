@@ -51,7 +51,7 @@ type ApiAuthenticator interface {
 // TODO: deprecated, remove
 // ConnectionValidator represents the API Connection would validate its fields with customized logic
 type ConnectionValidator interface {
-	ValidateConnection(connection interface{}, valdator *validator.Validate) errors.Error
+	ValidateConnection(connection interface{}, validator *validator.Validate) errors.Error
 }
 
 // PrepareApiClient is to be implemented by the concrete Connection which requires

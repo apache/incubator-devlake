@@ -17,8 +17,8 @@
  */
 
 import { useState, useMemo } from 'react';
+import { CheckCircleOutlined } from '@ant-design/icons';
 import { Modal, Input } from 'antd';
-import { Icon } from '@blueprintjs/core';
 
 import { useAppDispatch } from '@/app/hook';
 import { Block, CopyText, ExternalLink } from '@/components';
@@ -129,7 +129,7 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
       {step === 2 && (
         <S.Wrapper>
           <h2>
-            <Icon icon="endorsed" size={30} />
+            <CheckCircleOutlined size={30} />
             <span>CURL commands generated. Please copy them now.</span>
           </h2>
           <p>

@@ -18,8 +18,7 @@
 
 import { useState, useMemo } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Table, Modal, Input, Select, Button } from 'antd';
-import { Tag } from '@blueprintjs/core';
+import { Table, Modal, Input, Select, Button, Tag } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -95,7 +94,7 @@ export const ApiKeys = () => {
     <PageHeader
       breadcrumbs={[{ name: 'API Keys', path: '/keys' }]}
       extra={
-        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={() => setModal('create')}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal('create')}>
           New API Key
         </Button>
       }

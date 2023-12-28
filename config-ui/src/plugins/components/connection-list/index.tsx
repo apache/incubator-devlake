@@ -99,14 +99,10 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
             width: 200,
             render: (_, { plugin, id }) => (
               <>
-                <Button
-                  type="link"
-                  icon={<EyeOutlined rev={undefined} />}
-                  onClick={() => navigate(`/connections/${plugin}/${id}`)}
-                >
+                <Button type="link" icon={<EyeOutlined />} onClick={() => navigate(`/connections/${plugin}/${id}`)}>
                   Details
                 </Button>
-                <Button type="link" icon={<EditOutlined rev={undefined} />} onClick={() => handleShowForm(id)}>
+                <Button type="link" icon={<EditOutlined />} onClick={() => handleShowForm(id)}>
                   Edit
                 </Button>
               </>
@@ -116,7 +112,7 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
         dataSource={connections}
         pagination={false}
       />
-      <Button style={{ marginTop: 16 }} type="primary" icon={<PlusOutlined rev={undefined} />} onClick={onCreate}>
+      <Button style={{ marginTop: 16 }} type="primary" icon={<PlusOutlined />} onClick={onCreate}>
         Create a New Connection
       </Button>
       <Modal

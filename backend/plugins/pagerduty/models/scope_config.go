@@ -24,3 +24,7 @@ import (
 type PagerdutyScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
 }
+
+func (p PagerdutyScopeConfig) TableName() string {
+	return "_tool_pagerduty_scope_configs"
+}

@@ -64,7 +64,8 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.Select(
 			`
-				pc.*, p.name as pipeline_name,
+				pc.*,
+				p.name as pipeline_name,
 				p.result,
 				p.status,
 				p.duration_sec,
@@ -165,7 +166,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 					domainDeployCommit.Environment = devops.TESTING
 				}
 			}
-			return []interface{}{domainDeployCommit, domainDeployCommit.ToDeployment()}, nil
+			return []interface{}{domainDeployCommit}, nil
 		},
 	})
 	if err != nil {

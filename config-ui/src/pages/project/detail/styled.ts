@@ -18,19 +18,9 @@
 
 import styled from 'styled-components';
 
-export const Wrapper = styled.div`
-  & > .bp5-tabs > .bp5-tab-list {
-    display: flex;
-    justify-content: center;
-  }
-`;
+export const Wrapper = styled.div``;
 
 export const DialogBody = styled.div`
   display: flex;
   align-items: center;
-
-  .bp5-icon {
-    margin-right: 8px;
-    color: #f4be55;
-  }
 `;

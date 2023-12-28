@@ -18,6 +18,8 @@ limitations under the License.
 package srvhelper
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -52,14 +54,16 @@ func (connSrv *ConnectionSrvHelper[C, S, SC]) DeleteConnection(connection *C) (r
 		connectionId := (*connection).ConnectionId()
 		refs = toDsRefs(connSrv.getAllBlueprinsByConnection(connectionId))
 		if refs != nil {
-			return errors.Conflict.New("Cannot delete the scope because it is referenced by blueprints")
+			return errors.Conflict.New("Cannot delete the connection because it is referenced by blueprints")
 		}
 		scopeCount := errors.Must1(connSrv.db.Count(dal.From(new(S)), dal.Where("connection_id = ?", connectionId)))
 		if scopeCount > 0 {
 			return errors.Conflict.New("Please delete all data scope(s) before you delete this Data Connection.")
 		}
 		errors.Must(tx.Delete(connection))
-		errors.Must(connSrv.db.Delete(new(SC), dal.Where("connection_id = ?", connectionId)))
+		if reflect.TypeOf(new(SC)) != reflect.TypeOf(new(NoScopeConfig)) {
+			errors.Must(connSrv.db.Delete(new(SC), dal.Where("connection_id = ?", connectionId)))
+		}
 		return nil
 	})
 	return

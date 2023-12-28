@@ -170,7 +170,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
       </Form.Item>
       <Form.Item>
         <Input
-          prefix={<SearchOutlined rev={undefined} />}
+          prefix={<SearchOutlined />}
           placeholder={config.searchPlaceholder ?? 'Search'}
           value={search.query}
           onChange={(e) => setSearch({ ...search, query: e.target.value })}

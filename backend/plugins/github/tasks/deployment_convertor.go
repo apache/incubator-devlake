@@ -48,6 +48,8 @@ var ConvertDeploymentsMeta = plugin.SubTaskMeta{
 	ProductTables:    []string{devops.CicdDeploymentCommit{}.TableName(), devops.CICDDeployment{}.TableName()},
 }
 
+// ConvertDeployment should be split into two task theoretically
+// But in GitHub, all deployments have commits, so there is no need to change it.
 func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT_TABLE)

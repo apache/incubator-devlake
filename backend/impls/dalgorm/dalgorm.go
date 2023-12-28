@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -138,7 +139,20 @@ var _ dal.Dal = (*Dalgorm)(nil)
 
 // Exec executes raw sql query
 func (d *Dalgorm) Exec(query string, params ...interface{}) errors.Error {
+	err := validateQuery(query)
+	if err != nil {
+		return err
+	}
 	return d.convertGormError(d.db.Exec(query, transformParams(params)...).Error)
+}
+
+var txPattern = regexp.MustCompile(`(?i)^[\s;]*(begin|(start\s+transaction))[\s;]*$`)
+
+func validateQuery(query string) errors.Error {
+	if txPattern.MatchString(query) { // regexp.MatchString is thread-safe
+		return errors.Default.New("illegal invocation, use the `Begin()` method instead")
+	}
+	return nil
 }
 
 func (d *Dalgorm) unwrapDynamic(entityPtr *interface{}, clausesPtr *[]dal.Clause) {

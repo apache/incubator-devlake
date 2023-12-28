@@ -18,8 +18,8 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { WarningOutlined } from '@ant-design/icons';
 import { Flex, Card, Modal, Input, Checkbox, Button, message } from 'antd';
-import { Icon } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -134,7 +134,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
         onOk={handleDelete}
       >
         <S.DialogBody>
-          <Icon icon="warning-sign" />
+          <WarningOutlined />
           <span>
             This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in
             this Connection.

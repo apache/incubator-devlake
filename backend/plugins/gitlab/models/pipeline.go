@@ -54,11 +54,13 @@ func (GitlabPipeline) TableName() string {
 }
 
 type GitlabPipelineProject struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	PipelineId   int    `gorm:"primaryKey"`
-	ProjectId    int    `gorm:"primaryKey"`
-	Ref          string `gorm:"type:varchar(255)"`
-	Sha          string `gorm:"type:varchar(255)"`
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	PipelineId      int    `gorm:"primaryKey"`
+	ProjectId       int    `gorm:"primaryKey"`
+	Ref             string `gorm:"type:varchar(255)"`
+	Sha             string `gorm:"type:varchar(255)"`
+	GitlabCreatedAt *time.Time
+	GitlabUpdatedAt *time.Time
 	common.NoPKModel
 }
 

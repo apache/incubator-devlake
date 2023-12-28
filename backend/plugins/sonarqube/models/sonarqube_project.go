@@ -23,7 +23,6 @@ import (
 )
 
 var _ plugin.ToolLayerScope = (*SonarqubeProject)(nil)
-var _ plugin.ApiScope = (*SonarqubeApiProject)(nil)
 
 type SonarqubeProject struct {
 	common.Scope     `mapstructure:",squash"`
@@ -68,8 +67,8 @@ type SonarqubeApiProject struct {
 }
 
 // Convert the API response to our DB model instance
-func (sonarqubeApiProject SonarqubeApiProject) ConvertApiScope() plugin.ToolLayerScope {
-	sonarqubeProject := SonarqubeProject{
+func (sonarqubeApiProject *SonarqubeApiProject) ConvertApiScope() *SonarqubeProject {
+	return &SonarqubeProject{
 		ProjectKey:       sonarqubeApiProject.ProjectKey,
 		Name:             sonarqubeApiProject.Name,
 		Qualifier:        sonarqubeApiProject.Qualifier,
@@ -77,10 +76,25 @@ func (sonarqubeApiProject SonarqubeApiProject) ConvertApiScope() plugin.ToolLaye
 		LastAnalysisDate: sonarqubeApiProject.LastAnalysisDate,
 		Revision:         sonarqubeApiProject.Revision,
 	}
-	return sonarqubeProject
 }
 
 type SonarqubeApiParams struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ProjectKey   string
+}
+
+type SonarqubeScopeConfig struct {
+	common.ScopeConfig
+}
+
+func (s SonarqubeScopeConfig) TableName() string {
+	return "_tool_sonarqube_scope_configs"
+}
+
+func (s SonarqubeScopeConfig) ScopeConfigId() uint64 {
+	panic("implement me")
+}
+
+func (s SonarqubeScopeConfig) ScopeConfigConnectionId() uint64 {
+	panic("implement me")
 }

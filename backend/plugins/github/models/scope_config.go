@@ -27,7 +27,6 @@ var _ plugin.ToolLayerScopeConfig = (*GithubScopeConfig)(nil)
 
 type GithubScopeConfig struct {
 	common.ScopeConfig   `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	Name                 string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
 	PrType               string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
 	PrComponent          string            `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
 	PrBodyClosePattern   string            `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`

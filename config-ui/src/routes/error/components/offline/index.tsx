@@ -16,11 +16,10 @@
  *
  */
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RedoOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { Card, Flex, Button } from 'antd';
-import { Icon, Tag, Colors, IconName } from '@blueprintjs/core';
+import { CheckCircleOutlined, CloseCircleOutlined, RedoOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Card, Flex, Button, Tag } from 'antd';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
@@ -51,11 +50,6 @@ export const Offline = () => {
 
   const { online } = data || { online: false };
 
-  const [icon, color, text] = useMemo(
-    () => [online ? 'endorsed' : 'offline', online ? Colors.GREEN3 : Colors.RED3, data ? 'Online' : 'Offline'],
-    [online],
-  );
-
   const handleContinue = () => {
     navigate('/');
   };
@@ -63,9 +57,11 @@ export const Offline = () => {
   return (
     <Card>
       <h2>
-        <Icon icon={icon as IconName} color={color} size={30} />
+        {online ? <CheckCircleOutlined color="#a0d911" size={30} /> : <CloseCircleOutlined color="#f5222d" size={30} />}
         <span>DevLake API</span>
-        <strong style={{ marginLeft: 4, color }}>{text}</strong>
+        <strong style={{ marginLeft: 4, color: online ? '#a0d911' : '#f5222d' }}>
+          {online ? 'Online' : 'Offline'}
+        </strong>
       </h2>
       <p>
         <Tag>DEVLAKE_ENDPOINT: {DEVLAKE_ENDPOINT}</Tag>
@@ -77,12 +73,7 @@ export const Offline = () => {
             <strong>Lake API</strong> to start before accessing the <strong>Configuration Interface</strong>.
           </p>
           <Flex justify="center">
-            <Button
-              type="primary"
-              loading={loading}
-              icon={<RedoOutlined rev={undefined} />}
-              onClick={() => setVersion((v) => v + 1)}
-            >
+            <Button type="primary" loading={loading} icon={<RedoOutlined />} onClick={() => setVersion((v) => v + 1)}>
               Refresh
             </Button>
           </Flex>
@@ -95,7 +86,7 @@ export const Offline = () => {
               Continue
             </Button>
             <Button
-              icon={<QuestionCircleOutlined rev={undefined} />}
+              icon={<QuestionCircleOutlined />}
               onClick={() =>
                 window.open(
                   'https://github.com/apache/incubator-devlake/blob/main/README.md',

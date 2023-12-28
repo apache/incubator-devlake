@@ -130,7 +130,7 @@ export const Layout = () => {
               <CSSTransition in={!!tips} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
                 <S.Tips ref={tipsRef}>
                   <div className="content">{tips}</div>
-                  <Button type="primary" icon={<CloseOutlined rev={undefined} />} onClick={() => setTips('')} />
+                  <Button type="primary" icon={<CloseOutlined />} onClick={() => setTips('')} />
                 </S.Tips>
               </CSSTransition>
             </AntdLayout>

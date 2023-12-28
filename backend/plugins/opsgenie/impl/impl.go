@@ -88,6 +88,7 @@ func (p Opsgenie) GetTablesInfo() []dal.Tabler {
 		&models.Assignment{},
 		&models.User{},
 		&models.Team{},
+		&models.OpsenieScopeConfig{},
 	}
 }
 
@@ -163,6 +164,9 @@ func (p Opsgenie) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
@@ -172,6 +176,9 @@ func (p Opsgenie) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
 		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,

@@ -17,8 +17,8 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { Card, Flex, Button } from 'antd';
-import { Icon, Colors } from '@blueprintjs/core';
+import { CloseCircleOutlined } from '@ant-design/icons';
+import { Card, Space, Flex, Button } from 'antd';
 
 interface Props {
   error: string | Error;
@@ -30,24 +30,26 @@ export const Exception = ({ error }: Props) => {
 
   return (
     <Card>
-      <h2>
-        <Icon icon="error" color={Colors.RED5} size={20} />
-        <span>{error.toString() || 'Unknown Error'}</span>
-      </h2>
+      <Space>
+        <CloseCircleOutlined style={{ fontSize: 20, color: '#f5222d' }} />
+        <h2 style={{ color: '#f5222d' }}>{error.toString() || 'Unknown Error'}</h2>
+      </Space>
       <p>
         Please try again, if the problem persists include the above error message when filing a bug report on{' '}
         <strong>GitHub</strong>. You can also message us on <strong>Slack</strong> to engage with community members for
         solutions to common issues.
       </p>
       <Flex justify="center">
-        <Button type="primary" onClick={handleResetError}>
-          Continue
-        </Button>
-        <Button
-          onClick={() => window.open('https://github.com/apache/incubator-devlake', '_blank', 'noopener,noreferrer')}
-        >
-          Visit GitHub
-        </Button>
+        <Space>
+          <Button type="primary" onClick={handleResetError}>
+            Continue
+          </Button>
+          <Button
+            onClick={() => window.open('https://github.com/apache/incubator-devlake', '_blank', 'noopener,noreferrer')}
+          >
+            Visit GitHub
+          </Button>
+        </Space>
       </Flex>
     </Card>
   );

@@ -101,7 +101,7 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
               <Button
                 type="primary"
                 loading={generating}
-                icon={<CloseOutlined rev={undefined} />}
+                icon={<CloseOutlined />}
                 onClick={() => handleDeleteLink(i)}
               />
             )}
@@ -109,12 +109,7 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
           {index === i && error && <div className="error">{error}</div>}
         </div>
       ))}
-      <Button
-        type="primary"
-        loading={generating}
-        icon={<PlusOutlined rev={undefined} />}
-        onClick={() => handleAddLink()}
-      >
+      <Button type="primary" loading={generating} icon={<PlusOutlined />} onClick={() => handleAddLink()}>
         Add a Pattern
       </Button>
     </S.RemoteLinkWrapper>

@@ -19,7 +19,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { DeleteOutlined, PlusOutlined, NodeIndexOutlined, LinkOutlined, ClearOutlined } from '@ant-design/icons';
-import { theme, Table, Button, Modal, message } from 'antd';
+import { theme, Table, Button, Modal, message, Space } from 'antd';
 
 import API from '@/api';
 import { useAppDispatch, useAppSelector } from '@/app/hook';
@@ -211,7 +211,8 @@ export const Connection = () => {
         ),
       {
         setOperating,
-        formatMessage: () => `Associate scope config successful.`,
+        formatMessage: () =>
+          trId !== 'None' ? 'Associate scope config successful.' : 'Dis-associate scope config successful.',
       },
     );
 
@@ -234,7 +235,7 @@ export const Connection = () => {
         { name, path: '' },
       ]}
       extra={
-        <Button type="primary" danger icon={<DeleteOutlined rev={undefined} />} onClick={handleShowDeleteDialog}>
+        <Button type="primary" danger icon={<DeleteOutlined />} onClick={handleShowDeleteDialog}>
           Delete Connection
         </Button>
       }
@@ -247,7 +248,7 @@ export const Connection = () => {
         Please note: In order to view DORA metrics, you will need to add Scope Configs.
       </div>
       <div style={{ marginBottom: 36 }}>
-        <Button type="primary" icon={<PlusOutlined rev={undefined} />} onClick={handleShowCreateDataScopeDialog}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleShowCreateDataScopeDialog}>
           Add Data Scope
         </Button>
         {plugin !== 'tapd' && pluginConfig.scopeConfig && (
@@ -255,7 +256,7 @@ export const Connection = () => {
             style={{ marginLeft: 8 }}
             type="primary"
             disabled={!scopeIds.length}
-            icon={<NodeIndexOutlined rev={undefined} />}
+            icon={<NodeIndexOutlined />}
             onClick={() => handleShowScopeConfigSelectDialog(scopeIds)}
           >
             Associate Scope Config
@@ -295,14 +296,15 @@ export const Connection = () => {
           {
             title: 'Scope Config',
             key: 'scopeConfig',
+            align: 'center',
             width: 400,
             render: (_, { id, configId, configName }) => (
               <>
                 <span>{configId ? configName : 'N/A'}</span>
                 {pluginConfig.scopeConfig && (
                   <Button
-                    type="primary"
-                    icon={<LinkOutlined rev={undefined} />}
+                    type="link"
+                    icon={<LinkOutlined />}
                     onClick={() => {
                       handleShowScopeConfigSelectDialog([id]);
                       setScopeConfigId(configId);
@@ -316,20 +318,13 @@ export const Connection = () => {
             title: '',
             dataIndex: 'id',
             key: 'id',
-            width: 100,
+            align: 'center',
+            width: 200,
             render: (id) => (
-              <>
-                <Button
-                  type="primary"
-                  icon={<ClearOutlined rev={undefined} />}
-                  onClick={() => handleShowClearDataScopeDialog(id)}
-                />
-                <Button
-                  type="primary"
-                  icon={<DeleteOutlined rev={undefined} />}
-                  onClick={() => handleShowDeleteDataScopeDialog(id)}
-                />
-              </>
+              <Space>
+                <Button type="primary" icon={<ClearOutlined />} onClick={() => handleShowClearDataScopeDialog(id)} />
+                <Button type="primary" icon={<DeleteOutlined />} onClick={() => handleShowDeleteDataScopeDialog(id)} />
+              </Space>
             ),
           },
         ]}

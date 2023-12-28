@@ -28,12 +28,9 @@ import (
 func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*AeTaskData)
-
-	aeCommit := &aeModels.AECommit{}
-
 	// Get all the commits from the domain layer
 	cursor, err := db.Cursor(
-		dal.From(aeCommit),
+		dal.From(&aeModels.AECommit{}),
 		dal.Where("ae_project_id = ?", data.Options.ProjectId),
 	)
 	if err != nil {
@@ -53,7 +50,7 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 		// uncomment following line if you want to test out canceling feature for this task
 		//time.Sleep(1 * time.Second)
-
+		aeCommit := &aeModels.AECommit{}
 		err = db.Fetch(cursor, aeCommit)
 		if err != nil {
 			return err

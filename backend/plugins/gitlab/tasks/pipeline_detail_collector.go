@@ -66,7 +66,7 @@ func CollectApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:          data.ApiClient,
 		MinTickInterval:    &tickInterval,
 		Input:              iterator,
-		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines/{{ .Input.GitlabId }}",
+		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines/{{ .Input.PipelineId }}",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("with_stats", "true")
@@ -86,11 +86,11 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *hel
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	clauses := []dal.Clause{
-		dal.Select("gp.gitlab_id,gp.gitlab_id as iid"),
-		dal.From("_tool_gitlab_pipelines gp"),
+		dal.Select("gp.pipeline_id"),
+		dal.From("_tool_gitlab_pipeline_projects gp"),
 		dal.Where(
-			`gp.project_id = ? and gp.connection_id = ? and gp.is_detail_required = ?`,
-			data.Options.ProjectId, data.Options.ConnectionId, true,
+			`gp.project_id = ? and gp.connection_id = ?`,
+			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
 	if collectorWithState.Since != nil {
@@ -102,5 +102,9 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *hel
 		return nil, err
 	}
 
-	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
+	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(PipelineInput{}))
+}
+
+type PipelineInput struct {
+	PipelineId int
 }

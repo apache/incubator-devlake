@@ -84,6 +84,7 @@ func (p Sonarqube) GetTablesInfo() []dal.Tabler {
 		&models.SonarqubeHotspot{},
 		&models.SonarqubeFileMetrics{},
 		&models.SonarqubeAccount{},
+		&models.SonarqubeScopeConfig{},
 	}
 }
 
@@ -135,14 +136,13 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		TaskStartTime: time.Now(),
 	}
 	// even we have project in _tool_sonaqube_projects, we still need to collect project to update LastAnalysisDate
-	var scope models.SonarqubeProject
 	var apiProject *models.SonarqubeApiProject
 	apiProject, err = api.GetApiProject(op.ProjectKey, apiClient)
 	if err != nil {
 		return nil, err
 	}
 	logger.Debug(fmt.Sprintf("Current project: %s", apiProject.ProjectKey))
-	scope = apiProject.ConvertApiScope().(models.SonarqubeProject)
+	scope := apiProject.ConvertApiScope()
 	scope.ConnectionId = op.ConnectionId
 	err = taskCtx.GetDal().CreateOrUpdate(&scope)
 	if err != nil {
@@ -194,6 +194,10 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
+		},
+
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},

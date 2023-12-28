@@ -117,7 +117,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 
 		// add gitex stage
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) || len(scopeConfig.Entities) == 0 {
 			cloneUrl, err := errors.Convert01(url.Parse(githubRepo.CloneUrl))
 			if err != nil {
 				return nil, err

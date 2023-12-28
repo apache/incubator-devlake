@@ -81,6 +81,20 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeDetail(input *plugin.ApiReso
 	}, nil
 }
 
+func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	pkv, err := scopeApi.ExtractPkValues(input)
+	if err != nil {
+		return nil, err
+	}
+	scopeLatestSyncStates, err := scopeApi.ScopeSrvHelper.GetScopeLatestSyncState(pkv...)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{
+		Body: scopeLatestSyncStates,
+	}, nil
+}
+
 func (scopeApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// fix data[].connectionId
 	connectionId, err := extractConnectionId(input)

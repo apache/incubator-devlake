@@ -16,7 +16,6 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 export const Label = styled.label`
@@ -49,11 +48,11 @@ export const Input = styled.div`
       margin-left: 4px;
 
       span.error {
-        color: ${Colors.RED3};
+        color: #f5222d;
       }
 
       span.success {
-        color: ${Colors.GREEN3};
+        color: #a0d911;
       }
     }
   }

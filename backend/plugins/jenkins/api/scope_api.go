@@ -82,6 +82,15 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	return dsHelper.ScopeApi.GetPage(input)
 }
 
+func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scopeIdWithSuffix := strings.TrimLeft(input.Params["scopeId"], "/")
+	if strings.HasSuffix(scopeIdWithSuffix, "/latest-sync-state") {
+		input.Params["scopeId"] = strings.TrimSuffix(scopeIdWithSuffix, "/latest-sync-state")
+		return GetScopeLatestSyncState(input)
+	}
+	return GetScope(input)
+}
+
 // GetScope get one Jenkins job
 // @Summary get one Jenkins job
 // @Description get one Jenkins job
@@ -102,11 +111,11 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Description delete data associated with plugin scope
 // @Tags plugins/jenkins
 // @Param connectionId path int true "connection ID"
-// @Param scopeId path int true "scope ID"
+// @Param scopeId path string true "scope ID"
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
-// @Failure 409  {object} api.ScopeRefDoc "References exist to this scope"
+// @Failure 409  {object} srvhelper.DsRefs "References exist to this scope"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {

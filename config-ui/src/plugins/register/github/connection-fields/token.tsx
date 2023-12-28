@@ -17,9 +17,14 @@
  */
 
 import { useEffect, useState } from 'react';
-import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  PlusOutlined,
+  CheckCircleOutlined,
+  WarningOutlined,
+  CloseCircleOutlined,
+} from '@ant-design/icons';
 import { Input, Button } from 'antd';
-import { Icon } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Block, ExternalLink } from '@/components';
@@ -149,14 +154,14 @@ export const Token = ({
       {tokens.map(({ value, isValid, status, from }, i) => (
         <S.Input key={i}>
           <div className="input">
-            <Input.Password
+            <Input
               style={{ width: 386 }}
               placeholder="Token"
               value={value}
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />
-            <Button size="small" icon={<CloseOutlined rev={undefined} />} onClick={() => handleRemoveToken(i)} />
+            <Button type="text" icon={<CloseOutlined />} onClick={() => handleRemoveToken(i)} />
             <div className="info">
               {isValid === false && <span className="error">Invalid</span>}
               {isValid === true && <span className="success">Valid From: {from}</span>}
@@ -165,9 +170,9 @@ export const Token = ({
           {status && (
             <S.Alert>
               <h4>
-                {status === 'success' && <Icon icon="tick-circle" color="#4DB764" />}
-                {status === 'warning' && <Icon icon="warning-sign" color="#F4BE55" />}
-                {status === 'error' && <Icon icon="cross-circle" color="#E34040" />}
+                {status === 'success' && <CheckCircleOutlined color="#4DB764" />}
+                {status === 'warning' && <WarningOutlined color="#F4BE55" />}
+                {status === 'error' && <CloseCircleOutlined color="#E34040" />}
                 <span style={{ marginLeft: 8 }}>Token Permissions</span>
               </h4>
               {status === 'success' && <p>All required fields are checked.</p>}
@@ -188,7 +193,7 @@ export const Token = ({
         </S.Input>
       ))}
       <div className="action">
-        <Button type="primary" size="small" icon={<PlusOutlined rev={undefined} />} onClick={handleCreateToken}>
+        <Button type="primary" size="small" icon={<PlusOutlined />} onClick={handleCreateToken}>
           Another Token
         </Button>
       </div>

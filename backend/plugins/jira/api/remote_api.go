@@ -149,6 +149,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Param connectionId path int true "connection ID"
 // @Param path path string true "path to a API endpoint"
 // @Router /plugins/jira/connections/{connectionId}/proxy/{path} [GET]
+// @Tags plugins/jira
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raProxy.Proxy(input)
 }

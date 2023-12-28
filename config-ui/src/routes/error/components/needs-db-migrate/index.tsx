@@ -17,8 +17,8 @@
  */
 
 import { useState } from 'react';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Card, Flex, Button } from 'antd';
-import { Icon, Colors } from '@blueprintjs/core';
 import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
@@ -42,7 +42,7 @@ export const NeedsDBMigrate = () => {
   return (
     <Card>
       <h2>
-        <Icon icon="outdated" color={Colors.ORANGE5} size={20} />
+        <ExclamationCircleOutlined size={20} color="#fa541c" />
         <span>New Migration Scripts Detected</span>
       </h2>
       <p>
