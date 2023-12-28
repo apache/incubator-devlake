@@ -32,6 +32,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/swag"
 
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/impls/logruslog"
@@ -49,6 +50,14 @@ To proceed, please send a request to <config-ui-endpoint>/api/proceed-db-migrati
 Alternatively, you may downgrade back to the previous DevLake version.
 `
 
+var basicRes context.BasicRes
+
+func Init() {
+	// Initialize services
+	services.Init()
+	basicRes = services.GetBasicRes()
+}
+
 // @title  DevLake Swagger API
 // @version 0.1
 // @description  <h2>This is the main page of devlake api</h2>
@@ -56,22 +65,32 @@ Alternatively, you may downgrade back to the previous DevLake version.
 // @host localhost:8080
 // @BasePath /
 func CreateAndRunApiServer() {
-	// Create router
-	router := gin.New()
 	// Setup and run the server
+	Init()
+	router := CreateApiServer()
 	SetupApiServer(router)
 	RunApiServer(router)
 }
 
-func SetupApiServer(router *gin.Engine) {
-	// Initialize services
-	services.Init()
-	// Set gin mode
-	gin.SetMode(services.GetBasicRes().GetConfig("MODE"))
+func CreateApiServer() *gin.Engine {
+	// Create router
+	router := gin.New()
 
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
+	router.GET("/health", ping.Get)
 	router.GET("/version", version.Get)
+
+	// Api keys
+	router.Use(RestAuthentication(router, basicRes))
+	router.Use(OAuth2ProxyAuthentication(basicRes))
+
+	return router
+}
+
+func SetupApiServer(router *gin.Engine) {
+	// Set gin mode
+	gin.SetMode(basicRes.GetConfig("MODE"))
 
 	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
@@ -91,11 +110,6 @@ func SetupApiServer(router *gin.Engine) {
 		// Return success response
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 	})
-
-	// Api keys
-	basicRes := services.GetBasicRes()
-	router.Use(RestAuthentication(router, basicRes))
-	router.Use(OAuth2ProxyAuthentication(basicRes))
 
 	// Restrict access if database migration is required
 	router.Use(func(ctx *gin.Context) {
@@ -141,7 +155,7 @@ func SetupApiServer(router *gin.Engine) {
 
 func RunApiServer(router *gin.Engine) {
 	// Get port from config
-	port := services.GetBasicRes().GetConfig("PORT")
+	port := basicRes.GetConfig("PORT")
 	// Trim any : from the start
 	port = strings.TrimLeft(port, ":")
 	// Convert to int
