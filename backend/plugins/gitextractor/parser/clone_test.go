@@ -71,35 +71,33 @@ func Test_setCloneProgress(t *testing.T) {
 type testSubTaskContext struct {
 	current int
 	total   int
+	Name    string
 }
 
-func (testSubTaskContext) GetConfigReader() config.ConfigReader {
-	//TODO implement me
+func (ctx *testSubTaskContext) GetConfigReader() config.ConfigReader {
 	cfg := config.GetConfig()
 	return cfg
 }
 
-func (testSubTaskContext) GetConfig(name string) string {
+func (ctx *testSubTaskContext) GetConfig(name string) string {
+	return config.GetConfig().GetString(name)
+}
+
+func (ctx *testSubTaskContext) GetLogger() log.Logger {
+	return logger
+}
+
+func (ctx *testSubTaskContext) NestedLogger(name string) context.BasicRes {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (testSubTaskContext) GetLogger() log.Logger {
+func (ctx *testSubTaskContext) ReplaceLogger(logger log.Logger) context.BasicRes {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (testSubTaskContext) NestedLogger(name string) context.BasicRes {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (testSubTaskContext) ReplaceLogger(logger log.Logger) context.BasicRes {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (testSubTaskContext) GetDal() dal.Dal {
+func (ctx *testSubTaskContext) GetDal() dal.Dal {
 	//dsn := "mysql://root:admin@127.0.0.1:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC"
 	dsn := "root:admin@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -109,17 +107,15 @@ func (testSubTaskContext) GetDal() dal.Dal {
 	return dalgorm.NewDalgorm(db)
 }
 
-func (testSubTaskContext) GetName() string {
-	//TODO implement me
-	panic("implement me")
+func (ctx *testSubTaskContext) GetName() string {
+	return ctx.Name
 }
 
-func (testSubTaskContext) GetContext() gocontext.Context {
-	//TODO implement me
+func (ctx *testSubTaskContext) GetContext() gocontext.Context {
 	return gocontext.Background()
 }
 
-func (testSubTaskContext) GetData() interface{} {
+func (ctx *testSubTaskContext) GetData() interface{} {
 	//TODO implement me
 	panic("implement me")
 }
@@ -134,7 +130,7 @@ func (ctx *testSubTaskContext) IncProgress(quantity int) {
 	ctx.total += quantity
 }
 
-func (testSubTaskContext) TaskContext() plugin.TaskContext {
+func (ctx *testSubTaskContext) TaskContext() plugin.TaskContext {
 	//TODO implement me
 	panic("implement me")
 }

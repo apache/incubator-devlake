@@ -33,6 +33,9 @@ var (
 	logger                log.Logger
 	storage, goGitStorage models.Store
 	ctx                   = context.Background()
+	repoMericoLake        = "/Users/houlinwei/Code/go/src/github.com/merico-dev/lake"
+	repoMericoLakeWebsite = "/Users/houlinwei/Code/go/src/github.com/merico-dev/website"
+	repoId                = "test-repo-id"
 )
 
 func TestMain(m *testing.M) {
@@ -50,14 +53,13 @@ func TestMain(m *testing.M) {
 	}
 	fmt.Println("storage inited")
 	defer storage.Close()
-	fmt.Printf("test main run success\n\tlogger: %+v\tstorage: %+v\n", logger, storage)
+	fmt.Printf("test main run success\n\tlogger: %+v\tstorage: %+v\tgogit storage: %+v\n", logger, storage, goGitStorage)
 	m.Run()
 }
 
 func TestGitRepo_CountRepoInfo(t *testing.T) {
-	//repoPath := "/Users/houlinwei/Code/go/src/github.com/merico-dev/lake"
-	repoPath := "/Users/houlinwei/Code/go/src/github.com/merico-dev/website"
-	repoId := "test-repo-id"
+	repoPath := repoMericoLakeWebsite
+
 	gitRepo, err := NewGitRepoCreator(storage, goGitStorage, logger).LocalRepo(repoPath, repoId)
 	if err != nil {
 		panic(err)
@@ -98,17 +100,16 @@ func TestGitRepo_CountRepoInfo(t *testing.T) {
 
 }
 
+// all testes pass
 func TestGitRepo_CollectRepoInfo(t *testing.T) {
-	repoPath := "/Users/houlinwei/Code/go/src/github.com/merico-dev/lake"
-	//repoPath := "/Users/houlinwei/Code/go/src/github.com/merico-dev/website"
-	repoId := "test-repo-id"
-
+	repoPath := repoMericoLake
 	gitRepo, err := NewGitRepoCreator(storage, goGitStorage, logger).LocalRepo(repoPath, repoId)
 	if err != nil {
 		panic(err)
 	}
 
 	{
+		// finished
 		subTaskCtxCollectTags := &testSubTaskContext{}
 		if err1 := gitRepo.CollectTags(subTaskCtxCollectTags); err1 != nil {
 			panic(err1)
@@ -117,11 +118,12 @@ func TestGitRepo_CollectRepoInfo(t *testing.T) {
 		if err2 := gitRepo.CollectTagsWithGoGit(subTaskCtxCollectTagsWithGoGit); err2 != nil {
 			panic(err2)
 		}
-		t.Logf("[CollectTags] libgit2 result: %d, gogit result: %d", subTaskCtxCollectTags, subTaskCtxCollectTagsWithGoGit)
+		t.Logf("[CollectTags] libgit2 result: %+v, gogit result: %+v", subTaskCtxCollectTags, subTaskCtxCollectTagsWithGoGit)
 		assert.Equalf(t, subTaskCtxCollectTags.total, subTaskCtxCollectTagsWithGoGit.total, "unexpected")
 	}
 
 	{
+		// finished
 		subTaskCtxCollectBranches := &testSubTaskContext{}
 		if err1 := gitRepo.CollectBranches(subTaskCtxCollectBranches); err1 != nil {
 			panic(err1)
@@ -130,11 +132,12 @@ func TestGitRepo_CollectRepoInfo(t *testing.T) {
 		if err2 := gitRepo.CollectBranchesWithGoGit(subTaskCtxCollectBranchesWithGoGit); err2 != nil {
 			panic(err2)
 		}
-		t.Logf("[CollectBranches] libgit2 result: %d, gogit result: %d", subTaskCtxCollectBranches, subTaskCtxCollectBranchesWithGoGit)
+		t.Logf("[CollectBranches] libgit2 result: %+v, gogit result: %+v", subTaskCtxCollectBranches, subTaskCtxCollectBranchesWithGoGit)
 		assert.Equalf(t, subTaskCtxCollectBranches.total, subTaskCtxCollectBranchesWithGoGit.total, "unexpected")
 	}
 
 	{
+		// WIP
 		subTaskCtxCollectCommits := &testSubTaskContext{}
 		if err1 := gitRepo.CollectCommits(subTaskCtxCollectCommits); err1 != nil {
 			panic(err1)
@@ -143,23 +146,23 @@ func TestGitRepo_CollectRepoInfo(t *testing.T) {
 		if err2 := gitRepo.CollectCommitsWithGoGit(subTaskCtxCCollectCommitsWithGoGit); err2 != nil {
 			panic(err2)
 		}
-		t.Logf("[CollectCommits] libgit2 result: %d, gogit result: %d", subTaskCtxCollectCommits, subTaskCtxCCollectCommitsWithGoGit)
+		t.Logf("[CollectCommits] libgit2 result: %+v, gogit result: %+v", subTaskCtxCollectCommits, subTaskCtxCCollectCommitsWithGoGit)
 		fmt.Println(subTaskCtxCollectCommits.total, subTaskCtxCCollectCommitsWithGoGit.total)
 		assert.Equalf(t, subTaskCtxCollectCommits.total, subTaskCtxCCollectCommitsWithGoGit.total, "unexpected")
-		compare(b1, b2)
+		compareTwoStringSlice(b1, b2)
+	}
+
+	{
+		// TODO CollectDiffLine()
 	}
 }
 
-func TestGitRepo_S(t *testing.T) {
-	//repoPath := "/Users/houlinwei/Code/go/src/github.com/merico-dev/lake"
-	repoPath := "/Users/houlinwei/Code/go/src/github.com/merico-dev/website"
-	repoId := "test-repo-id"
-
+func TestGitRepo_CollectCommits(t *testing.T) {
+	repoPath := repoMericoLakeWebsite
 	gitRepo, err := NewGitRepoCreator(storage, goGitStorage, logger).LocalRepo(repoPath, repoId)
 	if err != nil {
 		panic(err)
 	}
-
 	{
 		subTaskCtxCollectCommits := &testSubTaskContext{}
 		if err1 := gitRepo.CollectCommits(subTaskCtxCollectCommits); err1 != nil {
@@ -167,19 +170,19 @@ func TestGitRepo_S(t *testing.T) {
 		}
 
 		subTaskCtxCCollectCommitsWithGoGit := &testSubTaskContext{}
-		//if err2 := gitRepo.CollectCommitsWithGoGit(subTaskCtxCCollectCommitsWithGoGit); err2 != nil {
-		//	panic(err2)
-		//}
+		if err2 := gitRepo.CollectCommitsWithGoGit(subTaskCtxCCollectCommitsWithGoGit); err2 != nil {
+			panic(err2)
+		}
 
-		t.Logf("[CollectCommits] libgit2 result: %d, gogit result: %d", subTaskCtxCollectCommits, subTaskCtxCCollectCommitsWithGoGit)
+		t.Logf("[CollectCommits] libgit2 result: %+v, gogit result: %+v", subTaskCtxCollectCommits, subTaskCtxCCollectCommitsWithGoGit)
 		fmt.Println(subTaskCtxCollectCommits.total, subTaskCtxCCollectCommitsWithGoGit.total)
 		assert.Equalf(t, subTaskCtxCollectCommits.total, subTaskCtxCCollectCommitsWithGoGit.total, "unexpected")
-		compare(b1, b2)
+		compareTwoStringSlice(b1, b2)
 	}
 }
 
-func compare(b1, b2 []string) {
-	fmt.Println("len:", len(b1), len(b2))
+// compareTwoStringSlice helps to find the difference between two string slices.
+func compareTwoStringSlice(b1, b2 []string) {
 	for _, b := range b2 {
 		var found bool
 		for _, bb := range b1 {
@@ -203,5 +206,5 @@ func compare(b1, b2 []string) {
 			fmt.Printf("%s from b1, not found in b2\n", b)
 		}
 	}
-	fmt.Println("compare done", len(b1), len(b2))
+	fmt.Println("compareTwoStringSlice done", len(b1), len(b2))
 }
