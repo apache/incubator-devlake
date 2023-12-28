@@ -76,17 +76,22 @@ export const ConnectionEndpoint = ({
 
   if (multipleVersions) {
     return (
-      <Block title={name} required>
-        <Radio.Group value={version} onChange={handleChange}>
-          <Radio value="cloud">{name} Cloud</Radio>
-          <Radio value="server" disabled={!multipleVersions.server}>
-            {name} Server {multipleVersions.server ? multipleVersions.server : '(to be supported)'}
-          </Radio>
-        </Radio.Group>
+      <>
+        <Block title={name} required>
+          <Radio.Group value={version} onChange={handleChange}>
+            <Radio value="cloud">{name} Cloud</Radio>
+            <Radio value="server" disabled={!multipleVersions.server}>
+              {name} Server {multipleVersions.server ? multipleVersions.server : '(to be supported)'}
+            </Radio>
+          </Radio.Group>
+        </Block>
         {version === 'cloud' && (
-          <p style={{ margin: 0 }}>
-            If you are using {name} Cloud, you do not need to enter the endpoint URL, which is {multipleVersions.cloud}.
-          </p>
+          <Block>
+            <p>
+              If you are using {name} Cloud, you do not need to enter the endpoint URL, which is{' '}
+              {multipleVersions.cloud}.
+            </p>
+          </Block>
         )}
         {version === 'server' && (
           <Block
@@ -94,16 +99,22 @@ export const ConnectionEndpoint = ({
             description={subLabel ?? `If you are using ${name} Server, please enter the endpoint URL.`}
             required
           >
-            <Input placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
+            <Input style={{ width: 386 }} placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
           </Block>
         )}
-      </Block>
+      </>
     );
   }
 
   return (
     <Block title="Endpoint URL" description={subLabel ?? `Provide the ${name} instance API endpoint.`} required>
-      <Input disabled={disabled} placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
+      <Input
+        style={{ width: 386 }}
+        disabled={disabled}
+        placeholder="Your Endpoint URL"
+        value={value}
+        onChange={handleChangeValue}
+      />
     </Block>
   );
 };

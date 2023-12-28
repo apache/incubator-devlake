@@ -44,15 +44,15 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
     }
   }, [transformation]);
 
-  const selectedStates = useMemo(
-    () => [
+  const options = useMemo(() => {
+    const disabledOptions = [
       ...(transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []),
       ...(transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []),
       ...(transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []),
       ...(transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []),
-    ],
-    [transformation],
-  );
+    ];
+    return ALL_STATES.filter((it) => !disabledOptions.includes(it)).map((it) => ({ label: it, value: it }));
+  }, [transformation]);
 
   const handleChangeUseCustom = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
@@ -87,7 +87,7 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
       items={renderCollapseItems({
         entities,
         panelStyle,
-        selectedStates,
+        options,
         transformation,
         onChangeTransformation: setTransformation,
         useCustom,
@@ -100,7 +100,7 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
 const renderCollapseItems = ({
   entities,
   panelStyle,
-  selectedStates,
+  options,
   transformation,
   onChangeTransformation,
   useCustom,
@@ -108,7 +108,7 @@ const renderCollapseItems = ({
 }: {
   entities: string[];
   panelStyle: React.CSSProperties;
-  selectedStates: any;
+  options: Array<{ label: string; value: string }>;
   transformation: any;
   onChangeTransformation: any;
   useCustom: boolean;
@@ -129,7 +129,7 @@ const renderCollapseItems = ({
           <Form.Item label="TODO">
             <Select
               mode="multiple"
-              options={ALL_STATES.map((it) => ({ label: it, value: it }))}
+              options={options}
               value={transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []}
               onChange={(value) =>
                 onChangeTransformation({
@@ -142,7 +142,7 @@ const renderCollapseItems = ({
           <Form.Item label="IN-PROGRESS">
             <Select
               mode="multiple"
-              options={ALL_STATES.map((it) => ({ label: it, value: it }))}
+              options={options}
               value={transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []}
               onChange={(value) =>
                 onChangeTransformation({
@@ -155,7 +155,7 @@ const renderCollapseItems = ({
           <Form.Item label="DONE">
             <Select
               mode="multiple"
-              options={ALL_STATES.map((it) => ({ label: it, value: it }))}
+              options={options}
               value={transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []}
               onChange={(value) =>
                 onChangeTransformation({
@@ -168,7 +168,7 @@ const renderCollapseItems = ({
           <Form.Item label="OTHER">
             <Select
               mode="multiple"
-              options={ALL_STATES.map((it) => ({ label: it, value: it }))}
+              options={options}
               value={transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []}
               onChange={(value) =>
                 onChangeTransformation({

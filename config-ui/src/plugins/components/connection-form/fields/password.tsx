@@ -60,7 +60,7 @@ export const ConnectionPassword = ({
     <Block title={label ?? 'Password'} description={subLabel ? subLabel : null} required>
       <Input.Password
         style={{ width: 386 }}
-        placeholder={placeholder ?? 'Your Password'}
+        placeholder={type === 'update' ? '********' : placeholder ? placeholder : 'Your Password'}
         value={value}
         onChange={handleChange}
       />

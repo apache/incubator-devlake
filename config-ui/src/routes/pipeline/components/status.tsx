@@ -16,6 +16,7 @@
  *
  */
 
+import { Space } from 'antd';
 import classNames from 'classnames';
 
 import { IPipelineStatus } from '@/types';
@@ -38,8 +39,10 @@ export const PipelineStatus = ({ status }: Props) => {
 
   return (
     <S.StatusWrapper className={cls}>
-      {C.PipeLineStatusIcon[status]}
-      <span>{C.PipeLineStatusLabel[status]}</span>
+      <Space size="small">
+        {C.PipeLineStatusIcon[status]}
+        <span>{C.PipeLineStatusLabel[status]}</span>
+      </Space>
     </S.StatusWrapper>
   );
 };

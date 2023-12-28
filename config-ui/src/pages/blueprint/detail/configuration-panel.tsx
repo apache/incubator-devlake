@@ -124,17 +124,13 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
     <S.ConfigurationPanel>
       <div className="block">
         <h3>Blueprint Name</h3>
-        <Space>
-          <span>{blueprint.name}</span>
-          <Button type="primary" icon={<FormOutlined />} onClick={handleShowNameDialog} />
-        </Space>
+        <span>{blueprint.name}</span>
+        <Button type="link" icon={<FormOutlined />} onClick={handleShowNameDialog} />
       </div>
       <div className="block">
         <h3>
-          <Space>
-            <span>Sync Policy</span>
-            <Button type="primary" icon={<FormOutlined />} onClick={handleShowPolicyDialog} />
-          </Space>
+          <span>Sync Policy</span>
+          <Button type="link" icon={<FormOutlined />} onClick={handleShowPolicyDialog} />
         </h3>
         <Table
           rowKey="id"
@@ -225,7 +221,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                 ))}
               </S.ConnectionList>
               <Flex justify="center">
-                <Button type="primary" onClick={handleRun}>
+                <Button type="primary" disabled={!blueprint.enable} onClick={handleRun}>
                   Collect Data
                 </Button>
               </Flex>

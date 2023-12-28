@@ -77,29 +77,3 @@ export const ConnectionItem = styled.li`
     margin: 24px 0;
   }
 `;
-
-export const StatusPanel = styled.div`
-  h3 {
-    margin-bottom: 16px;
-  }
-
-  .block + .block {
-    margin-top: 32px;
-  }
-`;
-
-export const ProjectACtion = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  & > * {
-    margin-left: 16px;
-  }
-`;
-
-export const BlueprintAction = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
