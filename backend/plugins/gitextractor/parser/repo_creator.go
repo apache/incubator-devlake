@@ -32,14 +32,16 @@ const (
 )
 
 type GitRepoCreator struct {
-	store  models.Store
-	logger log.Logger
+	store      models.Store
+	goGitStore models.Store
+	logger     log.Logger
 }
 
-func NewGitRepoCreator(store models.Store, logger log.Logger) *GitRepoCreator {
+func NewGitRepoCreator(store, goGitStore models.Store, logger log.Logger) *GitRepoCreator {
 	return &GitRepoCreator{
-		store:  store,
-		logger: logger,
+		store:      store,
+		logger:     logger,
+		goGitStore: goGitStore,
 	}
 }
 
@@ -63,10 +65,12 @@ func (l *GitRepoCreator) LocalRepo(repoPath, repoId string) (*GitRepo, errors.Er
 
 func (l *GitRepoCreator) newGitRepo(repoId string, repo *git.Repository, goGitRespo *gogit.Repository) *GitRepo {
 	return &GitRepo{
-		store:     l.store,
-		logger:    l.logger,
-		id:        repoId,
-		repo:      repo,
-		goGitRepo: goGitRespo,
+		store:  l.store,
+		logger: l.logger,
+		id:     repoId,
+		repo:   repo,
+
+		goGitRepo:  goGitRespo,
+		goGitStore: l.goGitStore,
 	}
 }

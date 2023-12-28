@@ -19,12 +19,14 @@ package parser
 
 import (
 	gocontext "context"
-	"fmt"
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/impls/dalgorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"testing"
 )
 
@@ -40,7 +42,7 @@ func Test_setCloneProgress(t *testing.T) {
 		{
 			name: "test-0",
 			args: args{
-				subTaskCtx: testSubTaskContext{},
+				subTaskCtx: &testSubTaskContext{},
 				cloneProgressInfo: `
 					Enumerating objects: 103, done.
 					Counting objects: 100% (103/103), done.
@@ -51,7 +53,7 @@ func Test_setCloneProgress(t *testing.T) {
 		{
 			name: "test-1",
 			args: args{
-				subTaskCtx: testSubTaskContext{},
+				subTaskCtx: &testSubTaskContext{},
 				cloneProgressInfo: `
 					Enumerating objects: 103, done.
 					Counting objects: 100% (103/103), done.
@@ -66,11 +68,15 @@ func Test_setCloneProgress(t *testing.T) {
 	}
 }
 
-type testSubTaskContext struct{}
+type testSubTaskContext struct {
+	current int
+	total   int
+}
 
 func (testSubTaskContext) GetConfigReader() config.ConfigReader {
 	//TODO implement me
-	panic("implement me")
+	cfg := config.GetConfig()
+	return cfg
 }
 
 func (testSubTaskContext) GetConfig(name string) string {
@@ -94,8 +100,13 @@ func (testSubTaskContext) ReplaceLogger(logger log.Logger) context.BasicRes {
 }
 
 func (testSubTaskContext) GetDal() dal.Dal {
-	//TODO implement me
-	panic("implement me")
+	//dsn := "mysql://root:admin@127.0.0.1:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC"
+	dsn := "root:admin@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	return dalgorm.NewDalgorm(db)
 }
 
 func (testSubTaskContext) GetName() string {
@@ -105,7 +116,7 @@ func (testSubTaskContext) GetName() string {
 
 func (testSubTaskContext) GetContext() gocontext.Context {
 	//TODO implement me
-	panic("implement me")
+	return gocontext.Background()
 }
 
 func (testSubTaskContext) GetData() interface{} {
@@ -113,14 +124,14 @@ func (testSubTaskContext) GetData() interface{} {
 	panic("implement me")
 }
 
-func (testSubTaskContext) SetProgress(current int, total int) {
-	//TODO implement me
-	fmt.Printf("set current: %d, total: %d\n", current, total)
+func (ctx *testSubTaskContext) SetProgress(current int, total int) {
+	ctx.current = current
+	ctx.total = total
 }
 
-func (testSubTaskContext) IncProgress(quantity int) {
-	//TODO implement me
-	panic("implement me")
+func (ctx *testSubTaskContext) IncProgress(quantity int) {
+	ctx.current += quantity
+	ctx.total += quantity
 }
 
 func (testSubTaskContext) TaskContext() plugin.TaskContext {

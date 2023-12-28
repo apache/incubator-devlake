@@ -44,7 +44,7 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	}
 	op := taskData.Options
 	storage := store.NewDatabase(subTaskCtx, op.RepoId)
-	repo, err := NewGitRepo(subTaskCtx, subTaskCtx.GetLogger(), storage, op)
+	repo, err := NewGitRepo(subTaskCtx, subTaskCtx.GetLogger(), storage, nil, op)
 	if err != nil {
 		return err
 	}
@@ -54,10 +54,10 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 // NewGitRepo create and return a new parser git repo
-func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *GitExtractorOptions) (*parser.GitRepo, errors.Error) {
+func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage, goGitStore models.Store, op *GitExtractorOptions) (*parser.GitRepo, errors.Error) {
 	var err errors.Error
 	var repo *parser.GitRepo
-	p := parser.NewGitRepoCreator(storage, logger)
+	p := parser.NewGitRepoCreator(storage, goGitStore, logger)
 	if strings.HasPrefix(op.Url, "http") {
 		repo, err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
 	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {

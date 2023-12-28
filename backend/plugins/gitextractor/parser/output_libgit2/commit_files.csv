@@ -1,0 +1,133 @@
+﻿CommitSha,FilePath,Additions,Deletions
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.github/workflows/main_ci.yaml,30,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.github/workflows/pr_ci.yaml,23,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.gitignore,20,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/.gitignore,8,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/inspectionProfiles/Project_Default.xml,5,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/inspectionProfiles/profiles_settings.xml,6,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/lake-docs-test.iml,7,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/misc.xml,3,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/modules.xml,7,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/vcs.xml,5,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,README.md,33,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,babel.config.js,3,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2019-05-28-first-blog-post.md,12,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2019-05-29-long-blog-post.md,44,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2021-08-01-mdx-blog-post.mdx,20,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2021-08-26-welcome/docusaurus-plushie-banner.jpeg,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2021-08-26-welcome/index.md,25,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/authors.yml,17,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,community/index.md,70,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/01-Overview/02-WhatIsDevLake.md,30,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/01-Overview/03-Architecture.md,29,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/01-Overview/04-Roadmap.md,36,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/01-Overview/_category_.json,4,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/02-Quick Start/01-LocalSetup.md,81,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/02-Quick Start/02-KubernetesSetup.md,9,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/02-Quick Start/03-DeveloperSetup.md,123,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/02-Quick Start/_category_.json,4,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/03-Features.md,20,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/04-EngineeringMetrics.md,197,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docusaurus.config.js,142,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/code.json,225,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-blog/options.json,14,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs-community/current.json,10,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current.json,22,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/01-Overview/02-WhatIsDevLake.md,30,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/01-Overview/03-Architecture.md,29,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/01-Overview/04-Roadmap.md,36,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/01-Overview/_category_.json,4,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/02-Quick Start/01-LocalSetup.md,81,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/02-Quick Start/02-KubernetesSetup.md,9,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/02-Quick Start/03-DeveloperSetup.md,123,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/02-Quick Start/_category_.json,4,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/03-Features.md,20,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/04-EngineeringMetrics.md,197,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-theme-classic/footer.json,34,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-theme-classic/navbar.json,26,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,package-lock.json,21897,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,package.json,38,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,sidebars.js,29,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,sidebarsCommunity.js,29,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/components/HomepageFeatures.js,61,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/components/HomepageFeatures.module.css,11,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/css/custom.css,28,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/pages/index.js,40,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/pages/index.module.css,23,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/pages/markdown-page.md,7,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/.nojekyll,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/HighlyFlexible.svg,22,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/OutoftheboxAnalysis.svg,11,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/SilosConnected.svg,18,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/docusaurus.png,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/favicon.ico,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/logo.svg,10,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/tutorial/docsVersionDropdown.png,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/tutorial/localeDropdown.png,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,test_server.sh,1,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.github/workflows/main_ci.yaml,30,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.github/workflows/pr_ci.yaml,23,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.gitignore,20,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/.gitignore,8,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/inspectionProfiles/Project_Default.xml,5,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/inspectionProfiles/profiles_settings.xml,6,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/lake-docs-test.iml,7,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/misc.xml,3,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/modules.xml,7,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,.idea/vcs.xml,5,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,README.md,33,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,babel.config.js,3,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2019-05-28-first-blog-post.md,12,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2019-05-29-long-blog-post.md,44,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2021-08-01-mdx-blog-post.mdx,20,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2021-08-26-welcome/docusaurus-plushie-banner.jpeg,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/2021-08-26-welcome/index.md,25,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,blog/authors.yml,17,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,community/index.md,70,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/01-Overview/02-WhatIsDevLake.md,30,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/01-Overview/03-Architecture.md,29,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/01-Overview/04-Roadmap.md,36,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/01-Overview/_category_.json,4,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/02-Quick Start/01-LocalSetup.md,81,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/02-Quick Start/02-KubernetesSetup.md,9,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/02-Quick Start/03-DeveloperSetup.md,123,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/02-Quick Start/_category_.json,4,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/03-Features.md,20,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docs/04-EngineeringMetrics.md,197,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,docusaurus.config.js,142,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/code.json,225,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-blog/options.json,14,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs-community/current.json,10,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current.json,22,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/01-Overview/02-WhatIsDevLake.md,30,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/01-Overview/03-Architecture.md,29,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/01-Overview/04-Roadmap.md,36,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/01-Overview/_category_.json,4,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/02-Quick Start/01-LocalSetup.md,81,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/02-Quick Start/02-KubernetesSetup.md,9,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/02-Quick Start/03-DeveloperSetup.md,123,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/02-Quick Start/_category_.json,4,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/03-Features.md,20,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-plugin-content-docs/current/04-EngineeringMetrics.md,197,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-theme-classic/footer.json,34,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,i18n/zh/docusaurus-theme-classic/navbar.json,26,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,package-lock.json,21897,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,package.json,38,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,sidebars.js,29,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,sidebarsCommunity.js,29,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/components/HomepageFeatures.js,61,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/components/HomepageFeatures.module.css,11,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/css/custom.css,28,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/pages/index.js,40,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/pages/index.module.css,23,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,src/pages/markdown-page.md,7,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/.nojekyll,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/HighlyFlexible.svg,22,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/OutoftheboxAnalysis.svg,11,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/SilosConnected.svg,18,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/docusaurus.png,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/favicon.ico,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/logo.svg,10,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/tutorial/docsVersionDropdown.png,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,static/img/tutorial/localeDropdown.png,0,0
+a842141e867f1d9665d8b94c0fa1bd2e599766e0,test_server.sh,1,0
