@@ -41,6 +41,7 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "dora",
 				Subtasks: []string{
+					"generateDeployments",
 					"generateDeploymentCommits",
 					"enrichPrevSuccessDeploymentCommits",
 				},
