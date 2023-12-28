@@ -44,6 +44,8 @@ type bitbucketDeploymentWithRefName struct {
 	RefName string
 }
 
+// ConvertDeployments should be split into two task theoretically
+// But in BitBucket, all deployments have commits, and we use "LEFT JOIN" to get "ref_name" only, so there is no need to change it.
 func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 	db := taskCtx.GetDal()
