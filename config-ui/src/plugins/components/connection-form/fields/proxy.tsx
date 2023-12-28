@@ -58,7 +58,12 @@ export const ConnectionProxy = ({ name, initialValue, value, setValue }: Props) 
 
   return (
     <Block title="Proxy" description={`Add a proxy if you cannot access ${name} directly.`}>
-      <Input placeholder="e.g. http://proxy.localhost:8080" value={value} onChange={handleChange} />
+      <Input
+        style={{ width: 386 }}
+        placeholder="e.g. http://proxy.localhost:8080"
+        value={value}
+        onChange={handleChange}
+      />
     </Block>
   );
 };

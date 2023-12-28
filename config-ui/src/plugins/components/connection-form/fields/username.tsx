@@ -73,7 +73,12 @@ export const ConnectionUsername = ({
 
   return (
     <Block title={label ?? 'Username'} description={subLabel ? subLabel : null} required>
-      <Input placeholder={placeholder ?? 'Your Username'} value={value} onChange={handleChange} />
+      <Input
+        style={{ width: 386 }}
+        placeholder={placeholder ?? 'Your Username'}
+        value={value}
+        onChange={handleChange}
+      />
     </Block>
   );
 };
