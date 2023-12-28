@@ -29,7 +29,7 @@ export const StatusWrapper = styled.div`
   }
 
   &.success {
-    color: #a0d911;
+    color: #4db764;
   }
 
   &.error {
