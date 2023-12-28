@@ -139,7 +139,7 @@ export const DataScopeSelect = ({
             loading={!ready}
             showSearch
             mode="multiple"
-            options={searchItems.map((it) => ({ label: it.fullName, value: getPluginScopeId(plugin, it) }))}
+            options={searchItems.map((it) => ({ label: it.fullName ?? it.name, value: getPluginScopeId(plugin, it) }))}
             value={selectedIds}
             onChange={(value) => setSelectedIds(value)}
             onSearch={(value) => setQuery(value)}

@@ -84,14 +84,6 @@ export const JiraTransformation = ({ entities, connectionId, transformation, set
     setIncidents(types.filter((it) => it.standardType === StandardType.Incident).map((it) => it.name));
   }, [transformation]);
 
-  const [requirementItems, bugItems, incidentItems] = useMemo(() => {
-    return [
-      (data?.issueTypes ?? []).filter((it) => requirements.includes(it.name)),
-      (data?.issueTypes ?? []).filter((it) => bugs.includes(it.name)),
-      (data?.issueTypes ?? []).filter((it) => incidents.includes(it.name)),
-    ];
-  }, [requirements, bugs, incidents, data?.issueTypes]);
-
   const { token } = theme.useToken();
 
   if (!ready || !data) {
@@ -100,16 +92,9 @@ export const JiraTransformation = ({ entities, connectionId, transformation, set
 
   const { issueTypes, fields } = data;
 
-  const transformaType = (
-    its: Array<{
-      id: string;
-      name: string;
-      iconUrl: string;
-    }>,
-    standardType: StandardType,
-  ) => {
+  const transformaType = (its: string[], standardType: StandardType) => {
     return its.reduce((acc, cur) => {
-      acc[cur.name] = {
+      acc[cur] = {
         standardType,
       };
       return acc;
@@ -138,9 +123,9 @@ export const JiraTransformation = ({ entities, connectionId, transformation, set
         connectionId,
         issueTypes,
         fields,
-        requirementItems,
-        bugItems,
-        incidentItems,
+        requirements,
+        bugs,
+        incidents,
         transformaType,
       })}
     />
@@ -155,9 +140,9 @@ const renderCollapseItems = ({
   connectionId,
   issueTypes,
   fields,
-  bugItems,
-  incidentItems,
-  requirementItems,
+  requirements,
+  bugs,
+  incidents,
   transformaType,
 }: {
   entities: string[];
@@ -173,18 +158,9 @@ const renderCollapseItems = ({
     id: string;
     name: string;
   }>;
-  requirementItems: Array<{
-    id: string;
-    name: string;
-  }>;
-  bugItems: Array<{
-    id: string;
-    name: string;
-  }>;
-  incidentItems: Array<{
-    id: string;
-    name: string;
-  }>;
+  requirements: string[];
+  bugs: string[];
+  incidents: string[];
   transformaType: any;
 }) =>
   [
@@ -193,7 +169,7 @@ const renderCollapseItems = ({
       label: 'Issue Tracking',
       style: panelStyle,
       children: (
-        <>
+        <Form labelCol={{ span: 5 }}>
           <p>
             Tell DevLake what types of Jira issues you are using as features, bugs and incidents, and what field as
             `Epic Link` or `Story Points`.
@@ -208,18 +184,15 @@ const renderCollapseItems = ({
           <Form.Item label="Requirement">
             <Select
               mode="multiple"
-              options={issueTypes.map((it) => ({ label: it.name, value: it.id }))}
-              value={requirementItems.map((it) => it.id)}
+              options={issueTypes.map((it) => ({ label: it.name, value: it.name }))}
+              value={requirements}
               onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
-                    ...transformaType(
-                      requirementItems.filter((it) => value.includes(it.id)),
-                      StandardType.Requirement,
-                    ),
-                    ...transformaType(bugItems, StandardType.Bug),
-                    ...transformaType(incidentItems, StandardType.Incident),
+                    ...transformaType(value, StandardType.Requirement),
+                    ...transformaType(bugs, StandardType.Bug),
+                    ...transformaType(incidents, StandardType.Incident),
                   },
                 })
               }
@@ -228,18 +201,15 @@ const renderCollapseItems = ({
           <Form.Item label="Bug">
             <Select
               mode="multiple"
-              options={issueTypes.map((it) => ({ label: it.name, value: it.id }))}
-              value={bugItems.map((it) => it.id)}
+              options={issueTypes.map((it) => ({ label: it.name, value: it.name }))}
+              value={bugs}
               onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
-                    ...transformaType(requirementItems, StandardType.Requirement),
-                    ...transformaType(
-                      bugItems.filter((it) => value.includes(it.id)),
-                      StandardType.Bug,
-                    ),
-                    ...transformaType(incidentItems, StandardType.Incident),
+                    ...transformaType(requirements, StandardType.Requirement),
+                    ...transformaType(value, StandardType.Bug),
+                    ...transformaType(incidents, StandardType.Incident),
                   },
                 })
               }
@@ -257,19 +227,15 @@ const renderCollapseItems = ({
           >
             <Select
               mode="multiple"
-              options={issueTypes.map((it) => ({ label: it.name, value: it.id }))}
-              value={incidentItems.map((it) => it.id)}
+              options={issueTypes.map((it) => ({ label: it.name, value: it.name }))}
+              value={incidents}
               onChange={(value) =>
                 onChangeTransformation({
                   ...transformation,
                   typeMappings: {
-                    ...transformaType(requirementItems, StandardType.Requirement),
-                    ...transformaType(bugItems, StandardType.Bug),
-                    ...transformaType(
-                      incidentItems.filter((it) => value.includes(it.id)),
-
-                      StandardType.Incident,
-                    ),
+                    ...transformaType(requirements, StandardType.Requirement),
+                    ...transformaType(bugs, StandardType.Bug),
+                    ...transformaType(value, StandardType.Incident),
                   },
                 })
               }
@@ -284,7 +250,7 @@ const renderCollapseItems = ({
             }
           >
             <Select
-              options={fields.map((it) => ({ label: it.name, value: it.id }))}
+              options={fields.map((it) => ({ label: it.name, value: it.name }))}
               value={transformation.storyPointField}
               onChange={(value) =>
                 onChangeTransformation({
@@ -294,7 +260,7 @@ const renderCollapseItems = ({
               }
             />
           </Form.Item>
-        </>
+        </Form>
       ),
     },
     {
