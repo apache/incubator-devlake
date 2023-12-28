@@ -19,7 +19,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Card, Modal, Switch, Button, Tooltip, Dropdown } from 'antd';
+import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
 
 import API from '@/api';
 import { Message } from '@/components';
@@ -149,6 +149,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
                 {
                   key: '1',
                   label: 'Collect Data in Full Refresh Mode',
+                  disabled: !blueprint.enable,
                 },
               ],
               onClick: ({ key }) => {
@@ -164,25 +165,29 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
       )}
 
       {from === FromEnum.blueprint && (
-        <S.BlueprintAction>
-          <Button onClick={() => handleRun({})}>Run Now</Button>
-          <Switch
-            style={{ marginBottom: 0 }}
-            disabled={!!blueprint.projectName}
-            checked={blueprint.enable}
-            onChange={(enable) => handleUpdate({ enable })}
-          />
-          Blueprint Enabled
-          <Tooltip title="Delete Blueprint">
-            <Button
-              type="primary"
-              loading={operating}
+        <Flex justify="center" align="center">
+          <Space>
+            <Button type="primary" disabled={!blueprint.enable} onClick={() => handleRun({})}>
+              Run Now
+            </Button>
+            <Switch
+              style={{ marginBottom: 0 }}
               disabled={!!blueprint.projectName}
-              icon={<DeleteOutlined />}
-              onClick={() => setType('delete')}
+              checked={blueprint.enable}
+              onChange={(enable) => handleUpdate({ enable })}
             />
-          </Tooltip>
-        </S.BlueprintAction>
+            Blueprint Enabled
+            <Tooltip title="Delete Blueprint">
+              <Button
+                type="primary"
+                loading={operating}
+                disabled={!!blueprint.projectName}
+                icon={<DeleteOutlined />}
+                onClick={() => setType('delete')}
+              />
+            </Tooltip>
+          </Space>
+        </Flex>
       )}
 
       {/* <PipelineContextProvider> */}

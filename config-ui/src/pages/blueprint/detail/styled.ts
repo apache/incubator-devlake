@@ -97,9 +97,3 @@ export const ProjectACtion = styled.div`
     margin-left: 16px;
   }
 `;
-
-export const BlueprintAction = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
