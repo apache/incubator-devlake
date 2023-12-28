@@ -62,7 +62,8 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.Select(
 			`
-				pc.*, p.name as pipeline_name,
+				pc.*,
+				p.name as pipeline_name,
 				p.result,
 				p.status,
 				p.duration_sec,
