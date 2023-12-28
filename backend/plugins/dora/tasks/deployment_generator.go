@@ -102,21 +102,14 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineExInfo.Id,
 				},
-				CicdScopeId:    pipelineExInfo.CicdScopeId,
-				Name:           pipelineExInfo.Name,
-				Result:         pipelineExInfo.Result,
-				Status:         pipelineExInfo.Status,
-				OriginalStatus: pipelineExInfo.OriginalStatus,
-				OriginalResult: pipelineExInfo.OriginalResult,
-				Environment:    pipelineExInfo.Environment,
-				TaskDatesInfo: devops.TaskDatesInfo{
-					CreatedDate:  pipelineExInfo.CreatedDate,
-					QueuedDate:   pipelineExInfo.QueuedDate,
-					StartedDate:  pipelineExInfo.StartedDate,
-					FinishedDate: pipelineExInfo.FinishedDate,
-				},
-				DurationSec:       &pipelineExInfo.DurationSec,
-				QueuedDurationSec: pipelineExInfo.QueuedDurationSec,
+				CicdScopeId:  pipelineExInfo.CicdScopeId,
+				Name:         pipelineExInfo.Name,
+				Result:       pipelineExInfo.Result,
+				Status:       pipelineExInfo.Status,
+				Environment:  pipelineExInfo.Environment,
+				CreatedDate:  pipelineExInfo.CreatedDate,
+				FinishedDate: pipelineExInfo.FinishedDate,
+				DurationSec:  &pipelineExInfo.DurationSec,
 			}
 			if pipelineExInfo.FinishedDate != nil && pipelineExInfo.DurationSec != 0 {
 				s := pipelineExInfo.FinishedDate.Add(-time.Duration(pipelineExInfo.DurationSec) * time.Second)

@@ -88,26 +88,21 @@ func ConvertDeployBuildsToDeployments(taskCtx plugin.SubTaskContext) errors.Erro
 					Failure: []string{ResultFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, input.DeploymentState),
-				OriginalResult: input.DeploymentState,
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusFinished},
 					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
 					Default:    devops.STATUS_OTHER,
 				}, input.LifeCycleState),
-				OriginalStatus: input.LifeCycleState,
-				Environment:    input.Environment,
-				TaskDatesInfo: devops.TaskDatesInfo{
-					CreatedDate:  createdDate,
-					QueuedDate:   input.QueuedDate,
-					StartedDate:  input.ExecutedDate,
-					FinishedDate: input.FinishedDate,
-				},
+				Environment:  input.Environment,
+				CreatedDate:  createdDate,
+				StartedDate:  input.ExecutedDate,
+				FinishedDate: input.FinishedDate,
 			}
 			if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, input.Environment) != "" {
 				deployment.Environment = devops.PRODUCTION
 			}
 			if input.FinishedDate != nil && input.ExecutedDate != nil {
-				duration := float64(input.FinishedDate.Sub(*input.ExecutedDate).Milliseconds() / 1e3)
+				duration := uint64(input.FinishedDate.Sub(*input.ExecutedDate).Milliseconds() / 1e3)
 				deployment.DurationSec = &duration
 			}
 			return []interface{}{deployment}, nil
