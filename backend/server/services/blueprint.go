@@ -406,6 +406,9 @@ func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy, shouldSanitize b
 		logger.Error(err, "GetBlueprint, id: %d", id)
 		return nil, err
 	}
+	if !blueprint.Enable {
+		return nil, errors.BadInput.New("blueprint is not enabled")
+	}
 	blueprint.SkipCollectors = syncPolicy.SkipCollectors
 	blueprint.FullSync = syncPolicy.FullSync
 	pipeline, err := createPipelineByBlueprint(blueprint, syncPolicy)
