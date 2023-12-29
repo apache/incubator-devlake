@@ -44,7 +44,7 @@ func queryJiraAgileBoards(
 	err errors.Error,
 ) {
 	if page.MaxResults == 0 {
-		page.MaxResults = 100
+		page.MaxResults = 50
 	}
 	res, err := apiClient.Get("agile/1.0/board", url.Values{
 		"maxResults": {fmt.Sprintf("%v", page.MaxResults)},
@@ -75,6 +75,13 @@ func queryJiraAgileBoards(
 			FullName: board.Name,
 			Data:     board.ToToolLayer(0),
 		})
+	}
+
+	if !resBody.IsLast {
+		nextPage = &JiraRemotePagination{
+			MaxResults: page.MaxResults,
+			StartAt:    page.StartAt + page.MaxResults,
+		}
 	}
 
 	return
