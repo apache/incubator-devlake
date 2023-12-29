@@ -62,7 +62,16 @@ export const Layout = () => {
   }, []);
 
   useEffect(() => {
-    setSelectedKeys([pathname]);
+    const selectedKeys = pathname.split('/').reduce((acc, cur, i, arr) => {
+      if (i === 0) {
+        acc.push('/');
+        return acc;
+      } else {
+        acc.push(`${arr.slice(0, i + 1).join('/')}`);
+        return acc;
+      }
+    }, [] as string[]);
+    setSelectedKeys(selectedKeys);
   }, [pathname]);
 
   if (['idle', 'loading'].includes(status)) {

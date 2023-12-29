@@ -31,9 +31,10 @@ export const JiraConfig: IPluginConfig = {
     docLink: DOC_URL.PLUGIN.JIRA.BASIS,
     fields: [
       'name',
-      ({ initialValues, values, errors, setValues, setErrors }: any) => (
+      ({ type, initialValues, values, errors, setValues, setErrors }: any) => (
         <Auth
           key="auth"
+          type={type}
           initialValues={initialValues}
           values={values}
           errors={errors}

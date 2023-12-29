@@ -27,7 +27,7 @@ export const Wrapper = styled.div`
     margin-bottom: 16px;
     padding: 0;
     font-weight: 600;
-    color: #a0d911;
+    color: #4db764;
   }
 
   h5 {

@@ -52,7 +52,7 @@ export const Input = styled.div`
       }
 
       span.success {
-        color: #a0d911;
+        color: #4db764;
       }
     }
   }

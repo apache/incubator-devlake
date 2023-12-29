@@ -28,6 +28,7 @@ const JIRA_CLOUD_REGEX = /^https:\/\/\w+.atlassian.net\/rest\/$/;
 type Method = 'BasicAuth' | 'AccessToken';
 
 interface Props {
+  type: 'create' | 'update';
   initialValues: any;
   values: any;
   errors: any;
@@ -35,7 +36,7 @@ interface Props {
   setErrors: (value: any) => void;
 }
 
-export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => {
+export const Auth = ({ type, initialValues, values, setValues, setErrors }: Props) => {
   const [version, setVersion] = useState('cloud');
 
   useEffect(() => {
@@ -140,14 +141,24 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
           }
           required
         >
-          <Input placeholder="Your Endpoint URL" value={values.endpoint} onChange={handleChangeEndpoint} />
+          <Input
+            style={{ width: 386 }}
+            placeholder="Your Endpoint URL"
+            value={values.endpoint}
+            onChange={handleChangeEndpoint}
+          />
         </Block>
       </Block>
 
       {version === 'cloud' && (
         <>
           <Block title="E-Mail" required>
-            <Input placeholder="Your E-Mail" value={values.username} onChange={handleChangeUsername} />
+            <Input
+              style={{ width: 386 }}
+              placeholder="Your E-Mail"
+              value={values.username}
+              onChange={handleChangeUsername}
+            />
           </Block>
           <Block
             title="API Token"
@@ -158,7 +169,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
           >
             <Input.Password
               style={{ width: 386 }}
-              placeholder="Your PAT"
+              placeholder={type === 'update' ? '********' : 'Your PAT'}
               value={values.password}
               onChange={handleChangePassword}
             />
@@ -182,7 +193,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
               <Block title="Password" required>
                 <Input.Password
                   style={{ width: 386 }}
-                  placeholder="Your Password"
+                  placeholder={type === 'update' ? '********' : 'Your Password'}
                   value={values.password}
                   onChange={handleChangePassword}
                 />
@@ -201,7 +212,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
             >
               <Input.Password
                 style={{ width: 386 }}
-                placeholder="Your PAT"
+                placeholder={type === 'update' ? '********' : 'Your Password'}
                 value={values.token}
                 onChange={handleChangeToken}
               />

@@ -19,7 +19,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Card, Modal, Switch, Button, Tooltip, Dropdown } from 'antd';
+import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
 
 import API from '@/api';
 import { Message } from '@/components';
@@ -30,8 +30,6 @@ import { IBlueprint, IPipeline, IPipelineStatus } from '@/types';
 import { formatTime, operator } from '@/utils';
 
 import { FromEnum } from '../types';
-
-import * as S from './styled';
 
 interface Props {
   from: FromEnum;
@@ -121,73 +119,80 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
   };
 
   return (
-    <S.StatusPanel>
+    <Flex vertical>
       {from === FromEnum.project && (
-        <S.ProjectACtion>
-          <span>
-            {cron.label === 'Manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
-          </span>
-          <Tooltip
-            placement="top"
-            title="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
-          >
-            <Button
-              type="primary"
-              disabled={!blueprint.enable}
-              loading={operating}
-              onClick={() => handleRun({ skipCollectors: true })}
+        <Flex justify="flex-end" align="center">
+          <Space>
+            <span>
+              {cron.label === 'Manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
+            </span>
+            <Tooltip
+              placement="top"
+              title="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
             >
-              Re-transform Data
+              <Button
+                type="primary"
+                disabled={!blueprint.enable}
+                loading={operating}
+                onClick={() => handleRun({ skipCollectors: true })}
+              >
+                Re-transform Data
+              </Button>
+            </Tooltip>
+            <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
+              Collect Data
             </Button>
-          </Tooltip>
-          <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
-            Collect Data
-          </Button>
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: '1',
-                  label: 'Collect Data in Full Refresh Mode',
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: '1',
+                    label: 'Collect Data in Full Refresh Mode',
+                    disabled: !blueprint.enable,
+                  },
+                ],
+                onClick: ({ key }) => {
+                  if (key === '1') {
+                    setType('fullSync');
+                  }
                 },
-              ],
-              onClick: ({ key }) => {
-                if (key === '1') {
-                  setType('fullSync');
-                }
-              },
-            }}
-          >
-            <Button icon={<MoreOutlined />} />
-          </Dropdown>
-        </S.ProjectACtion>
+              }}
+            >
+              <Button icon={<MoreOutlined />} />
+            </Dropdown>
+          </Space>
+        </Flex>
       )}
 
       {from === FromEnum.blueprint && (
-        <S.BlueprintAction>
-          <Button onClick={() => handleRun({})}>Run Now</Button>
-          <Switch
-            style={{ marginBottom: 0 }}
-            disabled={!!blueprint.projectName}
-            checked={blueprint.enable}
-            onChange={(enable) => handleUpdate({ enable })}
-          />
-          Blueprint Enabled
-          <Tooltip title="Delete Blueprint">
-            <Button
-              type="primary"
-              loading={operating}
+        <Flex justify="center" align="center">
+          <Space>
+            <Button type="primary" disabled={!blueprint.enable} onClick={() => handleRun({})}>
+              Run Now
+            </Button>
+            <Switch
+              style={{ marginBottom: 0 }}
               disabled={!!blueprint.projectName}
-              icon={<DeleteOutlined />}
-              onClick={() => setType('delete')}
+              checked={blueprint.enable}
+              onChange={(enable) => handleUpdate({ enable })}
             />
-          </Tooltip>
-        </S.BlueprintAction>
+            Blueprint Enabled
+            <Tooltip title="Delete Blueprint">
+              <Button
+                type="primary"
+                loading={operating}
+                disabled={!!blueprint.projectName}
+                icon={<DeleteOutlined />}
+                onClick={() => setType('delete')}
+              />
+            </Tooltip>
+          </Space>
+        </Flex>
       )}
 
-      {/* <PipelineContextProvider> */}
-      <div className="block">
+      <Space direction="vertical" size="large">
         <h3>Current Pipeline</h3>
+
         {!pipelineId ? (
           <Card>There is no current run for this blueprint.</Card>
         ) : (
@@ -200,16 +205,15 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             </Card>
           </>
         )}
-      </div>
-      <div className="block">
+
         <h3>Historical Pipelines</h3>
+
         {!data?.length ? (
           <Card>There are no historical runs associated with this blueprint.</Card>
         ) : (
           <PipelineTable loading={loading} dataSource={data} />
         )}
-      </div>
-      {/* </PipelineContextProvider> */}
+      </Space>
 
       {type === 'delete' && (
         <Modal
@@ -246,6 +250,6 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           <Message content="This operation may take a long time as it will empty all of your existing data and re-collect it." />
         </Modal>
       )}
-    </S.StatusPanel>
+    </Flex>
   );
 };
