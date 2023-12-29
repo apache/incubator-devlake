@@ -21,6 +21,7 @@ import (
 	"crypto/rand"
 	"github.com/apache/incubator-devlake/core/errors"
 	"math/big"
+	"strings"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -64,4 +65,19 @@ func RandLetterBytes(n int) (string, errors.Error) {
 	}
 
 	return string(ret), nil
+}
+
+func SanitizeString(s string) string {
+	if s == "" {
+		return s
+	}
+	strLen := len(s)
+	if strLen <= 2 {
+		return strings.Repeat("*", strLen)
+	}
+	prefixLen, suffixLen := 2, 2
+	if strLen <= 5 {
+		prefixLen, suffixLen = 1, 1
+	}
+	return strings.Replace(s, s[prefixLen:strLen-suffixLen], strings.Repeat("*", strLen-prefixLen-suffixLen), -1)
 }

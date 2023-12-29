@@ -62,3 +62,60 @@ func TestRandLetterBytes(t *testing.T) {
 		})
 	}
 }
+
+func TestSanitizeString(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "test-1",
+			args: args{s: ""},
+			want: "",
+		},
+		{
+			name: "test-2",
+			args: args{s: "s"},
+			want: "*",
+		},
+		{
+			name: "test-3",
+			args: args{s: "ss"},
+			want: "**",
+		},
+		{
+			name: "test-4",
+			args: args{s: "s1s"},
+			want: "s*s",
+		},
+		{
+			name: "test-5",
+			args: args{s: "s12s"},
+			want: "s**s",
+		},
+		{
+			name: "test-6",
+			args: args{s: "s123s"},
+			want: "s***s",
+		},
+		{
+			name: "test-7",
+			args: args{s: "s1234s"},
+			want: "s1**4s",
+		},
+		{
+			name: "test-8",
+			args: args{s: "s123456789s"},
+			want: "s1*******9s",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, SanitizeString(tt.args.s), "SanitizeString(%v)", tt.args.s)
+		})
+	}
+}

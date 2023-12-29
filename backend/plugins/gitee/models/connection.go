@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -41,7 +42,7 @@ type GiteeConn struct {
 }
 
 func (connection GiteeConn) Sanitize() GiteeConn {
-	connection.Token = ""
+	connection.Token = utils.SanitizeString(connection.Token)
 	return connection
 }
 

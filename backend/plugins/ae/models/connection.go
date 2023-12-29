@@ -66,7 +66,7 @@ func (AeConnection) TableName() string {
 }
 
 func (connection AeConnection) Sanitize() AeConnection {
-	connection.AeAppKey.SecretKey = ""
+	connection.AeAppKey.SecretKey = utils.SanitizeString(connection.AeAppKey.SecretKey)
 	return connection
 }
 
