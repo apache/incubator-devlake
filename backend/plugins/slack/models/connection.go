@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -28,7 +29,7 @@ type SlackConn struct {
 }
 
 func (connection SlackConn) Sanitize() SlackConn {
-	connection.Token = ""
+	connection.Token = utils.SanitizeString(connection.Token)
 	return connection
 }
 

@@ -20,6 +20,7 @@ package models
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -51,7 +52,7 @@ type SonarqubeConn struct {
 }
 
 func (connection SonarqubeConn) Sanitize() SonarqubeConn {
-	connection.Token = ""
+	connection.Token = utils.SanitizeString(connection.Token)
 	return connection
 }
 

@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -64,6 +65,6 @@ func (PagerDutyConnection) TableName() string {
 }
 
 func (connection PagerDutyConnection) Sanitize() PagerDutyConnection {
-	connection.Token = ""
+	connection.Token = utils.SanitizeString(connection.Token)
 	return connection
 }
