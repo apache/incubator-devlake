@@ -87,6 +87,7 @@ func makeDataSourcePipelinePlanV200(
 			JiraTaskOptions{
 				ConnectionId: scope.ConnectionId,
 				BoardId:      scope.BoardId,
+				ScopeConfig:  scopeConfig,
 			},
 		)
 		if err != nil {
