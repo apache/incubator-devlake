@@ -133,7 +133,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
 
     const newItems = (res.children ?? []).map((it) => ({
       ...it,
-      title: it.name,
+      title: it.fullName ?? it.name,
     }));
 
     setSearch((s) => ({
