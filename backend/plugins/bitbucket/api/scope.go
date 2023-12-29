@@ -119,5 +119,6 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return scopeHelper.Delete(input)
 }
