@@ -34,21 +34,7 @@ type BitBucketServerTestConnResponse struct {
 	Connection *models.BitbucketServerConn
 }
 
-// @Summary test bitbucket connection
-// @Description Test bitbucket Connection
-// @Tags plugins/bitbucket_server
-// @Param body body models.BitbucketServerConn true "json body"
-// @Success 200  {object} BitBucketServerTestConnResponse "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/bitbucket_server/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// decode
-	var err errors.Error
-	var connection models.BitbucketServerConn
-	if err := api.Decode(input.Body, &connection, vld); err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
-	}
+func testConnection(ctx context.Context, connection models.BitbucketServerConn) (*BitBucketServerTestConnResponse, errors.Error) {
 	// test connection
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
@@ -71,7 +57,52 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	body.Message = "success"
 	body.Connection = &connection
 	// output
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &body, nil
+}
+
+// @Summary test bitbucket connection
+// @Description Test bitbucket Connection
+// @Tags plugins/bitbucket_server
+// @Param body body models.BitbucketServerConn true "json body"
+// @Success 200  {object} BitBucketServerTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/bitbucket_server/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// decode
+	var err errors.Error
+	var connection models.BitbucketServerConn
+	if err := api.Decode(input.Body, &connection, vld); err != nil {
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestExistingConnection test bitbucket connection
+// @Summary test bitbucket connection
+// @Description Test bitbucket Connection
+// @Tags plugins/bitbucket
+// @Success 200  {object} BitBucketTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/bitbucket_server/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.BitbucketServerConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection.BitbucketServerConn)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create bitbucket connection

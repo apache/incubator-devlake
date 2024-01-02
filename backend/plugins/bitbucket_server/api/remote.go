@@ -56,8 +56,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			var res *http.Response
-			// query.Set("sort", "values.key")
-			// query.Set("fields", "values.slug,values.name,limit,start,size")
 			res, err = apiClient.Get("rest/api/1.0/projects", query, nil)
 			if err != nil {
 				return nil, err
@@ -82,7 +80,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			var res *http.Response
-			// query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
 			// list projects part
 			res, err = apiClient.Get(fmt.Sprintf("rest/api/1.0/projects/%s/repos", gid), query, nil)
 			if err != nil {

@@ -174,6 +174,9 @@ func (p BitbucketServer) MakeDataSourcePipelinePlanV200(
 
 func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"test": {
 			"POST": api.TestConnection,
 		},
@@ -187,7 +190,11 @@ func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResource
 			"GET":    api.GetConnection,
 		},
 		"connections/:connectionId/scopes/*scopeId": {
-			"GET":    api.GetScope,
+			// Behind 'GetScopeDispatcher', there are two paths so far:
+			// GetScopeLatestSyncState "connections/:connectionId/scopes/:scopeId/latest-sync-state"
+			// GetScope "connections/:connectionId/scopes/:scopeId"
+			// Because there may be slash in scopeId, so we handle it manually.
+			"GET":    api.GetScopeDispatcher,
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},

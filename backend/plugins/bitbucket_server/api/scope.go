@@ -82,6 +82,15 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	return scopeHelper.GetScopeList(input)
 }
 
+func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scopeIdWithSuffix := strings.TrimLeft(input.Params["scopeId"], "/")
+	if strings.HasSuffix(scopeIdWithSuffix, "/latest-sync-state") {
+		input.Params["scopeId"] = strings.TrimSuffix(scopeIdWithSuffix, "/latest-sync-state")
+		return GetScopeLatestSyncState(input)
+	}
+	return GetScope(input)
+}
+
 // GetScope get one repo
 // @Summary get one repo
 // @Description get one repo
