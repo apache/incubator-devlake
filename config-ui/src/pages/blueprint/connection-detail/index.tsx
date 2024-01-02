@@ -50,7 +50,9 @@ export const BlueprintConnectionDetailPage = () => {
     return API.blueprint.get(bid as any);
   };
 
-  const [plugin, connectionId] = unique.split('-');
+  const uniqueSplit = unique.split('-');
+  const connectionId = uniqueSplit.pop()!;
+  const plugin = uniqueSplit.join('-');
 
   const pluginConfig = getPluginConfig(plugin);
 
