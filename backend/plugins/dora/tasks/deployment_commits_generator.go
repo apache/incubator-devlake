@@ -46,6 +46,7 @@ type pipelineCommitEx struct {
 	OriginalStatus     string
 	OriginalResult     string
 	DurationSec        *float64
+	QueuedDurationSec  *float64
 	CreatedDate        *time.Time
 	FinishedDate       *time.Time
 	Environment        string
@@ -69,6 +70,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				p.result,
 				p.status,
 				p.duration_sec,
+				p.queued_duration_sec,
 				p.created_date,
 				p.finished_date,
 				p.environment,
@@ -138,11 +140,12 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 					CreatedDate:  *pipelineCommit.CreatedDate,
 					FinishedDate: pipelineCommit.FinishedDate,
 				},
-				DurationSec: pipelineCommit.DurationSec,
-				CommitSha:   pipelineCommit.CommitSha,
-				RefName:     pipelineCommit.Branch,
-				RepoId:      pipelineCommit.RepoId,
-				RepoUrl:     pipelineCommit.RepoUrl,
+				DurationSec:       pipelineCommit.DurationSec,
+				QueuedDurationSec: pipelineCommit.QueuedDurationSec,
+				CommitSha:         pipelineCommit.CommitSha,
+				RefName:           pipelineCommit.Branch,
+				RepoId:            pipelineCommit.RepoId,
+				RepoUrl:           pipelineCommit.RepoUrl,
 			}
 			if pipelineCommit.FinishedDate != nil && pipelineCommit.DurationSec != nil {
 				s := pipelineCommit.FinishedDate.Add(-time.Duration(*pipelineCommit.DurationSec) * time.Second)
