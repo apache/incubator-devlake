@@ -29,7 +29,7 @@
       },
       "id": 58,
       "options": {
-        "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from Circleci, such as [Build Count](https://devlake.apache.org/docs/Metrics/BuildCount), [Build Duration](https://devlake.apache.org/docs/Metrics/BuildDuration) and [Build Success Rate](https://devlake.apache.org/docs/Metrics/BuildSuccessRate).\n- Data Source Required: Circleci",
+        "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from CircleCI, such as [Build Count](https://devlake.apache.org/docs/Metrics/BuildCount), [Build Duration](https://devlake.apache.org/docs/Metrics/BuildDuration) and [Build Success Rate](https://devlake.apache.org/docs/Metrics/BuildSuccessRate).\n- Data Source Required: CircleCI",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -971,7 +971,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Circleci",
-  "uid": "W8AiDFQnk",
+  "title": "CircleCI",
+  "uid": "W8AiDFQmk",
   "version": 10
 }
