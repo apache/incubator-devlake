@@ -54,7 +54,6 @@ export const init = createAsyncThunk('connections/init', async (plugins: string[
       .filter((plugin) => plugin === 'webhook')
       .map(async () => {
         const webhooks = await API.plugin.webhook.list();
-        console.log(webhooks);
         return webhooks.map((webhook) => transformWebhook(webhook));
       }),
   );
