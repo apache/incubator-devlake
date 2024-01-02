@@ -55,9 +55,13 @@ func ExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			gitlabDeployment := deploymentResp.toGitlabDeployment(data.Options.ConnectionId, data.Options.ProjectId)
-			return []interface{}{
-				gitlabDeployment,
-			}, nil
+			if !gitlabDeployment.DeployableCommitCreatedAt.IsZero() {
+				return []interface{}{
+					gitlabDeployment,
+				}, nil
+			} else {
+				return nil, nil
+			}
 		},
 	})
 
