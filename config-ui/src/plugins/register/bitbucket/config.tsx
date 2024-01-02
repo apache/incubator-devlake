@@ -23,9 +23,9 @@ import Icon from './assets/icon.svg?react';
 
 export const BitBucketConfig: IPluginConfig = {
   plugin: 'bitbucket',
-  name: 'BitBucket',
-  icon: ({ color }) => <Icon fill={color} />,
-  sort: 3,
+  name: 'BitBucket Cloud',
+  icon: Icon,
+  sort: 5,
   connection: {
     docLink: DOC_URL.PLUGIN.BITBUCKET.BASIS,
     initialValues: {

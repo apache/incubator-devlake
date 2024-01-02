@@ -22,7 +22,7 @@ import Icon from './assets/icon.svg';
 
 export const BitBucketServerConfig = {
   plugin: 'bitbucket_server',
-  name: 'BitBucket Server',
+  name: 'BitBucket Data Center',
   icon: Icon,
   sort: 5,
   connection: {

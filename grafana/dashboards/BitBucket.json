@@ -942,7 +942,7 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select concat(name, '--', id) as text from repos where id like 'bitbucket%'",
+        "definition": "select concat(name, '--', id) as text from repos where id like 'bitbucket%' and id not like 'bitbucket_server%'",
         "description": null,
         "error": null,
         "hide": 0,
@@ -951,7 +951,7 @@
         "multi": true,
         "name": "repo_id",
         "options": [],
-        "query": "select concat(name, '--', id) as text from repos where id like 'bitbucket%'",
+        "query": "select concat(name, '--', id) as text from repos where id like 'bitbucket%' and id not like 'bitbucket_server%'",
         "refresh": 1,
         "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
