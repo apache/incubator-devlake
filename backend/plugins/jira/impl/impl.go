@@ -211,12 +211,9 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		} else {
 			if op.ScopeConfigId == 0 && scope.ScopeConfigId != 0 {
 				op.ScopeConfigId = scope.ScopeConfigId
-				fmt.Printf("op.ScopeConfigxxx: %v\n", op.ScopeConfigId)
 			}
 		}
 	}
-	fmt.Printf("op.ScopeConfig: %v\n", op.ScopeConfig)
-	fmt.Printf("op.ScopeConfigId: %v\n", op.ScopeConfigId)
 	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
 		var scopeConfig models.JiraScopeConfig
 		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
