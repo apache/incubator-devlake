@@ -22,7 +22,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -44,13 +43,14 @@ type ApiDetailedStatus struct {
 }
 
 type ApiPipeline struct {
-	Id       int `json:"id"`
-	Ref      string
-	Sha      string
-	Status   string
-	Tag      bool
-	Duration int
-	WebUrl   string `json:"web_url"`
+	Id             int `json:"id"`
+	Ref            string
+	Sha            string
+	Status         string
+	Tag            bool
+	Duration       int
+	QueuedDuration float64 `json:"queued_duration"`
+	WebUrl         string  `json:"web_url"`
 
 	CreatedAt  *common.Iso8601Time `json:"created_at"`
 	UpdatedAt  *common.Iso8601Time `json:"updated_at"`
@@ -82,44 +82,18 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
-			if gitlabApiPipeline.UpdatedAt != nil && gitlabApiPipeline.CreatedAt != nil {
-				gitlabApiPipeline.Duration = int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
-			}
-
-			gitlabPipeline := &models.GitlabPipeline{
-				GitlabId:        gitlabApiPipeline.Id,
+			pipelineProject := &models.GitlabPipelineProject{
+				ConnectionId:    data.Options.ConnectionId,
+				PipelineId:      gitlabApiPipeline.Id,
 				ProjectId:       data.Options.ProjectId,
 				Ref:             gitlabApiPipeline.Ref,
 				Sha:             gitlabApiPipeline.Sha,
-				WebUrl:          gitlabApiPipeline.WebUrl,
-				Status:          gitlabApiPipeline.Status,
 				GitlabCreatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
 				GitlabUpdatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
-				StartedAt:       common.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
-				FinishedAt:      common.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
-				Duration:        gitlabApiPipeline.Duration,
-				ConnectionId:    data.Options.ConnectionId,
-
-				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
-				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
-
-				IsDetailRequired: false,
 			}
 
-			if gitlabApiPipeline.StartedAt == nil && gitlabApiPipeline.FinishedAt == nil {
-				gitlabPipeline.IsDetailRequired = true
-			}
-
-			pipelineProject := &models.GitlabPipelineProject{
-				ConnectionId: data.Options.ConnectionId,
-				PipelineId:   gitlabPipeline.GitlabId,
-				ProjectId:    data.Options.ProjectId,
-				Ref:          gitlabApiPipeline.Ref,
-				Sha:          gitlabApiPipeline.Sha,
-			}
-
-			results := make([]interface{}, 0, 2)
-			results = append(results, gitlabPipeline, pipelineProject)
+			results := make([]interface{}, 0, 1)
+			results = append(results, pipelineProject)
 
 			return results, nil
 		},

@@ -17,10 +17,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { InputGroup, Button, RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
+import { Modal, Radio, Input, Button, Collapse, message } from 'antd';
 
 import API from '@/api';
-import { Dialog, FormItem, toast } from '@/components';
+import { Block } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
 import { operator } from '@/utils';
 
@@ -30,17 +30,16 @@ interface Props {
   connectionId: ID;
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
-  isOpen: boolean;
+  open: boolean;
   onCancel: () => void;
 }
 
-export const DevPanel = ({ connectionId, transformation, setTransformation, isOpen, onCancel }: Props) => {
+export const DevPanel = ({ connectionId, transformation, setTransformation, open, onCancel }: Props) => {
   const [step, setStep] = useState(1);
   const [issueKey, setIssueKey] = useState('');
   const [searching, setSearching] = useState(false);
   const [applicationTypes, setApplicationTypes] = useState<string[]>([]);
   const [applicationType, setApplicationType] = useState<string>();
-  const [showTip, setShowTip] = useState(false);
   const [operating, setOperating] = useState(false);
   const [devPanelCommits, setDevPanelCommits] = useState<string[]>([]);
   const [pattern, setPattern] = useState('');
@@ -91,7 +90,7 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
       setApplicationTypes(res);
       setApplicationType(res[0]);
     } else {
-      toast.error('Cannot find the Jira issue, please input the right issue key.');
+      message.error('Cannot find the Jira issue, please input the right issue key.');
     }
   };
 
@@ -125,13 +124,16 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
   };
 
   return (
-    <Dialog
-      style={{ width: 820 }}
-      isOpen={isOpen}
+    <Modal
+      open={open}
+      width={820}
+      centered
       title="Configure the `Application Type` and `Commit Pattern` by sending request(s) to Jira."
       okText={step === 1 ? 'Next' : 'Save'}
-      okDisabled={(step === 1 && !applicationType) || (step === 2 && (!pattern || !regex))}
-      okLoading={operating}
+      okButtonProps={{
+        disabled: (step === 1 && !applicationType) || (step === 2 && (!pattern || !regex)),
+        loading: operating,
+      }}
       cancelText={step === 2 ? 'Prev' : 'Cancel'}
       onOk={handleSubmit}
       onCancel={handleCancel}
@@ -139,74 +141,74 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
       <S.DialogBody>
         {step === 1 && (
           <>
-            <FormItem
-              label="Jira Issue Key"
-              subLabel="Input any issue key that has connected commit(s) in the development panel"
+            <Block
+              title="Jira Issue Key"
+              description="Input any issue key that has connected commit(s) in the development panel"
               required
             >
               <div className="search">
-                <InputGroup
-                  placeholder="Please enter..."
-                  value={issueKey}
-                  onChange={(e) => setIssueKey(e.target.value)}
-                />
-                <Button loading={searching} disabled={!issueKey} text="See Results" onClick={handleSearch} />
+                <Input placeholder="Please enter..." value={issueKey} onChange={(e) => setIssueKey(e.target.value)} />
+                <Button loading={searching} disabled={!issueKey} onClick={handleSearch}>
+                  See Results
+                </Button>
               </div>
-            </FormItem>
+            </Block>
             {applicationTypes.length > 0 && (
-              <FormItem label="Application Type" subLabel="Please choose an application type." required>
-                <RadioGroup
-                  selectedValue={applicationType}
-                  onChange={(e) => setApplicationType((e.target as HTMLInputElement).value)}
-                >
+              <Block title="Application Type" description="Please choose an application type." required>
+                <Radio.Group value={applicationType} onChange={(e) => setApplicationType(e.target.value)}>
                   {applicationTypes.map((at) => (
-                    <Radio key={at} value={at} label={at} />
+                    <Radio key={at} value={at}>
+                      {at}
+                    </Radio>
                   ))}
-                </RadioGroup>
-              </FormItem>
+                </Radio.Group>
+              </Block>
             )}
           </>
         )}
         {step === 2 && (
           <>
-            <FormItem label="Jira Issue Key">{issueKey}</FormItem>
-            <FormItem label="Application Type">{applicationType}</FormItem>
-            <FormItem label="Commit Url Preview" subLabel="The latest five commit(s) associated with the issue.">
+            <Block title="Jira Issue Key">{issueKey}</Block>
+            <Block title="Application Type">{applicationType}</Block>
+            <Block title="Commit Url Preview" description="The latest five commit(s) associated with the issue.">
               <ul>
                 {devPanelCommits.map((commit) => (
                   <li key={commit}>{commit}</li>
                 ))}
               </ul>
-            </FormItem>
-            <FormItem
-              label="Commit Pattern"
-              subLabel={
-                <>
-                  <p style={{ display: 'flex', alignItems: 'center' }} onClick={() => setShowTip(!showTip)}>
-                    Input pattern(s) to match and parse commits and repo identifiers from above commit URLs. See
-                    examples <Icon icon={showTip ? 'chevron-up' : 'chevron-down'} style={{ cursor: 'pointer' }} />
-                  </p>
-                  <Collapse isOpen={showTip}>
-                    <img src={JiraIssueTipsImg} width="100%" alt="" />
-                  </Collapse>
-                </>
+            </Block>
+            <Block
+              title="Commit Pattern"
+              description={
+                <Collapse
+                  ghost
+                  expandIconPosition="end"
+                  items={[
+                    {
+                      key: '1',
+                      label:
+                        'Input pattern(s) to match and parse commits and repo identifiers from above commit URLs. See examples',
+                      children: <img src={JiraIssueTipsImg} width="100%" alt="" />,
+                    },
+                  ]}
+                />
               }
               required
             >
-              <InputGroup
+              <Input
                 placeholder="eg. https://gitlab.com/{namespace}/{repo_name}/commit/{commit_sha}"
                 value={pattern}
                 onChange={(e) => setPattern(e.target.value)}
               />
-            </FormItem>
-            <FormItem label="Configuration Results Preview">
+            </Block>
+            <Block title="Configuration Results Preview">
               <code>
                 <pre>{JSON.stringify(preview, null, '  ')}</pre>
               </code>
-            </FormItem>
+            </Block>
           </>
         )}
       </S.DialogBody>
-    </Dialog>
+    </Modal>
   );
 };

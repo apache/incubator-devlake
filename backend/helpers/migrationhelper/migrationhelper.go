@@ -155,8 +155,8 @@ func TransformColumns[S any, D any](
 				return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", tableName))
 			}
 			defer batch.Close()
-			src := new(S)
 			for cursor.Next() {
+				src := new(S)
 				err = db.Fetch(cursor, src)
 				if err != nil {
 					return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", tableName))

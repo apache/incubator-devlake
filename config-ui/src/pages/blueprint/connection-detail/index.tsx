@@ -18,11 +18,11 @@
 
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Intent, Position } from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
+import { DeleteOutlined, FormOutlined } from '@ant-design/icons';
+import { Flex, Table, Popconfirm, Modal, Button } from 'antd';
 
 import API from '@/api';
-import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Table, Dialog } from '@/components';
+import { PageLoading, PageHeader, ExternalLink, Message } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
 import { DataScopeSelect, getPluginConfig, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
@@ -33,7 +33,7 @@ import * as S from './styled';
 
 export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [operating, setOperating] = useState(false);
 
   const { pname, bid, unique } = useParams() as { pname?: string; bid?: string; unique: string };
@@ -90,8 +90,8 @@ export const BlueprintConnectionDetailPage = () => {
 
   const { blueprint, connection, scopes } = data;
 
-  const handleShowDataScope = () => setIsOpen(true);
-  const handleHideDataScope = () => setIsOpen(false);
+  const handleShowDataScope = () => setOpen(true);
+  const handleHideDataScope = () => setOpen(false);
 
   const handleRunBP = async (skipCollectors: boolean) => {
     const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync: false }), {
@@ -100,23 +100,18 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
-      navigate(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`);
     }
   };
 
   const handleShowTips = () => {
     setTips(
-      <>
+      <Flex gap="middle">
         <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
-        <Buttons style={{ marginLeft: 8, marginBottom: 0 }}>
-          <Button
-            loading={operating}
-            intent={Intent.PRIMARY}
-            text="Recollect All Data"
-            onClick={() => handleRunBP(false)}
-          />
-        </Buttons>
-      </>,
+        <Button type="primary" loading={operating} onClick={() => handleRunBP(false)}>
+          Recollect Data
+        </Button>
+      </Flex>,
     );
   };
 
@@ -133,7 +128,9 @@ export const BlueprintConnectionDetailPage = () => {
     if (success) {
       handleShowTips();
       navigate(
-        pname ? `/projects/${encodeName(pname)}?tab=configuration` : `/blueprints/${blueprint.id}?tab=configuration`,
+        pname
+          ? `/projects/${encodeName(pname)}?tab=configuration`
+          : `/advanced/blueprints/${blueprint.id}?tab=configuration`,
       );
     }
   };
@@ -175,9 +172,9 @@ export const BlueprintConnectionDetailPage = () => {
               { name: `Connection - ${connection.name}`, path: '' },
             ]
           : [
-              { name: 'Advanced', path: '/blueprints' },
-              { name: 'Blueprints', path: '/blueprints' },
-              { name: bid as any, path: `/blueprints/${bid}` },
+              { name: 'Advanced', path: '/advanced/blueprints' },
+              { name: 'Blueprints', path: '/advanced/blueprints' },
+              { name: bid as any, path: `/advanced/blueprints/${bid}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
       }
@@ -190,53 +187,54 @@ export const BlueprintConnectionDetailPage = () => {
           </ExternalLink>
           .
         </span>
-        <Popover2
-          position={Position.BOTTOM}
-          content={
-            <S.ActionDelete>
-              <Message content="Are you sure you want to remove the connection from this project/blueprint?" />
-              <Buttons position="bottom" align="right">
-                <Button intent={Intent.PRIMARY} text="Confirm" onClick={handleRemoveConnection} />
-              </Buttons>
-            </S.ActionDelete>
-          }
+        <Popconfirm
+          placement="top"
+          title="Are you sure you want to remove the connection from this project/blueprint?"
+          cancelButtonProps={{
+            style: {
+              display: 'none',
+            },
+          }}
+          okText="Confirm"
+          onConfirm={handleRemoveConnection}
         >
-          <Button intent={Intent.DANGER} icon="trash">
+          <Button type="primary" danger icon={<DeleteOutlined />}>
             Remove this Connection
           </Button>
-        </Popover2>
+        </Popconfirm>
       </S.Top>
-      <Buttons position="top">
-        <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
-        {pluginConfig.scopeConfig && (
-          <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
-            <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />
-          </ExternalLink>
-        )}
-      </Buttons>
-      <Table
-        columns={[
-          {
-            title: 'Data Scope',
-            dataIndex: 'name',
-            key: 'name',
-          },
-          {
-            title: 'Scope Config',
-            dataIndex: ['scopeConfigId', 'scopeConfigName'],
-            key: 'scopeConfig',
-            render: ({ scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
-          },
-        ]}
-        dataSource={scopes}
-      />
-      <Dialog
-        isOpen={isOpen}
-        title="Manage Data Scope"
-        footer={null}
-        style={{ width: 820 }}
-        onCancel={handleHideDataScope}
-      >
+      <Flex vertical gap="middle">
+        <Flex>
+          <Button type="primary" icon={<FormOutlined />} onClick={handleShowDataScope}>
+            Manage Data Scope
+          </Button>
+          {pluginConfig.scopeConfig && (
+            <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
+              <Button type="primary" icon={<FormOutlined />}>
+                Edit Scope Config
+              </Button>
+            </ExternalLink>
+          )}
+        </Flex>
+        <Table
+          rowKey="id"
+          size="middle"
+          columns={[
+            {
+              title: 'Data Scope',
+              dataIndex: 'name',
+              key: 'name',
+            },
+            {
+              title: 'Scope Config',
+              key: 'scopeConfig',
+              render: (_, { scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
+            },
+          ]}
+          dataSource={scopes}
+        />
+      </Flex>
+      <Modal open={open} width={820} centered title="Manage Data Scope" footer={null} onCancel={handleHideDataScope}>
         <DataScopeSelect
           plugin={connection.plugin}
           connectionId={connection.id}
@@ -245,7 +243,7 @@ export const BlueprintConnectionDetailPage = () => {
           onCancel={handleHideDataScope}
           onSubmit={handleChangeDataScope}
         />
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };

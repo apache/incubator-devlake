@@ -34,43 +34,43 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
 
-import { FormPassword } from '@/components';
-
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
+  type: 'create' | 'update';
   label?: string;
   subLabel?: string;
   name: string;
   initialValue: string;
   value: string;
   error: string;
-  setValue: (value: string) => void;
-  setError: (value: string) => void;
+  setValue: (value?: string) => void;
+  setError: (value?: string) => void;
 }
 
-export const ConnectionToken = ({ label, subLabel, initialValue, value, setValue, setError }: Props) => {
+export const ConnectionToken = ({ type, label, subLabel, initialValue, value, setValue, setError }: Props) => {
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(type === 'create' ? initialValue : undefined);
+  }, [type, initialValue]);
 
   useEffect(() => {
-    setError(value ? '' : 'token is required');
-  }, [value]);
+    setError(type === 'create' && !value ? 'token is required' : undefined);
+  }, [type, value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
   return (
-    <FormGroup
-      label={<S.Label>{label ?? 'Token'}</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={subLabel && <S.LabelDescription>{subLabel}</S.LabelDescription>}
-    >
-      <FormPassword placeholder="Your Token" value={value} onChange={handleChange} />
-    </FormGroup>
+    <Block title={label ?? 'Token'} description={subLabel ? subLabel : null} required>
+      <Input.Password
+        style={{ width: 386 }}
+        placeholder={type === 'update' ? '********' : 'Your Token'}
+        value={value}
+        onChange={handleChange}
+      />
+    </Block>
   );
 };

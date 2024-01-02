@@ -33,12 +33,16 @@ type DsConnectionApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope
 	*srvhelper.ConnectionSrvHelper[C, S, SC]
 }
 
-func NewDsConnectionApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig](
+func NewDsConnectionApiHelper[
+	C plugin.ToolLayerConnection,
+	S plugin.ToolLayerScope,
+	SC plugin.ToolLayerScopeConfig](
 	basicRes context.BasicRes,
 	connSrvHelper *srvhelper.ConnectionSrvHelper[C, S, SC],
+	sterilizer func(c C) C,
 ) *DsConnectionApiHelper[C, S, SC] {
 	return &DsConnectionApiHelper[C, S, SC]{
-		ModelApiHelper:      NewModelApiHelper[C](basicRes, connSrvHelper.ModelSrvHelper, []string{"connectionId"}),
+		ModelApiHelper:      NewModelApiHelper[C](basicRes, connSrvHelper.ModelSrvHelper, []string{"connectionId"}, sterilizer),
 		ConnectionSrvHelper: connSrvHelper,
 	}
 }
@@ -57,6 +61,7 @@ func (connApi *DsConnectionApiHelper[C, S, SC]) Delete(input *plugin.ApiResource
 			Data:    refs,
 		}, Status: err.GetType().GetHttpCode()}, nil
 	}
+	conn = connApi.Sanitize(conn)
 	return &plugin.ApiResourceOutput{
 		Body: conn,
 	}, nil

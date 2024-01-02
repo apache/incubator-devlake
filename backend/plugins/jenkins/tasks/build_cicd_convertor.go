@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/spf13/cast"
 	"reflect"
 	"time"
 
@@ -70,39 +71,52 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuild := inputRow.(*models.JenkinsBuild)
-			durationSec := int64(jenkinsBuild.Duration / 1000)
-			jenkinsPipelineStatus := devops.GetStatus(&devops.StatusRule[bool]{
+			var durationMillis float64
+			if jenkinsBuild.Duration > 0 {
+				durationMillis = jenkinsBuild.Duration
+			} else {
+				durationMillis = 0
+			}
+			durationSec := durationMillis / 1e3
+
+			jenkinsPipelineStatus := devops.GetStatusCommon(&devops.StatusRuleCommon[bool]{
 				InProgress: []bool{true},
 				Done:       []bool{false},
+				Default:    devops.STATUS_OTHER,
 			}, jenkinsBuild.Building)
-			var jenkinsPipelineResult string
+			jenkinsPipelineResult := devops.RESULT_DEFAULT
 			if !jenkinsBuild.Building {
 				jenkinsPipelineResult = devops.GetResult(&devops.ResultRule{
-					Success: []string{"SUCCESS"},
-					Failed:  []string{"FAILURE"},
-					Abort:   []string{"ABORTED"},
+					Success: []string{SUCCESS},
+					Failure: []string{FAILURE, ABORTED},
+					Default: devops.RESULT_DEFAULT,
 				}, jenkinsBuild.Result)
 			}
 			var jenkinsPipelineFinishedDate *time.Time
 			results := make([]interface{}, 0)
 
 			if jenkinsPipelineStatus == devops.STATUS_DONE {
-				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
+				finishTime := jenkinsBuild.StartTime.Add(time.Duration(int64(durationMillis) * int64(time.Millisecond)))
 				jenkinsPipelineFinishedDate = &finishTime
 			}
 			jenkinsPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 				},
-				Name:         jenkinsBuild.FullName,
-				Result:       jenkinsPipelineResult,
-				Status:       jenkinsPipelineStatus,
-				FinishedDate: jenkinsPipelineFinishedDate,
-				DurationSec:  uint64(durationSec),
-				CreatedDate:  jenkinsBuild.StartTime,
-				CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
-				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, jenkinsBuild.FullName),
-				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, jenkinsBuild.FullName),
+				Name:           jenkinsBuild.FullName,
+				Result:         jenkinsPipelineResult,
+				Status:         jenkinsPipelineStatus,
+				OriginalResult: jenkinsBuild.Result,
+				OriginalStatus: cast.ToString(jenkinsBuild.Building),
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  jenkinsBuild.StartTime,
+					StartedDate:  &jenkinsBuild.StartTime,
+					FinishedDate: jenkinsPipelineFinishedDate,
+				},
+				DurationSec: durationSec,
+				CicdScopeId: jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
+				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, jenkinsBuild.FullName),
+				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, jenkinsBuild.FullName),
 			}
 			jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
 			results = append(results, jenkinsPipeline)
@@ -112,16 +126,21 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 					DomainEntity: domainlayer.DomainEntity{
 						Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 					},
-					Name:         data.Options.JobFullName,
-					Result:       jenkinsPipelineResult,
-					Status:       jenkinsPipelineStatus,
-					DurationSec:  uint64(durationSec),
-					StartedDate:  jenkinsBuild.StartTime,
-					FinishedDate: jenkinsPipelineFinishedDate,
-					CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
-					Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, jenkinsBuild.FullName),
-					Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, jenkinsBuild.FullName),
-					PipelineId:   buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
+					Name:           data.Options.JobFullName,
+					Result:         jenkinsPipelineResult,
+					Status:         jenkinsPipelineStatus,
+					OriginalResult: jenkinsBuild.Result,
+					OriginalStatus: cast.ToString(jenkinsBuild.Building),
+					DurationSec:    durationSec,
+					TaskDatesInfo: devops.TaskDatesInfo{
+						CreatedDate:  jenkinsBuild.StartTime,
+						StartedDate:  &jenkinsBuild.StartTime,
+						FinishedDate: jenkinsPipelineFinishedDate,
+					},
+					CicdScopeId: jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
+					Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, jenkinsBuild.FullName),
+					Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, jenkinsBuild.FullName),
+					PipelineId:  buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 				}
 				results = append(results, jenkinsTask)
 

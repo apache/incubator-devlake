@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -52,13 +51,13 @@ type ApiAuthenticator interface {
 // TODO: deprecated, remove
 // ConnectionValidator represents the API Connection would validate its fields with customized logic
 type ConnectionValidator interface {
-	ValidateConnection(connection interface{}, valdator *validator.Validate) errors.Error
+	ValidateConnection(connection interface{}, validator *validator.Validate) errors.Error
 }
 
 // PrepareApiClient is to be implemented by the concrete Connection which requires
 // preparation for the ApiClient created by NewApiClientFromConnection, i.e. fetch token for future requests
 type PrepareApiClient interface {
-	PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error
+	PrepareApiClient(apiClient ApiClient) errors.Error
 }
 
 // MultiAuth
@@ -109,6 +108,11 @@ type Scope interface {
 type ToolLayerConnection interface {
 	dal.Tabler
 	ConnectionId() uint64
+}
+
+type ToolLayerApiConnection interface {
+	ApiConnection
+	ToolLayerConnection
 }
 
 type ToolLayerScope interface {

@@ -19,8 +19,6 @@ package models
 
 import (
 	"strings"
-
-	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 type Job struct {
@@ -45,7 +43,7 @@ func (j Job) GroupName() string {
 	return j.Name
 }
 
-func (j Job) ConvertApiScope() plugin.ToolLayerScope {
+func (j Job) ToJenkinsJob() *JenkinsJob {
 	if j.FullName == "" {
 		if j.Name != "" || j.Path != "" {
 			beforeNames := strings.Split(j.Path, "/")

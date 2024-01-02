@@ -210,19 +210,6 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board: %d", op.BoardId))
 		}
 	}
-
-	if op.BoardId == 0 && op.ScopeId != "" {
-		var jiraBoard models.JiraBoard
-		// get repo from db
-		err = db.First(&jiraBoard, dal.Where(`connection_id = ? and board_id = ?`, connection.ID, op.ScopeId))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board%s", op.ScopeId))
-		}
-		op.BoardId = jiraBoard.BoardId
-		if op.ScopeConfigId == 0 {
-			op.ScopeConfigId = jiraBoard.ScopeConfigId
-		}
-	}
 	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
 		var scopeConfig models.JiraScopeConfig
 		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
@@ -290,6 +277,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
@@ -301,6 +291,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
+		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
@@ -309,7 +302,7 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.UpdateScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,

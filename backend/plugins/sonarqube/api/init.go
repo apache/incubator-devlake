@@ -26,38 +26,35 @@ import (
 )
 
 var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.SonarqubeConnection, models.SonarqubeProject, interface{}]
-var remoteHelper *api.RemoteApiHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
 
-func Init(br context.BasicRes, p plugin.PluginMeta) {
+var dsHelper *api.DsHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.SonarqubeConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.SonarqubeConnection, models.SonarqubeProject, SonarqubeRemotePagination]
+var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.SonarqubeConnection, models.SonarqubeProject]
 
+func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
+	dsHelper = api.NewDataSourceHelper[
+		models.SonarqubeConnection,
+		models.SonarqubeProject,
+		models.SonarqubeScopeConfig,
+	](
+		br,
 		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "ProjectKey",
-		ScopeIdColumnName:    "project_key",
-		RawScopeParamName:    "ProjectKey",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = api.NewScopeHelper[models.SonarqubeConnection, models.SonarqubeProject, any](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.SonarqubeConnection, models.SonarqubeProject, any](
-			basicRes, connectionHelper, params),
-		params,
+		[]string{"name"},
+		func(c models.SonarqubeConnection) models.SonarqubeConnection {
+			return c.Sanitize()
+		},
+		nil,
 		nil,
 	)
-	remoteHelper = api.NewRemoteHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
+	raProxy = api.NewDsRemoteApiProxyHelper[models.SonarqubeConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[
+		models.SonarqubeConnection,
+		models.SonarqubeProject,
+		SonarqubeRemotePagination,
+	](raProxy, listSonarqubeRemoteScopes)
+	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.SonarqubeConnection, models.SonarqubeProject](raProxy, searchSonarqubeRemoteProjects)
 }

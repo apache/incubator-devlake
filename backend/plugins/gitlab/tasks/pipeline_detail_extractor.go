@@ -54,9 +54,6 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
-			if gitlabApiPipeline.UpdatedAt != nil && gitlabApiPipeline.CreatedAt != nil {
-				gitlabApiPipeline.Duration = int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
-			}
 			gitlabPipeline := &models.GitlabPipeline{
 				GitlabId:        gitlabApiPipeline.Id,
 				ProjectId:       data.Options.ProjectId,
@@ -69,32 +66,20 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				StartedAt:       common.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
 				FinishedAt:      common.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
 				Duration:        gitlabApiPipeline.Duration,
+				QueuedDuration:  gitlabApiPipeline.QueuedDuration,
 				ConnectionId:    data.Options.ConnectionId,
-
-				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
-				Environment: data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
-
-				IsDetailRequired: false,
+				Type:            data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
+				Environment:     data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
 			}
 			if err != nil {
 				return nil, err
 			}
 
-			pipelineProject := &models.GitlabPipelineProject{
-				ConnectionId: data.Options.ConnectionId,
-				PipelineId:   gitlabPipeline.GitlabId,
-				ProjectId:    data.Options.ProjectId,
-				Ref:          gitlabApiPipeline.Ref,
-				Sha:          gitlabApiPipeline.Sha,
-			}
-
-			results := make([]interface{}, 0, 2)
-			results = append(results, gitlabPipeline, pipelineProject)
-
+			results := make([]interface{}, 0, 1)
+			results = append(results, gitlabPipeline)
 			return results, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}

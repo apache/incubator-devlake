@@ -42,6 +42,9 @@ const URLS = {
       TRANSFORMATION:
         'https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional',
     },
+    CIRCLECI: {
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/CircleCI#fixed-rate-limit-optional',
+    },
     GITHUB: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/GitHub',
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/GitHub#fixed-rate-limit-optional',

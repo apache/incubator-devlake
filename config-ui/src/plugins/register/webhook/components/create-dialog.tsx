@@ -17,22 +17,23 @@
  */
 
 import { useState, useMemo } from 'react';
-import { InputGroup, Icon } from '@blueprintjs/core';
+import { CheckCircleOutlined } from '@ant-design/icons';
+import { Modal, Input } from 'antd';
 
 import { useAppDispatch } from '@/app/hook';
-import { Dialog, FormItem, CopyText, ExternalLink } from '@/components';
+import { Block, CopyText, ExternalLink } from '@/components';
 import { addWebhook } from '@/features';
 import { operator } from '@/utils';
 
 import * as S from '../styled';
 
 interface Props {
-  isOpen: boolean;
+  open: boolean;
   onCancel: () => void;
   onSubmitAfter?: (id: ID) => void;
 }
 
-export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
+export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
   const [operating, setOperating] = useState(false);
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
@@ -51,9 +52,10 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
   const handleSubmit = async () => {
     const [success, res] = await operator(
       async () => {
-        const { id, apiKey, postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } = await dispatch(
-          addWebhook({ name }),
-        ).unwrap();
+        const {
+          webhook: { id, postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint },
+          apiKey,
+        } = await dispatch(addWebhook({ name })).unwrap();
 
         return {
           id,
@@ -84,8 +86,12 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
 }'`,
         closeIssuesEndpoint: `curl ${prefix}${res.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
         postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-    "commit_sha":"the sha of deployment commit",
-    "repo_url":"the repo URL of the deployment commit",
+    "deploymentCommits":[
+      {
+      "commit_sha":"the sha of deployment commit1",
+      "repo_url":"the repo URL of the deployment commit"
+      }
+    ],
     "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
 }'`,
         apiKey: res.apiKey,
@@ -95,39 +101,42 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
   };
 
   return (
-    <Dialog
-      isOpen={isOpen}
+    <Modal
+      open={open}
+      width={820}
+      centered
       title="Add a New Webhook"
-      style={{ width: 820 }}
       footer={step === 2 ? null : undefined}
       okText={step === 1 ? 'Generate POST URL' : 'Done'}
-      okDisabled={step === 1 && !name}
-      okLoading={operating}
+      okButtonProps={{
+        disabled: step === 1 && !name,
+        loading: operating,
+      }}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
       {step === 1 && (
         <S.Wrapper>
-          <FormItem
-            label="Webhook Name"
-            subLabel="Give your Webhook a unique name to help you identify it in the future."
+          <Block
+            title="Webhook Name"
+            description="Give your Webhook a unique name to help you identify it in the future."
             required
           >
-            <InputGroup placeholder="Webhook Name" value={name} onChange={(e) => setName(e.target.value)} />
-          </FormItem>
+            <Input placeholder="Webhook Name" value={name} onChange={(e) => setName(e.target.value)} />
+          </Block>
         </S.Wrapper>
       )}
       {step === 2 && (
         <S.Wrapper>
           <h2>
-            <Icon icon="endorsed" size={30} />
+            <CheckCircleOutlined size={30} />
             <span>CURL commands generated. Please copy them now.</span>
           </h2>
           <p>
             A non-expired API key is automatically generated for the authentication of the webhook. This key will only
             show now. You can revoke it in the webhook page at any time.
           </p>
-          <FormItem label="Incident">
+          <Block title="Incident">
             <h5>Post to register/update an incident</h5>
             <CopyText content={record.postIssuesEndpoint} />
             <p>
@@ -146,8 +155,8 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
               </ExternalLink>
               .
             </p>
-          </FormItem>
-          <FormItem label="Deployments">
+          </Block>
+          <Block title="Deployments">
             <h5>Post to register a deployment</h5>
             <CopyText content={record.postDeploymentsCurl} />
             <p>
@@ -157,10 +166,10 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
               </ExternalLink>
               .
             </p>
-          </FormItem>
+          </Block>
         </S.Wrapper>
       )}
-    </Dialog>
+    </Modal>
   );
 };
 

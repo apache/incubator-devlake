@@ -22,50 +22,35 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse]
+
 var basicRes context.BasicRes
-var scHelper *api.ScopeConfigHelper[models.JiraScopeConfig, *models.JiraScopeConfig]
+var dsHelper *api.DsHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.JiraConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.JiraConnection, models.JiraBoard, JiraRemotePagination]
+var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.JiraConnection, models.JiraBoard]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
+	dsHelper = api.NewDataSourceHelper[
+		models.JiraConnection,
+		models.JiraBoard,
+		models.JiraScopeConfig,
+	](
+		br,
 		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "BoardId",
-		ScopeIdColumnName:    "board_id",
-		RawScopeParamName:    "BoardId",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = api.NewScopeHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
+		[]string{"name"},
+		func(c models.JiraConnection) models.JiraConnection {
+			return c.Sanitize()
+		},
+		nil,
 		nil,
 	)
-
-	remoteHelper = api.NewRemoteHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
-	scHelper = api.NewScopeConfigHelper[models.JiraScopeConfig, *models.JiraScopeConfig](
-		basicRes,
-		vld,
-		p.Name(),
-	)
+	raProxy = api.NewDsRemoteApiProxyHelper[models.JiraConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[models.JiraConnection, models.JiraBoard, JiraRemotePagination](raProxy, listJiraRemoteScopes)
+	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.JiraConnection, models.JiraBoard](raProxy, searchJiraRemoteBoards)
 }

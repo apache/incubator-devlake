@@ -71,7 +71,6 @@ func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
 				AccountId:     accountIdGen.Generate(data.Options.ConnectionId, giteePullRequestComment.AuthorUserId),
 				CreatedDate:   giteePullRequestComment.GiteeCreatedAt,
 				CommitSha:     "",
-				Position:      0,
 			}
 			return []interface{}{
 				domainPrComment,

@@ -23,8 +23,6 @@ import (
 
 type JenkinsScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId       uint64 `mapstructure:"connectionId" json:"connectionId"`
-	Name               string `gorm:"type:varchar(255);index:idx_name_jenkins,unique" validate:"required" mapstructure:"name" json:"name"`
 	DeploymentPattern  string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern"`
 	ProductionPattern  string `gorm:"type:varchar(255)" mapstructure:"productionPattern,omitempty" json:"productionPattern"`
 }

@@ -17,10 +17,11 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Intent } from '@blueprintjs/core';
+import { RedoOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 
 import API from '@/api';
-import { TextTooltip, IconButton } from '@/components';
+import { TextTooltip } from '@/components';
 import { getPluginConfig } from '@/plugins';
 import { ITask, IPipelineStatus } from '@/types';
 import { operator } from '@/utils';
@@ -38,7 +39,7 @@ export const PipelineTask = ({ task }: Props) => {
 
   const { id, beganAt, finishedAt, status, message, progressDetail } = task;
 
-  const [icon, name] = useMemo(() => {
+  const [, name] = useMemo(() => {
     const config = getPluginConfig(task.plugin);
     const options = task.options;
 
@@ -101,7 +102,7 @@ export const PipelineTask = ({ task }: Props) => {
     <S.Task>
       <div className="info">
         <div className="title">
-          <img src={icon} alt="" />
+          {/* <img src={icon} alt="" /> */}
           <strong>Task{id}</strong>
           <span>
             <TextTooltip content={name}>{name}</TextTooltip>
@@ -121,7 +122,7 @@ export const PipelineTask = ({ task }: Props) => {
         {status === IPipelineStatus.COMPLETED && <p>All Subtasks completed</p>}
 
         {status === IPipelineStatus.FAILED && (
-          <TextTooltip intent={Intent.DANGER} content={message}>
+          <TextTooltip content={message}>
             <p className="error">Task failed: hover to view the reason</p>
           </TextTooltip>
         )}
@@ -135,9 +136,7 @@ export const PipelineTask = ({ task }: Props) => {
           IPipelineStatus.PARTIAL,
           IPipelineStatus.FAILED,
           IPipelineStatus.CANCELLED,
-        ].includes(status) && (
-          <IconButton loading={operating} icon="repeat" tooltip="Rerun task" onClick={handleRerun} />
-        )}
+        ].includes(status) && <Button loading={operating} icon={<RedoOutlined />} onClick={handleRerun} />}
       </div>
     </S.Task>
   );

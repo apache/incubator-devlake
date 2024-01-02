@@ -35,6 +35,38 @@ type TapdTestConnResponse struct {
 	Connection *models.TapdConn
 }
 
+func testConnection(ctx context.Context, connection models.TapdConn) (*TapdTestConnResponse, errors.Error) {
+	// process input
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	// test connection
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("verify token failed for %s", connection.Username))
+	}
+	res, err := apiClient.Get("/quickstart/testauth", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(http.StatusBadRequest).New(fmt.Sprintf("verify token failed for %s", connection.Username))
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
+	}
+	connection = connection.Sanitize()
+	body := TapdTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	// output
+	return &body, nil
+}
+
+// TestConnection test tap connection
 // @Summary test tapd connection
 // @Description Test Tapd Connection
 // @Tags plugins/tapd
@@ -50,28 +82,34 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, err
 	}
-
 	// test connection
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("verify token failed for %s", connection.Username))
-	}
-	res, err := apiClient.Get("/quickstart/testauth", nil, nil)
+	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New(fmt.Sprintf("verify token failed for %s", connection.Username))
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestExistingConnection test tapd connection options
+// @Summary test tapd connection
+// @Description Test Tapd Connection
+// @Tags plugins/tapd
+// @Success 200  {object} TapdTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/tapd/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.TapdConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
 	}
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
+	// test connection
+	result, err := testConnection(context.TODO(), connection.TapdConn)
+	if err != nil {
+		return nil, err
 	}
-	body := TapdTestConnResponse{}
-	body.Success = true
-	body.Message = "success"
-	body.Connection = &connection
-	// output
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create tapd connection
@@ -93,7 +131,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, err
 	}
 
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch tapd connection
@@ -111,7 +149,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, err
 	}
 
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
 }
 
 // @Summary delete a tapd connection
@@ -123,7 +161,13 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.TapdConnection{}, input)
+	conn := &models.TapdConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.Sanitize()
+	return output, nil
 }
 
 // @Summary get all tapd connections
@@ -139,7 +183,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-
+	for idx, c := range connections {
+		connections[idx] = c.Sanitize()
+	}
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 

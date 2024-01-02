@@ -18,11 +18,11 @@
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Switch, Intent, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
 
 import API from '@/api';
-import { Card, IconButton, Dialog, Message } from '@/components';
+import { Message } from '@/components';
 import { getCron } from '@/config';
 import { useAutoRefresh } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
@@ -30,8 +30,6 @@ import { IBlueprint, IPipeline, IPipelineStatus } from '@/types';
 import { formatTime, operator } from '@/utils';
 
 import { FromEnum } from '../types';
-
-import * as S from './styled';
 
 interface Props {
   from: FromEnum;
@@ -116,72 +114,85 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     });
 
     if (success) {
-      navigate('/blueprints');
+      navigate('/advanced/blueprints');
     }
   };
 
   return (
-    <S.StatusPanel>
+    <Flex vertical>
       {from === FromEnum.project && (
-        <S.ProjectACtion>
-          <span>
-            {cron.value === 'manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
-          </span>
-          <Tooltip2
-            position={Position.TOP}
-            content="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
-          >
-            <Button
-              disabled={!blueprint.enable}
-              loading={operating}
-              intent={Intent.PRIMARY}
-              text="Re-transform Data"
-              onClick={() => handleRun({ skipCollectors: true })}
-            />
-          </Tooltip2>
-          <Button
-            disabled={!blueprint.enable}
-            loading={operating}
-            intent={Intent.PRIMARY}
-            text="Collect Data"
-            onClick={() => handleRun({})}
-          />
-          <Popover
-            content={
-              <Menu>
-                <MenuItem text="Collect All Data in Full Refresh Mode" onClick={() => setType('fullSync')} />
-              </Menu>
-            }
-            placement="bottom"
-          >
-            <IconButton icon="more" tooltip="" />
-          </Popover>
-        </S.ProjectACtion>
+        <Flex justify="flex-end" align="center">
+          <Space>
+            <span>
+              {cron.label === 'Manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
+            </span>
+            <Tooltip
+              placement="top"
+              title="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
+            >
+              <Button
+                type="primary"
+                disabled={!blueprint.enable}
+                loading={operating}
+                onClick={() => handleRun({ skipCollectors: true })}
+              >
+                Re-transform Data
+              </Button>
+            </Tooltip>
+            <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
+              Collect Data
+            </Button>
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: '1',
+                    label: 'Collect Data in Full Refresh Mode',
+                    disabled: !blueprint.enable,
+                  },
+                ],
+                onClick: ({ key }) => {
+                  if (key === '1') {
+                    setType('fullSync');
+                  }
+                },
+              }}
+            >
+              <Button icon={<MoreOutlined />} />
+            </Dropdown>
+          </Space>
+        </Flex>
       )}
 
       {from === FromEnum.blueprint && (
-        <S.BlueprintAction>
-          <Button text="Run Now" onClick={() => handleRun({})} />
-          <Switch
-            style={{ marginBottom: 0 }}
-            label="Blueprint Enabled"
-            disabled={!!blueprint.projectName}
-            checked={blueprint.enable}
-            onChange={(e) => handleUpdate({ enable: (e.target as HTMLInputElement).checked })}
-          />
-          <IconButton
-            loading={operating}
-            disabled={!!blueprint.projectName}
-            icon="trash"
-            tooltip="Delete Blueprint"
-            onClick={() => setType('delete')}
-          />
-        </S.BlueprintAction>
+        <Flex justify="center" align="center">
+          <Space>
+            <Button type="primary" disabled={!blueprint.enable} onClick={() => handleRun({})}>
+              Run Now
+            </Button>
+            <Switch
+              style={{ marginBottom: 0 }}
+              disabled={!!blueprint.projectName}
+              checked={blueprint.enable}
+              onChange={(enable) => handleUpdate({ enable })}
+            />
+            Blueprint Enabled
+            <Tooltip title="Delete Blueprint">
+              <Button
+                type="primary"
+                loading={operating}
+                disabled={!!blueprint.projectName}
+                icon={<DeleteOutlined />}
+                onClick={() => setType('delete')}
+              />
+            </Tooltip>
+          </Space>
+        </Flex>
       )}
 
-      {/* <PipelineContextProvider> */}
-      <div className="block">
+      <Space direction="vertical" size="large">
         <h3>Current Pipeline</h3>
+
         {!pipelineId ? (
           <Card>There is no current run for this blueprint.</Card>
         ) : (
@@ -194,24 +205,26 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             </Card>
           </>
         )}
-      </div>
-      <div className="block">
+
         <h3>Historical Pipelines</h3>
+
         {!data?.length ? (
           <Card>There are no historical runs associated with this blueprint.</Card>
         ) : (
           <PipelineTable loading={loading} dataSource={data} />
         )}
-      </div>
-      {/* </PipelineContextProvider> */}
+      </Space>
 
       {type === 'delete' && (
-        <Dialog
-          isOpen
-          style={{ width: 820 }}
+        <Modal
+          open
+          width={820}
+          centered
           title="Are you sure you want to delete this Blueprint?"
           okText="Confirm"
-          okLoading={operating}
+          okButtonProps={{
+            loading: operating,
+          }}
           onCancel={handleResetType}
           onOk={handleDelete}
         >
@@ -220,20 +233,23 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
               Blueprint. If you would like to delete the historical data of Data Scopes, please visit the Connection
               page and do so."
           />
-        </Dialog>
+        </Modal>
       )}
 
       {type === 'fullSync' && (
-        <Dialog
-          isOpen
+        <Modal
+          open
+          centered
           okText="Run Now"
-          okLoading={operating}
+          okButtonProps={{
+            loading: operating,
+          }}
           onCancel={handleResetType}
           onOk={() => handleRun({ fullSync: true })}
         >
           <Message content="This operation may take a long time as it will empty all of your existing data and re-collect it." />
-        </Dialog>
+        </Modal>
       )}
-    </S.StatusPanel>
+    </Flex>
   );
 };

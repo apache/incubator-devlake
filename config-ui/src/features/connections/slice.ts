@@ -27,11 +27,13 @@ import { transformConnection, transformWebhook } from './utils';
 
 const initialState: {
   status: IStatus;
+  error: any;
   plugins: string[];
   connections: IConnection[];
   webhooks: IWebhook[];
 } = {
   status: 'idle',
+  error: null,
   plugins: [],
   connections: [],
   webhooks: [],
@@ -78,36 +80,38 @@ export const updateConnection = createAsyncThunk(
 
 export const removeConnection = createAsyncThunk(
   'connections/removeConnection',
-  async ({ plugin, connectionId }: any) => {
-    await API.connection.remove(plugin, connectionId);
-    return `${plugin}-${connectionId}`;
+  async ({ plugin, connectionId }: any, { rejectWithValue }) => {
+    try {
+      await API.connection.remove(plugin, connectionId);
+      return `${plugin}-${connectionId}`;
+    } catch (err: any) {
+      return rejectWithValue({ ...err.response.data, status: err.response.status });
+    }
   },
 );
 
 export const testConnection = createAsyncThunk(
   'connections/testConnection',
-  async ({ unique, plugin, endpoint, proxy, token, username, password, authMethod, secretKey, appId }: IConnection) => {
-    const res = await API.connection.test(plugin, {
-      endpoint,
-      proxy,
-      token,
-      username,
-      password,
-      authMethod,
-      secretKey,
-      appId,
-    });
+  async ({ plugin, id, unique }: IConnection, { rejectWithValue }) => {
+    try {
+      const res = await API.connection.test(plugin, id);
 
-    return {
-      unique,
-      status: res.success ? IConnectionStatus.ONLINE : IConnectionStatus.OFFLINE,
-    };
+      return {
+        unique,
+        status: res.success ? IConnectionStatus.ONLINE : IConnectionStatus.OFFLINE,
+      };
+    } catch (err: any) {
+      return rejectWithValue({ unique, response: err.response });
+    }
   },
 );
 
 export const addWebhook = createAsyncThunk('connections/addWebhook', async (payload: any) => {
   const webhook = await API.plugin.webhook.create(payload);
-  return transformWebhook(webhook);
+  return {
+    webhook: transformWebhook(webhook),
+    apiKey: webhook.apiKey.apiKey,
+  };
 });
 
 export const removeWebhook = createAsyncThunk('connections/removeWebhook', async (id: ID) => {
@@ -144,6 +148,11 @@ export const connectionsSlice = createSlice({
         state.webhooks = action.payload.webhooks;
         state.status = 'success';
       })
+      .addCase(init.rejected, (state, action) => {
+        console.error(action.error.stack);
+        state.status = 'failed';
+        state.error = action.error;
+      })
       .addCase(addConnection.fulfilled, (state, action) => {
         state.connections.push(action.payload);
       })
@@ -170,8 +179,14 @@ export const connectionsSlice = createSlice({
           existingConnection.status = action.payload.status;
         }
       })
+      .addCase(testConnection.rejected, (state, action) => {
+        const existingConnection = state.connections.find((cs) => cs.unique === action.meta.arg.unique);
+        if (existingConnection) {
+          existingConnection.status = IConnectionStatus.OFFLINE;
+        }
+      })
       .addCase(addWebhook.fulfilled, (state, action) => {
-        state.webhooks.push(action.payload);
+        state.webhooks.push(action.payload.webhook);
       })
       .addCase(removeWebhook.fulfilled, (state, action) => {
         state.webhooks = state.webhooks.filter((wh) => wh.id !== action.payload);
@@ -180,11 +195,6 @@ export const connectionsSlice = createSlice({
         state.webhooks = state.webhooks.map((wh) =>
           wh.id === action.payload.id ? { ...wh, name: action.payload.name } : wh,
         );
-      })
-      .addCase(renewWebhookApiKey.fulfilled, (state, action) => {
-        state.webhooks = state.webhooks.map((wh) =>
-          wh.id === action.payload.id ? { ...wh, apiKey: action.payload.apiKey } : wh,
-        );
       });
   },
 });
@@ -192,6 +202,8 @@ export const connectionsSlice = createSlice({
 export default connectionsSlice.reducer;
 
 export const selectStatus = (state: RootState) => state.connections.status;
+
+export const selectError = (state: RootState) => state.connections.error;
 
 export const selectPlugins = (state: RootState) => state.connections.plugins;
 

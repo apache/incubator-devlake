@@ -18,10 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Intent } from '@blueprintjs/core';
+import { FormOutlined, PlusOutlined } from '@ant-design/icons';
+import { Flex, Table, Space, Button } from 'antd';
 
 import API from '@/api';
-import { IconButton, Table, NoData, Buttons } from '@/components';
+import { NoData } from '@/components';
 import { getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { getPluginConfig } from '@/plugins';
@@ -123,17 +124,17 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
     <S.ConfigurationPanel>
       <div className="block">
         <h3>Blueprint Name</h3>
-        <div>
-          <span>{blueprint.name}</span>
-          <IconButton icon="annotation" tooltip="Edit" onClick={handleShowNameDialog} />
-        </div>
+        <span>{blueprint.name}</span>
+        <Button type="link" icon={<FormOutlined />} onClick={handleShowNameDialog} />
       </div>
       <div className="block">
         <h3>
           <span>Sync Policy</span>
-          <IconButton icon="annotation" tooltip="Edit" onClick={handleShowPolicyDialog} />
+          <Button type="link" icon={<FormOutlined />} onClick={handleShowPolicyDialog} />
         </h3>
         <Table
+          rowKey="id"
+          size="middle"
           columns={[
             {
               title: 'Data Time Range',
@@ -161,12 +162,14 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           ]}
           dataSource={[
             {
+              id: blueprint.id,
               timeRange: blueprint.timeAfter,
               frequency: blueprint.cronConfig,
               isManual: blueprint.isManual,
               skipFailed: blueprint.skipOnFail,
             },
           ]}
+          pagination={false}
         />
       </div>
       {blueprint.mode === IBPMode.NORMAL && (
@@ -181,29 +184,23 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                 </>
               }
               action={
-                <Button
-                  intent={Intent.PRIMARY}
-                  icon="add"
-                  text="Add a Connection"
-                  onClick={handleShowAddConnectionDialog}
-                />
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleShowAddConnectionDialog}>
+                  Add a Connection
+                </Button>
               }
             />
           ) : (
-            <>
-              <Buttons position="top">
-                <Button
-                  intent={Intent.PRIMARY}
-                  icon="add"
-                  text="Add a Connection"
-                  onClick={handleShowAddConnectionDialog}
-                />
-              </Buttons>
+            <Flex vertical gap="middle">
+              <Flex>
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleShowAddConnectionDialog}>
+                  Add a Connection
+                </Button>
+              </Flex>
               <S.ConnectionList>
                 {connections.map((cs) => (
                   <S.ConnectionItem key={`${cs.plugin}-${cs.connectionId}`}>
                     <div className="title">
-                      <img src={cs.icon} alt="" />
+                      {/* <img src={cs.icon} alt="" /> */}
                       <ConnectionName plugin={cs.plugin} connectionId={cs.connectionId} />
                     </div>
                     <div className="count">
@@ -213,7 +210,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? `/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
+                            ? `/advanced/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
                             : `/projects/${encodeName(blueprint.projectName)}/${cs.plugin}-${cs.connectionId}`
                         }
                       >
@@ -223,10 +220,12 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                   </S.ConnectionItem>
                 ))}
               </S.ConnectionList>
-              <Buttons position="bottom" align="center">
-                <Button intent={Intent.PRIMARY} text="Collect Data" onClick={handleRun} />
-              </Buttons>
-            </>
+              <Flex justify="center">
+                <Button type="primary" disabled={!blueprint.enable} onClick={handleRun}>
+                  Collect Data
+                </Button>
+              </Flex>
+            </Flex>
           )}
         </div>
       )}
@@ -236,14 +235,15 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           <AdvancedEditor value={rawPlan} onChange={setRawPlan} />
           <div className="btns">
             <Button
-              intent={Intent.PRIMARY}
-              text="Save"
+              type="primary"
               onClick={() =>
                 handleUpdate({
                   plan: !validRawPlan(rawPlan) ? JSON.parse(rawPlan) : JSON.stringify([[]], null, '  '),
                 })
               }
-            />
+            >
+              Save
+            </Button>
           </div>
         </div>
       )}

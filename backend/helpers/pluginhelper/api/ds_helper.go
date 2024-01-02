@@ -18,10 +18,14 @@ limitations under the License.
 package api
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 )
+
+var noScopeConfig = reflect.TypeOf(new(srvhelper.NoScopeConfig))
 
 type DsHelper[
 	C plugin.ToolLayerConnection,
@@ -44,13 +48,22 @@ func NewDataSourceHelper[
 	basicRes context.BasicRes,
 	pluginName string,
 	scopeSearchColumns []string,
+	connectionSterilizer func(c C) C,
+	scopeSterilizer func(s S) S,
+	scopeConfigSterilizer func(s SC) SC,
 ) *DsHelper[C, S, SC] {
 	connSrv := srvhelper.NewConnectionSrvHelper[C, S, SC](basicRes, pluginName)
-	connApi := NewDsConnectionApiHelper[C, S, SC](basicRes, connSrv)
+	connApi := NewDsConnectionApiHelper[C, S, SC](basicRes, connSrv, connectionSterilizer)
 	scopeSrv := srvhelper.NewScopeSrvHelper[C, S, SC](basicRes, pluginName, scopeSearchColumns)
-	scopeApi := NewDsScopeApiHelper[C, S, SC](basicRes, scopeSrv)
-	scSrv := srvhelper.NewScopeConfigSrvHelper[C, S, SC](basicRes)
-	scApi := NewDsScopeConfigApiHelper[C, S, SC](basicRes, scSrv)
+	scopeApi := NewDsScopeApiHelper[C, S, SC](basicRes, scopeSrv, scopeSterilizer)
+
+	var scSrv *srvhelper.ScopeConfigSrvHelper[C, S, SC]
+	var scApi *DsScopeConfigApiHelper[C, S, SC]
+	scType := reflect.TypeOf(new(SC))
+	if scType != noScopeConfig {
+		scSrv = srvhelper.NewScopeConfigSrvHelper[C, S, SC](basicRes, scopeSearchColumns)
+		scApi = NewDsScopeConfigApiHelper[C, S, SC](basicRes, scSrv, scopeConfigSterilizer)
+	}
 	return &DsHelper[C, S, SC]{
 		ConnSrv:        connSrv,
 		ConnApi:        connApi,

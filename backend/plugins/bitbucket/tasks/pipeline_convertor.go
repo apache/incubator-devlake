@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 )
@@ -88,23 +88,26 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				Name: fmt.Sprintf("%s/%d", domainEntityId, bitbucketPipeline.BuildNumber),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{models.FAILED, models.ERROR},
-					Abort:   []string{models.STOPPED},
-					Success: []string{models.SUCCESSFUL, models.COMPLETED},
-					Manual:  []string{models.PAUSED, models.HALTED},
-					Skipped: []string{models.SKIPPED},
-					Default: "",
+					Success: []string{models.SUCCESSFUL, models.COMPLETED, models.PASSED},
+					Failure: []string{models.FAILED, models.ERROR, models.STOPPED, models.ERROR},
+					Default: devops.RESULT_DEFAULT,
 				}, bitbucketPipeline.Result),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
-					Default:    bitbucketPipeline.Status,
+				OriginalResult: bitbucketPipeline.Result,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.PASSED, models.FAILED, models.ERROR, models.STOPPED, models.HALTED},
+					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.RUNNING, models.PAUSED, models.BUILDING},
+					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipeline.Status),
-				Type:         bitbucketPipeline.Type,
-				Environment:  bitbucketPipeline.Environment,
-				CreatedDate:  createdAt,
-				DurationSec:  bitbucketPipeline.DurationInSeconds,
-				FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
-				CicdScopeId:  repoId,
+				OriginalStatus: bitbucketPipeline.Status,
+				Type:           bitbucketPipeline.Type,
+				Environment:    bitbucketPipeline.Environment,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  bitbucketPipeline.BitbucketCreatedOn,
+					FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
+				},
+				DurationSec: float64(bitbucketPipeline.DurationInSeconds),
+				CicdScopeId: repoId,
 			}
 			results = append(results, domainPipelineCommit, domainPipeline)
 			return results, nil

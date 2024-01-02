@@ -16,8 +16,8 @@
  *
  */
 
-import { TextArea, ButtonGroup, Button, Menu, MenuItem, Position } from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
+import { ClearOutlined, CaretDownOutlined } from '@ant-design/icons';
+import { Space, Input, Button, Dropdown } from 'antd';
 import styled from 'styled-components';
 
 import { ExternalLink } from '@/components';
@@ -65,28 +65,30 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
         <span>Enter JSON Configuration or preload from a template.</span>
         <ExternalLink link={DOC_URL.ADVANCED_MODE.EXAMPLES}>See examples</ExternalLink>
       </p>
-      <TextArea fill value={value} onChange={(e) => onChange(e.target.value)} />
-      <ButtonGroup minimal>
-        <Button small text="Reset" icon="eraser" onClick={() => onChange(JSON.stringify([[]], null, '  '))} />
-        <Popover2
-          placement={Position.TOP}
-          content={
-            <Menu>
-              {EXAMPLE_CONFIG.map((it) => (
-                <MenuItem
-                  key={it.id}
-                  icon="code"
-                  text={it.name}
-                  onClick={() => onChange(JSON.stringify(it.config, null, '  '))}
-                />
-              ))}
-            </Menu>
-          }
-          renderTarget={({ isOpen, ref, ...targetProps }) => (
-            <Button {...targetProps} ref={ref} small text="Load Templates" rightIcon="caret-down" />
-          )}
-        />
-      </ButtonGroup>
+      <Input.TextArea rows={6} value={value} onChange={(e) => onChange(e.target.value)} />
+      <Space>
+        <Button size="small" icon={<ClearOutlined />} onClick={() => onChange(JSON.stringify([[]], null, '  '))}>
+          Reset
+        </Button>
+        <Dropdown
+          menu={{
+            items: EXAMPLE_CONFIG.map((it) => ({
+              key: it.id,
+              label: it.name,
+            })),
+            onClick: ({ key }) => {
+              const config = EXAMPLE_CONFIG.find((it) => it.id === key)?.config;
+              if (config) {
+                onChange(JSON.stringify(config, null, '  '));
+              }
+            },
+          }}
+        >
+          <Button size="small" icon={<CaretDownOutlined />}>
+            Load Templates
+          </Button>
+        </Dropdown>
+      </Space>
     </Wrapper>
   );
 };

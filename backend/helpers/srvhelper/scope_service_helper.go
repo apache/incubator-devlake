@@ -20,6 +20,7 @@ package srvhelper
 import (
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -44,8 +45,7 @@ type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct
 
 type ScopeSrvHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
 	*ModelSrvHelper[S]
-	pluginName    string
-	searchColumns []string
+	pluginName string
 }
 
 // NewScopeSrvHelper creates a ScopeDalHelper for scope management
@@ -59,9 +59,8 @@ func NewScopeSrvHelper[
 	searchColumns []string,
 ) *ScopeSrvHelper[C, S, SC] {
 	return &ScopeSrvHelper[C, S, SC]{
-		ModelSrvHelper: NewModelSrvHelper[S](basicRes),
+		ModelSrvHelper: NewModelSrvHelper[S](basicRes, searchColumns),
 		pluginName:     pluginName,
-		searchColumns:  searchColumns,
 	}
 }
 
@@ -95,6 +94,33 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeDetail(includeBlueprints bool,
 	return scopeDetail, nil
 }
 
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeLatestSyncState(pkv ...interface{}) ([]*models.LatestSyncState, errors.Error) {
+	scope, err := scopeSrv.ModelSrvHelper.FindByPk(pkv...)
+	if err != nil {
+		return nil, err
+	}
+	s := *scope
+	params := plugin.MarshalScopeParams(s.ScopeParams())
+	scopeSrv.log.Debug("scope: %#+v, params: %+v", s, params)
+	scopeSyncStates := []*models.LatestSyncState{}
+	if err := scopeSrv.db.All(
+		&scopeSyncStates,
+		dal.Select("raw_data_table, latest_success_start, raw_data_params"),
+		dal.From("_devlake_collector_latest_state"),
+		dal.Where("raw_data_params = ?", params),
+	); err != nil {
+		return nil, err
+	}
+	scopeSrv.log.Debug("param: %+v, resp: %+v", scopeSyncStates)
+	sort.Slice(scopeSyncStates, func(i, j int) bool {
+		if scopeSyncStates[i].LatestSuccessStart != nil && scopeSyncStates[j].LatestSuccessStart != nil {
+			return scopeSyncStates[i].LatestSuccessStart.After(*scopeSyncStates[j].LatestSuccessStart)
+		}
+		return false
+	})
+	return scopeSyncStates, nil
+}
+
 // MapScopeDetails returns scope details (scope and scopeConfig) for the given blueprint scopes
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) MapScopeDetails(connectionId uint64, bpScopes []*models.BlueprintScope) ([]*ScopeDetail[S, SC], errors.Error) {
 	var err errors.Error
@@ -107,6 +133,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) MapScopeDetails(connectionId uint64, b
 		if scopeDetails[i].ScopeConfig == nil {
 			scopeDetails[i].ScopeConfig = new(SC)
 		}
+		setDefaultEntities(scopeDetails[i].ScopeConfig)
 	}
 	return scopeDetails, nil
 }
@@ -126,7 +153,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePaginat
 	data := make([]*ScopeDetail[S, SC], len(scopes))
 	for i, s := range scopes {
 		// load blueprints
-		scope := (*s)
+		scope := *s
 		scopeDetail := &ScopeDetail[S, SC]{
 			Scope:       scope,
 			ScopeConfig: scopeSrv.getScopeConfig(scope.ScopeScopeConfigId()),
@@ -141,7 +168,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePaginat
 
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) DeleteScope(scope *S, dataOnly bool) (refs *DsRefs, err errors.Error) {
 	err = scopeSrv.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
-		s := (*scope)
+		s := *scope
 		// check referencing blueprints
 		if !dataOnly {
 			refs = toDsRefs(scopeSrv.getAllBlueprinsByScope(s.ScopeConnectionId(), s.ScopeId()))
@@ -161,15 +188,18 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) getScopeConfig(scopeConfigId uint64) *
 	if scopeConfigId < 1 {
 		return nil
 	}
-	scopeConfig := new(SC)
-	errors.Must(scopeSrv.db.First(
-		scopeConfig,
+	var scopeConfig SC
+	err := scopeSrv.db.First(
+		&scopeConfig,
 		dal.Where(
 			"id = ?",
 			scopeConfigId,
 		),
-	))
-	return scopeConfig
+	)
+	if err != nil {
+		return nil
+	}
+	return &scopeConfig
 }
 
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) getAllBlueprinsByScope(connectionId uint64, scopeId string) []*models.Blueprint {
@@ -289,4 +319,20 @@ func reflectType(obj any) reflect.Type {
 		kind = typ.Kind()
 	}
 	return typ
+}
+
+func setDefaultEntities(sc interface{}) {
+	v := reflect.ValueOf(sc)
+	if v.Kind() != reflect.Pointer {
+		panic(fmt.Errorf("sc must be a pointer"))
+	}
+	entities := v.Elem().FieldByName("Entities")
+	if !entities.IsValid() ||
+		!(entities.Kind() == reflect.Array || entities.Kind() == reflect.Slice) ||
+		entities.Type().Elem().Kind() != reflect.String {
+		return
+	}
+	if entities.IsNil() || entities.Len() == 0 {
+		entities.Set(reflect.ValueOf(plugin.DOMAIN_TYPES))
+	}
 }

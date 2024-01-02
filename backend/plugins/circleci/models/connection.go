@@ -19,6 +19,7 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"net/http"
 )
@@ -42,4 +43,9 @@ func (cc *CircleciConn) SetupAuthentication(req *http.Request) errors.Error {
 
 func (CircleciConnection) TableName() string {
 	return "_tool_circleci_connections"
+}
+
+func (connection CircleciConnection) Sanitize() CircleciConnection {
+	connection.Token = utils.SanitizeString(connection.Token)
+	return connection
 }

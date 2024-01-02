@@ -23,8 +23,6 @@ import (
 
 type TrelloScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId       uint64 `mapstructure:"connectionId" json:"connectionId"`
-	Name               string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_trello,unique" validate:"required"`
 }
 
 func (TrelloScopeConfig) TableName() string {

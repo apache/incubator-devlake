@@ -18,9 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -29,6 +26,9 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"reflect"
+	"strings"
+	"time"
 )
 
 var ConvertiDeploymentMeta = plugin.SubTaskMeta{
@@ -44,6 +44,8 @@ type bitbucketDeploymentWithRefName struct {
 	RefName string
 }
 
+// ConvertDeployments should be split into two task theoretically
+// But in BitBucket, all deployments have commits, and we use "LEFT JOIN" to get "ref_name" only, so there is no need to change it.
 func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 	db := taskCtx.GetDal()
@@ -75,10 +77,14 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketDeployment := inputRow.(*bitbucketDeploymentWithRefName)
 
-			var duration *uint64
-			if bitbucketDeployment.CompletedOn != nil {
-				d := uint64(bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Seconds())
+			var duration *float64
+			if bitbucketDeployment.CompletedOn != nil && bitbucketDeployment.StartedOn != nil {
+				d := float64(bitbucketDeployment.CompletedOn.Sub(*bitbucketDeployment.StartedOn).Milliseconds() / 1e3)
 				duration = &d
+			}
+			createdAt := time.Now()
+			if bitbucketDeployment.CreatedOn != nil {
+				createdAt = *bitbucketDeployment.CreatedOn
 			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
@@ -87,23 +93,27 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId: repoId,
 				Name:        bitbucketDeployment.Name,
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{},
-					Success: []string{models.COMPLETED},
-					Default: "",
+					Success: []string{models.COMPLETED, models.SUCCESSFUL},
+					Failure: []string{models.FAILED, models.STOPPED, models.CANCELLED},
+					Default: devops.RESULT_DEFAULT,
 				}, bitbucketDeployment.Status),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{models.COMPLETED},
-					Default: bitbucketDeployment.Status,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.STOPPED, models.CANCELLED},
+					InProgress: []string{models.IN_PROGRESS},
+					Default:    devops.STATUS_OTHER,
 				}, bitbucketDeployment.Status),
-				Environment:  strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
-				CreatedDate:  *bitbucketDeployment.CreatedOn,
-				StartedDate:  bitbucketDeployment.StartedOn,
-				FinishedDate: bitbucketDeployment.CompletedOn,
-				DurationSec:  duration,
-				CommitSha:    bitbucketDeployment.CommitSha,
-				RefName:      bitbucketDeployment.RefName,
-				RepoId:       repoId,
-				RepoUrl:      repo.HTMLUrl,
+				OriginalStatus: bitbucketDeployment.Status,
+				Environment:    strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  bitbucketDeployment.StartedOn,
+					FinishedDate: bitbucketDeployment.CompletedOn,
+				},
+				DurationSec: duration,
+				CommitSha:   bitbucketDeployment.CommitSha,
+				RefName:     bitbucketDeployment.RefName,
+				RepoId:      repoId,
+				RepoUrl:     repo.HTMLUrl,
 			}
 			if domainDeployCommit.Environment == devops.TEST {
 				// Theoretically, environment cannot be "Test" according to

@@ -17,17 +17,14 @@
  */
 
 import { useState } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { EyeOutlined, FormOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Flex, Table, Space, Button } from 'antd';
 
 import { useAppSelector } from '@/app/hook';
-import { Buttons, Table, ColumnType, ExternalLink, IconButton } from '@/components';
 import { selectWebhooks } from '@/features/connections';
-import { DOC_URL } from '@/release';
 import { IWebhook } from '@/types';
 
 import { CreateDialog, ViewDialog, EditDialog, DeleteDialog } from './components';
-
-import * as S from './styled';
 
 type Type = 'add' | 'edit' | 'show' | 'delete';
 
@@ -53,60 +50,51 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
     setCurrentID(r?.id);
   };
 
-  const columns: ColumnType<IWebhook> = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-    },
-    {
-      title: 'Webhook Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (name, row) => <span onClick={() => handleShowDialog('show', row)}>{name}</span>,
-    },
-    {
-      title: '',
-      dataIndex: '',
-      key: 'action',
-      align: 'center',
-      render: (_, row) => (
-        <S.Action>
-          <IconButton icon="eye-open" tooltip="View" onClick={() => handleShowDialog('show', row)} />
-          <IconButton icon="annotation" tooltip="Edit" onClick={() => handleShowDialog('edit', row)} />
-          <IconButton icon="trash" tooltip="Delete" onClick={() => handleShowDialog('delete', row)} />
-        </S.Action>
-      ),
-    },
-  ];
-
   return (
-    <S.Wrapper>
-      <Buttons position="top">
-        <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
-      </Buttons>
+    <Flex vertical gap="middle">
       <Table
-        columns={columns}
+        rowKey="id"
+        size="middle"
+        columns={[
+          {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+          },
+          {
+            title: 'Webhook Name',
+            dataIndex: 'name',
+            key: 'name',
+            render: (name, row) => <span onClick={() => handleShowDialog('show', row)}>{name}</span>,
+          },
+          {
+            title: '',
+            dataIndex: '',
+            key: 'action',
+            align: 'center',
+            render: (_, row) => (
+              <Space>
+                <Button type="primary" icon={<EyeOutlined />} onClick={() => handleShowDialog('show', row)} />
+                <Button type="primary" icon={<FormOutlined />} onClick={() => handleShowDialog('edit', row)} />
+                <Button type="primary" icon={<DeleteOutlined />} onClick={() => handleShowDialog('delete', row)} />
+              </Space>
+            ),
+          },
+        ]}
         dataSource={webhooks.filter((cs) => (filterIds ? filterIds.includes(cs.id) : true))}
-        noData={{
-          text: (
-            <>
-              There is no Webhook yet. Please add a new Webhook.{' '}
-              <ExternalLink link={DOC_URL.PLUGIN.WEBHOOK.BASIS}>Learn more</ExternalLink>
-            </>
-          ),
-          btnText: 'Add a Webhook',
-          onCreate: () => handleShowDialog('add'),
-        }}
+        pagination={false}
       />
-      {type === 'add' && (
-        <CreateDialog isOpen onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />
-      )}
+      <Flex>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => handleShowDialog('add')}>
+          Add a Webhook
+        </Button>
+      </Flex>
+      {type === 'add' && <CreateDialog open onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />}
       {type === 'show' && currentID && <ViewDialog initialId={currentID} onCancel={handleHideDialog} />}
       {type === 'edit' && currentID && <EditDialog initialId={currentID} onCancel={handleHideDialog} />}
       {type === 'delete' && currentID && (
         <DeleteDialog initialId={currentID} onCancel={handleHideDialog} onSubmitAfter={(id) => onDeleteAfter?.(id)} />
       )}
-    </S.Wrapper>
+    </Flex>
   );
 };

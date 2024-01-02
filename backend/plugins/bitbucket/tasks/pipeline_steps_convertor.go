@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -62,6 +63,15 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketPipelineStep := inputRow.(*models.BitbucketPipelineStep)
 
+			// don't save to domain layer if `StartedOn` is nil
+			if bitbucketPipelineStep.StartedOn == nil {
+				return nil, nil
+			}
+
+			createdAt := time.Now()
+			if bitbucketPipelineStep.StartedOn != nil {
+				createdAt = *bitbucketPipelineStep.StartedOn
+			}
 			domainTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineStepIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.BitbucketId),
@@ -69,28 +79,24 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:       bitbucketPipelineStep.Name,
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{models.FAILED, models.ERROR},
-					Abort:   []string{models.STOPPED},
 					Success: []string{models.SUCCESSFUL, models.COMPLETED},
-					Manual:  []string{models.PAUSED, models.HALTED},
-					Skipped: []string{models.SKIPPED},
-					Default: "",
+					Failure: []string{models.FAILED, models.ERROR, models.STOPPED},
+					Default: devops.RESULT_DEFAULT,
 				}, bitbucketPipelineStep.Result),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
-					Default:    bitbucketPipelineStep.State,
+				OriginalResult: bitbucketPipelineStep.Result,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.ERROR, models.STOPPED},
+					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING, models.READY},
+					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipelineStep.State),
-				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
-			}
-			// not save to domain layer if StartedOn is empty
-			if bitbucketPipelineStep.StartedOn == nil {
-				return nil, nil
-			}
-			domainTask.StartedDate = *bitbucketPipelineStep.StartedOn
-			// rebuild the FinishedDate
-			if domainTask.Status == devops.STATUS_DONE {
-				domainTask.FinishedDate = bitbucketPipelineStep.CompletedOn
-				domainTask.DurationSec = uint64(bitbucketPipelineStep.DurationInSeconds)
+				OriginalStatus: bitbucketPipelineStep.State,
+				CicdScopeId:    repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
+				DurationSec:    float64(bitbucketPipelineStep.DurationInSeconds),
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  bitbucketPipelineStep.StartedOn,
+					FinishedDate: bitbucketPipelineStep.CompletedOn,
+				},
 			}
 			return []interface{}{
 				domainTask,

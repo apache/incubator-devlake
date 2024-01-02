@@ -36,12 +36,16 @@ type DsScopeApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC 
 	*srvhelper.ScopeSrvHelper[C, S, SC]
 }
 
-func NewDsScopeApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig](
+func NewDsScopeApiHelper[
+	C plugin.ToolLayerConnection,
+	S plugin.ToolLayerScope,
+	SC plugin.ToolLayerScopeConfig](
 	basicRes context.BasicRes,
 	srvHelper *srvhelper.ScopeSrvHelper[C, S, SC],
+	sterilizer func(s S) S,
 ) *DsScopeApiHelper[C, S, SC] {
 	return &DsScopeApiHelper[C, S, SC]{
-		ModelApiHelper: NewModelApiHelper[S](basicRes, srvHelper.ModelSrvHelper, []string{"connectionId", "scopeId"}),
+		ModelApiHelper: NewModelApiHelper[S](basicRes, srvHelper.ModelSrvHelper, []string{"connectionId", "scopeId"}, sterilizer),
 		ScopeSrvHelper: srvHelper,
 	}
 }
@@ -74,6 +78,20 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeDetail(input *plugin.ApiReso
 	}
 	return &plugin.ApiResourceOutput{
 		Body: scopeDetail,
+	}, nil
+}
+
+func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	pkv, err := scopeApi.ExtractPkValues(input)
+	if err != nil {
+		return nil, err
+	}
+	scopeLatestSyncStates, err := scopeApi.ScopeSrvHelper.GetScopeLatestSyncState(pkv...)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{
+		Body: scopeLatestSyncStates,
 	}, nil
 }
 

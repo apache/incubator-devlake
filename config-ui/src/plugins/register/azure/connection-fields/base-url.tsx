@@ -16,20 +16,20 @@
  *
  */
 
-import { FormGroup, RadioGroup, Radio } from '@blueprintjs/core';
+import { Radio } from 'antd';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 export const BaseURL = () => {
   return (
-    <FormGroup label={<S.Label>Azure DevOps Version</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-      <RadioGroup inline selectedValue="cloud" onChange={() => {}}>
+    <Block title="Azure DevOps Version" required>
+      <Radio.Group value="cloud" onChange={() => {}}>
         <Radio value="cloud">Azure DevOps Cloud</Radio>
         <Radio value="server" disabled>
           Azure DevOps Server (not supported)
         </Radio>
-      </RadioGroup>
+      </Radio.Group>
       <p style={{ margin: 0 }}>If you are using Azure DevOps Cloud, you do not need to enter the endpoint URL.</p>
-    </FormGroup>
+    </Block>
   );
 };

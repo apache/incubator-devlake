@@ -46,7 +46,7 @@ type ModelSrvHelper[M dal.Tabler] struct {
 	searchColumns []string
 }
 
-func NewModelSrvHelper[M dal.Tabler](basicRes context.BasicRes) *ModelSrvHelper[M] {
+func NewModelSrvHelper[M dal.Tabler](basicRes context.BasicRes, searchColumns []string) *ModelSrvHelper[M] {
 	m := new(M)
 	modelName := fmt.Sprintf("%T", m)
 	db := basicRes.GetDal()
@@ -61,15 +61,17 @@ func NewModelSrvHelper[M dal.Tabler](basicRes context.BasicRes) *ModelSrvHelper[
 		}
 		pkWhere += fmt.Sprintf("%s = ? ", col.Name())
 	}
+
 	return &ModelSrvHelper[M]{
-		basicRes:  basicRes,
-		log:       basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
-		db:        db,
-		validator: validator.New(),
-		modelName: modelName,
-		pk:        pk,
-		pkWhere:   pkWhere,
-		pkCount:   len(pk),
+		basicRes:      basicRes,
+		log:           basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
+		db:            db,
+		validator:     validator.New(),
+		modelName:     modelName,
+		pk:            pk,
+		pkWhere:       pkWhere,
+		pkCount:       len(pk),
+		searchColumns: searchColumns,
 	}
 }
 

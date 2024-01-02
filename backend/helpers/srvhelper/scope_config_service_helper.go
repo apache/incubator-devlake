@@ -24,6 +24,13 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
+// NoScopeConfig is a placeholder for plugins that don't have any scope configuration yet
+type NoScopeConfig struct{}
+
+func (NoScopeConfig) TableName() string               { return "" }
+func (NoScopeConfig) ScopeConfigId() uint64           { return 0 }
+func (NoScopeConfig) ScopeConfigConnectionId() uint64 { return 0 }
+
 // ScopeConfigSrvHelper
 type ScopeConfigSrvHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
 	*ModelSrvHelper[SC]
@@ -33,9 +40,9 @@ func NewScopeConfigSrvHelper[
 	C plugin.ToolLayerConnection,
 	S plugin.ToolLayerScope,
 	SC plugin.ToolLayerScopeConfig,
-](basicRes context.BasicRes) *ScopeConfigSrvHelper[C, S, SC] {
+](basicRes context.BasicRes, searchColumns []string) *ScopeConfigSrvHelper[C, S, SC] {
 	return &ScopeConfigSrvHelper[C, S, SC]{
-		ModelSrvHelper: NewModelSrvHelper[SC](basicRes),
+		ModelSrvHelper: NewModelSrvHelper[SC](basicRes, searchColumns),
 	}
 }
 

@@ -17,9 +17,9 @@
  */
 
 import { useEffect } from 'react';
-import { InputGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
 
-import { FormItem } from '@/components';
+import { Block } from '@/components';
 
 interface Props {
   initialValue: string;
@@ -37,12 +37,13 @@ export const DBUrl = ({ initialValue, value, setValue }: Props) => {
   };
 
   return (
-    <FormItem label="Database URL" subLabel="Provide the DB URL of Zentao if you want to collect issue changelogs.">
-      <InputGroup
+    <Block title="Database URL" description="Provide the DB URL of Zentao if you want to collect issue changelogs.">
+      <Input
+        style={{ width: 386 }}
         placeholder="e.g. mysql://root:devlake@sshd-proxy:3306/zentao?charset=utf8mb4&parseTime=True"
         value={value}
         onChange={handleChange}
       />
-    </FormItem>
+    </Block>
   );
 };

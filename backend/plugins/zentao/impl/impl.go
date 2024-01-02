@@ -253,6 +253,9 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/scopes": {
 			"PUT": api.PutProjectScope,
 			"GET": api.GetProjectScopeList,
@@ -270,6 +273,9 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.UpdateScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,

@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -91,7 +92,6 @@ func (c *ConnectionApiHelper) Patch(connection interface{}, input *plugin.ApiRes
 	if err != nil {
 		return err
 	}
-
 	err = c.merge(connection, input.Body)
 	if err != nil {
 		return err
@@ -165,7 +165,22 @@ func (c *ConnectionApiHelper) Delete(connection interface{}, input *plugin.ApiRe
 			Data:    refs,
 		}, Status: err.GetType().GetHttpCode()}, nil
 	}
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	data, marshalErr := json.Marshal(connection)
+	if marshalErr != nil {
+		return nil, errors.Convert(marshalErr)
+	}
+	result := make(map[string]interface{})
+
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, errors.Convert(err)
+	}
+	if _, ok := result["token"]; ok {
+		result["token"] = ""
+	}
+	return &plugin.ApiResourceOutput{Body: result}, err
+}
+func (c *ConnectionApiHelper) Merge(connection interface{}, body map[string]interface{}) errors.Error {
+	return c.merge(connection, body)
 }
 
 func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) errors.Error {
@@ -178,6 +193,10 @@ func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]inte
 		return connectionValidator.ValidateConnection(connection, c.validator)
 	}
 	return Decode(body, connection, c.validator)
+}
+
+func (c *ConnectionApiHelper) SaveWithCreateOrUpdate(connection interface{}) errors.Error {
+	return c.save(connection, c.db.CreateOrUpdate)
 }
 
 func (c *ConnectionApiHelper) save(connection interface{}, method func(entity interface{}, clauses ...dal.Clause) errors.Error) errors.Error {

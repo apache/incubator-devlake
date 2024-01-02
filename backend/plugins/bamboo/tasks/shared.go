@@ -30,6 +30,29 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
+const (
+	// https://docs.atlassian.com/atlassian-bamboo/7.2.4/com/atlassian/bamboo/builder/BuildState.html
+	StatusFinished   = "FINISHED"
+	StatusInProgress = "IN_PROGRESS"
+	StatusPending    = "PENDING"
+	StatusQueued     = "QUEUED"
+	StatusNotBuilt   = "NOT_BUILT"
+
+	// https://docs.atlassian.com/atlassian-bamboo/7.2.4/com/atlassian/bamboo/builder/BuildState.html
+	// https://confluence.atlassian.com/bamkb/bamboo-deployment-status-776822787.html
+	ResultSuccess    = "SUCCESS"
+	ResultFailed     = "FAILED"
+	ResultUnknown    = "UNKNOWN"
+	ResultReplaced   = "REPLACED"
+	ResultSkipped    = "SKIPPED"
+	ResultNever      = "NEVER"
+	ResultQueued     = "QUEUED"
+	ResultInProgress = "IN PROGRESS"
+	ResultNotBuilt   = "NOT BUILT"
+
+	ResultSuccessful = "Successful"
+)
+
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooTaskData) {
 	data := taskCtx.GetData().(*BambooTaskData)
 	filteredData := *data
@@ -114,4 +137,15 @@ func generateFakeRepoUrl(endpoint string, repoId int) (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("fake://%s/repos/%d", endpointURL.Host, repoId), nil
+}
+
+// covertError will indentify some known errors and transform it to a simple form.
+func covertError(err errors.Error) errors.Error {
+	if err == nil {
+		return nil
+	}
+	if strings.Contains(err.Error(), "has expired") {
+		return errors.Default.New("license has expired")
+	}
+	return err
 }

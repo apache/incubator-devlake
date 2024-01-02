@@ -14,25 +14,23 @@
 # limitations under the License.
 
 
-from typing import Optional
 from datetime import datetime
 from enum import Enum
-
-from sqlmodel import Field
+from typing import Optional
 
 from pydevlake.model import DomainModel, NoPKModel, DomainScope
+from sqlmodel import Field
 
 
 class CICDResult(Enum):
     SUCCESS = "SUCCESS"
     FAILURE = "FAILURE"
-    ABORT = "ABORT"
-    MANUAL = "MANUAL"
-
+    RESULT_DEFAULT = ""
 
 class CICDStatus(Enum):
     IN_PROGRESS = "IN_PROGRESS"
     DONE = "DONE"
+    STATUS_OTHER = "OTHER"
 
 
 class CICDType(Enum):
@@ -50,15 +48,25 @@ class CICDEnvironment(Enum):
 
 class CICDPipeline(DomainModel, table=True):
     __tablename__ = 'cicd_pipelines'
+
     name: str
-    status: Optional[CICDStatus]
-    created_date: Optional[datetime]
-    finished_date: Optional[datetime]
-    result: Optional[CICDResult]
-    duration_sec: Optional[int]
-    environment: Optional[str]
-    type: Optional[CICDType]
     cicd_scope_id: Optional[str]
+
+    status: Optional[CICDStatus]
+    result: Optional[CICDResult]
+    original_status: Optional[str]
+    original_result: Optional[str]
+
+    created_date: Optional[datetime]
+    started_date: Optional[datetime]
+    queued_date: Optional[datetime]
+    finished_date: Optional[datetime]
+
+    duration_sec: Optional[float]
+    queued_duration_sec: Optional[float]
+
+    type: Optional[CICDType]
+    environment: Optional[str]
 
 
 class CiCDPipelineCommit(NoPKModel, table=True):
@@ -81,13 +89,23 @@ class CicdScope(DomainScope):
 
 class CICDTask(DomainModel, table=True):
     __tablename__ = 'cicd_tasks'
+
     name: str
     pipeline_id: str
+    cicd_scope_id: str
+
     result: Optional[CICDResult]
     status: Optional[CICDStatus]
+    original_status: Optional[str]
+    original_result: Optional[str]
+
     type: Optional[CICDType]
     environment: Optional[CICDEnvironment]
-    duration_sec: int
+
+    created_date: Optional[datetime]
+    queued_date: Optional[datetime]
     started_date: Optional[datetime]
     finished_date: Optional[datetime]
-    cicd_scope_id: str
+
+    duration_sec: float
+    queued_duration_sec: Optional[float]

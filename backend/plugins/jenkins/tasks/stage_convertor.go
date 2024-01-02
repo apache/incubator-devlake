@@ -65,8 +65,8 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
-			tjs.status, tjs.start_time_millis, tjs.duration_millis, 
-			tjs.pause_duration_millis, tjs.type, 
+			tjs.status, tjs.start_time_millis, tjs.duration_millis,
+			tjs.pause_duration_millis, tjs.type, tjb.result,
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_stages tjs"),
 		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_name"),
@@ -99,39 +99,51 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			if body.Name == "" {
 				return nil, err
 			}
-			durationSec := int64(body.DurationMillis / 1000)
-			jenkinsTaskResult := ""
-			jenkinsTaskStatus := devops.STATUS_DONE
+			var durationMillis int64
+			if body.DurationMillis > 0 {
+				durationMillis = int64(body.DurationMillis)
+			} else {
+				durationMillis = int64(0)
+			}
+			durationSec := float64(durationMillis / 1e3)
+			jenkinsTaskResult := devops.GetResult(&devops.ResultRule{
+				Success: []string{SUCCESS},
+				Failure: []string{FAILED, FAILURE, ABORTED},
+				Default: devops.RESULT_DEFAULT,
+			}, body.Result)
+
+			jenkinsTaskStatus := devops.GetStatus(&devops.StatusRule{
+				Done:       []string{SUCCESS},
+				InProgress: []string{},
+				Default:    devops.STATUS_OTHER,
+			}, body.Status)
+
 			var jenkinsTaskFinishedDate *time.Time
 			results := make([]interface{}, 0)
-			if body.Status == "SUCCESS" {
-				jenkinsTaskResult = devops.RESULT_SUCCESS
-			} else if body.Status == "FAILED" {
-				jenkinsTaskResult = devops.RESULT_FAILURE
-			} else if body.Status == "ABORTED" {
-				jenkinsTaskResult = devops.RESULT_ABORT
-			} else {
-				jenkinsTaskResult = ""
-				jenkinsTaskStatus = devops.STATUS_IN_PROGRESS
-			}
-
-			startedDate := time.Unix(body.StartTimeMillis/1000, 0)
-			finishedDate := startedDate.Add(time.Duration(durationSec * int64(time.Second)))
+			finishedDateMillis := body.StartTimeMillis + durationMillis
+			finishedDate := time.Unix(finishedDateMillis/1e3, (finishedDateMillis%1e3)*int64(time.Millisecond))
 			jenkinsTaskFinishedDate = &finishedDate
+			startedDate := time.Unix(body.StartTimeMillis/1e3, 0)
+
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: stageIdGen.Generate(body.ConnectionId, body.BuildName, body.ID),
 				},
-				Name:         body.Name,
-				PipelineId:   buildIdGen.Generate(body.ConnectionId, body.BuildName),
-				Result:       jenkinsTaskResult,
-				Status:       jenkinsTaskStatus,
-				DurationSec:  uint64(body.DurationMillis / 1000),
-				StartedDate:  startedDate,
-				FinishedDate: jenkinsTaskFinishedDate,
-				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
-				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
-				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),
+				Name:        body.Name,
+				PipelineId:  buildIdGen.Generate(body.ConnectionId, body.BuildName),
+				Result:      jenkinsTaskResult,
+				Status:      jenkinsTaskStatus,
+				DurationSec: durationSec,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  startedDate,
+					StartedDate:  &startedDate,
+					FinishedDate: jenkinsTaskFinishedDate,
+				},
+				OriginalResult: body.Result,
+				OriginalStatus: body.Status,
+				CicdScopeId:    jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
+				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
+				Environment:    data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),
 			}
 			results = append(results, jenkinsTask)
 			return results, nil

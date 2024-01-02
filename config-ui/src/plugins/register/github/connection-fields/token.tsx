@@ -17,10 +17,17 @@
  */
 
 import { useEffect, useState } from 'react';
-import { FormGroup, Button, Icon, Intent } from '@blueprintjs/core';
+import {
+  CloseOutlined,
+  PlusOutlined,
+  CheckCircleOutlined,
+  WarningOutlined,
+  CloseCircleOutlined,
+} from '@ant-design/icons';
+import { Input, Button } from 'antd';
 
 import API from '@/api';
-import { ExternalLink, FormPassword } from '@/components';
+import { Block, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
 import * as S from './styled';
@@ -33,16 +40,28 @@ type TokenItem = {
 };
 
 interface Props {
+  type: 'create' | 'update';
+  connectionId?: ID;
   endpoint?: string;
   proxy: string;
   initialValue: string;
   value: string;
   error: string;
-  setValue: (value: string) => void;
-  setError: (error: string) => void;
+  setValue: (value?: string) => void;
+  setError: (error?: string) => void;
 }
 
-export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, setError }: Props) => {
+export const Token = ({
+  type,
+  connectionId,
+  endpoint,
+  proxy,
+  initialValue,
+  value,
+  error,
+  setValue,
+  setError,
+}: Props) => {
   const [tokens, setTokens] = useState<TokenItem[]>([{ value: '' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
@@ -53,7 +72,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
     }
 
     try {
-      const res = await API.connection.test('github', {
+      const res = await API.connection.testOld('github', {
         authMethod: 'AccessToken',
         endpoint,
         proxy,
@@ -73,22 +92,31 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
     }
   };
 
-  const checkTokens = async (value: string) => {
-    const res = await Promise.all((value ?? '').split(',').map((it) => testToken(it)));
-    setTokens(res);
+  const checkTokens = async (connectionId: ID) => {
+    const res = await API.connection.test('github', connectionId);
+    setTokens(
+      (res.tokens ?? []).map((it) => ({
+        value: it.token,
+        isValid: it.success || it.warning,
+        from: it.login,
+        status: !it.success ? 'error' : it.warning ? 'warning' : 'success',
+      })),
+    );
   };
 
   useEffect(() => {
-    checkTokens(initialValue);
-  }, [initialValue, endpoint]);
+    if (connectionId) {
+      checkTokens(connectionId);
+    }
+  }, [connectionId]);
 
   useEffect(() => {
-    setError(value ? '' : 'token is required');
+    setError(type === 'create' && !value ? 'token is required' : undefined);
 
     return () => {
       setError('');
     };
-  }, [value]);
+  }, [type, value]);
 
   useEffect(() => {
     setValue(tokens.map((it) => it.value).join(','));
@@ -110,28 +138,30 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
   };
 
   return (
-    <FormGroup
-      label={<S.Label>Personal Access Token(s) </S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={
-        <S.LabelDescription>
+    <Block
+      title="Personal Access Token(s)"
+      description={
+        <>
           Add one or more personal token(s) for authentication from you and your organization members. Multiple tokens
           (from different GitHub accounts, NOT from one account) can help speed up the data collection process.{' '}
           <ExternalLink link={DOC_URL.PLUGIN.GITHUB.AUTH_TOKEN}>
             Learn how to create a personal access token
           </ExternalLink>
-        </S.LabelDescription>
+        </>
       }
+      required
     >
       {tokens.map(({ value, isValid, status, from }, i) => (
         <S.Input key={i}>
           <div className="input">
-            <FormPassword
+            <Input
+              style={{ width: 386 }}
               placeholder="Token"
+              value={value}
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />
-            <Button minimal icon="cross" onClick={() => handleRemoveToken(i)} />
+            <Button type="text" icon={<CloseOutlined />} onClick={() => handleRemoveToken(i)} />
             <div className="info">
               {isValid === false && <span className="error">Invalid</span>}
               {isValid === true && <span className="success">Valid From: {from}</span>}
@@ -140,9 +170,9 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
           {status && (
             <S.Alert>
               <h4>
-                {status === 'success' && <Icon icon="tick-circle" color="#4DB764" />}
-                {status === 'warning' && <Icon icon="warning-sign" color="#F4BE55" />}
-                {status === 'error' && <Icon icon="cross-circle" color="#E34040" />}
+                {status === 'success' && <CheckCircleOutlined color="#4DB764" />}
+                {status === 'warning' && <WarningOutlined color="#F4BE55" />}
+                {status === 'error' && <CloseCircleOutlined color="#E34040" />}
                 <span style={{ marginLeft: 8 }}>Token Permissions</span>
               </h4>
               {status === 'success' && <p>All required fields are checked.</p>}
@@ -163,8 +193,10 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
         </S.Input>
       ))}
       <div className="action">
-        <Button outlined small intent={Intent.PRIMARY} text="Another Token" icon="plus" onClick={handleCreateToken} />
+        <Button type="primary" size="small" icon={<PlusOutlined />} onClick={handleCreateToken}>
+          Another Token
+        </Button>
       </div>
-    </FormGroup>
+    </Block>
   );
 };

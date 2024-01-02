@@ -33,9 +33,6 @@ import (
 // @Tags plugins/zentao
 // @Param connectionId path int true "connection ID"
 // @Param path path string true "path to Zentao API"
-// @Success 200  {object} ZentaoTestConnResponse "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/proxy/{path} [GET]
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.ZentaoConnection{}

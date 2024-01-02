@@ -34,9 +34,9 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup, InputGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
   label?: string;
@@ -72,12 +72,13 @@ export const ConnectionUsername = ({
   };
 
   return (
-    <FormGroup
-      label={<S.Label>{label ?? 'Username'}</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
-    >
-      <InputGroup placeholder={placeholder ?? 'Your Username'} value={value} onChange={handleChange} />
-    </FormGroup>
+    <Block title={label ?? 'Username'} description={subLabel ? subLabel : null} required>
+      <Input
+        style={{ width: 386 }}
+        placeholder={placeholder ?? 'Your Username'}
+        value={value}
+        onChange={handleChange}
+      />
+    </Block>
   );
 };

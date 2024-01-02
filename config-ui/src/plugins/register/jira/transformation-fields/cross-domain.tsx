@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Radio, Icon, Collapse, Button } from '@blueprintjs/core';
+import { Radio, Button, Collapse } from 'antd';
 
 import { ExternalLink } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
@@ -35,8 +35,7 @@ interface Props {
 
 export const CrossDomain = ({ connectionId, transformation, setTransformation }: Props) => {
   const [radio, setRadio] = useState<'remote-link' | 'dev-panel'>('remote-link');
-  const [showTip, setShowTip] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (transformation.applicationType) {
@@ -70,13 +69,18 @@ export const CrossDomain = ({ connectionId, transformation, setTransformation }:
           <Radio checked={radio === 'remote-link'} onChange={() => handleChangeRadio('remote-link')} />
           <div className="content">
             <h5>Connect Jira issues and commits via Jira issues’ remote links that match the following pattern</h5>
-            <p style={{ display: 'flex', alignItems: 'center' }} onClick={() => setShowTip(!showTip)}>
-              Input pattern(s) to match and parse commits and repo identifiers from issue remote links. See examples{' '}
-              <Icon icon={showTip ? 'chevron-up' : 'chevron-down'} style={{ cursor: 'pointer' }} />
-            </p>
-            <Collapse isOpen={showTip}>
-              <img src={JiraIssueTipsImg} width="100%" alt="" />
-            </Collapse>
+            <Collapse
+              ghost
+              expandIconPosition="end"
+              items={[
+                {
+                  key: '1',
+                  label:
+                    'Input pattern(s) to match and parse commits and repo identifiers from issue remote links. See examples',
+                  children: <img src={JiraIssueTipsImg} width="100%" alt="" />,
+                },
+              ]}
+            />
             {radio === 'remote-link' && (
               <RemoteLink transformation={transformation} setTransformation={setTransformation} />
             )}
@@ -100,16 +104,15 @@ export const CrossDomain = ({ connectionId, transformation, setTransformation }:
                     <span>{transformation.remotelinkRepoPattern[0]?.pattern}</span>
                   </div>
                 )}
-                <Button
-                  text={!transformation.applicationType ? 'Configure' : 'Edit Configuration'}
-                  onClick={() => setIsOpen(true)}
-                />
+                <Button onClick={() => setOpen(true)}>
+                  {!transformation.applicationType ? 'Configure' : 'Edit Configuration'}
+                </Button>
                 <DevPanel
                   connectionId={connectionId}
                   transformation={transformation}
                   setTransformation={setTransformation}
-                  isOpen={isOpen}
-                  onCancel={() => setIsOpen(false)}
+                  open={open}
+                  onCancel={() => setOpen(false)}
                 />
               </>
             )}

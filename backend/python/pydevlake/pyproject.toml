@@ -34,6 +34,7 @@ pytest = "^7.2.2"
 jsonref = "^1.1.0"
 psycopg2 = "^2.9.5"
 jsonpointer = "^2.3"
+certifi = "^2023.7.22"
 
 
 [tool.poetry.group.dev.dependencies]

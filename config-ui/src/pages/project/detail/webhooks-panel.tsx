@@ -17,10 +17,12 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { Link } from 'react-router-dom';
+import { PlusOutlined } from '@ant-design/icons';
+import { Alert, Button } from 'antd';
 
 import API from '@/api';
-import { Alert, NoData } from '@/components';
+import { NoData } from '@/components';
 import type { WebhookItemType } from '@/plugins/register/webhook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webhook';
 import { IProject } from '@/types';
@@ -109,8 +111,8 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   return (
     <>
       <Alert
-        style={{ marginBottom: 24, color: '#3C5088' }}
-        content={
+        style={{ marginBottom: 24 }}
+        message={
           <>
             <div>
               The data pushed by Webhooks will only be calculated for DORA in the next run of the Blueprint of this
@@ -119,7 +121,10 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
             </div>
             <div style={{ marginTop: 16 }}>
               To calculate DORA after receiving Webhook data immediately, you can visit the{' '}
-              <b style={{ textDecoration: 'underline' }}>Status tab</b> of the Blueprint page and click on Run Now.
+              <b style={{ textDecoration: 'underline' }}>
+                <Link to={`${window.location.pathname}?tab=status`}>Status tab</Link>
+              </b>{' '}
+              of the Blueprint page and click on Run Now.
             </div>
           </>
         }
@@ -130,20 +135,19 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
             text="Push `incidents` or `deployments` from your tools by incoming webhooks."
             action={
               <>
-                <Button intent={Intent.PRIMARY} icon="plus" text="Add a Webhook" onClick={() => setType('create')} />
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setType('create')}>
+                  Add a Webhook
+                </Button>
                 <div style={{ margin: '8px 0' }}>or</div>
-                <Button
-                  outlined
-                  intent={Intent.PRIMARY}
-                  text="Select Existing Webhooks"
-                  onClick={() => setType('selectExist')}
-                />
+                <Button type="primary" onClick={() => setType('selectExist')}>
+                  Select Existing Webhooks
+                </Button>
               </>
             }
           />
-          {type === 'create' && <WebhookCreateDialog isOpen onCancel={handleCancel} onSubmitAfter={handleCreate} />}
+          {type === 'create' && <WebhookCreateDialog open onCancel={handleCancel} onSubmitAfter={handleCreate} />}
           {type === 'selectExist' && (
-            <WebhookSelectorDialog isOpen saving={operating} onCancel={handleCancel} onSubmit={handleSelect} />
+            <WebhookSelectorDialog open saving={operating} onCancel={handleCancel} onSubmit={handleSelect} />
           )}
         </>
       ) : (

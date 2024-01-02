@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Button, ControlGroup, InputGroup, Intent } from '@blueprintjs/core';
+import { Input, Button } from 'antd';
 import type { McsID, McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
@@ -91,8 +91,8 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
         Learn about how to get your company ID
       </ExternalLink>
 
-      <ControlGroup fill={false} vertical={false} style={{ padding: '8px 0' }}>
-        <InputGroup
+      <div>
+        <Input
           placeholder="Your company ID"
           value={companyId}
           style={{ width: 300 }}
@@ -101,10 +101,10 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
             localStorage.setItem(`plugin/tapd/connections/${connectionId}/company_id`, e.target.value);
           }}
         />
-        <Button intent={Intent.PRIMARY} onClick={() => getPageToken(companyId)}>
+        <Button type="primary" onClick={() => getPageToken(companyId)}>
           Search
         </Button>
-      </ControlGroup>
+      </div>
 
       {pageToken && (
         <MillerColumnsSelect

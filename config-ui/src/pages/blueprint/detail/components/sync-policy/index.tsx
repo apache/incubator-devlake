@@ -16,13 +16,12 @@
  *
  */
 
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Tag, Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
-import { TimePrecision } from '@blueprintjs/datetime';
-import { DateInput2 } from '@blueprintjs/datetime2';
+import type { RadioChangeEvent } from 'antd';
+import { Radio, Space, Checkbox, Input, Tag, DatePicker } from 'antd';
 
-import { FormItem, ExternalLink } from '@/components';
+import { Block, ExternalLink } from '@/components';
 import { getCron, getCronOptions } from '@/config';
 import { formatTime } from '@/utils';
 
@@ -51,7 +50,20 @@ export const SyncPolicy = ({
   onChangeSkipOnFail,
   onChangeTimeAfter,
 }: Props) => {
-  const [timezone, quickTimeOpts, cronOpts] = useMemo(() => {
+  const [selectedValue, setSelectedValue] = useState('Daily');
+
+  const cronOpts = getCronOptions();
+
+  useEffect(() => {
+    if (isManual) {
+      setSelectedValue('Manual');
+    } else {
+      const opt = cronOpts.find((it) => it.value === cronConfig);
+      setSelectedValue(opt ? opt.label : 'Custom');
+    }
+  }, [isManual, cronConfig]);
+
+  const [timezone, quickTimeOpts] = useMemo(() => {
     const timezone = dayjs().format('ZZ').replace('00', '');
     const quickTimeOpts = [
       { label: 'Last 6 months', date: dayjs().subtract(6, 'month').toDate() },
@@ -59,26 +71,25 @@ export const SyncPolicy = ({
       { label: 'Last 30 days', date: dayjs().subtract(30, 'day').toDate() },
       { label: 'Last Year', date: dayjs().subtract(1, 'year').toDate() },
     ];
-
-    const cronOpts = getCronOptions();
-
-    return [timezone, quickTimeOpts, cronOpts];
+    return [timezone, quickTimeOpts];
   }, []);
 
   const cron = useMemo(() => getCron(isManual, cronConfig), [isManual, cronConfig]);
 
   const [mintue, hour, day, month, week] = useMemo(() => cronConfig.split(' '), [cronConfig]);
 
-  const handleChangeFrequency = (e: React.FormEvent<HTMLInputElement>) => {
-    const value = (e.target as HTMLInputElement).value;
-    if (value === 'manual') {
+  const handleChangeFrequency = (e: RadioChangeEvent) => {
+    const value = e.target.value;
+    setSelectedValue(value);
+    if (value === 'Manual') {
       onChangeIsManual(true);
-    } else if (!value) {
+    } else if (value === 'Custom') {
       onChangeIsManual(false);
       onChangeCronConfig('* * * * *');
     } else {
+      const opt = cronOpts.find((it) => it.label === value) as any;
       onChangeIsManual(false);
-      onChangeCronConfig(value);
+      onChangeCronConfig(opt.value);
     }
   };
 
@@ -88,17 +99,16 @@ export const SyncPolicy = ({
         Your local time zone is <strong>UTC {timezone}</strong>. All time listed below is shown in your local time.
       </div>
       {showTimeFilter && (
-        <FormItem
-          label="Time Range"
-          subLabel="Select the time range for the data you wish to collect. DevLake will collect the last six months of data by default."
+        <Block
+          title="Time Range"
+          description="Select the time range for the data you wish to collect. DevLake will collect the last six months of data by default."
         >
           <div className="quick-selection">
             {quickTimeOpts.map((opt, i) => (
               <Tag
                 key={i}
                 style={{ marginRight: 5, cursor: 'pointer' }}
-                minimal={formatTime(opt.date) !== formatTime(timeAfter)}
-                intent="primary"
+                color={formatTime(opt.date) === formatTime(timeAfter) ? 'blue' : 'default'}
                 onClick={() => onChangeTimeAfter(dayjs(opt.date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ'))}
               >
                 {opt.label}
@@ -107,65 +117,65 @@ export const SyncPolicy = ({
           </div>
 
           <div className="time-selection">
-            <DateInput2
-              timePrecision={TimePrecision.MINUTE}
-              showTimezoneSelect={false}
-              formatDate={formatTime}
-              parseDate={(str: string) => new Date(str)}
+            {/* @ts-ignore */}
+            <DatePicker
+              value={timeAfter ? dayjs(timeAfter) : null}
               placeholder="Select start from"
-              popoverProps={{ placement: 'bottom' }}
-              value={timeAfter}
-              onChange={(date) => onChangeTimeAfter(date ? dayjs(date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ') : null)}
+              onChange={(_, date) =>
+                onChangeTimeAfter(date ? dayjs(date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ') : null)
+              }
             />
             <strong>to Now</strong>
           </div>
-        </FormItem>
+        </Block>
       )}
       <div className="cron">
-        <FormItem
+        <Block
           style={{ flex: '0 0 450px', marginRight: 20 }}
-          label="Sync Frequency"
-          subLabel="Blueprints will run on creation and recurringly based on the schedule."
+          title="Sync Frequency"
+          description="Blueprints will run on creation and recurringly based on the schedule."
         >
-          <RadioGroup selectedValue={cron.value} onChange={handleChangeFrequency}>
-            {cronOpts.map(({ value, label, subLabel }) => (
-              <Radio key={value} label={`${label} ${subLabel}`} value={value} />
-            ))}
-          </RadioGroup>
-          {!cron.value && (
+          <Radio.Group value={selectedValue} onChange={handleChangeFrequency}>
+            <Space direction="vertical">
+              {cronOpts.map(({ label, subLabel }) => (
+                <Radio key={label} value={label}>{`${label} ${subLabel}`}</Radio>
+              ))}
+            </Space>
+          </Radio.Group>
+          {selectedValue === 'Custom' && (
             <>
-              <S.Input>
-                <FormGroup label="Minute">
-                  <InputGroup
+              <Space>
+                <Block title="Minute">
+                  <Input
                     value={mintue}
                     onChange={(e) => onChangeCronConfig([e.target.value, hour, day, month, week].join(' '))}
                   />
-                </FormGroup>
-                <FormGroup label="Hour">
-                  <InputGroup
+                </Block>
+                <Block title="Hour">
+                  <Input
                     value={hour}
                     onChange={(e) => onChangeCronConfig([mintue, e.target.value, day, month, week].join(' '))}
                   />
-                </FormGroup>
-                <FormGroup label="Day">
-                  <InputGroup
+                </Block>
+                <Block title="Day">
+                  <Input
                     value={day}
                     onChange={(e) => onChangeCronConfig([mintue, hour, e.target.value, month, week].join(' '))}
                   />
-                </FormGroup>
-                <FormGroup label="Month">
-                  <InputGroup
+                </Block>
+                <Block title="Month">
+                  <Input
                     value={month}
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, e.target.value, week].join(' '))}
                   />
-                </FormGroup>
-                <FormGroup label="Week">
-                  <InputGroup
+                </Block>
+                <Block title="Week">
+                  <Input
                     value={week}
                     onChange={(e) => onChangeCronConfig([mintue, hour, day, month, e.target.value].join(' '))}
                   />
-                </FormGroup>
-              </S.Input>
+                </Block>
+              </Space>
               {!cron.nextTime && <S.Error>Invalid Cron code, please enter again.</S.Error>}
             </>
           )}
@@ -173,8 +183,8 @@ export const SyncPolicy = ({
             <ExternalLink link="https://crontab.cronhub.io/">Learn how to use cron code</ExternalLink> or{' '}
             <ExternalLink link="https://cron-ai.vercel.app/">auto-convert English to cron code</ExternalLink>
           </div>
-        </FormItem>
-        <FormItem label="Next Three Runs:">
+        </Block>
+        <Block title="Next Three Runs:">
           {cron.nextTimes.length ? (
             <ul>
               {cron.nextTimes.map((it, i) => (
@@ -186,21 +196,20 @@ export const SyncPolicy = ({
           ) : (
             'N/A'
           )}
-        </FormItem>
+        </Block>
       </div>
-      <FormItem label="Running Policy">
-        <Checkbox
-          label="Skip failed tasks (Recommended when collecting a large volume of data, eg. 10+ GitHub repos, Jira boards, etc.)"
-          checked={skipOnFail}
-          onChange={(e) => onChangeSkipOnFail((e.target as HTMLInputElement).checked)}
-        />
+      <Block title="Running Policy">
+        <Checkbox checked={skipOnFail} onChange={(e) => onChangeSkipOnFail(e.target.checked)}>
+          Skip failed tasks (Recommended when collecting a large volume of data, eg. 10+ GitHub repos, Jira boards,
+          etc.)
+        </Checkbox>
         <p style={{ paddingLeft: 28 }}>
           A task is a unit of a pipeline, an execution of a blueprint. By default, when a task is failed, the whole
           pipeline will fail and all the data that has been collected will be discarded. By skipping failed tasks, the
           pipeline will continue to run, and the data collected by successful tasks will not be affected. After the
           pipeline is finished, you can rerun these failed tasks.
         </p>
-      </FormItem>
+      </Block>
     </S.Wrapper>
   );
 };

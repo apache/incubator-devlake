@@ -34,22 +34,14 @@ type GiteeTestConnResponse struct {
 	Connection *models.GiteeConn
 }
 
-// @Summary test gitee connection
-// @Description Test gitee Connection. endpoint: https://gitee.com/api/v5/
-// @Tags plugins/gitee
-// @Param body body models.GiteeConn true "json body"
-// @Success 200  {object} GiteeTestConnResponse "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/gitee/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var err errors.Error
-	var connection models.GiteeConn
-	if err = helper.Decode(input.Body, &connection, vld); err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
+func testConnection(ctx context.Context, connection models.GiteeConn) (*GiteeTestConnResponse, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
 	}
-
-	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	apiClient, err := helper.NewApiClientFromConnection(ctx, basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
@@ -70,12 +62,58 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code when testing connection")
 	}
+	connection = connection.Sanitize()
 	body := GiteeTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
 	// output
-	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+	return &body, nil
+}
+
+// TestConnection test gitee connection
+// @Summary test gitee connection
+// @Description Test gitee Connection. endpoint: https://gitee.com/api/v5/
+// @Tags plugins/gitee
+// @Param body body models.GiteeConn true "json body"
+// @Success 200  {object} GiteeTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/gitee/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	var err errors.Error
+	var connection models.GiteeConn
+	if err = helper.Decode(input.Body, &connection, vld); err != nil {
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestExistingConnection test gitee connection
+// @Summary test gitee connection
+// @Description Test gitee Connection. endpoint: https://gitee.com/api/v5/
+// @Tags plugins/gitee
+// @Success 200  {object} GiteeTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/gitee/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.GiteeConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	// test connection
+	result, err := testConnection(context.TODO(), connection.GiteeConn)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create gitee connection
@@ -92,7 +130,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary patch gitee connection
@@ -109,7 +147,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
 // @Summary delete a gitee connection
@@ -121,7 +159,14 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitee/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.GiteeConnection{}, input)
+	conn := &models.GiteeConnection{}
+	output, err := connectionHelper.Delete(conn, input)
+	if err != nil {
+		return output, err
+	}
+	output.Body = conn.Sanitize()
+	return output, nil
+
 }
 
 // @Summary get all gitee connections
@@ -137,7 +182,9 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-
+	for idx, c := range connections {
+		connections[idx] = c.Sanitize()
+	}
 	return &plugin.ApiResourceOutput{Body: connections}, nil
 }
 
@@ -151,5 +198,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
 }

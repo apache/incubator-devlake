@@ -19,7 +19,6 @@ package devops
 
 import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"time"
 )
 
 const (
@@ -39,16 +38,19 @@ const ENV_NAME_PATTERN = "ENV_NAME_PATTERN"
 
 type CICDTask struct {
 	domainlayer.DomainEntity
-	Name         string `gorm:"type:varchar(255)"`
-	PipelineId   string `gorm:"index;type:varchar(255)"`
-	Result       string `gorm:"type:varchar(100)"`
-	Status       string `gorm:"type:varchar(100)"`
-	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
-	Environment  string `gorm:"type:varchar(255)"`
-	DurationSec  uint64
-	StartedDate  time.Time
-	FinishedDate *time.Time
-	CicdScopeId  string `gorm:"index;type:varchar(255)"`
+	Name              string `gorm:"type:varchar(255)"`
+	PipelineId        string `gorm:"index;type:varchar(255)"`
+	Result            string `gorm:"type:varchar(100)"`
+	Status            string `gorm:"type:varchar(100)"`
+	OriginalStatus    string `gorm:"type:varchar(100)"`
+	OriginalResult    string `gorm:"type:varchar(100)"`
+	Type              string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
+	Environment       string `gorm:"type:varchar(255)"`
+	DurationSec       float64
+	QueuedDurationSec *float64
+	TaskDatesInfo
+	//StartedDate  time.Time  // notice here
+	CicdScopeId string `gorm:"index;type:varchar(255)"`
 }
 
 func (CICDTask) TableName() string {

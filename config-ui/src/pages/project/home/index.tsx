@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
+import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Input, Checkbox, message } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, Dialog, ExternalLink, IconButton, toast } from '@/components';
+import { PageHeader, Block, ExternalLink } from '@/components';
 import { getCron, cronPresets } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -39,7 +40,7 @@ export const ProjectHomePage = () => {
   const [version, setVersion] = useState(1);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -67,16 +68,16 @@ export const ProjectHomePage = () => {
     [data],
   );
 
-  const handleShowDialog = () => setIsOpen(true);
+  const handleShowDialog = () => setOpen(true);
   const handleHideDialog = () => {
-    setIsOpen(false);
+    setOpen(false);
     setName('');
     setEnableDora(true);
   };
 
   const handleCreate = async () => {
     if (!validName(name)) {
-      toast.error('Please enter alphanumeric or underscore');
+      message.error('Please enter alphanumeric or underscore');
       return;
     }
 
@@ -119,9 +120,15 @@ export const ProjectHomePage = () => {
   return (
     <PageHeader
       breadcrumbs={[{ name: 'Projects', path: '/projects' }]}
-      extra={<Button intent={Intent.PRIMARY} icon="plus" text="New Project" onClick={handleShowDialog} />}
+      extra={
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
+          New Project
+        </Button>
+      }
     >
       <Table
+        rowKey="name"
+        size="middle"
         loading={!ready}
         columns={[
           {
@@ -142,22 +149,19 @@ export const ProjectHomePage = () => {
               !val || !val.length ? (
                 'N/A'
               ) : (
-                <>
+                <ul>
                   {val.map((it) => (
-                    <ConnectionName
-                      key={`${it.pluginName}-${it.connectionId}`}
-                      plugin={it.pluginName}
-                      connectionId={it.connectionId}
-                    />
+                    <li key={`${it.pluginName}-${it.connectionId}`}>
+                      <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
+                    </li>
                   ))}
-                </>
+                </ul>
               ),
           },
           {
             title: 'Sync Frequency',
-            dataIndex: ['isManual', 'cronConfig'],
             key: 'frequency',
-            render: ({ isManual, cronConfig }) => {
+            render: (_, { isManual, cronConfig }) => {
               const cron = getCron(isManual, cronConfig);
               return cron.label;
             },
@@ -187,9 +191,9 @@ export const ProjectHomePage = () => {
             width: 100,
             align: 'center',
             render: (name: any) => (
-              <IconButton
-                icon="cog"
-                tooltip="Detail"
+              <Button
+                type="primary"
+                icon={<SettingOutlined />}
                 onClick={() => navigate(`/projects/${encodeName(name)}?tab=configuration`)}
               />
             ),
@@ -197,62 +201,55 @@ export const ProjectHomePage = () => {
         ]}
         dataSource={dataSource}
         pagination={{
-          page,
+          current: page,
           pageSize,
           total,
           onChange: setPage,
         }}
-        noData={{
-          text: 'Add new projects to see engineering metrics based on projects.',
-          btnText: 'New Project',
-          onCreate: handleShowDialog,
-        }}
       />
-      <Dialog
-        isOpen={isOpen}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Create a New Project"
-        style={{ width: 820 }}
         okText="Save"
-        okDisabled={!name}
-        okLoading={saving}
+        okButtonProps={{
+          disabled: !name,
+          loading: saving,
+        }}
         onOk={handleCreate}
         onCancel={handleHideDialog}
       >
         <S.DialogWrapper>
-          <FormGroup
-            label={<S.Label>Project Name</S.Label>}
-            subLabel={
-              <S.LabelDescription>Give your project a unique name with letters, numbers, -, _ or /</S.LabelDescription>
-            }
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+          <Block
+            title="Project Name"
+            description="Give your project a unique name with letters, numbers, -, _ or /"
+            required
           >
-            <InputGroup
+            <Input
               style={{ width: 386 }}
               placeholder="Your Project Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </FormGroup>
-
-          <FormGroup
-            label={<S.Label>Project Settings</S.Label>}
-            subLabel={
-              <S.LabelDescription>
+          </Block>
+          <Block
+            title="Project Settings"
+            description={
+              <>
                 <ExternalLink link={DOC_URL.DORA}>DORA metrics</ExternalLink>
                 <span style={{ marginLeft: 4 }}>
                   are four widely-adopted metrics for measuring software delivery performance.
                 </span>
-              </S.LabelDescription>
+              </>
             }
           >
-            <Checkbox
-              label="Enable DORA Metrics"
-              checked={enableDora}
-              onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
-            />
-          </FormGroup>
+            <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
+              Enable DORA Metrics
+            </Checkbox>
+          </Block>
         </S.DialogWrapper>
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };

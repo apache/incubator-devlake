@@ -27,13 +27,14 @@ import (
 )
 
 type GithubOptions struct {
-	ConnectionId  uint64                    `json:"connectionId" mapstructure:"connectionId,omitempty"`
-	ScopeConfigId uint64                    `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
-	GithubId      int                       `json:"githubId" mapstructure:"githubId,omitempty"`
-	Owner         string                    `json:"owner" mapstructure:"owner,omitempty"`
-	Repo          string                    `json:"repo"  mapstructure:"repo,omitempty"`
-	Name          string                    `json:"name"  mapstructure:"name,omitempty"`
-	ScopeConfig   *models.GithubScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
+	ConnectionId            uint64                    `json:"connectionId" mapstructure:"connectionId,omitempty"`
+	ScopeConfigId           uint64                    `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	GithubId                int                       `json:"githubId" mapstructure:"githubId,omitempty"`
+	Owner                   string                    `json:"owner" mapstructure:"owner,omitempty"`
+	Repo                    string                    `json:"repo"  mapstructure:"repo,omitempty"`
+	Name                    string                    `json:"name"  mapstructure:"name,omitempty"`
+	ScopeConfig             *models.GithubScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
+	helper.CollectorOptions `mapstructure:",squash"`
 }
 
 type GithubTaskData struct {
@@ -65,15 +66,6 @@ func DecodeTaskOptions(options map[string]interface{}) (*GithubOptions, errors.E
 		return nil, err
 	}
 	return &op, nil
-}
-
-func EncodeTaskOptions(op *GithubOptions) (map[string]interface{}, errors.Error) {
-	var result map[string]interface{}
-	err := helper.Decode(op, &result, nil)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
 }
 
 func ValidateTaskOptions(op *GithubOptions) errors.Error {

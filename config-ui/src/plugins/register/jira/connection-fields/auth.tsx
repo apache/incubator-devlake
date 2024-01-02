@@ -17,18 +17,18 @@
  */
 
 import { useState, useEffect } from 'react';
-import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
+import type { RadioChangeEvent } from 'antd';
+import { Radio, Input } from 'antd';
 
-import { ExternalLink, FormPassword } from '@/components';
+import { Block, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
-
-import * as S from './styled';
 
 const JIRA_CLOUD_REGEX = /^https:\/\/\w+.atlassian.net\/rest\/$/;
 
 type Method = 'BasicAuth' | 'AccessToken';
 
 interface Props {
+  type: 'create' | 'update';
   initialValues: any;
   values: any;
   errors: any;
@@ -36,7 +36,7 @@ interface Props {
   setErrors: (value: any) => void;
 }
 
-export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => {
+export const Auth = ({ type, initialValues, values, setValues, setErrors }: Props) => {
   const [version, setVersion] = useState('cloud');
 
   useEffect(() => {
@@ -71,8 +71,8 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
     });
   }, [values]);
 
-  const handleChangeVersion = (e: React.FormEvent<HTMLInputElement>) => {
-    const version = (e.target as HTMLInputElement).value;
+  const handleChangeVersion = (e: RadioChangeEvent) => {
+    const version = e.target.value;
 
     setValues({
       endpoint: '',
@@ -91,7 +91,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
     });
   };
 
-  const handleChangeMethod = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleChangeMethod = (e: RadioChangeEvent) => {
     setValues({
       authMethod: (e.target as HTMLInputElement).value as Method,
       username: undefined,
@@ -120,82 +120,103 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
 
   return (
     <>
-      <FormGroup label={<S.Label>Jira Version</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-        <RadioGroup inline selectedValue={version} onChange={handleChangeVersion}>
+      <Block title="Jira Version" required>
+        <Radio.Group value={version} onChange={handleChangeVersion}>
           <Radio value="cloud">Jira Cloud</Radio>
           <Radio value="server">Jira Server</Radio>
-        </RadioGroup>
+        </Radio.Group>
 
-        <FormGroup
+        <Block
           style={{ marginTop: 8, marginBottom: 0 }}
-          label={<S.Label>Endpoint URL</S.Label>}
-          labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-          subLabel={
-            <S.LabelDescription>
+          title="Endpoint URL"
+          description={
+            <>
               {version === 'cloud'
                 ? 'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/. Please note that the endpoint URL should end with /.'
                 : ''}
               {version === 'server'
                 ? 'Provide the Jira instance API endpoint. For Jira Server, e.g. https://jira.your-company.com/rest/. Please note that the endpoint URL should end with /.'
                 : ''}
-            </S.LabelDescription>
+            </>
           }
+          required
         >
-          <InputGroup placeholder="Your Endpoint URL" value={values.endpoint} onChange={handleChangeEndpoint} />
-        </FormGroup>
-      </FormGroup>
+          <Input
+            style={{ width: 386 }}
+            placeholder="Your Endpoint URL"
+            value={values.endpoint}
+            onChange={handleChangeEndpoint}
+          />
+        </Block>
+      </Block>
 
       {version === 'cloud' && (
         <>
-          <FormGroup label={<S.Label>E-Mail</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-            <InputGroup placeholder="Your E-Mail" value={values.username} onChange={handleChangeUsername} />
-          </FormGroup>
-          <FormGroup
-            label={<S.Label>API Token</S.Label>}
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-            subLabel={
-              <S.LabelDescription>
-                <ExternalLink link={DOC_URL.PLUGIN.JIRA.API_TOKEN}>Learn about how to create an API Token</ExternalLink>
-              </S.LabelDescription>
+          <Block title="E-Mail" required>
+            <Input
+              style={{ width: 386 }}
+              placeholder="Your E-Mail"
+              value={values.username}
+              onChange={handleChangeUsername}
+            />
+          </Block>
+          <Block
+            title="API Token"
+            description={
+              <ExternalLink link={DOC_URL.PLUGIN.JIRA.API_TOKEN}>Learn about how to create an API Token</ExternalLink>
             }
+            required
           >
-            <FormPassword placeholder="Your PAT" value={values.password} onChange={handleChangePassword} />
-          </FormGroup>
+            <Input.Password
+              style={{ width: 386 }}
+              placeholder={type === 'update' ? '********' : 'Your PAT'}
+              value={values.password}
+              onChange={handleChangePassword}
+            />
+          </Block>
         </>
       )}
 
       {version === 'server' && (
         <>
-          <FormGroup label={<S.Label>Authentication Method</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-            <RadioGroup inline selectedValue={values.authMethod} onChange={handleChangeMethod}>
+          <Block title="Authentication Method" required>
+            <Radio.Group value={values.authMethod} onChange={handleChangeMethod}>
               <Radio value="BasicAuth">Basic Authentication</Radio>
               <Radio value="AccessToken">Using Personal Access Token</Radio>
-            </RadioGroup>
-          </FormGroup>
+            </Radio.Group>
+          </Block>
           {values.authMethod === 'BasicAuth' && (
             <>
-              <FormGroup label={<S.Label>Username</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
-              </FormGroup>
-              <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <FormPassword placeholder="Your Password" value={values.password} onChange={handleChangePassword} />
-              </FormGroup>
+              <Block title="Username" required>
+                <Input placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
+              </Block>
+              <Block title="Password" required>
+                <Input.Password
+                  style={{ width: 386 }}
+                  placeholder={type === 'update' ? '********' : 'Your Password'}
+                  value={values.password}
+                  onChange={handleChangePassword}
+                />
+              </Block>
             </>
           )}
           {values.authMethod === 'AccessToken' && (
-            <FormGroup
-              label={<S.Label>Personal Access Token</S.Label>}
-              labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-              subLabel={
-                <S.LabelDescription>
-                  <ExternalLink link={DOC_URL.PLUGIN.JIRA.PERSONAL_ACCESS_TOKEN}>
-                    Learn about how to create a PAT
-                  </ExternalLink>
-                </S.LabelDescription>
+            <Block
+              title="Personal Access Token"
+              description={
+                <ExternalLink link={DOC_URL.PLUGIN.JIRA.PERSONAL_ACCESS_TOKEN}>
+                  Learn about how to create a PAT
+                </ExternalLink>
               }
+              required
             >
-              <FormPassword placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
-            </FormGroup>
+              <Input.Password
+                style={{ width: 386 }}
+                placeholder={type === 'update' ? '********' : 'Your Password'}
+                value={values.token}
+                onChange={handleChangeToken}
+              />
+            </Block>
           )}
         </>
       )}

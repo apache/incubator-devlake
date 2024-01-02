@@ -83,6 +83,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 			"can_delete",
 			"allowed_to_execute",
 			"can_execute",
+			"plan_result_key",
 			"allowed_to_create_version",
 			"allowed_to_set_version_status",
 			"environment",
@@ -93,11 +94,17 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_deploy_builds.csv", &models.BambooDeployBuild{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plans.csv", models.BambooPlan{})
+
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.FlushTabler(&devops.CICDDeployment{})
-	dataflowTester.Subtask(tasks.ConvertDeployBuildsMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertDeployBuildsToDeploymentCommitsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:   "./snapshot_tables/cicd_deployment_commits.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{},
+	})
+	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:   "./snapshot_tables/cicd_deployments.csv",
 		IgnoreTypes:  []interface{}{common.NoPKModel{}},
 		IgnoreFields: []string{},
 	})

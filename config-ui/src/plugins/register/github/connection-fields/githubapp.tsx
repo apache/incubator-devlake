@@ -17,11 +17,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Button, FormGroup, InputGroup, MenuItem, TextArea } from '@blueprintjs/core';
-import { Select2 } from '@blueprintjs/select';
+import { Select, Input } from 'antd';
 
 import API from '@/api';
-import { ExternalLink } from '@/components';
+import { Block, ExternalLink } from '@/components';
 
 import * as S from './styled';
 
@@ -86,7 +85,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
     }
 
     try {
-      const res = await API.connection.test('github', {
+      const res = await API.connection.testOld('github', {
         authMethod: 'AppKey',
         endpoint,
         proxy,
@@ -139,19 +138,21 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
   }, [settings.appId, settings.secretKey, settings.installationId]);
 
   return (
-    <FormGroup
-      label={<S.Label>Github App settings</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={
-        <S.LabelDescription>
+    <Block
+      title="Github App settings"
+      description={
+        <>
           Input information about your Github App{' '}
-          <ExternalLink link="https://TODO">Learn how to create a github app</ExternalLink>
-        </S.LabelDescription>
+          <ExternalLink link="https://docs.github.com/en/apps/maintaining-github-apps/modifying-a-github-app-registration#navigating-to-your-github-app-settings">
+            Learn how to create a github app
+          </ExternalLink>
+        </>
       }
+      required
     >
       <S.Input>
         <div className="input">
-          <InputGroup
+          <Input
             placeholder="App Id"
             type="text"
             value={settings.appId ?? ''}
@@ -166,7 +167,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
       </S.Input>
       <S.Input>
         <div className="input">
-          <TextArea
+          <Input.TextArea
             cols={90}
             rows={15}
             placeholder="Private key"
@@ -181,40 +182,20 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
         </div>
       </S.Input>
       <S.Input>
-        <Select2
-          items={settings.installations ?? []}
-          activeItem={settings.installations?.find((e) => e.id === settings.installationId)}
-          itemPredicate={(query, item) => item.account.login.toLowerCase().includes(query.toLowerCase())}
-          itemRenderer={(item, { handleClick, handleFocus, modifiers }) => {
-            return (
-              <MenuItem
-                active={modifiers.active}
-                disabled={modifiers.disabled}
-                key={item.id}
-                label={item.id.toString()}
-                onClick={handleClick}
-                onFocus={handleFocus}
-                roleStructure="listoption"
-                text={item.account.login}
-              />
-            );
-          }}
-          onItemSelect={(item) => {
-            setSettings({ ...settings, installationId: item.id });
-          }}
-          noResults={<option disabled={true}>No results</option>}
-          popoverProps={{ minimal: true }}
-        >
-          <Button
-            text={
-              settings.installations?.find((e) => e.id === settings.installationId)?.account.login ??
-              'Select App installation'
-            }
-            rightIcon="double-caret-vertical"
-            placeholder="Select App installation"
-          />
-        </Select2>
+        <Select
+          style={{ width: 200 }}
+          placeholder="Select App installation"
+          options={
+            settings.installations
+              ? settings.installations.map((it) => ({
+                  value: it.id,
+                  label: it.account.login,
+                }))
+              : []
+          }
+          onChange={(value) => setSettings({ ...settings, installationId: value })}
+        />
       </S.Input>
-    </FormGroup>
+    </Block>
   );
 };

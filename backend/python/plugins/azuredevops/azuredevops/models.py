@@ -19,12 +19,13 @@ from enum import Enum
 from typing import Optional
 
 from pydantic import SecretStr
+
 from pydevlake import ScopeConfig, Field
 from pydevlake.model import ToolScope, ToolModel, Connection
 from pydevlake.pipeline_tasks import RefDiffOptions
 
 # needed to be able to run migrations
-import azuredevops.migrations
+from azuredevops.migrations import *
 
 
 class AzureDevOpsConnection(Connection):
@@ -91,6 +92,9 @@ class Build(ToolModel, table=True):
         NotStarted = "notStarted"
         Postponed = "postponed"
 
+        def __str__(self) -> str:
+            return self.name
+
     class BuildResult(Enum):
         Canceled = "canceled"
         Failed = "failed"
@@ -98,8 +102,12 @@ class Build(ToolModel, table=True):
         PartiallySucceeded = "partiallySucceeded"
         Succeeded = "succeeded"
 
+        def __str__(self) -> str:
+            return self.name
+
     id: int = Field(primary_key=True)
     name: str = Field(source='/definition/name')
+    queue_time: Optional[datetime.datetime] = Field(source='/queueTime')
     start_time: Optional[datetime.datetime]
     finish_time: Optional[datetime.datetime]
     status: BuildStatus
@@ -114,6 +122,9 @@ class Job(ToolModel, table=True):
         InProgress = "inProgress"
         Pending = "pending"
 
+        def __str__(self) -> str:
+            return self.name
+
     class JobResult(Enum):
         Abandoned = "abandoned"
         Canceled = "canceled"
@@ -121,6 +132,9 @@ class Job(ToolModel, table=True):
         Skipped = "skipped"
         Succeeded = "succeeded"
         SucceededWithIssues = "succeededWithIssues"
+
+        def __str__(self) -> str:
+            return self.name
 
     id: str = Field(primary_key=True)
     build_id: str = Field(primary_key=True)

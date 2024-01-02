@@ -27,6 +27,7 @@ import { ConnectionAppId } from './app-id';
 import { ConnectionSecretKey } from './secret-key';
 
 interface Props {
+  type: 'create' | 'update';
   name: string;
   fields: any[];
   initialValues: any;
@@ -36,7 +37,7 @@ interface Props {
   setErrors: (errors: any) => void;
 }
 
-export const Form = ({ name, fields, initialValues, values, errors, setValues, setErrors }: Props) => {
+export const Form = ({ type, name, fields, initialValues, values, errors, setValues, setErrors }: Props) => {
   const onValues = (values: any) => setValues((prev: any) => ({ ...prev, ...values }));
   const onErrors = (values: any) => setErrors((prev: any) => ({ ...prev, ...values }));
 
@@ -55,6 +56,7 @@ export const Form = ({ name, fields, initialValues, values, errors, setValues, s
     return fields.map((field) => {
       if (typeof field === 'function') {
         return field({
+          type,
           initialValues,
           values,
           setValues: onValues,
@@ -73,13 +75,13 @@ export const Form = ({ name, fields, initialValues, values, errors, setValues, s
         case 'username':
           return <ConnectionUsername key={key} {...getProps('username')} {...field} />;
         case 'password':
-          return <ConnectionPassword key={key} {...getProps('password')} {...field} />;
+          return <ConnectionPassword key={key} type={type} {...getProps('password')} {...field} />;
         case 'token':
-          return <ConnectionToken key={key} {...getProps('token')} {...field} />;
+          return <ConnectionToken key={key} type={type} {...getProps('token')} {...field} />;
         case 'appId':
           return <ConnectionAppId key={key} {...getProps('appId')} {...field} />;
         case 'secretKey':
-          return <ConnectionSecretKey key={key} {...getProps('secretKey')} {...field} />;
+          return <ConnectionSecretKey key={key} type={type} {...getProps('secretKey')} {...field} />;
         case 'proxy':
           return <ConnectionProxy key={key} {...getProps('proxy')} {...field} />;
         case 'rateLimitPerHour':

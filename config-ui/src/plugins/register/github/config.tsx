@@ -19,15 +19,16 @@
 import { pick } from 'lodash';
 
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 import { Token, Graphql, GithubApp, Authentication } from './connection-fields';
 
-export const GitHubConfig = {
+export const GitHubConfig: IPluginConfig = {
   plugin: 'github',
   name: 'GitHub',
-  icon: Icon,
-  sort: 1,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 5,
   connection: {
     docLink: DOC_URL.PLUGIN.GITHUB.BASIS,
     initialValues: {
@@ -52,10 +53,12 @@ export const GitHubConfig = {
           setValue={(value) => setValues({ authMethod: value })}
         />
       ),
-      ({ initialValues, values, errors, setValues, setErrors }: any) =>
+      ({ type, initialValues, values, errors, setValues, setErrors }: any) =>
         (values.authMethod || initialValues.authMethod) === 'AccessToken' ? (
           <Token
             key="token"
+            type={type}
+            connectionId={initialValues.id}
             endpoint={values.endpoint}
             proxy={values.proxy}
             initialValue={initialValues.token ?? ''}
@@ -66,6 +69,7 @@ export const GitHubConfig = {
           />
         ) : (
           <GithubApp
+            key="github-app"
             endpoint={values.endpoint}
             proxy={values.proxy}
             initialValue={initialValues ? pick(initialValues, ['appId', 'secretKey', 'installationId']) : {}}

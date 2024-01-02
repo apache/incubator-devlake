@@ -31,6 +31,7 @@ var scopeHelper *helper.ScopeApiHelper[models.CircleciConnection, models.Circlec
 var scHelper *helper.ScopeConfigHelper[models.CircleciScopeConfig, *models.CircleciScopeConfig]
 var remoteHelper *helper.RemoteApiHelper[models.CircleciConnection, models.CircleciProject, RemoteProject, helper.NoRemoteGroupResponse]
 var basicRes context.BasicRes
+var dsHelper *helper.DsHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
@@ -65,4 +66,18 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		vld,
 		p.Name(),
 	)
+
+	dsHelper = helper.NewDataSourceHelper[
+		models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
+		func(c models.CircleciConnection) models.CircleciConnection {
+			return c.Sanitize()
+		},
+		nil,
+		nil,
+	)
+
 }

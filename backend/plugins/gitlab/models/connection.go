@@ -19,12 +19,12 @@ package models
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 // GitlabConn holds the essential information to connect to the Gitlab API
@@ -33,7 +33,9 @@ type GitlabConn struct {
 	api.AccessToken    `mapstructure:",squash"`
 }
 
+const GitlabCloudEndPoint string = "https://gitlab.com/api/v4/"
 const GitlabApiClientData_UserId string = "UserId"
+const GitlabApiClientData_UserName string = "UserName"
 const GitlabApiClientData_ApiVersion string = "ApiVersion"
 
 // this function is used to rewrite the same function of AccessToken
@@ -41,8 +43,13 @@ func (conn *GitlabConn) SetupAuthentication(request *http.Request) errors.Error 
 	return nil
 }
 
+func (conn *GitlabConn) Sanitize() GitlabConn {
+	conn.Token = utils.SanitizeString(conn.Token)
+	return *conn
+}
+
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.
-func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+func (conn *GitlabConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	header1 := http.Header{}
 	header1.Set("Authorization", fmt.Sprintf("Bearer %v", conn.Token))
 	// test request for access token
@@ -104,6 +111,7 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 	}
 
 	apiClient.SetData(GitlabApiClientData_UserId, userResBody.Id)
+	apiClient.SetData(GitlabApiClientData_UserName, userResBody.Name)
 	apiClient.SetData(GitlabApiClientData_ApiVersion, versionResBody.Version)
 
 	return nil
@@ -137,4 +145,9 @@ type ApiUserResponse struct {
 
 func (GitlabConnection) TableName() string {
 	return "_tool_gitlab_connections"
+}
+
+func (connection GitlabConnection) Sanitize() GitlabConnection {
+	connection.GitlabConn = connection.GitlabConn.Sanitize()
+	return connection
 }

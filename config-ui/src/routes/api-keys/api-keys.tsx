@@ -17,11 +17,12 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Button, Tag, Intent, InputGroup } from '@blueprintjs/core';
+import { PlusOutlined } from '@ant-design/icons';
+import { Table, Modal, Input, Select, Button, Tag } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, Dialog, FormItem, Selector, ExternalLink, CopyText, Message } from '@/components';
+import { PageHeader, Block, ExternalLink, CopyText, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
@@ -52,8 +53,8 @@ export const ApiKeys = () => {
   const [dataSource, total] = useMemo(() => [data?.apikeys ?? [], data?.count ?? 0], [data]);
   const hasError = useMemo(() => !form.name || !form.allowedPath, [form]);
 
-  const timeSelectedItem = useMemo(() => {
-    return C.timeOptions.find((it) => it.value === form.expiredAt || !it.value);
+  const timeSelectedValue = useMemo(() => {
+    return C.timeOptions.find((it) => it.value === form.expiredAt || !it.value)?.value;
   }, [form.expiredAt]);
 
   const handleCancel = () => {
@@ -91,11 +92,17 @@ export const ApiKeys = () => {
 
   return (
     <PageHeader
-      breadcrumbs={[{ name: 'API Keys', path: '/api-keys' }]}
-      extra={<Button intent={Intent.PRIMARY} icon="plus" text="New API Key" onClick={() => setModal('create')} />}
+      breadcrumbs={[{ name: 'API Keys', path: '/keys' }]}
+      extra={
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal('create')}>
+          New API Key
+        </Button>
+      }
     >
       <p>You can generate and manage your API keys to access the DevLake API.</p>
       <Table
+        rowKey="id"
+        size="middle"
         loading={!ready}
         columns={[
           {
@@ -129,61 +136,60 @@ export const ApiKeys = () => {
             width: 100,
             render: (id) => (
               <Button
-                small
-                intent={Intent.DANGER}
-                text="Revoke"
+                size="small"
+                type="primary"
+                danger
                 onClick={() => {
                   setCurrentId(id);
                   setModal('delete');
                 }}
-              />
+              >
+                Revoke
+              </Button>
             ),
           },
         ]}
         dataSource={dataSource}
         pagination={{
-          page,
+          current: page,
           pageSize,
           total,
           onChange: setPage,
         }}
-        noData={{
-          text: 'There is no API key yet.',
-        }}
       />
       {modal === 'create' && (
-        <Dialog
-          style={{ width: 820 }}
-          isOpen
+        <Modal
+          open
+          width={820}
+          centered
           title="Generate a New API Key"
-          okLoading={operating}
           okText="Generate"
-          okDisabled={hasError}
+          okButtonProps={{
+            disabled: hasError,
+            loading: operating,
+          }}
           onCancel={handleCancel}
           onOk={handleSubmit}
         >
-          <FormItem label="API Key Name" subLabel="Give your API key a unique name to identify in the future." required>
-            <InputGroup
+          <Block title="API Key Name" description="Give your API key a unique name to identify in the future." required>
+            <Input
               style={{ width: 386 }}
               placeholder="My API Key"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
-          </FormItem>
-          <FormItem label="Expiration" subLabel="Set an expiration time for your API key." required>
-            <div style={{ width: 386 }}>
-              <Selector
-                items={C.timeOptions}
-                getKey={(it) => it.value}
-                getName={(it) => it.label}
-                selectedItem={timeSelectedItem}
-                onChangeItem={(it) => setForm({ ...form, expiredAt: it.value ? it.value : undefined })}
-              />
-            </div>
-          </FormItem>
-          <FormItem
-            label="Allowed Path"
-            subLabel={
+          </Block>
+          <Block title="Expiration" description="Set an expiration time for your API key." required>
+            <Select
+              style={{ width: 386 }}
+              options={C.timeOptions}
+              value={timeSelectedValue}
+              onChange={(value) => setForm({ ...form, expiredAt: value ? value : undefined })}
+            />
+          </Block>
+          <Block
+            title="Allowed Path"
+            description={
               <p>
                 Enter a Regular Expression that matches the API URL(s) from the{' '}
                 <ExternalLink link="/api/swagger/index.html">DevLake API docs</ExternalLink>. The default Regular
@@ -194,41 +200,38 @@ export const ApiKeys = () => {
           >
             <S.InputContainer>
               <span>{prefix}</span>
-              <InputGroup
+              <Input
                 placeholder=""
                 value={form.allowedPath}
                 onChange={(e) => setForm({ ...form, allowedPath: e.target.value })}
               />
             </S.InputContainer>
-          </FormItem>
-        </Dialog>
+          </Block>
+        </Modal>
       )}
       {modal === 'show' && (
-        <Dialog
-          style={{ width: 820 }}
-          isOpen
-          title="Your API key has been generated!"
-          footer={null}
-          onCancel={handleCancel}
-        >
+        <Modal open width={820} centered title="Your API key has been generated!" footer={null} onCancel={handleCancel}>
           <div style={{ marginBottom: 16 }}>
             Please make sure to copy your API key now. You will not be able to see it again.
           </div>
           <CopyText content={currentKey} />
-        </Dialog>
+        </Modal>
       )}
       {modal === 'delete' && (
-        <Dialog
-          style={{ width: 820 }}
-          isOpen
+        <Modal
+          open
+          width={820}
+          centered
           title="Are you sure you want to revoke this API key?"
-          okLoading={operating}
           okText="Confirm"
+          okButtonProps={{
+            loading: operating,
+          }}
           onCancel={handleCancel}
           onOk={handleRevoke}
         >
           <Message content="Any applications or scripts using this API key will no longer be able to access the DevLake API. You cannot undo this action." />
-        </Dialog>
+        </Modal>
       )}
     </PageHeader>
   );

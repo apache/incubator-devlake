@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"context"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
@@ -34,12 +37,28 @@ func MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId)
+	// load connection, scope and scopeConfig from the db
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopes, err := makeScopesV200(bpScopes, connectionId)
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// needed for the connection to populate its access tokens
+	// if AppKey authentication method is selected
+	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopes, err := makeScopesV200(scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -49,35 +68,32 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan coreModels.PipelinePlan,
-	bpScopes []*coreModels.BlueprintScope,
-	connectionId uint64,
+	scopeDetails []*srvhelper.ScopeDetail[models.JiraBoard, models.JiraScopeConfig],
+	connection *models.JiraConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
-	for i, bpScope := range bpScopes {
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
+	for i, scopeDetail := range scopeDetails {
 		stage := plan[i]
 		if stage == nil {
 			stage = coreModels.PipelineStage{}
 		}
+
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		// construct task options for Jira
-		options := make(map[string]interface{})
-		options["scopeId"] = bpScope.ScopeId
-		options["connectionId"] = connectionId
-
-		// get scope config from db
-		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, bpScope.ScopeId)
+		task, err := helper.MakePipelinePlanTask(
+			"jira",
+			subtaskMetas,
+			scopeConfig.Entities,
+			JiraTaskOptions{
+				ConnectionId: scope.ConnectionId,
+				BoardId:      scope.BoardId,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
-		if err != nil {
-			return nil, err
-		}
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "jira",
-			Subtasks: subtasks,
-			Options:  options,
-		})
+		stage = append(stage, task)
 		plan[i] = stage
 	}
 
@@ -85,16 +101,12 @@ func makeDataSourcePipelinePlanV200(
 }
 
 func makeScopesV200(
-	bpScopes []*coreModels.BlueprintScope,
-	connectionId uint64,
+	scopeDetails []*srvhelper.ScopeDetail[models.JiraBoard, models.JiraScopeConfig],
+	connection *models.JiraConnection,
 ) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
-	for _, bpScope := range bpScopes {
-		// get board and scope config from db
-		jiraBoard, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, bpScope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
+	for _, scopeDetail := range scopeDetails {
+		jiraBoard, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		// add board to scopes
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			domainBoard := &ticket.Board{

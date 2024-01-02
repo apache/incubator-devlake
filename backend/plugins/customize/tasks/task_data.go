@@ -17,6 +17,8 @@ limitations under the License.
 
 package tasks
 
+import "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+
 type MappingRules struct {
 	Table         string            `json:"table" example:"issues"`
 	RawDataTable  string            `json:"rawDataTable" example:"_raw_jira_api_issues"`
@@ -25,7 +27,8 @@ type MappingRules struct {
 }
 
 type Options struct {
-	TransformationRules []MappingRules `json:"transformationRules"`
+	TransformationRules  []MappingRules `json:"transformationRules"`
+	api.CollectorOptions `mapstructure:",squash"`
 }
 
 type TaskData struct {

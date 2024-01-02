@@ -17,15 +17,16 @@
  */
 
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
 import { DBUrl } from './connection-fields';
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 
-export const ZenTaoConfig = {
+export const ZenTaoConfig: IPluginConfig = {
   plugin: 'zentao',
   name: 'ZenTao',
-  icon: Icon,
-  sort: 10,
+  icon: ({ color }) => <Icon fill={color} />,
+  sort: 13,
   connection: {
     docLink: DOC_URL.PLUGIN.ZENTAO.BASIS,
     fields: [

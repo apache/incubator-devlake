@@ -17,10 +17,9 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { Flex, Button } from 'antd';
 
 import API from '@/api';
-import { Buttons } from '@/components';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
@@ -56,7 +55,7 @@ export const DataScopeRemote = ({ plugin, connectionId, disabledScope, onCancel,
   };
 
   return (
-    <>
+    <Flex vertical>
       {config.render ? (
         config.render({
           connectionId,
@@ -83,17 +82,14 @@ export const DataScopeRemote = ({ plugin, connectionId, disabledScope, onCancel,
           onChange={setSelectedScope}
         />
       )}
-      <Buttons position="bottom" align="right">
-        <Button outlined intent={Intent.PRIMARY} text="Cancel" disabled={operating} onClick={onCancel} />
-        <Button
-          outlined
-          intent={Intent.PRIMARY}
-          text="Save"
-          loading={operating}
-          disabled={!selectedScope.length}
-          onClick={handleSubmit}
-        />
-      </Buttons>
-    </>
+      <Flex justify="flex-end" gap="small">
+        <Button disabled={operating} onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="primary" loading={operating} disabled={!selectedScope.length} onClick={handleSubmit}>
+          Save
+        </Button>
+      </Flex>
+    </Flex>
   );
 };

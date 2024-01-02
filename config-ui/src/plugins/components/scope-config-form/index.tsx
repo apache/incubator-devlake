@@ -18,11 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
-import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { Flex, Form, Input, Card, Alert, Divider, Select, Button } from 'antd';
 
 import API from '@/api';
-import { Alert, ExternalLink, Card, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
-import { transformEntities, EntitiesLabel } from '@/config';
+import { ExternalLink, Block, Message } from '@/components';
+import { transformEntities } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
 import { JiraTransformation } from '@/plugins/register/jira';
@@ -34,9 +34,7 @@ import { TapdTransformation } from '@/plugins/register/tapd';
 import { BambooTransformation } from '@/plugins/register/bamboo';
 import { operator } from '@/utils';
 
-import { AdditionalSettings } from './fields';
 import { TIPS_MAP } from './misc';
-import * as S from './styled';
 
 interface Props {
   plugin: string;
@@ -61,14 +59,12 @@ export const ScopeConfigForm = ({
   const [name, setName] = useState('');
   const [entities, setEntities] = useState<string[]>([]);
   const [transformation, setTransformation] = useState<any>({});
-  const [hasRefDiff, setHasRefDiff] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [operating, setOperating] = useState(false);
 
   const config = useMemo(() => getPluginConfig(plugin), []);
 
   useEffect(() => {
-    setHasRefDiff(!!config.scopeConfig?.transformation.refdiff);
     setTransformation(config.scopeConfig?.transformation ?? {});
   }, [config.scopeConfig?.transformation]);
 
@@ -115,11 +111,10 @@ export const ScopeConfigForm = ({
   };
 
   return (
-    <S.Wrapper>
+    <Flex vertical gap="middle">
       {TIPS_MAP[plugin] && (
         <Alert
-          style={{ marginBottom: 24 }}
-          content={
+          message={
             <>
               To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
               <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
@@ -130,18 +125,18 @@ export const ScopeConfigForm = ({
       {step === 1 && (
         <>
           <Card>
-            <FormItem
-              label="Scope Config Name"
-              subLabel="Give this Scope Config a unique name so that you can identify it in the future."
+            <Block
+              title="Scope Config Name"
+              description="Give this Scope Config a unique name so that you can identify it in the future."
               required
             >
-              <InputGroup placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
-            </FormItem>
+              <Input placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
+            </Block>
           </Card>
           <Card>
-            <FormItem
-              label="Data Entities"
-              subLabel={
+            <Block
+              title="Data Entities"
+              description={
                 <>
                   Select the data entities you wish to collect for the Data Scope.
                   <ExternalLink link="">Learn about data entities</ExternalLink>
@@ -149,14 +144,14 @@ export const ScopeConfigForm = ({
               }
               required
             >
-              <MultiSelector
-                items={transformEntities(config.scopeConfig?.entities ?? [])}
-                getKey={(it) => it.value}
-                getName={(it) => it.label}
-                selectedItems={entities.map((it) => ({ label: EntitiesLabel[it], value: it }))}
-                onChangeItems={(its) => setEntities(its.map((it) => it.value))}
+              <Select
+                style={{ width: '100%' }}
+                mode="multiple"
+                options={transformEntities(config.scopeConfig?.entities ?? [])}
+                value={entities}
+                onChange={(value) => setEntities(value)}
               />
-            </FormItem>
+            </Block>
             {showWarning && (
               <Message
                 content="Please note: if you edit Data Entities and expect to see the Dashboards updated, you will need to visit
@@ -165,15 +160,17 @@ export const ScopeConfigForm = ({
               />
             )}
           </Card>
-          <Buttons position="bottom" align="right">
-            <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-            <Button disabled={!name || !entities.length} intent={Intent.PRIMARY} text="Next" onClick={handleNextStep} />
-          </Buttons>
+          <Flex justify="flex-end" gap="small">
+            <Button onClick={onCancel}>Cancel</Button>
+            <Button type="primary" disabled={!name || !entities.length} onClick={handleNextStep}>
+              Next
+            </Button>
+          </Flex>
         </>
       )}
       {step === 2 && (
         <>
-          <Card style={{ margin: 0 }}>
+          <Card>
             <h1 style={{ marginBottom: 16 }}>Transformations</h1>
             <Divider />
             {showWarning && (
@@ -183,89 +180,85 @@ export const ScopeConfigForm = ({
               />
             )}
 
-            {plugin === 'github' && (
-              <GitHubTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-                setHasError={setHasError}
-              />
-            )}
+            <Form labelCol={{ span: 4 }} wrapperCol={{ span: 16 }}>
+              {plugin === 'azuredevops' && (
+                <AzureTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'jira' && (
-              <JiraTransformation
-                entities={entities}
-                connectionId={connectionId}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'bamboo' && (
+                <BambooTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'gitlab' && (
-              <GitLabTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-                setHasError={setHasError}
-              />
-            )}
+              {plugin === 'bitbucket' && (
+                <BitbucketTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'jenkins' && (
-              <JenkinsTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'github' && (
+                <GitHubTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                  setHasError={setHasError}
+                />
+              )}
 
-            {plugin === 'bitbucket' && (
-              <BitbucketTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'gitlab' && (
+                <GitLabTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                  setHasError={setHasError}
+                />
+              )}
 
-            {plugin === 'azuredevops' && (
-              <AzureTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'jenkins' && (
+                <JenkinsTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'tapd' && scopeId && (
-              <TapdTransformation
-                entities={entities}
-                connectionId={connectionId}
-                scopeId={scopeId}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
+              {plugin === 'jira' && (
+                <JiraTransformation
+                  entities={entities}
+                  connectionId={connectionId}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
 
-            {plugin === 'bamboo' && (
-              <BambooTransformation
-                entities={entities}
-                transformation={transformation}
-                setTransformation={setTransformation}
-              />
-            )}
-
-            {hasRefDiff && <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />}
+              {plugin === 'tapd' && scopeId && (
+                <TapdTransformation
+                  entities={entities}
+                  connectionId={connectionId}
+                  scopeId={scopeId}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
+            </Form>
           </Card>
-          <Buttons position="bottom" align="right">
-            <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
-            <Button
-              loading={operating}
-              disabled={hasError}
-              intent={Intent.PRIMARY}
-              text="Save"
-              onClick={handleSubmit}
-            />
-          </Buttons>
+          <Flex justify="flex-end" gap="small">
+            <Button onClick={handlePrevStep}>Prev</Button>
+            <Button type="primary" loading={operating} disabled={hasError} onClick={handleSubmit}>
+              Save
+            </Button>
+          </Flex>
         </>
       )}
-    </S.Wrapper>
+    </Flex>
   );
 };

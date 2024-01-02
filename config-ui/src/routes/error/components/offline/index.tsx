@@ -16,13 +16,13 @@
  *
  */
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon, Tag, Button, Intent, Colors, IconName } from '@blueprintjs/core';
+import { CheckCircleOutlined, CloseCircleOutlined, RedoOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Card, Flex, Button, Tag } from 'antd';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Card, Buttons } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 
 export const Offline = () => {
@@ -50,11 +50,6 @@ export const Offline = () => {
 
   const { online } = data || { online: false };
 
-  const [icon, color, text] = useMemo(
-    () => [online ? 'endorsed' : 'offline', online ? Colors.GREEN3 : Colors.RED3, data ? 'Online' : 'Offline'],
-    [online],
-  );
-
   const handleContinue = () => {
     navigate('/');
   };
@@ -62,9 +57,11 @@ export const Offline = () => {
   return (
     <Card>
       <h2>
-        <Icon icon={icon as IconName} color={color} size={30} />
+        {online ? <CheckCircleOutlined color="#4db764" size={30} /> : <CloseCircleOutlined color="#f5222d" size={30} />}
         <span>DevLake API</span>
-        <strong style={{ marginLeft: 4, color }}>{text}</strong>
+        <strong style={{ marginLeft: 4, color: online ? '#4db764' : '#f5222d' }}>
+          {online ? 'Online' : 'Offline'}
+        </strong>
       </h2>
       <p>
         <Tag>DEVLAKE_ENDPOINT: {DEVLAKE_ENDPOINT}</Tag>
@@ -75,24 +72,21 @@ export const Offline = () => {
             Please wait for the&nbsp;
             <strong>Lake API</strong> to start before accessing the <strong>Configuration Interface</strong>.
           </p>
-          <Buttons position="bottom" align="center">
-            <Button
-              loading={loading}
-              icon="refresh"
-              intent={Intent.PRIMARY}
-              text="Refresh"
-              onClick={() => setVersion((v) => v + 1)}
-            />
-          </Buttons>
+          <Flex justify="center">
+            <Button type="primary" loading={loading} icon={<RedoOutlined />} onClick={() => setVersion((v) => v + 1)}>
+              Refresh
+            </Button>
+          </Flex>
         </>
       ) : (
         <>
           <p>Connectivity to the Lake API service was successful.</p>
-          <Buttons position="bottom" align="center">
-            <Button intent={Intent.PRIMARY} text="Continue" onClick={handleContinue} />
+          <Flex justify="center">
+            <Button type="primary" onClick={handleContinue}>
+              Continue
+            </Button>
             <Button
-              icon="help"
-              text="Read Documentation"
+              icon={<QuestionCircleOutlined />}
               onClick={() =>
                 window.open(
                   'https://github.com/apache/incubator-devlake/blob/main/README.md',
@@ -100,8 +94,10 @@ export const Offline = () => {
                   'noopener,noreferrer',
                 )
               }
-            />
-          </Buttons>
+            >
+              Read Documentation
+            </Button>
+          </Flex>
         </>
       )}
     </Card>

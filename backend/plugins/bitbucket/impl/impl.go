@@ -207,8 +207,15 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/scopes/*scopeId": {
-			"GET":    api.GetScope,
+			// Behind 'GetScopeDispatcher', there are two paths so far:
+			// GetScopeLatestSyncState "connections/:connectionId/scopes/:scopeId/latest-sync-state"
+			// GetScope "connections/:connectionId/scopes/:scopeId"
+			// Because there may be slash in scopeId, so we handle it manually.
+			"GET":    api.GetScopeDispatcher,
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},

@@ -36,7 +36,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
@@ -136,7 +135,7 @@ func makePipelinePlanV200(
 		})
 
 		// collect git data by gitextractor if CODE was requested
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) || len(scopeConfig.Entities) == 0 {
 			cloneUrl, err := errors.Convert01(url.Parse(gitlabProject.HttpUrlToRepo))
 			if err != nil {
 				return nil, err
@@ -169,7 +168,7 @@ func makePipelinePlanV200(
 
 func GetApiProject(
 	op *tasks.GitlabOptions,
-	apiClient aha.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 ) (*models.GitlabApiProject, errors.Error) {
 	repoRes := &models.GitlabApiProject{}
 	res, err := apiClient.Get(fmt.Sprintf("projects/%d", op.ProjectId), nil, nil)

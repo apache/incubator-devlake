@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,6 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"reflect"
+	"time"
 )
 
 func init() {
@@ -87,28 +87,38 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*models.GithubRun)
+			createdAt := time.Now()
+			if line.GithubCreatedAt != nil {
+				createdAt = *line.GithubCreatedAt
+			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{Id: runIdGen.Generate(
 					data.Options.ConnectionId, line.RepoId, line.ID),
 				},
-				Name:         line.Name,
-				CreatedDate:  *line.GithubCreatedAt,
-				FinishedDate: line.GithubUpdatedAt,
-				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
-				Type:         line.Type,
-				Environment:  line.Environment,
+				Name: line.Name,
+				TaskDatesInfo: devops.TaskDatesInfo{
+					CreatedDate:  createdAt,
+					StartedDate:  line.RunStartedAt,
+					FinishedDate: line.GithubUpdatedAt,
+				},
+				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
+				Type:        line.Type,
+				Environment: line.Environment,
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"failure"},
-					Success: []string{"success"},
-					Skipped: []string{"skipped"},
+					Success: []string{StatusSuccess},
+					Failure: []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
+					Default: devops.RESULT_DEFAULT,
 				}, line.Conclusion),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"completed", "COMPLETED"},
-					Default: devops.STATUS_IN_PROGRESS,
+				OriginalResult: line.Conclusion,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{StatusCompleted, StatusSuccess, StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
+					InProgress: []string{StatusInProgress, StatusQueued, StatusWaiting, StatusPending},
+					Default:    devops.STATUS_OTHER,
 				}, line.Status),
+				OriginalStatus: line.Status,
 			}
-			if domainPipeline.Status == devops.STATUS_DONE {
-				domainPipeline.DurationSec = uint64(line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds())
+			if line.GithubUpdatedAt != nil && line.RunStartedAt != nil {
+				domainPipeline.DurationSec = float64(line.GithubUpdatedAt.Sub(*line.RunStartedAt).Milliseconds() / 1e3)
 			}
 
 			domainPipelineCommit := &devops.CiCDPipelineCommit{

@@ -17,9 +17,9 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup, InputGroup } from '@blueprintjs/core';
+import { Input } from 'antd';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
   name: string;
@@ -44,16 +44,12 @@ export const ConnectionName = ({ initialValue, value, setValue, setError }: Prop
   };
 
   return (
-    <FormGroup
-      label={<S.Label>Connection Name</S.Label>}
-      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={
-        <S.LabelDescription>
-          Give your connection a unique name to help you identify it in the future.
-        </S.LabelDescription>
-      }
+    <Block
+      title="Connection Name"
+      description="Give your connection a unique name to help you identify it in the future."
+      required
     >
-      <InputGroup placeholder="Your Connection Name" value={value} onChange={handleChange} />
-    </FormGroup>
+      <Input style={{ width: 386 }} placeholder="Your Connection Name" value={value} onChange={handleChange} />
+    </Block>
   );
 };

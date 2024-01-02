@@ -17,11 +17,11 @@
  */
 
 import { useState } from 'react';
-import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Card, Flex, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
-import { Card, Buttons } from '@/components';
 import { operator } from '@/utils';
 
 export const NeedsDBMigrate = () => {
@@ -42,7 +42,7 @@ export const NeedsDBMigrate = () => {
   return (
     <Card>
       <h2>
-        <Icon icon="outdated" color={Colors.ORANGE5} size={20} />
+        <ExclamationCircleOutlined size={20} color="#fa541c" />
         <span>New Migration Scripts Detected</span>
       </h2>
       <p>
@@ -52,14 +52,11 @@ export const NeedsDBMigrate = () => {
       <p className="warning">
         Warning: Performing migration may wipe collected data for consistency and re-collecting data may be required.
       </p>
-      <Buttons position="bottom" align="center">
-        <Button
-          loading={operating}
-          text="Proceed to Database Migration"
-          intent={Intent.PRIMARY}
-          onClick={handleSubmit}
-        />
-      </Buttons>
+      <Flex justify="center">
+        <Button type="primary" loading={operating} onClick={handleSubmit}>
+          Proceed to Database Migration
+        </Button>
+      </Flex>
     </Card>
   );
 };

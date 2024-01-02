@@ -16,12 +16,14 @@
  *
  */
 
+import { RedoOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 import styled from 'styled-components';
 
 import { useAppDispatch } from '@/app/hook';
-import { IconButton } from '@/components';
 import { testConnection } from '@/features/connections';
 import { IConnection, IConnectionStatus } from '@/types';
+import { operator } from '@/utils';
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -52,13 +54,18 @@ export const ConnectionStatus = ({ connection }: Props) => {
 
   const dispatch = useAppDispatch();
 
-  const handleTest = () => dispatch(testConnection(connection));
+  const handleTest = () => operator(() => dispatch(testConnection(connection)).unwrap());
 
   return (
     <Wrapper>
       <span className={status}>{STATUS_MAP[status]}</span>
       {status !== IConnectionStatus.ONLINE && (
-        <IconButton loading={status === IConnectionStatus.TESTING} icon="repeat" tooltip="Retry" onClick={handleTest} />
+        <Button
+          type="text"
+          loading={status === IConnectionStatus.TESTING}
+          icon={<RedoOutlined />}
+          onClick={handleTest}
+        />
       )}
     </Wrapper>
   );

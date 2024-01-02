@@ -19,27 +19,28 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractDeployment
 
 func init() {
-	RegisterSubtaskMeta(ExtractDeploymentMeta)
+	RegisterSubtaskMeta(&ExtractDeploymentMeta)
 }
 
-var ExtractDeploymentMeta = &plugin.SubTaskMeta{
+var ExtractDeploymentMeta = plugin.SubTaskMeta{
 	Name:             "ExtractDeployment",
 	EntryPoint:       ExtractDeployment,
 	EnabledByDefault: true,
 	Description:      "Extract gitlab deployment from raw layer to tool layer",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	Dependencies:     []*plugin.SubTaskMeta{CollectDeploymentMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectDeploymentMeta},
 }
 
 func ExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
@@ -141,6 +142,7 @@ func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64, gitlabId i
 		DeployableCreatedAt:         r.Deployable.CreatedAt,
 		DeployableFinishedAt:        r.Deployable.FinishedAt,
 		DeployableDuration:          r.Deployable.Duration,
+		QueuedDuration:              r.Deployable.QueuedDuration,
 	}
 }
 

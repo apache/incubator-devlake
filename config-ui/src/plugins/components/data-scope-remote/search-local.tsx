@@ -17,13 +17,14 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Button, InputGroup, Icon, Intent } from '@blueprintjs/core';
+import { CheckCircleFilled, SearchOutlined } from '@ant-design/icons';
+import { Form, Space, Tag, Button, Input, Modal, message } from 'antd';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import { MillerColumnsSelect } from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 
 import API from '@/api';
-import { FormItem, MultiSelector, Loading, Dialog, Message } from '@/components';
+import { Loading, Message } from '@/components';
 import { IPluginConfig } from '@/types';
 
 import * as T from './types';
@@ -45,6 +46,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
     items: McsItem<T.ResItem>[];
     loadedIds: ID[];
     expandedIds: ID[];
+    errorId?: ID | null;
     nextTokenMap: Record<ID, string>;
   }>({
     items: [],
@@ -53,7 +55,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
     nextTokenMap: {},
   });
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [status, setStatus] = useState('init');
 
   const [query, setQuery] = useState('');
@@ -88,29 +90,40 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
       return;
     }
 
-    const res = await API.scope.remote(plugin, connectionId, {
-      groupId,
-      pageToken: currentPageToken,
-    });
+    let newItems: McsItem<T.ResItem>[] = [];
+    let nextPageToken = '';
+    let errorId: ID | null;
 
-    const newItems = (res.children ?? []).map((it) => ({
-      ...it,
-      title: it.name,
-    }));
+    try {
+      const res = await API.scope.remote(plugin, connectionId, {
+        groupId,
+        pageToken: currentPageToken,
+      });
 
-    if (res.nextPageToken) {
+      newItems = (res.children ?? []).map((it) => ({
+        ...it,
+        title: it.name,
+      }));
+
+      nextPageToken = res.nextPageToken;
+    } catch (err: any) {
+      errorId = groupId;
+      message.error(err.response.data.message);
+    }
+
+    if (nextPageToken) {
       setMiller((m) => ({
         ...m,
         items: [...m.items, ...newItems],
         expandedIds: [...m.expandedIds, groupId ?? 'root'],
         nextTokenMap: {
           ...m.nextTokenMap,
-          [`${groupId ? groupId : 'root'}`]: res.nextPageToken,
+          [`${groupId ? groupId : 'root'}`]: nextPageToken,
         },
       }));
 
       if (loadAll) {
-        await getItems({ groupId, currentPageToken: res.nextPageToken, loadAll });
+        await getItems({ groupId, currentPageToken: nextPageToken, loadAll });
       }
     } else {
       setMiller((m) => ({
@@ -118,6 +131,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
         items: [...m.items, ...newItems],
         expandedIds: [...m.expandedIds, groupId ?? 'root'],
         loadedIds: [...m.loadedIds, groupId ?? 'root'],
+        errorId,
       }));
 
       const groupItems = newItems.filter((it) => it.type === 'group');
@@ -142,7 +156,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
   }, [miller]);
 
   const handleLoadAllScopes = async () => {
-    setIsOpen(false);
+    setOpen(false);
     setStatus('loading');
 
     if (!miller.loadedIds.includes('root')) {
@@ -171,52 +185,54 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
   };
 
   return (
-    <S.Wrapper>
-      <FormItem label={config.title} required>
-        <MultiSelector
-          disabled
-          items={selectedScope}
-          getKey={(it) => it.id}
-          getName={(it) => it.fullName ?? it.name}
-          selectedItems={selectedScope}
-        />
-      </FormItem>
-      <FormItem>
+    <Form layout="vertical">
+      <Form.Item label={config.title} required>
+        <Space wrap>
+          {selectedScope.length ? (
+            selectedScope.map((sc) => (
+              <Tag
+                key={sc.id}
+                color="blue"
+                closable
+                onClose={() => onChange(selectedScope.filter((it) => it.id !== sc.id))}
+              >
+                {sc.fullName}
+              </Tag>
+            ))
+          ) : (
+            <span>Please select scope...</span>
+          )}
+        </Space>
+      </Form.Item>
+      <Form.Item>
         {(status === 'loading' || status === 'cancel') && (
           <S.JobLoad>
             <Loading style={{ marginRight: 8 }} size={20} />
             Loading: <span className="count">{miller.items.length}</span> scopes found
-            <Button
-              style={{ marginLeft: 8 }}
-              loading={status === 'cancel'}
-              small
-              text="Cancel"
-              onClick={handleCancelLoadAllScopes}
-            />
+            <Button style={{ marginLeft: 8 }} loading={status === 'cancel'} onClick={handleCancelLoadAllScopes}>
+              Cancel
+            </Button>
           </S.JobLoad>
         )}
 
         {status === 'loaded' && (
           <S.JobLoad>
-            <Icon icon="endorsed" style={{ color: '#4DB764' }} />
+            <CheckCircleFilled style={{ color: '#4DB764' }} />
             <span className="count">{miller.items.length}</span> scopes found
           </S.JobLoad>
         )}
 
         {status === 'init' && (
           <S.JobLoad>
-            <Button
-              disabled={!miller.items.length}
-              intent={Intent.PRIMARY}
-              text="Load all scopes to search by keywords"
-              onClick={() => setIsOpen(true)}
-            />
+            <Button type="primary" disabled={!miller.items.length} onClick={() => setOpen(true)}>
+              Load all scopes to search by keywords
+            </Button>
           </S.JobLoad>
         )}
-      </FormItem>
-      <FormItem>
+      </Form.Item>
+      <Form.Item>
         {status === 'loaded' && (
-          <InputGroup leftIcon="search" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input prefix={<SearchOutlined />} value={query} onChange={(e) => setQuery(e.target.value)} />
         )}
         <MillerColumnsSelect
           items={scopes}
@@ -224,6 +240,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
           columnHeight={300}
           getCanExpand={(it) => it.type === 'group'}
           getHasMore={(id) => !miller.loadedIds.includes(id ?? 'root')}
+          getHasError={(id) => id === miller.errorId}
           onExpand={(id: McsID) => getItems({ groupId: id })}
           onScroll={(id: McsID | null) =>
             getItems({ groupId: id, currentPageToken: miller.nextTokenMap[id ?? 'root'] })
@@ -235,15 +252,16 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
             )
           }
           renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+          renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
           disabledIds={(disabledScope ?? []).map((it) => it.id)}
           selectedIds={selectedScope.map((it) => it.id)}
           onSelectItemIds={(selectedIds: ID[]) => onChange(miller.items.filter((it) => selectedIds.includes(it.id)))}
           expandedIds={miller.expandedIds}
         />
-      </FormItem>
-      <Dialog isOpen={isOpen} okText="Load" onCancel={() => setIsOpen(false)} onOk={handleLoadAllScopes}>
+      </Form.Item>
+      <Modal open={open} centered onOk={handleLoadAllScopes} onCancel={() => setOpen(false)}>
         <Message content={`This operation may take a long time, as it iterates through all the ${config.title}.`} />
-      </Dialog>
-    </S.Wrapper>
+      </Modal>
+    </Form>
   );
 };

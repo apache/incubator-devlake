@@ -35,7 +35,7 @@ var logger log.Logger
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig]
-
+var dsHelper *api.DsHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig]
 var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.BaseRemoteGroupResponse]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.ZentaoScopeConfig, *models.ZentaoScopeConfig]
@@ -65,4 +65,16 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 
 	projectRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.BaseRemoteGroupResponse](basicRes, vld, connectionHelper)
 	scHelper = api.NewScopeConfigHelper[models.ZentaoScopeConfig, *models.ZentaoScopeConfig](basicRes, vld, p.Name())
+	dsHelper = api.NewDataSourceHelper[
+		models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
+		func(c models.ZentaoConnection) models.ZentaoConnection {
+			return c.Sanitize()
+		},
+		nil,
+		nil,
+	)
 }

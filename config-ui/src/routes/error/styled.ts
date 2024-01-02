@@ -17,7 +17,6 @@
  */
 
 import styled from 'styled-components';
-import { Colors } from '@blueprintjs/core';
 
 export const Wrapper = styled.div`
   display: flex;
@@ -37,17 +36,13 @@ export const Inner = styled.div`
     display: flex;
     align-items: center;
     margin: 0;
-
-    .bp5-icon {
-      margin-right: 4px;
-    }
   }
 
   p {
     margin: 16px 0;
 
     &.warning {
-      color: ${Colors.ORANGE5};
+      color: #fa541c;
     }
   }
 `;

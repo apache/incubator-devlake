@@ -18,13 +18,15 @@
 
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Tabs, Tab } from '@blueprintjs/core';
+import { Tabs } from 'antd';
 import useUrlState from '@ahooksjs/use-url-state';
 
 import API from '@/api';
 import { PageHeader, PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { BlueprintDetail, FromEnum } from '@/pages';
+
+import { encodeName } from '../utils';
 
 import { WebhooksPanel } from './webhooks-panel';
 import { SettingsPanel } from './settings-panel';
@@ -36,7 +38,7 @@ export const ProjectDetailPage = () => {
   const { pname } = useParams() as { pname: string };
   const [query, setQuery] = useUrlState({ tabId: 'blueprint' });
 
-  const { ready, data } = useRefreshData(() => API.project.get(pname), [pname, version]);
+  const { ready, data } = useRefreshData(() => API.project.get(encodeName(pname)), [pname, version]);
 
   const handleChangeTabId = (tabId: string) => {
     setQuery({ tabId });
@@ -58,15 +60,27 @@ export const ProjectDetailPage = () => {
       ]}
     >
       <S.Wrapper>
-        <Tabs selectedTabId={query.tabId} onChange={handleChangeTabId}>
-          <Tab
-            id="blueprint"
-            title="Blueprint"
-            panel={<BlueprintDetail id={data.blueprint.id} from={FromEnum.project} />}
-          />
-          <Tab id="webhook" title="Webhooks" panel={<WebhooksPanel project={data} onRefresh={handleRefresh} />} />
-          <Tab id="settings" title="Settings" panel={<SettingsPanel project={data} onRefresh={handleRefresh} />} />
-        </Tabs>
+        <Tabs
+          items={[
+            {
+              key: 'blueprint',
+              label: 'Blueprint',
+              children: <BlueprintDetail id={data.blueprint.id} from={FromEnum.project} />,
+            },
+            {
+              key: 'webhook',
+              label: 'Webhooks',
+              children: <WebhooksPanel project={data} onRefresh={handleRefresh} />,
+            },
+            {
+              key: 'settings',
+              label: 'Settings',
+              children: <SettingsPanel project={data} onRefresh={handleRefresh} />,
+            },
+          ]}
+          activeKey={query.tabId}
+          onChange={handleChangeTabId}
+        />
       </S.Wrapper>
     </PageHeader>
   );

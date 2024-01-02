@@ -17,10 +17,10 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { Modal, Button } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { Dialog, FormItem, CopyText, ExternalLink, Message } from '@/components';
+import { Block, CopyText, ExternalLink, Message } from '@/components';
 import { selectWebhook, renewWebhookApiKey } from '@/features';
 import { IWebhook } from '@/types';
 import { operator } from '@/utils';
@@ -32,10 +32,10 @@ interface Props {
   onCancel: () => void;
 }
 
-const transformURI = (prefix: string, webhook: IWebhook) => {
+const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
   return {
     postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      webhook.apiKey ?? '{API_KEY}'
+      apiKey ?? '{API_KEY}'
     }' -d '{
         "issue_key":"DLK-1234",
         "title":"a feature from DLK",
@@ -46,46 +46,52 @@ const transformURI = (prefix: string, webhook: IWebhook) => {
         "updated_date":"2020-01-01T12:00:00+00:00"
      }'`,
     closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      webhook.apiKey ?? '{API_KEY}'
+      apiKey ?? '{API_KEY}'
     }'`,
     postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      webhook.apiKey ?? '{API_KEY}'
+      apiKey ?? '{API_KEY}'
     }' -d '{
-         "commit_sha":"the sha of deployment commit",
-         "repo_url":"the repo URL of the deployment commit",
-         "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
+      "deploymentCommits":[
+        {
+        "commit_sha":"the sha of deployment commit1",
+        "repo_url":"the repo URL of the deployment commit"
+        }
+      ],
+      "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
      }'`,
   };
 };
 
 export const ViewDialog = ({ initialId, onCancel }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [operating, setOperating] = useState(false);
+  const [apiKey, setApiKey] = useState('');
 
   const dispatch = useAppDispatch();
   const webhook = useAppSelector((state) => selectWebhook(state, initialId)) as IWebhook;
   const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
-  const URI = transformURI(prefix, webhook);
+  const URI = transformURI(prefix, webhook, apiKey);
 
   const handleGenerateNewKey = async () => {
-    const [success] = await operator(() => dispatch(renewWebhookApiKey(initialId)), {
+    const [success, res] = await operator(async () => await dispatch(renewWebhookApiKey(initialId)).unwrap(), {
       setOperating,
     });
 
     if (success) {
-      setIsOpen(false);
+      setApiKey(res.apiKey);
+      setOpen(false);
     }
   };
 
   return (
-    <Dialog style={{ width: 820 }} isOpen title="View Webhook" footer={null} onCancel={onCancel}>
+    <Modal open width={820} centered title="View Webhook" footer={null} onCancel={onCancel}>
       <S.Wrapper>
         <p>
           Copy the following CURL commands to your issue tracking or CI/CD tools to push `Incidents` and `Deployments`
           by making a POST to DevLake. Please replace the {'{'}API_KEY{'}'} in the following URLs.
         </p>
-        <FormItem label="Incident">
+        <Block title="Incident">
           <h5>Post to register/update an incident</h5>
           <CopyText content={URI.postIssuesEndpoint} />
           <p>
@@ -104,8 +110,8 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
             </ExternalLink>
             .
           </p>
-        </FormItem>
-        <FormItem label="Deployments">
+        </Block>
+        <Block title="Deployments">
           <h5>Post to register a deployment</h5>
           <CopyText content={URI.postDeploymentsCurl} />
           <p>
@@ -115,17 +121,19 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
             </ExternalLink>
             .
           </p>
-        </FormItem>
-        <FormItem
-          label="API Key"
-          subLabel="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."
+        </Block>
+        <Block
+          title="API Key"
+          description="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."
         >
-          {!webhook.apiKey ? (
-            <Button intent={Intent.PRIMARY} text="Revoke and generate a new key" onClick={() => setIsOpen(true)} />
+          {!apiKey ? (
+            <Button type="primary" onClick={() => setOpen(true)}>
+              Revoke and generate a new key
+            </Button>
           ) : (
             <>
               <S.ApiKey>
-                <CopyText content={webhook.apiKey} />
+                <CopyText content={apiKey} />
                 <span>No Expiration</span>
               </S.ApiKey>
               <S.Tips>
@@ -133,20 +141,23 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
               </S.Tips>
             </>
           )}
-        </FormItem>
+        </Block>
       </S.Wrapper>
-      <Dialog
-        style={{ width: 820 }}
-        isOpen={isOpen}
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Are you sure you want to revoke the previous API key and  generate a new one?"
-        cancelText="Go Back"
         okText="Confirm"
-        okLoading={operating}
-        onCancel={() => setIsOpen(false)}
+        cancelText="Go Back"
+        okButtonProps={{
+          loading: operating,
+        }}
+        onCancel={() => setOpen(false)}
         onOk={handleGenerateNewKey}
       >
         <Message content="Once this action is done, the previous API key will become invalid and you will need to enter the new key in the application that uses this Webhook API." />
-      </Dialog>
-    </Dialog>
+      </Modal>
+    </Modal>
   );
 };

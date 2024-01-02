@@ -31,6 +31,7 @@ var basicRes context.BasicRes
 var scopeHelper *api.ScopeApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse]
 var scHelper *api.ScopeConfigHelper[models.TapdScopeConfig, *models.TapdScopeConfig]
+var dsHelper *api.DsHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 
@@ -66,4 +67,18 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		vld,
 		p.Name(),
 	)
+
+	dsHelper = api.NewDataSourceHelper[
+		models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
+		func(c models.TapdConnection) models.TapdConnection {
+			return c.Sanitize()
+		},
+		nil,
+		nil,
+	)
+
 }

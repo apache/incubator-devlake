@@ -29,16 +29,17 @@ export const transformConnection = (plugin: string, connection: IConnectionAPI):
     id: connection.id,
     name: connection.name,
     status: IConnectionStatus.IDLE,
-    icon: config.icon,
-    isBeta: config.isBeta ?? false,
     endpoint: connection.endpoint,
-    proxy: connection.proxy,
     authMethod: connection.authMethod,
     token: connection.token,
     username: connection.username,
     password: connection.password,
     appId: connection.appId,
     secretKey: connection.secretKey,
+    dbUrl: connection.dbUrl,
+    proxy: connection.proxy,
+    enableGraphql: connection.enableGraphql,
+    rateLimitPerHour: connection.rateLimitPerHour,
   };
 };
 
@@ -49,7 +50,6 @@ export const transformWebhook = (connection: IWebhookAPI): IWebhook => {
     postIssuesEndpoint: connection.postIssuesEndpoint,
     closeIssuesEndpoint: connection.closeIssuesEndpoint,
     postPipelineDeployTaskEndpoint: connection.postPipelineDeployTaskEndpoint,
-    apiKey: connection.apiKey.apiKey,
     apiKeyId: connection.apiKey.id,
   };
 };

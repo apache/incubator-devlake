@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type GitlabDeployment struct {
@@ -43,7 +44,7 @@ type GitlabDeployment struct {
 	DeployableCommitAuthorName  string    `json:"deployable_commit_author_name" gorm:"type:varchar(255)"`
 	DeployableCommitCreatedAt   time.Time `json:"deployable_commit_created_at"`
 	DeployableCommitID          string    `json:"deployable_commit_id" gorm:"type:varchar(255)"`
-	DeployableCommitMessage     string    `json:"deployable_commit_message" gorm:"type:varchar(255)"`
+	DeployableCommitMessage     string    `json:"deployable_commit_message"`
 	DeployableCommitShortID     string    `json:"deployable_commit_short_id" gorm:"type:varchar(255)"`
 	DeployableCommitTitle       string    `json:"deployable_commit_title" gorm:"type:varchar(255)"`
 
@@ -59,7 +60,7 @@ type GitlabDeployment struct {
 	DeployableStatus    string     `json:"deployable_status" gorm:"type:varchar(255)"`
 	DeployableTag       bool       `json:"deployable_tag"`
 	DeployableDuration  *float64   `json:"deployable_duration"`
-	QueuedDuration      float64    `json:"queued_duration"`
+	QueuedDuration      *float64   `json:"queued_duration"`
 
 	DeployableUserID        int       `json:"deployable_user_id"`
 	DeployableUserName      string    `json:"deployable_user_name" gorm:"type:varchar(255)"`

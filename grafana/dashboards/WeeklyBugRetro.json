@@ -112,7 +112,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  count(*)\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -198,7 +198,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  priority,\n  count(*) as 'Issue Number'\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)\ngroup by 1",
+          "rawSql": "select\n  priority,\n  count(*) as 'Issue Number'\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in ($board_id)\ngroup by 1",
           "refId": "A",
           "select": [
             [
@@ -363,7 +363,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -445,7 +445,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  count(*)\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -532,7 +532,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  avg(lead_time_minutes / 1440)\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  avg(lead_time_minutes / 1440)\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -670,7 +670,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  lead_time_minutes/1440 as 'Lead Time in Days',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  lead_time_minutes/1440 as 'Lead Time in Days',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -783,7 +783,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  concat('#',i.issue_key, ' ', i.title) as issue_key,\n  lead_time_minutes/1440 as lead_time\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)\norder by lead_time desc",
+          "rawSql": "select\n  concat('#',i.issue_key, ' ', i.title) as issue_key,\n  lead_time_minutes/1440 as lead_time\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in ($board_id)\norder by lead_time desc",
           "refId": "A",
           "select": [
             [
@@ -1761,7 +1761,9 @@
   "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "QA Dashboard"
+  ],
   "templating": {
     "list": [
       {

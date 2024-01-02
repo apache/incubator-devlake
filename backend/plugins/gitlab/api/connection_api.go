@@ -35,23 +35,14 @@ type GitlabTestConnResponse struct {
 	Connection *models.GitlabConn
 }
 
-// @Summary test gitlab connection
-// @Description Test gitlab Connection
-// @Tags plugins/gitlab
-// @Param body body models.GitlabConn true "json body"
-// @Success 200  {object} GitlabTestConnResponse "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/gitlab/test [POST]
-func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// decode
-	var err errors.Error
-	var connection models.GitlabConn
-	if err = api.Decode(input.Body, &connection, vld); err != nil {
-		return nil, err
+func testConnection(ctx context.Context, connection models.GitlabConn) (*GitlabTestConnResponse, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
 	}
-
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
@@ -73,12 +64,56 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.BadInput.New("token need api or read_api permissions scope")
 	}
 
+	connection = connection.Sanitize()
 	body := GitlabTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
 
-	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
+	return &body, nil
+}
+
+// TestConnection test gitlab connection
+// @Summary test gitlab connection
+// @Description Test gitlab Connection
+// @Tags plugins/gitlab
+// @Param body body models.GitlabConn true "json body"
+// @Success 200  {object} GitlabTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/gitlab/test [POST]
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// decode
+	var err errors.Error
+	var connection models.GitlabConn
+	if err = api.Decode(input.Body, &connection, vld); err != nil {
+		return nil, err
+	}
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+// TestExistingConnection test gitlab connection
+// @Summary test gitlab connection
+// @Description Test gitlab Connection
+// @Tags plugins/gitlab
+// @Success 200  {object} GitlabTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/gitlab/{connectionId}/test [POST]
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection, err := dsHelper.ConnApi.FindByPk(input)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	result, err := testConnection(context.TODO(), connection.GitlabConn)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create gitlab connection
@@ -110,7 +145,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/gitlab
 // @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
+// @Failure 409  {object} srvhelper.DsRefs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {

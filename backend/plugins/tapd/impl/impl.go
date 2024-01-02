@@ -287,6 +287,9 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
@@ -294,6 +297,9 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":    api.GetScope,
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
 		},
 		"connections/:connectionId/remote-scopes-prepare-token": {
 			"GET": api.PrepareFirstPageToken,

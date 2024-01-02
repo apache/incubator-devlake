@@ -17,17 +17,16 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { RedoOutlined, PlusOutlined } from '@ant-design/icons';
+import { Flex, Select, Button } from 'antd';
 import { useDebounce } from 'ahooks';
 import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import API from '@/api';
-import { FormItem, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
+import { Loading, Block, ExternalLink, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
-
-import * as S from './styled';
 
 interface Props {
   plugin: string;
@@ -46,6 +45,7 @@ export const DataScopeSelect = ({
   onSubmit,
   onCancel,
 }: Props) => {
+  const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<McsItem<{ data: any }>[]>([]);
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
@@ -59,6 +59,7 @@ export const DataScopeSelect = ({
   }, []);
 
   const getDataScope = async (page: number) => {
+    setLoading(true);
     const res = await API.scope.list(plugin, connectionId, { page, pageSize });
     setItems([
       ...items,
@@ -72,6 +73,7 @@ export const DataScopeSelect = ({
     if (page === 1) {
       setTotal(res.count);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -89,9 +91,9 @@ export const DataScopeSelect = ({
   const handleSubmit = () => onSubmit?.(selectedIds);
 
   return (
-    <FormItem
-      label="Select Data Scope"
-      subLabel={
+    <Block
+      title="Select Data Scope"
+      description={
         items.length ? (
           <>
             Select the data scope in this Connection that you wish to associate with this Project. If you wish to add
@@ -110,8 +112,10 @@ export const DataScopeSelect = ({
       }
       required
     >
-      {items.length ? (
-        <S.Wrapper>
+      {loading ? (
+        <Loading />
+      ) : items.length ? (
+        <Flex vertical gap="middle">
           {showWarning ? (
             <Message
               style={{ marginBottom: 24 }}
@@ -125,22 +129,21 @@ export const DataScopeSelect = ({
               }
             />
           ) : (
-            <Buttons position="top">
-              <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
-            </Buttons>
+            <Flex>
+              <Button type="primary" icon={<RedoOutlined />}>
+                Refresh Data Scope
+              </Button>
+            </Flex>
           )}
-          <div className="search">
-            <MultiSelector
-              loading={!ready}
-              items={searchItems}
-              getName={(it) => it.name}
-              getKey={(it) => getPluginScopeId(plugin, it)}
-              noResult="No Data Scopes Available."
-              onQueryChange={(query) => setQuery(query)}
-              selectedItems={searchItems.filter((it) => selectedIds.includes(getPluginScopeId(plugin, it)))}
-              onChangeItems={(selectedItems) => setSelectedIds(selectedItems.map((it) => getPluginScopeId(plugin, it)))}
-            />
-          </div>
+          <Select
+            loading={!ready}
+            showSearch
+            mode="multiple"
+            options={searchItems.map((it) => ({ label: it.fullName ?? it.name, value: getPluginScopeId(plugin, it) }))}
+            value={selectedIds}
+            onChange={(value) => setSelectedIds(value)}
+            onSearch={(value) => setQuery(value)}
+          />
           <MillerColumnsSelect
             showSelectAll
             columnCount={1}
@@ -151,18 +154,22 @@ export const DataScopeSelect = ({
             selectedIds={selectedIds}
             onSelectItemIds={setSelectedIds}
           />
-          <Buttons position="bottom" align="right">
-            <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-            <Button disabled={!selectedIds.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
-          </Buttons>
-        </S.Wrapper>
+          <Flex justify="flex-end" gap="small">
+            <Button onClick={onCancel}>Cancel</Button>
+            <Button type="primary" disabled={!selectedIds.length} onClick={handleSubmit}>
+              Save
+            </Button>
+          </Flex>
+        </Flex>
       ) : (
-        <S.Wrapper>
+        <Flex>
           <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
-            <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" />
+            <Button type="primary" icon={<PlusOutlined />}>
+              Add Data Scope
+            </Button>
           </ExternalLink>
-        </S.Wrapper>
+        </Flex>
       )}
-    </FormItem>
+    </Block>
   );
 };

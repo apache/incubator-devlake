@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ButtonGroup, Button, Tag, Intent, FormGroup, InputGroup, RadioGroup, Radio } from '@blueprintjs/core';
+import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { Flex, Table, Modal, Radio, Button, Input, Tag } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, IconButton, TextTooltip, Dialog } from '@/components';
+import { PageHeader, Block, TextTooltip } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -36,7 +37,7 @@ export const BlueprintHomePage = () => {
   const [type, setType] = useState('all');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [mode, setMode] = useState(IBPMode.NORMAL);
   const [saving, setSaving] = useState(false);
@@ -49,11 +50,11 @@ export const BlueprintHomePage = () => {
   const [options, presets] = useMemo(() => [getCronOptions(), cronPresets.map((preset) => preset.config)], []);
   const [dataSource, total] = useMemo(() => [data?.blueprints ?? [], data?.count ?? 0], [data]);
 
-  const handleShowDialog = () => setIsOpen(true);
+  const handleShowDialog = () => setOpen(true);
   const handleHideDialog = () => {
     setName('');
     setMode(IBPMode.NORMAL);
-    setIsOpen(false);
+    setOpen(false);
   };
 
   const handleCreate = async () => {
@@ -90,79 +91,76 @@ export const BlueprintHomePage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: '/blueprints' },
-        { name: 'Blueprints', path: '/blueprints' },
+        { name: 'Advanced', path: '/advanced/blueprints' },
+        { name: 'Blueprints', path: '/advanced/blueprints' },
       ]}
     >
-      <S.Wrapper>
-        <p>This is a complete list of all Blueprints you have created, whether they belong to Projects or not.</p>
-        <div className="action">
-          <ButtonGroup>
-            <Button intent={type === 'all' ? Intent.PRIMARY : Intent.NONE} text="All" onClick={() => setType('all')} />
+      <Flex vertical gap="middle">
+        <p style={{ margin: 0 }}>
+          This is a complete list of all Blueprints you have created, whether they belong to Projects or not.
+        </p>
+        <Flex justify="space-between">
+          <Radio.Group optionType="button" value={type} onChange={({ target: { value } }) => setType(value)}>
+            <Radio value="all">All</Radio>
             {options.map(({ label }) => (
-              <Button
-                key={label}
-                intent={type === label ? Intent.PRIMARY : Intent.NONE}
-                text={label}
-                onClick={() => setType(label)}
-              />
+              <Radio key={label} value={label}>
+                {label}
+              </Radio>
             ))}
-          </ButtonGroup>
-          <Button icon="plus" intent={Intent.PRIMARY} text="New Blueprint" onClick={handleShowDialog} />
-        </div>
+          </Radio.Group>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
+            New Blueprint
+          </Button>
+        </Flex>
         <Table
+          rowKey="id"
+          size="middle"
           loading={!ready}
           columns={[
             {
               title: 'Blueprint Name',
-              dataIndex: ['id', 'name'],
               key: 'name',
-              render: ({ id, name }) => (
-                <Link to={`/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
+              render: (_, { id, name }) => (
+                <Link to={`/advanced/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
               ),
             },
             {
               title: 'Data Connections',
-              dataIndex: ['mode', 'connections'],
               key: 'connections',
-              align: 'center',
-              render: ({ mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
+              render: (_, { mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
                 if (mode === IBPMode.ADVANCED) {
                   return 'Advanced Mode';
                 }
+
+                if (!connections.length) {
+                  return 'N/A';
+                }
+
                 return (
-                  <>
+                  <ul>
                     {connections.map((it) => (
-                      <ConnectionName
-                        key={`${it.pluginName}-${it.connectionId}`}
-                        plugin={it.pluginName}
-                        connectionId={it.connectionId}
-                      />
+                      <li key={`${it.pluginName}-${it.connectionId}`}>
+                        <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
+                      </li>
                     ))}
-                  </>
+                  </ul>
                 );
               },
             },
             {
               title: 'Frequency',
-              dataIndex: ['isManual', 'cronConfig'],
               key: 'frequency',
-              width: 100,
-              align: 'center',
-              render: ({ isManual, cronConfig }) => {
+              render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return cron.label;
               },
             },
             {
               title: 'Next Run Time',
-              dataIndex: ['isManual', 'cronConfig'],
               key: 'nextRunTime',
-              width: 200,
-              align: 'center',
-              render: ({ isManual, cronConfig }) => {
+              render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return formatTime(cron.nextTime);
               },
@@ -171,7 +169,6 @@ export const BlueprintHomePage = () => {
               title: 'Project',
               dataIndex: 'projectName',
               key: 'project',
-              align: 'center',
               render: (val) =>
                 val ? (
                   <Link to={`/projects/${window.encodeURIComponent(val)}`}>
@@ -186,12 +183,7 @@ export const BlueprintHomePage = () => {
               dataIndex: 'enable',
               key: 'enable',
               align: 'center',
-              width: 100,
-              render: (val) => (
-                <Tag minimal intent={val ? Intent.SUCCESS : Intent.DANGER}>
-                  {val ? 'Enabled' : 'Disabled'}
-                </Tag>
-              ),
+              render: (val) => <Tag color={val ? 'blue' : 'red'}>{val ? 'Enabled' : 'Disabled'}</Tag>,
             },
             {
               title: '',
@@ -200,74 +192,60 @@ export const BlueprintHomePage = () => {
               width: 100,
               align: 'center',
               render: (val) => (
-                <Link to={`/blueprints/${val}?tab=configuration`}>
-                  <IconButton icon="cog" tooltip="Detail" />
+                <Link to={`/advanced/blueprints/${val}?tab=configuration`}>
+                  <Button type="primary" icon={<SettingOutlined />} />
                 </Link>
               ),
             },
           ]}
           dataSource={dataSource}
           pagination={{
-            page,
+            current: page,
             pageSize,
             total,
             onChange: setPage,
           }}
-          noData={{
-            text: 'There is no Blueprint yet. Please add a new Blueprint here or from a Project.',
-            btnText: 'New Blueprint',
-            onCreate: handleShowDialog,
-          }}
         />
-      </S.Wrapper>
-      <Dialog
-        style={{ width: 820 }}
-        isOpen={isOpen}
+      </Flex>
+      <Modal
+        open={open}
+        width={820}
+        centered
         title="Create a New Blueprint"
         okText="Save"
-        okDisabled={!name}
-        okLoading={saving}
+        okButtonProps={{
+          disabled: !name,
+          loading: saving,
+        }}
         onOk={handleCreate}
         onCancel={handleHideDialog}
       >
         <S.DialogWrapper>
-          <FormGroup
-            label={<S.Label>Blueprint Name</S.Label>}
-            subLabel={
-              <S.LabelDescription>
-                Give your Blueprint a unique name to help you identify it in the future.
-              </S.LabelDescription>
-            }
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+          <Block
+            title="Blueprint Name"
+            description="Give your Blueprint a unique name to help you identify it in the future."
+            required
           >
-            <InputGroup
+            <Input
               style={{ width: 386 }}
               placeholder="Your Blueprint Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </FormGroup>
-          <FormGroup
-            label={<S.Label>Blueprint Mode</S.Label>}
-            subLabel={
-              <S.LabelDescription>
-                Normal Mode is usually adequate for most usages. But if you need to customize how tasks are executed in
-                the Blueprint, please use Advanced Mode to create a Blueprint.
-              </S.LabelDescription>
-            }
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+          </Block>
+          <Block
+            title="Blueprint Mode"
+            description="Normal Mode is usually adequate for most usages. But if you need to customize how tasks are executed in
+            the Blueprint, please use Advanced Mode to create a Blueprint."
+            required
           >
-            <RadioGroup
-              inline
-              selectedValue={mode}
-              onChange={(e) => setMode((e.target as HTMLInputElement).value as IBPMode)}
-            >
+            <Radio.Group value={mode} onChange={({ target: { value } }) => setMode(value)}>
               <Radio value={IBPMode.NORMAL}>Normal Mode</Radio>
               <Radio value={IBPMode.ADVANCED}>Advanced Mode</Radio>
-            </RadioGroup>
-          </FormGroup>
+            </Radio.Group>
+          </Block>
         </S.DialogWrapper>
-      </Dialog>
+      </Modal>
     </PageHeader>
   );
 };

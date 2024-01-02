@@ -17,9 +17,9 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup, Switch } from '@blueprintjs/core';
+import { Switch } from 'antd';
 
-import * as S from './styled';
+import { Block } from '@/components';
 
 interface Props {
   initialValue: boolean;
@@ -32,20 +32,16 @@ export const Graphql = ({ initialValue, value, setValue }: Props) => {
     setValue(initialValue);
   }, [initialValue]);
 
-  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setValue((e.target as HTMLInputElement).checked);
+  const handleChange = (checked: boolean) => {
+    setValue(checked);
   };
 
   return (
-    <FormGroup
-      label={<S.Label>Use GraphQL APIs</S.Label>}
-      subLabel={
-        <S.LabelDescription>
-          GraphQL APIs are 10+ times faster than REST APIs, but they may not be supported in GitHub Server.
-        </S.LabelDescription>
-      }
+    <Block
+      title="Use GraphQL APIs"
+      description="GraphQL APIs are 10+ times faster than REST APIs, but they may not be supported in GitHub Server."
     >
       <Switch checked={value} onChange={handleChange} />
-    </FormGroup>
+    </Block>
   );
 };

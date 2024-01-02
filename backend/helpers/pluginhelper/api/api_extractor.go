@@ -93,12 +93,10 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 	}
 	logger.Info("get data from %s where params=%s and got %d", extractor.table, extractor.params, count)
 	defer cursor.Close()
-	row := &RawData{}
-
 	// batch save divider
 	divider := NewBatchSaveDivider(extractor.args.Ctx, extractor.args.BatchSize, extractor.table, extractor.params)
 
-	// prgress
+	// progress
 	extractor.args.Ctx.SetProgress(0, -1)
 	ctx := extractor.args.Ctx.GetContext()
 	// iterate all rows
@@ -108,6 +106,7 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 			return errors.Convert(ctx.Err())
 		default:
 		}
+		row := &RawData{}
 		err = db.Fetch(cursor, row)
 		if err != nil {
 			return errors.Default.Wrap(err, "error fetching row")

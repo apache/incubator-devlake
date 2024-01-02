@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"context"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -45,7 +44,7 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	}
 	op := taskData.Options
 	storage := store.NewDatabase(subTaskCtx, op.RepoId)
-	repo, err := NewGitRepo(subTaskCtx.GetContext(), subTaskCtx.GetLogger(), storage, op)
+	repo, err := NewGitRepo(subTaskCtx, subTaskCtx.GetLogger(), storage, op)
 	if err != nil {
 		return err
 	}
@@ -55,7 +54,7 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 // NewGitRepo create and return a new parser git repo
-func NewGitRepo(ctx context.Context, logger log.Logger, storage models.Store, op *GitExtractorOptions) (*parser.GitRepo, errors.Error) {
+func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *GitExtractorOptions) (*parser.GitRepo, errors.Error) {
 	var err errors.Error
 	var repo *parser.GitRepo
 	p := parser.NewGitRepoCreator(storage, logger)
