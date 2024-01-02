@@ -44,32 +44,3 @@ export const Transformation = styled.div`
     }
   }
 `;
-
-export const CICD = styled.div`
-  h3 {
-    margin-top: 16px;
-
-    .switch {
-      display: inline-flex;
-      align-items: center;
-      margin-left: 16px;
-      font-size: 14px;
-      font-weight: 400;
-
-      .bp5-switch {
-        margin-bottom: 0;
-      }
-    }
-  }
-
-  .text,
-  .sub-text {
-    display: flex;
-    align-items: baseline;
-    margin-bottom: 8px;
-  }
-
-  .sub-text {
-    padding-left: 28px;
-  }
-`;

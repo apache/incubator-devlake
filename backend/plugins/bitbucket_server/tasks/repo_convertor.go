@@ -34,7 +34,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
 )
 
@@ -52,7 +51,7 @@ type ApiRepoResponse models.BitbucketApiRepo
 
 func GetApiRepo(
 	op *BitbucketOptions,
-	apiClient aha.ApiClientAbstract,
+	apiClient plugin.ApiClient,
 ) (*models.BitbucketApiRepo, errors.Error) {
 	res, err := apiClient.Get(path.Join("repositories", op.FullName), nil, nil)
 	if err != nil {

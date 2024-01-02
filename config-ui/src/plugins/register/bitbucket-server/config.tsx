@@ -18,7 +18,7 @@
 
 import { DOC_URL } from '@/release';
 
-import Icon from './assets/icon.svg';
+import Icon from './assets/icon.svg?react';
 
 export const BitBucketServerConfig = {
   plugin: 'bitbucket_server',
@@ -57,14 +57,8 @@ export const BitBucketServerConfig = {
     },
   },
   scopeConfig: {
-    entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
+    entities: ['CODE', 'CODEREVIEW', 'CROSS'],
     transformation: {
-      issueStatusTodo: 'new,open',
-      issueStatusInProgress: '',
-      issueStatusDone: 'closed',
-      issueStatusOther: 'on hold,wontfix,duplicate,invalid',
-      deploymentPattern: '',
-      productionPattern: '',
       refdiff: {
         tagsLimit: 10,
         tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',

@@ -17,13 +17,13 @@
  */
 
 import { useMemo, useState, useEffect } from 'react';
-import { FormGroup, InputGroup, Tag, Intent, Checkbox } from '@blueprintjs/core';
+import { CaretRightOutlined } from '@ant-design/icons';
+import { theme, Collapse, Tag, Form, Input, Checkbox, Select } from 'antd';
 
-import { ExternalLink, HelpTooltip, Divider, MultiSelector } from '@/components';
+import { ExternalLink, HelpTooltip } from '@/components';
 import { DOC_URL } from '@/release';
 
 import ExampleJpg from './assets/bitbucket-server-example.jpg';
-import * as S from './styled';
 
 interface Props {
   entities: string[];
@@ -44,15 +44,15 @@ export const BitbucketServerTransformation = ({ entities, transformation, setTra
     }
   }, [transformation]);
 
-  const selectedStates = useMemo(
-    () => [
+  const options = useMemo(() => {
+    const disabledOptions = [
       ...(transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []),
       ...(transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []),
       ...(transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []),
       ...(transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []),
-    ],
-    [transformation],
-  );
+    ];
+    return ALL_STATES.filter((it) => !disabledOptions.includes(it)).map((it) => ({ label: it, value: it }));
+  }, [transformation]);
 
   const handleChangeUseCustom = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
@@ -68,82 +68,128 @@ export const BitbucketServerTransformation = ({ entities, transformation, setTra
     setUseCustom(checked);
   };
 
+  const { token } = theme.useToken();
+
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: token.colorFillAlter,
+    borderRadius: token.borderRadiusLG,
+    border: 'none',
+  };
+
   return (
-    <S.Transformation>
-      {entities.includes('TICKET') && (
-        <div className="issue-tracking">
-          <h2>Issue Tracking</h2>
-          <div className="issue-type">
-            <div className="title">
-              <span>Issue Status Mapping</span>
-              <HelpTooltip content="Standardize your issue statuses to the following issue statuses to view metrics such as `Requirement Delivery Rate` in built-in dashboards." />
-            </div>
-            <div className="list">
-              <FormGroup inline label="TODO">
-                <MultiSelector
-                  items={ALL_STATES}
-                  disabledItems={selectedStates}
-                  selectedItems={transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      issueStatusTodo: selectedItems.join(','),
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup inline label="IN-PROGRESS">
-                <MultiSelector
-                  items={ALL_STATES}
-                  disabledItems={selectedStates}
-                  selectedItems={
-                    transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []
-                  }
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      issueStatusInProgress: selectedItems.join(','),
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup inline label="DONE">
-                <MultiSelector
-                  items={ALL_STATES}
-                  disabledItems={selectedStates}
-                  selectedItems={transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      issueStatusDone: selectedItems.join(','),
-                    })
-                  }
-                />
-              </FormGroup>
-              <FormGroup inline label="OTHER">
-                <MultiSelector
-                  items={ALL_STATES}
-                  disabledItems={selectedStates}
-                  selectedItems={transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []}
-                  onChangeItems={(selectedItems) =>
-                    setTransformation({
-                      ...transformation,
-                      issueStatusOther: selectedItems.join(','),
-                    })
-                  }
-                />
-              </FormGroup>
-            </div>
-          </div>
-          <Divider />
+    <Collapse
+      bordered={false}
+      defaultActiveKey={['TICKET', 'CICD']}
+      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev="" />}
+      style={{ background: token.colorBgContainer }}
+      size="large"
+      items={renderCollapseItems({
+        entities,
+        panelStyle,
+        options,
+        transformation,
+        onChangeTransformation: setTransformation,
+        useCustom,
+        onChangeUseCustom: handleChangeUseCustom,
+      })}
+    />
+  );
+};
+
+const renderCollapseItems = ({
+  entities,
+  panelStyle,
+  options,
+  transformation,
+  onChangeTransformation,
+  useCustom,
+  onChangeUseCustom,
+}: {
+  entities: string[];
+  panelStyle: React.CSSProperties;
+  options: Array<{ label: string; value: string }>;
+  transformation: any;
+  onChangeTransformation: any;
+  useCustom: boolean;
+  onChangeUseCustom: any;
+}) =>
+  [
+    {
+      key: 'TICKET',
+      label: (
+        <>
+          <span>Issue Status Mapping</span>
+          <HelpTooltip content="Standardize your issue statuses to the following issue statuses to view metrics such as `Requirement Delivery Rate` in built-in dashboards." />
+        </>
+      ),
+      style: panelStyle,
+      children: (
+        <div className="list">
+          <Form.Item label="TODO">
+            <Select
+              mode="multiple"
+              options={options}
+              value={transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []}
+              onChange={(value) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueStatusTodo: value.join(','),
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="IN-PROGRESS">
+            <Select
+              mode="multiple"
+              options={options}
+              value={transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []}
+              onChange={(value) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueStatusInProgress: value.join(','),
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="DONE">
+            <Select
+              mode="multiple"
+              options={options}
+              value={transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []}
+              onChange={(value) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueStatusDone: value.join(','),
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="OTHER">
+            <Select
+              mode="multiple"
+              options={options}
+              value={transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []}
+              onChange={(value) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueStatusOther: value.join(','),
+                })
+              }
+            />
+          </Form.Item>
         </div>
-      )}
-      {entities.includes('CICD') && (
-        <S.CICD>
-          <h2>CI/CD</h2>
-          <h3>
+      ),
+    },
+    {
+      key: 'CICD',
+      label: 'CI/CD',
+      style: panelStyle,
+      children: (
+        <>
+          <h3 style={{ marginBottom: 16 }}>
             <span>Deployment</span>
-            <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
+            <Tag style={{ marginLeft: 4 }} color="blue">
               DORA
             </Tag>
           </h3>
@@ -151,23 +197,21 @@ export const BitbucketServerTransformation = ({ entities, transformation, setTra
             Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
             <ExternalLink link={DOC_URL.PLUGIN.BITBUCKET_SERVER.TRANSFORMATION}>Learn more</ExternalLink>
           </p>
-          <div className="text">
-            <Checkbox disabled checked />
-            <span>Convert a BitBucket Server Deployment to a DevLake Deployment </span>
+          <Checkbox disabled checked>
+            <span>Convert a BitBucket Deployment to a DevLake Deployment</span>
             <HelpTooltip content={<img src={ExampleJpg} alt="" width={400} />} />
-          </div>
-          <div className="text">
-            <Checkbox checked={useCustom} onChange={handleChangeUseCustom} />
-            <span>Convert a BitBucket Server Pipeline to a DevLake Deployment when its branch/tag name</span>
-          </div>
-          <div className="sub-text">
+          </Checkbox>
+          <Checkbox checked={useCustom} onChange={onChangeUseCustom}>
+            Convert a BitBucket Pipeline to a DevLake Deployment when its branch/tag name
+          </Checkbox>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
             <span>matches</span>
-            <InputGroup
+            <Input
               style={{ width: 200, margin: '0 8px' }}
               placeholder="(deploy|push-image)"
               value={transformation.deploymentPattern ?? ''}
               onChange={(e) =>
-                setTransformation({
+                onChangeTransformation({
                   ...transformation,
                   deploymentPattern: e.target.value,
                   productionPattern: !e.target.value ? '' : transformation.productionPattern,
@@ -175,16 +219,16 @@ export const BitbucketServerTransformation = ({ entities, transformation, setTra
               }
             />
             <span>.</span>
-            <HelpTooltip content="View your BitBucket Server Pipelines: https://support.atlassian.com/bitbucket-server/docs/view-your-pipeline/" />
+            <HelpTooltip content="View your BitBucket Pipelines: https://support.atlassian.com/bitbucket-cloud/docs/view-your-pipeline/" />
           </div>
-          <div className="sub-text">
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
             <span>If the name also matches</span>
-            <InputGroup
+            <Input
               style={{ width: 200, margin: '0 8px' }}
               placeholder="prod(.*)"
               value={transformation.productionPattern ?? ''}
               onChange={(e) =>
-                setTransformation({
+                onChangeTransformation({
                   ...transformation,
                   productionPattern: e.target.value,
                 })
@@ -193,8 +237,54 @@ export const BitbucketServerTransformation = ({ entities, transformation, setTra
             <span>, this Deployment is a ‘Production Deployment’</span>
             <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
           </div>
-        </S.CICD>
-      )}
-    </S.Transformation>
-  );
-};
+        </>
+      ),
+    },
+    {
+      key: 'ADDITIONAL',
+      label: 'Additional Settings',
+      style: panelStyle,
+      children: (
+        <>
+          <p>
+            Enable the <ExternalLink link={DOC_URL.PLUGIN.REFDIFF}>RefDiff</ExternalLink> plugin to pre-calculate
+            version-based metrics
+            <HelpTooltip content="Calculate the commits diff between two consecutive tags that match the following RegEx. Issues closed by PRs which contain these commits will also be calculated. The result will be shown in table.refs_commits_diffs and table.refs_issues_diffs." />
+          </p>
+          <div className="refdiff">
+            Compare the last
+            <Input
+              style={{ margin: '0 8px', width: 60 }}
+              placeholder="10"
+              value={transformation.refdiff?.tagsLimit ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  refdiff: {
+                    ...transformation?.refdiff,
+                    tagsLimit: +e.target.value,
+                  },
+                })
+              }
+            />
+            tags that match the
+            <Input
+              style={{ margin: '0 8px', width: 200 }}
+              placeholder="(regex)$"
+              value={transformation.refdiff?.tagsPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  refdiff: {
+                    ...transformation?.refdiff,
+                    tagsPattern: e.target.value,
+                  },
+                })
+              }
+            />
+            for calculation
+          </div>
+        </>
+      ),
+    },
+  ].filter((it) => entities.includes(it.key) || it.key === 'ADDITIONAL');
