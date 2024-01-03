@@ -134,7 +134,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -221,7 +221,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -308,7 +308,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -395,7 +395,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -508,7 +508,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -596,7 +596,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -684,7 +684,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -797,7 +797,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -884,7 +884,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -976,7 +976,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-"datasource": "mysql",
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
