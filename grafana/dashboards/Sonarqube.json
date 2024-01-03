@@ -1029,10 +1029,7 @@
             "$__all"
           ]
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select concat(name, '--', id) as text from cq_projects",
         "hide": 0,
         "includeAll": true,
