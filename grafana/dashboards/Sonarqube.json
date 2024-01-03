@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,14 +16,17 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 29,
-  "iteration": 1682063057579,
+  "id": 33,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 3,
         "w": 13,
@@ -29,12 +35,21 @@
       },
       "id": 19,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "- Use Cases: This dashboard shows the code quality metrics from SonarQube.\n- Data Source Required: SonarQube v8.2+",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -43,7 +58,10 @@
       "type": "text"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -51,11 +69,23 @@
         "y": 3
       },
       "id": 16,
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Reliability & Security",
       "type": "row"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -101,10 +131,13 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -139,7 +172,10 @@
       "type": "stat"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -185,10 +221,13 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -223,7 +262,10 @@
       "type": "stat"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -269,10 +311,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -307,7 +352,10 @@
       "type": "stat"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -353,10 +401,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -392,7 +443,10 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -401,11 +455,23 @@
       },
       "id": 12,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Test & Maintainability",
       "type": "row"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -451,10 +517,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -489,7 +558,10 @@
       "type": "stat"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -536,10 +608,13 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -574,7 +649,10 @@
       "type": "stat"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -621,10 +699,13 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -660,7 +741,10 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -669,11 +753,23 @@
       },
       "id": 6,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Duplication & Code",
       "type": "row"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -719,10 +815,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -757,7 +856,10 @@
       "type": "stat"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -803,10 +905,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -841,7 +946,10 @@
       "type": "stat"
     },
     {
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -850,8 +958,11 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "color-text",
-            "filterable": false
+            "cellOptions": {
+              "type": "color-text"
+            },
+            "filterable": false,
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -878,12 +989,24 @@
       },
       "id": 17,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -919,7 +1042,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 30,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [
     "Data Source Dashboard"
@@ -927,7 +1050,6 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
@@ -937,10 +1059,11 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select concat(name, '--', id) as text from cq_projects",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Choose Project",
@@ -955,70 +1078,11 @@
         "type": "query"
       },
       {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": "mysql",
-        "definition": "select distinct(type) from cq_issues",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": true,
-        "label": "Issue Type",
-        "multi": true,
-        "name": "issue_type",
-        "options": [],
-        "query": "select distinct(type) from cq_issues",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": "mysql",
-        "definition": "select distinct(severity) from cq_issues",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": true,
-        "label": "Severity",
-        "multi": true,
-        "name": "severity",
-        "options": [],
-        "query": "select distinct(severity) from cq_issues",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "20",
           "value": "20"
         },
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "rows",
@@ -1056,5 +1120,6 @@
   "timezone": "",
   "title": "SonarQube",
   "uid": "WA0qbuJ4k",
-  "version": 1
+  "version": 2,
+  "weekStart": ""
 }
