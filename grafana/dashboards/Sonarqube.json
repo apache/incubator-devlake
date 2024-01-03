@@ -134,10 +134,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -224,10 +221,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -314,10 +308,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -404,10 +395,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -520,10 +508,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -611,10 +596,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -702,10 +684,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -818,10 +797,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -908,10 +884,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -1003,10 +976,7 @@
       "pluginVersion": "9.5.14",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+"datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
