@@ -104,7 +104,7 @@ export const Layout = () => {
                 items={menuItems}
                 openKeys={openKeys}
                 selectedKeys={selectedKeys}
-                onSelect={({ key }) => navigate(key)}
+                onClick={({ key }) => navigate(key)}
                 onOpenChange={(keys) => setOpenKeys(keys)}
               />
               <div style={{ position: 'absolute', right: 0, bottom: 20, left: 0, color: '#fff', textAlign: 'center' }}>
