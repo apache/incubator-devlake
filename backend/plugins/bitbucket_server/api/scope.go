@@ -45,7 +45,7 @@ type ScopeReq api.ScopeReq[models.BitbucketServerRepo]
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket_server/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
 // UpdateScope patch to repo
@@ -62,7 +62,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Router /plugins/bitbucket_server/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
-	return scopeHelper.Update(input)
+	return dsHelper.ScopeApi.Patch(input)
 }
 
 // GetScopeList get repos
@@ -79,7 +79,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket_server/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
 func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -103,7 +103,7 @@ func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Router /plugins/bitbucket_server/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
-	return scopeHelper.GetScope(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -119,5 +119,6 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket_server/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
+	return dsHelper.ScopeApi.Delete(input)
 }

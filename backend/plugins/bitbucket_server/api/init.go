@@ -27,46 +27,16 @@ import (
 
 var vld *validator.Validate
 var basicRes context.BasicRes
-var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketApiRepo, models.ProjectItem]
-var scHelper *api.ScopeConfigHelper[models.BitbucketServerScopeConfig, *models.BitbucketServerScopeConfig]
+
 var dsHelper *api.DsHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.BitbucketServerConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, api.RemoteQueryData]
+var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.BitbucketServerConnection, models.BitbucketServerRepo]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "BitbucketId",
-		ScopeIdColumnName:    "bitbucket_id",
-		RawScopeParamName:    "FullName",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = api.NewScopeHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
-		nil,
-	)
-	remoteHelper = api.NewRemoteHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketApiRepo, models.ProjectItem](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
-	scHelper = api.NewScopeConfigHelper[models.BitbucketServerScopeConfig, *models.BitbucketServerScopeConfig](
-		basicRes,
-		vld,
-		p.Name(),
-	)
 
 	dsHelper = api.NewDataSourceHelper[
 		models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig,
@@ -79,5 +49,20 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		},
 		nil,
 		nil,
+	)
+
+	raProxy = api.NewDsRemoteApiProxyHelper[models.BitbucketServerConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[
+		models.BitbucketServerConnection,
+		models.BitbucketServerRepo,
+		api.RemoteQueryData](
+		raProxy,
+		listBitbucketServerRemoteScopes,
+	)
+	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[
+		models.BitbucketServerConnection,
+		models.BitbucketServerRepo](
+		raProxy,
+		searchBitbucketServerRepos,
 	)
 }

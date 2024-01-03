@@ -27,17 +27,17 @@ import (
 
 var _ plugin.ToolLayerScope = (*BitbucketServerRepo)(nil)
 var _ plugin.ApiGroup = (*ProjectItem)(nil)
-var _ plugin.ApiScope = (*BitbucketApiRepo)(nil)
+var _ plugin.ApiScope = (*BitbucketServerApiRepo)(nil)
 
 type BitbucketServerRepo struct {
-	common.Scope
-	BitbucketId string     `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" validate:"required" mapstructure:"bitbucketId"`
-	Name        string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
-	HTMLUrl     string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
-	Description string     `json:"description" mapstructure:"description,omitempty"`
-	CloneUrl    string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
-	CreatedDate *time.Time `json:"createdDate" mapstructure:"-"`
-	UpdatedDate *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.Scope `mapstructure:",squash"`
+	BitbucketId  string     `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" validate:"required" mapstructure:"bitbucketId"`
+	Name         string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	HTMLUrl      string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
+	Description  string     `json:"description" mapstructure:"description,omitempty"`
+	CloneUrl     string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
+	CreatedDate  *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate  *time.Time `json:"updatedDate" mapstructure:"-"`
 }
 
 func (BitbucketServerRepo) TableName() string {
@@ -63,7 +63,7 @@ func (p BitbucketServerRepo) ScopeParams() interface{} {
 	}
 }
 
-type BitbucketApiRepo struct {
+type BitbucketServerApiRepo struct {
 	Id            int32  `json:"id"`
 	Name          string `json:"name"`
 	Slug          string `json:"slug"`
@@ -87,7 +87,7 @@ type BitbucketApiRepo struct {
 	} `json:"links"`
 }
 
-func (b BitbucketApiRepo) ConvertApiScope() plugin.ToolLayerScope {
+func (b BitbucketServerApiRepo) ConvertApiScope() plugin.ToolLayerScope {
 	scope := &BitbucketServerRepo{}
 	scope.BitbucketId = fmt.Sprintf("%s/repos/%s", b.Project.Key, b.Slug)
 	scope.Description = b.Description
@@ -131,11 +131,11 @@ func (p ProjectItem) GroupName() string {
 }
 
 type ReposResponse struct {
-	Start      int                `json:"start"`
-	Limit      int                `json:"limit"`
-	Size       int                `json:"size"`
-	IsLastPage bool               `json:"isLastPage"`
-	Values     []BitbucketApiRepo `json:"values"`
+	Start      int                      `json:"start"`
+	Limit      int                      `json:"limit"`
+	Size       int                      `json:"size"`
+	IsLastPage bool                     `json:"isLastPage"`
+	Values     []BitbucketServerApiRepo `json:"values"`
 }
 
 type BitbucketApiParams struct {

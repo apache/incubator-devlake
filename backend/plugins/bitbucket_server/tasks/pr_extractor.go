@@ -61,14 +61,14 @@ type BitbucketApiPullRequest struct {
 	BitbucketUpdatedAt int64  `json:"updatedDate"`
 	BitbucketClosedAt  *int64 `json:"closedDate"`
 	BaseRef            *struct {
-		Branch string                   `json:"displayId"`
-		Commit string                   `json:"latestCommit"`
-		Repo   *models.BitbucketApiRepo `json:"repository"`
+		Branch string                         `json:"displayId"`
+		Commit string                         `json:"latestCommit"`
+		Repo   *models.BitbucketServerApiRepo `json:"repository"`
 	} `json:"toRef"`
 	HeadRef *struct {
-		Branch string                   `json:"displayId"`
-		Commit string                   `json:"latestCommit"`
-		Repo   *models.BitbucketApiRepo `json:"repository"`
+		Branch string                         `json:"displayId"`
+		Commit string                         `json:"latestCommit"`
+		Repo   *models.BitbucketServerApiRepo `json:"repository"`
 	} `json:"fromRef"`
 	Properties *struct {
 		ResolvedTaskCount int `json:"resolvedTaskCount"`

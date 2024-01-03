@@ -45,7 +45,7 @@ var _ interface {
 	plugin.PluginSource
 } = (*BitbucketServer)(nil)
 
-type BitbucketServer string
+type BitbucketServer struct{}
 
 func (p BitbucketServer) Connection() dal.Tabler {
 	return &models.BitbucketServerConnection{}
@@ -76,6 +76,7 @@ func (p BitbucketServer) GetTablesInfo() []dal.Tabler {
 		&models.BitbucketServerRepoCommit{},
 		&models.BitbucketServerPrCommit{},
 		&models.BitbucketServerScopeConfig{},
+		&models.BitbucketServerBranch{},
 	}
 }
 
@@ -248,7 +249,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
-			var repo *models.BitbucketApiRepo
+			var repo *models.BitbucketServerApiRepo
 			repo, err = tasks.GetApiRepo(op, apiClient)
 			if err != nil {
 				return err

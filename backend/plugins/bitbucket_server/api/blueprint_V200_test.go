@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
@@ -36,11 +37,19 @@ import (
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
+	mockMeta := mockplugin.NewPluginMeta(t)
+	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bitbucket_server")
+	mockMeta.On("Name").Return("bitbucket_server").Maybe()
+	err := plugin.RegisterPlugin("bitbucket_server", mockMeta)
+	assert.Nil(t, err)
+	// Refresh Global Variables and set the sql mock
+	mockBasicRes(t)
+
 	connection := &models.BitbucketServerConnection{
 		BaseConnection: helper.BaseConnection{
-			Name: "bitbucket-test",
+			Name: "TP/repos/first-repo",
 			Model: common.Model{
-				ID: 1,
+				ID: 3,
 			},
 		},
 		BitbucketServerConn: models.BitbucketServerConn{
@@ -55,42 +64,35 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			},
 		},
 	}
-	mockMeta := mockplugin.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bitbucket")
-	mockMeta.On("Name").Return("bitbucket").Maybe()
-	err := plugin.RegisterPlugin("bitbucket", mockMeta)
-	assert.Nil(t, err)
-	// Refresh Global Variables and set the sql mock
-	mockBasicRes(t)
 
-	bs := &coreModels.BlueprintScope{
-		ScopeId: "1",
-	}
-	bpScopes := make([]*coreModels.BlueprintScope, 0)
-	bpScopes = append(bpScopes, bs)
+	scopeDetails := make([]*srvhelper.ScopeDetail[models.BitbucketServerRepo, models.BitbucketServerScopeConfig], 0)
+	scopeDetails = append(scopeDetails, &srvhelper.ScopeDetail[models.BitbucketServerRepo, models.BitbucketServerScopeConfig]{
+		Scope: models.BitbucketServerRepo{
+			BitbucketId: "3",
+		},
+	})
 
-	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection)
+	plan, err := makeDataSourcePipelinePlanV200(nil, scopeDetails, connection)
 	assert.Nil(t, err)
-	scopes, err := makeScopesV200(bpScopes, connection)
+	scopes, err := makeScopesV200(scopeDetails, connection)
 	assert.Nil(t, err)
 
 	expectPlan := coreModels.PipelinePlan{
 		coreModels.PipelineStage{
 			{
-				Plugin:   "bitbucket",
+				Plugin:   "bitbucket_server",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
-					"fullName":     "likyh/likyhphp",
-					"connectionId": uint64(1),
+					"fullName":     "TP/repos/first-repo",
+					"connectionId": uint64(3),
 				},
 			},
 			{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"proxy":  "",
-					"repoId": "bitbucket:BitbucketRepo:1:likyh/likyhphp",
-					"name":   "likyh/likyhphp",
+					"repoId": "bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo",
+					"name":   "TP/repos/first-repo",
 					"url":    "https://Username:Password@this_is_cloneUrl",
 				},
 			},
@@ -99,7 +101,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "refdiff",
 				Options: map[string]interface{}{
-					"repoId":      "bitbucket:BitbucketRepo:1:likyh/likyhphp",
+					"repoId":      "bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo",
 					"tagsLimit":   10,
 					"tagsOrder":   "reverse semver",
 					"tagsPattern": "pattern",
@@ -111,16 +113,16 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	expectScopes := make([]plugin.Scope, 0)
 	scopeRepo := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
+			Id: "bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo",
 		},
-		Name: "likyh/likyhphp",
+		Name: "TP/repos/first-repo",
 	}
 
 	scopeTicket := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
+			Id: "bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo",
 		},
-		Name:        "likyh/likyhphp",
+		Name:        "TP/repos/first-repo",
 		Description: "",
 		Url:         "",
 		CreatedDate: nil,
@@ -134,10 +136,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 func mockBasicRes(t *testing.T) {
 	testBitbucketRepo := &models.BitbucketServerRepo{
 		Scope: common.Scope{
-			ConnectionId:  1,
+			ConnectionId:  3,
 			ScopeConfigId: 1,
 		},
-		BitbucketId: "likyh/likyhphp",
+		BitbucketId: "TP/repos/first-repo",
 		Name:        "test/testRepo",
 		CloneUrl:    "https://this_is_cloneUrl",
 	}
@@ -149,8 +151,7 @@ func mockBasicRes(t *testing.T) {
 				ID: 1,
 			},
 		},
-		Name:            "Bitbucket scope config",
-		IssueStatusTodo: "new,open,wantfix",
+		Name: "Bitbucket scope config",
 		Refdiff: map[string]interface{}{
 			"tagsPattern": "pattern",
 			"tagsLimit":   10,
@@ -159,12 +160,12 @@ func mockBasicRes(t *testing.T) {
 	}
 	// Refresh Global Variables and set the sql mock
 	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
-		mockDal.On("First", mock.AnythingOfType("*models.BitbucketRepo"), mock.Anything).Run(func(args mock.Arguments) {
+		mockDal.On("First", mock.AnythingOfType("*models.BitbucketServerRepo"), mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.BitbucketServerRepo)
 			*dst = *testBitbucketRepo
 		}).Return(nil)
 
-		mockDal.On("First", mock.AnythingOfType("*models.BitbucketScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+		mockDal.On("First", mock.AnythingOfType("*models.BitbucketServerScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.BitbucketServerScopeConfig)
 			*dst = *testScopeConfig
 		}).Return(nil)

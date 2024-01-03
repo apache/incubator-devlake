@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -30,6 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/tasks"
 )
@@ -40,18 +42,28 @@ func MakeDataSourcePipelinePlanV200(
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
-	connection := &models.BitbucketServerConnection{}
-	err := connectionHelper.FirstById(connection, connectionId)
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// needed for the connection to populate its access tokens
+	// if AppKey authentication method is selected
+	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopes, err := makeScopesV200(bpScopes, connection)
+	scopes, err := makeScopesV200(scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,19 +73,15 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan coreModels.PipelinePlan,
-	bpScopes []*coreModels.BlueprintScope,
+	scopeDetails []*srvhelper.ScopeDetail[models.BitbucketServerRepo, models.BitbucketServerScopeConfig],
 	connection *models.BitbucketServerConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
-	for i, bpScope := range bpScopes {
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
+	for i, scopeDetail := range scopeDetails {
+		repo, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		stage := plan[i]
 		if stage == nil {
 			stage = coreModels.PipelineStage{}
-		}
-		// get repo and scope config from db
-		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
-		if err != nil {
-			return nil, err
 		}
 		// refdiff
 		if scopeConfig != nil && scopeConfig.Refdiff != nil {
@@ -139,12 +147,16 @@ func makeDataSourcePipelinePlanV200(
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.BitbucketServerConnection) ([]plugin.Scope, errors.Error) {
+func makeScopesV200(
+	scopeDetails []*srvhelper.ScopeDetail[models.BitbucketServerRepo, models.BitbucketServerScopeConfig],
+	connection *models.BitbucketServerConnection,
+) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
-	for _, bpScope := range bpScopes {
-		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
-		if err != nil {
-			return nil, err
+	for _, scopeDetail := range scopeDetails {
+		repo, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		// if no entities specified, use all entities enabled by default
+		if len(scopeConfig.Entities) == 0 {
+			scopeConfig.Entities = plugin.DOMAIN_TYPES
 		}
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) ||

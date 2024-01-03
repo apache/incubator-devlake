@@ -47,12 +47,12 @@ var ConvertRepoMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 
-type ApiRepoResponse models.BitbucketApiRepo
+type ApiRepoResponse models.BitbucketServerApiRepo
 
 func GetApiRepo(
 	op *BitbucketOptions,
 	apiClient plugin.ApiClient,
-) (*models.BitbucketApiRepo, errors.Error) {
+) (*models.BitbucketServerApiRepo, errors.Error) {
 	res, err := apiClient.Get(path.Join("repositories", op.FullName), nil, nil)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func GetApiRepo(
 	if err != nil {
 		return nil, err
 	}
-	apiRepo := new(models.BitbucketApiRepo)
+	apiRepo := new(models.BitbucketServerApiRepo)
 	err = errors.Convert(json.Unmarshal(body, apiRepo))
 	if err != nil {
 		return nil, err
