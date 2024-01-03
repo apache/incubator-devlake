@@ -62,6 +62,7 @@ type JiraIssue struct {
 	LeadTimeMinutes          uint
 	StdType                  string `gorm:"type:varchar(255)"`
 	StdStatus                string `gorm:"type:varchar(255)"`
+	Components               string `gorm:"type:varchar(255)"`
 	ChangelogTotal           int
 	common.NoPKModel
 }

@@ -112,6 +112,11 @@ type Issue struct {
 				Name      string `json:"name"`
 			} `json:"statusCategory"`
 		} `json:"status"`
+		Components []struct {
+			Self string `json:"self"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"components"`
 		Timeoriginalestimate *int64 `json:"timeoriginalestimate"`
 		Description          string `json:"description"`
 		Timetracking         *struct {
