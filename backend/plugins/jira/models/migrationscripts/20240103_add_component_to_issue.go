@@ -38,7 +38,7 @@ func (script *addComponents20230412) Up(basicRes context.BasicRes) errors.Error 
 }
 
 func (*addComponents20230412) Version() uint64 {
-	return 20230412142316
+	return 20240103142316
 }
 
 func (*addComponents20230412) Name() string {
