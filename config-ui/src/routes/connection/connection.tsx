@@ -24,8 +24,8 @@ import { theme, Table, Button, Modal, message, Space } from 'antd';
 import API from '@/api';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { PageHeader, Message } from '@/components';
-import { selectConnection, removeConnection } from '@/features';
-import { useTips, useRefreshData } from '@/hooks';
+import { selectConnection, removeConnection, showTips } from '@/features';
+import { useRefreshData } from '@/hooks';
 import {
   ConnectionStatus,
   DataScopeRemote,
@@ -70,7 +70,6 @@ export const Connection = () => {
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
 
   const navigate = useNavigate();
-  const { setTips } = useTips();
   const { ready, data } = useRefreshData(
     () => API.scope.list(plugin, connectionId, { page, pageSize, blueprints: true }),
     [version, page, pageSize],
@@ -218,12 +217,7 @@ export const Connection = () => {
 
     if (success) {
       setVersion((v) => v + 1);
-      setTips(
-        <Message
-          content="Scope Config(s) have been updated. If you would like to re-transform or re-collect the data in the related
-        project(s), please go to the Project page and do so."
-        />,
-      );
+      dispatch(showTips({ type: 'scope-config-changed' }));
       handleHideDialog();
     }
   };

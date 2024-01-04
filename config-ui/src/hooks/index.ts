@@ -19,5 +19,4 @@
 export * from './extend-redux';
 export * from './use-auto-refresh';
 export * from './use-refresh-data';
-export * from './use-tips';
 export * from './user-proxy-prefix';
