@@ -22,7 +22,7 @@ import { CSSTransition } from 'react-transition-group';
 import { CloseOutlined } from '@ant-design/icons';
 import { Layout as AntdLayout, Menu, Divider, Button } from 'antd';
 
-import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { PageLoading, Logo, ExternalLink } from '@/components';
 import { init, selectError, selectStatus } from '@/features';
 import { TipsContextProvider, TipsContextConsumer } from '@/store';

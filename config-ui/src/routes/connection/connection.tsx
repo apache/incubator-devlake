@@ -22,7 +22,7 @@ import { DeleteOutlined, PlusOutlined, NodeIndexOutlined, LinkOutlined, ClearOut
 import { theme, Table, Button, Modal, message, Space } from 'antd';
 
 import API from '@/api';
-import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { PageHeader, Message } from '@/components';
 import { selectConnection, removeConnection } from '@/features';
 import { useTips, useRefreshData } from '@/hooks';

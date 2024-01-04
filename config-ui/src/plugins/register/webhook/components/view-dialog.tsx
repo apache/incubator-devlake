@@ -19,7 +19,7 @@
 import { useState, useMemo } from 'react';
 import { Modal, Button } from 'antd';
 
-import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { Block, CopyText, ExternalLink, Message } from '@/components';
 import { selectWebhook, renewWebhookApiKey } from '@/features';
 import { IWebhook } from '@/types';

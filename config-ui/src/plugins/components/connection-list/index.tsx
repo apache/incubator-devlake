@@ -22,7 +22,7 @@ import { EyeOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { theme, Table, Button, Modal } from 'antd';
 import styled from 'styled-components';
 
-import { useAppSelector } from '@/app/hook';
+import { useAppSelector } from '@/hooks';
 import { selectConnections } from '@/features/connections';
 import { getPluginConfig, ConnectionStatus, ConnectionForm } from '@/plugins';
 import { WebHookConnection } from '@/plugins/register/webhook';

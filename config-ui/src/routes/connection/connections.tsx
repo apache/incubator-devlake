@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { theme, Badge, Modal } from 'antd';
 import { chunk } from 'lodash';
 
-import { useAppSelector } from '@/app/hook';
+import { useAppSelector } from '@/hooks';
 import { selectPlugins, selectAllConnections, selectWebhooks } from '@/features/connections';
 import { getPluginConfig, ConnectionList, ConnectionForm } from '@/plugins';
 
