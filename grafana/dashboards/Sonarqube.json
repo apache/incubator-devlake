@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 33,
+  "id": 21,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -28,7 +28,7 @@
         "uid": "grafana"
       },
       "gridPos": {
-        "h": 3,
+        "h": 4,
         "w": 13,
         "x": 0,
         "y": 0
@@ -40,7 +40,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "- Use Cases: This dashboard shows the code quality metrics from SonarQube.\n- Data Source Required: SonarQube v8.2+",
+        "content": "- Use Cases: This dashboard shows the code quality metrics from SonarQube.\n- Data Source Required: SonarQube v8.2+\n- This dashboard does not honor the time filter on the top-right side as SonarQube metrics are all from the latest scan.",
         "mode": "markdown"
       },
       "pluginVersion": "9.5.14",
@@ -66,7 +66,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 3
+        "y": 4
       },
       "id": 16,
       "targets": [
@@ -113,7 +113,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 4
+        "y": 5
       },
       "id": 2,
       "options": {
@@ -141,7 +141,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*) as 'Bugs'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)\n  and `type` = 'BUG'\nORDER BY created_date",
+          "rawSql": "SELECT\n  count(*) as 'Bugs'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'BUG'\n  and severity in ($severity)\n  ",
           "refId": "A",
           "select": [
             [
@@ -153,6 +153,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -200,7 +217,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 4
+        "y": 5
       },
       "id": 3,
       "options": {
@@ -228,7 +245,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*) as 'Vulnerabilities'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)\n  and `type` = 'VULNERABILITY'\nORDER BY created_date",
+          "rawSql": "SELECT\n  count(*) as 'Vulnerabilities'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'VULNERABILITY'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -240,6 +257,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -279,7 +313,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "hotspots"
         },
         "overrides": []
       },
@@ -287,7 +322,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 4
+        "y": 5
       },
       "id": 4,
       "options": {
@@ -315,7 +350,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(IF(status = 'TO_REVIEW', 1, NULL)) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)\n  and `type` = 'HOTSPOTS'\nORDER BY created_date",
+          "rawSql": "SELECT\n  COUNT(*) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)\n",
           "refId": "A",
           "select": [
             [
@@ -327,6 +362,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -374,7 +426,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 4
+        "y": 5
       },
       "id": 13,
       "options": {
@@ -402,7 +454,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CONCAT(ROUND(COUNT(IF(status != 'TO_REVIEW', 1, NULL)) / COUNT(*) * 100, 2), '%') AS 'Reviewed'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)\n  and `type` = 'HOTSPOTS'\nORDER BY created_date",
+          "rawSql": "SELECT\n  CONCAT(ROUND(COUNT(IF(status != 'TO_REVIEW', 1, NULL)) / COUNT(*) * 100, 2), '%') AS 'Reviewed'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -414,6 +466,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -439,7 +508,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 9
       },
       "id": 12,
       "panels": [],
@@ -487,7 +556,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 9
+        "y": 10
       },
       "id": 8,
       "options": {
@@ -527,6 +596,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -567,7 +653,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "string"
         },
         "overrides": []
       },
@@ -575,7 +661,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 9
+        "y": 10
       },
       "id": 7,
       "options": {
@@ -603,7 +689,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CONCAT(ROUND(SUM(debt) / (8 * 60), 0), ' days') AS 'Debt'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)",
+          "rawSql": "SELECT\n  concat(FLOOR(SUM(debt)/8/60), \" day(s) \", FLOOR((SUM(debt)%480)/60), \" hour(s) \") AS 'Debt'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'CODE_SMELL'\n  and severity in ($severity)\n  ",
           "refId": "A",
           "select": [
             [
@@ -615,6 +701,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -655,7 +758,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "code smells"
         },
         "overrides": []
       },
@@ -663,7 +766,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 9
+        "y": 10
       },
       "id": 14,
       "options": {
@@ -691,7 +794,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n\tCOUNT(if(type = 'CODE_SMELL', 1, null)) as 'Code Smells'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)",
+          "rawSql": "SELECT\n\tCOUNT(*) as 'Code Smells'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'CODE_SMELL'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -703,6 +806,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -728,7 +848,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 15
       },
       "id": 6,
       "panels": [],
@@ -776,7 +896,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 15
+        "y": 16
       },
       "id": 10,
       "options": {
@@ -816,6 +936,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -863,7 +1000,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 15
+        "y": 16
       },
       "id": 9,
       "options": {
@@ -955,10 +1092,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 21
       },
       "id": 17,
       "options": {
@@ -983,7 +1120,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n\tfile_name, num_of_lines as 'Lines of Code', bugs as 'Bugs', vulnerabilities as 'Vulnerabilities', code_smells as 'Code Smells', \n\tsecurity_hotspots as 'Security Hotspots', CONCAT(ROUND(coverage, 2), '%') as 'Coverage', CONCAT(ROUND(duplicated_lines_density, 2), '%') as 'Duplications'\nFROM cq_file_metrics\nWHERE\n  project_key in ($project_id)\n  order by bugs\nlimit $rows",
+          "rawSql": "SELECT\n\tfile_name, num_of_lines as 'Lines of Code', bugs as 'Bugs', vulnerabilities as 'Vulnerabilities', code_smells as 'Code Smells', \n\tsecurity_hotspots as 'Security Hotspots', CONCAT(ROUND(coverage, 2), '%') as 'Coverage', CONCAT(ROUND(duplicated_lines_density, 2), '%') as 'Duplications'\nFROM cq_file_metrics\nWHERE\n  project_key in ($project_id)\nORDER BY bugs desc\nlimit 20",
           "refId": "A",
           "select": [
             [
@@ -995,6 +1132,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprint_labels",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1007,7 +1161,7 @@
           ]
         }
       ],
-      "title": "Code Quality Metrics by Files",
+      "title": "Code Quality Metrics by Files (Top 20 order by Bugs)",
       "type": "table"
     }
   ],
@@ -1033,7 +1187,7 @@
         "definition": "select concat(name, '--', id) as text from cq_projects",
         "hide": 0,
         "includeAll": true,
-        "label": "Choose Project",
+        "label": "SonarQube Project",
         "multi": true,
         "name": "project_id",
         "options": [],
@@ -1046,47 +1200,39 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "20",
-          "value": "20"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
+        "datasource": "mysql",
+        "definition": "select distinct severity from cq_issues where id like 'sonar%'",
         "hide": 0,
-        "includeAll": false,
-        "label": "rows",
-        "multi": false,
-        "name": "rows",
-        "options": [
-          {
-            "selected": true,
-            "text": "20",
-            "value": "20"
-          },
-          {
-            "selected": false,
-            "text": "50",
-            "value": "50"
-          },
-          {
-            "selected": false,
-            "text": "100",
-            "value": "100"
-          }
-        ],
-        "query": "20,50,100",
-        "queryValue": "",
+        "includeAll": true,
+        "label": "Severity",
+        "multi": true,
+        "name": "severity",
+        "options": [],
+        "query": "select distinct severity from cq_issues where id like 'sonar%'",
+        "refresh": 1,
+        "regex": "",
         "skipUrlSync": false,
-        "type": "custom"
+        "sort": 0,
+        "type": "query"
       }
     ]
   },
   "time": {
-    "from": "now-10y",
+    "from": "now",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "SonarQube",
   "uid": "WA0qbuJ4k",
-  "version": 2,
+  "version": 7,
   "weekStart": ""
 }
