@@ -16,8 +16,4 @@
  *
  */
 
-import { useContext } from 'react';
-
-import { TipsContext } from '@/store';
-
-export const useTips = () => useContext(TipsContext);
+export * from './slice';
