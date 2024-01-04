@@ -100,7 +100,7 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
-      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`);
+      navigate(pname ? `/projects/${encodeName(pname)}` : `/advanced/blueprints/${blueprint.id}`);
     }
   };
 
@@ -168,7 +168,7 @@ export const BlueprintConnectionDetailPage = () => {
         pname
           ? [
               { name: 'Projects', path: '/projects' },
-              { name: pname, path: `/projects/${pname}` },
+              { name: pname, path: `/projects/${encodeName(pname)}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
           : [
