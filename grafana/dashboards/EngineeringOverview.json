@@ -1819,7 +1819,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  sum(case when i.type = 'BUG' then 1 else 0 end) as 'Bug',\n  sum(case when i.type = 'BUG' and epic_key != '' then 1 else 0 end) as 'Strategic',\n  sum(case when i.type != 'BUG' and epic_key = '' then 1 else 0 end) as 'Non-Strategic'\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.resolution_date is not null and\n  date(resolution_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
+          "rawSql": "select\n  sum(case when i.type = 'BUG' then 1 else 0 end) as 'Bug',\n  sum(case when i.type != 'BUG' and epic_key != '' then 1 else 0 end) as 'Strategic',\n  sum(case when i.type != 'BUG' and epic_key = '' then 1 else 0 end) as 'Non-Strategic'\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.resolution_date is not null and\n  date(resolution_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
           "refId": "A",
           "select": [
             [
