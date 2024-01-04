@@ -157,7 +157,7 @@ export const BlueprintConnectionDetailPage = () => {
         pname
           ? [
               { name: 'Projects', path: '/projects' },
-              { name: pname, path: `/projects/${pname}` },
+              { name: pname, path: `/projects/${encodeName(pname)}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
           : [
