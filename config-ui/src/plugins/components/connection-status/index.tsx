@@ -20,7 +20,7 @@ import { RedoOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import styled from 'styled-components';
 
-import { useAppDispatch } from '@/app/hook';
+import { useAppDispatch } from '@/hooks';
 import { testConnection } from '@/features/connections';
 import { IConnection, IConnectionStatus } from '@/types';
 import { operator } from '@/utils';

@@ -21,7 +21,7 @@ import styled from 'styled-components';
 export const Tips = styled.div`
   display: flex;
   align-items: center;
-  padding: 14px 0;
+  padding: 12px 24px;
   color: #fff;
   background-color: #3c5088;
 

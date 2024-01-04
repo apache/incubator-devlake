@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { EyeOutlined, FormOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { Flex, Table, Space, Button } from 'antd';
 
-import { useAppSelector } from '@/app/hook';
+import { useAppSelector } from '@/hooks';
 import { selectWebhooks } from '@/features/connections';
 import { IWebhook } from '@/types';
 

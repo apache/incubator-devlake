@@ -121,6 +121,8 @@ type IssuesResponse struct {
 	DiscussionLocked bool
 	IssueType        string
 	Serverity        string
+	Component        string
+	Priority         string
 	Links            struct {
 		Self       string `json:"url"`
 		Notes      string
@@ -281,6 +283,10 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		ProjectId:       projectId,
 		Number:          issue.Iid,
 		State:           issue.State,
+		Type:            issue.Type,
+		Severity:        issue.Serverity,
+		Component:       issue.Component,
+		Priority:        issue.Priority,
 		Title:           issue.Title,
 		Body:            issue.Description,
 		Url:             issue.Links.Self,

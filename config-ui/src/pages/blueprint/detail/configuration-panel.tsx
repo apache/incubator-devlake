@@ -19,7 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FormOutlined, PlusOutlined } from '@ant-design/icons';
-import { Flex, Table, Space, Button } from 'antd';
+import { Flex, Table, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
