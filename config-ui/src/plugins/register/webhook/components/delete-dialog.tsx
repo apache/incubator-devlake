@@ -19,7 +19,7 @@
 import { useState } from 'react';
 import { Modal } from 'antd';
 
-import { useAppDispatch } from '@/app/hook';
+import { useAppDispatch } from '@/hooks';
 import { Message } from '@/components';
 import { removeWebhook } from '@/features';
 import { operator } from '@/utils';

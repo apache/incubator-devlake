@@ -16,7 +16,7 @@
  *
  */
 
-import { useAppSelector } from '@/app/hook';
+import { useAppSelector } from '@/hooks';
 
 import { selectConnection, selectWebhook } from '../slice';
 

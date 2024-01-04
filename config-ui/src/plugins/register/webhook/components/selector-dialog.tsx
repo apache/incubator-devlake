@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { Modal } from 'antd';
 import MillerColumnsSelect from 'miller-columns-select';
 
-import { useAppSelector } from '@/app/hook';
+import { useAppSelector } from '@/hooks';
 import { Block, Loading } from '@/components';
 import { selectWebhooks } from '@/features';
 import { IWebhook } from '@/types';
