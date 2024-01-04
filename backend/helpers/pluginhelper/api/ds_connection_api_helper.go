@@ -59,7 +59,7 @@ func (connApi *DsConnectionApiHelper[C, S, SC]) Delete(input *plugin.ApiResource
 			Success: false,
 			Message: err.Error(),
 			Data:    refs,
-		}, Status: err.GetType().GetHttpCode()}, nil
+		}, Status: err.GetType().GetHttpCode()}, err
 	}
 	conn = connApi.Sanitize(conn)
 	return &plugin.ApiResourceOutput{
