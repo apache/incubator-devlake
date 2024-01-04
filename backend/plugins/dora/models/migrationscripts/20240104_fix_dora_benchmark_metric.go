@@ -18,13 +18,22 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addDoraBenchmark),
-		new(fixDoraBenchmarkMetric),
-	}
+type fixDoraBenchmarkMetric struct{}
+
+func (u *fixDoraBenchmarkMetric) Up(baseRes context.BasicRes) errors.Error {
+	db := baseRes.GetDal()
+	return db.Exec("UPDATE dora_benchmarks SET metric = 'Deployment frequency' WHERE id = 1")
+
+}
+
+func (*fixDoraBenchmarkMetric) Version() uint64 {
+	return 20240104000002
+}
+
+func (*fixDoraBenchmarkMetric) Name() string {
+	return "fix dora benchmark metric"
 }
