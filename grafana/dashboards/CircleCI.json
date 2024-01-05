@@ -115,7 +115,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "1. Total Number of Successful Pipelines [Selected Time Range]",
+      "title": "1. Total Number of Successful Workflows [Selected Time Range]",
       "type": "stat"
     },
     {
@@ -194,7 +194,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "2. Mean Pipeline Success Rate",
+      "title": "2. Mean Workflow Success Rate",
       "type": "stat"
     },
     {
@@ -358,7 +358,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "3. Total Pipeline Result Distribution",
+      "title": "3. Total Workflow Result Distribution",
       "type": "piechart"
     },
     {
@@ -435,7 +435,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "4. Mean Pipeline Duration in Minutes",
+      "title": "4. Mean Workflow Duration in Minutes",
       "type": "stat"
     },
     {
@@ -532,19 +532,19 @@
           ]
         }
       ],
-      "title": "1.1 Total Number of Successful Pipelines [Each Month]",
+      "title": "1.1 Total Number of Successful Workflows [Each Month]",
       "type": "barchart"
     },
     {
       "datasource": "mysql",
-      "description": "1. Mean pipeline runs success rate over time.\n2. The pipeline runs being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Mean workflow runs success rate over time.\n2. The workflow runs being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "Pipeline Success Rate(%)",
+            "axisLabel": "Workflow Success Rate(%)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -576,7 +576,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Pipeline Success Rate"
+              "options": "Workflow Success Rate"
             },
             "properties": [
               {
@@ -650,7 +650,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "2.1 Pipeline Success Rate [Each Month]",
+      "title": "2.1 Workflow Success Rate [Each Month]",
       "type": "barchart"
     },
     {
@@ -788,7 +788,7 @@
           ]
         }
       ],
-      "title": "3.1 Number of Successful and Failed Pipelines [Each Month]",
+      "title": "3.1 Number of Successful and Failed Workflows [Each Month]",
       "type": "timeseries"
     },
     {
@@ -901,7 +901,7 @@
           ]
         }
       ],
-      "title": "4.1 Mean Pipeline Duration in Minutes [Each Month]",
+      "title": "4.1 Mean Workflow Duration in Minutes [Each Month]",
       "type": "barchart"
     },
     {
