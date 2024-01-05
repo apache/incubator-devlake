@@ -70,7 +70,7 @@ func ExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 
 type GitlabDeploymentResp struct {
 	CreatedAt   time.Time                   `json:"created_at"`
-	UpdatedAt   time.Time                   `json:"updated_at"`
+	UpdatedAt   *time.Time                  `json:"updated_at"`
 	Status      string                      `json:"status"`
 	Deployable  GitlabDeploymentDeployable  `json:"deployable"`
 	Environment GitlabDeploymentEnvironment `json:"environment"`
@@ -179,13 +179,13 @@ type GitlabDeploymentFullUser struct {
 }
 
 type GitlabDeploymentPipeline struct {
-	CreatedAt time.Time `json:"created_at"`
-	ID        int       `json:"id"`
-	Ref       string    `json:"ref"`
-	Sha       string    `json:"sha"`
-	Status    string    `json:"status"`
-	UpdatedAt time.Time `json:"updated_at"`
-	WebURL    string    `json:"web_url"`
+	CreatedAt *time.Time `json:"created_at"`
+	ID        int        `json:"id"`
+	Ref       string     `json:"ref"`
+	Sha       string     `json:"sha"`
+	Status    string     `json:"status"`
+	UpdatedAt *time.Time `json:"updated_at"`
+	WebURL    string     `json:"web_url"`
 }
 
 type GitlabDeploymentDeployable struct {
