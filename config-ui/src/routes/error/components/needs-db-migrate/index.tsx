@@ -22,6 +22,7 @@ import { Card, Space, Flex, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
+import { PATHS } from '@/config';
 import { operator } from '@/utils';
 
 export const NeedsDBMigrate = () => {
@@ -35,7 +36,7 @@ export const NeedsDBMigrate = () => {
     });
 
     if (success) {
-      navigate('/');
+      navigate(PATHS.ROOT());
     }
   };
 

@@ -22,8 +22,9 @@ import { DeleteOutlined, PlusOutlined, NodeIndexOutlined, LinkOutlined, ClearOut
 import { theme, Table, Button, Modal, message, Space } from 'antd';
 
 import API from '@/api';
-import { useAppDispatch, useAppSelector } from '@/hooks';
 import { PageHeader, Message } from '@/components';
+import { PATHS } from '@/config';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { selectConnection, removeConnection, showTips } from '@/features';
 import { useRefreshData } from '@/hooks';
 import {
@@ -124,7 +125,7 @@ export const Connection = () => {
 
     if (res.status === 'success') {
       message.success('Delete Connection Successful.');
-      navigate('/connections');
+      navigate(PATHS.CONNECTIONS());
     } else if (res.status === 'conflict') {
       setType('deleteConnectionFailed');
       setConflict(res.conflict);
@@ -225,7 +226,7 @@ export const Connection = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Connections', path: '/connections' },
+        { name: 'Connections', path: PATHS.CONNECTIONS() },
         { name, path: '' },
       ]}
       extra={
@@ -277,7 +278,7 @@ export const Connection = () => {
                   <ul>
                     {projects.map((it: string) => (
                       <li key={it}>
-                        <Link to={`/projects/${it}`}>{it}</Link>
+                        <Link to={PATHS.PROJECT(it)}>{it}</Link>
                       </li>
                     ))}
                   </ul>

@@ -20,13 +20,15 @@ import { useNavigate } from 'react-router-dom';
 import { CloseCircleOutlined } from '@ant-design/icons';
 import { Card, Space, Flex, Button } from 'antd';
 
+import { PATHS } from '@/config';
+
 interface Props {
   error: string | Error;
 }
 
 export const Exception = ({ error }: Props) => {
   const navigate = useNavigate();
-  const handleResetError = () => navigate('/');
+  const handleResetError = () => navigate(PATHS.ROOT());
 
   return (
     <Card>

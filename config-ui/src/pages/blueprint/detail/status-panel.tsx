@@ -23,7 +23,7 @@ import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'ant
 
 import API from '@/api';
 import { Message } from '@/components';
-import { getCron } from '@/config';
+import { getCron, PATHS } from '@/config';
 import { useAutoRefresh } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
 import { IBlueprint, IPipeline, IPipelineStatus } from '@/types';
@@ -114,7 +114,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     });
 
     if (success) {
-      navigate('/advanced/blueprints');
+      navigate(PATHS.BLUEPRINTS());
     }
   };
 

@@ -24,6 +24,7 @@ import { Layout as AntdLayout, Menu, Flex, Divider, Tooltip, Button } from 'antd
 
 import API from '@/api';
 import { PageLoading, Logo, ExternalLink, Message } from '@/components';
+import { PATHS } from '@/config';
 import {
   init,
   selectError,
@@ -111,7 +112,7 @@ export const Layout = () => {
     );
 
     if (success) {
-      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprintId}`);
+      navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprintId));
     }
   };
 
