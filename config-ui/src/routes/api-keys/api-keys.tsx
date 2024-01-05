@@ -23,6 +23,7 @@ import dayjs from 'dayjs';
 
 import API from '@/api';
 import { PageHeader, Block, ExternalLink, CopyText, Message } from '@/components';
+import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
@@ -92,7 +93,7 @@ export const ApiKeys = () => {
 
   return (
     <PageHeader
-      breadcrumbs={[{ name: 'API Keys', path: '/keys' }]}
+      breadcrumbs={[{ name: 'API Keys', path: PATHS.APIKEYS() }]}
       extra={
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal('create')}>
           New API Key

@@ -23,6 +23,7 @@ import { Flex, Space, Card, Modal, Input, Checkbox, Button, message } from 'antd
 
 import API from '@/api';
 import { Block } from '@/components';
+import { PATHS } from '@/config';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
@@ -76,7 +77,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     if (success) {
       onRefresh();
-      navigate(`/projects/${encodeName(name)}?tabId=settings`);
+      navigate(PATHS.PROJECT(name, 'settings'));
     }
   };
 
@@ -95,7 +96,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
     });
 
     if (success) {
-      navigate(`/projects`);
+      navigate(PATHS.PROJECTS());
     }
   };
 

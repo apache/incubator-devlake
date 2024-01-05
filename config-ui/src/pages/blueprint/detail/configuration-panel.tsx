@@ -23,13 +23,11 @@ import { Flex, Table, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
-import { getCron } from '@/config';
+import { getCron, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { getPluginConfig } from '@/plugins';
 import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';
-
-import { encodeName } from '../../project/utils';
 
 import { FromEnum } from '../types';
 import { validRawPlan } from '../utils';
@@ -179,8 +177,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             <NoData
               text={
                 <>
-                  If you have not created data connections yet, please <Link to="/connections">create connections</Link>{' '}
-                  first and then add them to the project.
+                  If you have not created data connections yet, please{' '}
+                  <Link to={PATHS.CONNECTIONS()}>create connections</Link> first and then add them to the project.
                 </>
               }
               action={
@@ -210,8 +208,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? `/advanced/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
-                            : `/projects/${encodeName(blueprint.projectName)}/${cs.plugin}-${cs.connectionId}`
+                            ? PATHS.BLUEPRINT_CONNECTION(blueprint.id, cs.plugin, cs.connectionId)
+                            : PATHS.PROJECT_CONNECTION(blueprint.projectName, cs.plugin, cs.connectionId)
                         }
                       >
                         Edit Data Scope and Scope Config
