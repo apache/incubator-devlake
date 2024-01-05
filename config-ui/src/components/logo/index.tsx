@@ -32,7 +32,7 @@ interface Props {
 export const Logo = ({ style }: Props) => {
   return (
     <Wrapper style={style}>
-      <img src={import.meta.env.DEVLAKE_LOGO ?? LogoImg} alt="Logo" />
+      <img src={LogoImg} alt="Logo" />
     </Wrapper>
   );
 };
