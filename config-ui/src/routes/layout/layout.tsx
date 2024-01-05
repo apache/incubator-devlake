@@ -24,6 +24,7 @@ import { Layout as AntdLayout, Menu, Flex, Divider, Tooltip, Button } from 'antd
 
 import API from '@/api';
 import { PageLoading, Logo, ExternalLink, Message } from '@/components';
+import { PATHS } from '@/config';
 import {
   init,
   selectError,
@@ -111,7 +112,7 @@ export const Layout = () => {
     );
 
     if (success) {
-      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprintId}`);
+      navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprintId));
     }
   };
 
@@ -127,7 +128,13 @@ export const Layout = () => {
           overflow: 'auto',
         }}
       >
-        <Logo style={{ padding: 24 }} />
+        {import.meta.env.DEVLAKE_TITLE_CUSTOM ? (
+          <h2 style={{ margin: '36px 0', textAlign: 'center', color: '#fff' }}>
+            {import.meta.env.DEVLAKE_TITLE_CUSTOM}
+          </h2>
+        ) : (
+          <Logo style={{ padding: 24 }} />
+        )}
         <Menu
           mode="inline"
           theme="dark"
@@ -152,20 +159,26 @@ export const Layout = () => {
             background: 'transparent',
           }}
         >
-          {headerItems.map((item, i) => (
-            <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
-              {item.icon}
-              <span style={{ marginLeft: 4 }}>{item.label}</span>
-              {i !== headerItems.length - 1 && <Divider type="vertical" />}
-            </ExternalLink>
-          ))}
+          {headerItems
+            .filter((item) =>
+              import.meta.env.DEVLAKE_COPYRIGHT_HIDE ? !['GitHub', 'Slack'].includes(item.label) : true,
+            )
+            .map((item, i, arr) => (
+              <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
+                {item.icon}
+                <span style={{ marginLeft: 4 }}>{item.label}</span>
+                {i !== arr.length - 1 && <Divider type="vertical" />}
+              </ExternalLink>
+            ))}
         </Header>
-        <Content style={{ margin: '0 auto', width: 1188 }}>
+        <Content style={{ margin: '16px auto', width: 1188 }}>
           <Outlet />
         </Content>
-        <Footer style={{ color: '#a1a1a1', textAlign: 'center' }}>
-          {import.meta.env.DEVLAKE_COPYRIGHT ?? 'Apache 2.0 License'}
-        </Footer>
+        {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
+          <Footer>
+            <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
+          </Footer>
+        )}
         <CSSTransition in={!!tipsShow} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
           <S.Tips ref={tipsRef}>
             <div className="content">

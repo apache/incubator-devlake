@@ -35,16 +35,12 @@ export const PageHeader = ({ breadcrumbs, extra, children }: Props) => {
     <S.Container>
       <S.Title>
         <S.Breadcrumbs>
-          {breadcrumbs.map(({ name, path }, i) => (
+          {breadcrumbs.map(({ name, path }, i, arr) => (
             <S.Breadcrumb key={i}>
-              {breadcrumbs.length !== i + 1 ? (
-                <Link to={path}>
-                  {name}
-                  <RightOutlined />
-                </Link>
-              ) : (
+              <Link to={path}>
                 <span>{name}</span>
-              )}
+                {arr.length - 1 !== i && <RightOutlined />}
+              </Link>
             </S.Breadcrumb>
           ))}
         </S.Breadcrumbs>

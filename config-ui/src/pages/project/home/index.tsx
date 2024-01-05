@@ -24,7 +24,7 @@ import dayjs from 'dayjs';
 
 import API from '@/api';
 import { PageHeader, Block, ExternalLink } from '@/components';
-import { getCron, cronPresets } from '@/config';
+import { getCron, cronPresets, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
@@ -32,7 +32,7 @@ import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
 import { IBlueprint, IBPMode } from '@/types';
 
-import { validName, encodeName } from '../utils';
+import { validName } from '../utils';
 
 import * as S from './styled';
 
@@ -119,7 +119,7 @@ export const ProjectHomePage = () => {
 
   return (
     <PageHeader
-      breadcrumbs={[{ name: 'Projects', path: '/projects' }]}
+      breadcrumbs={[{ name: 'Projects', path: PATHS.PROJECTS() }]}
       extra={
         <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           New Project
@@ -136,7 +136,7 @@ export const ProjectHomePage = () => {
             dataIndex: 'name',
             key: 'name',
             render: (name: string) => (
-              <Link to={`/projects/${encodeName(name)}?tab=configuration`} style={{ color: '#292b3f' }}>
+              <Link to={PATHS.PROJECT(name, 'configuration')} style={{ color: '#292b3f' }}>
                 {name}
               </Link>
             ),
@@ -194,7 +194,7 @@ export const ProjectHomePage = () => {
               <Button
                 type="primary"
                 icon={<SettingOutlined />}
-                onClick={() => navigate(`/projects/${encodeName(name)}?tab=configuration`)}
+                onClick={() => navigate(PATHS.PROJECT(name, 'configuration'))}
               />
             ),
           },

@@ -22,8 +22,9 @@ import { EyeOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { theme, Table, Button, Modal } from 'antd';
 import styled from 'styled-components';
 
-import { useAppSelector } from '@/hooks';
 import { selectConnections } from '@/features/connections';
+import { PATHS } from '@/config';
+import { useAppSelector } from '@/hooks';
 import { getPluginConfig, ConnectionStatus, ConnectionForm } from '@/plugins';
 import { WebHookConnection } from '@/plugins/register/webhook';
 
@@ -99,7 +100,7 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
             width: 200,
             render: (_, { plugin, id }) => (
               <>
-                <Button type="link" icon={<EyeOutlined />} onClick={() => navigate(`/connections/${plugin}/${id}`)}>
+                <Button type="link" icon={<EyeOutlined />} onClick={() => navigate(PATHS.CONNECTION(plugin, id))}>
                   Details
                 </Button>
                 <Button type="link" icon={<EditOutlined />} onClick={() => handleShowForm(id)}>

@@ -20,9 +20,10 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 interface ImportMetaEnv {
-  readonly DEVLAKE_LOGO: string;
-  readonly DEVLAKE_COPYRIGHT: string;
-  readonly DEVLAKE_PRIMARY_COLOR: string;
+  readonly DEVLAKE_PATH_PREFIX: string;
+  readonly DEVLAKE_TITLE_CUSTOM: string;
+  readonly DEVLAKE_COLOR_CUSTOM: string;
+  readonly DEVLAKE_COPYRIGHT_HIDE: boolean;
   readonly DEVLAKE_PLUGINS: string;
 }
 
