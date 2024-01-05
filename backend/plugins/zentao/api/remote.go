@@ -91,7 +91,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 					return nil, err
 				}
 				if resBody.Page < queryData.Page {
-					fmt.Println(resBody.Page, queryData.Page, resBody)
 					return nil, nil
 				}
 				return resBody.Values, nil
