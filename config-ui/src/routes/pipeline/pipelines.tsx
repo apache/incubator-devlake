@@ -19,6 +19,7 @@ import { useState, useMemo } from 'react';
 
 import API from '@/api';
 import { PageHeader } from '@/components';
+import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 
 import { PipelineTable } from './components';
@@ -34,8 +35,8 @@ export const Pipelines = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: '/advanced/blueprints' },
-        { name: 'Pipelines', path: '/advanced/pipelines' },
+        { name: 'Advanced', path: PATHS.BLUEPRINTS() },
+        { name: 'Pipelines', path: PATHS.PIPELINES() },
       ]}
     >
       <PipelineTable

@@ -22,7 +22,7 @@ import { CheckCircleOutlined, CloseCircleOutlined, RedoOutlined, QuestionCircleO
 import { Card, Flex, Button, Tag } from 'antd';
 
 import API from '@/api';
-import { DEVLAKE_ENDPOINT } from '@/config';
+import { DEVLAKE_ENDPOINT, PATHS } from '@/config';
 import { useAutoRefresh } from '@/hooks';
 
 export const Offline = () => {
@@ -51,7 +51,7 @@ export const Offline = () => {
   const { online } = data || { online: false };
 
   const handleContinue = () => {
-    navigate('/');
+    navigate(PATHS.ROOT());
   };
 
   return (

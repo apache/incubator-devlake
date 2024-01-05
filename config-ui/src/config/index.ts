@@ -19,3 +19,4 @@
 export * from './cron';
 export * from './endpoint';
 export * from './entities';
+export * from './paths';

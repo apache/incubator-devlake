@@ -31,9 +31,15 @@ import { Connections, Connection } from '@/routes/connection';
 import { Pipelines, Pipeline } from '@/routes/pipeline';
 import { ApiKeys } from '@/routes/api-keys';
 
+const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
+
 export const router = createBrowserRouter([
   {
-    path: 'db-migrate',
+    path: '/',
+    element: <Navigate to={PATH_PREFIX ? PATH_PREFIX : '/connections'} />,
+  },
+  {
+    path: `${PATH_PREFIX}/db-migrate`,
     element: <></>,
     loader: () => {
       throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
@@ -41,7 +47,7 @@ export const router = createBrowserRouter([
     errorElement: <Error />,
   },
   {
-    path: '/',
+    path: `${PATH_PREFIX}`,
     element: <Layout />,
     loader: layoutLoader,
     errorElement: <Error />,
