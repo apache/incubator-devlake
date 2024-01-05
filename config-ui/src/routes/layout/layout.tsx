@@ -117,17 +117,8 @@ export const Layout = () => {
   };
 
   return (
-    <AntdLayout style={{ minHeight: '100vh' }}>
-      <Sider
-        style={{
-          position: 'fixed',
-          top: 0,
-          bottom: 0,
-          left: 0,
-          height: '100vh',
-          overflow: 'auto',
-        }}
-      >
+    <AntdLayout style={{ height: '100vh' }}>
+      <Sider>
         {import.meta.env.DEVLAKE_TITLE_CUSTOM ? (
           <h2 style={{ margin: '36px 0', textAlign: 'center', color: '#fff' }}>
             {import.meta.env.DEVLAKE_TITLE_CUSTOM}
@@ -148,7 +139,7 @@ export const Layout = () => {
           {version}
         </div>
       </Sider>
-      <AntdLayout style={{ marginLeft: 200 }}>
+      <AntdLayout style={{ overflowY: 'auto' }}>
         <Header
           style={{
             display: 'flex',
