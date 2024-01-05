@@ -29,9 +29,9 @@ type GitlabDeployment struct {
 	ConnectionId uint64 `json:"connection_id" gorm:"primaryKey"`
 	GitlabId     int    `json:"gitlab_id" gorm:"primaryKey"`
 
-	CreatedDate time.Time `json:"created_date"`
-	UpdatedDate time.Time `json:"updated_date"`
-	Status      string    `json:"status"` //created, running, success, failed, canceled, or blocked
+	CreatedDate time.Time  `json:"created_date"`
+	UpdatedDate *time.Time `json:"updated_date"`
+	Status      string     `json:"status"` //created, running, success, failed, canceled, or blocked
 
 	DeploymentId int    `json:"id" gorm:"primaryKey"`
 	Iid          int    `json:"iid"`
@@ -78,13 +78,13 @@ type GitlabDeployment struct {
 	DeployableUserWebsiteURL   string `json:"deployable_user_website_url" gorm:"type:varchar(255)"`
 	DeployableUserOrganization string `json:"deployable_user_organization" gorm:"type:varchar(255)"`
 
-	DeployablePipelineCreatedAt time.Time `json:"deployable_pipeline_created_at"`
-	DeployablePipelineID        int       `json:"deployable_pipeline_id"`
-	DeployablePipelineRef       string    `json:"deployable_pipeline_ref" gorm:"type:varchar(255)"`
-	DeployablePipelineSha       string    `json:"deployable_pipeline_sha" gorm:"type:varchar(255)"`
-	DeployablePipelineStatus    string    `json:"deployable_pipeline_status" gorm:"type:varchar(255)"`
-	DeployablePipelineUpdatedAt time.Time `json:"deployable_pipeline_updated_at"`
-	DeployablePipelineWebURL    string    `json:"deployable_pipeline_web_url" gorm:"type:varchar(255)"`
+	DeployablePipelineCreatedAt *time.Time `json:"deployable_pipeline_created_at"`
+	DeployablePipelineID        int        `json:"deployable_pipeline_id"`
+	DeployablePipelineRef       string     `json:"deployable_pipeline_ref" gorm:"type:varchar(255)"`
+	DeployablePipelineSha       string     `json:"deployable_pipeline_sha" gorm:"type:varchar(255)"`
+	DeployablePipelineStatus    string     `json:"deployable_pipeline_status" gorm:"type:varchar(255)"`
+	DeployablePipelineUpdatedAt *time.Time `json:"deployable_pipeline_updated_at"`
+	DeployablePipelineWebURL    string     `json:"deployable_pipeline_web_url" gorm:"type:varchar(255)"`
 
 	UserAvatarURL string `json:"user_avatar_url" gorm:"type:varchar(255)"`
 	UserID        int    `json:"user_id"`
