@@ -952,7 +952,7 @@
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "Project Name",
+        "label": "CircleCI Project",
         "multi": true,
         "name": "full_name",
         "options": [],
