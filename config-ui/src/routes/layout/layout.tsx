@@ -164,7 +164,7 @@ export const Layout = () => {
           <Outlet />
         </Content>
         <Footer style={{ color: '#a1a1a1', textAlign: 'center' }}>
-          {import.meta.env.DEVLAKE_COPYRIGHT ?? 'Apache 2.0 License'}
+          <span>Apache 2.0 License</span>
         </Footer>
         <CSSTransition in={!!tipsShow} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
           <S.Tips ref={tipsRef}>
