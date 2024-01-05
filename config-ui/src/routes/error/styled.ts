@@ -42,7 +42,7 @@ export const Inner = styled.div`
     margin: 16px 0;
 
     &.warning {
-      color: #fa541c;
+      color: #faad14;
     }
   }
 `;

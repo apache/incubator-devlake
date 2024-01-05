@@ -18,7 +18,7 @@
 
 import { useState } from 'react';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { Card, Flex, Button } from 'antd';
+import { Card, Space, Flex, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
@@ -42,8 +42,10 @@ export const NeedsDBMigrate = () => {
   return (
     <Card>
       <h2>
-        <ExclamationCircleOutlined size={20} color="#fa541c" />
-        <span>New Migration Scripts Detected</span>
+        <Space>
+          <ExclamationCircleOutlined style={{ fontSize: 20, color: '#faad14' }} />
+          <span>New Migration Scripts Detected</span>
+        </Space>
       </h2>
       <p>
         If you have already started, please wait for database migrations to complete, do <strong>NOT</strong> close your
