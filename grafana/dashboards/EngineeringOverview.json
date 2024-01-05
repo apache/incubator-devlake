@@ -34,6 +34,13 @@
         "y": 0
       },
       "id": 32,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "EngineeringOverview",
+          "url": "https://devlake.apache.org/docs/Plugins/EngineeringOverview"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -92,6 +99,13 @@
         "y": 3
       },
       "id": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -195,6 +209,13 @@
         "y": 3
       },
       "id": 22,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.46,
@@ -285,6 +306,13 @@
         "y": 11
       },
       "id": 10,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -390,6 +418,13 @@
       },
       "id": 23,
       "interval": "",
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Lead Time",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementLeadTime"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -484,6 +519,13 @@
         "y": 17
       },
       "id": 14,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -587,6 +629,13 @@
         "y": 17
       },
       "id": 24,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -684,6 +733,13 @@
         "y": 25
       },
       "id": 6,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -798,6 +854,13 @@
         "y": 25
       },
       "id": 25,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [],
@@ -878,6 +941,13 @@
         "y": 33
       },
       "id": 4,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -982,6 +1052,13 @@
         "y": 33
       },
       "id": 26,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -1078,6 +1155,13 @@
         "y": 41
       },
       "id": 16,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1191,6 +1275,13 @@
         "y": 41
       },
       "id": 28,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [],
@@ -1271,6 +1362,13 @@
         "y": 49
       },
       "id": 12,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1384,6 +1482,13 @@
         "y": 49
       },
       "id": 29,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [],
@@ -1466,6 +1571,13 @@
         "y": 57
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1581,6 +1693,13 @@
         "y": 57
       },
       "id": 30,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [],
@@ -1700,6 +1819,13 @@
         "y": 65
       },
       "id": 20,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.27,
@@ -1784,6 +1910,13 @@
         "y": 65
       },
       "id": 21,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "name",

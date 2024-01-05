@@ -28,6 +28,13 @@
         "y": 0
       },
       "id": 111,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "EngineeringThroughputAndCycleTime",
+          "url": "https://devlake.apache.org/docs/Plugins/EngineeringThroughputAndCycleTime"
+        }
+      ],
       "options": {
         "content": "- Use Cases: This dashboard shows the engineering throughput and and cycle time, which helps to identify productivity and bottlenecks of the development process.\n- Data Source Required: GitHub and Jira([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required to tell DevLake what the story_points field is)",
         "mode": "markdown"
@@ -147,6 +154,13 @@
         "y": 4
       },
       "id": 79,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -285,6 +299,13 @@
         "y": 4
       },
       "id": 74,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -392,6 +413,13 @@
         "y": 4
       },
       "id": 98,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -499,6 +527,13 @@
         "y": 11
       },
       "id": 99,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Review Depth",
+          "url": "https://devlake.apache.org/docs/Metrics/PRReviewDepth"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -607,6 +642,13 @@
         "y": 11
       },
       "id": 100,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -714,6 +756,13 @@
         "y": 11
       },
       "id": 101,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Size",
+          "url": "https://devlake.apache.org/docs/Metrics/PRSize"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -818,6 +867,13 @@
         "y": 18
       },
       "id": 108,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -967,6 +1023,13 @@
         "y": 26
       },
       "id": 109,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Cycle Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCycleTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1071,6 +1134,13 @@
         "y": 33
       },
       "id": 120,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Coding Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCodingTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1206,6 +1276,13 @@
         "y": 33
       },
       "id": 117,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Pickup Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRPickupTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1341,6 +1418,13 @@
         "y": 33
       },
       "id": 118,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Review Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRReviewTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1476,6 +1560,13 @@
         "y": 33
       },
       "id": 119,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Deploy Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRDeployTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1649,4 +1740,4 @@
   "title": "Engineering Throughput and Cycle Time",
   "uid": "Jaaimc67k",
   "version": 3
-} 
+}

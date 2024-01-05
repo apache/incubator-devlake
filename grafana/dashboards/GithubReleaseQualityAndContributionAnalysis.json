@@ -28,6 +28,13 @@
         "y": 0
       },
       "id": 57,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "GithubReleaseQualityAndContributionAnalysis",
+          "url": "https://devlake.apache.org/docs/Plugins/GithubReleaseQualityAndContributionAnalysis"
+        }
+      ],
       "options": {
         "content": "- Use Cases: This dashboard can be used to track bugs.\n- Data Source Required: GitHub ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional) required. Additional settings are required to get version data).",
         "mode": "markdown"
@@ -83,6 +90,13 @@
         "y": 4
       },
       "id": 15,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "displayLabels": [
           "name",
@@ -218,6 +232,13 @@
         "y": 4
       },
       "id": 29,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "barWidth": 0.7,
         "groupWidth": 0.3,
@@ -295,6 +316,13 @@
         "y": 11
       },
       "id": 55,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "percent"
@@ -450,6 +478,13 @@
         "y": 11
       },
       "id": 53,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "percent"
@@ -535,6 +570,13 @@
         "y": 11
       },
       "id": 51,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "percent"
@@ -716,6 +758,13 @@
         "y": 18
       },
       "id": 43,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "showHeader": true,
         "sortBy": []
@@ -782,6 +831,13 @@
         "y": 25
       },
       "id": 30,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "percent",
@@ -868,6 +924,13 @@
         "y": 25
       },
       "id": 31,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "percent",
@@ -964,6 +1027,13 @@
         "y": 32
       },
       "id": 23,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1060,6 +1130,13 @@
         "y": 32
       },
       "id": 18,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.5,
         "groupWidth": 0.7,
@@ -1144,6 +1221,13 @@
         "y": 39
       },
       "id": 33,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1240,6 +1324,13 @@
         "y": 39
       },
       "id": 32,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "barWidth": 0.7,
         "groupWidth": 0.3,
@@ -1324,6 +1415,13 @@
         "y": 45
       },
       "id": 34,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1496,6 +1594,13 @@
         "y": 45
       },
       "id": 38,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "showHeader": true,
         "sortBy": []
@@ -1617,6 +1722,13 @@
         "y": 51
       },
       "id": 35,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "displayLabels": [
           "name",
@@ -1793,6 +1905,13 @@
         "y": 51
       },
       "id": 39,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "showHeader": true,
         "sortBy": []
@@ -1890,6 +2009,13 @@
         "y": 58
       },
       "id": 41,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.3,
         "groupWidth": 0.7,
@@ -2012,6 +2138,13 @@
         "y": 58
       },
       "id": 42,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "showHeader": true,
         "sortBy": []
@@ -2107,6 +2240,13 @@
         "y": 65
       },
       "id": 26,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "percent"
@@ -2223,6 +2363,13 @@
         "y": 65
       },
       "id": 36,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "percent"
@@ -2339,6 +2486,13 @@
         "y": 65
       },
       "id": 37,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "displayLabels": [
           "percent"
@@ -2435,6 +2589,13 @@
         "y": 72
       },
       "id": 27,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2530,6 +2691,13 @@
         "y": 72
       },
       "id": 3,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.3,
         "groupWidth": 0.7,

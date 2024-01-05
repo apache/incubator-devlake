@@ -28,6 +28,13 @@
         "y": 0
       },
       "id": 24,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "ContributorExperience",
+          "url": "https://devlake.apache.org/docs/Plugins/ContributorExperience"
+        }
+      ],
       "options": {
         "content": "- Use Cases: This dashboard answers the question \"What makes a great developer experience? And how can we define and track that?\". This dashboard heavily focuses on actionability. All metrics can be deterministically improved as long as OSS maintainers invested time into them.\n- Data Source Required: GitHub",
         "mode": "markdown"
@@ -74,6 +81,13 @@
         "y": 4
       },
       "id": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -158,6 +172,13 @@
         "y": 4
       },
       "id": 4,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -240,6 +261,13 @@
         "y": 4
       },
       "id": 12,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -321,6 +349,13 @@
         "y": 4
       },
       "id": 10,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -403,6 +438,13 @@
         "y": 12
       },
       "id": 16,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -485,6 +527,13 @@
         "y": 12
       },
       "id": 14,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -567,6 +616,13 @@
         "y": 12
       },
       "id": 18,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -649,6 +705,13 @@
         "y": 12
       },
       "id": 20,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",

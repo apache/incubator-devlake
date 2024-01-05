@@ -34,6 +34,13 @@
         "y": 0
       },
       "id": 48,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "WeeklyCommunityRetro",
+          "url": "https://devlake.apache.org/docs/Plugins/WeeklyCommunityRetro"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -114,6 +121,13 @@
         "y": 5
       },
       "id": 6,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -196,6 +210,13 @@
         "y": 5
       },
       "id": 22,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -279,6 +300,13 @@
         "y": 5
       },
       "id": 23,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -368,6 +396,13 @@
         "y": 5
       },
       "id": 45,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -452,6 +487,13 @@
         "y": 13
       },
       "id": 24,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -616,6 +658,13 @@
         "y": 13
       },
       "id": 25,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -719,6 +768,13 @@
         "y": 21
       },
       "id": 26,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -888,6 +944,13 @@
         "y": 21
       },
       "id": 28,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1013,6 +1076,13 @@
         "y": 30
       },
       "id": 31,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1096,6 +1166,13 @@
         "y": 30
       },
       "id": 34,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1179,6 +1256,13 @@
         "y": 30
       },
       "id": 35,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1262,6 +1346,13 @@
         "y": 38
       },
       "id": 36,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1346,6 +1437,13 @@
         "y": 38
       },
       "id": 39,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1436,6 +1534,13 @@
         "y": 38
       },
       "id": 46,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1539,6 +1644,13 @@
         "y": 46
       },
       "id": 37,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1656,6 +1768,13 @@
         "y": 46
       },
       "id": 51,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1777,6 +1896,13 @@
         "y": 54
       },
       "id": 33,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -1883,6 +2009,13 @@
         "y": 54
       },
       "id": 52,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1980,6 +2113,13 @@
         "y": 54
       },
       "id": 40,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,

@@ -34,6 +34,13 @@
         "y": 0
       },
       "id": 63,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORADebug",
+          "url": "https://devlake.apache.org/docs/Plugins/DORADebug"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -176,6 +183,13 @@
         "y": 6
       },
       "id": 16,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -274,6 +288,13 @@
         "y": 6
       },
       "id": 15,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Deployment Frequency",
+          "url": "https://devlake.apache.org/docs/Metrics/DeploymentFrequency"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -384,6 +405,13 @@
         "y": 11
       },
       "id": 29,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -485,6 +513,13 @@
         "y": 15
       },
       "id": 34,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -609,6 +644,13 @@
         "y": 16
       },
       "id": 49,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -726,6 +768,13 @@
         "y": 21
       },
       "id": 11,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -843,6 +892,13 @@
         "y": 21
       },
       "id": 50,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -989,6 +1045,13 @@
         "y": 34
       },
       "id": 18,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1086,6 +1149,13 @@
         "y": 34
       },
       "id": 40,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1242,6 +1312,13 @@
         "y": 39
       },
       "id": 53,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1339,6 +1416,13 @@
         "y": 40
       },
       "id": 38,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.7,
@@ -1437,6 +1521,13 @@
         "y": 42
       },
       "id": 12,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -1575,6 +1666,13 @@
         "y": 46
       },
       "id": 68,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1735,6 +1833,13 @@
         "y": 47
       },
       "id": 51,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1834,6 +1939,13 @@
         "y": 50
       },
       "id": 69,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1914,6 +2026,13 @@
         "y": 54
       },
       "id": 52,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Coding Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCodingTime"
+        }
+      ],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2020,6 +2139,13 @@
         "y": 54
       },
       "id": 54,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Pickup Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRPickupTime"
+        }
+      ],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2126,6 +2252,13 @@
         "y": 58
       },
       "id": 55,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Review Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRReviewTime"
+        }
+      ],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2232,6 +2365,13 @@
         "y": 58
       },
       "id": 56,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Deploy Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRDeployTime"
+        }
+      ],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2338,6 +2478,13 @@
         "y": 62
       },
       "id": 57,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Cycle Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCycleTime"
+        }
+      ],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2476,6 +2623,13 @@
         "y": 66
       },
       "id": 70,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2668,6 +2822,13 @@
         "y": 83
       },
       "id": 31,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2770,6 +2931,13 @@
         "y": 83
       },
       "id": 42,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Time to Restore Service",
+          "url": "https://devlake.apache.org/docs/Metrics/MTTR"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2871,6 +3039,13 @@
         "y": 89
       },
       "id": 14,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2932,6 +3107,13 @@
         "y": 93
       },
       "id": 61,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Change Failure Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/CFR"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -3025,6 +3207,13 @@
         "y": 93
       },
       "id": 46,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Time to Restore Service",
+          "url": "https://devlake.apache.org/docs/Metrics/MTTR"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -3132,6 +3321,13 @@
         "y": 103
       },
       "id": 44,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Change Failure Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/CFR"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -3234,6 +3430,13 @@
         "y": 108
       },
       "id": 58,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -3334,6 +3537,13 @@
         "y": 108
       },
       "id": 59,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -3469,6 +3679,13 @@
         "y": 111
       },
       "id": 48,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Change Failure Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/CFR"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,

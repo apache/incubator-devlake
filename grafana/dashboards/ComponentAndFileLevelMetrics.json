@@ -78,6 +78,13 @@
         "y": 1
       },
       "id": 12,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.78,
         "groupWidth": 0.7,
@@ -157,6 +164,13 @@
         "y": 1
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "showHeader": true
       },
@@ -240,6 +254,13 @@
         "y": 9
       },
       "id": 10,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.8,
         "groupWidth": 0.7,
@@ -334,6 +355,13 @@
         "y": 9
       },
       "id": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.79,
         "groupWidth": 0.7,
@@ -443,6 +471,13 @@
         "y": 18
       },
       "id": 16,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.79,
         "groupWidth": 0.7,
@@ -538,6 +573,13 @@
         "y": 18
       },
       "id": 4,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.55,
         "groupWidth": 0.7,
@@ -648,6 +690,13 @@
         "y": 27
       },
       "id": 22,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.97,
         "groupWidth": 0.7,
@@ -745,7 +794,13 @@
       },
       "id": 24,
       "interval": null,
-      "links": [],
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.97,
         "groupWidth": 0.7,
@@ -858,6 +913,13 @@
         "y": 36
       },
       "id": 28,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.97,
         "groupWidth": 0.7,
@@ -943,6 +1005,13 @@
         "y": 36
       },
       "id": 30,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "showHeader": true
       },

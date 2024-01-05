@@ -28,6 +28,13 @@
         "y": 0
       },
       "id": 16,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA",
+          "url": "https://devlake.apache.org/docs/Plugins/DORA"
+        }
+      ],
       "options": {
         "content": "- See [how to config](https://devlake.apache.org/docs/DORA) this dashboard\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- You can validate/debug this dashboard with the [DORA validation dashboard](/grafana/d/KGkUnV-Vz/dora-dashboard-validation)",
         "mode": "markdown"
@@ -154,6 +161,13 @@
         "y": 6
       },
       "id": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA",
+          "url": "https://devlake.apache.org/docs/DORA"
+        }
+      ],
       "options": {
         "showHeader": true,
         "sortBy": []
@@ -242,6 +256,13 @@
         "y": 12
       },
       "id": 11,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Deployment Frequency",
+          "url": "https://devlake.apache.org/docs/Metrics/DeploymentFrequency"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -341,6 +362,13 @@
         "y": 12
       },
       "id": 12,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -444,6 +472,13 @@
         "y": 12
       },
       "id": 13,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Time to Restore Service",
+          "url": "https://devlake.apache.org/docs/Metrics/MTTR"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -543,6 +578,13 @@
         "y": 12
       },
       "id": 14,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Change Failure Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/CFR"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -637,6 +679,13 @@
         "y": 17
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barWidth": 0.6,
         "groupWidth": 0.7,
@@ -727,6 +776,13 @@
         "y": 17
       },
       "id": 6,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "barWidth": 0.7,
         "groupWidth": 0.7,
@@ -841,6 +897,13 @@
         "y": 25
       },
       "id": 9,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Time to Restore Service",
+          "url": "https://devlake.apache.org/docs/Metrics/MTTR"
+        }
+      ],
       "options": {
         "barWidth": 0.6,
         "groupWidth": 0.7,
@@ -953,6 +1016,13 @@
         "y": 25
       },
       "id": 5,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Change Failure Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/CFR"
+        }
+      ],
       "options": {
         "barWidth": 0.6,
         "groupWidth": 0.7,

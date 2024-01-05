@@ -40,6 +40,13 @@
         "y": 0
       },
       "id": 16,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORAByTeam",
+          "url": "https://devlake.apache.org/docs/Plugins/DORAByTeam"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -185,6 +192,13 @@
         "y": 6
       },
       "id": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA",
+          "url": "https://devlake.apache.org/docs/DORA"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -279,6 +293,13 @@
         "y": 12
       },
       "id": 11,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Deployment Frequency",
+          "url": "https://devlake.apache.org/docs/Metrics/DeploymentFrequency"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -397,6 +418,13 @@
         "y": 12
       },
       "id": 12,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -497,6 +525,13 @@
         "y": 12
       },
       "id": 13,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Time to Restore Service",
+          "url": "https://devlake.apache.org/docs/Metrics/MTTR"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -593,6 +628,13 @@
         "y": 12
       },
       "id": 14,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Change Failure Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/CFR"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -692,6 +734,13 @@
         "y": 17
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Metrics",
+          "url": "https://devlake.apache.org/docs/Metrics"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -794,6 +843,13 @@
         "y": 17
       },
       "id": 6,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Lead Time for Changes",
+          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.7,
@@ -918,6 +974,13 @@
         "y": 25
       },
       "id": 9,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Median Time to Restore Service",
+          "url": "https://devlake.apache.org/docs/Metrics/MTTR"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -1040,6 +1103,13 @@
         "y": 25
       },
       "id": 5,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "DORA - Change Failure Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/CFR"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
