@@ -34,6 +34,13 @@
         "y": 0
       },
       "id": 99,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "GitHub",
+          "url": "https://devlake.apache.org/docs/Plugins/github"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -115,6 +122,13 @@
         "y": 4
       },
       "id": 62,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -219,6 +233,13 @@
         "y": 4
       },
       "id": 74,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -339,6 +360,13 @@
         "y": 11
       },
       "id": 43,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -468,6 +496,13 @@
         "y": 11
       },
       "id": 76,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -550,6 +585,13 @@
         "y": 17
       },
       "id": 64,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -654,6 +696,13 @@
         "y": 17
       },
       "id": 75,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -768,6 +817,13 @@
         "y": 23
       },
       "id": 93,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.1,
@@ -977,6 +1033,13 @@
         "y": 29
       },
       "id": 92,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1084,6 +1147,13 @@
         "y": 36
       },
       "id": 68,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1188,6 +1258,13 @@
         "y": 36
       },
       "id": 77,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -1302,6 +1379,13 @@
         "y": 42
       },
       "id": 59,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -1421,6 +1505,13 @@
         "y": 49
       },
       "id": 66,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1528,6 +1619,13 @@
         "y": 49
       },
       "id": 79,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1610,6 +1708,13 @@
         "y": 55
       },
       "id": 80,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1723,6 +1828,13 @@
         "y": 55
       },
       "id": 81,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [],
@@ -1803,6 +1915,13 @@
         "y": 61
       },
       "id": 72,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1907,6 +2026,13 @@
         "y": 61
       },
       "id": 95,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -1999,6 +2125,13 @@
         "y": 67
       },
       "id": 96,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2101,6 +2234,13 @@
         "y": 67
       },
       "id": 97,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -2199,6 +2339,13 @@
         "y": 74
       },
       "id": 103,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2295,6 +2442,13 @@
         "y": 74
       },
       "id": 104,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Success Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildSuccessRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2462,7 +2616,13 @@
         "y": 74
       },
       "id": 105,
-      "links": [],
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
       "options": {
         "displayLabels": [
           "value",
@@ -2572,6 +2732,13 @@
         "y": 74
       },
       "id": 106,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Duration",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildDuration"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2691,6 +2858,13 @@
         "y": 80
       },
       "id": 107,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -2840,6 +3014,13 @@
       },
       "id": 108,
       "interval": "",
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Success Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildSuccessRate"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -3012,6 +3193,13 @@
         "y": 86
       },
       "id": 109,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -3149,6 +3337,13 @@
         "y": 92
       },
       "id": 110,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Duration",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildDuration"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,

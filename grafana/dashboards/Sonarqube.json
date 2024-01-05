@@ -34,6 +34,13 @@
         "y": 0
       },
       "id": 19,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "SonarQube",
+          "url": "https://devlake.apache.org/docs/Plugins/sonarqube"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -116,6 +123,13 @@
         "y": 5
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -220,6 +234,13 @@
         "y": 5
       },
       "id": 3,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -325,6 +346,13 @@
         "y": 5
       },
       "id": 4,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -429,6 +457,13 @@
         "y": 5
       },
       "id": 13,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -559,6 +594,13 @@
         "y": 10
       },
       "id": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Test",
+          "url": "https://devlake.apache.org/docs/Metrics/CQTest"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -664,6 +706,13 @@
         "y": 10
       },
       "id": 7,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Maintainability-Debt",
+          "url": "https://devlake.apache.org/docs/Metrics/CQMaintainability-Debt"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -769,6 +818,13 @@
         "y": 10
       },
       "id": 14,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Maintainability-Debt",
+          "url": "https://devlake.apache.org/docs/Metrics/CQMaintainability-Debt"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -899,6 +955,13 @@
         "y": 16
       },
       "id": 10,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Duplicated Blocks",
+          "url": "https://devlake.apache.org/docs/Metrics/CQDuplicatedBlocks"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1003,6 +1066,13 @@
         "y": 16
       },
       "id": 9,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Duplicated Lines",
+          "url": "https://devlake.apache.org/docs/Metrics/CQDuplicatedLines"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -1098,6 +1168,13 @@
         "y": 21
       },
       "id": 17,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
