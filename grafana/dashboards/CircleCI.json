@@ -120,7 +120,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Number of successful pipelines / Number of total pipelines",
+      "description": "Number of successful workflows / Number of total workflows",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -363,7 +363,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Number of successful pipelines / Number of total pipelines",
+      "description": "Number of successful workflows / Number of total workflows",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
