@@ -62,8 +62,6 @@ export const Layout = () => {
 
   const tipsRef = useRef(null);
 
-  console.log(import.meta.env);
-
   useEffect(() => {
     dispatch(init(plugins));
   }, []);
