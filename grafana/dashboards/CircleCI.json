@@ -958,7 +958,7 @@
         "options": [],
         "query": "select concat(name, '--', id) as text from cicd_scopes where id like \"%circleci%\" ",
         "refresh": 1,
-        "regex": "",
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
