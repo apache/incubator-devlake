@@ -62,11 +62,7 @@ func getGroup(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryD
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	groupId, ok := input.Query["groupId"]
-	if !ok || len(groupId) == 0 {
-		groupId = []string{""}
-	}
-	gid := groupId[0]
+	gid := input.Query.Get("groupId")
 	if gid == "" {
 		return projectRemoteHelper.GetScopesFromRemote(input, getGroup, nil)
 	} else if gid == `projects` {
@@ -93,6 +89,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				if err != nil {
 					logger.Error(err, "unmarshal projects response")
 					return nil, err
+				}
+				if resBody.Page < queryData.Page {
+					return nil, nil
 				}
 				return resBody.Values, nil
 			})
