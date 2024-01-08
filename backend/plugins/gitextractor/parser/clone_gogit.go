@@ -18,22 +18,14 @@ limitations under the License.
 package parser
 
 import (
-	"context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type RepoCollector interface {
-	SetCleanUp(func()) error
-	Close(ctx context.Context) error
+func (l *GitRepoCreator) CloneGoGitRepoOverHTTP(ctx plugin.SubTaskContext, repoId, url, user, password, proxy string) (RepoCollector, errors.Error) {
+	return l.cloneOverHTTP(ctx, true, repoId, url, user, password, proxy)
+}
 
-	CollectAll(subtaskCtx plugin.SubTaskContext) error
-
-	CountTags(ctx context.Context) (int, error)
-	CountBranches(ctx context.Context) (int, error)
-	CountCommits(ctx context.Context) (int, error)
-
-	CollectTags(subtaskCtx plugin.SubTaskContext) error
-	CollectBranches(subtaskCtx plugin.SubTaskContext) error
-	CollectCommits(subtaskCtx plugin.SubTaskContext) error
-	CollectDiffLine(subtaskCtx plugin.SubTaskContext) error
+func (l *GitRepoCreator) CloneGoGitRepoOverSSH(ctx plugin.SubTaskContext, repoId, url, privateKey, passphrase string) (RepoCollector, errors.Error) {
+	return l.cloneOverSSH(ctx, true, repoId, url, privateKey, passphrase)
 }

@@ -27,7 +27,7 @@ import (
 
 type GitExtractorTaskData struct {
 	Options *GitExtractorOptions
-	GitRepo *parser.GitRepo
+	GitRepo parser.RepoCollector
 }
 
 type GitExtractorOptions struct {
@@ -60,11 +60,11 @@ func CollectGitCommits(subTaskCtx plugin.SubTaskContext) errors.Error {
 	if count, err := repo.CountCommits(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get commit count")
 		subTaskCtx.SetProgress(0, -1)
-		return err
+		return errors.Convert(err)
 	} else {
 		subTaskCtx.SetProgress(0, count)
 	}
-	return repo.CollectCommits(subTaskCtx)
+	return errors.Convert(repo.CollectCommits(subTaskCtx))
 }
 
 func CollectGitBranches(subTaskCtx plugin.SubTaskContext) errors.Error {
@@ -72,38 +72,38 @@ func CollectGitBranches(subTaskCtx plugin.SubTaskContext) errors.Error {
 	if count, err := repo.CountBranches(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get branch count")
 		subTaskCtx.SetProgress(0, -1)
-		return err
+		return errors.Convert(err)
 	} else {
 		subTaskCtx.SetProgress(0, count)
 	}
-	return repo.CollectBranches(subTaskCtx)
+	return errors.Convert(repo.CollectBranches(subTaskCtx))
 }
 
 func CollectGitTags(subTaskCtx plugin.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
-	if count, err := repo.CountTags(); err != nil {
+	if count, err := repo.CountTags(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get tag count")
 		subTaskCtx.SetProgress(0, -1)
-		return err
+		return errors.Convert(err)
 	} else {
 		subTaskCtx.SetProgress(0, count)
 	}
-	return repo.CollectTags(subTaskCtx)
+	return errors.Convert(repo.CollectTags(subTaskCtx))
 }
 
 func CollectGitDiffLines(subTaskCtx plugin.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
-	if count, err := repo.CountTags(); err != nil {
+	if count, err := repo.CountTags(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get line content")
 		subTaskCtx.SetProgress(0, -1)
-		return err
+		return errors.Convert(err)
 	} else {
 		subTaskCtx.SetProgress(0, count)
 	}
-	return repo.CollectDiffLine(subTaskCtx)
+	return errors.Convert(repo.CollectDiffLine(subTaskCtx))
 }
 
-func getGitRepo(subTaskCtx plugin.SubTaskContext) *parser.GitRepo {
+func getGitRepo(subTaskCtx plugin.SubTaskContext) parser.RepoCollector {
 	taskData, ok := subTaskCtx.GetData().(*GitExtractorTaskData)
 	if !ok {
 		panic("git repo reference not found on context")

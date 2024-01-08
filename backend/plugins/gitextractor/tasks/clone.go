@@ -44,7 +44,7 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	}
 	op := taskData.Options
 	storage := store.NewDatabase(subTaskCtx, op.RepoId)
-	repo, err := NewGitRepo(subTaskCtx, subTaskCtx.GetLogger(), storage, nil, op)
+	repo, err := NewGitRepo(subTaskCtx, subTaskCtx.GetLogger(), storage, op)
 	if err != nil {
 		return err
 	}
@@ -54,16 +54,33 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 // NewGitRepo create and return a new parser git repo
-func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage, goGitStore models.Store, op *GitExtractorOptions) (*parser.GitRepo, errors.Error) {
+func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *GitExtractorOptions) (parser.RepoCollector, errors.Error) {
 	var err errors.Error
-	var repo *parser.GitRepo
-	p := parser.NewGitRepoCreator(storage, goGitStore, logger)
+	var repo parser.RepoCollector
+	p := parser.NewGitRepoCreator(storage, logger)
 	if strings.HasPrefix(op.Url, "http") {
 		repo, err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
 	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
 		repo, err = p.CloneOverSSH(ctx, op.RepoId, url, op.PrivateKey, op.Passphrase)
 	} else if strings.HasPrefix(op.Url, "/") {
 		repo, err = p.LocalRepo(op.Url, op.RepoId)
+	} else {
+		return nil, errors.BadInput.New(fmt.Sprintf("unsupported url [%s]", op.Url))
+	}
+	return repo, err
+}
+
+// NewGoGitRepo create and return a new parser git repo with go-git
+func NewGoGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *GitExtractorOptions) (parser.RepoCollector, errors.Error) {
+	var err errors.Error
+	var repo parser.RepoCollector
+	p := parser.NewGitRepoCreator(storage, logger)
+	if strings.HasPrefix(op.Url, "http") {
+		repo, err = p.CloneGoGitRepoOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
+	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
+		repo, err = p.CloneGoGitRepoOverSSH(ctx, op.RepoId, url, op.PrivateKey, op.Passphrase)
+	} else if strings.HasPrefix(op.Url, "/") {
+		repo, err = p.LocalGoGitRepo(op.Url, op.RepoId)
 	} else {
 		return nil, errors.BadInput.New(fmt.Sprintf("unsupported url [%s]", op.Url))
 	}

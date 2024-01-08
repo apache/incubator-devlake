@@ -78,7 +78,7 @@ func main() {
 		"git extractor",
 		nil,
 	)
-	repo, err := tasks.NewGitRepo(subTaskCtx, logger, storage, nil, &tasks.GitExtractorOptions{
+	repo, err := tasks.NewGitRepo(subTaskCtx, logger, storage, &tasks.GitExtractorOptions{
 		RepoId:   *id,
 		Url:      *url,
 		User:     *user,
@@ -88,7 +88,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer repo.Close()
+	defer repo.Close(ctx)
 	if err = repo.CollectAll(subTaskCtx); err != nil {
 		panic(err)
 	}

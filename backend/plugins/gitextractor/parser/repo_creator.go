@@ -32,16 +32,14 @@ const (
 )
 
 type GitRepoCreator struct {
-	store      models.Store
-	goGitStore models.Store
-	logger     log.Logger
+	store  models.Store
+	logger log.Logger
 }
 
-func NewGitRepoCreator(store, goGitStore models.Store, logger log.Logger) *GitRepoCreator {
+func NewGitRepoCreator(store models.Store, logger log.Logger) *GitRepoCreator {
 	return &GitRepoCreator{
-		store:      store,
-		logger:     logger,
-		goGitStore: goGitStore,
+		store:  store,
+		logger: logger,
 	}
 }
 
@@ -52,25 +50,32 @@ func (l *GitRepoCreator) LocalRepo(repoPath, repoId string) (*GitRepo, errors.Er
 		l.logger.Error(err, "OpenRepository")
 		return nil, errors.Convert(err)
 	}
-	var goGitRepo *gogit.Repository
-	if EnableGoGit {
-		var err error
-		goGitRepo, err = gogit.PlainOpen(repoPath)
-		if err != nil {
-			return nil, errors.Convert(err)
-		}
-	}
-	return l.newGitRepo(repoId, repo, goGitRepo), nil
+	return l.newGitRepo(repoId, repo), nil
 }
 
-func (l *GitRepoCreator) newGitRepo(repoId string, repo *git.Repository, goGitRespo *gogit.Repository) *GitRepo {
+func (l *GitRepoCreator) newGitRepo(repoId string, repo *git.Repository) *GitRepo {
 	return &GitRepo{
 		store:  l.store,
 		logger: l.logger,
 		id:     repoId,
 		repo:   repo,
+	}
+}
 
+// LocalGoGitRepo open a local repository with go-git
+func (l *GitRepoCreator) LocalGoGitRepo(repoPath, repoId string) (*GoGitRepo, errors.Error) {
+	goGitRepo, err := gogit.PlainOpen(repoPath)
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	return l.newGoGitRepo(repoId, goGitRepo), nil
+}
+
+func (l *GitRepoCreator) newGoGitRepo(repoId string, goGitRespo *gogit.Repository) *GoGitRepo {
+	return &GoGitRepo{
+		logger:     l.logger,
+		id:         repoId,
 		goGitRepo:  goGitRespo,
-		goGitStore: l.goGitStore,
+		goGitStore: l.store,
 	}
 }
