@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -35,7 +36,8 @@ var (
 	repoMericoLake        = "/Users/houlinwei/Code/go/src/github.com/merico-dev/lake"
 	repoMericoLakeWebsite = "/Users/houlinwei/Code/go/src/github.com/merico-dev/website"
 	repoId                = "test-repo-id"
-
+	//simpleRepo            = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo-in-lake"
+	simpleRepo     = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo"
 	storage        models.Store
 	gitRepoCreator *GitRepoCreator
 
@@ -47,6 +49,8 @@ func TestMain(m *testing.M) {
 	fmt.Println("test main starts")
 	logger = logruslog.Global.Nested("git extractor")
 	fmt.Println("logger inited")
+
+	clearOutput()
 
 	var err error
 	storage, err = store.NewCsvStore(output + "_libgit2")
@@ -190,8 +194,13 @@ func TestGitRepo_CollectRepoInfo(t *testing.T) {
 	}
 }
 
+func clearOutput() {
+	os.RemoveAll(fmt.Sprintf("./output_libgit2"))
+	os.RemoveAll(fmt.Sprintf("./output_gogit"))
+}
+
 func TestGitRepo_CollectCommits(t *testing.T) {
-	repoPath := repoMericoLakeWebsite
+	repoPath := simpleRepo
 	gitRepo, err := gitRepoCreator.LocalRepo(repoPath, repoId)
 	if err != nil {
 		panic(err)
@@ -206,6 +215,7 @@ func TestGitRepo_CollectCommits(t *testing.T) {
 		if err1 := gitRepo.CollectCommits(subTaskCtxCollectCommits); err1 != nil {
 			panic(err1)
 		}
+		//t.Logf("[CollectCommits] libgit2 result: %+v", subTaskCtxCollectCommits)
 
 		subTaskCtxCCollectCommitsWithGoGit := &testSubTaskContext{}
 		if err2 := goGitRepo.CollectCommits(subTaskCtxCCollectCommitsWithGoGit); err2 != nil {

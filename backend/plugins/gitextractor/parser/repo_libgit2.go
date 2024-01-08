@@ -164,7 +164,7 @@ func (r *GitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) error {
 		} else {
 			tagCommit = id.String()
 		}
-		//r.logger.Info("tagCommit:%s", tagCommit)
+		r.logger.Debug("tagCommit: %s", tagCommit)
 		if tagCommit != "" {
 			ref := &code.Ref{
 				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
@@ -212,7 +212,7 @@ func (r *GitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
 				CommitSha:    sha,
 				RefType:      BRANCH,
 			}
-			// "sha" may be an empty string, we think it unexpected.
+			// commit sha may be an empty string, it's unexpected.
 			ref.IsDefault, err1 = branch.IsHead()
 			if err1 != nil && err1.Error() != TypeNotMatchError {
 				return err1
@@ -262,7 +262,6 @@ func (r *GitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
 			return nil
 		}
 		commitSha := commit.Id().String()
-		b1 = append(b1, commitSha)
 		r.logger.Debug("process commit: %s", commitSha)
 		c := &code.Commit{
 			Sha:     commitSha,
@@ -284,7 +283,6 @@ func (r *GitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
 		}
 		err = r.storeParentCommits(commitSha, commit)
 		if err != nil {
-			panic(err)
 			return err
 		}
 		var parent *git.Commit
@@ -292,18 +290,15 @@ func (r *GitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
 			parent = commit.Parent(0)
 		}
 		var stats *git.DiffStats
-		if parent == nil {
-			if stats, err = r.getDiffComparedToParent(c.Sha, commit, parent, opts, componentMap); err != nil {
-				panic(err)
-				return err
-			}
-			c.Additions += stats.Insertions()
-			c.Deletions += stats.Deletions()
+		if stats, err = r.getDiffComparedToParent(c.Sha, commit, parent, opts, componentMap); err != nil {
+			return err
 		}
+		r.logger.Debug("state: %#+v\n", stats.Deletions())
+		c.Additions += stats.Insertions()
+		c.Deletions += stats.Deletions()
 
 		err = r.store.Commits(c)
 		if err != nil {
-			panic(err)
 			return err
 		}
 		repoCommit := &code.RepoCommit{
@@ -312,26 +307,11 @@ func (r *GitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
 		}
 		err = r.store.RepoCommits(repoCommit)
 		if err != nil {
-			panic(err)
 			return err
 		}
 		subtaskCtx.IncProgress(1)
 		return nil
 	}))
-}
-
-func (r *GitRepo) getComponentMap(subtaskCtx plugin.SubTaskContext) (map[string]*regexp.Regexp, error) {
-	db := subtaskCtx.GetDal()
-	components := make([]code.Component, 0)
-	err := db.All(&components, dal.From(components), dal.Where("repo_id= ?", r.id))
-	if err != nil {
-		return nil, err
-	}
-	componentMap := make(map[string]*regexp.Regexp)
-	for _, component := range components {
-		componentMap[component.Name] = regexp.MustCompile(component.PathRegex)
-	}
-	return componentMap, nil
 }
 
 func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) errors.Error {
@@ -357,24 +337,15 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 		parentTree, err = parent.Tree()
 	}
 	if err != nil {
-		panic(err)
 		return nil, errors.Convert(err)
 	}
 	tree, err = commit.Tree()
 	if err != nil {
-		panic(err)
 		return nil, errors.Convert(err)
 	}
 	var diff *git.Diff
-
 	diff, err = r.repo.DiffTreeToTree(parentTree, tree, opts)
-	if parentTree == nil {
-		err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
-		fmt.Println("aaaa", err)
-	}
 	if err != nil {
-		fmt.Println("--->panic", commitSha)
-		panic(err)
 		return nil, errors.Convert(err)
 	}
 	cfg := config.GetConfig()
@@ -382,14 +353,12 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 	if !skipCommitFiles {
 		err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
 		if err != nil {
-			panic(err)
 			return nil, errors.Convert(err)
 		}
 	}
 	var stats *git.DiffStats
 	stats, err = diff.Stats()
 	if err != nil {
-		panic(err)
 		return nil, errors.Convert(err)
 	}
 	return stats, nil
@@ -401,7 +370,6 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 	var err error
 	err = diff.ForEach(func(file git.DiffDelta, progress float64) (
 		git.DiffForEachHunkCallback, error) {
-		fmt.Println("--->", file, progress)
 		if commitFile != nil {
 			err = r.store.CommitFiles(commitFile)
 			if err != nil {

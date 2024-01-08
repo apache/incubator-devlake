@@ -246,23 +246,24 @@ func (r *GoGitRepo) getComponentMap(subtaskCtx plugin.SubTaskContext) (map[strin
 
 // CollectCommits Collect data from each commit, we can also get the diff line
 func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error) {
-	componentMap, err := r.getComponentMap(subtaskCtx)
-	if err != nil {
-		return err
-	}
-	skipCommitFiles := subtaskCtx.GetConfigReader().GetBool(SkipCommitFiles)
+	//componentMap, err := r.getComponentMap(subtaskCtx)
+	//if err != nil {
+	//	return err
+	//}
+
+	//skipCommitFiles := subtaskCtx.GetConfigReader().GetBool(SkipCommitFiles)
 	repo := r.goGitRepo
 	store := r.goGitStore
-	opts := object.DefaultDiffTreeOptions
 
 	commitsObjectsIter, err := repo.CommitObjects()
 	if err != nil {
 		return err
 	}
+
 	if err := commitsObjectsIter.ForEach(func(commit *object.Commit) error {
 		commitSha := commit.Hash.String()
 
-		r.logger.Debug("process commit: %s", commitSha)
+		fmt.Printf("process commit: %s\n", commitSha)
 		b2 = append(b2, commitSha)
 
 		codeCommit := &code.Commit{
@@ -281,46 +282,53 @@ func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error)
 			return err
 		}
 
-		var parent *object.Commit
-		if commit.NumParents() > 0 {
-			parent, err = commit.Parent(0)
-			if err != nil {
-				return err
-			}
-		}
-		stats, err := commit.Stats()
+		stats, err := commit.StatsContext(subtaskCtx.GetContext())
 		if err != nil {
 			return err
 		} else {
 			for _, stat := range stats {
-				fmt.Printf("stat: %+v\n", stat)
 				codeCommit.Additions += stat.Addition
+				// In some repos, deletion may be zero, which is different from git log --stat.
+				// It seems go-git doesn't get the correct changes.
+				// I have run object.DiffTreeWithOptions manually with different diff algorithms,
+				// but get the same result with StatsContext.
+				// I cannot reproduce it with another repo.
+				// A similar issue: https://github.com/go-git/go-git/issues/367
 				codeCommit.Deletions += stat.Deletion
 			}
 		}
+
 		err = store.Commits(codeCommit)
 		if err != nil {
 			return err
 		}
 
-		if err := r.getDiffComparedToParent(subtaskCtx.GetContext(), skipCommitFiles, codeCommit.Sha, commit, parent, opts, componentMap); err != nil {
-			return err
-		}
-
-		codeRepoCommit := &code.RepoCommit{
-			RepoId:    r.id,
-			CommitSha: commitSha,
-		}
-		err = store.RepoCommits(codeRepoCommit)
-		if err != nil {
-			return err
-		}
+		//var parent *object.Commit
+		//if commit.NumParents() > 0 {
+		//	parent, err = commit.Parent(0)
+		//	if err != nil {
+		//		return err
+		//	}
+		//}
+		//if err := r.getDiffComparedToParent(subtaskCtx.GetContext(), skipCommitFiles, codeCommit.Sha, commit, parent, opts, componentMap); err != nil {
+		//	return err
+		//}
+		//
+		//codeRepoCommit := &code.RepoCommit{
+		//	RepoId:    r.id,
+		//	CommitSha: commitSha,
+		//}
+		//err = store.RepoCommits(codeRepoCommit)
+		//if err != nil {
+		//	return err
+		//}
 
 		subtaskCtx.IncProgress(1)
 		return nil
 	}); err != nil {
 		return err
 	}
+
 	return
 }
 
@@ -359,22 +367,24 @@ func (r *GoGitRepo) getDiffComparedToParent(ctx context.Context, skipCommitFiles
 	if err != nil {
 		return err
 	}
-	parentTree, err := parent.Tree()
-	if err != nil {
-		return err
-	}
-	changes, err := object.DiffTreeWithOptions(ctx, parentTree, commitTree, opts)
-	if err != nil {
-		return err
-	}
-
-	if err = r.storeCommitFilesFromDiffWitGoGit(commitSha, changes, componentMap); err != nil {
-		return err
+	fmt.Println(parent)
+	if parent != nil {
+		parentTree, err := parent.Tree()
+		if err != nil {
+			return err
+		}
+		changes, err := object.DiffTreeWithOptions(ctx, parentTree, commitTree, opts)
+		if err != nil {
+			return err
+		}
+		if err = r.storeCommitFilesFromDiff(commitSha, changes, componentMap); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func (r *GoGitRepo) storeCommitFilesFromDiffWitGoGit(commitSha string, changes object.Changes, componentMap map[string]*regexp.Regexp) (err error) {
+func (r *GoGitRepo) storeCommitFilesFromDiff(commitSha string, changes object.Changes, componentMap map[string]*regexp.Regexp) (err error) {
 
 	store := r.goGitStore
 	var commitFile *code.CommitFile
