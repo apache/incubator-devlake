@@ -29,6 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/spf13/cast"
 	"reflect"
+	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -91,6 +92,10 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			//		duration = &deployableDuration
 			//	}
 			//}
+			createdDate := time.Now()
+			if gitlabDeployment.DeployableCreatedAt != nil {
+				createdDate = *gitlabDeployment.DeployableCreatedAt
+			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.NewDomainEntity(idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId)),
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
@@ -108,7 +113,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: gitlabDeployment.Status,
 				Environment:    gitlabDeployment.Environment,
 				TaskDatesInfo: devops.TaskDatesInfo{
-					CreatedDate:  gitlabDeployment.CreatedDate,
+					CreatedDate:  createdDate,
 					StartedDate:  gitlabDeployment.DeployableStartedAt,
 					FinishedDate: gitlabDeployment.DeployableFinishedAt,
 				},
