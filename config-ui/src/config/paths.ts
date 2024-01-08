@@ -26,7 +26,7 @@ export const PATHS = {
   CONNECTION: (plugin: string, connectionId: ID) => `${PATH_PREFIX}/connections/${plugin}/${connectionId}`,
   PROJECTS: () => `${PATH_PREFIX}/projects`,
   PROJECT: (pname: string, tab?: 'configuration' | 'status' | 'settings') =>
-    `${PATH_PREFIX}/projects/${encodeName(pname)}${tab ? `?tab=${tab}` : ''}}`,
+    `${PATH_PREFIX}/projects/${encodeName(pname)}${tab ? `?tab=${tab}` : ''}`,
   PROJECT_CONNECTION: (pname: string, plugin: string, connectionId: ID) =>
     `${PATH_PREFIX}/projects/${encodeName(pname)}/${plugin}-${connectionId}`,
   BLUEPRINTS: () => `${PATH_PREFIX}/advanced/blueprints`,
