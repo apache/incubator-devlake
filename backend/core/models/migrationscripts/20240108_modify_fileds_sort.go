@@ -18,115 +18,127 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 )
 
 type modfiyFieldsSort struct{}
 
-func (u *modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
+func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
+	dbUrl := baseRes.GetConfig("DB_URL")
+	if dbUrl == "" {
+		return errors.BadInput.New("DB_URL is required")
+	}
+	u, errParse := url.Parse(dbUrl)
+	if errParse != nil {
+		return errors.Convert(errParse)
+	}
 	db := baseRes.GetDal()
-	// issues
-	err := db.Exec("alter table issues modify original_type varchar(500) after type;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table issues modify story_point DOUBLE after original_status;")
-	if err != nil {
-		return err
-	}
-	// pull_requests
-	err = db.Exec("alter table pull_requests modify original_status varchar(100) after status;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table pull_requests modify type varchar(100) after original_status;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table pull_requests modify component varchar(100) after type;")
-	if err != nil {
-		return err
-	}
-	// cicd deployment commits
-	err = db.Exec("alter table cicd_deployment_commits modify original_status varchar(100) after status;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_deployment_commits modify original_result varchar(100) after result;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_deployment_commits modify duration_sec DOUBLE after finished_date;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_deployment_commits modify queued_date DATETIME after duration_sec;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_deployment_commits modify queued_duration_sec DOUBLE after queued_date;")
-	if err != nil {
-		return err
-	}
-	// cicd deployments
-	err = db.Exec("alter table cicd_deployments modify original_status varchar(100) after status;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_deployments modify original_result varchar(100) after result;")
-	if err != nil {
-		return err
-	}
-	// cicd pipelines
-	err = db.Exec("alter table cicd_pipelines modify original_status varchar(100) after status;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_pipelines modify original_result varchar(100) after result;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_pipelines modify duration_sec DOUBLE after finished_date;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_pipelines modify started_date DATETIME after duration_sec;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_pipelines modify queued_date DATETIME after started_date;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_pipelines modify queued_duration_sec DOUBLE after queued_date;")
-	if err != nil {
-		return err
-	}
-	// cicd tasks
-	err = db.Exec("alter table cicd_tasks modify original_status varchar(100) after status;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_tasks modify original_result varchar(100) after result;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_tasks modify created_date DATETIME after finished_date;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_tasks modify duration_sec DOUBLE after created_date;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_tasks modify queued_date DATETIME after duration_sec;")
-	if err != nil {
-		return err
-	}
-	err = db.Exec("alter table cicd_tasks modify queued_duration_sec DOUBLE after queued_date;")
-	if err != nil {
-		return err
+	if u.Scheme == "mysql" {
+		// issues
+		err := db.Exec("alter table issues modify original_type varchar(500) after type;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table issues modify story_point DOUBLE after original_status;")
+		if err != nil {
+			return err
+		}
+		// pull_requests
+		err = db.Exec("alter table pull_requests modify original_status varchar(100) after status;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table pull_requests modify type varchar(100) after original_status;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table pull_requests modify component varchar(100) after type;")
+		if err != nil {
+			return err
+		}
+		// cicd deployment commits
+		err = db.Exec("alter table cicd_deployment_commits modify original_status varchar(100) after status;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_deployment_commits modify original_result varchar(100) after result;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_deployment_commits modify duration_sec DOUBLE after finished_date;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_deployment_commits modify queued_date DATETIME after duration_sec;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_deployment_commits modify queued_duration_sec DOUBLE after queued_date;")
+		if err != nil {
+			return err
+		}
+		// cicd deployments
+		err = db.Exec("alter table cicd_deployments modify original_status varchar(100) after status;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_deployments modify original_result varchar(100) after result;")
+		if err != nil {
+			return err
+		}
+		// cicd pipelines
+		err = db.Exec("alter table cicd_pipelines modify original_status varchar(100) after status;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_pipelines modify original_result varchar(100) after result;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_pipelines modify duration_sec DOUBLE after finished_date;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_pipelines modify started_date DATETIME after duration_sec;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_pipelines modify queued_date DATETIME after started_date;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_pipelines modify queued_duration_sec DOUBLE after queued_date;")
+		if err != nil {
+			return err
+		}
+		// cicd tasks
+		err = db.Exec("alter table cicd_tasks modify original_status varchar(100) after status;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_tasks modify original_result varchar(100) after result;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_tasks modify created_date DATETIME after finished_date;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_tasks modify duration_sec DOUBLE after created_date;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_tasks modify queued_date DATETIME after duration_sec;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_tasks modify queued_duration_sec DOUBLE after queued_date;")
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
