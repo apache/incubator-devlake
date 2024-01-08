@@ -81,13 +81,7 @@
         "y": 4
       },
       "id": 8,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -172,13 +166,7 @@
         "y": 4
       },
       "id": 4,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -261,13 +249,7 @@
         "y": 4
       },
       "id": 12,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -349,13 +331,7 @@
         "y": 4
       },
       "id": 10,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -438,13 +414,7 @@
         "y": 12
       },
       "id": 16,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -527,13 +497,7 @@
         "y": 12
       },
       "id": 14,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -616,13 +580,7 @@
         "y": 12
       },
       "id": 18,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",

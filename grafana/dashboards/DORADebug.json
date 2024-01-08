@@ -183,13 +183,7 @@
         "y": 6
       },
       "id": 16,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -405,13 +399,7 @@
         "y": 11
       },
       "id": 29,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -513,13 +501,7 @@
         "y": 15
       },
       "id": 34,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -644,13 +626,7 @@
         "y": 16
       },
       "id": 49,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -768,13 +744,7 @@
         "y": 21
       },
       "id": 11,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -892,13 +862,7 @@
         "y": 21
       },
       "id": 50,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1045,13 +1009,7 @@
         "y": 34
       },
       "id": 18,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1666,13 +1624,7 @@
         "y": 46
       },
       "id": 68,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1833,13 +1785,7 @@
         "y": 47
       },
       "id": 51,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1939,13 +1885,7 @@
         "y": 50
       },
       "id": 69,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2822,13 +2762,7 @@
         "y": 83
       },
       "id": 31,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -3430,13 +3364,7 @@
         "y": 108
       },
       "id": 58,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -3537,13 +3465,7 @@
         "y": 108
       },
       "id": 59,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {

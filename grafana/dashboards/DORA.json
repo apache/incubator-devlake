@@ -679,13 +679,7 @@
         "y": 17
       },
       "id": 2,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "barWidth": 0.6,
         "groupWidth": 0.7,
