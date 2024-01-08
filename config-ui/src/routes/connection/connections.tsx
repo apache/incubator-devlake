@@ -21,8 +21,9 @@ import { useNavigate } from 'react-router-dom';
 import { theme, Badge, Modal } from 'antd';
 import { chunk } from 'lodash';
 
-import { useAppSelector } from '@/app/hook';
 import { selectPlugins, selectAllConnections, selectWebhooks } from '@/features/connections';
+import { PATHS } from '@/config';
+import { useAppSelector } from '@/hooks';
 import { getPluginConfig, ConnectionList, ConnectionForm } from '@/plugins';
 
 import * as S from './styled';
@@ -70,7 +71,7 @@ export const Connections = () => {
   };
 
   const handleSuccessAfter = async (plugin: string, id: ID) => {
-    navigate(`/connections/${plugin}/${id}`);
+    navigate(PATHS.CONNECTION(plugin, id));
   };
 
   return (

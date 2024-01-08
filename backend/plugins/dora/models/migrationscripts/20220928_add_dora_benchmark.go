@@ -61,7 +61,7 @@ func (u *addDoraBenchmark) Up(baseRes context.BasicRes) errors.Error {
 		Model: archived.Model{
 			ID: 1,
 		},
-		Metric: "ToDeployment frequency",
+		Metric: "Deployment frequency",
 		Low:    "Fewer than once per six months",
 		Medium: "Between once per month and once every 6 months",
 		High:   "Between once per week and once per month",

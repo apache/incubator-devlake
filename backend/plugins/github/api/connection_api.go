@@ -348,6 +348,10 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 				return nil, errors.Convert(err)
 			} else {
 				githubApiResponse.Tokens = append(githubApiResponse.Tokens, tokenTestResult)
+				if tokenTestResult.Success {
+					githubApiResponse.Success = tokenTestResult.Success
+					githubApiResponse.Message = tokenTestResult.Message
+				}
 			}
 		}
 	} else {

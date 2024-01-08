@@ -22,7 +22,7 @@ import { CheckCircleOutlined, CloseCircleOutlined, RedoOutlined, QuestionCircleO
 import { Card, Flex, Button, Tag } from 'antd';
 
 import API from '@/api';
-import { DEVLAKE_ENDPOINT } from '@/config';
+import { DEVLAKE_ENDPOINT, PATHS } from '@/config';
 import { useAutoRefresh } from '@/hooks';
 
 export const Offline = () => {
@@ -51,15 +51,15 @@ export const Offline = () => {
   const { online } = data || { online: false };
 
   const handleContinue = () => {
-    navigate('/');
+    navigate(PATHS.ROOT());
   };
 
   return (
     <Card>
       <h2>
-        {online ? <CheckCircleOutlined color="#a0d911" size={30} /> : <CloseCircleOutlined color="#f5222d" size={30} />}
+        {online ? <CheckCircleOutlined color="#4db764" size={30} /> : <CloseCircleOutlined color="#f5222d" size={30} />}
         <span>DevLake API</span>
-        <strong style={{ marginLeft: 4, color: online ? '#a0d911' : '#f5222d' }}>
+        <strong style={{ marginLeft: 4, color: online ? '#4db764' : '#f5222d' }}>
           {online ? 'Online' : 'Offline'}
         </strong>
       </h2>

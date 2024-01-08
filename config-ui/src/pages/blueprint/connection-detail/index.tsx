@@ -22,24 +22,23 @@ import { DeleteOutlined, FormOutlined } from '@ant-design/icons';
 import { Flex, Table, Popconfirm, Modal, Button } from 'antd';
 
 import API from '@/api';
-import { PageLoading, PageHeader, ExternalLink, Message } from '@/components';
-import { useRefreshData, useTips } from '@/hooks';
+import { PageLoading, PageHeader, ExternalLink } from '@/components';
+import { PATHS } from '@/config';
+import { showTips } from '@/features';
+import { useAppDispatch, useRefreshData } from '@/hooks';
 import { DataScopeSelect, getPluginConfig, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
-
-import { encodeName } from '../../project/utils';
 
 import * as S from './styled';
 
 export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
   const [open, setOpen] = useState(false);
-  const [operating, setOperating] = useState(false);
 
   const { pname, bid, unique } = useParams() as { pname?: string; bid?: string; unique: string };
   const navigate = useNavigate();
 
-  const { setTips } = useTips();
+  const dispatch = useAppDispatch();
 
   const getBlueprint = async (pname?: string, bid?: string) => {
     if (pname) {
@@ -93,27 +92,16 @@ export const BlueprintConnectionDetailPage = () => {
   const handleShowDataScope = () => setOpen(true);
   const handleHideDataScope = () => setOpen(false);
 
-  const handleRunBP = async (skipCollectors: boolean) => {
-    const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync: false }), {
-      setOperating,
-      formatMessage: () => 'Trigger blueprint successful.',
-    });
-
-    if (success) {
-      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`);
-    }
-  };
-
-  const handleShowTips = () => {
-    setTips(
-      <Flex gap="middle">
-        <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
-        <Button type="primary" loading={operating} onClick={() => handleRunBP(false)}>
-          Recollect Data
-        </Button>
-      </Flex>,
+  const handleShowTips = () =>
+    dispatch(
+      showTips({
+        type: 'data-scope-changed',
+        payload: {
+          pname,
+          blueprintId: blueprint.id,
+        },
+      }),
     );
-  };
 
   const handleRemoveConnection = async () => {
     const [success] = await operator(() =>
@@ -127,11 +115,7 @@ export const BlueprintConnectionDetailPage = () => {
 
     if (success) {
       handleShowTips();
-      navigate(
-        pname
-          ? `/projects/${encodeName(pname)}?tab=configuration`
-          : `/advanced/blueprints/${blueprint.id}?tab=configuration`,
-      );
+      navigate(pname ? PATHS.PROJECT(pname, 'configuration') : PATHS.BLUEPRINT(blueprint.id, 'configuration'));
     }
   };
 
@@ -167,14 +151,14 @@ export const BlueprintConnectionDetailPage = () => {
       breadcrumbs={
         pname
           ? [
-              { name: 'Projects', path: '/projects' },
-              { name: pname, path: `/projects/${pname}` },
+              { name: 'Projects', path: PATHS.PROJECTS() },
+              { name: pname, path: PATHS.PROJECT(pname) },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
           : [
-              { name: 'Advanced', path: '/advanced/blueprints' },
-              { name: 'Blueprints', path: '/advanced/blueprints' },
-              { name: bid as any, path: `/advanced/blueprints/${bid}` },
+              { name: 'Advanced', path: PATHS.BLUEPRINTS() },
+              { name: 'Blueprints', path: PATHS.BLUEPRINTS() },
+              { name: bid as any, path: PATHS.BLUEPRINT(bid as any) },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
       }

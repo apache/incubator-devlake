@@ -20,6 +20,7 @@ package models
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"net/http"
 )
@@ -31,7 +32,7 @@ type TrelloConn struct {
 }
 
 func (tc *TrelloConn) Sanitize() TrelloConn {
-	tc.SecretKey = ""
+	tc.SecretKey = utils.SanitizeString(tc.SecretKey)
 	return *tc
 }
 

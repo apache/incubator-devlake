@@ -29,7 +29,7 @@
       },
       "id": 58,
       "options": {
-        "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from Circleci, such as [Build Count](https://devlake.apache.org/docs/Metrics/BuildCount), [Build Duration](https://devlake.apache.org/docs/Metrics/BuildDuration) and [Build Success Rate](https://devlake.apache.org/docs/Metrics/BuildSuccessRate).\n- Data Source Required: Circleci",
+        "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from CircleCI, such as [Build Count](https://devlake.apache.org/docs/Metrics/BuildCount), [Build Duration](https://devlake.apache.org/docs/Metrics/BuildDuration) and [Build Success Rate](https://devlake.apache.org/docs/Metrics/BuildSuccessRate).\n- Data Source Required: CircleCI",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -89,7 +89,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*)\nFROM \n  cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and result = 'SUCCESS'\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
+          "rawSql": "SELECT\n  count(*)\nFROM \n  cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and result = 'SUCCESS'\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($full_name)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
           "refId": "A",
           "select": [
             [
@@ -115,12 +115,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "1. Total Number of Successful Builds [Selected Time Range]",
+      "title": "1. Total Number of Successful Workflows [Selected Time Range]",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "Number of successful builds / Number of total builds",
+      "description": "Number of successful workflows / Number of total workflows",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -168,7 +168,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  1.0 * count(case when result = 'SUCCESS' then 1 else null end)/count(*)\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
+          "rawSql": "SELECT\n  1.0 * count(case when result = 'SUCCESS' then 1 else null end)/count(*)\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($full_name)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
           "refId": "A",
           "select": [
             [
@@ -194,7 +194,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "2. Mean Build Success Rate",
+      "title": "2. Mean Workflow Success Rate",
       "type": "stat"
     },
     {
@@ -332,7 +332,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  result,\n  count(*) as build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1\nORDER BY 2 desc",
+          "rawSql": "SELECT\n  result,\n  count(*) as build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($full_name)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1\nORDER BY 2 desc",
           "refId": "A",
           "select": [
             [
@@ -358,12 +358,12 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "3. Total Build Result Distribution",
+      "title": "3. Total Workflow Result Distribution",
       "type": "piechart"
     },
     {
       "datasource": "mysql",
-      "description": "Number of successful builds / Number of total builds",
+      "description": "Number of successful workflows / Number of total workflows",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -409,7 +409,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  avg(duration_sec/60) as duration_in_minutes\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
+          "rawSql": "SELECT\n  avg(duration_sec/60) as duration_in_minutes\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($full_name)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
           "refId": "A",
           "select": [
             [
@@ -435,7 +435,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "4. Mean Build Duration in Minutes",
+      "title": "4. Mean Workflow Duration in Minutes",
       "type": "stat"
     },
     {
@@ -508,7 +508,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(*) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%circleci%\"\n    and cicd_scope_id in ($job_id)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Build Count\"\nFROM _builds\nORDER BY time\n",
+          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(*) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%circleci%\"\n    and cicd_scope_id in ($full_name)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Build Count\"\nFROM _builds\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -532,19 +532,19 @@
           ]
         }
       ],
-      "title": "1.1 Total Number of Successful Builds [Each Month]",
+      "title": "1.1 Total Number of Successful Workflows [Each Month]",
       "type": "barchart"
     },
     {
       "datasource": "mysql",
-      "description": "1. Mean Build success rate over time.\n2. The builds being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Mean workflows success rate over time.\n2. The workflows being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "Build Success Rate(%)",
+            "axisLabel": "Workflow Success Rate(%)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -576,7 +576,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Build Success Rate"
+              "options": "Workflow Success Rate"
             },
             "properties": [
               {
@@ -624,7 +624,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%circleci%\"\r\n    and cicd_scope_id in ($job_id)\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Build Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY 1\r\nORDER BY 1",
+          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%circleci%\"\r\n    and cicd_scope_id in ($full_name)\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Build Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY 1\r\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -650,7 +650,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "2.1 Build Success Rate [Each Month]",
+      "title": "2.1 Workflow Success Rate [Each Month]",
       "type": "barchart"
     },
     {
@@ -764,7 +764,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n  count(distinct case when result = 'SUCCESS' then id else null end) as successful_build_count,\n  count(distinct case when result != 'SUCCESS' then id else null end) as failed_build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n  count(distinct case when result = 'SUCCESS' then id else null end) as successful_build_count,\n  count(distinct case when result != 'SUCCESS' then id else null end) as failed_build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%circleci%\"\n  and cicd_scope_id in ($full_name)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1",
           "refId": "A",
           "select": [
             [
@@ -788,7 +788,7 @@
           ]
         }
       ],
-      "title": "3.1 Number of Successful and Failed Builds [Each Month]",
+      "title": "3.1 Number of Successful and Failed Workflows [Each Month]",
       "type": "timeseries"
     },
     {
@@ -877,7 +877,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    avg(duration_sec) as mean_duration_sec\n  FROM \n    cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and id like \"%circleci%\"\n    and cicd_scope_id in ($job_id)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  mean_duration_sec/60 as mean_duration_minutes\nFROM _builds\nORDER BY time\n",
+          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    avg(duration_sec) as mean_duration_sec\n  FROM \n    cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and id like \"%circleci%\"\n    and cicd_scope_id in ($full_name)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  mean_duration_sec/60 as mean_duration_minutes\nFROM _builds\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -901,7 +901,7 @@
           ]
         }
       ],
-      "title": "4.1 Mean Build Duration in Minutes [Each Month]",
+      "title": "4.1 Mean Workflow Duration in Minutes [Each Month]",
       "type": "barchart"
     },
     {
@@ -947,18 +947,18 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%circleci%\" ",
+        "definition": "select concat(name, '--', id) as text from cicd_scopes where id like \"%circleci%\" ",
         "description": null,
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "Job Name",
+        "label": "CircleCI Project",
         "multi": true,
-        "name": "job_id",
+        "name": "full_name",
         "options": [],
-        "query": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%circleci%\" ",
+        "query": "select concat(name, '--', id) as text from cicd_scopes where id like \"%circleci%\" ",
         "refresh": 1,
-        "regex": "",
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -971,7 +971,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Circleci",
-  "uid": "W8AiDFQnk",
+  "title": "CircleCI",
+  "uid": "W8AiDFQmk",
   "version": 10
 }

@@ -21,7 +21,7 @@ import { isEqual, pick } from 'lodash';
 import { Flex, Alert, Button } from 'antd';
 
 import API from '@/api';
-import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { ExternalLink } from '@/components';
 import { addConnection, updateConnection } from '@/features';
 import { selectConnection } from '@/features/connections';

@@ -163,7 +163,7 @@ func (c *ConnectionApiHelper) Delete(connection interface{}, input *plugin.ApiRe
 			Success: false,
 			Message: err.Error(),
 			Data:    refs,
-		}, Status: err.GetType().GetHttpCode()}, nil
+		}, Status: err.GetType().GetHttpCode()}, err
 	}
 	data, marshalErr := json.Marshal(connection)
 	if marshalErr != nil {

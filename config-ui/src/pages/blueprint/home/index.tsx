@@ -24,7 +24,7 @@ import dayjs from 'dayjs';
 
 import API from '@/api';
 import { PageHeader, Block, TextTooltip } from '@/components';
-import { getCronOptions, cronPresets, getCron } from '@/config';
+import { getCronOptions, cronPresets, getCron, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
 import { IBlueprint, IBPMode } from '@/types';
@@ -91,8 +91,8 @@ export const BlueprintHomePage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: '/advanced/blueprints' },
-        { name: 'Blueprints', path: '/advanced/blueprints' },
+        { name: 'Advanced', path: PATHS.BLUEPRINTS() },
+        { name: 'Blueprints', path: PATHS.BLUEPRINTS() },
       ]}
     >
       <Flex vertical gap="middle">
@@ -121,7 +121,7 @@ export const BlueprintHomePage = () => {
               title: 'Blueprint Name',
               key: 'name',
               render: (_, { id, name }) => (
-                <Link to={`/advanced/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
+                <Link to={PATHS.BLUEPRINT(id, 'configuration')} style={{ color: '#292b3f' }}>
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
               ),
@@ -171,7 +171,7 @@ export const BlueprintHomePage = () => {
               key: 'project',
               render: (val) =>
                 val ? (
-                  <Link to={`/projects/${window.encodeURIComponent(val)}`}>
+                  <Link to={PATHS.PROJECT(val)}>
                     <TextTooltip content={val}>{val}</TextTooltip>
                   </Link>
                 ) : (
@@ -192,7 +192,7 @@ export const BlueprintHomePage = () => {
               width: 100,
               align: 'center',
               render: (val) => (
-                <Link to={`/advanced/blueprints/${val}?tab=configuration`}>
+                <Link to={PATHS.BLUEPRINT(val, 'configuration')}>
                   <Button type="primary" icon={<SettingOutlined />} />
                 </Link>
               ),

@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -46,7 +47,7 @@ type JiraConn struct {
 
 func (jc *JiraConn) Sanitize() JiraConn {
 	jc.Password = ""
-	jc.AccessToken.Token = ""
+	jc.AccessToken.Token = utils.SanitizeString(jc.AccessToken.Token)
 	return *jc
 }
 

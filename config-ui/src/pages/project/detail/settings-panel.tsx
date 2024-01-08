@@ -19,10 +19,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WarningOutlined } from '@ant-design/icons';
-import { Flex, Card, Modal, Input, Checkbox, Button, message } from 'antd';
+import { Flex, Space, Card, Modal, Input, Checkbox, Button, message } from 'antd';
 
 import API from '@/api';
 import { Block } from '@/components';
+import { PATHS } from '@/config';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
@@ -76,7 +77,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     if (success) {
       onRefresh();
-      navigate(`/projects/${encodeName(name)}?tabId=settings`);
+      navigate(PATHS.PROJECT(name, 'settings'));
     }
   };
 
@@ -95,32 +96,34 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
     });
 
     if (success) {
-      navigate(`/projects`);
+      navigate(PATHS.PROJECTS());
     }
   };
 
   return (
     <Flex vertical>
-      <Card>
-        <Block title="Project Name" description="Edit your project name with letters, numbers, -, _ or /" required>
-          <Input style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
-        </Block>
-        <Block description="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
-          <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
-            Enable DORA Metrics
-          </Checkbox>
-        </Block>
-        <Block>
-          <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
-            Save
+      <Space direction="vertical" size="large">
+        <Card>
+          <Block title="Project Name" description="Edit your project name with letters, numbers, -, _ or /" required>
+            <Input style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
+          </Block>
+          <Block description="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
+            <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
+              Enable DORA Metrics
+            </Checkbox>
+          </Block>
+          <Block>
+            <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
+              Save
+            </Button>
+          </Block>
+        </Card>
+        <Flex justify="center">
+          <Button type="primary" danger onClick={handleShowDeleteDialog}>
+            Delete Project
           </Button>
-        </Block>
-      </Card>
-      <Flex justify="center">
-        <Button type="primary" danger onClick={handleShowDeleteDialog}>
-          Delete Project
-        </Button>
-      </Flex>
+        </Flex>
+      </Space>
       <Modal
         open={open}
         width={820}

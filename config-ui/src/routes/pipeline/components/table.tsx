@@ -77,11 +77,13 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
+            align: 'center',
           },
           {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            align: 'center',
             render: (val) => <PipelineStatus status={val} />,
           },
           {
@@ -101,6 +103,7 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
           {
             title: 'Duration',
             key: 'duration',
+            align: 'center',
             render: (_, { status, beganAt, finishedAt }) => (
               <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
             ),

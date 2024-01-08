@@ -39,6 +39,7 @@ export const DBUrl = ({ initialValue, value, setValue }: Props) => {
   return (
     <Block title="Database URL" description="Provide the DB URL of Zentao if you want to collect issue changelogs.">
       <Input
+        style={{ width: 386 }}
         placeholder="e.g. mysql://root:devlake@sshd-proxy:3306/zentao?charset=utf8mb4&parseTime=True"
         value={value}
         onChange={handleChange}

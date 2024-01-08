@@ -19,7 +19,7 @@
 import { useState, useMemo } from 'react';
 import { Modal, Form, Select, Space, Button } from 'antd';
 
-import { useAppSelector } from '@/app/hook';
+import { useAppSelector } from '@/hooks';
 import { selectAllConnections } from '@/features';
 import { DataScopeSelect } from '@/plugins';
 import { IConnection } from '@/types';

@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -43,7 +44,7 @@ func (conn *GitlabConn) SetupAuthentication(request *http.Request) errors.Error 
 }
 
 func (conn *GitlabConn) Sanitize() GitlabConn {
-	conn.Token = ""
+	conn.Token = utils.SanitizeString(conn.Token)
 	return *conn
 }
 

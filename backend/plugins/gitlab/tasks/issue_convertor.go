@@ -18,6 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
-	"strconv"
-	"strings"
 )
 
 func init() {
@@ -76,7 +77,6 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Title:                   issue.Title,
 				Description:             issue.Body,
 				Priority:                issue.Priority,
-				Type:                    issue.StdType,
 				OriginalType:            issue.Type,
 				LeadTimeMinutes:         int64(issue.LeadTimeMinutes),
 				Url:                     issue.Url,
@@ -92,6 +92,9 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatorName:             issue.CreatorName,
 				AssigneeId:              accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:            issue.AssigneeName,
+			}
+			if strings.ToUpper(issue.Type) == ticket.INCIDENT {
+				domainIssue.Type = ticket.INCIDENT
 			}
 
 			if strings.ToUpper(issue.State) == "OPENED" {

@@ -45,5 +45,6 @@ func All() []plugin.MigrationScript {
 		new(addIssueRelationship),
 		new(dropIssueAllFields),
 		new(modifyIssueRelationship),
+		new(addComponents20230412),
 	}
 }

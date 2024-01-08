@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -34,7 +35,7 @@ type FeishuConn struct {
 }
 
 func (conn *FeishuConn) Sanitize() FeishuConn {
-	conn.SecretKey = ""
+	conn.SecretKey = utils.SanitizeString(conn.SecretKey)
 	return *conn
 }
 

@@ -19,17 +19,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FormOutlined, PlusOutlined } from '@ant-design/icons';
-import { Flex, Table, Space, Button } from 'antd';
+import { Flex, Table, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
-import { getCron } from '@/config';
+import { getCron, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { getPluginConfig } from '@/plugins';
 import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';
-
-import { encodeName } from '../../project/utils';
 
 import { FromEnum } from '../types';
 import { validRawPlan } from '../utils';
@@ -124,17 +122,13 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
     <S.ConfigurationPanel>
       <div className="block">
         <h3>Blueprint Name</h3>
-        <Space>
-          <span>{blueprint.name}</span>
-          <Button type="primary" icon={<FormOutlined />} onClick={handleShowNameDialog} />
-        </Space>
+        <span>{blueprint.name}</span>
+        <Button type="link" icon={<FormOutlined />} onClick={handleShowNameDialog} />
       </div>
       <div className="block">
         <h3>
-          <Space>
-            <span>Sync Policy</span>
-            <Button type="primary" icon={<FormOutlined />} onClick={handleShowPolicyDialog} />
-          </Space>
+          <span>Sync Policy</span>
+          <Button type="link" icon={<FormOutlined />} onClick={handleShowPolicyDialog} />
         </h3>
         <Table
           rowKey="id"
@@ -183,8 +177,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             <NoData
               text={
                 <>
-                  If you have not created data connections yet, please <Link to="/connections">create connections</Link>{' '}
-                  first and then add them to the project.
+                  If you have not created data connections yet, please{' '}
+                  <Link to={PATHS.CONNECTIONS()}>create connections</Link> first and then add them to the project.
                 </>
               }
               action={
@@ -214,8 +208,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? `/advanced/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
-                            : `/projects/${encodeName(blueprint.projectName)}/${cs.plugin}-${cs.connectionId}`
+                            ? PATHS.BLUEPRINT_CONNECTION(blueprint.id, cs.plugin, cs.connectionId)
+                            : PATHS.PROJECT_CONNECTION(blueprint.projectName, cs.plugin, cs.connectionId)
                         }
                       >
                         Edit Data Scope and Scope Config
@@ -225,7 +219,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                 ))}
               </S.ConnectionList>
               <Flex justify="center">
-                <Button type="primary" onClick={handleRun}>
+                <Button type="primary" disabled={!blueprint.enable} onClick={handleRun}>
                   Collect Data
                 </Button>
               </Flex>

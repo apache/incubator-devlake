@@ -23,6 +23,7 @@ import useUrlState from '@ahooksjs/use-url-state';
 
 import API from '@/api';
 import { PageHeader, PageLoading } from '@/components';
+import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { BlueprintDetail, FromEnum } from '@/pages';
 
@@ -55,8 +56,8 @@ export const ProjectDetailPage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Projects', path: '/projects' },
-        { name: data.name, path: `/projects/${pname}` },
+        { name: 'Projects', path: PATHS.PROJECTS() },
+        { name: data.name, path: PATHS.PROJECT(pname) },
       ]}
     >
       <S.Wrapper>

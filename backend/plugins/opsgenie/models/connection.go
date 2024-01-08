@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -41,7 +42,7 @@ type OpsgenieConn struct {
 }
 
 func (connection OpsgenieConn) Sanitize() OpsgenieConn {
-	connection.Token = ""
+	connection.Token = utils.SanitizeString(connection.Token)
 	return connection
 }
 

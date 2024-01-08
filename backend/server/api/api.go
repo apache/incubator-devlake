@@ -74,7 +74,7 @@ func CreateAndRunApiServer() {
 
 func CreateApiServer() *gin.Engine {
 	// Create router
-	router := gin.New()
+	router := gin.Default()
 
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
