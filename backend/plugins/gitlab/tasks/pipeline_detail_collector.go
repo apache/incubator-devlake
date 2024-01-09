@@ -93,7 +93,7 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *hel
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.Since != nil {
+	if collectorWithState.Since != nil && collectorWithState.IsIncremental {
 		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.Since))
 	}
 	// construct the input iterator
