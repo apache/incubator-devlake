@@ -20,6 +20,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/utils"
 	"io"
 	"net/http"
 	"strings"
@@ -287,6 +288,7 @@ func (conn *GithubConn) SanitizeToken(token string) string {
 	case GithubTokenTypeFineGrained:
 		prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeFineGrainedPrefixLen, GithubTokenTypeFineGrainedShowPrefixLen, GithubTokenTypeFineGrainedHiddenLen
 	case GithubTokenTypeUnknown:
+		return utils.SanitizeString(token)
 	}
 	tokenLen := len(token)
 	if tokenLen >= prefixLen && prefixLen != 0 && hiddenLen != 0 {
