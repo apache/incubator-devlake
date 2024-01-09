@@ -84,6 +84,7 @@ func (p Sonarqube) GetTablesInfo() []dal.Tabler {
 		&models.SonarqubeHotspot{},
 		&models.SonarqubeFileMetrics{},
 		&models.SonarqubeAccount{},
+		&models.SonarqubeScopeConfig{},
 	}
 }
 
