@@ -116,9 +116,9 @@ func mockBasicRes(t *testing.T) {
 			dst := args.Get(0).(*models.JenkinsJob)
 			*dst = *jenkinsJob
 		}).Return(nil)
-		mockDal.On("GetPrimarykeyColumns", mock.AnythingOfType("*models.JenkinsConn"), mock.Anything).Run(nil).Return(
+		mockDal.On("GetPrimarykeyColumns", mock.AnythingOfType("*models.JenkinsConnection"), mock.Anything).Run(nil).Return(
 			testColumTypes, nil)
-		mockDal.On("GetColumns", mock.AnythingOfType("models.JenkinsConn"), mock.Anything).Run(nil).Return(
+		mockDal.On("GetColumns", mock.AnythingOfType("models.JenkinsConnection"), mock.Anything).Run(nil).Return(
 			testColumTypes, nil)
 		mockDal.On("GetColumns", mock.AnythingOfType("models.JenkinsJob"), mock.Anything).Run(nil).Return(
 			testColumTypes, nil)
