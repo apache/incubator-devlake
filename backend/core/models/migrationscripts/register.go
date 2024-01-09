@@ -103,5 +103,6 @@ func All() []plugin.MigrationScript {
 		new(addCommitMsgtoDeploymentCommit),
 		new(modifyIssueOriginalTypeLength),
 		new(addCommitMsgtoPipelineCommit),
+		new(modfiyFieldsSort),
 	}
 }
