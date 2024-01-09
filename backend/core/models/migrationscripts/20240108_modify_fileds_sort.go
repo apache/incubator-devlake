@@ -42,11 +42,31 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 		if err != nil {
 			return err
 		}
-		err = db.Exec("alter table issues modify story_point DOUBLE after original_status;")
+		err = db.Exec("alter table issues modify story_point DOUBLE after priority;")
 		if err != nil {
 			return err
 		}
 		// pull_requests
+		err = db.Exec("alter table pull_requests modify base_ref varchar(255) after base_repo_id;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table pull_requests modify base_commit_sha varchar(40) after base_ref;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table pull_requests modify head_ref varchar(255) after head_repo_id;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table pull_requests modify head_commit_sha varchar(40) after head_ref;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table pull_requests modify merge_commit_sha varchar(40) after head_commit_sha;")
+		if err != nil {
+			return err
+		}
 		err = db.Exec("alter table pull_requests modify original_status varchar(100) after status;")
 		if err != nil {
 			return err
@@ -68,11 +88,8 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 		if err != nil {
 			return err
 		}
-		err = db.Exec("alter table cicd_deployment_commits modify duration_sec DOUBLE after finished_date;")
-		if err != nil {
-			return err
-		}
-		err = db.Exec("alter table cicd_deployment_commits modify queued_date DATETIME(3) after duration_sec;")
+
+		err = db.Exec("alter table cicd_deployment_commits modify queued_date DATETIME(3) after created_date;")
 		if err != nil {
 			return err
 		}
@@ -80,6 +97,11 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 		if err != nil {
 			return err
 		}
+		err = db.Exec("alter table cicd_deployment_commits modify duration_sec DOUBLE after finished_date;")
+		if err != nil {
+			return err
+		}
+
 		// cicd deployments
 		err = db.Exec("alter table cicd_deployments modify original_status varchar(100) after status;")
 		if err != nil {
@@ -89,6 +111,15 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 		if err != nil {
 			return err
 		}
+		err = db.Exec("alter table cicd_deployments modify queued_date DATETIME(3) after created_date;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_deployments modify queued_duration_sec DOUBLE after queued_date;")
+		if err != nil {
+			return err
+		}
+
 		// cicd pipelines
 		err = db.Exec("alter table cicd_pipelines modify original_status varchar(100) after status;")
 		if err != nil {
@@ -98,19 +129,19 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 		if err != nil {
 			return err
 		}
-		err = db.Exec("alter table cicd_pipelines modify duration_sec DOUBLE after finished_date;")
-		if err != nil {
-			return err
-		}
-		err = db.Exec("alter table cicd_pipelines modify started_date DATETIME(3) after duration_sec;")
-		if err != nil {
-			return err
-		}
-		err = db.Exec("alter table cicd_pipelines modify queued_date DATETIME(3) after started_date;")
+		err = db.Exec("alter table cicd_pipelines modify queued_date DATETIME(3) after created_date;")
 		if err != nil {
 			return err
 		}
 		err = db.Exec("alter table cicd_pipelines modify queued_duration_sec DOUBLE after queued_date;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_pipelines modify started_date DATETIME(3) after queued_duration_sec;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_pipelines modify duration_sec DOUBLE after finished_date;")
 		if err != nil {
 			return err
 		}
@@ -123,19 +154,23 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 		if err != nil {
 			return err
 		}
-		err = db.Exec("alter table cicd_tasks modify created_date DATETIME(3) after finished_date;")
+		err = db.Exec("alter table cicd_tasks modify created_date DATETIME(3) after type;")
 		if err != nil {
 			return err
 		}
-		err = db.Exec("alter table cicd_tasks modify duration_sec DOUBLE after created_date;")
-		if err != nil {
-			return err
-		}
-		err = db.Exec("alter table cicd_tasks modify queued_date DATETIME(3) after duration_sec;")
+		err = db.Exec("alter table cicd_tasks modify queued_date DATETIME(3) after created_date;")
 		if err != nil {
 			return err
 		}
 		err = db.Exec("alter table cicd_tasks modify queued_duration_sec DOUBLE after queued_date;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_tasks modify started_date DATETIME(3) after queued_duration_sec;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("alter table cicd_tasks modify duration_sec DOUBLE after finished_date;")
 		if err != nil {
 			return err
 		}
@@ -145,7 +180,7 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*modfiyFieldsSort) Version() uint64 {
-	return 20240108000007
+	return 20240108000008
 }
 
 func (*modfiyFieldsSort) Name() string {
