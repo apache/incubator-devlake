@@ -344,18 +344,36 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 		for _, token := range tokens {
 			testGithubConn := conn
 			testGithubConn.Token = token
-			if tokenTestResult, err := testGithubConnAccessTokenAuth(ctx, testGithubConn); err != nil {
-				return nil, errors.Convert(err)
-			} else {
-				githubApiResponse.Tokens = append(githubApiResponse.Tokens, tokenTestResult)
-				if tokenTestResult.Success {
-					githubApiResponse.Success = tokenTestResult.Success
-					githubApiResponse.Message = tokenTestResult.Message
+			tokenTestResult, err := testGithubConnAccessTokenAuth(ctx, testGithubConn)
+			if err != nil {
+				// generate a failed message for current token
+				tokenTestResult = &GitHubTestConnResult{
+					AuthMethod:     models.AccessToken,
+					AppId:          testGithubConn.AppId,
+					InstallationID: testGithubConn.InstallationID,
+					Token:          testGithubConn.Sanitize().Token,
+					Success:        false,
+					Message:        err.Error(),
+					Login:          "",
+					Warning:        true,
+					Installations:  nil,
 				}
 			}
+			githubApiResponse.Tokens = append(githubApiResponse.Tokens, tokenTestResult)
 		}
 	} else {
 		return nil, errors.BadInput.New("invalid authentication method")
+	}
+
+	// resp.success is true by default
+	githubApiResponse.Success = true
+	githubApiResponse.Message = "success"
+	for _, token := range githubApiResponse.Tokens {
+		if !token.Success {
+			githubApiResponse.Success = false
+			githubApiResponse.Message = token.Message
+			githubApiResponse.Causes = append(githubApiResponse.Causes, token.Message)
+		}
 	}
 
 	return githubApiResponse, nil
