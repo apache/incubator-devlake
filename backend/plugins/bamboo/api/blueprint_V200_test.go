@@ -18,6 +18,9 @@ limitations under the License.
 package api
 
 import (
+	"database/sql"
+	"github.com/apache/incubator-devlake/core/dal"
+	"gorm.io/gorm/migrator"
 	"testing"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -72,6 +75,15 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			Entities: []string{plugin.DOMAIN_TYPE_CICD},
 		},
 		Name: testScopeConfigName,
+	}
+
+	var testColumTypes = []dal.ColumnMeta{
+		migrator.ColumnType{
+			NameValue: sql.NullString{
+				String: "abc",
+				Valid:  true,
+			},
+		},
 	}
 
 	var testBambooConnection = &models.BambooConnection{
@@ -145,6 +157,15 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			dst := args.Get(0).(*models.BambooScopeConfig)
 			*dst = *testScopeConfig
 		}).Return(nil)
+
+		mockDal.On("GetPrimarykeyColumns", mock.AnythingOfType("*models.BambooConnection"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.BambooConnection"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.BambooPlan"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.BambooScopeConfig"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
 	})
 	Init(basicRes, mockMeta)
 

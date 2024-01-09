@@ -29,6 +29,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.SonarqubeConnection, models.SonarqubeProject, interface{}]
 var remoteHelper *api.RemoteApiHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse]
+var dsHelper *api.DsHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeScopeConfig]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {

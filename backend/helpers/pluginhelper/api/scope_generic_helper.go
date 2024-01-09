@@ -600,6 +600,27 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(t
 	return nil
 }
 
+// GetScopeLatestSyncState only works for remote plugins.
+// Make sure all remote plugins save their state in table `_devlake_collector_latest_state`.
+// For golang version plugin, use `dsHelper.ScopeApi.GetScopeLatestSyncState` instead.
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopeLatestSyncState(input *plugin.ApiResourceInput) ([]*models.LatestSyncState, errors.Error) {
+	scope, err := gs.GetScope(input)
+	if err != nil {
+		return nil, err
+	}
+	params := plugin.MarshalScopeParams(scope.Scope.ScopeParams())
+	scopeSyncStates := []*models.LatestSyncState{}
+	if err := gs.db.All(
+		&scopeSyncStates,
+		dal.Select("raw_data_table, latest_success_start, raw_data_params"),
+		dal.From("_devlake_collector_latest_state"),
+		dal.Where("raw_data_params = ?", params),
+	); err != nil {
+		return nil, err
+	}
+	return scopeSyncStates, nil
+}
+
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getAffectedTables(pluginName string) ([]string, errors.Error) {
 	var tables []string
 	meta, err := plugin.GetPlugin(pluginName)

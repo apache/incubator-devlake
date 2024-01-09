@@ -191,6 +191,9 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
+		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},

@@ -29,7 +29,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 
 var scopeHelper *api.ScopeApiHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig]
-
+var dsHelper *api.DsHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
@@ -55,5 +55,12 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 			basicRes, connectionHelper, params),
 		params,
 		&api.ScopeHelperOptions{},
+	)
+	dsHelper = api.NewDataSourceHelper[
+		models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
 	)
 }

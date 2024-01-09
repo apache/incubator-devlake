@@ -187,7 +187,7 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"GET": api.SearchRemoteScopes,
 		},
 		"connections/:connectionId/scopes/*scopeId": {
-			"GET":    api.GetScope,
+			"GET":    api.GetScopeDispatcher,
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},

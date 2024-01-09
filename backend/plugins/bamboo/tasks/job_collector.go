@@ -38,7 +38,11 @@ type SimplePlan struct {
 
 func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	if err != nil {
+		return err
+	}
+	if err := collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
@@ -70,11 +74,10 @@ func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return results.SearchResults, nil
 		},
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 var CollectJobMeta = plugin.SubTaskMeta{

@@ -37,7 +37,11 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("collect accounts")
 
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	if err != nil {
+		return err
+	}
+	if err := collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
@@ -56,12 +60,11 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 			err := helper.UnmarshalResponse(res, &resData)
 			return resData.Data, err
 		},
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 var CollectAccountsMeta = plugin.SubTaskMeta{

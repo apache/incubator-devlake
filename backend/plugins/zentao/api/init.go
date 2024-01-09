@@ -39,6 +39,7 @@ var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.Zenta
 var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.BaseRemoteGroupResponse]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.ZentaoScopeConfig, *models.ZentaoScopeConfig]
+var dsHelper *api.DsHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 
@@ -65,4 +66,11 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 
 	projectRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.BaseRemoteGroupResponse](basicRes, vld, connectionHelper)
 	scHelper = api.NewScopeConfigHelper[models.ZentaoScopeConfig, *models.ZentaoScopeConfig](basicRes, vld, p.Name())
+	dsHelper = api.NewDataSourceHelper[
+		models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
+	)
 }

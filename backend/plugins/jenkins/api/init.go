@@ -29,7 +29,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job]
-
+var dsHelper *api.DsHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.JenkinsScopeConfig, *models.JenkinsScopeConfig]
 
@@ -66,5 +66,14 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 		p.Name(),
+	)
+	dsHelper = api.NewDataSourceHelper[
+		models.JenkinsConnection,
+		models.JenkinsJob,
+		models.JenkinsScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"full_name"},
 	)
 }

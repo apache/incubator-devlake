@@ -29,6 +29,7 @@ var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
 var scopeHelper *helper.ScopeApiHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig]
 var scHelper *helper.ScopeConfigHelper[models.CircleciScopeConfig, *models.CircleciScopeConfig]
+var dsHelper *helper.DsHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig]
 var remoteHelper *helper.RemoteApiHelper[models.CircleciConnection, models.CircleciProject, RemoteProject, helper.NoRemoteGroupResponse]
 var basicRes context.BasicRes
 
@@ -64,5 +65,12 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 		p.Name(),
+	)
+	dsHelper = helper.NewDataSourceHelper[
+		models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
 	)
 }
