@@ -18,6 +18,9 @@ limitations under the License.
 package api
 
 import (
+	"database/sql"
+	"github.com/apache/incubator-devlake/core/dal"
+	"gorm.io/gorm/migrator"
 	"testing"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -42,7 +45,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bs := &coreModels.BlueprintScope{
 		ScopeId: "a/b/ccc",
 	}
-	
+
 	bpScopes := make([]*coreModels.BlueprintScope, 0)
 	bpScopes = append(bpScopes, bs)
 
@@ -94,6 +97,15 @@ func mockBasicRes(t *testing.T) {
 		},
 	}
 
+	var testColumTypes = []dal.ColumnMeta{
+		migrator.ColumnType{
+			NameValue: sql.NullString{
+				String: "abc",
+				Valid:  true,
+			},
+		},
+	}
+
 	// Refresh Global Variables and set the sql mock
 	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
 		mockDal.On("First", mock.AnythingOfType("*models.JenkinsScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
@@ -104,6 +116,14 @@ func mockBasicRes(t *testing.T) {
 			dst := args.Get(0).(*models.JenkinsJob)
 			*dst = *jenkinsJob
 		}).Return(nil)
+		mockDal.On("GetPrimarykeyColumns", mock.AnythingOfType("*models.JenkinsConn"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.JenkinsConn"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.JenkinsJob"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("models.JenkinsScopeConfig"), mock.Anything).Run(nil).Return(
+			testColumTypes, nil)
 	})
 	p := mockplugin.NewPluginMeta(t)
 	p.On("Name").Return("dummy").Maybe()
