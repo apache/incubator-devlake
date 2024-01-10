@@ -147,13 +147,13 @@ func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64, gitlabId i
 }
 
 type GitlabDeploymentCommit struct {
-	AuthorEmail string    `json:"author_email"`
-	AuthorName  string    `json:"author_name"`
-	CreatedAt   time.Time `json:"created_at"`
-	ID          string    `json:"id"`
-	Message     string    `json:"message"`
-	ShortID     string    `json:"short_id"`
-	Title       string    `json:"title"`
+	AuthorEmail string     `json:"author_email"`
+	AuthorName  string     `json:"author_name"`
+	CreatedAt   *time.Time `json:"created_at"`
+	ID          string     `json:"id"`
+	Message     string     `json:"message"`
+	ShortID     string     `json:"short_id"`
+	Title       string     `json:"title"`
 }
 
 type GitlabDeploymentProject struct {
@@ -161,21 +161,21 @@ type GitlabDeploymentProject struct {
 }
 
 type GitlabDeploymentFullUser struct {
-	ID           int       `json:"id"`
-	Name         string    `json:"name"`
-	Username     string    `json:"username"`
-	State        string    `json:"state"`
-	AvatarURL    string    `json:"avatar_url"`
-	WebURL       string    `json:"web_url"`
-	CreatedAt    time.Time `json:"created_at"`
-	Bio          any       `json:"bio"`
-	Location     any       `json:"location"`
-	PublicEmail  string    `json:"public_email"`
-	Skype        string    `json:"skype"`
-	Linkedin     string    `json:"linkedin"`
-	Twitter      string    `json:"twitter"`
-	WebsiteURL   string    `json:"website_url"`
-	Organization string    `json:"organization"`
+	ID           int        `json:"id"`
+	Name         string     `json:"name"`
+	Username     string     `json:"username"`
+	State        string     `json:"state"`
+	AvatarURL    string     `json:"avatar_url"`
+	WebURL       string     `json:"web_url"`
+	CreatedAt    *time.Time `json:"created_at"`
+	Bio          any        `json:"bio"`
+	Location     any        `json:"location"`
+	PublicEmail  string     `json:"public_email"`
+	Skype        string     `json:"skype"`
+	Linkedin     string     `json:"linkedin"`
+	Twitter      string     `json:"twitter"`
+	WebsiteURL   string     `json:"website_url"`
+	Organization string     `json:"organization"`
 }
 
 type GitlabDeploymentPipeline struct {

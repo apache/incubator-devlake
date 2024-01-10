@@ -49,8 +49,8 @@ type ApiPipeline struct {
 	Status         string
 	Tag            bool
 	Duration       int
-	QueuedDuration float64 `json:"queued_duration"`
-	WebUrl         string  `json:"web_url"`
+	QueuedDuration *float64 `json:"queued_duration"`
+	WebUrl         string   `json:"web_url"`
 
 	CreatedAt  *common.Iso8601Time `json:"created_at"`
 	UpdatedAt  *common.Iso8601Time `json:"updated_at"`

@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"reflect"
-	"time"
 )
 
 var ConvertJobBuildsMeta = plugin.SubTaskMeta{
@@ -66,11 +67,11 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if line.BuildStartedTime != nil {
 				createdDate = *line.BuildStartedTime
 			}
-			queuedDurationSec := float64(line.QueueDuration / 1e3)
+			queuedDurationSec := float64(line.QueueDuration) / 1e3
 			domainJobBuild := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobBuildIdGen.Generate(data.Options.ConnectionId, line.JobBuildKey)},
 				Name:         line.JobName,
-				DurationSec:  float64(line.BuildDuration / 1e3),
+				DurationSec:  float64(line.BuildDuration) / 1e3,
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdDate,
 					QueuedDate:   line.QueueStartedTime,
