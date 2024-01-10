@@ -29,6 +29,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse]
+var dsHelper *api.DsHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig]
 var scHelper *api.ScopeConfigHelper[models.BitbucketScopeConfig, *models.BitbucketScopeConfig]
 var basicRes context.BasicRes
 
@@ -65,5 +66,12 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 		p.Name(),
+	)
+	dsHelper = api.NewDataSourceHelper[
+		models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
 	)
 }

@@ -89,6 +89,7 @@ func (p PagerDuty) GetTablesInfo() []dal.Tabler {
 		&models.User{},
 		&models.Assignment{},
 		&models.PagerDutyConnection{},
+		&models.PagerdutyScopeConfig{},
 	}
 }
 
@@ -160,6 +161,9 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET":    api.GetScope,
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
 		},
 	}
 }

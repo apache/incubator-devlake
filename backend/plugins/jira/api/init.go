@@ -31,6 +31,7 @@ var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
+var dsHelper *api.DsHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig]
 var scHelper *api.ScopeConfigHelper[models.JiraScopeConfig, *models.JiraScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
@@ -67,5 +68,14 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 		p.Name(),
+	)
+	dsHelper = api.NewDataSourceHelper[
+		models.JiraConnection,
+		models.JiraBoard,
+		models.JiraScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
 	)
 }

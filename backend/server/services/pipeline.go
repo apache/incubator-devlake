@@ -50,7 +50,7 @@ type PipelineQuery struct {
 }
 
 func pipelineServiceInit() {
-	// initilize plugin
+	// initialize plugin
 	plugin.InitPlugins(basicRes)
 
 	// notification

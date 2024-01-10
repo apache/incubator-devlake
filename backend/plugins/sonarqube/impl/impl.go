@@ -84,6 +84,7 @@ func (p Sonarqube) GetTablesInfo() []dal.Tabler {
 		&models.SonarqubeHotspot{},
 		&models.SonarqubeFileMetrics{},
 		&models.SonarqubeAccount{},
+		&models.SonarqubeScopeConfig{},
 	}
 }
 
@@ -190,6 +191,9 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
