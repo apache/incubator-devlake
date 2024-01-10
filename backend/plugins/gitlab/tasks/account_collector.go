@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -54,6 +55,11 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	urlTemplate := "/projects/{{ .Params.ProjectId }}/members/all"
 	if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "v13.11") < 0 {
 		urlTemplate = "/projects/{{ .Params.ProjectId }}/members/"
+	}
+
+	// Collect all users if endpoint is private gitlab instance
+	if !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com") {
+		urlTemplate = "/users"
 	}
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{

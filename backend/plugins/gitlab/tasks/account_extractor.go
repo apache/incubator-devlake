@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -42,6 +43,9 @@ var ExtractAccountsMeta = plugin.SubTaskMeta{
 func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 
+	// Do not extract createdUserAt if we are not using /users API
+	var skipCreatedUserAt = strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com")
+
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -52,16 +56,34 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			results := make([]interface{}, 0)
-			GitlabAccount := &models.GitlabAccount{
-				ConnectionId:    data.Options.ConnectionId,
-				GitlabId:        userRes.GitlabId,
-				Username:        userRes.Username,
-				Name:            userRes.Name,
-				State:           userRes.State,
-				MembershipState: userRes.MembershipState,
-				AvatarUrl:       userRes.AvatarUrl,
-				WebUrl:          userRes.WebUrl,
+			var GitlabAccount *models.GitlabAccount
+			if skipCreatedUserAt {
+				GitlabAccount = &models.GitlabAccount{
+					ConnectionId:    data.Options.ConnectionId,
+					GitlabId:        userRes.GitlabId,
+					Username:        userRes.Username,
+					Name:            userRes.Name,
+					State:           userRes.State,
+					MembershipState: userRes.MembershipState,
+					AvatarUrl:       userRes.AvatarUrl,
+					WebUrl:          userRes.WebUrl,
+					Email:           userRes.Email,
+				}
+			} else {
+				GitlabAccount = &models.GitlabAccount{
+					ConnectionId:    data.Options.ConnectionId,
+					GitlabId:        userRes.GitlabId,
+					Username:        userRes.Username,
+					Name:            userRes.Name,
+					State:           userRes.State,
+					MembershipState: userRes.MembershipState,
+					AvatarUrl:       userRes.AvatarUrl,
+					WebUrl:          userRes.WebUrl,
+					Email:           userRes.Email,
+					CreatedUserAt:   userRes.CreatedUserAt,
+				}
 			}
+
 			results = append(results, GitlabAccount)
 
 			return results, nil

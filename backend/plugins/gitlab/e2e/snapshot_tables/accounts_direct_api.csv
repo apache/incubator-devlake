@@ -1,0 +1,7 @@
+id,email,full_name,user_name,avatar_url,organization,created_date,status,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+gitlab:GitlabAccount:1:2994198,abc1@dev.com,abc1,abc1,,,2018-03-25T08:43:17.048+00:00,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_users,1,
+gitlab:GitlabAccount:1:2994199,abc2@dev.com,abc2,abc2,,,2019-03-25T08:43:17.048+00:00,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_users,2,
+gitlab:GitlabAccount:1:2994200,abc3@dev.com,abc3,abc3,,,2020-03-25T08:43:17.048+00:00,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_users,3,
+gitlab:GitlabAccount:1:2944200,abc4@dev.com,abc4,abc4,,,2021-03-25T08:43:17.048+00:00,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_users,4,
+gitlab:GitlabAccount:1:2944220,abc5@dev.com,abc5,abc5,,,2022-03-25T08:43:17.048+00:00,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_users,5,
+gitlab:GitlabAccount:1:2944221,abc6@dev.com,abc6,abc6,,,2023-03-25T08:43:17.048+00:00,0,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_users,6,

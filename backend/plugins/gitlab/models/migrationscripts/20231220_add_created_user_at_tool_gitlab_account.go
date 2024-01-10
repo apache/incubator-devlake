@@ -15,29 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type GitlabAccount struct {
-	ConnectionId    uint64     `gorm:"primaryKey"`
-	GitlabId        int        `gorm:"primaryKey"`
-	Username        string     `gorm:"type:varchar(255)"`
-	Email           string     `gorm:"type:varchar(255)"`
-	Name            string     `gorm:"type:varchar(255)"`
-	State           string     `gorm:"type:varchar(255)"`
-	MembershipState string     `json:"membership_state" gorm:"type:varchar(255)"`
-	AvatarUrl       string     `json:"avatar_url" gorm:"type:varchar(255)"`
-	WebUrl          string     `json:"web_url" gorm:"type:varchar(255)"`
-	CreatedUserAt   *time.Time `json:"created_at"`
-
-	archived.NoPKModel
+type gitlabAccount20231120 struct {
+	CreatedUserAt *time.Time
 }
 
-func (GitlabAccount) TableName() string {
+func (gitlabAccount20231120) TableName() string {
 	return "_tool_gitlab_accounts"
+}
+
+type addUserCreationAt20231120 struct{}
+
+func (*addUserCreationAt20231120) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &gitlabAccount20231120{})
+}
+
+func (*addUserCreationAt20231120) Version() uint64 {
+	return 20231226140000
+}
+
+func (*addUserCreationAt20231120) Name() string {
+	return "add created_user_at column to _tool_gitlab_accounts"
 }
