@@ -117,7 +117,7 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				LastEditedById: data.AccountCache.getAccountIDFromApiAccount(res.LastEditedBy),
 				LastEditedDate: res.LastEditedDate,
 				Deleted:        res.Deleted,
-				PriOrder:       res.PriOrder,
+				PriOrder:       res.PriOrder.String(),
 				SeverityOrder:  res.SeverityOrder,
 				Needconfirm:    res.Needconfirm,
 				StatusName:     res.StatusName,
