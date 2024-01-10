@@ -68,6 +68,7 @@ func TestGitlabPipelineDetailDataFlow(t *testing.T) {
 			"sha",
 			"web_url",
 			"duration",
+			"queued_duration",
 			"started_at",
 			"finished_at",
 			"coverage",
