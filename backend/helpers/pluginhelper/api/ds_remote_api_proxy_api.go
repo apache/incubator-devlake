@@ -21,6 +21,8 @@ import (
 	gocontext "context"
 	"encoding/json"
 	"io"
+	"net/http"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -107,5 +109,16 @@ func (rap *DsRemoteApiProxyHelper[C]) Proxy(input *plugin.ApiResourceInput) (out
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Status: resp.StatusCode, Body: json.RawMessage(body)}, nil
+
+	headers := http.Header{}
+	for k, vs := range resp.Header {
+		// skip headers doesn't start with "x-"
+		if !strings.HasPrefix(strings.ToLower(k), "x-") {
+			continue
+		}
+		for _, v := range vs {
+			headers.Add(k, v)
+		}
+	}
+	return &plugin.ApiResourceOutput{Status: resp.StatusCode, Body: json.RawMessage(body), Header: headers}, nil
 }
