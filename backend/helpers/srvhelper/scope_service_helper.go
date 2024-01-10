@@ -101,26 +101,15 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeLatestSyncState(pkv ...interfa
 	s := *scope
 	params := plugin.MarshalScopeParams(s.ScopeParams())
 	scopeSrv.log.Debug("scope: %#+v, params: %+v", s, params)
-	rows, err := scopeSrv.db.Cursor(
-		dal.Select("raw_data_table, MAX(latest_success_start) as latest_success_start"),
+	scopeSyncStates := []*models.LatestSyncState{}
+	if err := scopeSrv.db.All(
+		&scopeSyncStates,
+		dal.Select("raw_data_table, latest_success_start, raw_data_params"),
 		dal.From("_devlake_collector_latest_state"),
 		dal.Where("raw_data_params = ?", params),
-		dal.Groupby("raw_data_table"),
-	)
-	if err != nil {
+	); err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	var scopeSyncStates []*models.LatestSyncState
-	for rows.Next() {
-		var result models.LatestSyncState
-		if err := scopeSrv.db.Fetch(rows, &result); err != nil {
-			return nil, err
-		}
-		result.RawDataParams = params
-		scopeSyncStates = append(scopeSyncStates, &result)
-	}
-
 	scopeSrv.log.Debug("param: %+v, resp: %+v", scopeSyncStates)
 	sort.Slice(scopeSyncStates, func(i, j int) bool {
 		if scopeSyncStates[i].LatestSuccessStart != nil && scopeSyncStates[j].LatestSuccessStart != nil {
