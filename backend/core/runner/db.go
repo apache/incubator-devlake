@@ -85,7 +85,7 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 	if dbUrl == "" {
 		return nil, errors.BadInput.New("DB_URL is required, please set it in environment variable or .env file")
 	}
-	db, err := getDbConnection(dbUrl, dbConfig)
+	db, err := MakeDbConnection(dbUrl, dbConfig)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -120,7 +120,7 @@ func sanitizeQuery(query url.Values) string {
 	return query.Encode()
 }
 
-func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
+func MakeDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 	u, err := url.Parse(dbUrl)
 	if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func CheckDbConnection(dbUrl string, d time.Duration) errors.Error {
 				result <- errors.Default.New(fmt.Sprintf("panic when checking db connection: %v", err))
 			}
 		}()
-		db, err := getDbConnection(dbUrl, &gorm.Config{})
+		db, err := MakeDbConnection(dbUrl, &gorm.Config{})
 		if err != nil {
 			result <- errors.Convert(err)
 			return
