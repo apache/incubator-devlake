@@ -18,22 +18,19 @@ limitations under the License.
 package archived
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type GitlabAccount struct {
-	ConnectionId    uint64     `gorm:"primaryKey"`
-	GitlabId        int        `gorm:"primaryKey"`
-	Username        string     `gorm:"type:varchar(255)"`
-	Email           string     `gorm:"type:varchar(255)"`
-	Name            string     `gorm:"type:varchar(255)"`
-	State           string     `gorm:"type:varchar(255)"`
-	MembershipState string     `json:"membership_state" gorm:"type:varchar(255)"`
-	AvatarUrl       string     `json:"avatar_url" gorm:"type:varchar(255)"`
-	WebUrl          string     `json:"web_url" gorm:"type:varchar(255)"`
-	CreatedUserAt   *time.Time `json:"created_at"`
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	GitlabId        int    `gorm:"primaryKey"`
+	Username        string `gorm:"type:varchar(255)"`
+	Email           string `gorm:"type:varchar(255)"`
+	Name            string `gorm:"type:varchar(255)"`
+	State           string `gorm:"type:varchar(255)"`
+	MembershipState string `json:"membership_state" gorm:"type:varchar(255)"`
+	AvatarUrl       string `json:"avatar_url" gorm:"type:varchar(255)"`
+	WebUrl          string `json:"web_url" gorm:"type:varchar(255)"`
 
 	archived.NoPKModel
 }
