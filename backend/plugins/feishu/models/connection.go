@@ -82,3 +82,15 @@ func (connection FeishuConnection) Sanitize() FeishuConnection {
 	connection.FeishuConn = connection.FeishuConn.Sanitize()
 	return connection
 }
+
+func (connection *FeishuConnection) MergeFromRequest(target *FeishuConnection, body map[string]interface{}) error {
+	secretKey := target.SecretKey
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedSecretKey := target.SecretKey
+	if modifiedSecretKey == "" || modifiedSecretKey == utils.SanitizeString(secretKey) {
+		target.SecretKey = secretKey
+	}
+	return nil
+}

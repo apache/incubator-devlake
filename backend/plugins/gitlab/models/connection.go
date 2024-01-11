@@ -151,3 +151,15 @@ func (connection GitlabConnection) Sanitize() GitlabConnection {
 	connection.GitlabConn = connection.GitlabConn.Sanitize()
 	return connection
 }
+
+func (connection *GitlabConnection) MergeFromRequest(target *GitlabConnection, body map[string]interface{}) error {
+	token := target.Token
+	if err := api.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedToken := target.Token
+	if modifiedToken == "" || modifiedToken == utils.SanitizeString(token) {
+		target.Token = token
+	}
+	return nil
+}

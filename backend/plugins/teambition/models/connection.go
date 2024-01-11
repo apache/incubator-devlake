@@ -46,6 +46,18 @@ type TeambitionConnection struct {
 	TeambitionConn        `mapstructure:",squash"`
 }
 
+func (connection *TeambitionConnection) MergeFromRequest(target *TeambitionConnection, body map[string]interface{}) error {
+	secretKey := target.SecretKey
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedSecretKey := target.SecretKey
+	if modifiedSecretKey == "" || modifiedSecretKey == utils.SanitizeString(secretKey) {
+		target.SecretKey = secretKey
+	}
+	return nil
+}
+
 func (connection TeambitionConnection) Sanitize() TeambitionConnection {
 	connection.TeambitionConn = connection.TeambitionConn.Sanitize()
 	return connection

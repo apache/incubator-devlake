@@ -151,16 +151,16 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// test connection
-	result, err := testConnection(context.TODO(), connection.JiraConn)
-	if err != nil {
+	if result, err := testConnection(context.TODO(), connection.JiraConn); err != nil {
 		return nil, err
+	} else {
+		return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 	}
-	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create jira connection

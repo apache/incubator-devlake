@@ -107,6 +107,25 @@ func (connection ZentaoConnection) Sanitize() ZentaoConnection {
 	return connection
 }
 
+func (connection *ZentaoConnection) MergeFromRequest(target *ZentaoConnection, body map[string]interface{}) error {
+	password := target.Password
+	existedDBUrl := target.DbUrl
+	existedSanitizedConnectionDBUrl := target.Sanitize().DbUrl
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+
+	modifiedPassword := target.Password
+	if modifiedPassword == "" {
+		target.Password = password
+	}
+
+	if existedDBUrl != "" && target.DbUrl != "" && existedSanitizedConnectionDBUrl == target.DbUrl {
+		target.DbUrl = existedDBUrl
+	}
+	return nil
+}
+
 // Merge works with the new connection helper.
 func (connection ZentaoConnection) Merge(existed, modified *ZentaoConnection) error {
 	existedDBUrl := existed.DbUrl

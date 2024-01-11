@@ -116,11 +116,21 @@ func (connection GithubConnection) TableName() string {
 	return "_tool_github_connections"
 }
 
+func (connection *GithubConnection) MergeFromRequest(target *GithubConnection, body map[string]interface{}) error {
+	modifiedConnection := GithubConnection{}
+	if err := helper.DecodeMapStruct(body, &modifiedConnection, true); err != nil {
+		return err
+	}
+	return connection.Merge(target, &modifiedConnection)
+}
+
 func (connection *GithubConnection) Merge(existed, modified *GithubConnection) error {
 	// There are many kinds of update, we just update all fields simply.
 	existedTokenStr := existed.Token
 	existSecretKey := existed.SecretKey
 
+	existed.Name = modified.Name
+	existed.EnableGraphql = modified.EnableGraphql
 	existed.AppId = modified.AppId
 	existed.SecretKey = modified.SecretKey
 	existed.InstallationID = modified.InstallationID
