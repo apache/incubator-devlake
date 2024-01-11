@@ -46,5 +46,6 @@ func All() []plugin.MigrationScript {
 		new(dropIssueAllFields),
 		new(modifyIssueRelationship),
 		new(addComponents20230412),
+		new(addFilterJQL),
 	}
 }

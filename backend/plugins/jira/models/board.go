@@ -33,6 +33,7 @@ type JiraBoard struct {
 	Name         string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
 	Self         string `json:"self" mapstructure:"self" gorm:"type:varchar(255)"`
 	Type         string `json:"type" mapstructure:"type" gorm:"type:varchar(100)"`
+	Jql          string `json:"jql" mapstructure:"jql"`
 }
 
 func (b JiraBoard) ScopeId() string {
