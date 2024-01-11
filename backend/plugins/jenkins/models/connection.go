@@ -46,3 +46,15 @@ func (connection JenkinsConnection) Sanitize() JenkinsConnection {
 	connection.JenkinsConn = connection.JenkinsConn.Sanitize()
 	return connection
 }
+
+func (connection *JenkinsConnection) MergeFromRequest(target *JenkinsConnection, body map[string]interface{}) error {
+	password := target.Password
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedPassword := target.Password
+	if modifiedPassword == "" {
+		target.Password = password
+	}
+	return nil
+}

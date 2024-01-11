@@ -388,9 +388,9 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/github/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	testConnectionResult, testConnectionErr := testExistingConnection(context.TODO(), connection.GithubConn)
 	if testConnectionErr != nil {

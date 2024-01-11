@@ -63,7 +63,7 @@ func testConnection(ctx context.Context, connection models.ZentaoConn) (*ZentaoT
 		if err != nil {
 			body.Success = false
 			body.Message = "invalid DbUrl"
-			return &body, nil
+			return &body, errors.Default.New("invalid DbUrl")
 		}
 	}
 	body.Success = true
@@ -89,7 +89,6 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "failed to decode input to be zentao connection")
 	}
-
 	// test connection
 	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
@@ -111,6 +110,9 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	if err := helper.DecodeMapStruct(input.Body, connection, false); err != nil {
+		return nil, err
 	}
 	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.ZentaoConn)
 	if testConnectionErr != nil {
@@ -150,19 +152,13 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err := connectionHelper.First(&existedConnection, input.Params); err != nil {
 		return nil, err
 	}
-	connection := existedConnection
-	if err := connectionHelper.Merge(connection, input.Body); err != nil {
-		return nil, err
-	}
-	// make sure zentao config's db url field is not in secret format
-	if err := (models.ZentaoConnection{}).Merge(&existedConnection, &connection); err != nil {
+	if err := (&models.ZentaoConnection{}).MergeFromRequest(&existedConnection, input.Body); err != nil {
 		return nil, errors.Convert(err)
 	}
-	connection.DbUrl = existedConnection.DbUrl
-	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
+	if err := connectionHelper.SaveWithCreateOrUpdate(existedConnection); err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
+	return &plugin.ApiResourceOutput{Body: existedConnection.Sanitize()}, nil
 }
 
 // @Summary delete a zentao connection

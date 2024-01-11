@@ -40,6 +40,18 @@ func (connection BambooConnection) Sanitize() BambooConnection {
 	return connection
 }
 
+func (connection *BambooConnection) MergeFromRequest(target *BambooConnection, body map[string]interface{}) error {
+	password := target.Password
+	if err := api.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedPassword := target.Password
+	if modifiedPassword == "" {
+		target.Password = password
+	}
+	return nil
+}
+
 // TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type BambooConn struct {

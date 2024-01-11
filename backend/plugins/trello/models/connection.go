@@ -42,6 +42,18 @@ type TrelloConnection struct {
 	TrelloConn            `mapstructure:",squash"`
 }
 
+func (connection *TrelloConnection) MergeFromRequest(target *TrelloConnection, body map[string]interface{}) error {
+	secretKey := target.SecretKey
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedSecretKey := target.SecretKey
+	if modifiedSecretKey == "" || modifiedSecretKey == utils.SanitizeString(secretKey) {
+		target.SecretKey = secretKey
+	}
+	return nil
+}
+
 func (connection TrelloConnection) Sanitize() TrelloConnection {
 	connection.TrelloConn = connection.TrelloConn.Sanitize()
 	return connection

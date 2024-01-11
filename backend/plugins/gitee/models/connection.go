@@ -52,6 +52,18 @@ type GiteeConnection struct {
 	GiteeConn             `mapstructure:",squash"`
 }
 
+func (connection *GiteeConnection) MergeFromRequest(target *GiteeConnection, body map[string]interface{}) error {
+	token := target.Token
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedToken := target.Token
+	if modifiedToken == "" || modifiedToken == utils.SanitizeString(token) {
+		target.Token = token
+	}
+	return nil
+}
+
 type ApiUserResponse struct {
 	Id   int
 	Name string `json:"name"`
