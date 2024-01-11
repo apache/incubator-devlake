@@ -2793,13 +2793,7 @@
         "y": 83
       },
       "id": 42,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Median Time to Restore Service",
-          "url": "https://devlake.apache.org/docs/Metrics/MTTR"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2901,13 +2895,7 @@
         "y": 89
       },
       "id": 14,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Incident Count per 1k Lines of Code",
-          "url": "https://devlake.apache.org/docs/Metrics/IncidentCountPer1kLinesOfCode"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2969,13 +2957,7 @@
         "y": 93
       },
       "id": 61,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Change Failure Rate",
-          "url": "https://devlake.apache.org/docs/Metrics/CFR"
-        }
-      ],
+      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -3069,13 +3051,7 @@
         "y": 93
       },
       "id": 46,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Median Time to Restore Service",
-          "url": "https://devlake.apache.org/docs/Metrics/MTTR"
-        }
-      ],
+      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -3183,13 +3159,7 @@
         "y": 103
       },
       "id": 44,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Change Failure Rate",
-          "url": "https://devlake.apache.org/docs/Metrics/CFR"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -3529,13 +3499,7 @@
         "y": 111
       },
       "id": 48,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Change Failure Rate",
-          "url": "https://devlake.apache.org/docs/Metrics/CFR"
-        }
-      ],
+      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
