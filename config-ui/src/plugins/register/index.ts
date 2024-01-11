@@ -24,6 +24,7 @@ import { BitBucketConfig } from './bitbucket';
 import { CircleCIConfig } from './circleci';
 import { BitBucketServerConfig } from './bitbucket-server';
 import { GitHubConfig } from './github';
+import { GerritConfig } from './gerrit';
 import { GitLabConfig } from './gitlab';
 import { JenkinsConfig } from './jenkins';
 import { JiraConfig } from './jira';
@@ -40,6 +41,7 @@ export const pluginConfigs: IPluginConfig[] = [
   BitBucketConfig,
   BitBucketServerConfig,
   CircleCIConfig,
+  GerritConfig,
   GitHubConfig,
   GitLabConfig,
   JenkinsConfig,
