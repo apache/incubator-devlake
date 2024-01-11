@@ -34,13 +34,7 @@
         "y": 0
       },
       "id": 63,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORADebug",
-          "url": "https://devlake.apache.org/docs/Plugins/DORADebug"
-        }
-      ],
+      "links": [],
       "options": {
         "code": {
           "language": "plaintext",

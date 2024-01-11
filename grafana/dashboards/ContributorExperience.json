@@ -28,13 +28,7 @@
         "y": 0
       },
       "id": 24,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "ContributorExperience",
-          "url": "https://devlake.apache.org/docs/Plugins/ContributorExperience"
-        }
-      ],
+      "links": [],
       "options": {
         "content": "- Use Cases: This dashboard answers the question \"What makes a great developer experience? And how can we define and track that?\". This dashboard heavily focuses on actionability. All metrics can be deterministically improved as long as OSS maintainers invested time into them.\n- Data Source Required: GitHub",
         "mode": "markdown"

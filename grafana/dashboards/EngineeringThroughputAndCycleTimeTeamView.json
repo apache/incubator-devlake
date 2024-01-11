@@ -28,13 +28,7 @@
         "y": 0
       },
       "id": 142,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "EngineeringThroughputAndCycleTimeTeamView",
-          "url": "https://devlake.apache.org/docs/Plugins/EngineeringThroughputAndCycleTimeTeamView"
-        }
-      ],
+      "links": [],
       "options": {
         "content": "- Use Cases: This dashboard shows the engineering throughput and and cycle time, which helps to identify productivity and bottlenecks of the development process.\n- Data Source Required: GitHub and Jira([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required to tell DevLake what the story_points field is). You also need to do [team configuration](https://devlake.apache.org/docs/Configuration/TeamConfiguration) to use this dashboard.",
         "mode": "markdown"
@@ -751,8 +745,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -896,8 +890,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {

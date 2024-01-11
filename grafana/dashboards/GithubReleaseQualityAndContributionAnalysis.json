@@ -28,13 +28,7 @@
         "y": 0
       },
       "id": 57,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "GithubReleaseQualityAndContributionAnalysis",
-          "url": "https://devlake.apache.org/docs/Plugins/GithubReleaseQualityAndContributionAnalysis"
-        }
-      ],
+      "links": [],
       "options": {
         "content": "- Use Cases: This dashboard can be used to track bugs.\n- Data Source Required: GitHub ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional) required. Additional settings are required to get version data).",
         "mode": "markdown"

@@ -34,13 +34,7 @@
         "y": 0
       },
       "id": 48,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "WeeklyCommunityRetro",
-          "url": "https://devlake.apache.org/docs/Plugins/WeeklyCommunityRetro"
-        }
-      ],
+      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -124,8 +118,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -213,8 +207,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -303,8 +297,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -399,8 +393,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -490,8 +484,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -661,8 +655,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -771,8 +765,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -947,8 +941,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
@@ -1771,8 +1765,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Code Quality Issue Count",
-          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
         }
       ],
       "options": {
