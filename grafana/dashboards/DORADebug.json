@@ -276,13 +276,7 @@
         "y": 6
       },
       "id": 15,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Deployment Frequency",
-          "url": "https://devlake.apache.org/docs/Metrics/DeploymentFrequency"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1101,13 +1095,7 @@
         "y": 34
       },
       "id": 40,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Median Lead Time for Changes",
-          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
-        }
-      ],
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1264,13 +1252,7 @@
         "y": 39
       },
       "id": 53,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1368,13 +1350,7 @@
         "y": 40
       },
       "id": 38,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Median Lead Time for Changes",
-          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
-        }
-      ],
+      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.7,
@@ -1473,13 +1449,7 @@
         "y": 42
       },
       "id": 12,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Metrics",
-          "url": "https://devlake.apache.org/docs/Metrics"
-        }
-      ],
+      "links": [],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -1960,13 +1930,7 @@
         "y": 54
       },
       "id": 52,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "PR Coding Time",
-          "url": "https://devlake.apache.org/docs/Metrics/PRCodingTime"
-        }
-      ],
+      "links": [],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2073,13 +2037,7 @@
         "y": 54
       },
       "id": 54,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "PR Pickup Time",
-          "url": "https://devlake.apache.org/docs/Metrics/PRPickupTime"
-        }
-      ],
+      "links": [],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2186,13 +2144,7 @@
         "y": 58
       },
       "id": 55,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "PR Review Time",
-          "url": "https://devlake.apache.org/docs/Metrics/PRReviewTime"
-        }
-      ],
+      "links": [],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2299,13 +2251,7 @@
         "y": 58
       },
       "id": 56,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "PR Deploy Time",
-          "url": "https://devlake.apache.org/docs/Metrics/PRDeployTime"
-        }
-      ],
+      "links": [],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2412,13 +2358,7 @@
         "y": 62
       },
       "id": 57,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "PR Cycle Time",
-          "url": "https://devlake.apache.org/docs/Metrics/PRCycleTime"
-        }
-      ],
+      "links": [],
       "options": {
         "orientation": "auto",
         "reduceOptions": {
@@ -2557,13 +2497,7 @@
         "y": 66
       },
       "id": 70,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "DORA - Median Lead Time for Changes",
-          "url": "https://devlake.apache.org/docs/Metrics/LeadTimeForChanges"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
