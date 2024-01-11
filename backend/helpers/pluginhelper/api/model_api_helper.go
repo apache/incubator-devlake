@@ -130,7 +130,6 @@ func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
 }
 
 type CustomMerge[M dal.Tabler] interface {
-	//Merge(target, src *M) error
 	MergeFromRequest(target *M, body map[string]interface{}) error
 }
 
