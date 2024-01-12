@@ -17,11 +17,12 @@
  */
 
 import { useState, useMemo } from 'react';
-import { theme, Modal, Form, Select, Space, Button } from 'antd';
+import { theme, Modal, Select, Space, Button } from 'antd';
 import styled from 'styled-components';
 
-import { useAppSelector } from '@/hooks';
+import { Block } from '@/components';
 import { selectAllConnections } from '@/features';
+import { useAppSelector } from '@/hooks';
 import { getPluginConfig, DataScopeSelect } from '@/plugins';
 import { IConnection } from '@/types';
 
@@ -90,13 +91,14 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
   return (
     <Modal open width={820} centered title={`Add a Connection - Step ${step}`} footer={null} onCancel={onCancel}>
       {step === 1 && (
-        <Form layout="vertical">
-          <Form.Item
-            label="Data Connections"
-            tooltip="Select from existing Data Connections. If you have not created any Data Connections yet, please create and manage Connections first."
+        <>
+          <Block
+            title="Data Connections"
+            description="Select from existing Data Connections. If you have not created any Data Connections yet, please create and manage Connections first."
             required
           >
             <Select
+              style={{ width: 384 }}
               placeholder="Select..."
               options={options}
               optionRender={(option) => {
@@ -110,14 +112,14 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
               }}
               onChange={(value) => setSelectedValue(value)}
             />
-          </Form.Item>
+          </Block>
           <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button onClick={onCancel}>Cancel</Button>
             <Button type="primary" disabled={!selectedConnection} onClick={() => setStep(2)}>
               Next
             </Button>
           </Space>
-        </Form>
+        </>
       )}
       {step === 2 && selectedConnection && (
         <DataScopeSelect

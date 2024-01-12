@@ -18,13 +18,13 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { CheckCircleFilled, SearchOutlined } from '@ant-design/icons';
-import { Form, Space, Tag, Button, Input, Modal, message } from 'antd';
+import { Space, Tag, Button, Input, Modal, message } from 'antd';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import { MillerColumnsSelect } from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 
 import API from '@/api';
-import { Loading, Message } from '@/components';
+import { Loading, Block, Message } from '@/components';
 import { IPluginConfig } from '@/types';
 
 import * as T from './types';
@@ -185,8 +185,8 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
   };
 
   return (
-    <Form layout="vertical">
-      <Form.Item label={config.title} required>
+    <>
+      <Block title={config.title} required>
         <Space wrap>
           {selectedScope.length ? (
             selectedScope.map((sc) => (
@@ -203,8 +203,8 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
             <span>Please select scope...</span>
           )}
         </Space>
-      </Form.Item>
-      <Form.Item>
+      </Block>
+      <Block>
         {(status === 'loading' || status === 'cancel') && (
           <S.JobLoad>
             <Loading style={{ marginRight: 8 }} size={20} />
@@ -229,8 +229,8 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
             </Button>
           </S.JobLoad>
         )}
-      </Form.Item>
-      <Form.Item>
+      </Block>
+      <Block>
         {status === 'loaded' && (
           <Input prefix={<SearchOutlined />} value={query} onChange={(e) => setQuery(e.target.value)} />
         )}
@@ -258,10 +258,10 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
           onSelectItemIds={(selectedIds: ID[]) => onChange(miller.items.filter((it) => selectedIds.includes(it.id)))}
           expandedIds={miller.expandedIds}
         />
-      </Form.Item>
+      </Block>
       <Modal open={open} centered onOk={handleLoadAllScopes} onCancel={() => setOpen(false)}>
         <Message content={`This operation may take a long time, as it iterates through all the ${config.title}.`} />
       </Modal>
-    </Form>
+    </>
   );
 };
