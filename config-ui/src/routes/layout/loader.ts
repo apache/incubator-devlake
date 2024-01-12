@@ -27,7 +27,7 @@ type Props = {
   request: Request;
 };
 
-export const loader = async ({ request }: Props) => {
+export const layoutLoader = async ({ request }: Props) => {
   let version = 'unknow';
   let plugins = [];
 

@@ -25,7 +25,7 @@ import API from '@/api';
 import { PageHeader, PageLoading } from '@/components';
 import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
-import { BlueprintDetail, FromEnum } from '@/pages';
+import { BlueprintDetail, FromEnum } from '@/routes';
 
 import { encodeName } from '../utils';
 

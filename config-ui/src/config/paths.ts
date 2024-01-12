@@ -16,7 +16,7 @@
  *
  */
 
-import { encodeName } from '@/pages/project';
+import { encodeName } from '@/routes';
 
 const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
 
