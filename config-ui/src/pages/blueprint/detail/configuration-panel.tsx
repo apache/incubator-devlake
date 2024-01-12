@@ -19,7 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FormOutlined, PlusOutlined } from '@ant-design/icons';
-import { Flex, Table, Button } from 'antd';
+import { theme, Flex, Table, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
@@ -46,6 +46,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
   const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
   const [operating, setOperating] = useState(false);
+
+  const {
+    token: { colorPrimary },
+  } = theme.useToken();
 
   useEffect(() => {
     setRawPlan(JSON.stringify(blueprint.plan, null, '  '));
@@ -195,28 +199,31 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                 </Button>
               </Flex>
               <S.ConnectionList>
-                {connections.map((cs) => (
-                  <S.ConnectionItem key={`${cs.plugin}-${cs.connectionId}`}>
-                    <div className="title">
-                      {/* <img src={cs.icon} alt="" /> */}
-                      <ConnectionName plugin={cs.plugin} connectionId={cs.connectionId} />
-                    </div>
-                    <div className="count">
-                      <span>{cs.scope.length} data scope</span>
-                    </div>
-                    <div className="link">
-                      <Link
-                        to={
-                          from === FromEnum.blueprint
-                            ? PATHS.BLUEPRINT_CONNECTION(blueprint.id, cs.plugin, cs.connectionId)
-                            : PATHS.PROJECT_CONNECTION(blueprint.projectName, cs.plugin, cs.connectionId)
-                        }
-                      >
-                        Edit Data Scope and Scope Config
-                      </Link>
-                    </div>
-                  </S.ConnectionItem>
-                ))}
+                {connections.map((cs) => {
+                  const plugin = getPluginConfig(cs.plugin);
+                  return (
+                    <S.ConnectionItem key={`${cs.plugin}-${cs.connectionId}`}>
+                      <div className="title">
+                        <span className="icon">{plugin.icon({ color: colorPrimary })}</span>
+                        <ConnectionName plugin={cs.plugin} connectionId={cs.connectionId} />
+                      </div>
+                      <div className="count">
+                        <span>{cs.scope.length} data scope</span>
+                      </div>
+                      <div className="link">
+                        <Link
+                          to={
+                            from === FromEnum.blueprint
+                              ? PATHS.BLUEPRINT_CONNECTION(blueprint.id, cs.plugin, cs.connectionId)
+                              : PATHS.PROJECT_CONNECTION(blueprint.projectName, cs.plugin, cs.connectionId)
+                          }
+                        >
+                          Edit Data Scope and Scope Config
+                        </Link>
+                      </div>
+                    </S.ConnectionItem>
+                  );
+                })}
               </S.ConnectionList>
               <Flex justify="center">
                 <Button type="primary" disabled={!blueprint.enable} onClick={handleRun}>
