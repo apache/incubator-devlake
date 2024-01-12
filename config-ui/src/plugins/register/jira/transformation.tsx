@@ -250,6 +250,7 @@ const renderCollapseItems = ({
             }
           >
             <Select
+              showSearch
               options={fields.map((it) => ({ label: it.name, value: it.name }))}
               value={transformation.storyPointField}
               onChange={(value) =>
