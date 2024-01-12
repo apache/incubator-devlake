@@ -81,9 +81,19 @@ export const DataScopeSelect = ({
 
   const search = useDebounce(query, { wait: 500 });
 
-  const { ready, data } = useRefreshData(() => API.scope.list(plugin, connectionId, { searchTerm: search }), [search]);
+  const { ready, data } = useRefreshData(
+    async () => await API.scope.list(plugin, connectionId, { searchTerm: search }),
+    [search],
+  );
 
-  const searchItems = useMemo(() => data?.scopes.map((sc) => sc.scope) ?? [], [data]);
+  const searchOptions = useMemo(
+    () =>
+      data?.scopes.map((sc) => ({
+        label: sc.scope.fullName ?? sc.scope.name,
+        value: getPluginScopeId(plugin, sc.scope),
+      })) ?? [],
+    [data],
+  );
 
   const handleScroll = () => setPage(page + 1);
 
@@ -141,10 +151,11 @@ export const DataScopeSelect = ({
             </Flex>
           )}
           <Select
+            filterOption={false}
             loading={!ready}
             showSearch
             mode="multiple"
-            options={searchItems.map((it) => ({ label: it.fullName ?? it.name, value: getPluginScopeId(plugin, it) }))}
+            options={searchOptions}
             value={selectedIds}
             onChange={(value) => setSelectedIds(value)}
             onSearch={(value) => setQuery(value)}
