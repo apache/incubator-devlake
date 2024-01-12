@@ -61,4 +61,13 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		vld,
 		connectionHelper,
 	)
+	dsHelper = api.NewDataSourceHelper[
+		models.SonarqubeConnection,
+		models.SonarqubeProject,
+		models.SonarqubeScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
+	)
 }
