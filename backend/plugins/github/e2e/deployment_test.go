@@ -49,7 +49,7 @@ func TestGithubDeploymentDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.GithubDeployment{})
 	dataflowTester.FlushTabler(&models.GithubRepo{})
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_graphql_deployment.csv", "_raw_github_graphql_deployment")
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos.csv", &models.GithubRepo{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos2.csv", &models.GithubRepo{})
 
 	dataflowTester.Subtask(githubGraphQLTasks.ExtractDeploymentsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubDeployment{}, e2ehelper.TableOptions{
