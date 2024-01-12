@@ -75,7 +75,7 @@ export const ConnectionSecretKey = ({
 
   return (
     <Block title={label ?? 'SecretKey'} description={subLabel ? subLabel : null} required>
-      <Input.Password
+      <Input
         style={{ width: 386 }}
         placeholder={placeholder ?? 'Your SecretKey'}
         value={value}
