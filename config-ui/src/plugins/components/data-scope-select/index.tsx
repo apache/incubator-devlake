@@ -61,7 +61,7 @@ export const DataScopeSelect = ({
   const getDataScope = async (page: number) => {
     setLoading(true);
     const res = await API.scope.list(plugin, connectionId, { page, pageSize });
-    setItems([
+    setItems((items) => [
       ...items,
       ...res.scopes.map((sc) => ({
         parentId: null,
@@ -70,9 +70,8 @@ export const DataScopeSelect = ({
         data: sc.scope,
       })),
     ]);
-    if (page === 1) {
-      setTotal(res.count);
-    }
+
+    setTotal(res.count);
     setLoading(false);
   };
 
@@ -89,6 +88,12 @@ export const DataScopeSelect = ({
   const handleScroll = () => setPage(page + 1);
 
   const handleSubmit = () => onSubmit?.(selectedIds);
+
+  const handleRefresh = () => {
+    setQuery('');
+    setItems([]);
+    getDataScope(1);
+  };
 
   return (
     <Block
@@ -130,7 +135,7 @@ export const DataScopeSelect = ({
             />
           ) : (
             <Flex>
-              <Button type="primary" icon={<RedoOutlined />}>
+              <Button type="primary" icon={<RedoOutlined />} onClick={handleRefresh}>
                 Refresh Data Scope
               </Button>
             </Flex>
