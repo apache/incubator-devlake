@@ -19,17 +19,21 @@
 import { createBrowserRouter, Navigate, json } from 'react-router-dom';
 
 import {
+  Error,
+  ErrorEnum,
+  Layout,
+  layoutLoader,
+  Connections,
+  Connection,
   ProjectHomePage,
   ProjectDetailPage,
   BlueprintHomePage,
   BlueprintDetailPage,
   BlueprintConnectionDetailPage,
-} from '@/pages';
-import { Layout, loader as layoutLoader } from '@/routes/layout';
-import { Error, ErrorEnum } from '@/routes/error';
-import { Connections, Connection } from '@/routes/connection';
-import { Pipelines, Pipeline } from '@/routes/pipeline';
-import { ApiKeys } from '@/routes/api-keys';
+  Pipelines,
+  Pipeline,
+  ApiKeys,
+} from '@/routes';
 
 const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
 
