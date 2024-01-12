@@ -145,6 +145,13 @@ func handlePluginCall(basicRes context.BasicRes, pluginName string, handler plug
 			if status < http.StatusContinue {
 				status = http.StatusOK
 			}
+			if output.Header != nil {
+				for k, vs := range output.Header {
+					for _, v := range vs {
+						c.Header(k, v)
+					}
+				}
+			}
 			if output.File != nil {
 				c.Data(status, output.File.ContentType, output.File.Data)
 				return
