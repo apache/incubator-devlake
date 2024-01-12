@@ -61,13 +61,50 @@ func TestGithubDeploymentDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.FlushTabler(&devops.CICDDeployment{})
 	dataflowTester.Subtask(tasks.ConvertDeploymentsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_deployment_commits.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
+	dataflowTester.VerifyTable(&devops.CicdDeploymentCommit{},
+		"./snapshot_tables/cicd_deployment_commits.csv",
+		[]string{
+			"cicd_scope_id",
+			"cicd_deployment_id",
+			"name",
+			"result",
+			"status",
+			"original_status",
+			"environment",
+			"created_date",
+			"queued_date",
+			"started_date",
+			"finished_date",
+			"commit_sha",
+			"commit_msg",
+			"ref_name",
+			"repo_id",
+			"repo_url",
+			"prev_success_deployment_commit_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 
-	dataflowTester.VerifyTableWithOptions(&devops.CICDDeployment{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_deployments.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
+	dataflowTester.VerifyTable(&devops.CICDDeployment{},
+		"./snapshot_tables/cicd_deployments.csv",
+		[]string{
+			"cicd_scope_id",
+			"name",
+			"result",
+			"status",
+			"original_status",
+			"environment",
+			"created_date",
+			"queued_date",
+			"started_date",
+			"finished_date",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 }
