@@ -17,12 +17,33 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Modal, Form, Select, Space, Button } from 'antd';
+import { theme, Modal, Form, Select, Space, Button } from 'antd';
+import styled from 'styled-components';
 
 import { useAppSelector } from '@/hooks';
 import { selectAllConnections } from '@/features';
-import { DataScopeSelect } from '@/plugins';
+import { getPluginConfig, DataScopeSelect } from '@/plugins';
 import { IConnection } from '@/types';
+
+const Option = styled.div`
+  display: flex;
+  align-items: center;
+
+  .icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+
+    & > svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  span + span {
+    margin-left: 8px;
+  }
+`;
 
 interface Props {
   disabled: string[];
@@ -36,11 +57,16 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
 
   const connections = useAppSelector(selectAllConnections);
 
+  const {
+    token: { colorPrimary },
+  } = theme.useToken();
+
   const options = useMemo(
     () =>
       connections
         .filter((cs) => (disabled.length ? !disabled.includes(cs.unique) : true))
         .map((cs) => ({
+          plugin: cs.plugin,
           label: cs.name,
           value: cs.unique,
         })),
@@ -70,7 +96,20 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
             tooltip="Select from existing Data Connections. If you have not created any Data Connections yet, please create and manage Connections first."
             required
           >
-            <Select placeholder="Select..." options={options} onChange={(value) => setSelectedValue(value)} />
+            <Select
+              placeholder="Select..."
+              options={options}
+              optionRender={(option) => {
+                const plugin = getPluginConfig(option.data.plugin);
+                return (
+                  <Option>
+                    <span className="icon">{plugin.icon({ color: colorPrimary })}</span>
+                    <span className="name">{option.label}</span>
+                  </Option>
+                );
+              }}
+              onChange={(value) => setSelectedValue(value)}
+            />
           </Form.Item>
           <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button onClick={onCancel}>Cancel</Button>

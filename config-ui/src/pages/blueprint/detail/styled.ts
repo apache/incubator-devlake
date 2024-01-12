@@ -63,12 +63,18 @@ export const ConnectionItem = styled.li`
     display: flex;
     align-items: center;
 
-    img {
+    .icon {
+      display: inline-block;
       width: 24px;
       height: 24px;
+
+      & > svg {
+        width: 100%;
+        height: 100%;
+      }
     }
 
-    span {
+    span + span {
       margin-left: 8px;
     }
   }
