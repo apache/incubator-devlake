@@ -30,7 +30,7 @@ var CollectBoardFilterEndMeta = plugin.SubTaskMeta{
 	Name:             "collectBoardFilterEnd",
 	EntryPoint:       CollectBoardFilterEnd,
 	EnabledByDefault: true,
-	Description:      "Jira board filter jql checker after runnig",
+	Description:      "Jira board filter jql checker after running",
 	DomainTypes:      plugin.DOMAIN_TYPES,
 }
 
