@@ -446,6 +446,8 @@ func formatDbValue(value interface{}, nullable bool) string {
 		} else {
 			return `0`
 		}
+	case float64:
+		return strconv.FormatFloat(value, 'f', -1, 64)
 	default:
 		if value != nil {
 			return fmt.Sprint(value)
