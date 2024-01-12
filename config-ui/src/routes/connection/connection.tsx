@@ -356,6 +356,7 @@ export const Connection = () => {
       )}
       {type === 'createDataScope' && (
         <Modal
+          getContainer={false}
           open
           width={820}
           centered
