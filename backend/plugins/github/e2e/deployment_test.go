@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	githubGraphQLTasks "github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
 )
 
 func TestGithubDeploymentDataFlow(t *testing.T) {
@@ -38,15 +39,22 @@ func TestGithubDeploymentDataFlow(t *testing.T) {
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
-			Name:         "panjf2000/ants",
-			GithubId:     134018330,
+			Name:         "facebook/OpenBIC",
+			GithubId:     335709078,
 		},
 		RegexEnricher: regexEnricher,
 	}
 
-	// import raw/tool data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_deployments.csv", &models.GithubDeployment{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos.csv", &models.GithubRepo{})
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_graphql_deployment.csv", "_raw_github_graphql_deployment")
+	dataflowTester.FlushTabler(&models.GithubDeployment{})
+	dataflowTester.FlushTabler(&models.GithubRepo{})
+
+	dataflowTester.Subtask(githubGraphQLTasks.ExtractDeploymentsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.GithubDeployment{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_github_deployments.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
 	// verify convertor
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
