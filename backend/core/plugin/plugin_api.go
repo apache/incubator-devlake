@@ -51,6 +51,7 @@ type ApiResourceOutput struct {
 	Status      int
 	File        *OutputFile
 	ContentType string
+	Header      http.Header // optional response header
 }
 
 type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, errors.Error)

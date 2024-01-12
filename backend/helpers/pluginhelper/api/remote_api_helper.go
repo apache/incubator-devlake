@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/log"
 
@@ -171,7 +172,17 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) ProxyApiGet(conn plugin.
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Status: resp.StatusCode, Body: json.RawMessage(body)}, nil
+	headers := http.Header{}
+	for k, vs := range resp.Header {
+		// skip headers doesn't start with "x-"
+		if !strings.HasPrefix(strings.ToLower(k), "x-") {
+			continue
+		}
+		for _, v := range vs {
+			headers.Add(k, v)
+		}
+	}
+	return &plugin.ApiResourceOutput{Status: resp.StatusCode, Body: json.RawMessage(body), Header: headers}, nil
 }
 
 // PrepareFirstPageToken prepares the first page token
