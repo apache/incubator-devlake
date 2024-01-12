@@ -40,35 +40,21 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("collect board in collectBoardFilterBegin: %d", data.Options.BoardId)
-
 	// get board filter id
-	url := fmt.Sprintf("agile/1.0/board/%d/configuration", data.Options.BoardId)
-	boardConfiguration, err := data.ApiClient.Get(url, nil, nil)
+	filterId, err := getBoardFilterId(data)
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter id for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
-	bc := &BoardConfiguration{}
-	err = helper.UnmarshalResponse(boardConfiguration, bc)
-	if err != nil {
-		return err
-	}
-	filterId := bc.Filter.ID
 	logger.Info("collect board filter:%s", filterId)
 
 	// get board filter jql
-	url = fmt.Sprintf("api/2/filter/%s", filterId)
-	filterInfo, err := data.ApiClient.Get(url, nil, nil)
+	filterInfo, err := getBoardFilterJql(data, filterId)
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter jql for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
-	fi := &FilterInfo{}
-	err = helper.UnmarshalResponse(filterInfo, fi)
-	if err != nil {
-		return err
-	}
-	jql := fi.Jql
-	logger.Info("collect board filter jql:%s", jql)
+	logger.Info("collect board filter jql:%s", filterInfo.Jql)
 
+	jql := filterInfo.Jql
 	var record models.JiraBoard
 	err = db.First(&record, dal.Where("connection_id = ? AND board_id = ? ", data.Options.ConnectionId, data.Options.BoardId))
 	if err != nil {
@@ -96,16 +82,41 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 		return nil
 	}
-	// no change
-	if record.Jql == jql {
-		return nil
-	}
 	// change
 	if record.Jql != jql {
 		return errors.Default.New(fmt.Sprintf("board filter jql has changed for connection_id:%d board_id:%d, please use fullSync mode!!!", data.Options.ConnectionId, data.Options.BoardId))
 	}
-
+	// no change
 	return nil
+}
+
+func getBoardFilterId(data *JiraTaskData) (string, error) {
+	url := fmt.Sprintf("agile/1.0/board/%d/configuration", data.Options.BoardId)
+	boardConfiguration, err := data.ApiClient.Get(url, nil, nil)
+	if err != nil {
+		return "", err
+	}
+	bc := &BoardConfiguration{}
+	err = helper.UnmarshalResponse(boardConfiguration, bc)
+	if err != nil {
+		return "", err
+	}
+	filterId := bc.Filter.ID
+	return filterId, nil
+}
+
+func getBoardFilterJql(data *JiraTaskData, filterId string) (*FilterInfo, error) {
+	url := fmt.Sprintf("api/2/filter/%s", filterId)
+	filterInfo, err := data.ApiClient.Get(url, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	fi := &FilterInfo{}
+	err = helper.UnmarshalResponse(filterInfo, fi)
+	if err != nil {
+		return nil, err
+	}
+	return fi, nil
 }
 
 type BoardConfiguration struct {

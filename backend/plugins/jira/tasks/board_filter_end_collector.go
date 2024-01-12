@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
@@ -42,31 +41,20 @@ func CollectBoardFilterEnd(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("collect board in collectBoardFilterEnd: %d", data.Options.BoardId)
 
 	// get board filter id
-	url := fmt.Sprintf("agile/1.0/board/%d/configuration", data.Options.BoardId)
-	boardConfiguration, err := data.ApiClient.Get(url, nil, nil)
+	filterId, err := getBoardFilterId(data)
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter id for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
-	bc := &BoardConfiguration{}
-	err = helper.UnmarshalResponse(boardConfiguration, bc)
-	if err != nil {
-		return err
-	}
-	filterId := bc.Filter.ID
 	logger.Info("collect board filter:%s", filterId)
 
 	// get board filter jql
-	url = fmt.Sprintf("api/2/filter/%s", filterId)
-	filterInfo, err := data.ApiClient.Get(url, nil, nil)
+	filterInfo, err := getBoardFilterJql(data, filterId)
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter jql for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
-	fi := &FilterInfo{}
-	err = helper.UnmarshalResponse(filterInfo, fi)
-	if err != nil {
-		return err
-	}
-	jql := fi.Jql
+	logger.Info("collect board filter jql:%s", filterInfo.Jql)
+
+	jql := filterInfo.Jql
 	logger.Info("collect board filter jql:%s", jql)
 
 	// should not change
