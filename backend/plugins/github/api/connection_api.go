@@ -355,7 +355,7 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 					Success:        false,
 					Message:        err.Error(),
 					Login:          "",
-					Warning:        true,
+					Warning:        false,
 					Installations:  nil,
 				}
 			}
