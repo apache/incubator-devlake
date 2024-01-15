@@ -33,6 +33,7 @@ import {
   Pipelines,
   Pipeline,
   ApiKeys,
+  NotFound,
 } from '@/routes';
 
 const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
@@ -106,5 +107,9 @@ export const router = createBrowserRouter([
         element: <ApiKeys />,
       },
     ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
   },
 ]);

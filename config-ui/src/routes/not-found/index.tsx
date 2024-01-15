@@ -16,12 +16,31 @@
  *
  */
 
-export * from './api-keys';
-export * from './blueprint';
-export * from './connection';
-export * from './db-migrate';
-export * from './error';
-export * from './layout';
-export * from './not-found';
-export * from './pipeline';
-export * from './project';
+import { useNavigate } from 'react-router-dom';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Card, Space, Flex, Button } from 'antd';
+
+import { TipLayout } from '@/components';
+
+export const NotFound = () => {
+  const navigate = useNavigate();
+
+  return (
+    <TipLayout>
+      <Card>
+        <h2>
+          <Space>
+            <ExclamationCircleOutlined style={{ fontSize: 20, color: '#faad14' }} />
+            <span>404 Not Found</span>
+          </Space>
+        </h2>
+        <p>This is an invalid address.</p>
+        <Flex justify="center">
+          <Button type="primary" onClick={() => navigate('/')}>
+            Go HomePage
+          </Button>
+        </Flex>
+      </Card>
+    </TipLayout>
+  );
+};
