@@ -227,7 +227,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		Self:               i.Self,
 		IconURL:            i.Fields.Issuetype.IconURL,
 		IssueKey:           i.Key,
-		StoryPoint:         workload,
+		StoryPoint:         &workload,
 		Summary:            i.Fields.Summary,
 		Description:        i.Fields.Description,
 		Type:               i.Fields.Issuetype.ID,
@@ -254,7 +254,8 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		result.PriorityName = i.Fields.Priority.Name
 	}
 	if i.Fields.Timeoriginalestimate != nil {
-		result.OriginalEstimateMinutes = *i.Fields.Timeoriginalestimate / 60
+		temp := *i.Fields.Timeoriginalestimate / 60
+		result.OriginalEstimateMinutes = &temp
 	}
 	if i.Fields.Aggregatetimeestimate != nil {
 		result.AggregateEstimateMinutes = *i.Fields.Aggregatetimeestimate / 60
@@ -271,7 +272,8 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		result.SprintName = i.Fields.Sprint.Name
 	}
 	if i.Fields.Timespent != nil {
-		result.SpentMinutes = *i.Fields.Timespent / 60
+		temp := *i.Fields.Timespent / 60
+		result.SpentMinutes = &temp
 	}
 	return result
 }

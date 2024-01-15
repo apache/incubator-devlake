@@ -95,7 +95,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus:  issue.State,
 				AssigneeName:    issue.AssigneeName,
 				CreatorName:     issue.AuthorName,
-				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
+				LeadTimeMinutes: issue.LeadTimeMinutes,
 				Url:             issue.Url,
 				CreatedDate:     &issue.GithubCreatedAt,
 				UpdatedDate:     &issue.GithubUpdatedAt,

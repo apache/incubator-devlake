@@ -193,7 +193,8 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 		githubIssue.AuthorName = issue.User.Login
 	}
 	if issue.ClosedAt != nil {
-		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
+		temp := uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
+		githubIssue.LeadTimeMinutes = &temp
 	}
 	if issue.Milestone != nil {
 		githubIssue.MilestoneId = issue.Milestone.Id

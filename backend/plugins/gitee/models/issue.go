@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type GiteeIssue struct {
@@ -37,7 +38,7 @@ type GiteeIssue struct {
 	AuthorName      string `gorm:"type:varchar(255)"`
 	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
-	LeadTimeMinutes uint
+	LeadTimeMinutes *uint
 	Url             string `gorm:"type:varchar(255)"`
 	ClosedAt        *time.Time
 	GiteeCreatedAt  time.Time
