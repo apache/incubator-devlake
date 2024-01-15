@@ -16,19 +16,14 @@
  *
  */
 
-import { AxiosError } from 'axios';
-import { json } from 'react-router-dom';
-
 import API from '@/api';
 import { getRegisterPlugins } from '@/plugins';
-import { ErrorEnum } from '@/routes/error';
 
 type Props = {
   request: Request;
 };
 
 export const layoutLoader = async ({ request }: Props) => {
-  let version = 'unknow';
   let plugins = [];
 
   try {
@@ -38,19 +33,10 @@ export const layoutLoader = async ({ request }: Props) => {
     plugins = getRegisterPlugins();
   }
 
-  try {
-    const res = await API.version(request.signal);
-    version = res.version;
-  } catch (err) {
-    const status = (err as AxiosError).response?.status;
-    if (status === 428) {
-      throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
-    }
-    throw json({ error: ErrorEnum.API_OFFLINE }, { status: 503 });
-  }
+  const res = await API.version(request.signal);
 
   return {
-    version,
+    version: res.version,
     plugins,
   };
 };

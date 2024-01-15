@@ -16,11 +16,11 @@
  *
  */
 
-import { createBrowserRouter, Navigate, json } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import {
+  DBMigrate,
   Error,
-  ErrorEnum,
   Layout,
   layoutLoader,
   Connections,
@@ -44,11 +44,7 @@ export const router = createBrowserRouter([
   },
   {
     path: `${PATH_PREFIX}/db-migrate`,
-    element: <></>,
-    loader: () => {
-      throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
-    },
-    errorElement: <Error />,
+    element: <DBMigrate />,
   },
   {
     path: `${PATH_PREFIX}`,

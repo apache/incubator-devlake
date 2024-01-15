@@ -16,5 +16,19 @@
  *
  */
 
-export * from './types';
-export * from './error';
+import { Logo } from '@/components';
+
+import * as S from './styled';
+
+interface Props {
+  children: React.ReactNode;
+}
+
+export const TipLayout = ({ children }: Props) => {
+  return (
+    <S.Wrapper>
+      <Logo />
+      <S.Inner>{children}</S.Inner>
+    </S.Wrapper>
+  );
+};
