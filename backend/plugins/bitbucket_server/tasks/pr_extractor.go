@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"regexp"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -78,8 +79,29 @@ type BitbucketApiPullRequest struct {
 }
 
 func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
+	data := taskCtx.GetData().(*BitbucketTaskData)
+	config := data.Options.BitbucketServerScopeConfig
+	var prTypeRegex *regexp.Regexp
+	var prComponentRegex *regexp.Regexp
 	var err errors.Error
+
+	if config != nil {
+		if len(config.PrType) > 0 {
+			prTypeRegex, err = errors.Convert01(regexp.Compile(config.PrType))
+			if err != nil {
+				return errors.Default.Wrap(err, "regexp Compile prType failed")
+			}
+		}
+
+		if len(config.PrComponent) > 0 {
+			prComponentRegex, err = errors.Convert01(regexp.Compile(config.PrComponent))
+			if err != nil {
+				return errors.Default.Wrap(err, "regexp Compile prComponent failed")
+			}
+		}
+	}
+
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -115,6 +137,19 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			} else if rawL.State == code.MERGED && rawL.BitbucketClosedAt != nil {
 				mergedAt := time.UnixMilli(*rawL.BitbucketClosedAt)
 				bitbucketPr.MergedAt = &mergedAt
+			}
+
+			if prTypeRegex != nil {
+				prTypes := prTypeRegex.FindStringSubmatch(rawL.Title)
+				if len(prTypes) > 0 {
+					bitbucketPr.Type = prTypes[0]
+				}
+			}
+			if prComponentRegex != nil {
+				prComponents := prComponentRegex.FindStringSubmatch(rawL.Description)
+				if len(prComponents) > 0 {
+					bitbucketPr.Component = prComponents[0]
+				}
 			}
 
 			results = append(results, bitbucketPr)

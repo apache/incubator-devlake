@@ -44,7 +44,7 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Description update scope config for Bitbucket
 // @Tags plugins/bitbucket_server
 // @Accept application/json
-// @Param id path int true "id"
+// @Param scopeConfigId path int true "scopeConfigId"
 // @Param connectionId path int true "connectionId"
 // @Param scopeConfig body models.BitbucketServerScopeConfig true "scope config"
 // @Success 200  {object} models.BitbucketServerScopeConfig
@@ -60,7 +60,7 @@ func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Summary return one scope config
 // @Description return one scope config
 // @Tags plugins/bitbucket_server
-// @Param id path int true "id"
+// @Param scopeConfigId path int true "scopeConfigId"
 // @Param connectionId path int true "connectionId"
 // @Success 200  {object} models.BitbucketServerScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
@@ -90,7 +90,7 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Summary delete a scope config
 // @Description delete a scope config
 // @Tags plugins/bitbucket_server
-// @Param id path int true "id"
+// @Param scopeConfigId path int true "scopeConfigId"
 // @Param connectionId path int true "connectionId"
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"

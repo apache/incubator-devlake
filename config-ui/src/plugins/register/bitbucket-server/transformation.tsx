@@ -23,8 +23,6 @@ import { theme, Collapse, Tag, Form, Input, Checkbox, Select } from 'antd';
 import { ExternalLink, HelpTooltip } from '@/components';
 import { DOC_URL } from '@/release';
 
-import ExampleJpg from './assets/bitbucket-server-example.jpg';
-
 interface Props {
   entities: string[];
   transformation: any;
@@ -130,12 +128,12 @@ const renderCollapseItems = ({
             label={
               <>
                 <span style={{ marginRight: 4 }}>PR Type</span>
-                <HelpTooltip content="Labels that match the RegEx will be set as the type of a pull request." />
+                <HelpTooltip content="Text (PR title) that matches the RegEx will be set as the type of a pull request." />
               </>
             }
           >
             <Input
-              placeholder="type(.*)$"
+              placeholder="type: ([a-zA-Z0-9_-]+)"
               value={transformation.prType ?? ''}
               onChange={(e) => onChangeTransformation({ ...transformation, prType: e.target.value })}
             />
@@ -144,12 +142,12 @@ const renderCollapseItems = ({
             label={
               <>
                 <span style={{ marginRight: 4 }}>PR Component</span>
-                <HelpTooltip content="Labels that match the RegEx will be set as the component of a pull request." />
+                <HelpTooltip content="Text (PR body) that matches the RegEx will be set as the component of the pull request." />
               </>
             }
           >
             <Input
-              placeholder="component(.*)$"
+              placeholder="component: ([a-zA-Z0-9_-]+)"
               value={transformation.prComponent ?? ''}
               onChange={(e) =>
                 onChangeTransformation({
@@ -157,58 +155,6 @@ const renderCollapseItems = ({
                   prComponent: e.target.value,
                 })
               }
-            />
-          </Form.Item>
-        </>
-      ),
-    },
-    {
-      key: 'CROSS',
-      label: 'Cross-domain',
-      style: panelStyle,
-      children: (
-        <>
-          <p>
-            Connect entities across domains to measure metrics such as{' '}
-            <ExternalLink link={DOC_URL.METRICS.BUG_COUNT_PER_1K_LINES_OF_CODE}>
-              Bug Count per 1k Lines of Code
-            </ExternalLink>
-            .
-          </p>
-          <Form.Item
-            labelCol={{ span: 6 }}
-            label={
-              <div className="label">
-                <span style={{ marginRight: 4 }}>Connect PRs and Issues</span>
-                <HelpTooltip
-                  content={
-                    <>
-                      <div>
-                        <CheckCircleOutlined rev="" style={{ marginRight: 4, color: '#4DB764' }} />
-                        Example 1: PR #321 body contains "<strong>Closes #1234</strong>" (PR #321 and issue #1234 will
-                        be mapped by the following RegEx)
-                      </div>
-                      <div>
-                        <CloseCircleOutlined rev="" style={{ marginRight: 4, color: '#E34040' }} />
-                        Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234
-                        will NOT be mapped by the following RegEx)
-                      </div>
-                    </>
-                  }
-                />
-              </div>
-            }
-          >
-            <Input.TextArea
-              value={transformation.prBodyClosePattern ?? ''}
-              placeholder="(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)"
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  prBodyClosePattern: e.target.value,
-                })
-              }
-              rows={2}
             />
           </Form.Item>
         </>
