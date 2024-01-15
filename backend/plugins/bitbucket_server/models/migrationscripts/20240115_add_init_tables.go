@@ -7,9 +7,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
 )
 
-type addInitTables20231123 struct{}
+type addInitTables20240115 struct{}
 
-func (script *addInitTables20231123) Up(basicRes context.BasicRes) errors.Error {
+func (script *addInitTables20240115) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&models.BitbucketServerUser{},
@@ -25,10 +25,10 @@ func (script *addInitTables20231123) Up(basicRes context.BasicRes) errors.Error 
 	)
 }
 
-func (*addInitTables20231123) Version() uint64 {
-	return 20231123112623
+func (*addInitTables20240115) Version() uint64 {
+	return 20240115
 }
 
-func (*addInitTables20231123) Name() string {
-	return "Bitbucket Server init schema 20231123"
+func (*addInitTables20240115) Name() string {
+	return "Bitbucket Server init schema 20240115"
 }
