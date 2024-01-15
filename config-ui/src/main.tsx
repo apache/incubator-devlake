@@ -19,7 +19,6 @@
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
 
 import { PageLoading } from '@/components';
 
@@ -28,16 +27,8 @@ import { router } from './app/routrer';
 import './index.css';
 
 ReactDOM.render(
-  <ConfigProvider
-    theme={{
-      token: {
-        colorPrimary: import.meta.env.DEVLAKE_COLOR_CUSTOM ?? '#7497F7',
-      },
-    }}
-  >
-    <Provider store={store}>
-      <RouterProvider router={router} fallbackElement={<PageLoading />} />
-    </Provider>
-  </ConfigProvider>,
+  <Provider store={store}>
+    <RouterProvider router={router} fallbackElement={<PageLoading />} />
+  </Provider>,
   document.getElementById('root'),
 );
