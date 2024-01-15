@@ -30,7 +30,7 @@ import (
 var ExtractApiBranchesMeta = plugin.SubTaskMeta{
 	Name:             "extractApiBranches",
 	EntryPoint:       ExtractApiBranches,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Required:         false,
 	Description:      "Extract raw branch data into tool layer table bitbucket_branches",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},

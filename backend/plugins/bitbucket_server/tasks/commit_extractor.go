@@ -30,7 +30,7 @@ import (
 var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiCommits",
 	EntryPoint:       ExtractApiCommits,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Required:         false,
 	Description:      "Extract raw commit data into tool layer table bitbucket_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},

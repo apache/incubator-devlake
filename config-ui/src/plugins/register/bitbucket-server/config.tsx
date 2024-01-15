@@ -57,7 +57,7 @@ export const BitBucketServerConfig = {
     },
   },
   scopeConfig: {
-    entities: ['CODEREVIEW', 'CROSS'],
+    entities: ['CODEREVIEW', 'CROSS', 'CODE'],
     transformation: {
       refdiff: {
         tagsLimit: 10,

@@ -32,7 +32,7 @@ import (
 var ConvertCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertCommits",
 	EntryPoint:       ConvertCommits,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Required:         false,
 	Description:      "Convert tool layer table bitbucket_commits into  domain layer table commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},

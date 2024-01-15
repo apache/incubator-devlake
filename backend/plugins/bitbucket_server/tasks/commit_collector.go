@@ -28,7 +28,7 @@ const RAW_COMMITS_TABLE = "bitbucket_server_api_commits"
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommits",
 	EntryPoint:       CollectApiCommits,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Required:         false,
 	Description:      "Collect commits data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
