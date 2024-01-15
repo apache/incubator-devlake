@@ -17,7 +17,7 @@
  */
 
 import { useMemo, useState, useEffect } from 'react';
-import { CaretRightOutlined } from '@ant-design/icons';
+import { CaretRightOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { theme, Collapse, Tag, Form, Input, Checkbox, Select } from 'antd';
 
 import { ExternalLink, HelpTooltip } from '@/components';
@@ -113,130 +113,104 @@ const renderCollapseItems = ({
   onChangeTransformation: any;
   useCustom: boolean;
   onChangeUseCustom: any;
-}) =>
+}) => 
   [
     {
-      key: 'TICKET',
-      label: (
-        <>
-          <span>Issue Status Mapping</span>
-          <HelpTooltip content="Standardize your issue statuses to the following issue statuses to view metrics such as `Requirement Delivery Rate` in built-in dashboards." />
-        </>
-      ),
+      key: 'CODEREVIEW',
+      label: 'Code Review',
       style: panelStyle,
       children: (
-        <div className="list">
-          <Form.Item label="TODO">
-            <Select
-              mode="multiple"
-              options={options}
-              value={transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []}
-              onChange={(value) =>
+        <>
+          <p>
+            If you use labels to identify types and components of pull requests, use the following RegExes to extract
+            them into corresponding columns.{' '}
+            <ExternalLink link={DOC_URL.DATA_MODELS.DEVLAKE_DOMAIN_LAYER_SCHEMA.PULL_REQUEST}>Learn More</ExternalLink>
+          </p>
+          <Form.Item
+            label={
+              <>
+                <span style={{ marginRight: 4 }}>PR Type</span>
+                <HelpTooltip content="Labels that match the RegEx will be set as the type of a pull request." />
+              </>
+            }
+          >
+            <Input
+              placeholder="type(.*)$"
+              value={transformation.prType ?? ''}
+              onChange={(e) => onChangeTransformation({ ...transformation, prType: e.target.value })}
+            />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span style={{ marginRight: 4 }}>PR Component</span>
+                <HelpTooltip content="Labels that match the RegEx will be set as the component of a pull request." />
+              </>
+            }
+          >
+            <Input
+              placeholder="component(.*)$"
+              value={transformation.prComponent ?? ''}
+              onChange={(e) =>
                 onChangeTransformation({
                   ...transformation,
-                  issueStatusTodo: value.join(','),
+                  prComponent: e.target.value,
                 })
               }
             />
           </Form.Item>
-          <Form.Item label="IN-PROGRESS">
-            <Select
-              mode="multiple"
-              options={options}
-              value={transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []}
-              onChange={(value) =>
-                onChangeTransformation({
-                  ...transformation,
-                  issueStatusInProgress: value.join(','),
-                })
-              }
-            />
-          </Form.Item>
-          <Form.Item label="DONE">
-            <Select
-              mode="multiple"
-              options={options}
-              value={transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []}
-              onChange={(value) =>
-                onChangeTransformation({
-                  ...transformation,
-                  issueStatusDone: value.join(','),
-                })
-              }
-            />
-          </Form.Item>
-          <Form.Item label="OTHER">
-            <Select
-              mode="multiple"
-              options={options}
-              value={transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []}
-              onChange={(value) =>
-                onChangeTransformation({
-                  ...transformation,
-                  issueStatusOther: value.join(','),
-                })
-              }
-            />
-          </Form.Item>
-        </div>
+        </>
       ),
     },
     {
-      key: 'CICD',
-      label: 'CI/CD',
+      key: 'CROSS',
+      label: 'Cross-domain',
       style: panelStyle,
       children: (
         <>
-          <h3 style={{ marginBottom: 16 }}>
-            <span>Deployment</span>
-            <Tag style={{ marginLeft: 4 }} color="blue">
-              DORA
-            </Tag>
-          </h3>
-          <p style={{ marginBottom: 16 }}>
-            Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-            <ExternalLink link={DOC_URL.PLUGIN.BITBUCKET_SERVER.TRANSFORMATION}>Learn more</ExternalLink>
+          <p>
+            Connect entities across domains to measure metrics such as{' '}
+            <ExternalLink link={DOC_URL.METRICS.BUG_COUNT_PER_1K_LINES_OF_CODE}>
+              Bug Count per 1k Lines of Code
+            </ExternalLink>
+            .
           </p>
-          <Checkbox disabled checked>
-            <span>Convert a BitBucket Deployment to a DevLake Deployment</span>
-            <HelpTooltip content={<img src={ExampleJpg} alt="" width={400} />} />
-          </Checkbox>
-          <Checkbox checked={useCustom} onChange={onChangeUseCustom}>
-            Convert a BitBucket Pipeline to a DevLake Deployment when its branch/tag name
-          </Checkbox>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>matches</span>
-            <Input
-              style={{ width: 200, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
-              value={transformation.deploymentPattern ?? ''}
+          <Form.Item
+            labelCol={{ span: 6 }}
+            label={
+              <div className="label">
+                <span style={{ marginRight: 4 }}>Connect PRs and Issues</span>
+                <HelpTooltip
+                  content={
+                    <>
+                      <div>
+                        <CheckCircleOutlined rev="" style={{ marginRight: 4, color: '#4DB764' }} />
+                        Example 1: PR #321 body contains "<strong>Closes #1234</strong>" (PR #321 and issue #1234 will
+                        be mapped by the following RegEx)
+                      </div>
+                      <div>
+                        <CloseCircleOutlined rev="" style={{ marginRight: 4, color: '#E34040' }} />
+                        Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234
+                        will NOT be mapped by the following RegEx)
+                      </div>
+                    </>
+                  }
+                />
+              </div>
+            }
+          >
+            <Input.TextArea
+              value={transformation.prBodyClosePattern ?? ''}
+              placeholder="(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)"
               onChange={(e) =>
                 onChangeTransformation({
                   ...transformation,
-                  deploymentPattern: e.target.value,
-                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                  prBodyClosePattern: e.target.value,
                 })
               }
+              rows={2}
             />
-            <span>.</span>
-            <HelpTooltip content="View your BitBucket Pipelines: https://support.atlassian.com/bitbucket-cloud/docs/view-your-pipeline/" />
-          </div>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>If the name also matches</span>
-            <Input
-              style={{ width: 200, margin: '0 8px' }}
-              placeholder="prod(.*)"
-              value={transformation.productionPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  productionPattern: e.target.value,
-                })
-              }
-            />
-            <span>, this Deployment is a ‘Production Deployment’</span>
-            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
-          </div>
+          </Form.Item>
         </>
       ),
     },

@@ -24,11 +24,14 @@ import (
 
 type BitbucketServerScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId       uint64            `mapstructure:"connectionId" json:"connectionId"`
-	Name               string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
-	DeploymentPattern  string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	ProductionPattern  string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
-	Refdiff            datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
+	Name               string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
+	PrType             string `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
+	PrComponent        string `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
+	PrBodyClosePattern string `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
+
+	// DeploymentPattern  string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	// ProductionPattern  string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	Refdiff datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 
 	// a string array, split by `,`.
 }

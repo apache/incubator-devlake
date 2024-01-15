@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
@@ -48,8 +50,9 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Success 200  {object} models.BitbucketServerScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket_server/connections/{connectionId}/scope-configs/{id} [PATCH]
+// @Router /plugins/bitbucket_server/connections/{connectionId}/scope-configs/{scopeConfigId} [PATCH]
 func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	input.Params["scopeConfigId"] = strings.TrimLeft(input.Params["scopeConfigId"], "/")
 	return dsHelper.ScopeConfigApi.Patch(input)
 }
 
@@ -62,8 +65,9 @@ func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Success 200  {object} models.BitbucketServerScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket_server/connections/{connectionId}/scope-configs/{id} [GET]
+// @Router /plugins/bitbucket_server/connections/{connectionId}/scope-configs/{scopeConfigId} [GET]
 func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	input.Params["scopeConfigId"] = strings.TrimLeft(input.Params["scopeConfigId"], "/")
 	return dsHelper.ScopeConfigApi.GetDetail(input)
 }
 
@@ -91,7 +95,8 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket_server/connections/{connectionId}/scope-configs/{id} [DELETE]
+// @Router /plugins/bitbucket_server/connections/{connectionId}/scope-configs/{scopeConfigId} [DELETE]
 func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	input.Params["scopeConfigId"] = strings.TrimLeft(input.Params["scopeConfigId"], "/")
 	return dsHelper.ScopeConfigApi.Delete(input)
 }

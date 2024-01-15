@@ -206,7 +206,7 @@ export const ScopeConfigForm = ({
                 />
               )}
 
-              {plugin === 'bitbucket-server' && (
+              {plugin === 'bitbucket_server' && (
                 <BitbucketServerTransformation
                   entities={entities}
                   transformation={transformation}

@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/api"
@@ -144,12 +143,12 @@ func (p BitbucketServer) PrepareTaskData(taskCtx plugin.TaskContext, options map
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
-	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
-	}
+	// if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
+	// 	return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	// }
+	// if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
+	// 	return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	// }
 	taskData := &tasks.BitbucketTaskData{
 		Options:       op,
 		ApiClient:     apiClient,
@@ -213,7 +212,7 @@ func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResource
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/*scopeConfigId": {
 			"PATCH":  api.UpdateScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
