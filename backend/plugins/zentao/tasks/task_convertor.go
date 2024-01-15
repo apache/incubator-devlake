@@ -69,6 +69,9 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoTask)
+			originalEstimateMinutes := int64(toolEntity.Estimate * 60)
+			timeSpentMinutes := int64(toolEntity.Consumed * 60)
+			timeRemainingMinutes := int64(toolEntity.Left * 60)
 
 			domainEntity := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
@@ -89,9 +92,9 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:                     convertIssueURL(toolEntity.Url, "task", toolEntity.ID),
 				OriginalProject:         getOriginalProject(data),
 				Status:                  toolEntity.StdStatus,
-				OriginalEstimateMinutes: int64(toolEntity.Estimate * 60),
-				TimeSpentMinutes:        int64(toolEntity.Consumed * 60),
-				TimeRemainingMinutes:    int64(toolEntity.Left * 60),
+				OriginalEstimateMinutes: &originalEstimateMinutes,
+				TimeSpentMinutes:        &timeSpentMinutes,
+				TimeRemainingMinutes:    &timeRemainingMinutes,
 			}
 			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
 				domainEntity.Type = mappingType
@@ -106,7 +109,8 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
 			}
 			if toolEntity.ClosedDate != nil {
-				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
+				temp := uint(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
+				domainEntity.LeadTimeMinutes = &temp
 			}
 			var results []interface{}
 			if domainEntity.AssigneeId != "" {

@@ -152,7 +152,8 @@ func convertGithubIssue(milestoneMap map[int]int, issue GraphqlQueryIssue, conne
 		githubIssue.AuthorName = issue.Author.Login
 	}
 	if issue.ClosedAt != nil {
-		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.Sub(issue.CreatedAt).Minutes())
+		temp := uint(issue.ClosedAt.Sub(issue.CreatedAt).Minutes())
+		githubIssue.LeadTimeMinutes = &temp
 	}
 	if issue.Milestone != nil {
 		if milestoneId, ok := milestoneMap[issue.Milestone.Number]; ok {

@@ -19,6 +19,10 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
-	"reflect"
-	"strconv"
-	"time"
 )
 
 var ConvertTasksMeta = plugin.SubTaskMeta{
@@ -61,6 +62,7 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.TeambitionTask)
 			originalEstimateMinutes, timeSpentMinutes, timeRemainingMinutes := calcEstimateTimeMinutes(userTool)
+			leadTimeMinutes := uint(calcLeadTimeMinutes(userTool))
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getTaskIdGen().Generate(data.Options.ConnectionId, userTool.Id),
@@ -74,16 +76,16 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalProject:         getProjectIdGen().Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				AssigneeId:              userTool.ExecutorId,
 				Url:                     fmt.Sprintf("https://www.teambition.com/task/%s", userTool.Id),
-				LeadTimeMinutes:         calcLeadTimeMinutes(userTool),
-				OriginalEstimateMinutes: originalEstimateMinutes,
-				TimeSpentMinutes:        timeSpentMinutes,
-				TimeRemainingMinutes:    timeRemainingMinutes,
+				LeadTimeMinutes:         &leadTimeMinutes,
+				OriginalEstimateMinutes: &originalEstimateMinutes,
+				TimeSpentMinutes:        &timeSpentMinutes,
+				TimeRemainingMinutes:    &timeRemainingMinutes,
 				ResolutionDate:          userTool.AccomplishTime.ToNullableTime(),
 				CreatedDate:             userTool.Created.ToNullableTime(),
 				UpdatedDate:             userTool.Updated.ToNullableTime(),
 			}
 			if storyPoint, ok := strconv.ParseFloat(userTool.StoryPoint, 64); ok == nil {
-				issue.StoryPoint = storyPoint
+				issue.StoryPoint = &storyPoint
 			}
 			if a, err := FindAccountById(db, userTool.CreatorId); err == nil {
 				issue.CreatorName = a.Name

@@ -46,6 +46,10 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 		if err != nil {
 			return err
 		}
+		err = db.Exec("alter table issues modify lead_time_minutes bigint after updated_date;")
+		if err != nil {
+			return err
+		}
 		// pull_requests
 		err = db.Exec("alter table pull_requests modify base_ref varchar(255) after base_repo_id;")
 		if err != nil {
@@ -180,7 +184,7 @@ func (*modfiyFieldsSort) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*modfiyFieldsSort) Version() uint64 {
-	return 20240108000008
+	return 20240116000011
 }
 
 func (*modfiyFieldsSort) Name() string {
