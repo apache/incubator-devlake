@@ -20,7 +20,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import { CloseOutlined } from '@ant-design/icons';
-import { Layout as AntdLayout, Menu, Flex, Divider, Tooltip, Button } from 'antd';
+import { ConfigProvider, Layout as AntdLayout, Menu, Flex, Divider, Tooltip, Button } from 'antd';
 
 import API from '@/api';
 import { PageLoading, Logo, ExternalLink, Message } from '@/components';
@@ -117,83 +117,91 @@ export const Layout = () => {
   };
 
   return (
-    <AntdLayout style={{ height: '100vh' }}>
-      <Sider>
-        {import.meta.env.DEVLAKE_TITLE_CUSTOM ? (
-          <h2 style={{ margin: '36px 0', textAlign: 'center', color: '#fff' }}>
-            {import.meta.env.DEVLAKE_TITLE_CUSTOM}
-          </h2>
-        ) : (
-          <Logo style={{ padding: 24 }} />
-        )}
-        <Menu
-          mode="inline"
-          theme="dark"
-          items={menuItems}
-          openKeys={openKeys}
-          selectedKeys={selectedKeys}
-          onClick={({ key }) => navigate(key)}
-          onOpenChange={(keys) => setOpenKeys(keys)}
-        />
-        <div style={{ position: 'absolute', right: 0, bottom: 20, left: 0, color: '#fff', textAlign: 'center' }}>
-          {version}
-        </div>
-      </Sider>
-      <AntdLayout style={{ overflowY: 'auto' }}>
-        <Header
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            padding: '0 24px',
-            height: 50,
-            background: 'transparent',
-          }}
-        >
-          {headerItems
-            .filter((item) =>
-              import.meta.env.DEVLAKE_COPYRIGHT_HIDE ? !['GitHub', 'Slack'].includes(item.label) : true,
-            )
-            .map((item, i, arr) => (
-              <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
-                {item.icon}
-                <span style={{ marginLeft: 4 }}>{item.label}</span>
-                {i !== arr.length - 1 && <Divider type="vertical" />}
-              </ExternalLink>
-            ))}
-        </Header>
-        <Content style={{ margin: '16px auto', width: 1188 }}>
-          <Outlet />
-        </Content>
-        {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
-          <Footer>
-            <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
-          </Footer>
-        )}
-        <CSSTransition in={!!tipsShow} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
-          <S.Tips ref={tipsRef}>
-            <div className="content">
-              {tipsType === 'data-scope-changed' && (
-                <Flex gap="middle">
-                  <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
-                  <Button type="primary" loading={operating} onClick={handleRunBP}>
-                    Recollect Data
-                  </Button>
-                </Flex>
-              )}
-              {tipsType === 'scope-config-changed' && (
-                <Message
-                  content="Scope Config(s) have been updated. If you would like to re-transform or re-collect the data in the related
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: import.meta.env.DEVLAKE_COLOR_CUSTOM ?? '#7497F7',
+        },
+      }}
+    >
+      <AntdLayout style={{ height: '100vh' }}>
+        <Sider>
+          {import.meta.env.DEVLAKE_TITLE_CUSTOM ? (
+            <h2 style={{ margin: '36px 0', textAlign: 'center', color: '#fff' }}>
+              {import.meta.env.DEVLAKE_TITLE_CUSTOM}
+            </h2>
+          ) : (
+            <Logo style={{ padding: 24 }} />
+          )}
+          <Menu
+            mode="inline"
+            theme="dark"
+            items={menuItems}
+            openKeys={openKeys}
+            selectedKeys={selectedKeys}
+            onClick={({ key }) => navigate(key)}
+            onOpenChange={(keys) => setOpenKeys(keys)}
+          />
+          <div style={{ position: 'absolute', right: 0, bottom: 20, left: 0, color: '#fff', textAlign: 'center' }}>
+            {version}
+          </div>
+        </Sider>
+        <AntdLayout style={{ overflowY: 'auto' }}>
+          <Header
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              padding: '0 24px',
+              height: 50,
+              background: 'transparent',
+            }}
+          >
+            {headerItems
+              .filter((item) =>
+                import.meta.env.DEVLAKE_COPYRIGHT_HIDE ? !['GitHub', 'Slack'].includes(item.label) : true,
+              )
+              .map((item, i, arr) => (
+                <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
+                  {item.icon}
+                  <span style={{ marginLeft: 4 }}>{item.label}</span>
+                  {i !== arr.length - 1 && <Divider type="vertical" />}
+                </ExternalLink>
+              ))}
+          </Header>
+          <Content style={{ margin: '16px auto', width: 1188 }}>
+            <Outlet />
+          </Content>
+          {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
+            <Footer>
+              <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
+            </Footer>
+          )}
+          <CSSTransition in={!!tipsShow} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
+            <S.Tips ref={tipsRef}>
+              <div className="content">
+                {tipsType === 'data-scope-changed' && (
+                  <Flex gap="middle">
+                    <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
+                    <Button type="primary" loading={operating} onClick={handleRunBP}>
+                      Recollect Data
+                    </Button>
+                  </Flex>
+                )}
+                {tipsType === 'scope-config-changed' && (
+                  <Message
+                    content="Scope Config(s) have been updated. If you would like to re-transform or re-collect the data in the related
               project(s), please go to the Project page and do so."
-                />
-              )}
-            </div>
-            <Tooltip title="Close">
-              <Button shape="circle" ghost icon={<CloseOutlined />} onClick={() => dispatch(hideTips())} />
-            </Tooltip>
-          </S.Tips>
-        </CSSTransition>
+                  />
+                )}
+              </div>
+              <Tooltip title="Close">
+                <Button shape="circle" ghost icon={<CloseOutlined />} onClick={() => dispatch(hideTips())} />
+              </Tooltip>
+            </S.Tips>
+          </CSSTransition>
+        </AntdLayout>
       </AntdLayout>
-    </AntdLayout>
+    </ConfigProvider>
   );
 };
