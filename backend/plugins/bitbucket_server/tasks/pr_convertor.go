@@ -87,6 +87,16 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				HeadRef:        pr.HeadRef,
 				HeadCommitSha:  pr.HeadCommitSha,
 			}
+
+			if pr.MergeCommitSha == "" &&
+				pr.BaseCommitSha != "" &&
+				pr.HeadCommitSha != "" {
+				commitSHA, _ := getCommitSHAFromParents([]string{pr.BaseCommitSha, pr.HeadCommitSha}, db)
+				if commitSHA != "" {
+					domainPr.MergeCommitSha = commitSHA
+				}
+			}
+
 			switch pr.State {
 			case "OPEN":
 				domainPr.Status = code.OPEN
@@ -108,4 +118,28 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
+}
+
+func getCommitSHAFromParents(parents []string, db dal.Dal) (string, errors.Error) {
+	if len(parents) == 0 {
+		return "", nil
+	}
+
+	var1 := parents[0] + "," + parents[1]
+	var2 := parents[1] + "," + parents[0]
+
+	var commit models.BitbucketServerCommit
+	err := db.First(
+		&commit,
+		dal.From("_tool_bitbucket_server_commits"),
+		dal.Where("parent_commit_shas in (?)", []string{
+			var1,
+			var2,
+		}),
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return commit.CommitSha, nil
 }

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -43,6 +44,10 @@ type CommitsResponse struct {
 	Message            string                `json:"message"`
 	AuthorTimestamp    int64                 `json:"authorTimestamp"`
 	CommitterTimestamp int64                 `json:"committerTimestamp"`
+	Parents            []struct {
+		BitbucketID string `json:"id"`
+		DisplayID   string `json:"displayId"`
+	} `json:"parents"`
 }
 
 func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
@@ -59,31 +64,36 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			results := make([]interface{}, 0, 4)
 
+			parentCommitShasArr := make([]string, 0, len(commit.Parents))
+			for _, parent := range commit.Parents {
+				parentCommitShasArr = append(parentCommitShasArr, parent.BitbucketID)
+			}
+			parentCommitShas := strings.Join(parentCommitShasArr, ",")
+
 			bitbucketCommit := &models.BitbucketServerCommit{
-				ConnectionId:  data.Options.ConnectionId,
-				RepoId:        repoId,
-				CommitSha:     commit.BitbucketId,
-				AuthorName:    commit.Author.Name,
-				AuthorEmail:   commit.Author.EmailAddress,
-				Message:       commit.Message,
-				AuthoredDate:  time.UnixMilli(commit.AuthorTimestamp),
-				CommittedDate: time.UnixMilli(commit.CommitterTimestamp),
+				ConnectionId:     data.Options.ConnectionId,
+				RepoId:           repoId,
+				CommitSha:        commit.BitbucketId,
+				ParentCommitShas: parentCommitShas,
+				AuthorName:       commit.Author.Name,
+				AuthorEmail:      commit.Author.EmailAddress,
+				Message:          commit.Message,
+				AuthoredDate:     time.UnixMilli(commit.AuthorTimestamp),
+				CommittedDate:    time.UnixMilli(commit.CommitterTimestamp),
 			}
 
 			bitbucketRepoCommit := &models.BitbucketServerRepoCommit{
-				ConnectionId: data.Options.ConnectionId,
-				RepoId:       data.Options.FullName,
-				CommitSha:    commit.BitbucketId,
+				ConnectionId:     data.Options.ConnectionId,
+				RepoId:           data.Options.FullName,
+				CommitSha:        commit.BitbucketId,
+				ParentCommitShas: parentCommitShas,
 			}
 
 			bitbucketUser, err := convertUser(&commit.Author, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}
-			results = append(results, bitbucketUser)
-
-			results = append(results, bitbucketCommit)
-			results = append(results, bitbucketRepoCommit)
+			results = append(results, bitbucketUser, bitbucketCommit, bitbucketRepoCommit)
 			return results, nil
 		},
 	})
