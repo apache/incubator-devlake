@@ -22,10 +22,11 @@ import { Card, Space, Flex, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
+import { TipLayout } from '@/components';
 import { PATHS } from '@/config';
 import { operator } from '@/utils';
 
-export const NeedsDBMigrate = () => {
+export const DBMigrate = () => {
   const [operating, setOperating] = useState(false);
 
   const navigate = useNavigate();
@@ -41,25 +42,27 @@ export const NeedsDBMigrate = () => {
   };
 
   return (
-    <Card>
-      <h2>
-        <Space>
-          <ExclamationCircleOutlined style={{ fontSize: 20, color: '#faad14' }} />
-          <span>New Migration Scripts Detected</span>
-        </Space>
-      </h2>
-      <p>
-        If you have already started, please wait for database migrations to complete, do <strong>NOT</strong> close your
-        browser at this time.
-      </p>
-      <p className="warning">
-        Warning: Performing migration may wipe collected data for consistency and re-collecting data may be required.
-      </p>
-      <Flex justify="center">
-        <Button type="primary" loading={operating} onClick={handleSubmit}>
-          Proceed to Database Migration
-        </Button>
-      </Flex>
-    </Card>
+    <TipLayout>
+      <Card>
+        <h2>
+          <Space>
+            <ExclamationCircleOutlined style={{ fontSize: 20, color: '#faad14' }} />
+            <span>New Migration Scripts Detected</span>
+          </Space>
+        </h2>
+        <p>
+          If you have already started, please wait for database migrations to complete, do <strong>NOT</strong> close
+          your browser at this time.
+        </p>
+        <p className="warning">
+          Warning: Performing migration may wipe collected data for consistency and re-collecting data may be required.
+        </p>
+        <Flex justify="center">
+          <Button type="primary" loading={operating} onClick={handleSubmit}>
+            Proceed to Database Migration
+          </Button>
+        </Flex>
+      </Card>
+    </TipLayout>
   );
 };
