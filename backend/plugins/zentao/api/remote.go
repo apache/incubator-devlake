@@ -64,7 +64,14 @@ func getGroup(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryD
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	gid := input.Query.Get("groupId")
 	if gid == "" {
-		return projectRemoteHelper.GetScopesFromRemote(input, getGroup, nil)
+		apiResourceOutput, err := projectRemoteHelper.GetScopesFromRemote(input, getGroup, nil)
+		if err != nil {
+			return apiResourceOutput, err
+		}
+		if _, ok := apiResourceOutput.Body.(*api.RemoteScopesOutput); ok {
+			apiResourceOutput.Body.(*api.RemoteScopesOutput).NextPageToken = ""
+		}
+		return apiResourceOutput, err
 	} else if gid == `projects` {
 		return projectRemoteHelper.GetScopesFromRemote(input,
 			nil,
