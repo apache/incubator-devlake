@@ -34,6 +34,7 @@
         "y": 0
       },
       "id": 28,
+      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -88,6 +89,13 @@
         "y": 3
       },
       "id": 6,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -164,6 +172,13 @@
         "y": 3
       },
       "id": 26,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "displayLabels": [
           "name",
@@ -341,6 +356,13 @@
         "y": 3
       },
       "id": 4,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -421,6 +443,13 @@
         "y": 11
       },
       "id": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -508,6 +537,13 @@
         "y": 11
       },
       "id": 24,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -648,6 +684,13 @@
         "y": 11
       },
       "id": 10,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -750,6 +793,13 @@
         "y": 19
       },
       "id": 23,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.3,
@@ -841,6 +891,13 @@
         "y": 27
       },
       "id": 16,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -923,6 +980,13 @@
         "y": 27
       },
       "id": 25,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1086,6 +1150,13 @@
         "y": 27
       },
       "id": 14,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1187,6 +1258,13 @@
         "y": 36
       },
       "id": 18,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.3,
@@ -1339,6 +1417,13 @@
         "y": 36
       },
       "id": 31,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Age",
+          "url": "https://devlake.apache.org/docs/Metrics/BugAge"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1440,6 +1525,13 @@
         "y": 45
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.71,
@@ -1551,6 +1643,13 @@
         "y": 54
       },
       "id": 20,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.71,
@@ -1662,6 +1761,13 @@
         "y": 64
       },
       "id": 21,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.71,

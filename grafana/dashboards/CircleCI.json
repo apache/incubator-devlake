@@ -28,6 +28,13 @@
         "y": 0
       },
       "id": 58,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "CircleCI",
+          "url": "https://devlake.apache.org/docs/Plugins/circleci"
+        }
+      ],
       "options": {
         "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from CircleCI, such as [Build Count](https://devlake.apache.org/docs/Metrics/BuildCount), [Build Duration](https://devlake.apache.org/docs/Metrics/BuildDuration) and [Build Success Rate](https://devlake.apache.org/docs/Metrics/BuildSuccessRate).\n- Data Source Required: CircleCI",
         "mode": "markdown"
@@ -67,6 +74,13 @@
         "y": 3
       },
       "id": 4,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -146,6 +160,13 @@
         "y": 3
       },
       "id": 6,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Success Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildSuccessRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -298,7 +319,13 @@
       },
       "id": 37,
       "interval": null,
-      "links": [],
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
       "options": {
         "displayLabels": [
           "value",
@@ -389,6 +416,13 @@
         "y": 3
       },
       "id": 55,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Duration",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildDuration"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -483,6 +517,13 @@
         "y": 9
       },
       "id": 52,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
       "options": {
         "barWidth": 0.5,
         "groupWidth": 0.7,
@@ -598,6 +639,13 @@
       },
       "id": 50,
       "interval": "",
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Success Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildSuccessRate"
+        }
+      ],
       "options": {
         "barWidth": 0.5,
         "groupWidth": 0.7,
@@ -744,6 +792,13 @@
         "y": 15
       },
       "id": 54,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -852,6 +907,13 @@
         "y": 21
       },
       "id": 56,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Duration",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildDuration"
+        }
+      ],
       "options": {
         "barWidth": 0.5,
         "groupWidth": 0.7,

@@ -28,6 +28,7 @@
         "y": 0
       },
       "id": 142,
+      "links": [],
       "options": {
         "content": "- Use Cases: This dashboard shows the engineering throughput and and cycle time, which helps to identify productivity and bottlenecks of the development process.\n- Data Source Required: GitHub and Jira([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required to tell DevLake what the story_points field is). You also need to do [team configuration](https://devlake.apache.org/docs/Configuration/TeamConfiguration) to use this dashboard.",
         "mode": "markdown"
@@ -147,6 +148,13 @@
         "y": 4
       },
       "id": 111,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -285,6 +293,13 @@
         "y": 4
       },
       "id": 110,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -423,6 +438,13 @@
         "y": 11
       },
       "id": 79,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -561,6 +583,13 @@
         "y": 11
       },
       "id": 112,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -713,6 +742,13 @@
         "y": 19
       },
       "id": 74,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -851,6 +887,13 @@
         "y": 19
       },
       "id": 115,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1003,6 +1046,13 @@
         "y": 27
       },
       "id": 116,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1141,6 +1191,13 @@
         "y": 27
       },
       "id": 117,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1293,6 +1350,13 @@
         "y": 35
       },
       "id": 122,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Review Depth",
+          "url": "https://devlake.apache.org/docs/Metrics/PRReviewDepth"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1431,6 +1495,13 @@
         "y": 35
       },
       "id": 127,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Size",
+          "url": "https://devlake.apache.org/docs/Metrics/PRSize"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1583,6 +1654,13 @@
         "y": 43
       },
       "id": 100,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1721,6 +1799,13 @@
         "y": 43
       },
       "id": 121,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -1870,6 +1955,13 @@
         "y": 51
       },
       "id": 136,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Cycle Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCycleTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -2005,6 +2097,13 @@
         "y": 58
       },
       "id": 140,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Coding Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCodingTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -2140,6 +2239,13 @@
         "y": 58
       },
       "id": 134,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Pickup Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRPickupTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -2275,6 +2381,13 @@
         "y": 58
       },
       "id": 135,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Review Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRReviewTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -2410,6 +2523,13 @@
         "y": 58
       },
       "id": 145,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Deploy Time",
+          "url": "https://devlake.apache.org/docs/Metrics/PRDeployTime"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
@@ -2559,6 +2679,13 @@
         "y": 66
       },
       "id": 108,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
