@@ -160,11 +160,11 @@ func (r *GitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) errors.Error {
 		r.logger.Info("tagCommit:%s", tagCommit)
 		if tagCommit != "" {
 			ref := &code.Ref{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
-				RepoId:       r.id,
-				Name:         name,
-				CommitSha:    tagCommit,
-				RefType:      TAG,
+				DomainEntityExtension: domainlayer.DomainEntityExtension{Id: fmt.Sprintf("%s:%s", r.id, name)},
+				RepoId:                r.id,
+				Name:                  name,
+				CommitSha:             tagCommit,
+				RefType:               TAG,
 			}
 			err1 = r.store.Refs(ref)
 			if err1 != nil {

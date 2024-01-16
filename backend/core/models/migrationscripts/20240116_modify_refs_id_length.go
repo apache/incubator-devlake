@@ -31,17 +31,6 @@ import (
 var _ plugin.MigrationScript = (*modifyRefsIdLength)(nil)
 
 type modifyRefsIdLength struct{}
-
-type ref20240116_old struct {
-	archived.DomainEntity
-	RepoId      string `gorm:"type:varchar(255)"`
-	Name        string `gorm:"type:varchar(255)"`
-	CommitSha   string `gorm:"type:varchar(40)"`
-	IsDefault   bool
-	RefType     string `gorm:"type:varchar(255)"`
-	CreatedDate *time.Time
-}
-
 type ref20240116 struct {
 	archived.DomainEntityExtension
 	RepoId      string `gorm:"type:varchar(255)"`
@@ -58,24 +47,6 @@ func (ref20240116) TableName() string {
 
 func (script *modifyRefsIdLength) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	// dbUrl := basicRes.GetConfig("DB_URL")
-	// if dbUrl == "" {
-	// 	return errors.BadInput.New("DB_URL is required")
-	// }
-	// u, err1 := url.Parse(dbUrl)
-	// if err1 != nil {
-	// 	return errors.Convert(err1)
-	// }
-	// if u.Scheme == "mysql" {
-	// 	if err := db.Exec("ALTER TABLE refs DROP PRIMARY KEY"); err != nil {
-	// 		return err
-	// 	}
-	// } else {
-	// 	if err := db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP CONSTRAINT _tool_sonarqube_file_metrics_pkey"); err != nil {
-	// 		return err
-	// 	}
-	// }
-
 	err := migrationhelper.ChangeColumnsType[ref20240116](
 		basicRes,
 		script,
