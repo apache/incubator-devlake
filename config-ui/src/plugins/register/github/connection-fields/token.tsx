@@ -17,13 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import {
-  CloseOutlined,
-  PlusOutlined,
-  CheckCircleOutlined,
-  WarningOutlined,
-  CloseCircleOutlined,
-} from '@ant-design/icons';
+import { CloseOutlined, PlusOutlined, CheckCircleFilled, WarningFilled, CloseCircleFilled } from '@ant-design/icons';
 import { Input, Button } from 'antd';
 
 import API from '@/api';
@@ -88,6 +82,7 @@ export const Token = ({
       return {
         value: token,
         isValid: false,
+        status: 'error',
       };
     }
   };
@@ -170,9 +165,9 @@ export const Token = ({
           {status && (
             <S.Alert>
               <h4>
-                {status === 'success' && <CheckCircleOutlined color="#4DB764" />}
-                {status === 'warning' && <WarningOutlined color="#F4BE55" />}
-                {status === 'error' && <CloseCircleOutlined color="#E34040" />}
+                {status === 'success' && <CheckCircleFilled style={{ color: '#4DB764' }} />}
+                {status === 'warning' && <WarningFilled style={{ color: '#F4BE55' }} />}
+                {status === 'error' && <CloseCircleFilled style={{ color: '#E34040' }} />}
                 <span style={{ marginLeft: 8 }}>Token Permissions</span>
               </h4>
               {status === 'success' && <p>All required fields are checked.</p>}
