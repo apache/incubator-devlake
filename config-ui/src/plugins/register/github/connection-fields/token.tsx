@@ -92,7 +92,7 @@ export const Token = ({
     setTokens(
       (res.tokens ?? []).map((it) => ({
         value: it.token,
-        isValid: it.success || it.warning,
+        isValid: !!it.login,
         from: it.login,
         status: !it.success ? 'error' : it.warning ? 'warning' : 'success',
       })),
