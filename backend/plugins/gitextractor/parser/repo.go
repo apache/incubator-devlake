@@ -199,11 +199,11 @@ func (r *GitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) errors.Error
 				sha = oid.String()
 			}
 			ref := &code.Ref{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
-				RepoId:       r.id,
-				Name:         name,
-				CommitSha:    sha,
-				RefType:      BRANCH,
+				DomainEntityExtension: domainlayer.DomainEntityExtension{Id: fmt.Sprintf("%s:%s", r.id, name)},
+				RepoId:                r.id,
+				Name:                  name,
+				CommitSha:             sha,
+				RefType:               BRANCH,
 			}
 			ref.IsDefault, err1 = branch.IsHead()
 			if err1 != nil && err1.Error() != TypeNotMatchError {
