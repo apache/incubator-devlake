@@ -57,6 +57,7 @@ export const ZenTaoConfig: IPluginConfig = {
     ],
   },
   dataScope: {
+    localSearch: true,
     title: 'Repositories',
     millerColumn: {
       columnCount: 2,
