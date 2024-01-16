@@ -407,8 +407,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
         }
       ],
       "options": {
@@ -524,8 +524,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
         }
       ],
       "options": {
@@ -620,8 +620,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+          "title": "Requirement Lead Time",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementLeadTime"
         }
       ],
       "options": {
@@ -707,8 +707,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
         }
       ],
       "options": {
@@ -812,8 +812,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
         }
       ],
       "options": {
@@ -902,8 +902,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Requirement Lead Time",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementLeadTime"
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
         }
       ],
       "nullPointMode": "null",

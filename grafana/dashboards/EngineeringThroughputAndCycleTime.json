@@ -410,8 +410,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+          "title": "Requirement Granularity",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementGranularity"
         }
       ],
       "options": {

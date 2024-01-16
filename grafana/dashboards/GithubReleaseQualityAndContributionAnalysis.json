@@ -84,13 +84,7 @@
         "y": 4
       },
       "id": 15,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Bug Count per 1k Lines of Code",
-          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
-        }
-      ],
+      "links": [],
       "options": {
         "displayLabels": [
           "name",
@@ -226,13 +220,7 @@
         "y": 4
       },
       "id": 29,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Bug Count per 1k Lines of Code",
-          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
-        }
-      ],
+      "links": [],
       "options": {
         "barWidth": 0.7,
         "groupWidth": 0.3,

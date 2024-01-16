@@ -699,8 +699,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+          "title": "Requirement Lead Time",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementLeadTime"
         }
       ],
       "options": {
@@ -817,13 +817,7 @@
         "y": 23
       },
       "id": 93,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
-        }
-      ],
+      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.1,
@@ -1033,13 +1027,7 @@
         "y": 29
       },
       "id": 92,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Requirement Count",
-          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
-        }
-      ],
+      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1711,8 +1699,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "PR Merge Rate",
-          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
         }
       ],
       "options": {
