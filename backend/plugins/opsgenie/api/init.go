@@ -27,8 +27,6 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-
-var scopeHelper *api.ScopeApiHelper[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig]
 var dsHelper *api.DsHelper[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig]
 var basicRes context.BasicRes
 
@@ -40,21 +38,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "Id",
-		ScopeIdColumnName:    "id",
-		RawScopeParamName:    "ScopeId",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = api.NewScopeHelper[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
-		&api.ScopeHelperOptions{},
 	)
 
 	dsHelper = api.NewDataSourceHelper[

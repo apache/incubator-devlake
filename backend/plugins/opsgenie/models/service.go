@@ -36,16 +36,8 @@ type Service struct {
 }
 
 func (s Service) ScopeId() string {
-	return s.Name
+	return s.Id
 }
-
-// func (s Service) ScopeConnectionId() uint64 {
-// 	return s.ConnectionId
-// }
-
-// func (s Service) ScopeScopeConfigId() uint64 {
-// 	return 0
-// }
 
 func (s Service) ScopeName() string {
 	return s.Name
