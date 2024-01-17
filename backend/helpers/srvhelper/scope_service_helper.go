@@ -216,7 +216,6 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) getAllBlueprinsByScope(connectionId ui
 			scopeId,
 		),
 	))
-	fmt.Println(connectionId, scopeId, scopeSrv.pluginName, blueprints)
 	return blueprints
 }
 
