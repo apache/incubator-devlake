@@ -26,7 +26,7 @@ import (
 
 type ScopeRes struct {
 	models.Service
-	api.ScopeResDoc[any]
+	api.ScopeResDoc[models.Service]
 }
 
 type ScopeReq api.ScopeReq[models.Service]
@@ -43,7 +43,7 @@ type ScopeReq api.ScopeReq[models.Service]
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
 // UpdateScope patch to opsgenie service
@@ -59,7 +59,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId}/scopes/{serviceId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+	return dsHelper.ScopeApi.Patch(input)
 }
 
 // GetScopeList get Opsgenie repos
@@ -76,7 +76,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
 // GetScope get one Opsgenie service
@@ -91,7 +91,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId}/scopes/{serviceId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -107,5 +107,5 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId}/scopes/{serviceId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }
