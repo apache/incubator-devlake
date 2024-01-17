@@ -224,14 +224,12 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 
 				if issueTypeRequirementRegex != nil && issueTypeRequirementRegex.MatchString(label) {
 					gitlabIssue.StdType = ticket.REQUIREMENT
-					joinedLabels = append(joinedLabels, label)
 				} else if issueTypeBugRegex != nil && issueTypeBugRegex.MatchString(label) {
 					gitlabIssue.StdType = ticket.BUG
-					joinedLabels = append(joinedLabels, label)
 				} else if issueTypeIncidentRegex != nil && issueTypeIncidentRegex.MatchString(label) {
 					gitlabIssue.StdType = ticket.INCIDENT
-					joinedLabels = append(joinedLabels, label)
 				}
+				joinedLabels = append(joinedLabels, label)
 			}
 			if len(joinedLabels) > 0 {
 				gitlabIssue.Type = strings.Join(joinedLabels, ",")
