@@ -223,14 +223,12 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 		}
 		if issueRegexes.TypeRequirementRegex != nil && issueRegexes.TypeRequirementRegex.MatchString(label.Name) {
 			githubIssue.StdType = ticket.REQUIREMENT
-			joinedLabels = append(joinedLabels, label.Name)
 		} else if issueRegexes.TypeBugRegex != nil && issueRegexes.TypeBugRegex.MatchString(label.Name) {
 			githubIssue.StdType = ticket.BUG
-			joinedLabels = append(joinedLabels, label.Name)
 		} else if issueRegexes.TypeIncidentRegex != nil && issueRegexes.TypeIncidentRegex.MatchString(label.Name) {
 			githubIssue.StdType = ticket.INCIDENT
-			joinedLabels = append(joinedLabels, label.Name)
 		}
+		joinedLabels = append(joinedLabels, label.Name)
 	}
 	if len(joinedLabels) > 0 {
 		githubIssue.Type = strings.Join(joinedLabels, ",")
