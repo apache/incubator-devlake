@@ -21,7 +21,7 @@ import { CloseOutlined, PlusOutlined, CheckCircleFilled, WarningFilled, CloseCir
 import { Input, Button } from 'antd';
 
 import API from '@/api';
-import { Block, ExternalLink } from '@/components';
+import { Block, ExternalLink, Loading } from '@/components';
 import { DOC_URL } from '@/release';
 
 import * as S from './styled';
@@ -56,6 +56,7 @@ export const Token = ({
   setValue,
   setError,
 }: Props) => {
+  const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<TokenItem[]>([{ value: '' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
@@ -88,6 +89,7 @@ export const Token = ({
   };
 
   const checkTokens = async (connectionId: ID) => {
+    setLoading(true);
     const res = await API.connection.test('github', connectionId);
     setTokens(
       (res.tokens ?? []).map((it) => ({
@@ -97,6 +99,7 @@ export const Token = ({
         status: !it.success ? 'error' : it.warning ? 'warning' : 'success',
       })),
     );
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -146,47 +149,51 @@ export const Token = ({
       }
       required
     >
-      {tokens.map(({ value, isValid, status, from }, i) => (
-        <S.Input key={i}>
-          <div className="input">
-            <Input
-              style={{ width: 386 }}
-              placeholder="Token"
-              value={value}
-              onChange={(e) => handleChangeToken(i, e.target.value)}
-              onBlur={() => handleTestToken(i)}
-            />
-            <Button type="text" icon={<CloseOutlined />} onClick={() => handleRemoveToken(i)} />
-            <div className="info">
-              {isValid === false && <span className="error">Invalid</span>}
-              {isValid === true && <span className="success">Valid From: {from}</span>}
+      {loading ? (
+        <Loading />
+      ) : (
+        tokens.map(({ value, isValid, status, from }, i) => (
+          <S.Input key={i}>
+            <div className="input">
+              <Input
+                style={{ width: 386 }}
+                placeholder="Token"
+                value={value}
+                onChange={(e) => handleChangeToken(i, e.target.value)}
+                onBlur={() => handleTestToken(i)}
+              />
+              <Button type="text" icon={<CloseOutlined />} onClick={() => handleRemoveToken(i)} />
+              <div className="info">
+                {isValid === false && <span className="error">Invalid</span>}
+                {isValid === true && <span className="success">Valid From: {from}</span>}
+              </div>
             </div>
-          </div>
-          {status && (
-            <S.Alert>
-              <h4>
-                {status === 'success' && <CheckCircleFilled style={{ color: '#4DB764' }} />}
-                {status === 'warning' && <WarningFilled style={{ color: '#F4BE55' }} />}
-                {status === 'error' && <CloseCircleFilled style={{ color: '#E34040' }} />}
-                <span style={{ marginLeft: 8 }}>Token Permissions</span>
-              </h4>
-              {status === 'success' && <p>All required fields are checked.</p>}
-              {status === 'warning' && (
-                <p>
-                  This token is able to collect public repositories. If you want to collect private repositories, please
-                  check the field `repo`.
-                </p>
-              )}
-              {status === 'error' && (
-                <>
-                  <p>Please check the field(s) `repo:status`, `repo_deployment`, `read:user`, `read:org`.</p>
-                  <p>If you want to collect private repositories, please check the field `repo`.</p>
-                </>
-              )}
-            </S.Alert>
-          )}
-        </S.Input>
-      ))}
+            {status && (
+              <S.Alert>
+                <h4>
+                  {status === 'success' && <CheckCircleFilled style={{ color: '#4DB764' }} />}
+                  {status === 'warning' && <WarningFilled style={{ color: '#F4BE55' }} />}
+                  {status === 'error' && <CloseCircleFilled style={{ color: '#E34040' }} />}
+                  <span style={{ marginLeft: 8 }}>Token Permissions</span>
+                </h4>
+                {status === 'success' && <p>All required fields are checked.</p>}
+                {status === 'warning' && (
+                  <p>
+                    This token is able to collect public repositories. If you want to collect private repositories,
+                    please check the field `repo`.
+                  </p>
+                )}
+                {status === 'error' && (
+                  <>
+                    <p>Please check the field(s) `repo:status`, `repo_deployment`, `read:user`, `read:org`.</p>
+                    <p>If you want to collect private repositories, please check the field `repo`.</p>
+                  </>
+                )}
+              </S.Alert>
+            )}
+          </S.Input>
+        ))
+      )}
       <div className="action">
         <Button type="primary" size="small" icon={<PlusOutlined />} onClick={handleCreateToken}>
           Another Token

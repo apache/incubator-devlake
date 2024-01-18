@@ -168,6 +168,7 @@ export const Connections = () => {
       )}
       {type === 'form' && pluginConfig && (
         <Modal
+          destroyOnClose
           open
           width={820}
           centered
