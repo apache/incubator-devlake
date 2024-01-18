@@ -29,10 +29,9 @@ type BambooOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-	ConnectionId         uint64   `json:"connectionId"`
-	PlanKey              string   `json:"planKey"`
-	Tasks                []string `json:"tasks,omitempty"`
-	ScopeConfigId        uint64   `mapstructure:"scopeConfigId" json:"scopeConfigId"`
-	*BambooScopeConfig   `mapstructure:"scopeConfig" json:"scopeConfig"`
+	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId"`
+	PlanKey              string `json:"planKey" mapstructure:"planKey"`
+	ScopeConfigId        uint64 ` json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	*BambooScopeConfig   `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
 	api.CollectorOptions `mapstructure:",squash"`
 }

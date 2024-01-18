@@ -20,30 +20,29 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-// nolint
-type scopeReq struct {
-	Data []models.BambooPlan `json:"data"`
-}
+type PutScopesReqBody api.PutScopesReqBody[models.BambooPlan]
+type ScopeDetail api.ScopeDetail[models.BambooPlan, models.BambooScopeConfig]
 
-// PutScope create or update bamboo plan
+// PutScopes create or update bamboo plan
 // @Summary create or update bamboo plan
 // @Description Create or update bamboo plan
 // @Tags plugins/bamboo
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scope body scopeReq true "json"
-// @Success 200  {object} models.BambooPlan
+// @Param scope body PutScopesReqBody true "json"
+// @Success 200  {object} []models.BambooPlan
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes [PUT]
-func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
-// UpdateScope patch to bamboo plan
+// PatchScope patch to bamboo plan
 // @Summary patch to bamboo plan
 // @Description patch to bamboo plan
 // @Tags plugins/bamboo
@@ -55,23 +54,23 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/{scopeId} [PATCH]
-func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.Patch(input)
 }
 
-// GetScopeList get Bamboo plans
+// GetScopes get Bamboo plans
 // @Summary get Bamboo plans
 // @Description get Bamboo plans
 // @Tags plugins/bamboo
 // @Param connectionId path int true "connection ID"
 // @Param searchTerm query string false "search term for scope name"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []models.BambooPlan
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
 // GetScope get one Bamboo plan
@@ -82,12 +81,12 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param scopeId path int true "plan key"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} models.BambooPlan
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -103,5 +102,5 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }

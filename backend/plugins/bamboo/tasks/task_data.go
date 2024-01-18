@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-type BambooTaskData struct {
+type BambooOptions struct {
 	Options       *models.BambooOptions
 	ApiClient     *helper.ApiAsyncClient
 	RegexEnricher *helper.RegexEnricher

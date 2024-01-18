@@ -18,9 +18,10 @@ limitations under the License.
 package models
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"strings"
 )
 
 var _ plugin.ToolLayerScope = (*BambooPlan)(nil)

@@ -86,10 +86,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bamboo/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.BambooConnection{}
-	err := connectionHelper.First(connection, input.Params)
+	connection, err := dsHelper.ConnApi.FindByPk(input)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "find connection from db")
+		return nil, err
 	}
 	if err := api.DecodeMapStruct(input.Body, connection, false); err != nil {
 		return nil, err
@@ -111,13 +110,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/bamboo/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// update from request and save to database
-	connection := &models.BambooConnection{}
-	err := connectionHelper.Create(connection, input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.Post(input)
 }
 
 // @Summary patch bamboo connection
@@ -130,17 +123,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/bamboo/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.BambooConnection{}
-	if err := connectionHelper.First(&connection, input.Params); err != nil {
-		return nil, err
-	}
-	if err := (&models.BambooConnection{}).MergeFromRequest(connection, input.Body); err != nil {
-		return nil, errors.Convert(err)
-	}
-	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
+	return dsHelper.ConnApi.Patch(input)
 }
 
 // @Summary delete a bamboo connection
@@ -153,13 +136,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/bamboo/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	conn := &models.BambooConnection{}
-	output, err := connectionHelper.Delete(conn, input)
-	if err != nil {
-		return output, err
-	}
-	output.Body = conn.Sanitize()
-	return output, nil
+	return dsHelper.ConnApi.Delete(input)
 }
 
 // @Summary get all bamboo connections
@@ -170,15 +147,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/bamboo/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connections []models.BambooConnection
-	err := connectionHelper.List(&connections)
-	if err != nil {
-		return nil, err
-	}
-	for idx, c := range connections {
-		connections[idx] = c.Sanitize()
-	}
-	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.GetAll(input)
 }
 
 // @Summary get bamboo connection detail
@@ -190,7 +159,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/bamboo/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.BambooConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
+	return dsHelper.ConnApi.GetDetail(input)
 }

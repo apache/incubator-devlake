@@ -18,8 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
-
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 
@@ -30,90 +28,86 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 )
 
 func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
-	scope []*coreModels.BlueprintScope,
+	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	var err errors.Error
-	connection := new(models.BambooConnection)
-	err1 := connectionHelper.FirstById(connection, connectionId)
-	if err1 != nil {
-		return nil, nil, errors.Default.Wrap(err1, fmt.Sprintf("error on get connection by id[%d]", connectionId))
+	// load connection, scope and scopeConfig from the db
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
+	if err != nil {
+		return nil, nil, err
 	}
-
-	sc, err := makeScopeV200(connectionId, scope)
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection)
+	plan, err := makePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopes, err := makeScopesV200(scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return pp, sc, nil
-}
-
-func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]plugin.Scope, errors.Error) {
-	sc := make([]plugin.Scope, 0, len(scopes))
-
-	for _, scope := range scopes {
-		id := didgen.NewDomainIdGenerator(&models.BambooPlan{}).Generate(connectionId, scope.ScopeId)
-
-		// get project from db
-		project, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
-
-		// add cicd_scope to scopes
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
-			scopeCICD := devops.NewCicdScope(id, project.Name)
-
-			sc = append(sc, scopeCICD)
-		}
-	}
-
-	return sc, nil
+	return plan, scopes, nil
 }
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopes []*coreModels.BlueprintScope,
+	scopeDetails []*srvhelper.ScopeDetail[models.BambooPlan, models.BambooScopeConfig],
 	connection *models.BambooConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
-	plans := make(coreModels.PipelinePlan, 0, len(scopes))
-	for _, scope := range scopes {
-		var stage coreModels.PipelineStage
-		var err errors.Error
-		// get project
-		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.ScopeId)
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
+	for i, scopeDetail := range scopeDetails {
+		stage := plan[i]
+		if stage == nil {
+			stage = coreModels.PipelineStage{}
+		}
+
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		// construct task options for Jira
+		task, err := helper.MakePipelinePlanTask(
+			"bamboo",
+			subtaskMetas,
+			scopeConfig.Entities,
+			models.BambooOptions{
+				ConnectionId: scope.ConnectionId,
+				PlanKey:      scope.PlanKey,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		// bamboo main part
-		options := make(map[string]interface{})
-		options["connectionId"] = connection.ID
-		options["planKey"] = scope.ScopeId
-		options["scopeConfigId"] = scopeConfig.ID
-
-		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
-		if err != nil {
-			return nil, err
-		}
-
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "bamboo",
-			Subtasks: subtasks,
-			Options:  options,
-		})
-
-		plans = append(plans, stage)
+		stage = append(stage, task)
+		plan[i] = stage
 	}
-	return plans, nil
+
+	return plan, nil
+}
+
+func makeScopesV200(
+	scopeDetails []*srvhelper.ScopeDetail[models.BambooPlan, models.BambooScopeConfig],
+	connection *models.BambooConnection,
+) ([]plugin.Scope, errors.Error) {
+	scopes := make([]plugin.Scope, 0, len(scopeDetails))
+
+	idgen := didgen.NewDomainIdGenerator(&models.BambooPlan{})
+	for _, scopeDetail := range scopeDetails {
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		id := idgen.Generate(connection.ID, scope.PlanKey)
+
+		// add cicd_scope to scopes
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
+			scopes = append(scopes, devops.NewCicdScope(id, scope.PlanKey))
+		}
+	}
+
+	return scopes, nil
 }
