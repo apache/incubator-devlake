@@ -50,6 +50,7 @@ type Issue struct {
 	AssigneeId              string `gorm:"type:varchar(255)"`
 	AssigneeName            string `gorm:"type:varchar(255)"`
 	Severity                string `gorm:"type:varchar(255)"`
+	Urgency                 string `gorm:"type:varchar(255)"`
 	Component               string `gorm:"type:varchar(255)"`
 	OriginalProject         string `gorm:"type:varchar(255)"`
 }

@@ -97,5 +97,6 @@ func All() []plugin.MigrationScript {
 		new(addIssueCustomArrayField),
 		new(removePositionFromPullRequestComments),
 		new(modifyIssueOriginalTypeLength),
+		new(addUrgencyToIssues),
 	}
 }
