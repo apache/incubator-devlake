@@ -50,6 +50,7 @@ type Issue struct {
 	ParentIssueId           string `gorm:"type:varchar(255)"`
 	Priority                string `gorm:"type:varchar(255)"`
 	Severity                string `gorm:"type:varchar(255)"`
+	Urgency                 string `gorm:"type:varchar(255)"`
 	Component               string `gorm:"type:varchar(255)"`
 	OriginalProject         string `gorm:"type:varchar(255)"`
 }
