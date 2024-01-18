@@ -101,8 +101,8 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate:     &incident.CreatedDate,
 				UpdatedDate:     &incident.UpdatedDate,
 				LeadTimeMinutes: leadTime,
-				Priority:        string(incident.Urgency),
-				Severity:        incident.Priority,
+				Priority:        incident.Priority,
+				Urgency:         string(incident.Urgency),
 			}
 			var result []interface{}
 			if combined.User != nil {
