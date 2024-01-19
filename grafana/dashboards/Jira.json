@@ -168,10 +168,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -274,10 +271,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -413,10 +407,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -505,10 +496,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -624,10 +612,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -739,10 +724,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -846,10 +828,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -970,10 +949,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1057,10 +1033,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
