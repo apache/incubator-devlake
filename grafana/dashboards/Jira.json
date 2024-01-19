@@ -1189,10 +1189,7 @@
             "$__all"
           ]
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select concat(name, '--', id) from boards where id like 'jira%'",
         "hide": 0,
         "includeAll": true,
@@ -1213,10 +1210,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select distinct type from issues",
         "hide": 0,
         "includeAll": true,
