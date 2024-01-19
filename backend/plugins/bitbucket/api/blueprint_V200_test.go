@@ -19,9 +19,10 @@ package api
 
 import (
 	"database/sql"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"gorm.io/gorm/migrator"
-	"testing"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -86,7 +87,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Options: map[string]interface{}{
 					"fullName":     "likyh/likyhphp",
 					"connectionId": uint64(1),
-					"timeAfter":    "",
 				},
 			},
 			{
