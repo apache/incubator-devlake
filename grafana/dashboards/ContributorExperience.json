@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,14 +16,17 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 10,
-  "iteration": 1683690480749,
+  "id": 7,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 4,
         "w": 24,
@@ -29,12 +35,21 @@
       },
       "id": 24,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "- Use Cases: This dashboard answers the question \"What makes a great developer experience? And how can we define and track that?\". This dashboard heavily focuses on actionability. All metrics can be deterministically improved as long as OSS maintainers invested time into them.\n- Data Source Required: GitHub",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -91,9 +106,10 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -173,9 +189,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -255,9 +272,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -336,15 +354,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\n  join issue_labels il on il.issue_id = i.id\nwhere\n  il.label_name = \"$label_gfi\" and\n  i.status != 'DONE' and\n  b.id in ($repo_id)",
+          "rawSql": "select\n  count(distinct i.id)\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\n  join issue_labels il on il.issue_id = i.id\nwhere\n  il.label_name = \"$label_gfi\" and\n  i.status != 'DONE' and\n  b.id in ($repo_id)",
           "refId": "A",
           "select": [
             [
@@ -356,6 +376,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -418,9 +455,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -500,9 +538,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -582,9 +621,11 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -602,6 +643,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -664,9 +722,11 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -684,6 +744,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -700,7 +777,10 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
@@ -709,12 +789,21 @@
       },
       "id": 22,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -723,7 +812,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 30,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [
     "OSS Maintainer Dashboard"
@@ -731,7 +820,6 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "All",
@@ -739,8 +827,6 @@
         },
         "datasource": "mysql",
         "definition": "select concat(name, '-', id) from repos",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Repo",
@@ -760,8 +846,6 @@
           "text": "24",
           "value": "24"
         },
-        "description": null,
-        "error": null,
         "hide": 0,
         "label": "Time to Initial Issue Response SLA (in hours)",
         "name": "iir_sla",
@@ -782,8 +866,6 @@
           "text": "7",
           "value": "7"
         },
-        "description": null,
-        "error": null,
         "hide": 0,
         "label": "PR Resolution Time SLA (in days)",
         "name": "prrt_sla",
@@ -804,8 +886,6 @@
           "text": "good first issue",
           "value": "good first issue"
         },
-        "description": null,
-        "error": null,
         "hide": 0,
         "label": "Label for good first issues",
         "name": "label_gfi",
@@ -830,5 +910,6 @@
   "timezone": "",
   "title": "Contributor Experience",
   "uid": "bwsP5Nz4z",
-  "version": 6
+  "version": 2,
+  "weekStart": ""
 }
