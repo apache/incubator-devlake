@@ -1265,7 +1265,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  100*sum(case when id in (select pull_request_id from pull_request_issues) then 1 else 0 end)/count(*) as unlinked_pr_rate\nfrom pull_requests pr\njoin project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere pm.project_name in ($project)",
+          "rawSql": "select \n  100*count(distinct case when id in (select pull_request_id from pull_request_issues) then pr.id else null end)/count(distinct pr.id) as unlinked_pr_rate\nfrom pull_requests pr\njoin project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere pm.project_name in ($project)",
           "refId": "A",
           "select": [
             [
@@ -1400,7 +1400,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n  100*sum(case when id in (select pull_request_id from pull_request_issues) then 1 else 0 end)/count(*) as unlinked_pr_rate\nfrom pull_requests pr\njoin project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere pm.project_name in ($project)\nand $__timeFilter(created_date)\nand created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time\n\n",
+          "rawSql": "select\n  DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n  100*sum(distinct case when id in (select pull_request_id from pull_request_issues) then pr.id else null end)/count(distinct pr.id) as unlinked_pr_rate\nfrom pull_requests pr\njoin project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere pm.project_name in ($project)\nand $__timeFilter(created_date)\nand created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time\n\n",
           "refId": "A",
           "select": [
             [
