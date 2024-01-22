@@ -50,7 +50,7 @@
         "content": "- Use Cases: This dashboard shows the code quality metrics from SonarQube.\n- Data Source Required: SonarQube v8.2+\n- This dashboard does not honor the time filter on the top-right side as SonarQube metrics are all from the latest scan.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -145,17 +145,18 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*) as 'Bugs'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'BUG'\n  and severity in ($severity)\n  ",
+          "rawSql": "SELECT\n  count(distinct id) as 'Bugs'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'BUG'\n  and severity in ($severity)\n  ",
           "refId": "A",
           "select": [
             [
@@ -256,17 +257,18 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*) as 'Vulnerabilities'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'VULNERABILITY'\n  and severity in ($severity)",
+          "rawSql": "SELECT\n  count(distinct id) as 'Vulnerabilities'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'VULNERABILITY'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -368,17 +370,18 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(*) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)\n",
+          "rawSql": "SELECT\n  COUNT(distinct id) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)\n",
           "refId": "A",
           "select": [
             [
@@ -479,17 +482,18 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CONCAT(ROUND(COUNT(IF(status != 'TO_REVIEW', 1, NULL)) / COUNT(*) * 100, 2), '%') AS 'Reviewed'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)",
+          "rawSql": "SELECT\n  CONCAT(ROUND(COUNT(IF(status != 'TO_REVIEW', id, NULL)) / COUNT(distinct id) * 100, 2), '%') AS 'Reviewed'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -616,7 +620,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -728,7 +732,7 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -840,17 +844,18 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n\tCOUNT(*) as 'Code Smells'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'CODE_SMELL'\n  and severity in ($severity)",
+          "rawSql": "SELECT\n\tCOUNT(distinct id) as 'Code Smells'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'CODE_SMELL'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -977,7 +982,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -1088,7 +1093,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -1187,7 +1192,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -1310,6 +1315,6 @@
   "timezone": "",
   "title": "SonarQube",
   "uid": "WA0qbuJ4k",
-  "version": 7,
+  "version": 2,
   "weekStart": ""
 }
