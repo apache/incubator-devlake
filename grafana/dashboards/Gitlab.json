@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 16,
-  "iteration": 1683687670575,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -32,7 +31,7 @@
         "content": "- Use Cases: This dashboard shows the basic Git and Code Review metrics from GitLab.\n- Data Source Required: GitLab",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "queryType": "randomWalk",
@@ -103,7 +102,11 @@
         "text": {},
         "textMode": "auto"
       },
+<<<<<<< HEAD
       "pluginVersion": "8.0.6",
+=======
+      "pluginVersion": "9.5.15",
+>>>>>>> 96fd73b7e (fix: remove duplicates some plugins dashboard sql (#6855))
       "targets": [
         {
           "format": "table",
@@ -335,7 +338,6 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -393,7 +395,11 @@
         "text": {},
         "textMode": "auto"
       },
+<<<<<<< HEAD
       "pluginVersion": "8.0.6",
+=======
+      "pluginVersion": "9.5.15",
+>>>>>>> 96fd73b7e (fix: remove duplicates some plugins dashboard sql (#6855))
       "targets": [
         {
           "format": "table",
@@ -544,8 +550,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -657,8 +662,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -733,8 +737,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -828,8 +831,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -912,8 +914,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1005,8 +1006,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1145,5 +1145,6 @@
   "timezone": "",
   "title": "GitLab",
   "uid": "msSjEq97z",
-  "version": 8
+  "version": 1,
+  "weekStart": ""
 }

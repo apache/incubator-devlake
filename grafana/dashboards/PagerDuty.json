@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 29,
+  "id": 20,
   "links": [
     {
       "asDropdown": false,
@@ -70,7 +70,7 @@
         "content": "- Use Cases: This dashboard shows the incident data from PagerDuty.\n- Data Source Required: PagerDuty",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -151,7 +151,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -161,7 +161,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  count(*) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
+          "rawSql": "select \r\n  count(distinct i.id) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -247,7 +247,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -257,7 +257,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  count(*) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'resolved'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
+          "rawSql": "select \r\n  count(distinct i.id) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'resolved'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -360,7 +360,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -460,7 +460,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -716,7 +716,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -818,7 +818,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -1038,7 +1038,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "pointradius": 0.5,
       "points": false,
       "renderer": "flot",
@@ -1163,7 +1163,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -1220,6 +1220,6 @@
   "timezone": "",
   "title": "PagerDuty",
   "uid": "abb26d07-3268-4bdf-b871-6e39b37b9e00",
-  "version": 15,
+  "version": 2,
   "weekStart": ""
 }

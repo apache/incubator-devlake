@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,10 +16,9 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 22,
-  "iteration": 1672982963558,
+  "id": 6,
   "links": [
     {
       "asDropdown": false,
@@ -45,9 +47,13 @@
       "url": ""
     }
   ],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 3,
         "w": 13,
@@ -56,12 +62,21 @@
       },
       "id": 128,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "- Use Cases: This dashboard shows the basic project management metrics from Teambition.\n- Data Source Required: Teambition",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -70,7 +85,10 @@
       "type": "text"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -78,6 +96,15 @@
         "y": 3
       },
       "id": 126,
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "1. Issue Throughput",
       "type": "row"
     },
@@ -124,15 +151,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  count(*) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.type in ($type)\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
+          "rawSql": "select \r\n  count(distinct i.id) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.type in ($type)\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -144,6 +173,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -201,15 +247,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  count(*) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.type in ($type)\r\n  and i.status = 'DONE'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
+          "rawSql": "select \r\n  count(distinct i.id) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.type in ($type)\r\n  and i.status = 'DONE'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -221,6 +269,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -243,6 +308,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 1,
@@ -295,22 +362,31 @@
         "y": 4
       },
       "id": 120,
-      "interval": null,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
             "sum"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -338,8 +414,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Issue Status Distribution over Month [Issues Created in Selected Time Range]",
       "type": "timeseries"
     },
@@ -391,9 +465,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -425,7 +500,6 @@
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
       "datasource": "mysql",
       "description": "Issue Delivery Rate = count(Delivered Issues)/count(Issues)",
       "fieldConfig": {
@@ -434,6 +508,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Delivery Rate(%)",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -491,15 +567,18 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -527,14 +606,15 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Issue Delivery Rate over Time [Issues Created in Selected Time Range]",
       "type": "timeseries"
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -543,6 +623,15 @@
       },
       "id": 110,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "2. Issue Lead Time",
       "type": "row"
     },
@@ -591,9 +680,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -622,8 +712,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Mean Issue Lead Time in Days [Issues Resolved in Select Time Range]",
       "type": "stat"
     },
@@ -671,9 +759,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -702,8 +791,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "80% Issues' Lead Time are less than # days [Issues Resolved in Select Time Range]",
       "type": "stat"
     },
@@ -716,6 +803,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Lead Time(days)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -726,7 +815,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -755,25 +850,33 @@
       "id": 17,
       "interval": "",
       "options": {
+        "barRadius": 0,
         "barWidth": 0.5,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -802,8 +905,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Mean Issue Lead Time [Issues Resolved in Select Time Range]",
       "type": "barchart"
     },
@@ -842,7 +943,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "pointradius": 0.5,
       "points": false,
       "renderer": "flot",
@@ -852,6 +953,7 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -891,9 +993,7 @@
           "yaxis": "right"
         }
       ],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Cumulative Distribution of Requirement Lead Time [Issues Resolved in Select Time Range]",
       "tooltip": {
         "shared": false,
@@ -903,9 +1003,7 @@
       "transformations": [],
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "series",
-        "name": null,
         "show": true,
         "values": [
           "current"
@@ -918,26 +1016,24 @@
           "label": "Percent Rank (%)",
           "logBase": 1,
           "max": "1.2",
-          "min": null,
           "show": true
         },
         {
           "$$hashKey": "object:77",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
@@ -946,12 +1042,21 @@
       },
       "id": 130,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -960,7 +1065,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 30,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [
     "Data Source Dashboard"
@@ -968,7 +1073,6 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
@@ -980,8 +1084,6 @@
         },
         "datasource": "mysql",
         "definition": "select concat(name, '--', id) from boards where id like 'teambition%'",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Choose Board",
@@ -996,7 +1098,6 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "All",
@@ -1004,8 +1105,6 @@
         },
         "datasource": "mysql",
         "definition": "select distinct type from issues",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Issue Type",
@@ -1029,5 +1128,6 @@
   "timezone": "",
   "title": "Teambition",
   "uid": "hi-908hVk",
-  "version": 3
+  "version": 2,
+  "weekStart": ""
 }
