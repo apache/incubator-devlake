@@ -196,7 +196,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
                 closable
                 onClose={() => onChange(selectedScope.filter((it) => it.id !== sc.id))}
               >
-                {sc.fullName}
+                {sc.fullName ?? sc.name}
               </Tag>
             ))
           ) : (
