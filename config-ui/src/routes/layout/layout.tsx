@@ -164,12 +164,12 @@ export const Layout = () => {
         </Header>
         <Content style={{ margin: '16px auto', width: 1188 }}>
           <Outlet />
+          {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
+            <Footer>
+              <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
+            </Footer>
+          )}
         </Content>
-        {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
-          <Footer>
-            <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
-          </Footer>
-        )}
         <CSSTransition in={!!tipsShow} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
           <S.Tips ref={tipsRef}>
             <div className="content">
