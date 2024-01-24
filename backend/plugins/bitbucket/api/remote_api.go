@@ -28,8 +28,119 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 )
+
+type BitbucketRemotePagination struct {
+	MaxResult  int `json:"max-result" validate:"required"`
+	StartIndex int `json:"start-index" validate:"required"`
+}
+
+func listBitbucketRemoteScopes(
+	connection *models.BitbucketConnection,
+	apiClient plugin.ApiClient,
+	groupId string,
+	page BitbucketRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.BitbucketRepo],
+	nextPage *BitbucketRemotePagination,
+	err errors.Error,
+) {
+	if page.MaxResult == 0 {
+		page.MaxResult = 100
+	}
+
+	query := url.Values{
+		"showEmpty":   []string{"false"},
+		"max-result":  []string{fmt.Sprintf("%v", page.MaxResult)},
+		"start-index": []string{fmt.Sprintf("%v", page.StartIndex)},
+	}
+	res, err := apiClient.Get("plan.json", query, nil)
+
+	if err != nil {
+		return
+	}
+	var planRes struct {
+		Expand string `json:"expand"`
+		Link   struct {
+			Href string `json:"href"`
+			Rel  string `json:"rel"`
+		} `json:"link"`
+		Plans struct {
+			Size       int                       `json:"size"`
+			Expand     string                    `json:"expand"`
+			StartIndex int                       `json:"start-index"`
+			MaxResult  int                       `json:"max-result"`
+			Plan       []models.ApiBitbucketPlan `json:"plan"`
+		} `json:"plans"`
+	}
+	err = api.UnmarshalResponse(res, &planRes)
+	if err != nil {
+		return
+	}
+	for _, plan := range planRes.Plans.Plan {
+		children = append(children, toPlanModel(&plan))
+	}
+	// there may be more repos
+	if len(children) == page.MaxResult {
+		nextPage = &BitbucketRemotePagination{
+			MaxResult:  page.MaxResult,
+			StartIndex: page.StartIndex + page.MaxResult,
+		}
+	}
+	return
+}
+
+func searchBitbucketPlans(
+	apiClient plugin.ApiClient,
+	params *dsmodels.DsRemoteApiScopeSearchParams,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.BitbucketPlan],
+	err errors.Error,
+) {
+	res, err := apiClient.Get(
+		"search/plans.json",
+		url.Values{
+			"searchTerm": []string{params.Search},
+		},
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	resBody := models.ApiBitbucketSearchPlanResponse{}
+	err = api.UnmarshalResponse(res, &resBody)
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range resBody.SearchResults {
+		children = append(children, toPlanModel(&models.ApiBitbucketPlan{
+			Key:  r.SearchEntity.Key,
+			Name: r.SearchEntity.Name(),
+		}))
+	}
+	return
+}
+
+func toPlanModel(plan *models.ApiBitbucketPlan) dsmodels.DsRemoteApiScopeListEntry[models.BitbucketPlan] {
+	return dsmodels.DsRemoteApiScopeListEntry[models.BitbucketPlan]{
+		Type:     api.RAS_ENTRY_TYPE_SCOPE,
+		Id:       plan.Key,
+		Name:     plan.Name,
+		FullName: plan.Name,
+		Data: &models.BitbucketPlan{
+			PlanKey:   plan.Key,
+			Name:      plan.Name,
+			ShortName: plan.ShortName,
+			ShortKey:  plan.ShortKey,
+			Type:      plan.Type,
+			Enabled:   plan.Enabled,
+			Href:      plan.Link.Href,
+			Rel:       plan.Link.Rel,
+		},
+	}
+}
 
 // RemoteScopes list all available scope for users
 // @Summary list all available scope for users
