@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 17,
+  "id": 20,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -336,7 +336,6 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-
           "format": "table",
           "group": [],
           "hide": false,
@@ -455,7 +454,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(i.resolution_date), INTERVAL -$interval(date(i.resolution_date))+1 DAY) as time,\n  sum(case when i.status = 'DONE' then i.story_point else 0 end) as 'Story Points Completed',\n  i.id\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nWHERE\n  $__timeFilter(i.resolution_date)\n  and pm.project_name in ($project)\ngroup by 1,3\norder by 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(i.resolution_date), INTERVAL -$interval(date(i.resolution_date))+1 DAY) as time,\n  sum(case when i.status = 'DONE' then i.story_point else 0 end) as 'Story Points Completed'\nFROM (\n  SELECT DISTINCT i.id, i.resolution_date, i.status, i.story_point\n  FROM issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    join project_mapping pm on b.id = pm.row_id\n  WHERE\n    $__timeFilter(i.resolution_date)\n    and pm.project_name in ($project)\n) as i\ngroup by 1\norder by 1",
           "refId": "A",
           "select": [
             [
@@ -1788,6 +1787,6 @@
   "timezone": "",
   "title": "Engineering Throughput and Cycle Time",
   "uid": "Jaaimc67k",
-  "version": 3,
+  "version": 1,
   "weekStart": ""
 }
