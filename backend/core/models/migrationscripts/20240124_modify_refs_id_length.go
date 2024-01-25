@@ -47,7 +47,7 @@ func (ref20240116) TableName() string {
 
 func (script *modifyRefsIdLength) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := migrationhelper.ChangeColumnsType[ref20240116](
+	return migrationhelper.ChangePrimaryKeyColumnsType[ref20240116](
 		basicRes,
 		script,
 		ref20240116{}.TableName(),
@@ -61,18 +61,10 @@ func (script *modifyRefsIdLength) Up(basicRes context.BasicRes) errors.Error {
 			)
 		},
 	)
-	if err != nil {
-		return err
-	}
-
-	if err := db.Exec("ALTER TABLE refs ADD PRIMARY KEY (id)"); err != nil {
-		return err
-	}
-	return nil
 }
 
 func (*modifyRefsIdLength) Version() uint64 {
-	return 20240116155126
+	return 20240124155129
 }
 
 func (*modifyRefsIdLength) Name() string {
