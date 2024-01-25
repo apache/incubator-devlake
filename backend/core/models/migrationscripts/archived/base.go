@@ -28,7 +28,7 @@ type DomainEntity struct {
 	NoPKModel
 }
 
-type DomainEntityExtension struct {
+type DomainEntityExtended struct {
 	Id string `json:"id" gorm:"primaryKey;type:varchar(500);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
 	NoPKModel
 }

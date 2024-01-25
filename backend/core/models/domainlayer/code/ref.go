@@ -24,7 +24,7 @@ import (
 )
 
 type Ref struct {
-	domainlayer.DomainEntityExtension
+	domainlayer.DomainEntityExtended
 	RepoId      string `gorm:"type:varchar(255)"`
 	Name        string `gorm:"type:varchar(255)"`
 	CommitSha   string `gorm:"type:varchar(40)"`

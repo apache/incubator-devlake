@@ -32,7 +32,7 @@ var _ plugin.MigrationScript = (*modifyRefsIdLength)(nil)
 
 type modifyRefsIdLength struct{}
 type ref20240124 struct {
-	archived.DomainEntityExtension
+	archived.DomainEntityExtended
 	RepoId      string `gorm:"type:varchar(255)"`
 	Name        string `gorm:"type:varchar(255)"`
 	CommitSha   string `gorm:"type:varchar(40)"`
