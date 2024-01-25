@@ -29,7 +29,7 @@ import (
 func TestBambooDeployDataFlow(t *testing.T) {
 	var bamboo impl.Bamboo
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
-	taskData := &tasks.BambooTaskData{
+	taskData := &tasks.BambooOptions{
 		Options: &models.BambooOptions{
 			ConnectionId:      1,
 			PlanKey:           "TEST1",
