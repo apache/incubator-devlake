@@ -106,5 +106,6 @@ func All() []plugin.MigrationScript {
 		new(modfiyFieldsSort),
 		new(modifyIssueLeadTimeMinutesToUint),
 		new(addUrgencyToIssues),
+		new(modifyRefsIdLength),
 	}
 }
