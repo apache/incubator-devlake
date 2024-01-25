@@ -16,6 +16,8 @@
  *
  */
 
+import { intersection } from 'lodash';
+
 import API from '@/api';
 import { getRegisterPlugins } from '@/plugins';
 
@@ -24,19 +26,21 @@ type Props = {
 };
 
 export const layoutLoader = async ({ request }: Props) => {
-  let plugins = [];
+  let fePlugins = getRegisterPlugins();
+  const bePlugins = await API.plugin.list();
 
   try {
     const envPlugins = import.meta.env.DEVLAKE_PLUGINS.split(',').filter(Boolean);
-    plugins = getRegisterPlugins().filter((plugin) => !envPlugins.length || envPlugins.includes(plugin));
-  } catch (err) {
-    plugins = getRegisterPlugins();
-  }
+    fePlugins = fePlugins.filter((plugin) => !envPlugins.length || envPlugins.includes(plugin));
+  } catch (err) {}
 
   const res = await API.version(request.signal);
 
   return {
     version: res.version,
-    plugins,
+    plugins: intersection(
+      fePlugins,
+      bePlugins.map((it) => it.plugin),
+    ),
   };
 };

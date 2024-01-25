@@ -251,7 +251,11 @@ const renderCollapseItems = ({
           >
             <Select
               showSearch
-              options={fields.map((it) => ({ label: it.name, value: it.name }))}
+              options={fields.map((it) => ({ label: it.name, value: it.id }))}
+              optionFilterProp="children"
+              filterOption={(input: string, option?: { label: string; value: string }) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
               value={transformation.storyPointField}
               onChange={(value) =>
                 onChangeTransformation({

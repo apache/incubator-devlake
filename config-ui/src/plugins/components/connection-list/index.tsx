@@ -117,6 +117,7 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
         Create a New Connection
       </Button>
       <Modal
+        destroyOnClose
         open={open}
         width={820}
         centered

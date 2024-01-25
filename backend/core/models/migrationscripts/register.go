@@ -105,6 +105,7 @@ func All() []plugin.MigrationScript {
 		new(addCommitMsgtoPipelineCommit),
 		new(modfiyFieldsSort),
 		new(modifyIssueLeadTimeMinutesToUint),
-		new(modifyRefsIdLength),
+		new(addUrgencyToIssues),
+    new(modifyRefsIdLength),
 	}
 }

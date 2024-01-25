@@ -15,42 +15,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/opsgenie/models"
-	"github.com/go-playground/validator/v10"
 )
 
-var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var dsHelper *api.DsHelper[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig]
-var basicRes context.BasicRes
+var _ plugin.MigrationScript = (*addUrgencyToIssues)(nil)
 
-func Init(br context.BasicRes, p plugin.PluginMeta) {
+type issue20240117 struct {
+	Urgency string `gorm:"type:varchar(255)"`
+}
 
-	basicRes = br
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
+func (issue20240117) TableName() string {
+	return "issues"
+}
 
-	dsHelper = api.NewDataSourceHelper[
-		models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig,
-	](
-		br,
-		p.Name(),
-		[]string{"name"},
-		func(c models.OpsgenieConnection) models.OpsgenieConnection {
-			return c.Sanitize()
-		},
-		nil,
-		nil,
-	)
+type addUrgencyToIssues struct{}
 
+func (u *addUrgencyToIssues) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if err := db.AutoMigrate(&issue20240117{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*addUrgencyToIssues) Version() uint64 {
+	return 20240117142100
+}
+
+func (*addUrgencyToIssues) Name() string {
+	return "add urgency to issues table"
 }
