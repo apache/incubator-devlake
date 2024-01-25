@@ -31,7 +31,7 @@ import (
 var _ plugin.MigrationScript = (*modifyRefsIdLength)(nil)
 
 type modifyRefsIdLength struct{}
-type ref20240116 struct {
+type ref20240124 struct {
 	archived.DomainEntityExtension
 	RepoId      string `gorm:"type:varchar(255)"`
 	Name        string `gorm:"type:varchar(255)"`
@@ -41,20 +41,20 @@ type ref20240116 struct {
 	CreatedDate *time.Time
 }
 
-func (ref20240116) TableName() string {
+func (ref20240124) TableName() string {
 	return "refs"
 }
 
 func (script *modifyRefsIdLength) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	return migrationhelper.ChangePrimaryKeyColumnsType[ref20240116](
+	return migrationhelper.ChangePrimaryKeyColumnsType[ref20240124](
 		basicRes,
 		script,
-		ref20240116{}.TableName(),
+		ref20240124{}.TableName(),
 		[]string{"id"},
 		func(tmpColumnParams []interface{}) errors.Error {
 			return db.UpdateColumn(
-				&ref20240116{},
+				&ref20240124{},
 				"id",
 				dal.DalClause{Expr: " ? ", Params: tmpColumnParams},
 				dal.Where("? IS NOT NULL", tmpColumnParams...),
