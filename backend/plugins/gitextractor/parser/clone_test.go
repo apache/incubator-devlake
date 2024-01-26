@@ -99,14 +99,16 @@ func (ctx *testSubTaskContext) ReplaceLogger(logger log.Logger) context.BasicRes
 
 func (ctx *testSubTaskContext) GetDal() dal.Dal {
 	//dsn := "mysql://root:admin@127.0.0.1:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC"
-
-	dsn := config.GetConfig().GetString("DB_URL")
-	//dsn := "merico:merico@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic(err)
+	if runInLocal {
+		dsn := "merico:merico@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True&loc=Local"
+		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		if err != nil {
+			panic(err)
+		}
+		return dalgorm.NewDalgorm(db)
+	} else {
+		panic("implement me")
 	}
-	return dalgorm.NewDalgorm(db)
 }
 
 func (ctx *testSubTaskContext) GetName() string {

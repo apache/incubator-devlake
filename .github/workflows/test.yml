@@ -41,14 +41,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    services:
-      db:
-        image: mysql:8
-        env:
-          MYSQL_DATABASE: lake
-          MYSQL_USER: merico
-          MYSQL_PASSWORD: merico
-          MYSQL_ROOT_PASSWORD: root
     container: mericodev/lake-builder:latest
     steps:
     - name: Checkout code
@@ -71,8 +63,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
     - name: Unit tests
-      env:
-        DB_URL: mysql://root:root@127.0.0.1:3306/lake?charset=utf8mb4&parseTime=True
       run: |
         go version
         cp env.example .env

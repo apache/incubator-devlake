@@ -32,7 +32,7 @@ import (
 
 var (
 	repoId               = "test-repo-id"
-	runInLocal           = false
+	runInLocal           = true
 	ctx                  = context.Background()
 	subTaskCtx           = &testSubTaskContext{}
 	devlakeRepoRemoteURL = "https://github.com/apache/incubator-devlake"
