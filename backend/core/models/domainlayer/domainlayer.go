@@ -37,3 +37,10 @@ func NewDomainEntity(id string) DomainEntity {
 		NoPKModel: common.NewNoPKModel(),
 	}
 }
+
+func NewDomainEntityExtended(id string) DomainEntityExtended {
+	return DomainEntityExtended{
+		Id:        id,
+		NoPKModel: common.NewNoPKModel(),
+	}
+}

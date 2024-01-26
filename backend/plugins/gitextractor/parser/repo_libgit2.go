@@ -167,11 +167,11 @@ func (r *GitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) error {
 		r.logger.Debug("tagCommit: %s", tagCommit)
 		if tagCommit != "" {
 			ref := &code.Ref{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
-				RepoId:       r.id,
-				Name:         name,
-				CommitSha:    tagCommit,
-				RefType:      TAG,
+				DomainEntityExtended: domainlayer.DomainEntityExtended{Id: fmt.Sprintf("%s:%s", r.id, name)},
+				RepoId:               r.id,
+				Name:                 name,
+				CommitSha:            tagCommit,
+				RefType:              TAG,
 			}
 			err1 = r.store.Refs(ref)
 			if err1 != nil {
@@ -206,11 +206,11 @@ func (r *GitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
 				sha = oid.String()
 			}
 			ref := &code.Ref{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
-				RepoId:       r.id,
-				Name:         name,
-				CommitSha:    sha,
-				RefType:      BRANCH,
+				DomainEntityExtended: domainlayer.DomainEntityExtended{Id: fmt.Sprintf("%s:%s", r.id, name)},
+				RepoId:               r.id,
+				Name:                 name,
+				CommitSha:            sha,
+				RefType:              BRANCH,
 			}
 			// commit sha may be an empty string, it's unexpected.
 			ref.IsDefault, err1 = branch.IsHead()

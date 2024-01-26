@@ -175,11 +175,11 @@ func (r *GoGitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) error {
 		name := ref.Name().String()
 		if tagCommit != "" {
 			codeRef := &code.Ref{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
-				RepoId:       r.id,
-				Name:         name,
-				CommitSha:    tagCommit,
-				RefType:      TAG,
+				DomainEntityExtended: domainlayer.DomainEntityExtended{Id: fmt.Sprintf("%s:%s", r.id, name)},
+				RepoId:               r.id,
+				Name:                 name,
+				CommitSha:            tagCommit,
+				RefType:              TAG,
 			}
 			err = r.store.Refs(codeRef)
 			if err != nil {
@@ -229,12 +229,12 @@ func (r *GoGitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
 			sha = h.String()
 		}
 		codeRef := &code.Ref{
-			DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
-			RepoId:       r.id,
-			Name:         name,
-			CommitSha:    sha,
-			RefType:      BRANCH,
-			IsDefault:    ref.Name() == headRef.Name(),
+			DomainEntityExtended: domainlayer.DomainEntityExtended{Id: fmt.Sprintf("%s:%s", r.id, name)},
+			RepoId:               r.id,
+			Name:                 name,
+			CommitSha:            sha,
+			RefType:              BRANCH,
+			IsDefault:            ref.Name() == headRef.Name(),
 		}
 		if err := r.store.Refs(codeRef); err != nil {
 			return err
