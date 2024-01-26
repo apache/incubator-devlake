@@ -34,7 +34,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/storer"
 	"regexp"
-	"slices"
 )
 
 type GoGitRepo struct {
@@ -522,7 +521,10 @@ func (r *GoGitRepo) GetCommitList(subtaskCtx plugin.SubTaskContext) ([]*object.C
 		commitList = append(commitList, commit)
 	}
 	// reverse commitList
-	slices.Reverse(commitList)
+	// use slices.Reverse(commitList) in higher golang version.
+	for i, j := 0, len(commitList)-1; i < j; i, j = i+1, j-1 {
+		commitList[i], commitList[j] = commitList[j], commitList[i]
+	}
 	return commitList, nil
 }
 
