@@ -24,32 +24,32 @@ import (
 )
 
 type BitbucketServerPullRequest struct {
-	ConnectionId       uint64 `gorm:"primaryKey"`
-	RepoId             string `gorm:"primaryKey;type:varchar(255)"`
-	BitbucketId        int    `gorm:"primaryKey"`
-	Number             int    `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
-	BaseRepoId         string
-	HeadRepoId         string
-	State              string `gorm:"type:varchar(255)"`
-	Title              string
-	Description        string
-	BitbucketCreatedAt time.Time
-	BitbucketUpdatedAt time.Time `gorm:"index"`
-	ClosedAt           *time.Time
-	CommentCount       int
-	Commits            int
-	MergedAt           *time.Time
-	Body               string
-	Type               string `gorm:"type:varchar(255)"`
-	Component          string `gorm:"type:varchar(255)"`
-	MergeCommitSha     string `gorm:"type:varchar(40)"`
-	HeadRef            string `gorm:"type:varchar(255)"`
-	BaseRef            string `gorm:"type:varchar(255)"`
-	BaseCommitSha      string `gorm:"type:varchar(255)"`
-	HeadCommitSha      string `gorm:"type:varchar(255)"`
-	Url                string `gorm:"type:varchar(255)"`
-	AuthorName         string `gorm:"type:varchar(255)"`
-	AuthorId           int
+	ConnectionId             uint64 `gorm:"primaryKey"`
+	RepoId                   string `gorm:"primaryKey;type:varchar(255)"`
+	BitbucketId              int    `gorm:"primaryKey"`
+	Number                   int    `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
+	BaseRepoId               string
+	HeadRepoId               string
+	State                    string `gorm:"type:varchar(255)"`
+	Title                    string
+	Description              string
+	BitbucketServerCreatedAt time.Time
+	BitbucketServerUpdatedAt time.Time `gorm:"index"`
+	ClosedAt                 *time.Time
+	CommentCount             int
+	Commits                  int
+	MergedAt                 *time.Time
+	Body                     string
+	Type                     string `gorm:"type:varchar(255)"`
+	Component                string `gorm:"type:varchar(255)"`
+	MergeCommitSha           string `gorm:"type:varchar(40)"`
+	HeadRef                  string `gorm:"type:varchar(255)"`
+	BaseRef                  string `gorm:"type:varchar(255)"`
+	BaseCommitSha            string `gorm:"type:varchar(255)"`
+	HeadCommitSha            string `gorm:"type:varchar(255)"`
+	Url                      string `gorm:"type:varchar(255)"`
+	AuthorName               string `gorm:"type:varchar(255)"`
+	AuthorId                 int
 	common.NoPKModel
 }
 

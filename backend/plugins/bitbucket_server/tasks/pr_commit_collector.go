@@ -31,6 +31,7 @@ var CollectApiPrCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	ProductTables:    []string{RAW_PULL_REQUEST_COMMITS_TABLE},
 }
 
 func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {

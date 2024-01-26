@@ -174,8 +174,8 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		Description:  pull.Description,
 		Url:          pull.Links.Html.Href,
 		// Type:               pull.Type,
-		BitbucketCreatedAt: time.UnixMilli(pull.BitbucketCreatedAt),
-		BitbucketUpdatedAt: time.UnixMilli(pull.BitbucketUpdatedAt),
+		BitbucketServerCreatedAt: time.UnixMilli(pull.BitbucketCreatedAt),
+		BitbucketServerUpdatedAt: time.UnixMilli(pull.BitbucketUpdatedAt),
 	}
 
 	if pull.BaseRef != nil {

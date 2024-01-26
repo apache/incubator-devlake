@@ -154,9 +154,6 @@ func GetBranchesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
-	}
 
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
@@ -177,9 +174,6 @@ func GetCommitsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.A
 			`bc.repo_id = ? and bc.connection_id = ?`,
 			data.Options.FullName, data.Options.ConnectionId,
 		),
-	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
 	}
 
 	// construct the input iterator
@@ -203,7 +197,7 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 		),
 	}
 	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
+		clauses = append(clauses, dal.Where("bitbucket_server_updated_at > ?", *collectorWithState.Since))
 	}
 
 	// construct the input iterator
@@ -213,18 +207,4 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 	}
 
 	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerInput{}))
-}
-
-func ignoreHTTPStatus404(res *http.Response) errors.Error {
-	if res.StatusCode == http.StatusUnauthorized {
-		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
-	}
-	if res.StatusCode == http.StatusNotFound {
-		return api.ErrIgnoreAndContinue
-	}
-	return nil
-}
-
-type PrCommentInput struct {
-	BitbucketId int
 }

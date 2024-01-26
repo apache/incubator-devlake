@@ -68,7 +68,9 @@ func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 				return []interface{}{}, nil
 			}
 
-			input := &PrCommentInput{}
+			input := &struct {
+				BitbucketId int
+			}{}
 			err = errors.Convert(json.Unmarshal(row.Input, input))
 			if err != nil {
 				return nil, err

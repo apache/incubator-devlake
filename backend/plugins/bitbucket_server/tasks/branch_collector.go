@@ -32,6 +32,7 @@ var CollectApiBranchesMeta = plugin.SubTaskMeta{
 	Required:         false,
 	Description:      "Collect Branches data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	ProductTables:    []string{RAW_BRANCHES_TABLE},
 }
 
 func CollectApiBranches(taskCtx plugin.SubTaskContext) errors.Error {

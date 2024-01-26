@@ -32,6 +32,7 @@ var CollectApiPrActivitiesMeta = plugin.SubTaskMeta{
 	Required:         false,
 	Description:      "Collect pull requests activities data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	ProductTables:    []string{RAW_PULL_REQUEST_ACTIVITIES_TABLE},
 }
 
 func CollectApiPullRequestsActivities(taskCtx plugin.SubTaskContext) errors.Error {
