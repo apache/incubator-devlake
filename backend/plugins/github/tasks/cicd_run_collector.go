@@ -76,7 +76,7 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				Query: func(reqData *helper.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
 					query := url.Values{}
 					// github api bug, only collect page < 35 data, otherwise will get nil response
-					// example: https://api.github.com/repos/apache/incubator-devlake/actions/runs?per_page=30&page=35
+					// example: https://api.github.com/repos/apache/incubator-devlake/actions/runs?per_page=30&page=35&status=completed
 					// query.Set("status", "completed")
 					query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 					query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
