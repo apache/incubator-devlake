@@ -24,12 +24,13 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
-	"time"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type BitbucketServerApiParams struct {
@@ -89,60 +90,32 @@ func decodeResponse(res *http.Response, message interface{}) errors.Error {
 	return nil
 }
 
-func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
-	query := url.Values{}
-	query.Set("state", "all")
-	query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
-
-	return query, nil
-}
-
-// GetQueryCreatedAndUpdated is a common GeyQuery for timeFilter and incremental
-func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollectorStateManager) func(reqData *api.RequestData) (url.Values, errors.Error) {
-	return func(reqData *api.RequestData) (url.Values, errors.Error) {
-		query, err := GetQuery(reqData)
-		if err != nil {
-			return nil, err
-		}
-		query.Set("fields", fields)
-		query.Set("sort", "created_on")
-
-		if collectorWithState.Since != nil {
-			query.Set("q", fmt.Sprintf("updated_on>=%s", collectorWithState.Since.Format(time.RFC3339)))
-		}
-		return query, nil
-	}
-}
-
-func GetQueryFields(fields string) func(reqData *api.RequestData) (url.Values, errors.Error) {
-	return func(reqData *api.RequestData) (url.Values, errors.Error) {
-		query, err := GetQuery(reqData)
-		if err != nil {
-			return nil, err
-		}
-		query.Set("fields", fields)
-
-		return query, nil
-	}
-}
-
-func GetNextPageCustomData(_ *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
+func GetNextPageCustomData(_ *helper.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
 	var rawMessages struct {
-		NextPageStart string `json:"nextPageStart"`
+		NextPageStart *int `json:"nextPageStart"`
+		IsLastPage    bool `json:"isLastPage"`
 	}
 	err := decodeResponse(prevPageResponse, &rawMessages)
 	if err != nil {
 		return nil, err
 	}
-	if rawMessages.NextPageStart == `` {
-		return ``, api.ErrFinishCollect
+
+	if rawMessages.IsLastPage || rawMessages.NextPageStart == nil {
+		return nil, nil
 	}
-	u, err := errors.Convert01(url.Parse(rawMessages.NextPageStart))
-	if err != nil {
-		return nil, err
+
+	return strconv.Itoa(*rawMessages.NextPageStart), nil
+}
+
+func GetQueryForNextPage(reqData *helper.RequestData) (url.Values, errors.Error) {
+	query := url.Values{}
+	query.Set("state", "all")
+	query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+
+	if reqData.CustomData != nil {
+		query.Set("start", reqData.CustomData.(string))
 	}
-	return u.Query()[`page`][0], nil
+	return query, nil
 }
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {

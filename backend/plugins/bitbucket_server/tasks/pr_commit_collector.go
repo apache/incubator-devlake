@@ -18,9 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -52,25 +49,11 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
+		GetNextPageCustomData: GetNextPageCustomData,
+		Query:                 GetQueryForNextPage,
 		Input:                 iterator,
 		UrlTemplate:           "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/commits",
-		GetNextPageCustomData: GetNextPageCustomData,
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("state", "all")
-			query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("sort", "created_on")
-			query.Set("fields", "values.hash,values.date,values.message,values.author.raw,values.author.user.username,values.author.user.account_id,values.links.self")
-
-			if reqData.CustomData != nil {
-				query.Set("start", reqData.CustomData.(string))
-			}
-			return query, nil
-		},
-		ResponseParser: GetRawMessageFromResponse,
-		// some pr have no commit
-		// such as: https://bitbucket.org/amdatulabs/amdatu-kubernetes-deployer/pull-requests/21
-		AfterResponse: ignoreHTTPStatus404,
+		ResponseParser:        GetRawMessageFromResponse,
 	})
 	if err != nil {
 		return err

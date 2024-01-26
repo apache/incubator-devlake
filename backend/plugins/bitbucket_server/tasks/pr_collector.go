@@ -18,14 +18,8 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"net/http"
-	"net/url"
-	"strconv"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -50,37 +44,12 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient: data.ApiClient,
-		PageSize:  25,
-		GetNextPageCustomData: func(prevReqData *helper.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
-			var rawMessages struct {
-				NextPageStart int  `json:"nextPageStart"`
-				IsLastPage    bool `json:"isLastPage"`
-			}
-			err := decodeResponse(prevPageResponse, &rawMessages)
-			if err != nil {
-				return nil, err
-			}
-
-			if rawMessages.IsLastPage {
-				return nil, api.ErrFinishCollect
-			}
-
-			return strconv.Itoa(rawMessages.NextPageStart), nil
-		},
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("state", "all")
-			query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("sort", "created_on")
-
-			if reqData.CustomData != nil {
-				query.Set("start", reqData.CustomData.(string))
-			}
-			return query, nil
-		},
-		UrlTemplate:    "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests",
-		ResponseParser: GetRawMessageFromResponse,
+		ApiClient:             data.ApiClient,
+		PageSize:              100,
+		GetNextPageCustomData: GetNextPageCustomData,
+		Query:                 GetQueryForNextPage,
+		UrlTemplate:           "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests",
+		ResponseParser:        GetRawMessageFromResponse,
 	})
 	if err != nil {
 		return err

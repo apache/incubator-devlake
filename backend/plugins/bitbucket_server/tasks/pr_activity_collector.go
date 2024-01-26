@@ -48,15 +48,14 @@ func CollectApiPullRequestsActivities(taskCtx plugin.SubTaskContext) errors.Erro
 	defer iterator.Close()
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Input:       iterator,
-		UrlTemplate: "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/activities",
-		Query: GetQueryFields(
-			`values.id,values.type,values.created_on,values.updated_on,values.content.raw,values.pullrequest.id,values.user,` +
-				`page,pagelen,size`),
-		GetTotalPages:  GetTotalPagesFromResponse,
-		ResponseParser: GetRawMessageFromResponse,
+		ApiClient:             data.ApiClient,
+		PageSize:              100,
+		GetNextPageCustomData: GetNextPageCustomData,
+		Query:                 GetQueryForNextPage,
+		Input:                 iterator,
+		UrlTemplate:           "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/activities",
+		GetTotalPages:         GetTotalPagesFromResponse,
+		ResponseParser:        GetRawMessageFromResponse,
 	})
 	if err != nil {
 		return err
