@@ -78,12 +78,12 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId: deploymentScopeIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.GithubId),
 				Name:        githubDeployment.CommitOid,
 				Result: devops.GetResult(&devops.ResultRule{
-					Success: []string{StatusSuccess},
+					Success: []string{StatusSuccess, StatusInactive, StatusActive},
 					Failure: []string{StatusError, StatusFailure},
 					Default: devops.RESULT_DEFAULT,
 				}, githubDeployment.State),
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{StatusSuccess, StatusError, StatusFailure},
+					Done:       []string{StatusSuccess, StatusError, StatusFailure, StatusInactive, StatusActive},
 					InProgress: []string{StatusInProgress, StatusQueued, StatusWaiting, StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, githubDeployment.State),
