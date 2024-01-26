@@ -45,10 +45,18 @@ var CollectApiTriggerJobsMeta = plugin.SubTaskMeta{
 func CollectApiTriggerJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TRIGGER_JOB_TABLE)
 	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	if err != nil {
+		return err
+	}
 	tickInterval, err := helper.CalcTickInterval(200, 1*time.Minute)
-	incremental := collectorWithState.IsIncremental
-
+	if err != nil {
+		return err
+	}
 	iterator, err := GetAllPipelinesIterator(taskCtx, collectorWithState)
+	if err != nil {
+		return err
+	}
+	incremental := collectorWithState.IsIncremental
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		//RawDataSubTaskArgs: *rawDataSubTaskArgs,
