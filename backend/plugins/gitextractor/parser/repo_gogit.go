@@ -269,7 +269,8 @@ func (r *GoGitRepo) getComponentMap(subtaskCtx plugin.SubTaskContext) (map[strin
 // CollectCommits Collect data from each commit, we can also get the diff line
 func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error) {
 	// check it first
-	if _, err = r.getComponentMap(subtaskCtx); err != nil {
+	componentMap, err := r.getComponentMap(subtaskCtx)
+	if err != nil {
 		return err
 	}
 
@@ -335,7 +336,7 @@ func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error)
 			return err
 		}
 		if !skipCommitFiles {
-			if err := r.storeDiffCommitFilesComparedToParent(subtaskCtx, commit); err != nil {
+			if err := r.storeDiffCommitFilesComparedToParent(subtaskCtx, componentMap, commit); err != nil {
 				return err
 			}
 		}
@@ -391,7 +392,7 @@ func (r *GoGitRepo) getCurrentAndParentTree(ctx context.Context, commit *object.
 	return commitTree, firstParentTree, nil
 }
 
-func (r *GoGitRepo) storeDiffCommitFilesComparedToParent(subtaskCtx plugin.SubTaskContext, commit *object.Commit) (err error) {
+func (r *GoGitRepo) storeDiffCommitFilesComparedToParent(subtaskCtx plugin.SubTaskContext, componentMap map[string]*regexp.Regexp, commit *object.Commit) (err error) {
 	commitTree, firstParentTree, err := r.getCurrentAndParentTree(subtaskCtx.GetContext(), commit)
 	if err != nil {
 		return err
@@ -410,7 +411,7 @@ func (r *GoGitRepo) storeDiffCommitFilesComparedToParent(subtaskCtx plugin.SubTa
 		commitFile.Id = genCommitFileId(commitFile.CommitSha, fileName)
 		commitFile.Deletions = p.Deletion
 		commitFile.Additions = p.Addition
-		if err := r.storeCommitFileComponents(subtaskCtx, commitFile.Id, commitFile.FilePath); err != nil {
+		if err := r.storeCommitFileComponents(subtaskCtx, componentMap, commitFile.Id, commitFile.FilePath); err != nil {
 			return err
 		}
 		err = r.store.CommitFiles(commitFile)
@@ -431,13 +432,9 @@ func genCommitFileId(commitSha, filePath string) string {
 	return commitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
 }
 
-func (r *GoGitRepo) storeCommitFileComponents(subtaskCtx plugin.SubTaskContext, commitFileId string, commitFilePath string) error {
+func (r *GoGitRepo) storeCommitFileComponents(subtaskCtx plugin.SubTaskContext, componentMap map[string]*regexp.Regexp, commitFileId string, commitFilePath string) error {
 	if commitFileId == "" || commitFilePath == "" {
 		return errors.Default.New("commit id r commit file path is empty")
-	}
-	componentMap, err := r.getComponentMap(subtaskCtx)
-	if err != nil {
-		return err
 	}
 	commitFileComponent := &code.CommitFileComponent{
 		CommitFileId:  commitFileId,

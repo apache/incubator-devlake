@@ -20,6 +20,7 @@ package parser
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
@@ -30,15 +31,19 @@ import (
 )
 
 var (
-	output                = "./output"
-	logger                log.Logger
-	ctx                   = context.Background()
+	repoId               = "test-repo-id"
+	runInLocal           = false
+	ctx                  = context.Background()
+	subTaskCtx           = &testSubTaskContext{}
+	devlakeRepoRemoteURL = "https://github.com/apache/incubator-devlake"
+	output               = "./output"
+
 	repoMericoLake        = "/Users/houlinwei/Code/go/src/github.com/merico-dev/lake"
 	repoMericoLakeWebsite = "/Users/houlinwei/Code/go/src/github.com/merico-dev/website"
-	repoId                = "test-repo-id"
-	//simpleRepo            = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo-in-lake"
-	//simpleRepo     = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo"
-	simpleRepo     = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo1"
+	simpleRepo            = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo1"
+
+	logger log.Logger
+
 	storage        models.Store
 	gitRepoCreator *GitRepoCreator
 
@@ -74,17 +79,36 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func TestGitRepo_CountRepoInfo(t *testing.T) {
-	repoPath := repoMericoLakeWebsite
+func getRepos(localRepoDir string) (RepoCollector, RepoCollector) {
+	var gitRepo RepoCollector
+	var goGitRepo RepoCollector
+	var err errors.Error
 
-	gitRepo, err := gitRepoCreator.LocalRepo(repoPath, repoId)
-	if err != nil {
-		panic(err)
+	if runInLocal {
+		repoPath := localRepoDir
+		gitRepo, err = gitRepoCreator.LocalRepo(repoPath, repoId)
+		if err != nil {
+			panic(err)
+		}
+		goGitRepo, err = goGitRepoCreator.LocalGoGitRepo(repoPath, repoId)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		gitRepo, err = gitRepoCreator.CloneOverHTTP(subTaskCtx, repoId, devlakeRepoRemoteURL, "", "", "")
+		if err != nil {
+			panic(err)
+		}
+		goGitRepo, err = goGitRepoCreator.CloneGoGitRepoOverHTTP(subTaskCtx, repoId, devlakeRepoRemoteURL, "", "", "")
+		if err != nil {
+			panic(err)
+		}
 	}
-	goGitRepo, err := goGitRepoCreator.LocalGoGitRepo(repoPath, repoId)
-	if err != nil {
-		panic(err)
-	}
+	return goGitRepo, gitRepo
+}
+
+func TestGitRepo_CountRepoInfo(t *testing.T) {
+	goGitRepo, gitRepo := getRepos(repoMericoLakeWebsite)
 
 	{
 		tagsCount1, err1 := gitRepo.CountTags(ctx)
@@ -129,16 +153,8 @@ func TestGitRepo_CountRepoInfo(t *testing.T) {
 
 // all testes pass
 func TestGitRepo_CollectRepoInfo(t *testing.T) {
-	//repoPath := repoMericoLake
-	repoPath := simpleRepo
-	gitRepo, err := gitRepoCreator.LocalRepo(repoPath, repoId)
-	if err != nil {
-		panic(err)
-	}
-	goGitRepo, err := goGitRepoCreator.LocalGoGitRepo(repoPath, repoId)
-	if err != nil {
-		panic(err)
-	}
+
+	goGitRepo, gitRepo := getRepos(simpleRepo)
 
 	{
 		// finished
