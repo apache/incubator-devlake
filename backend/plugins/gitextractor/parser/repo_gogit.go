@@ -86,7 +86,7 @@ func (r *GoGitRepo) CountTags(ctx context.Context) (int, error) {
 		return 0, err
 	}
 	var tagsCount int
-	iter.ForEach(func(reference *plumbing.Reference) error {
+	if err := iter.ForEach(func(reference *plumbing.Reference) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -94,7 +94,9 @@ func (r *GoGitRepo) CountTags(ctx context.Context) (int, error) {
 		}
 		tagsCount += 1
 		return nil
-	})
+	}); err != nil {
+		return 0, err
+	}
 	return tagsCount, nil
 }
 
@@ -117,7 +119,7 @@ func (r *GoGitRepo) CountBranches(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	branchIter.ForEach(func(reference *plumbing.Reference) error {
+	if err := branchIter.ForEach(func(reference *plumbing.Reference) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -127,8 +129,10 @@ func (r *GoGitRepo) CountBranches(ctx context.Context) (int, error) {
 			branchesCount += 1
 		}
 		return nil
-	})
-	return branchesCount, errors.Convert(err)
+	}); err != nil {
+		return 0, err
+	}
+	return branchesCount, nil
 }
 
 // CountCommits count the number of commits in a git repo
@@ -138,7 +142,7 @@ func (r *GoGitRepo) CountCommits(ctx context.Context) (int, error) {
 		return 0, err
 	}
 	var count int
-	iter.ForEach(func(commit *object.Commit) error {
+	if err := iter.ForEach(func(commit *object.Commit) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -146,7 +150,9 @@ func (r *GoGitRepo) CountCommits(ctx context.Context) (int, error) {
 		}
 		count += 1
 		return nil
-	})
+	}); err != nil {
+		return 0, err
+	}
 	return count, nil
 }
 

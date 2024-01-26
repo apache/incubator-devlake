@@ -209,6 +209,8 @@ func withTempDirectory(f func(tempDir string) (RepoCollector, error)) (RepoColle
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	repo.SetCleanUp(cleanup)
-	return repo, errors.Convert(err)
+	if err := repo.SetCleanUp(cleanup); err != nil {
+		return nil, errors.Convert(err)
+	}
+	return repo, nil
 }
