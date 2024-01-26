@@ -63,7 +63,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("fields", "values.hash,values.date,values.message,values.author.raw,values.author.user.username,values.author.user.account_id,values.links.self")
 
 			if reqData.CustomData != nil {
-				query.Set("page", reqData.CustomData.(string))
+				query.Set("start", reqData.CustomData.(string))
 			}
 			return query, nil
 		},

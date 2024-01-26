@@ -30,7 +30,7 @@ var basicRes context.BasicRes
 
 var dsHelper *api.DsHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig]
 var raProxy *api.DsRemoteApiProxyHelper[models.BitbucketServerConnection]
-var raScopeList *api.DsRemoteApiScopeListHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, api.RemoteQueryData]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, BitBucketServerRemotePagination]
 var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.BitbucketServerConnection, models.BitbucketServerRepo]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
@@ -55,7 +55,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	raScopeList = api.NewDsRemoteApiScopeListHelper[
 		models.BitbucketServerConnection,
 		models.BitbucketServerRepo,
-		api.RemoteQueryData](
+		BitBucketServerRemotePagination](
 		raProxy,
 		listBitbucketServerRemoteScopes,
 	)

@@ -66,16 +66,13 @@ func listBitbucketServerRemoteScopes(
 	connection *models.BitbucketServerConnection,
 	apiClient plugin.ApiClient,
 	groupId string,
-	page api.RemoteQueryData) (
+	page BitBucketServerRemotePagination) (
 	[]dsmodels.DsRemoteApiScopeListEntry[models.BitbucketServerRepo],
-	*api.RemoteQueryData,
+	*BitBucketServerRemotePagination,
 	errors.Error,
 ) {
-	if page.Page == 0 {
-		page.Page = 1
-	}
-	if page.PerPage == 0 {
-		page.PerPage = 100
+	if page.Limit == 0 {
+		page.Limit = 100
 	}
 
 	if groupId == "" {
@@ -85,44 +82,61 @@ func listBitbucketServerRemoteScopes(
 	return listBitbucketServerRepos(apiClient, groupId, page)
 }
 
-func listBitbucketServerProjects(apiClient plugin.ApiClient, page api.RemoteQueryData) (
+func listBitbucketServerProjects(apiClient plugin.ApiClient, page BitBucketServerRemotePagination) (
 	[]dsmodels.DsRemoteApiScopeListEntry[models.BitbucketServerRepo],
-	*api.RemoteQueryData,
+	*BitBucketServerRemotePagination,
 	errors.Error,
 ) {
-	query := initialQuery(page)
-
-	res, err := apiClient.Get("rest/api/1.0/projects", query, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	resBody := &models.ProjectsResponse{}
-	err = api.UnmarshalResponse(res, resBody)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	children := []dsmodels.DsRemoteApiScopeListEntry[models.BitbucketServerRepo]{}
-	for _, r := range resBody.Values {
-		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.BitbucketServerRepo]{
-			Type:     api.RAS_ENTRY_TYPE_GROUP,
-			Id:       fmt.Sprintf("%v", r.Key),
-			ParentId: nil,
-			Name:     r.Name,
-			FullName: r.Name,
-		})
+
+	for {
+		query := initialQuery(page)
+
+		res, err := apiClient.Get("rest/api/1.0/projects", query, nil)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		resBody := &models.ProjectsResponse{}
+		err = api.UnmarshalResponse(res, resBody)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		for _, r := range resBody.Values {
+			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.BitbucketServerRepo]{
+				Type:     api.RAS_ENTRY_TYPE_GROUP,
+				Id:       fmt.Sprintf("%v", r.Key),
+				ParentId: nil,
+				Name:     r.Name,
+				FullName: r.Name,
+			})
+		}
+
+		if resBody.IsLastPage {
+			break
+		}
+
+		if resBody.NextPageStart == nil {
+			if len(resBody.Values) >= page.Limit {
+				page.Start += len(resBody.Values)
+			} else {
+				break
+			}
+		} else {
+			if *resBody.NextPageStart < page.Start {
+				break
+			}
+			page.Start = *resBody.NextPageStart
+		}
 	}
 
-	return children, &api.RemoteQueryData{
-		Page:    page.Page + 1,
-		PerPage: page.PerPage,
-	}, err
+	return children, nil, nil
 }
 
-func listBitbucketServerRepos(apiClient plugin.ApiClient, groupId string, page api.RemoteQueryData) (
+func listBitbucketServerRepos(apiClient plugin.ApiClient, groupId string, page BitBucketServerRemotePagination) (
 	[]dsmodels.DsRemoteApiScopeListEntry[models.BitbucketServerRepo],
-	*api.RemoteQueryData,
+	*BitBucketServerRemotePagination,
 	errors.Error,
 ) {
 	if groupId == "" {
@@ -155,19 +169,33 @@ func listBitbucketServerRepos(apiClient plugin.ApiClient, groupId string, page a
 		})
 	}
 
-	return children, &api.RemoteQueryData{
-		Page:    page.Page + 1,
-		PerPage: page.PerPage,
-	}, err
+	if resBody.IsLastPage {
+		return children, nil, nil
+	}
+
+	if resBody.NextPageStart == nil {
+		if len(resBody.Values) >= page.Limit {
+			page.Start += len(resBody.Values)
+		} else {
+			return children, nil, nil
+		}
+	} else {
+		if *resBody.NextPageStart < page.Start {
+			return children, nil, nil
+		}
+		page.Start = *resBody.NextPageStart
+	}
+
+	return children, &page, nil
 }
 
 func searchBitbucketServerRepos(apiClient plugin.ApiClient, params *dsmodels.DsRemoteApiScopeSearchParams) (
 	[]dsmodels.DsRemoteApiScopeListEntry[models.BitbucketServerRepo],
 	errors.Error,
 ) {
-	query := initialQuery(api.RemoteQueryData{
-		Page:    params.Page,
-		PerPage: params.PageSize,
+	query := initialQuery(BitBucketServerRemotePagination{
+		Start: 0,
+		Limit: 1,
 	})
 	s := params.Search
 	gid, searchName := getSearch(s)
@@ -222,10 +250,14 @@ func getSearch(s string) (string, string) {
 	return gid, s
 }
 
-func initialQuery(page api.RemoteQueryData) url.Values {
+func initialQuery(page BitBucketServerRemotePagination) url.Values {
 	query := url.Values{}
-	start := (page.Page - 1) * page.PerPage
-	query.Set("start", fmt.Sprintf("%v", start))
-	query.Set("limit", fmt.Sprintf("%v", page.PerPage))
+	query.Set("start", fmt.Sprintf("%v", page.Start))
+	query.Set("limit", fmt.Sprintf("%v", page.Limit))
 	return query
+}
+
+type BitBucketServerRemotePagination struct {
+	Start int `json:"start"`
+	Limit int `json:"limit"`
 }

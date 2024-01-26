@@ -129,16 +129,16 @@ func GetQueryFields(fields string) func(reqData *api.RequestData) (url.Values, e
 
 func GetNextPageCustomData(_ *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
 	var rawMessages struct {
-		Next string `json:"next"`
+		NextPageStart string `json:"nextPageStart"`
 	}
 	err := decodeResponse(prevPageResponse, &rawMessages)
 	if err != nil {
 		return nil, err
 	}
-	if rawMessages.Next == `` {
+	if rawMessages.NextPageStart == `` {
 		return ``, api.ErrFinishCollect
 	}
-	u, err := errors.Convert01(url.Parse(rawMessages.Next))
+	u, err := errors.Convert01(url.Parse(rawMessages.NextPageStart))
 	if err != nil {
 		return nil, err
 	}

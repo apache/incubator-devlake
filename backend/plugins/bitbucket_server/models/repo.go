@@ -107,11 +107,12 @@ func (b BitbucketServerApiRepo) ConvertApiScope() plugin.ToolLayerScope {
 }
 
 type ProjectsResponse struct {
-	Start      int           `json:"start"`
-	Limit      int           `json:"limit"`
-	Size       int           `json:"size"`
-	IsLastPage bool          `json:"isLastPage"`
-	Values     []ProjectItem `json:"values"`
+	Start         int           `json:"start"`
+	Limit         int           `json:"limit"`
+	Size          int           `json:"size"`
+	IsLastPage    bool          `json:"isLastPage"`
+	Values        []ProjectItem `json:"values"`
+	NextPageStart *int          `json:"nextPageStart"`
 }
 
 type ProjectItem struct {
@@ -131,11 +132,12 @@ func (p ProjectItem) GroupName() string {
 }
 
 type ReposResponse struct {
-	Start      int                      `json:"start"`
-	Limit      int                      `json:"limit"`
-	Size       int                      `json:"size"`
-	IsLastPage bool                     `json:"isLastPage"`
-	Values     []BitbucketServerApiRepo `json:"values"`
+	Start         int                      `json:"start"`
+	Limit         int                      `json:"limit"`
+	Size          int                      `json:"size"`
+	IsLastPage    bool                     `json:"isLastPage"`
+	Values        []BitbucketServerApiRepo `json:"values"`
+	NextPageStart *int                     `json:"nextPageStart"`
 }
 
 type BitbucketApiParams struct {
