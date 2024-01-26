@@ -162,7 +162,7 @@ export const Layout = () => {
               </ExternalLink>
             ))}
         </Header>
-        <Content style={{ margin: '16px auto', width: 1188 }}>
+        <Content style={{ margin: '16px auto', padding: '0 24px', width: 1188, boxSizing: 'border-box' }}>
           <Outlet />
           {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
             <Footer>

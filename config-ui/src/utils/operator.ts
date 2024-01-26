@@ -46,14 +46,14 @@ export const operator = async <T>(request: () => Promise<T>, config?: OperateCon
     setOperating?.(true);
     const res = await request();
     const content = formatMessage?.() ?? 'Operation successfully completed';
-    if (!config?.hideToast || !config?.hideSuccessToast) {
+    if (!config?.hideToast && !config?.hideSuccessToast) {
       message.success(content);
     }
     return [true, res];
   } catch (err) {
     console.error('Operation failed.', err);
     const reason = formatReason?.(err) ?? (err as any).response?.data?.message ?? 'Operation failed.';
-    if (!config?.hideToast || !config?.hideErrorToast) {
+    if (!config?.hideToast && !config?.hideErrorToast) {
       message.error(reason);
     }
 
