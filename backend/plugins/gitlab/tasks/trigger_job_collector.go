@@ -18,12 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
-	"time"
 )
 
 func init() {
@@ -43,11 +44,19 @@ var CollectApiTriggerJobsMeta = plugin.SubTaskMeta{
 
 func CollectApiTriggerJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TRIGGER_JOB_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	if err != nil {
+		return err
+	}
 	tickInterval, err := helper.CalcTickInterval(200, 1*time.Minute)
-	incremental := collectorWithState.IsIncremental()
-
+	if err != nil {
+		return err
+	}
 	iterator, err := GetAllPipelinesIterator(taskCtx, collectorWithState)
+	if err != nil {
+		return err
+	}
+	incremental := collectorWithState.IsIncremental
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		//RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -79,8 +88,8 @@ func GetAllPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", collectorWithState.Since))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
