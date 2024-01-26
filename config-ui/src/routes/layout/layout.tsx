@@ -37,7 +37,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { operator } from '@/utils';
 
-import { loader } from './loader';
+import { layoutLoader } from './loader';
 import { menuItems, menuItemsMatch, headerItems } from './config';
 import * as S from './styled';
 import './tips-transition.css';
@@ -49,7 +49,7 @@ export const Layout = () => {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [operating, setOperating] = useState(false);
 
-  const { version, plugins } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
+  const { version, plugins } = useLoaderData() as Awaited<ReturnType<typeof layoutLoader>>;
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -164,12 +164,12 @@ export const Layout = () => {
         </Header>
         <Content style={{ margin: '16px auto', width: 1188 }}>
           <Outlet />
+          {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
+            <Footer>
+              <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
+            </Footer>
+          )}
         </Content>
-        {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
-          <Footer>
-            <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
-          </Footer>
-        )}
         <CSSTransition in={!!tipsShow} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
           <S.Tips ref={tipsRef}>
             <div className="content">

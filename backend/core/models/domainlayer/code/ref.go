@@ -18,12 +18,13 @@ limitations under the License.
 package code
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type Ref struct {
-	domainlayer.DomainEntity
+	domainlayer.DomainEntityExtended
 	RepoId      string `gorm:"type:varchar(255)"`
 	Name        string `gorm:"type:varchar(255)"`
 	CommitSha   string `gorm:"type:varchar(40)"`

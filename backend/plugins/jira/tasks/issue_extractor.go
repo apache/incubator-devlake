@@ -111,18 +111,21 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		results = append(results, sprintIssue)
 	}
 	if issue.ResolutionDate != nil {
-		issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
+		temp := uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
+		issue.LeadTimeMinutes = &temp
 	}
 	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.StoryPointField != "" {
 		unknownStoryPoint := apiIssue.Fields.AllFields[data.Options.ScopeConfig.StoryPointField]
 		switch sp := unknownStoryPoint.(type) {
 		case string:
 			// string, try to parse
-			issue.StoryPoint, _ = strconv.ParseFloat(sp, 32)
+			temp, _ := strconv.ParseFloat(sp, 32)
+			issue.StoryPoint = &temp
 		case nil:
 		default:
 			// not string, convert to float64, ignore it if failed
-			issue.StoryPoint, _ = unknownStoryPoint.(float64)
+			temp, _ := unknownStoryPoint.(float64)
+			issue.StoryPoint = &temp
 		}
 
 	}

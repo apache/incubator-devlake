@@ -35,21 +35,22 @@ type Issue struct {
 	OriginalType            string `gorm:"type:varchar(500)"`
 	Status                  string `gorm:"type:varchar(100)"`
 	OriginalStatus          string `gorm:"type:varchar(100)"`
-	StoryPoint              float64
+	StoryPoint              *float64
 	ResolutionDate          *time.Time
 	CreatedDate             *time.Time
 	UpdatedDate             *time.Time
-	LeadTimeMinutes         int64
-	ParentIssueId           string `gorm:"type:varchar(255)"`
-	Priority                string `gorm:"type:varchar(255)"`
-	OriginalEstimateMinutes int64
-	TimeSpentMinutes        int64
-	TimeRemainingMinutes    int64
+	LeadTimeMinutes         *uint
+	OriginalEstimateMinutes *int64
+	TimeSpentMinutes        *int64
+	TimeRemainingMinutes    *int64
 	CreatorId               string `gorm:"type:varchar(255)"`
 	CreatorName             string `gorm:"type:varchar(255)"`
 	AssigneeId              string `gorm:"type:varchar(255)"`
 	AssigneeName            string `gorm:"type:varchar(255)"`
+	ParentIssueId           string `gorm:"type:varchar(255)"`
+	Priority                string `gorm:"type:varchar(255)"`
 	Severity                string `gorm:"type:varchar(255)"`
+	Urgency                 string `gorm:"type:varchar(255)"`
 	Component               string `gorm:"type:varchar(255)"`
 	OriginalProject         string `gorm:"type:varchar(255)"`
 }

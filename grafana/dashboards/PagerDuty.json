@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 29,
+  "id": 20,
   "links": [
     {
       "asDropdown": false,
@@ -61,6 +61,13 @@
         "y": 0
       },
       "id": 128,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PagerDuty",
+          "url": "https://devlake.apache.org/docs/Plugins/pagerduty"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -70,7 +77,7 @@
         "content": "- Use Cases: This dashboard shows the incident data from PagerDuty.\n- Data Source Required: PagerDuty",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -136,6 +143,13 @@
         "y": 4
       },
       "id": 114,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -151,7 +165,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -161,7 +175,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  count(*) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
+          "rawSql": "select \r\n  count(distinct i.id) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -232,6 +246,13 @@
         "y": 4
       },
       "id": 116,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -247,7 +268,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -257,7 +278,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  count(*) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'resolved'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
+          "rawSql": "select \r\n  count(distinct i.id) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'resolved'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -347,6 +368,13 @@
         "y": 4
       },
       "id": 131,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -360,7 +388,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -445,6 +473,13 @@
         "y": 10
       },
       "id": 117,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -460,7 +495,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -575,7 +610,13 @@
         "y": 10
       },
       "id": 121,
-      "links": [],
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [],
@@ -701,6 +742,13 @@
         "y": 17
       },
       "id": 12,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -716,7 +764,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -803,6 +851,13 @@
         "y": 17
       },
       "id": 13,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -818,7 +873,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -926,6 +981,13 @@
       },
       "id": 17,
       "interval": "",
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -1033,12 +1095,19 @@
       },
       "lines": true,
       "linewidth": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "nullPointMode": "null",
       "options": {
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "pointradius": 0.5,
       "points": false,
       "renderer": "flot",
@@ -1163,7 +1232,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -1220,6 +1289,6 @@
   "timezone": "",
   "title": "PagerDuty",
   "uid": "abb26d07-3268-4bdf-b871-6e39b37b9e00",
-  "version": 15,
+  "version": 2,
   "weekStart": ""
 }

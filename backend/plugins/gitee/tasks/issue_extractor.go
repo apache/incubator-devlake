@@ -231,7 +231,8 @@ func convertGiteeIssue(issue *IssuesResponse, connectionId uint64, repositoryId 
 		giteeIssue.AuthorName = issue.User.Login
 	}
 	if issue.FinishAt != nil {
-		giteeIssue.LeadTimeMinutes = uint(issue.FinishAt.ToTime().Sub(issue.GiteeCreatedAt.ToTime()).Minutes())
+		temp := uint(issue.FinishAt.ToTime().Sub(issue.GiteeCreatedAt.ToTime()).Minutes())
+		giteeIssue.LeadTimeMinutes = &temp
 	}
 
 	return giteeIssue, nil

@@ -67,9 +67,12 @@ func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plu
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/opsgenie/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := models.OpsgenieConnection{}
-	err := connectionHelper.First(&connection, input.Params)
+	connection := &models.OpsgenieConnection{}
+	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
+		return nil, err
+	}
+	if err := api.DecodeMapStruct(input.Body, connection, false); err != nil {
 		return nil, err
 	}
 	return testOpsgenieConn(context.Background(), connection.OpsgenieConn)
@@ -120,8 +123,13 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Router /plugins/opsgenie/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.OpsgenieConnection{}
-	err := connectionHelper.Patch(connection, input)
-	if err != nil {
+	if err := connectionHelper.First(&connection, input.Params); err != nil {
+		return nil, err
+	}
+	if err := (&models.OpsgenieConnection{}).MergeFromRequest(connection, input.Body); err != nil {
+		return nil, errors.Convert(err)
+	}
+	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil

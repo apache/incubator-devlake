@@ -16,20 +16,25 @@
  *
  */
 
-import { createBrowserRouter, Navigate, json } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import {
+  DBMigrate,
+  Error,
+  Layout,
+  layoutLoader,
+  Connections,
+  Connection,
   ProjectHomePage,
   ProjectDetailPage,
   BlueprintHomePage,
   BlueprintDetailPage,
   BlueprintConnectionDetailPage,
-} from '@/pages';
-import { Layout, loader as layoutLoader } from '@/routes/layout';
-import { Error, ErrorEnum } from '@/routes/error';
-import { Connections, Connection } from '@/routes/connection';
-import { Pipelines, Pipeline } from '@/routes/pipeline';
-import { ApiKeys } from '@/routes/api-keys';
+  Pipelines,
+  Pipeline,
+  ApiKeys,
+  NotFound,
+} from '@/routes';
 
 const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
 
@@ -40,11 +45,7 @@ export const router = createBrowserRouter([
   },
   {
     path: `${PATH_PREFIX}/db-migrate`,
-    element: <></>,
-    loader: () => {
-      throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
-    },
-    errorElement: <Error />,
+    element: <DBMigrate />,
   },
   {
     path: `${PATH_PREFIX}`,
@@ -106,5 +107,9 @@ export const router = createBrowserRouter([
         element: <ApiKeys />,
       },
     ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
   },
 ]);

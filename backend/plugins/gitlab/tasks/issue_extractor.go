@@ -20,11 +20,9 @@ package tasks
 import (
 	"encoding/json"
 	"regexp"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -110,8 +108,8 @@ type IssuesResponse struct {
 		Full     string
 	}
 	TimeStats struct {
-		TimeEstimate        int64
-		TotalTimeSpent      int64
+		TimeEstimate        *int64
+		TotalTimeSpent      *int64
 		HumanTimeEstimate   string
 		HumanTotalTimeSpent string
 	}
@@ -120,7 +118,7 @@ type IssuesResponse struct {
 	Confidential     bool
 	DiscussionLocked bool
 	IssueType        string
-	Serverity        string
+	Severity         string
 	Component        string
 	Priority         string
 	Links            struct {
@@ -141,9 +139,7 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
 	var issuePriorityRegex *regexp.Regexp
-	var issueTypeBugRegex *regexp.Regexp
-	var issueTypeRequirementRegex *regexp.Regexp
-	var issueTypeIncidentRegex *regexp.Regexp
+
 	var issueSeverity = config.IssueSeverity
 	var err error
 	if len(issueSeverity) > 0 {
@@ -166,27 +162,6 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err, "regexp Compile issuePriority failed")
 		}
 	}
-	var issueTypeBug = config.IssueTypeBug
-	if len(issueTypeBug) > 0 {
-		issueTypeBugRegex, err = regexp.Compile(issueTypeBug)
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile issueTypeBug failed")
-		}
-	}
-	var issueTypeRequirement = config.IssueTypeRequirement
-	if len(issueTypeRequirement) > 0 {
-		issueTypeRequirementRegex, err = regexp.Compile(issueTypeRequirement)
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile issueTypeRequirement failed")
-		}
-	}
-	var issueTypeIncident = config.IssueTypeIncident
-	if len(issueTypeIncident) > 0 {
-		issueTypeIncidentRegex, err = regexp.Compile(issueTypeIncident)
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile issueTypeIncident failed")
-		}
-	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -205,7 +180,6 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			var joinedLabels []string
 			for _, label := range body.Labels {
 				results = append(results, &models.GitlabIssueLabel{
 					IssueId:      gitlabIssue.GitlabId,
@@ -221,20 +195,6 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				if issuePriorityRegex != nil && issuePriorityRegex.MatchString(label) {
 					gitlabIssue.Priority = label
 				}
-
-				if issueTypeRequirementRegex != nil && issueTypeRequirementRegex.MatchString(label) {
-					gitlabIssue.StdType = ticket.REQUIREMENT
-					joinedLabels = append(joinedLabels, label)
-				} else if issueTypeBugRegex != nil && issueTypeBugRegex.MatchString(label) {
-					gitlabIssue.StdType = ticket.BUG
-					joinedLabels = append(joinedLabels, label)
-				} else if issueTypeIncidentRegex != nil && issueTypeIncidentRegex.MatchString(label) {
-					gitlabIssue.StdType = ticket.INCIDENT
-					joinedLabels = append(joinedLabels, label)
-				}
-			}
-			if len(joinedLabels) > 0 {
-				gitlabIssue.Type = strings.Join(joinedLabels, ",")
 			}
 
 			gitlabIssue.ConnectionId = data.Options.ConnectionId
@@ -284,7 +244,8 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		Number:          issue.Iid,
 		State:           issue.State,
 		Type:            issue.Type,
-		Severity:        issue.Serverity,
+		StdType:         issue.Type,
+		Severity:        issue.Severity,
 		Component:       issue.Component,
 		Priority:        issue.Priority,
 		Title:           issue.Title,
@@ -308,7 +269,8 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		gitlabIssue.CreatorName = issue.Author.Username
 	}
 	if issue.GitlabClosedAt != nil {
-		gitlabIssue.LeadTimeMinutes = uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())
+		temp := uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())
+		gitlabIssue.LeadTimeMinutes = &temp
 	}
 
 	return gitlabIssue, nil

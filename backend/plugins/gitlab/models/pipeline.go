@@ -33,7 +33,7 @@ type GitlabPipeline struct {
 	Sha            string `gorm:"type:varchar(255)"`
 	WebUrl         string `gorm:"type:varchar(255)"`
 	Duration       int
-	QueuedDuration float64
+	QueuedDuration *float64
 
 	GitlabCreatedAt *time.Time
 	GitlabUpdatedAt *time.Time

@@ -98,7 +98,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					StartedDate:  gitlabPipeline.StartedAt,
 					FinishedDate: gitlabPipeline.FinishedAt,
 				},
-				QueuedDurationSec: &gitlabPipeline.QueuedDuration,
+				QueuedDurationSec: gitlabPipeline.QueuedDuration,
 				CicdScopeId:       projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
 				Environment:       gitlabPipeline.Environment,
 				Type:              gitlabPipeline.Type,

@@ -49,3 +49,15 @@ func (connection BitbucketConnection) Sanitize() BitbucketConnection {
 	connection.BitbucketConn = connection.BitbucketConn.Sanitize()
 	return connection
 }
+
+func (connection *BitbucketConnection) MergeFromRequest(target *BitbucketConnection, body map[string]interface{}) error {
+	password := target.Password
+	if err := api.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedPassword := target.Password
+	if modifiedPassword == "" {
+		target.Password = password
+	}
+	return nil
+}

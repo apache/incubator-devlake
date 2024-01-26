@@ -18,13 +18,13 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/server/api/shared"
 )
 
 // DsConnectionApiHelper
@@ -45,6 +45,19 @@ func NewDsConnectionApiHelper[
 		ModelApiHelper:      NewModelApiHelper[C](basicRes, connSrvHelper.ModelSrvHelper, []string{"connectionId"}, sterilizer),
 		ConnectionSrvHelper: connSrvHelper,
 	}
+}
+
+func (connApi *DsConnectionApiHelper[C, S, SC]) GetMergedConnection(input *plugin.ApiResourceInput) (*C, error) {
+	connection, err := connApi.FindByPk(input)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "find connection from db")
+	}
+	if input.Body != nil {
+		if err := DecodeMapStruct(input.Body, connection, false); err != nil {
+			return nil, err
+		}
+	}
+	return connection, nil
 }
 
 func (connApi *DsConnectionApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {

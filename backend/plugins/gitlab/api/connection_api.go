@@ -105,15 +105,15 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "find connection from db")
+		return nil, errors.Convert(err)
 	}
-	result, err := testConnection(context.TODO(), connection.GitlabConn)
-	if err != nil {
+	if result, err := testConnection(context.TODO(), connection.GitlabConn); err != nil {
 		return nil, err
+	} else {
+		return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 	}
-	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create gitlab connection

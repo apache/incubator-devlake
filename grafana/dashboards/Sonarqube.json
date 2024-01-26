@@ -34,6 +34,13 @@
         "y": 0
       },
       "id": 19,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "SonarQube",
+          "url": "https://devlake.apache.org/docs/Plugins/sonarqube"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -43,7 +50,7 @@
         "content": "- Use Cases: This dashboard shows the code quality metrics from SonarQube.\n- Data Source Required: SonarQube v8.2+\n- This dashboard does not honor the time filter on the top-right side as SonarQube metrics are all from the latest scan.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -116,6 +123,13 @@
         "y": 5
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -131,17 +145,18 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*) as 'Bugs'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'BUG'\n  and severity in ($severity)\n  ",
+          "rawSql": "SELECT\n  count(distinct id) as 'Bugs'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'BUG'\n  and severity in ($severity)\n  ",
           "refId": "A",
           "select": [
             [
@@ -220,6 +235,13 @@
         "y": 5
       },
       "id": 3,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -235,17 +257,18 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*) as 'Vulnerabilities'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'VULNERABILITY'\n  and severity in ($severity)",
+          "rawSql": "SELECT\n  count(distinct id) as 'Vulnerabilities'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'VULNERABILITY'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -325,6 +348,13 @@
         "y": 5
       },
       "id": 4,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -340,17 +370,18 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(*) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)\n",
+          "rawSql": "SELECT\n  COUNT(distinct id) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)\n",
           "refId": "A",
           "select": [
             [
@@ -429,6 +460,13 @@
         "y": 5
       },
       "id": 13,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -444,17 +482,18 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CONCAT(ROUND(COUNT(IF(status != 'TO_REVIEW', 1, NULL)) / COUNT(*) * 100, 2), '%') AS 'Reviewed'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)",
+          "rawSql": "SELECT\n  CONCAT(ROUND(COUNT(IF(status != 'TO_REVIEW', id, NULL)) / COUNT(distinct id) * 100, 2), '%') AS 'Reviewed'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'HOTSPOTS'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -559,6 +598,13 @@
         "y": 10
       },
       "id": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Test",
+          "url": "https://devlake.apache.org/docs/Metrics/CQTest"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -574,7 +620,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -664,6 +710,13 @@
         "y": 10
       },
       "id": 7,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Maintainability-Debt",
+          "url": "https://devlake.apache.org/docs/Metrics/CQMaintainability-Debt"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -679,7 +732,7 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -769,6 +822,13 @@
         "y": 10
       },
       "id": 14,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Maintainability-Debt",
+          "url": "https://devlake.apache.org/docs/Metrics/CQMaintainability-Debt"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -784,17 +844,18 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n\tCOUNT(*) as 'Code Smells'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'CODE_SMELL'\n  and severity in ($severity)",
+          "rawSql": "SELECT\n\tCOUNT(distinct id) as 'Code Smells'\nFROM cq_issues\nWHERE\n  project_key in ($project_id)\n  and type = 'CODE_SMELL'\n  and severity in ($severity)",
           "refId": "A",
           "select": [
             [
@@ -899,6 +960,13 @@
         "y": 16
       },
       "id": 10,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Duplicated Blocks",
+          "url": "https://devlake.apache.org/docs/Metrics/CQDuplicatedBlocks"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -914,7 +982,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -1003,6 +1071,13 @@
         "y": 16
       },
       "id": 9,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Duplicated Lines",
+          "url": "https://devlake.apache.org/docs/Metrics/CQDuplicatedLines"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -1018,7 +1093,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -1098,6 +1173,13 @@
         "y": 21
       },
       "id": 17,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Code Quality Issue Count",
+          "url": "https://devlake.apache.org/docs/Metrics/CQIssueCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1110,7 +1192,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.14",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -1233,6 +1315,6 @@
   "timezone": "",
   "title": "SonarQube",
   "uid": "WA0qbuJ4k",
-  "version": 7,
+  "version": 2,
   "weekStart": ""
 }

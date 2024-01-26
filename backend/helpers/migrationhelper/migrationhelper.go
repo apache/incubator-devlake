@@ -21,6 +21,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"net/url"
 	"reflect"
 	"strings"
 
@@ -111,6 +112,50 @@ func ChangeColumnsType[D any](
 
 	err = db.DropColumns(tableName, tmpColumnsNames...)
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ChangeColumnsType change the type of specified columns for the table
+func ChangePrimaryKeyColumnsType[D any](
+	basicRes context.BasicRes,
+	script plugin.MigrationScript,
+	tableName string,
+	TargetPriColumns []string,
+	update func(tmpColumnParams []interface{}) errors.Error,
+) (err errors.Error) {
+	db := basicRes.GetDal()
+	dbUrl := basicRes.GetConfig("DB_URL")
+	if dbUrl == "" {
+		return errors.BadInput.New("DB_URL is required")
+	}
+	u, errParse := url.Parse(dbUrl)
+	if errParse != nil {
+		return errors.Convert(errParse)
+	}
+	// Delete the primary key
+	if u.Scheme == "mysql" {
+		sql := fmt.Sprintf("ALTER TABLE %s DROP PRIMARY KEY", tableName)
+		if err := db.Exec(sql); err != nil {
+			return err
+		}
+	} else {
+		sql := fmt.Sprintf("ALTER TABLE %s DROP CONSTRAINT %s_pkey", tableName, tableName)
+		if err := db.Exec(sql); err != nil {
+			return err
+		}
+	}
+	// Change the type of the primary key
+	err = ChangeColumnsType[D](basicRes, script, tableName, TargetPriColumns, update)
+	if err != nil {
+		return err
+	}
+
+	// Add the primary key
+	sql := fmt.Sprintf("ALTER TABLE %s ADD PRIMARY KEY (%s)", tableName, strings.Join(TargetPriColumns, ","))
+	if err := db.Exec(sql); err != nil {
 		return err
 	}
 

@@ -53,8 +53,8 @@ const (
 	ResultSuccessful = "Successful"
 )
 
-func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooTaskData) {
-	data := taskCtx.GetData().(*BambooTaskData)
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooOptions) {
+	data := taskCtx.GetData().(*BambooOptions)
 	filteredData := *data
 	filteredData.Options = &models.BambooOptions{}
 	*filteredData.Options = *data.Options

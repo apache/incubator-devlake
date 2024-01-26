@@ -77,3 +77,15 @@ func (connection SonarqubeConnection) Sanitize() SonarqubeConnection {
 	connection.SonarqubeConn = connection.SonarqubeConn.Sanitize()
 	return connection
 }
+
+func (connection *SonarqubeConnection) MergeFromRequest(target *SonarqubeConnection, body map[string]interface{}) error {
+	token := target.Token
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedToken := target.Token
+	if modifiedToken == "" || modifiedToken == utils.SanitizeString(token) {
+		target.Token = token
+	}
+	return nil
+}
