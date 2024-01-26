@@ -123,6 +123,3 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
 	golang.org/x/mod v0.13.0
 )
-
-//replace github.com/apache/incubator-devlake => ./
-replace github.com/go-git/go-git/v5 => /Users/houlinwei/Code/go/src/github.com/go-git/go-git
