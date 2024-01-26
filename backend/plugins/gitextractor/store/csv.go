@@ -190,5 +190,11 @@ func (c *CsvStore) Close() errors.Error {
 	if c.snapshotWriter != nil {
 		c.snapshotWriter.Close()
 	}
+	if c.commitFileComponentWriter != nil {
+		c.commitFileComponentWriter.Close()
+	}
+	if c.commitLineChangeWriter != nil {
+		c.commitLineChangeWriter.Close()
+	}
 	return nil
 }

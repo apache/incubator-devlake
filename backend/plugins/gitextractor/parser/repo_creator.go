@@ -73,9 +73,9 @@ func (l *GitRepoCreator) LocalGoGitRepo(repoPath, repoId string) (*GoGitRepo, er
 
 func (l *GitRepoCreator) newGoGitRepo(repoId string, goGitRespo *gogit.Repository) *GoGitRepo {
 	return &GoGitRepo{
-		logger:     l.logger,
-		id:         repoId,
-		goGitRepo:  goGitRespo,
-		goGitStore: l.store,
+		logger: l.logger,
+		id:     repoId,
+		repo:   goGitRespo,
+		store:  l.store,
 	}
 }

@@ -37,6 +37,16 @@ var CloneGitRepoMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 
+func useGoGit(subTaskCtx plugin.SubTaskContext, taskData *GitExtractorTaskData) bool {
+	if subTaskCtx.GetConfig("USE_GO_GIT_IN_GIT_EXTRACTOR") == "1" {
+		return true
+	}
+	if taskData != nil && taskData.Options.UseGoGit == "1" {
+		return true
+	}
+	return false
+}
+
 func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	taskData, ok := subTaskCtx.GetData().(*GitExtractorTaskData)
 	if !ok {
@@ -44,7 +54,16 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	}
 	op := taskData.Options
 	storage := store.NewDatabase(subTaskCtx, op.RepoId)
-	repo, err := NewGitRepo(subTaskCtx, subTaskCtx.GetLogger(), storage, op)
+	var repo parser.RepoCollector
+	var err errors.Error
+	logger := subTaskCtx.GetLogger()
+	if useGoGit(subTaskCtx, taskData) {
+		logger.Info("use go-git in gitextractor")
+		repo, err = NewGoGitRepo(subTaskCtx, logger, storage, op)
+	} else {
+		logger.Info("use libgit2 in gitextractor")
+		repo, err = NewGitRepo(subTaskCtx, logger, storage, op)
+	}
 	if err != nil {
 		return err
 	}

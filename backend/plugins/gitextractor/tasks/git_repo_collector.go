@@ -39,6 +39,7 @@ type GitExtractorOptions struct {
 	PrivateKey string `json:"privateKey"`
 	Passphrase string `json:"passphrase"`
 	Proxy      string `json:"proxy"`
+	UseGoGit   string `json:"use_go_git"`
 }
 
 func (o GitExtractorOptions) Valid() errors.Error {

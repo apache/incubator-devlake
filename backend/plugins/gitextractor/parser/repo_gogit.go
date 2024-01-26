@@ -34,31 +34,30 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/storer"
 	"regexp"
+	"slices"
 )
 
-var b1, b3, b2, b4 []string
-
 type GoGitRepo struct {
-	id           string
-	logger       log.Logger
-	goGitStore   models.Store
-	goGitRepo    *gogit.Repository
-	goGitCleanUp func()
+	id      string
+	logger  log.Logger
+	store   models.Store
+	repo    *gogit.Repository
+	cleanUp func()
 }
 
 func (r *GoGitRepo) SetCleanUp(f func()) error {
 	if f != nil {
-		r.goGitCleanUp = f
+		r.cleanUp = f
 	}
 	return nil
 }
 
 func (r *GoGitRepo) Close(ctx context.Context) error {
-	if err := r.goGitStore.Close(); err != nil {
+	if err := r.store.Close(); err != nil {
 		return err
 	}
-	if r.goGitCleanUp != nil {
-		r.goGitCleanUp()
+	if r.cleanUp != nil {
+		r.cleanUp()
 	}
 	return nil
 }
@@ -83,13 +82,17 @@ func (r *GoGitRepo) CollectAll(subtaskCtx plugin.SubTaskContext) error {
 
 // CountTags Count git tags subtask
 func (r *GoGitRepo) CountTags(ctx context.Context) (int, error) {
-	repo := r.goGitRepo
-	iter, err := repo.Tags()
+	iter, err := r.repo.Tags()
 	if err != nil {
 		return 0, err
 	}
 	var tagsCount int
 	iter.ForEach(func(reference *plumbing.Reference) error {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 		tagsCount += 1
 		return nil
 	})
@@ -98,8 +101,7 @@ func (r *GoGitRepo) CountTags(ctx context.Context) (int, error) {
 
 // CountBranches count the number of branches in a git repo
 func (r *GoGitRepo) CountBranches(ctx context.Context) (int, error) {
-	repo := r.goGitRepo
-	refIter, err := repo.Storer.IterReferences()
+	refIter, err := r.repo.Storer.IterReferences()
 	if err != nil {
 		return 0, err
 	}
@@ -112,11 +114,16 @@ func (r *GoGitRepo) CountBranches(ctx context.Context) (int, error) {
 	}
 	var branchesCount int
 
-	headRef, err := repo.Head()
+	headRef, err := r.repo.Head()
 	if err != nil {
 		return 0, err
 	}
 	branchIter.ForEach(func(reference *plumbing.Reference) error {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 		if reference.Name() != headRef.Name() {
 			branchesCount += 1
 		}
@@ -127,13 +134,17 @@ func (r *GoGitRepo) CountBranches(ctx context.Context) (int, error) {
 
 // CountCommits count the number of commits in a git repo
 func (r *GoGitRepo) CountCommits(ctx context.Context) (int, error) {
-	repo := r.goGitRepo
-	iter, err := repo.CommitObjects()
+	iter, err := r.repo.CommitObjects()
 	if err != nil {
 		return 0, err
 	}
 	var count int
 	iter.ForEach(func(commit *object.Commit) error {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 		count += 1
 		return nil
 	})
@@ -142,17 +153,20 @@ func (r *GoGitRepo) CountCommits(ctx context.Context) (int, error) {
 
 // CollectTags Collect Tags data
 func (r *GoGitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) error {
-	repo := r.goGitRepo
-	store := r.goGitStore
-	tagIter, err := repo.Tags()
+	tagIter, err := r.repo.Tags()
 	if err != nil {
 		return err
 	}
 	if err := tagIter.ForEach(func(ref *plumbing.Reference) error {
+		select {
+		case <-subtaskCtx.GetContext().Done():
+			return subtaskCtx.GetContext().Err()
+		default:
+		}
 		tagCommit := ref.Hash().String()
-		_, err := repo.CommitObject(ref.Hash())
+		_, err := r.repo.CommitObject(ref.Hash())
 		if err != nil && errors.Is(err, plumbing.ErrObjectNotFound) {
-			h, err := repo.ResolveRevision(plumbing.Revision(ref.Name()))
+			h, err := r.repo.ResolveRevision(plumbing.Revision(ref.Name()))
 			if err != nil {
 				return err
 			}
@@ -167,7 +181,7 @@ func (r *GoGitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) error {
 				CommitSha:    tagCommit,
 				RefType:      TAG,
 			}
-			err = store.Refs(codeRef)
+			err = r.store.Refs(codeRef)
 			if err != nil {
 				return err
 			}
@@ -182,9 +196,7 @@ func (r *GoGitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) error {
 
 // CollectBranches Collect branch data
 func (r *GoGitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
-	repo := r.goGitRepo
-	store := r.goGitStore
-	refIter, err := repo.Storer.IterReferences()
+	refIter, err := r.repo.Storer.IterReferences()
 	if err != nil {
 		return err
 	}
@@ -195,17 +207,22 @@ func (r *GoGitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-	headRef, err := repo.Head()
+	headRef, err := r.repo.Head()
 	if err != nil {
 		return err
 	}
 	if err := branchIter.ForEach(func(ref *plumbing.Reference) error {
+		select {
+		case <-subtaskCtx.GetContext().Done():
+			return subtaskCtx.GetContext().Err()
+		default:
+		}
 		name := ref.Name().Short()
 		sha := ref.Hash().String()
-		_, err := repo.CommitObject(ref.Hash())
+		_, err := r.repo.CommitObject(ref.Hash())
 		if err != nil && errors.Is(err, plumbing.ErrObjectNotFound) {
 			// handle commit sha like "0000000000000000000000000000000000000000"
-			h, err := repo.ResolveRevision(plumbing.Revision(ref.Name()))
+			h, err := r.repo.ResolveRevision(plumbing.Revision(ref.Name()))
 			if err != nil {
 				return err
 			}
@@ -219,7 +236,7 @@ func (r *GoGitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
 			RefType:      BRANCH,
 			IsDefault:    ref.Name() == headRef.Name(),
 		}
-		if err := store.Refs(codeRef); err != nil {
+		if err := r.store.Refs(codeRef); err != nil {
 			return err
 		}
 		subtaskCtx.IncProgress(1)
@@ -246,14 +263,14 @@ func (r *GoGitRepo) getComponentMap(subtaskCtx plugin.SubTaskContext) (map[strin
 
 // CollectCommits Collect data from each commit, we can also get the diff line
 func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error) {
-	//componentMap, err := r.getComponentMap(subtaskCtx)
-	//if err != nil {
-	//	return err
-	//}
+	// check it first
+	if _, err = r.getComponentMap(subtaskCtx); err != nil {
+		return err
+	}
 
-	//skipCommitFiles := subtaskCtx.GetConfigReader().GetBool(SkipCommitFiles)
-	repo := r.goGitRepo
-	store := r.goGitStore
+	skipCommitFiles := subtaskCtx.GetConfigReader().GetBool(SkipCommitFiles)
+	repo := r.repo
+	store := r.store
 
 	commitsObjectsIter, err := repo.CommitObjects()
 	if err != nil {
@@ -261,11 +278,12 @@ func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error)
 	}
 
 	if err := commitsObjectsIter.ForEach(func(commit *object.Commit) error {
+		select {
+		case <-subtaskCtx.GetContext().Done():
+			return subtaskCtx.GetContext().Err()
+		default:
+		}
 		commitSha := commit.Hash.String()
-
-		fmt.Printf("process commit: %s\n", commitSha)
-		b2 = append(b2, commitSha)
-
 		codeCommit := &code.Commit{
 			Sha:            commitSha,
 			Message:        commit.Message,
@@ -303,32 +321,24 @@ func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error)
 			return err
 		}
 
-		//var parent *object.Commit
-		//if commit.NumParents() > 0 {
-		//	parent, err = commit.Parent(0)
-		//	if err != nil {
-		//		return err
-		//	}
-		//}
-		//if err := r.getDiffComparedToParent(subtaskCtx.GetContext(), skipCommitFiles, codeCommit.Sha, commit, parent, opts, componentMap); err != nil {
-		//	return err
-		//}
-		//
-		//codeRepoCommit := &code.RepoCommit{
-		//	RepoId:    r.id,
-		//	CommitSha: commitSha,
-		//}
-		//err = store.RepoCommits(codeRepoCommit)
-		//if err != nil {
-		//	return err
-		//}
-
+		codeRepoCommit := &code.RepoCommit{
+			RepoId:    r.id,
+			CommitSha: commitSha,
+		}
+		err = store.RepoCommits(codeRepoCommit)
+		if err != nil {
+			return err
+		}
+		if !skipCommitFiles {
+			if err := r.storeDiffCommitFilesComparedToParent(subtaskCtx, commit); err != nil {
+				return err
+			}
+		}
 		subtaskCtx.IncProgress(1)
 		return nil
 	}); err != nil {
 		return err
 	}
-
 	return
 }
 
@@ -351,145 +361,181 @@ func (r *GoGitRepo) storeParentCommits(commitSha string, commit *object.Commit) 
 			}
 		}
 	}
-	return r.goGitStore.CommitParents(commitParents)
+	return r.store.CommitParents(commitParents)
 }
 
-func (r *GoGitRepo) getDiffComparedToParent(ctx context.Context, skipCommitFiles bool, commitSha string, commit *object.Commit, parent *object.Commit, opts *object.DiffTreeOptions, componentMap map[string]*regexp.Regexp) (err error) {
-	if skipCommitFiles {
-		return nil
-	}
-
+func (r *GoGitRepo) getCurrentAndParentTree(ctx context.Context, commit *object.Commit) (*object.Tree, *object.Tree, error) {
 	if _, err := commit.Stats(); err != nil {
-		return err
+		return nil, nil, err
 	}
-
 	commitTree, err := commit.Tree()
+	if err != nil {
+		return nil, nil, err
+	}
+	var firstParentTree *object.Tree
+	if commit.NumParents() > 0 {
+		firstParent, err := commit.Parents().Next()
+		if err != nil {
+			return nil, nil, err
+		}
+		firstParentTree, err = firstParent.Tree()
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+	return commitTree, firstParentTree, nil
+}
+
+func (r *GoGitRepo) storeDiffCommitFilesComparedToParent(subtaskCtx plugin.SubTaskContext, commit *object.Commit) (err error) {
+	commitTree, firstParentTree, err := r.getCurrentAndParentTree(subtaskCtx.GetContext(), commit)
 	if err != nil {
 		return err
 	}
-	fmt.Println(parent)
-	if parent != nil {
-		parentTree, err := parent.Tree()
-		if err != nil {
+	// no parent, doesn't need to patch
+	patch, err := firstParentTree.PatchContext(subtaskCtx.GetContext(), commitTree)
+	if err != nil {
+		return err
+	}
+	for _, p := range patch.Stats() {
+		commitFile := &code.CommitFile{
+			CommitSha: commit.Hash.String(),
+		}
+		fileName := p.Name
+		commitFile.FilePath = fileName
+		commitFile.Id = genCommitFileId(commitFile.CommitSha, fileName)
+		commitFile.Deletions = p.Deletion
+		commitFile.Additions = p.Addition
+		if err := r.storeCommitFileComponents(subtaskCtx, commitFile.Id, commitFile.FilePath); err != nil {
 			return err
 		}
-		changes, err := object.DiffTreeWithOptions(ctx, parentTree, commitTree, opts)
+		err = r.store.CommitFiles(commitFile)
 		if err != nil {
-			return err
-		}
-		if err = r.storeCommitFilesFromDiff(commitSha, changes, componentMap); err != nil {
-			return err
+			r.logger.Error(err, "CommitFiles error")
+			return nil
 		}
 	}
 	return nil
 }
 
-func (r *GoGitRepo) storeCommitFilesFromDiff(commitSha string, changes object.Changes, componentMap map[string]*regexp.Regexp) (err error) {
+// With some long path,the varchar(255) was not enough both ID and file_path
+// So we use the hash to compress the path in ID and add length of file_path.
+// Use commitSha and the sha256 of FilePath to create id
+func genCommitFileId(commitSha, filePath string) string {
+	shaFilePath := sha256.New()
+	shaFilePath.Write([]byte(filePath))
+	return commitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
+}
 
-	store := r.goGitStore
-	var commitFile *code.CommitFile
-	var commitFileComponent *code.CommitFileComponent
-
-	for _, change := range changes {
-		if commitFile != nil {
-			if err := store.CommitFiles(commitFile); err != nil {
-				r.logger.Error(err, "CommitFiles error")
-				return err
-			}
+func (r *GoGitRepo) storeCommitFileComponents(subtaskCtx plugin.SubTaskContext, commitFileId string, commitFilePath string) error {
+	if commitFileId == "" || commitFilePath == "" {
+		return errors.Default.New("commit id r commit file path is empty")
+	}
+	componentMap, err := r.getComponentMap(subtaskCtx)
+	if err != nil {
+		return err
+	}
+	commitFileComponent := &code.CommitFileComponent{
+		CommitFileId:  commitFileId,
+		ComponentName: "Default",
+	}
+	for component, reg := range componentMap {
+		if reg.MatchString(commitFilePath) {
+			commitFileComponent.ComponentName = component
+			break
 		}
-		commitFile = new(code.CommitFile)
-		commitFile.CommitSha = commitSha
-		_, toFile, err := change.Files()
+	}
+	return r.store.CommitFileComponents(commitFileComponent)
+}
+
+// storeRepoSnapshot depends on commit list's order.
+func (r *GoGitRepo) storeRepoSnapshot(subtaskCtx plugin.SubTaskContext, commitList []*object.Commit) error {
+	ctx := subtaskCtx.GetContext()
+	snapshot := make(map[string][]string) // {"filePathAndName": ["line1 commit sha", "line2 commit sha"]}
+	for _, commit := range commitList {
+		commitTree, firstParentTree, err := r.getCurrentAndParentTree(ctx, commit)
 		if err != nil {
 			return err
 		}
-		if toFile != nil {
-			filePath := toFile.Name
-			commitFile.FilePath = filePath
-			// With some long path,the varchar(255) was not enough both ID and file_path
-			// So we use the hash to compress the path in ID and add length of file_path.
-			// Use commitSha and the sha256 of FilePath to create id
-			// fixme: maybe we can use file's hash directly
-			shaFilePath := sha256.New()
-			shaFilePath.Write([]byte(filePath))
-			commitFile.Id = commitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
+		patch, err := firstParentTree.PatchContext(subtaskCtx.GetContext(), commitTree)
+		if err != nil {
+			return err
 		}
-
-		// handle component
-		commitFileComponent = new(code.CommitFileComponent)
-		for component, reg := range componentMap {
-			if reg.MatchString(commitFile.FilePath) {
-				commitFileComponent.ComponentName = component
-				break
+		for _, p := range patch.Stats() {
+			fileName := p.Name
+			if _, ok := snapshot[fileName]; !ok {
+				snapshot[fileName] = []string{}
+			}
+			blameResults, err := gogit.Blame(commit, fileName)
+			if err != nil {
+				return err
+			}
+			var newBlames []string
+			for _, blameResult := range blameResults.Lines {
+				newBlames = append(newBlames, blameResult.Hash.String())
+			}
+			snapshot[fileName] = newBlames
+		}
+	}
+	// store snapshots
+	for fileName, lineBlames := range snapshot {
+		for idx, lineBlameHash := range lineBlames {
+			lineNo := idx + 1
+			repoSnapshot := &code.RepoSnapshot{
+				RepoId:    r.id,
+				CommitSha: lineBlameHash,
+				FilePath:  fileName,
+				LineNo:    lineNo,
+			}
+			if err := r.store.RepoSnapshot(repoSnapshot); err != nil {
+				r.logger.Error(err, "store RepoSnapshot error")
+				return err
 			}
 		}
-		commitFileComponent.CommitFileId = commitFile.Id
-		if commitFileComponent.ComponentName == "" {
-			commitFileComponent.ComponentName = "Default"
-		}
+	}
+	return nil
+}
 
+func (r *GoGitRepo) GetCommitList(subtaskCtx plugin.SubTaskContext) ([]*object.Commit, error) {
+	var commitList []*object.Commit
+	// get current head commit sha, default is master branch
+	// check branch, if not master, checkout to branch's head
+	commitOid, err := r.repo.Head()
+	if err != nil {
+		return nil, err
 	}
-	//err = diff.ForEach(func(file git.DiffDelta, progress float64) (
-	//	git.DiffForEachHunkCallback, error) {
-	//	if commitFile != nil {
-	//		err = r.store.CommitFiles(commitFile)
-	//		if err != nil {
-	//			r.logger.Error(err, "CommitFiles error")
-	//			return nil, err
-	//		}
-	//	}
-	//
-	//	commitFile = new(code.CommitFile)
-	//	commitFile.CommitSha = commitSha
-	//	commitFile.FilePath = file.NewFile.Path
-	//
-	//	// With some long path,the varchar(255) was not enough both ID and file_path
-	//	// So we use the hash to compress the path in ID and add length of file_path.
-	//	// Use commitSha and the sha256 of FilePath to create id
-	//	shaFilePath := sha256.New()
-	//	shaFilePath.Write([]byte(file.NewFile.Path))
-	//	commitFile.Id = commitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
-	//
-	//	commitFileComponent = new(code.CommitFileComponent)
-	//	for component, reg := range componentMap {
-	//		if reg.MatchString(commitFile.FilePath) {
-	//			commitFileComponent.ComponentName = component
-	//			break
-	//		}
-	//	}
-	//	commitFileComponent.CommitFileId = commitFile.Id
-	//	if commitFileComponent.ComponentName == "" {
-	//		commitFileComponent.ComponentName = "Default"
-	//	}
-	//	return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-	//		return func(line git.DiffLine) error {
-	//			if line.Origin == git.DiffLineAddition {
-	//				commitFile.Additions += line.NumLines
-	//			}
-	//			if line.Origin == git.DiffLineDeletion {
-	//				commitFile.Deletions += line.NumLines
-	//			}
-	//			return nil
-	//		}, nil
-	//	}, nil
-	//}, git.DiffDetailLines)
-
-	if commitFileComponent != nil {
-		err = store.CommitFileComponents(commitFileComponent)
+	// get head commit object and add into commitList
+	commit, err := r.repo.CommitObject(commitOid.Hash())
+	if err != nil {
+		return nil, err
+	}
+	commitList = append(commitList, commit)
+	// if current head has parents, get parent commit sha
+	for commit != nil && commit.NumParents() > 0 {
+		parentCommit, err := commit.Parent(0)
 		if err != nil {
-			r.logger.Error(err, "CommitFileComponents error")
+			return nil, err
 		}
-	}
-	if commitFile != nil {
-		err = store.CommitFiles(commitFile)
+		commit, err = r.repo.CommitObject(parentCommit.Hash)
 		if err != nil {
-			r.logger.Error(err, "CommitFiles error")
+			return nil, err
 		}
+		commitList = append(commitList, commit)
 	}
-	return errors.Convert(err)
+	// reverse commitList
+	slices.Reverse(commitList)
+	return commitList, nil
 }
 
 func (r *GoGitRepo) CollectDiffLine(subtaskCtx plugin.SubTaskContext) error {
-	// fixme
+	commitList, err := r.GetCommitList(subtaskCtx)
+	if err != nil {
+		return err
+	}
+	if err := r.storeRepoSnapshot(subtaskCtx, commitList); err != nil {
+		return err
+	}
+	// fixme: collecting CommitLineChange is not implemented.
+	// There is no way to get such information with go-git, and table commit_line_change is not used by any dashboards
+	// So we just ignore it.
 	return nil
 }

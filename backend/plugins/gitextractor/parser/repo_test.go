@@ -37,7 +37,8 @@ var (
 	repoMericoLakeWebsite = "/Users/houlinwei/Code/go/src/github.com/merico-dev/website"
 	repoId                = "test-repo-id"
 	//simpleRepo            = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo-in-lake"
-	simpleRepo     = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo"
+	//simpleRepo     = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo"
+	simpleRepo     = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo1"
 	storage        models.Store
 	gitRepoCreator *GitRepoCreator
 
@@ -85,44 +86,51 @@ func TestGitRepo_CountRepoInfo(t *testing.T) {
 		panic(err)
 	}
 
-	tagsCount1, err1 := gitRepo.CountTags(ctx)
-	if err1 != nil {
-		panic(err1)
+	{
+		tagsCount1, err1 := gitRepo.CountTags(ctx)
+		if err1 != nil {
+			panic(err1)
+		}
+		tagsCount2, err2 := goGitRepo.CountTags(ctx)
+		if err2 != nil {
+			panic(err2)
+		}
+		t.Logf("[tagsCount] libgit2 result: %d, gogit result: %d", tagsCount1, tagsCount2)
+		assert.Equalf(t, tagsCount1, tagsCount2, "unexpected")
 	}
-	tagsCount2, err2 := goGitRepo.CountTags(ctx)
-	if err2 != nil {
-		panic(err2)
-	}
-	t.Logf("[tagsCount] libgit2 result: %d, gogit result: %d", tagsCount1, tagsCount2)
-	assert.Equalf(t, tagsCount1, tagsCount2, "unexpected")
 
-	branchesCount1, err1 := gitRepo.CountBranches(ctx)
-	if err1 != nil {
-		panic(err1)
+	{
+		branchesCount1, err1 := gitRepo.CountBranches(ctx)
+		if err1 != nil {
+			panic(err1)
+		}
+		branchesCount2, err2 := goGitRepo.CountBranches(ctx)
+		if err2 != nil {
+			panic(err2)
+		}
+		t.Logf("[branchesCount] libgit2 result: %d, gogit result: %d", branchesCount1, branchesCount2)
+		assert.Equalf(t, branchesCount1, branchesCount2, "unexpected")
 	}
-	branchesCount2, err2 := goGitRepo.CountBranches(ctx)
-	if err2 != nil {
-		panic(err2)
-	}
-	t.Logf("[branchesCount] libgit2 result: %d, gogit result: %d", branchesCount1, branchesCount2)
-	assert.Equalf(t, branchesCount1, branchesCount2, "unexpected")
 
-	commitCount1, err1 := gitRepo.CountCommits(ctx)
-	if err1 != nil {
-		panic(err1)
+	{
+		commitCount1, err1 := gitRepo.CountCommits(ctx)
+		if err1 != nil {
+			panic(err1)
+		}
+		commitCount2, err2 := goGitRepo.CountCommits(ctx)
+		if err2 != nil {
+			panic(err2)
+		}
+		t.Logf("[commitCount] libgit2 result: %d, gogit result: %d", commitCount1, commitCount2)
+		assert.Equalf(t, commitCount1, commitCount2, "unexpected")
 	}
-	commitCount2, err2 := goGitRepo.CountCommits(ctx)
-	if err2 != nil {
-		panic(err2)
-	}
-	t.Logf("[commitCount] libgit2 result: %d, gogit result: %d", commitCount1, commitCount2)
-	assert.Equalf(t, commitCount1, commitCount2, "unexpected")
 
 }
 
 // all testes pass
 func TestGitRepo_CollectRepoInfo(t *testing.T) {
-	repoPath := repoMericoLake
+	//repoPath := repoMericoLake
+	repoPath := simpleRepo
 	gitRepo, err := gitRepoCreator.LocalRepo(repoPath, repoId)
 	if err != nil {
 		panic(err)
@@ -161,7 +169,6 @@ func TestGitRepo_CollectRepoInfo(t *testing.T) {
 	}
 
 	{
-		// WIP
 		subTaskCtxCollectCommits := &testSubTaskContext{}
 		if err1 := gitRepo.CollectCommits(subTaskCtxCollectCommits); err1 != nil {
 			panic(err1)
@@ -174,17 +181,15 @@ func TestGitRepo_CollectRepoInfo(t *testing.T) {
 		t.Logf("[CollectCommits] libgit2 result: %+v, gogit result: %+v", subTaskCtxCollectCommits, subTaskCtxCCollectCommitsWithGoGit)
 		fmt.Println(subTaskCtxCollectCommits.total, subTaskCtxCCollectCommitsWithGoGit.total)
 		assert.Equalf(t, subTaskCtxCollectCommits.total, subTaskCtxCCollectCommitsWithGoGit.total, "unexpected")
-		compareTwoStringSlice(b1, b2)
 	}
 
 	{
-		// TODO CollectDiffLine()
 		subTaskCtxCollectDiffLine := &testSubTaskContext{}
 		if err1 := gitRepo.CollectDiffLine(subTaskCtxCollectDiffLine); err1 != nil {
 			panic(err1)
 		}
 		subTaskCtxCollectDiffLineWithGoGit := &testSubTaskContext{}
-		if err2 := goGitRepo.CollectCommits(subTaskCtxCollectDiffLineWithGoGit); err2 != nil {
+		if err2 := goGitRepo.CollectDiffLine(subTaskCtxCollectDiffLineWithGoGit); err2 != nil {
 			panic(err2)
 		}
 
@@ -215,7 +220,6 @@ func TestGitRepo_CollectCommits(t *testing.T) {
 		if err1 := gitRepo.CollectCommits(subTaskCtxCollectCommits); err1 != nil {
 			panic(err1)
 		}
-		//t.Logf("[CollectCommits] libgit2 result: %+v", subTaskCtxCollectCommits)
 
 		subTaskCtxCCollectCommitsWithGoGit := &testSubTaskContext{}
 		if err2 := goGitRepo.CollectCommits(subTaskCtxCCollectCommitsWithGoGit); err2 != nil {
@@ -225,34 +229,34 @@ func TestGitRepo_CollectCommits(t *testing.T) {
 		t.Logf("[CollectCommits] libgit2 result: %+v, gogit result: %+v", subTaskCtxCollectCommits, subTaskCtxCCollectCommitsWithGoGit)
 		fmt.Println(subTaskCtxCollectCommits.total, subTaskCtxCCollectCommitsWithGoGit.total)
 		assert.Equalf(t, subTaskCtxCollectCommits.total, subTaskCtxCCollectCommitsWithGoGit.total, "unexpected")
-		compareTwoStringSlice(b1, b2)
 	}
 }
 
-// compareTwoStringSlice helps to find the difference between two string slices.
-func compareTwoStringSlice(b1, b2 []string) {
-	for _, b := range b2 {
-		var found bool
-		for _, bb := range b1 {
-			if bb == b {
-				found = true
-			}
-		}
-		if !found {
-			fmt.Printf("%s from b2, not found in b1\n", b)
-		}
+func TestGitRepo_CollectDiffLine(t *testing.T) {
+	repoPath := simpleRepo
+	gitRepo, err := gitRepoCreator.LocalRepo(repoPath, repoId)
+	if err != nil {
+		panic(err)
+	}
+	goGitRepo, err := goGitRepoCreator.LocalGoGitRepo(repoPath, repoId)
+	if err != nil {
+		panic(err)
 	}
 
-	for _, b := range b1 {
-		var found bool
-		for _, bb := range b2 {
-			if bb == b {
-				found = true
-			}
+	{
+		subTaskCtxCollectDiffLine := &testSubTaskContext{}
+		if err1 := gitRepo.CollectDiffLine(subTaskCtxCollectDiffLine); err1 != nil {
+			panic(err1)
 		}
-		if !found {
-			fmt.Printf("%s from b1, not found in b2\n", b)
+		//t.Logf("[CollectDiffLine] libgit2 result: %+v", subTaskCtxCollectDiffLine)
+
+		subTaskCtxCollectDiffLineWithGoGit := &testSubTaskContext{}
+		if err2 := goGitRepo.CollectDiffLine(subTaskCtxCollectDiffLineWithGoGit); err2 != nil {
+			panic(err2)
 		}
+
+		t.Logf("[CollectCommits] libgit2 result: %+v, gogit result: %+v", subTaskCtxCollectDiffLine, subTaskCtxCollectDiffLineWithGoGit)
+		fmt.Println(subTaskCtxCollectDiffLine.total, subTaskCtxCollectDiffLineWithGoGit.total)
+		assert.Equalf(t, subTaskCtxCollectDiffLine.total, subTaskCtxCollectDiffLineWithGoGit.total, "unexpected")
 	}
-	fmt.Println("compareTwoStringSlice done", len(b1), len(b2))
 }

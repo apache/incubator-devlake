@@ -435,7 +435,7 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx plugin.SubTaskContext) error {
 	repo := r.repo
 	//step 1. get the reverse commit list
 	commitList := make([]git.Commit, 0)
-	// get currently head commit sha, default is master branch
+	// get current head commit sha, default is master branch
 	// check branch, if not master, checkout to branch's head
 	commitOid, err1 := repo.Head()
 	if err1 != nil && err1.Error() != TypeNotMatchError {
