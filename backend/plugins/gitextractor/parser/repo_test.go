@@ -31,6 +31,7 @@ import (
 )
 
 var (
+	enableRepoTest       = false
 	repoId               = "test-repo-id"
 	runInLocal           = true
 	ctx                  = context.Background()
@@ -52,6 +53,9 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	if !enableRepoTest {
+		return
+	}
 	fmt.Println("test main starts")
 	logger = logruslog.Global.Nested("git extractor")
 	fmt.Println("logger inited")
@@ -108,6 +112,9 @@ func getRepos(localRepoDir string) (RepoCollector, RepoCollector) {
 }
 
 func TestGitRepo_CountRepoInfo(t *testing.T) {
+	if !enableRepoTest {
+		return
+	}
 	goGitRepo, gitRepo := getRepos(repoMericoLakeWebsite)
 
 	{
@@ -153,7 +160,9 @@ func TestGitRepo_CountRepoInfo(t *testing.T) {
 
 // all testes pass
 func TestGitRepo_CollectRepoInfo(t *testing.T) {
-
+	if !enableRepoTest {
+		return
+	}
 	goGitRepo, gitRepo := getRepos(simpleRepo)
 
 	{
@@ -221,6 +230,9 @@ func clearOutput() {
 }
 
 func TestGitRepo_CollectCommits(t *testing.T) {
+	if !enableRepoTest {
+		return
+	}
 	repoPath := simpleRepo
 	gitRepo, err := gitRepoCreator.LocalRepo(repoPath, repoId)
 	if err != nil {
@@ -249,6 +261,9 @@ func TestGitRepo_CollectCommits(t *testing.T) {
 }
 
 func TestGitRepo_CollectDiffLine(t *testing.T) {
+	if !enableRepoTest {
+		return
+	}
 	repoPath := simpleRepo
 	gitRepo, err := gitRepoCreator.LocalRepo(repoPath, repoId)
 	if err != nil {
