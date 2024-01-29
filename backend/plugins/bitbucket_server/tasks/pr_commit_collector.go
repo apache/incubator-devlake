@@ -50,6 +50,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
+		Concurrency:           5,
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query:                 GetQueryForNextPage,
 		Input:                 iterator,

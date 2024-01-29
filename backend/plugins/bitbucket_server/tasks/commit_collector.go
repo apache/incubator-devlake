@@ -51,11 +51,11 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
+		Concurrency:           5,
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query:                 GetQueryForNextPage,
 		Input:                 iterator,
 		UrlTemplate:           "rest/api/1.0/projects/{{ .Params.FullName }}/commits?until={{ .Input.Branch }}",
-		GetTotalPages:         GetTotalPagesFromResponse,
 		ResponseParser:        GetRawMessageFromResponse,
 	})
 	if err != nil {

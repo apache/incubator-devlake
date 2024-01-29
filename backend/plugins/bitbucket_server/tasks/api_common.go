@@ -118,19 +118,6 @@ func GetQueryForNextPage(reqData *helper.RequestData) (url.Values, errors.Error)
 	return query, nil
 }
 
-func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
-	body := &BitbucketServerPagination{}
-	err := api.UnmarshalResponse(res, body)
-	if err != nil {
-		return 0, err
-	}
-	pages := body.Size / args.PageSize
-	if body.Size%args.PageSize > 0 {
-		pages++
-	}
-	return pages, nil
-}
-
 func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	var rawMessages struct {
 		Values []json.RawMessage `json:"values"`

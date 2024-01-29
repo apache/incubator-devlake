@@ -51,11 +51,11 @@ func CollectApiPullRequestsActivities(taskCtx plugin.SubTaskContext) errors.Erro
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
+		Concurrency:           5,
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query:                 GetQueryForNextPage,
 		Input:                 iterator,
 		UrlTemplate:           "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/activities",
-		GetTotalPages:         GetTotalPagesFromResponse,
 		ResponseParser:        GetRawMessageFromResponse,
 	})
 	if err != nil {
