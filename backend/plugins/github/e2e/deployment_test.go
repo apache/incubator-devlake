@@ -71,6 +71,7 @@ func TestGithubDeploymentDataFlow(t *testing.T) {
 			"status",
 			"original_status",
 			"environment",
+			"original_environment",
 			"created_date",
 			"queued_date",
 			"started_date",

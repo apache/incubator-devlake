@@ -36,7 +36,7 @@ const RAW_TRIGGER_JOB_TABLE = "gitlab_api_trigger_job"
 var CollectApiTriggerJobsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiTriggerJobs",
 	EntryPoint:       CollectApiTriggerJobs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Collect job data from gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiPipelineDetailsMeta},
@@ -59,7 +59,6 @@ func CollectApiTriggerJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	incremental := collectorWithState.IsIncremental
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		//RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:       data.ApiClient,
 		MinTickInterval: &tickInterval,
 		PageSize:        100,

@@ -107,5 +107,6 @@ func All() []plugin.MigrationScript {
 		new(modifyIssueLeadTimeMinutesToUint),
 		new(addUrgencyToIssues),
 		new(modifyRefsIdLength),
+		new(addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits),
 	}
 }
