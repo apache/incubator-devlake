@@ -50,16 +50,6 @@ type BitbucketServerCommitInput struct {
 	CommitSha string
 }
 
-type BitbucketServerPagination struct {
-	Values     []interface{} `json:"values"`
-	Limit      int           `json:"limit"`
-	Size       int           `json:"size"`
-	Page       int           `json:"page"`
-	Start      int           `json:"start"`
-	Next       string        `json:"next"`
-	IsLastPage bool          `json:"isLastPage"`
-}
-
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *BitbucketTaskData) {
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	RawDataSubTaskArgs := &api.RawDataSubTaskArgs{
@@ -130,7 +120,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	return rawMessages.Values, nil
 }
 
-func GetBranchesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
+func GetBranchesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{

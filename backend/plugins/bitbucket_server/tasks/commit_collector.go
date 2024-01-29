@@ -42,7 +42,7 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	iterator, err := GetBranchesIterator(taskCtx, collectorWithState)
+	iterator, err := GetBranchesIterator(taskCtx)
 	if err != nil {
 		return err
 	}
