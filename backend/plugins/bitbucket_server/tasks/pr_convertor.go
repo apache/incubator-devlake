@@ -87,15 +87,15 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				HeadRef:        pr.HeadRef,
 				HeadCommitSha:  pr.HeadCommitSha,
 			}
-
-			if pr.MergeCommitSha == "" &&
-				pr.BaseCommitSha != "" &&
-				pr.HeadCommitSha != "" {
-				commitSHA, _ := getCommitSHAFromParents([]string{pr.BaseCommitSha, pr.HeadCommitSha}, db)
-				if commitSHA != "" {
-					domainPr.MergeCommitSha = commitSHA
-				}
-			}
+			//
+			//if pr.MergeCommitSha == "" &&
+			//	pr.BaseCommitSha != "" &&
+			//	pr.HeadCommitSha != "" {
+			//	commitSHA, _ := getCommitSHAFromParents([]string{pr.BaseCommitSha, pr.HeadCommitSha}, db)
+			//	if commitSHA != "" {
+			//		domainPr.MergeCommitSha = commitSHA
+			//	}
+			//}
 
 			switch pr.State {
 			case "OPEN":

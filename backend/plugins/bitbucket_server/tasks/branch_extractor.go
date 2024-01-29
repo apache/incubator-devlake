@@ -36,7 +36,7 @@ var ExtractApiBranchesMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 
-type BranchResponse struct {
+type ApiBranchResponse struct {
 	BitbucketId     string `json:"id"`
 	DisplayId       string `json:"displayId"`
 	Type            string `json:"type"`
@@ -51,7 +51,7 @@ func ExtractApiBranches(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			branch := &BranchResponse{}
+			branch := &ApiBranchResponse{}
 			err := errors.Convert(json.Unmarshal(row.Data, branch))
 			if err != nil {
 				return nil, err

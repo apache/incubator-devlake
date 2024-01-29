@@ -96,8 +96,7 @@ func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractApiPullRequestsMeta,
 
 		tasks.CollectApiPrActivitiesMeta,
-
-		tasks.ExtractApiPrCommentsMeta,
+		tasks.ExtractApiPrActivitiesMeta,
 
 		tasks.CollectApiPrCommitsMeta,
 		tasks.ExtractApiPrCommitsMeta,
@@ -107,8 +106,10 @@ func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.ConvertRepoMeta,
 		tasks.ConvertPullRequestsMeta,
+
 		tasks.ConvertPrCommentsMeta,
 		tasks.ConvertPrCommitsMeta,
+
 		tasks.ConvertCommitsMeta,
 		tasks.ConvertUsersMeta,
 	}

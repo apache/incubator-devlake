@@ -39,7 +39,7 @@ var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-type BitbucketApiPullRequest struct {
+type ApiPrResponse struct {
 	BitbucketId int `json:"id"`
 	// Type        string `json:"type"`
 	State       string `json:"state"`
@@ -56,7 +56,7 @@ type BitbucketApiPullRequest struct {
 		} `json:"html"`
 	} `json:"links"`
 	Author *struct {
-		User *BitbucketUserResponse `json:"user"`
+		User *ApiUserResponse `json:"user"`
 	} `json:"author"`
 	BitbucketCreatedAt int64  `json:"createdDate"`
 	BitbucketUpdatedAt int64  `json:"updatedDate"`
@@ -105,7 +105,7 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			rawL := &BitbucketApiPullRequest{}
+			rawL := &ApiPrResponse{}
 			err := errors.Convert(json.Unmarshal(row.Data, rawL))
 			if err != nil {
 				return nil, err
@@ -162,7 +162,7 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	return extractor.Execute()
 }
-func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, repoId string) (*models.BitbucketServerPullRequest, errors.Error) {
+func convertBitbucketPullRequest(pull *ApiPrResponse, connId uint64, repoId string) (*models.BitbucketServerPullRequest, errors.Error) {
 	bitbucketPull := &models.BitbucketServerPullRequest{
 		ConnectionId: connId,
 		BitbucketId:  pull.BitbucketId,

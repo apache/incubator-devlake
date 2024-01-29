@@ -37,13 +37,13 @@ var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 
-type CommitsResponse struct {
-	BitbucketId        string                `json:"id"`
-	DisplayId          string                `json:"displayId"`
-	Author             BitbucketUserResponse `json:"author"`
-	Message            string                `json:"message"`
-	AuthorTimestamp    int64                 `json:"authorTimestamp"`
-	CommitterTimestamp int64                 `json:"committerTimestamp"`
+type ApiCommitResponse struct {
+	BitbucketId        string          `json:"id"`
+	DisplayId          string          `json:"displayId"`
+	Author             ApiUserResponse `json:"author"`
+	Message            string          `json:"message"`
+	AuthorTimestamp    int64           `json:"authorTimestamp"`
+	CommitterTimestamp int64           `json:"committerTimestamp"`
 	Parents            []struct {
 		BitbucketID string `json:"id"`
 		DisplayID   string `json:"displayId"`
@@ -57,7 +57,7 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			commit := &CommitsResponse{}
+			commit := &ApiCommitResponse{}
 			err := errors.Convert(json.Unmarshal(row.Data, commit))
 			if err != nil {
 				return nil, err

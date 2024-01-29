@@ -22,7 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
 )
 
-type BitbucketUserResponse struct {
+type ApiUserResponse struct {
 	BitbucketId  int    `json:"id"`
 	Name         string `json:"name"`
 	EmailAddress string `json:"emailAddress"`
@@ -37,7 +37,7 @@ type BitbucketUserResponse struct {
 	} `json:"links"`
 }
 
-func convertUser(res *BitbucketUserResponse, connId uint64) (*models.BitbucketServerUser, errors.Error) {
+func convertUser(res *ApiUserResponse, connId uint64) (*models.BitbucketServerUser, errors.Error) {
 	bitbucketUser := &models.BitbucketServerUser{
 		ConnectionId: connId,
 		BitbucketId:  res.BitbucketId,

@@ -37,13 +37,13 @@ var ExtractApiPrCommitsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-type ApiPrCommitsResponse struct {
-	BitbucketId        string                `json:"id"`
-	DisplayId          string                `json:"displayId"`
-	Author             BitbucketUserResponse `json:"author"`
-	Message            string                `json:"message"`
-	AuthorTimestamp    int64                 `json:"authorTimestamp"`
-	CommitterTimestamp int64                 `json:"committerTimestamp"`
+type ApiPrCommitResponse struct {
+	BitbucketId        string          `json:"id"`
+	DisplayId          string          `json:"displayId"`
+	Author             ApiUserResponse `json:"author"`
+	Message            string          `json:"message"`
+	AuthorTimestamp    int64           `json:"authorTimestamp"`
+	CommitterTimestamp int64           `json:"committerTimestamp"`
 }
 
 func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
@@ -52,7 +52,7 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			apiPullRequestCommit := &ApiPrCommitsResponse{}
+			apiPullRequestCommit := &ApiPrCommitResponse{}
 			if strings.HasPrefix(string(row.Data), "Not Found") {
 				return nil, nil
 			}
@@ -106,7 +106,7 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func convertPullRequestCommit(prCommit *ApiPrCommitsResponse, connId uint64) (*models.BitbucketServerCommit, errors.Error) {
+func convertPullRequestCommit(prCommit *ApiPrCommitResponse, connId uint64) (*models.BitbucketServerCommit, errors.Error) {
 	bitbucketCommit := &models.BitbucketServerCommit{
 		CommitSha:     prCommit.BitbucketId,
 		Message:       prCommit.Message,
