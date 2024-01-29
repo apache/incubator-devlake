@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"net/url"
 )
 
 var _ plugin.MigrationScript = (*addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits)(nil)
@@ -43,19 +44,30 @@ func (cicdDeploymentCommit cicdDeploymentCommit20240129) TableName() string {
 
 type addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits struct{}
 
-func (u *addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits) Up(basicRes context.BasicRes) errors.Error {
+func (*addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	if err := db.AutoMigrate(&cicdDeployment20240129{}); err != nil {
-		return err
-	}
-	if err := db.Exec("alter table cicd_deployments modify original_environment varchar(255) after environment;"); err != nil {
 		return err
 	}
 	if err := db.AutoMigrate(&cicdDeploymentCommit20240129{}); err != nil {
 		return err
 	}
-	if err := db.Exec("alter table cicd_deployment_commits modify original_environment varchar(255) after environment;"); err != nil {
-		return err
+
+	dbUrl := basicRes.GetConfig("DB_URL")
+	if dbUrl == "" {
+		return errors.BadInput.New("DB_URL is required")
+	}
+	u, errParse := url.Parse(dbUrl)
+	if errParse != nil {
+		return errors.Convert(errParse)
+	}
+	if u.Scheme == "mysql" {
+		if err := db.Exec("alter table cicd_deployments modify original_environment varchar(255) after environment;"); err != nil {
+			return err
+		}
+		if err := db.Exec("alter table cicd_deployment_commits modify original_environment varchar(255) after environment;"); err != nil {
+			return err
+		}
 	}
 	return nil
 }
