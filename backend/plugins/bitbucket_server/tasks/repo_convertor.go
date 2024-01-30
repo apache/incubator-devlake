@@ -50,7 +50,7 @@ var ConvertRepoMeta = plugin.SubTaskMeta{
 type ApiRepoResponse models.BitbucketServerApiRepo
 
 func GetApiRepo(
-	op *BitbucketOptions,
+	op *BitbucketServerOptions,
 	apiClient plugin.ApiClient,
 ) (*models.BitbucketServerApiRepo, errors.Error) {
 	res, err := apiClient.Get(path.Join("repositories", op.FullName), nil, nil)

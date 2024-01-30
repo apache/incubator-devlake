@@ -143,7 +143,7 @@ func (p BitbucketServer) PrepareTaskData(taskCtx plugin.TaskContext, options map
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	taskData := &tasks.BitbucketTaskData{
+	taskData := &tasks.BitbucketServerTaskData{
 		Options:       op,
 		ApiClient:     apiClient,
 		RegexEnricher: regexEnricher,
@@ -153,7 +153,7 @@ func (p BitbucketServer) PrepareTaskData(taskCtx plugin.TaskContext, options map
 }
 
 func (p BitbucketServer) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/bitbucket_server"
+	return "github.com/apache/incubator-devlake/plugins/bitbucket_server/" // the "/" fixes an issue where records from "bitbucket_server" are counted as "bitbucket" records and vice versa
 }
 
 func (p BitbucketServer) MigrationScripts() []plugin.MigrationScript {
@@ -215,7 +215,7 @@ func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResource
 }
 
 func (p BitbucketServer) Close(taskCtx plugin.TaskContext) errors.Error {
-	data, ok := taskCtx.GetData().(*tasks.BitbucketTaskData)
+	data, ok := taskCtx.GetData().(*tasks.BitbucketServerTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
@@ -224,7 +224,7 @@ func (p BitbucketServer) Close(taskCtx plugin.TaskContext) errors.Error {
 }
 
 func EnrichOptions(taskCtx plugin.TaskContext,
-	op *tasks.BitbucketOptions,
+	op *tasks.BitbucketServerOptions,
 	apiClient *helper.ApiClient) errors.Error {
 	var repo models.BitbucketServerRepo
 	// validate the op and set name=owner/repo if this is from advanced mode or bpV100

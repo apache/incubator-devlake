@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
 )
 
-type BitbucketOptions struct {
+type BitbucketServerOptions struct {
 	ConnectionId                       uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
 	Tasks                              []string `json:"tasks,omitempty" mapstructure:",omitempty"`
 	FullName                           string   `json:"fullName" mapstructure:"fullName"`
@@ -31,13 +31,13 @@ type BitbucketOptions struct {
 	*models.BitbucketServerScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
 }
 
-type BitbucketTaskData struct {
-	Options       *BitbucketOptions
+type BitbucketServerTaskData struct {
+	Options       *BitbucketServerOptions
 	ApiClient     *api.ApiAsyncClient
 	RegexEnricher *api.RegexEnricher
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOptions, errors.Error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketServerOptions, errors.Error) {
 	op, err := DecodeTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -49,8 +49,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOpt
 	return op, nil
 }
 
-func DecodeTaskOptions(options map[string]interface{}) (*BitbucketOptions, errors.Error) {
-	var op BitbucketOptions
+func DecodeTaskOptions(options map[string]interface{}) (*BitbucketServerOptions, errors.Error) {
+	var op BitbucketServerOptions
 	err := api.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func DecodeTaskOptions(options map[string]interface{}) (*BitbucketOptions, error
 	return &op, nil
 }
 
-func EncodeTaskOptions(op *BitbucketOptions) (map[string]interface{}, errors.Error) {
+func EncodeTaskOptions(op *BitbucketServerOptions) (map[string]interface{}, errors.Error) {
 	var result map[string]interface{}
 	err := api.Decode(op, &result, nil)
 	if err != nil {
@@ -67,7 +67,7 @@ func EncodeTaskOptions(op *BitbucketOptions) (map[string]interface{}, errors.Err
 	return result, nil
 }
 
-func ValidateTaskOptions(op *BitbucketOptions) errors.Error {
+func ValidateTaskOptions(op *BitbucketServerOptions) errors.Error {
 	if op.FullName == "" {
 		return errors.BadInput.New("no enough info for Bitbucket execution")
 	}

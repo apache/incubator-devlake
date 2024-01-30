@@ -50,8 +50,8 @@ type BitbucketServerCommitInput struct {
 	CommitSha string
 }
 
-func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *BitbucketTaskData) {
-	data := taskCtx.GetData().(*BitbucketTaskData)
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *BitbucketServerTaskData) {
+	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	RawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: BitbucketServerApiParams{
@@ -122,7 +122,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 
 func GetBranchesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
+	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	clauses := []dal.Clause{
 		dal.Select("bb.branch"),
 		dal.From("_tool_bitbucket_server_branches bb"),
@@ -141,30 +141,9 @@ func GetBranchesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator,
 	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerBranchInput{}))
 }
 
-func GetCommitsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	clauses := []dal.Clause{
-		dal.Select("bc.commit_sha"),
-		dal.From("_tool_bitbucket_server_commits bc"),
-		dal.Where(
-			`bc.repo_id = ? and bc.connection_id = ?`,
-			data.Options.FullName, data.Options.ConnectionId,
-		),
-	}
-
-	// construct the input iterator
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return nil, err
-	}
-
-	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerCommitInput{}))
-}
-
 func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
+	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	clauses := []dal.Clause{
 		dal.Select("bpr.bitbucket_id"),
 		dal.From("_tool_bitbucket_server_pull_requests bpr"),

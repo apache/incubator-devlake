@@ -57,7 +57,7 @@ func (p BitbucketServerRepo) ScopeFullName() string {
 }
 
 func (p BitbucketServerRepo) ScopeParams() interface{} {
-	return &BitbucketApiParams{
+	return &BitbucketServerApiParams{
 		ConnectionId: p.ConnectionId,
 		FullName:     p.BitbucketId,
 	}
@@ -134,7 +134,7 @@ func (p ProjectItem) GroupName() string {
 	return p.Name
 }
 
-type BitbucketApiParams struct {
+type BitbucketServerApiParams struct {
 	ConnectionId uint64
 	FullName     string
 }

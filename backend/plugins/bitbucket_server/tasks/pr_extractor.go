@@ -79,7 +79,7 @@ type ApiPrResponse struct {
 }
 
 func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*BitbucketTaskData)
+	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	config := data.Options.BitbucketServerScopeConfig
 	var prTypeRegex *regexp.Regexp
 	var prComponentRegex *regexp.Regexp

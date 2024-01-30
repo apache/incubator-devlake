@@ -58,8 +58,7 @@ func MakeDataSourcePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -102,7 +101,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 
 		// construct task options for bitbucket
-		op := &tasks.BitbucketOptions{
+		op := &tasks.BitbucketServerOptions{
 			ConnectionId: repo.ConnectionId,
 			FullName:     repo.BitbucketId,
 		}

@@ -31,8 +31,8 @@ func TestPrDataFlow(t *testing.T) {
 	var plugin impl.BitbucketServer
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket_server", plugin)
 
-	taskData := &tasks.BitbucketTaskData{
-		Options: &tasks.BitbucketOptions{
+	taskData := &tasks.BitbucketServerTaskData{
+		Options: &tasks.BitbucketServerOptions{
 			ConnectionId: 3,
 			FullName:     "TP/repos/first-repo",
 		},
