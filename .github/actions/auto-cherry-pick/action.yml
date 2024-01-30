@@ -18,6 +18,10 @@
 name: "Auto Cherry Pick"
 description: "cherry pick commits from Pull Requests into Release branch"
 inputs:
+  trigger_label_prefix:
+    description: "The trigger label prefic"
+    default: "needs-cherrypick-"
+    required: false
   author_email:
     description: "The author email address"
     default: ${{ github.actor }}@users.noreply.github.com
@@ -41,7 +45,8 @@ runs:
         GH_TOKEN: ${{ github.token }}
         ORIGIN_PR_NUMBER: ${{ github.event.pull_request.number }}
         ORIGIN_PR_TITLE: ${{ github.event.pull_request.title }}
-        ORIGIN_PR_LABELS_JSON:  ${{ toJson(github.event.pull_request.labels.*.name) }}
+        ORIGIN_PR_LABELS_JSON: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        TRIGER_LABEL_PREFIX: ${{ inputs.trigger_label_prefix }}
         AUTHOR_EMAIL: ${{ inputs.author_email }}
         AUTHOR_NAME: ${{ inputs.author_name }}
         ASSIGNEES: ${{ inputs.assignees }}
