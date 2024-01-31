@@ -22,10 +22,9 @@ import (
 )
 
 type BitbucketServerRepoCommit struct {
-	ConnectionId     uint64 `gorm:"primaryKey"`
-	RepoId           string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha        string `gorm:"primaryKey;type:varchar(40)"`
-	ParentCommitShas string `gorm:"type:varchar(255)"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	RepoId       string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	common.NoPKModel
 }
 

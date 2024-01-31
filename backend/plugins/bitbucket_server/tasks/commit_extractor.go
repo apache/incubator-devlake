@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -64,29 +63,21 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			results := make([]interface{}, 0, 4)
 
-			parentCommitShasArr := make([]string, 0, len(commit.Parents))
-			for _, parent := range commit.Parents {
-				parentCommitShasArr = append(parentCommitShasArr, parent.BitbucketID)
-			}
-			parentCommitShas := strings.Join(parentCommitShasArr, ",")
-
 			bitbucketCommit := &models.BitbucketServerCommit{
-				ConnectionId:     data.Options.ConnectionId,
-				RepoId:           repoId,
-				CommitSha:        commit.BitbucketId,
-				ParentCommitShas: parentCommitShas,
-				AuthorName:       commit.Author.Name,
-				AuthorEmail:      commit.Author.EmailAddress,
-				Message:          commit.Message,
-				AuthoredDate:     time.UnixMilli(commit.AuthorTimestamp),
-				CommittedDate:    time.UnixMilli(commit.CommitterTimestamp),
+				ConnectionId:  data.Options.ConnectionId,
+				RepoId:        repoId,
+				CommitSha:     commit.BitbucketId,
+				AuthorName:    commit.Author.Name,
+				AuthorEmail:   commit.Author.EmailAddress,
+				Message:       commit.Message,
+				AuthoredDate:  time.UnixMilli(commit.AuthorTimestamp),
+				CommittedDate: time.UnixMilli(commit.CommitterTimestamp),
 			}
 
 			bitbucketRepoCommit := &models.BitbucketServerRepoCommit{
-				ConnectionId:     data.Options.ConnectionId,
-				RepoId:           data.Options.FullName,
-				CommitSha:        commit.BitbucketId,
-				ParentCommitShas: parentCommitShas,
+				ConnectionId: data.Options.ConnectionId,
+				RepoId:       data.Options.FullName,
+				CommitSha:    commit.BitbucketId,
 			}
 
 			bitbucketUser, err := convertUser(&commit.Author, data.Options.ConnectionId)
