@@ -139,7 +139,7 @@ export const Layout = () => {
           {version}
         </div>
       </Sider>
-      <AntdLayout style={{ overflowY: 'auto' }}>
+      <AntdLayout>
         <Header
           style={{
             display: 'flex',
@@ -162,8 +162,10 @@ export const Layout = () => {
               </ExternalLink>
             ))}
         </Header>
-        <Content style={{ margin: '16px auto', padding: '0 24px', width: 1188, boxSizing: 'border-box' }}>
-          <Outlet />
+        <Content style={{ overflowY: 'auto' }}>
+          <div style={{ padding: 24 }}>
+            <Outlet />
+          </div>
           {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
             <Footer>
               <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
