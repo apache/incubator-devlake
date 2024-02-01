@@ -20,13 +20,14 @@ package services
 import (
 	"context"
 	"fmt"
-	"github.com/spf13/cast"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -413,7 +414,10 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	tx := txHelper.Begin()
 	defer txHelper.End()
-	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{{Table: "_devlake_pipelines", Exclusive: true}})
+	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{
+		{Table: "_devlake_pipelines", Exclusive: true},
+		{Table: "_devlake_tasks", Exclusive: true},
+	})
 	if err != nil {
 		err = errors.BadInput.Wrap(err, "failed to lock pipeline table, is there any pending pipeline or deletion?")
 		return
@@ -458,7 +462,6 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 	}
 
 	// create new tasks
-	// TODO: this is better to be wrapped inside a transaction
 	rerunTasks := []*models.Task{}
 	for _, t := range failedTasks {
 		// mark previous task failed
@@ -468,7 +471,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 			return nil, err
 		}
 		// create new task
-		rerunTask, err := CreateTask(&models.NewTask{
+		rerunTask, err := createTask(&models.NewTask{
 			PipelineTask: &models.PipelineTask{
 				Plugin:   t.Plugin,
 				Subtasks: t.Subtasks,
@@ -478,7 +481,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 			PipelineRow: t.PipelineRow,
 			PipelineCol: t.PipelineCol,
 			IsRerun:     true,
-		})
+		}, tx)
 		if err != nil {
 			return nil, err
 		}
