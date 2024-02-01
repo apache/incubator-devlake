@@ -40,8 +40,7 @@ type TaskQuery struct {
 	Pending    int    `form:"pending"`
 }
 
-// CreateTask creates a new task
-func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
+func createTask(newTask *models.NewTask, tx dal.Transaction) (*models.Task, errors.Error) {
 	task := &models.Task{
 		Plugin:      newTask.Plugin,
 		Subtasks:    newTask.Subtasks,
@@ -55,7 +54,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
 	if newTask.IsRerun {
 		task.Status = models.TASK_RERUN
 	}
-	err := db.Create(task)
+	err := tx.Create(task)
 	if err != nil {
 		taskLog.Error(err, "save task failed")
 		return nil, errors.Internal.Wrap(err, "save task failed")
