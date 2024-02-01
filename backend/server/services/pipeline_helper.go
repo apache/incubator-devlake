@@ -37,6 +37,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 		dal.LockTables{
 			{Table: "_devlake_pipelines", Exclusive: true},
 			{Table: "_devlake_pipeline_labels", Exclusive: true},
+			{Table: "_devlake_tasks", Exclusive: true},
 		},
 	))
 	if err != nil {
@@ -91,7 +92,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 				PipelineRow:  i + 1,
 				PipelineCol:  j + 1,
 			}
-			_ = errors.Must1(CreateTask(newTask))
+			_ = errors.Must1(createTask(newTask, tx))
 			// sync task state back to pipeline
 			dbPipeline.TotalTasks += 1
 		}
