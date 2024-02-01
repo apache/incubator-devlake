@@ -51,7 +51,6 @@ func CollectApiPullRequestsActivities(taskCtx plugin.SubTaskContext) errors.Erro
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
-		Concurrency:           5,
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query:                 GetQueryForNextPage,
 		Input:                 iterator,

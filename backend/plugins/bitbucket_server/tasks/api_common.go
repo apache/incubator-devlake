@@ -91,7 +91,7 @@ func GetNextPageCustomData(_ *helper.RequestData, prevPageResponse *http.Respons
 	}
 
 	if rawMessages.IsLastPage || rawMessages.NextPageStart == nil {
-		return nil, nil
+		return nil, api.ErrFinishCollect
 	}
 
 	return strconv.Itoa(*rawMessages.NextPageStart), nil
