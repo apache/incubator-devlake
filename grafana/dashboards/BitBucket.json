@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,14 +16,17 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1683688425813,
+  "id": 3,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 3,
         "w": 13,
@@ -28,13 +34,29 @@
         "y": 0
       },
       "id": 101,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "BitBucket Cloud",
+          "url": "https://devlake.apache.org/docs/Plugins/bitbucket"
+        }
+      ],
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "- Use Cases: This dashboard shows the basic Git and Code Review metrics from BitBucket.\n- Data Source Required: BitBucket",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -44,7 +66,10 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -53,6 +78,15 @@
       },
       "id": 83,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "1. Contribution (PRs)",
       "type": "row"
     },
@@ -88,6 +122,13 @@
         "y": 4
       },
       "id": 68,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -103,15 +144,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n\tcount(*) as pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\t\n\n",
+          "rawSql": "select\n\tcount(distinct pr.id) as pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id:sqlstring}+'')\n\t\n\n",
           "refId": "A",
           "select": [
             [
@@ -123,6 +166,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -147,6 +207,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -157,7 +219,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -183,32 +251,48 @@
         "y": 4
       },
       "id": 77,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
+        "barRadius": 0,
         "barWidth": 0.5,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in ($repo_id)\n    and $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(distinct id) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in (${repo_id:sqlstring}+'')\n    and $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -220,6 +304,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -244,6 +345,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Merged PR Count",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -254,7 +357,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -281,32 +390,48 @@
         "y": 10
       },
       "id": 59,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
+        "barRadius": 0,
         "barWidth": 0.5,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "multi"
-        }
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  author_name,\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\tand pr.status = 'MERGED'\ngroup by 1\norder by 2 desc\nlimit 20\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  author_name,\n\tcount(distinct pr.id) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id:sqlstring}+'')\n\tand pr.status = 'MERGED'\ngroup by 1\norder by 2 desc\nlimit 20\n",
           "refId": "A",
           "select": [
             [
@@ -318,6 +443,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -335,7 +477,10 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -344,6 +489,15 @@
       },
       "id": 85,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "2. How PRs are handled?",
       "type": "row"
     },
@@ -380,6 +534,13 @@
         "y": 17
       },
       "id": 66,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -393,15 +554,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  count(distinct case when status='CLOSED' then id else null end)/count(distinct case when status in ('MERGED','CLOSED') then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  count(distinct case when status='CLOSED' then id else null end)/count(distinct case when status in ('MERGED','CLOSED') then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id:sqlstring}+'')",
           "refId": "A",
           "select": [
             [
@@ -437,6 +599,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Pull Request Count",
             "axisPlacement": "auto",
             "barAlignment": 1,
@@ -484,27 +648,37 @@
         "y": 17
       },
       "id": 79,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
             "sum"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'OPEN' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'CLOSED' then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'MERGED' then id else null end) as \"PR: Merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'OPEN' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'CLOSED' then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'MERGED' then id else null end) as \"PR: Merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id:sqlstring}+'')\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -544,8 +718,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -563,6 +736,13 @@
         "y": 23
       },
       "id": 80,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -578,15 +758,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\tand pr.status = 'CLOSED'",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n\tcount(distinct pr.id) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id:sqlstring}+'')\n\tand pr.status = 'CLOSED'",
           "refId": "A",
           "select": [
             [
@@ -598,6 +780,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -622,6 +821,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Ratio",
             "axisPlacement": "auto",
             "barAlignment": 1,
@@ -657,8 +858,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -673,27 +873,37 @@
         "y": 23
       },
       "id": 81,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [
             "mean"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('MERGED', 'CLOSED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('MERGED', 'CLOSED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id:sqlstring}+'')\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -733,8 +943,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -752,6 +961,13 @@
         "y": 29
       },
       "id": 72,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -767,15 +983,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440)\nfrom \n\tpull_requests\nwhere \n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\tand merged_date is not null\n\n\n",
+          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440)\nfrom \n\tpull_requests\nwhere \n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id:sqlstring}+'')\n\tand merged_date is not null\n\n\n",
           "refId": "A",
           "select": [
             [
@@ -811,6 +1028,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -821,15 +1040,20 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -847,32 +1071,47 @@
         "y": 29
       },
       "id": 95,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
+        "barRadius": 0,
         "barWidth": 0.5,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in ($repo_id)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in (${repo_id:sqlstring}+'')\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -900,7 +1139,10 @@
       "type": "barchart"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
@@ -909,12 +1151,21 @@
       },
       "id": 99,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -923,7 +1174,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 30,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [
     "Data Source Dashboard"
@@ -942,16 +1193,14 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select concat(name, '--', id) as text from repos where id like 'bitbucket%' and id not like 'bitbucket_server%'",
-        "description": null,
-        "error": null,
+        "definition": "select concat(name, '--', id) as text from repos where id like 'bitbucket%'",
         "hide": 0,
         "includeAll": true,
         "label": "Repo",
         "multi": true,
         "name": "repo_id",
         "options": [],
-        "query": "select concat(name, '--', id) as text from repos where id like 'bitbucket%' and id not like 'bitbucket_server%'",
+        "query": "select concat(name, '--', id) as text from repos where id like 'bitbucket%'",
         "refresh": 1,
         "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
@@ -968,5 +1217,6 @@
   "timezone": "",
   "title": "BitBucket",
   "uid": "4LzQHZa4k",
-  "version": 8
+  "version": 3,
+  "weekStart": ""
 }
