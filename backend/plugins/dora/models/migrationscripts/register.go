@@ -26,6 +26,6 @@ func All() []plugin.MigrationScript {
 	return []plugin.MigrationScript{
 		new(addDoraBenchmark),
 		new(fixDoraBenchmarkMetric),
-		new(upgradeDoraBenchmarkMetric),
+		new(adddoraBenchmark2023),
 	}
 }
