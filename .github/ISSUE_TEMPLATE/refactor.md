@@ -1,3 +1,12 @@
+---
+name: Refactor
+about: Improve operation without altering functionality
+title: '[Refactor][Module Name] Refactor title'
+labels: type/refactor
+assignees: ''
+
+---
+
 <!--
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
@@ -14,14 +23,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
----
-name: Refactor
-about: Improve operation without altering functionality
-title: '[Refactor][Module Name] Refactor title'
-labels: type/refactor
-assignees: ''
-
----
 
 ## What and why to refactor
 What are you trying to refactor? Why should it be refactored now?

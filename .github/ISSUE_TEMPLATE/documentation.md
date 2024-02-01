@@ -1,3 +1,12 @@
+---
+name: Documentation
+about: Help improve the documentation
+title: '[Doc][Module Name] Documentation title'
+labels: type/docs
+assignees: ''
+
+---
+
 <!--
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
@@ -14,14 +23,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
----
-name: Documentation
-about: Help improve the documentation
-title: '[Doc][Module Name] Documentation title'
-labels: type/docs
-assignees: ''
-
----
 
 ## Documentation Scope
 Briefly explain what the documentation is referencing. For instance, the main README, website, API doc, etc.
