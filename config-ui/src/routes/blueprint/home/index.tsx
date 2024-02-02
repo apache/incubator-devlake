@@ -94,11 +94,9 @@ export const BlueprintHomePage = () => {
         { name: 'Advanced', path: PATHS.BLUEPRINTS() },
         { name: 'Blueprints', path: PATHS.BLUEPRINTS() },
       ]}
+      description="This is a complete list of all Blueprints you have created, whether they belong to Projects or not."
     >
       <Flex vertical gap="middle">
-        <p style={{ margin: 0 }}>
-          This is a complete list of all Blueprints you have created, whether they belong to Projects or not.
-        </p>
         <Flex justify="space-between">
           <Radio.Group optionType="button" value={type} onChange={({ target: { value } }) => setType(value)}>
             <Radio value="all">All</Radio>

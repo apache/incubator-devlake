@@ -105,6 +105,7 @@ func TestDeloymentsDataFlow(t *testing.T) {
 			"original_result",
 			"original_status",
 			"environment",
+			"original_environment",
 		},
 	)
 }

@@ -35,7 +35,7 @@ func (issue20240117) TableName() string {
 
 type addUrgencyToIssues struct{}
 
-func (u *addUrgencyToIssues) Up(basicRes context.BasicRes) errors.Error {
+func (*addUrgencyToIssues) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	if err := db.AutoMigrate(&issue20240117{}); err != nil {
 		return err

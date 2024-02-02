@@ -27,10 +27,11 @@ interface Props {
     path: string;
   }>;
   extra?: React.ReactNode;
+  description?: string;
   children: React.ReactNode;
 }
 
-export const PageHeader = ({ breadcrumbs, extra, children }: Props) => {
+export const PageHeader = ({ breadcrumbs, extra, description, children }: Props) => {
   return (
     <S.Container>
       <S.Title>
@@ -46,6 +47,7 @@ export const PageHeader = ({ breadcrumbs, extra, children }: Props) => {
         </S.Breadcrumbs>
         <S.Extra>{extra}</S.Extra>
       </S.Title>
+      <S.Description>{description}</S.Description>
       <S.Content>{children}</S.Content>
     </S.Container>
   );

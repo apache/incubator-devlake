@@ -41,8 +41,12 @@ const Option = styled.div`
     }
   }
 
-  span + span {
+  .name {
     margin-left: 8px;
+    max-width: 90%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 `;
 

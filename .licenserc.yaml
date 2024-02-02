@@ -47,7 +47,8 @@ header:
     - "**/*.conf"
     - "deployment/helm/templates/_helpers.tpl"
     - "**/poetry.lock"
-    - 'config-ui/.yarn/**/*'
+    - "config-ui/.yarn/**/*"
     - "config-ui/yarn.lock"
+    - ".github/ISSUE_TEMPLATE/*.md"
 
   comment: on-failure

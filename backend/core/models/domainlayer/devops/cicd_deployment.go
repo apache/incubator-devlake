@@ -23,13 +23,14 @@ import (
 
 type CICDDeployment struct {
 	domainlayer.DomainEntity
-	CicdScopeId    string `gorm:"index;type:varchar(255)"`
-	Name           string `gorm:"type:varchar(255)"`
-	Result         string `gorm:"type:varchar(100)"`
-	Status         string `gorm:"type:varchar(100)"`
-	OriginalStatus string `gorm:"type:varchar(100)"`
-	OriginalResult string `gorm:"type:varchar(100)"`
-	Environment    string `gorm:"type:varchar(255)"`
+	CicdScopeId         string `gorm:"index;type:varchar(255)"`
+	Name                string `gorm:"type:varchar(255)"`
+	Result              string `gorm:"type:varchar(100)"`
+	Status              string `gorm:"type:varchar(100)"`
+	OriginalStatus      string `gorm:"type:varchar(100)"`
+	OriginalResult      string `gorm:"type:varchar(100)"`
+	Environment         string `gorm:"type:varchar(255)"`
+	OriginalEnvironment string `gorm:"type:varchar(255)"`
 	TaskDatesInfo
 	DurationSec       *float64
 	QueuedDurationSec *float64
