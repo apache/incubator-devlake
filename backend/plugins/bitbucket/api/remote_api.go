@@ -18,13 +18,10 @@ limitations under the License.
 package api
 
 import (
-	gocontext "context"
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
-	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -33,8 +30,8 @@ import (
 )
 
 type BitbucketRemotePagination struct {
-	MaxResult  int `json:"max-result" validate:"required"`
-	StartIndex int `json:"start-index" validate:"required"`
+	Page    int `json:"page" validate:"required"`
+	PageLen int `json:"pagelen" validate:"required"`
 }
 
 func listBitbucketRemoteScopes(
@@ -47,224 +44,176 @@ func listBitbucketRemoteScopes(
 	nextPage *BitbucketRemotePagination,
 	err errors.Error,
 ) {
-	if page.MaxResult == 0 {
-		page.MaxResult = 100
+	if page.Page == 0 {
+		page.Page = 1
+	}
+	if page.PageLen == 0 {
+		page.PageLen = 100
 	}
 
-	query := url.Values{
-		"showEmpty":   []string{"false"},
-		"max-result":  []string{fmt.Sprintf("%v", page.MaxResult)},
-		"start-index": []string{fmt.Sprintf("%v", page.StartIndex)},
+	if groupId == "" {
+		return listBitbucketWorkspaces(apiClient, page)
 	}
-	res, err := apiClient.Get("plan.json", query, nil)
+	return listBitbucketRepos(apiClient, groupId, page)
+}
 
+func listBitbucketWorkspaces(
+	apiClient plugin.ApiClient,
+	page BitbucketRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.BitbucketRepo],
+	nextPage *BitbucketRemotePagination,
+	err errors.Error,
+) {
+	var res *http.Response
+	res, err = apiClient.Get(
+		"/user/permissions/workspaces",
+		url.Values{
+			"sort":    {"workspace.slug"},
+			"fields":  {"values.workspace.slug,values.workspace.name,pagelen,page,size"},
+			"page":    {fmt.Sprintf("%v", page.Page)},
+			"pagelen": {fmt.Sprintf("%v", page.PageLen)},
+		},
+		nil,
+	)
 	if err != nil {
 		return
 	}
-	var planRes struct {
-		Expand string `json:"expand"`
-		Link   struct {
-			Href string `json:"href"`
-			Rel  string `json:"rel"`
-		} `json:"link"`
-		Plans struct {
-			Size       int                       `json:"size"`
-			Expand     string                    `json:"expand"`
-			StartIndex int                       `json:"start-index"`
-			MaxResult  int                       `json:"max-result"`
-			Plan       []models.ApiBitbucketPlan `json:"plan"`
-		} `json:"plans"`
-	}
-	err = api.UnmarshalResponse(res, &planRes)
+
+	resBody := &models.WorkspaceResponse{}
+	err = api.UnmarshalResponse(res, resBody)
 	if err != nil {
 		return
 	}
-	for _, plan := range planRes.Plans.Plan {
-		children = append(children, toPlanModel(&plan))
-	}
-	// there may be more repos
-	if len(children) == page.MaxResult {
-		nextPage = &BitbucketRemotePagination{
-			MaxResult:  page.MaxResult,
-			StartIndex: page.StartIndex + page.MaxResult,
-		}
+	for _, r := range resBody.Values {
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.BitbucketRepo]{
+			Type:     api.RAS_ENTRY_TYPE_GROUP,
+			Id:       r.Workspace.Slug,
+			Name:     r.Workspace.Name,
+			FullName: r.Workspace.Name,
+		})
 	}
 	return
 }
 
-func searchBitbucketPlans(
+func listBitbucketRepos(
+	apiClient plugin.ApiClient,
+	workspace string,
+	page BitbucketRemotePagination,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.BitbucketRepo],
+	nextPage *BitbucketRemotePagination,
+	err errors.Error,
+) {
+
+	var res *http.Response
+	// list projects part
+	res, err = apiClient.Get(fmt.Sprintf("/repositories/%s", workspace), url.Values{
+		"fields":  {"values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size"},
+		"page":    {fmt.Sprintf("%v", page.Page)},
+		"pagelen": {fmt.Sprintf("%v", page.PageLen)},
+	}, nil)
+	if err != nil {
+		return
+	}
+	var resBody models.ReposResponse
+	err = api.UnmarshalResponse(res, &resBody)
+	if err != nil {
+		return
+	}
+
+	for _, r := range resBody.Values {
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.BitbucketRepo]{
+			Type:     api.RAS_ENTRY_TYPE_SCOPE,
+			Id:       r.FullName,
+			ParentId: &workspace,
+			Name:     r.Name,
+			FullName: r.FullName,
+			Data:     r.ConvertApiScope(),
+		})
+	}
+	return
+}
+
+func searchBitbucketRepos(
 	apiClient plugin.ApiClient,
 	params *dsmodels.DsRemoteApiScopeSearchParams,
 ) (
-	children []dsmodels.DsRemoteApiScopeListEntry[models.BitbucketPlan],
+	children []dsmodels.DsRemoteApiScopeListEntry[models.BitbucketRepo],
 	err errors.Error,
 ) {
-	res, err := apiClient.Get(
-		"search/plans.json",
+	var res *http.Response
+	res, err = apiClient.Get(
+		"/repositories",
 		url.Values{
-			"searchTerm": []string{params.Search},
+			"sort":    {"name"},
+			"fields":  {"values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size"},
+			"role":    {"member"},
+			"q":       {fmt.Sprintf(`full_name~"%s"`, params.Search)},
+			"page":    {fmt.Sprintf("%v", params.Page)},
+			"pagelen": {fmt.Sprintf("%v", params.PageSize)},
 		},
 		nil,
 	)
 	if err != nil {
 		return nil, err
 	}
-	resBody := models.ApiBitbucketSearchPlanResponse{}
+	var resBody models.ReposResponse
 	err = api.UnmarshalResponse(res, &resBody)
 	if err != nil {
-		return nil, err
+		return
 	}
-	for _, r := range resBody.SearchResults {
-		children = append(children, toPlanModel(&models.ApiBitbucketPlan{
-			Key:  r.SearchEntity.Key,
-			Name: r.SearchEntity.Name(),
-		}))
+	for _, r := range resBody.Values {
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.BitbucketRepo]{
+			Type:     api.RAS_ENTRY_TYPE_SCOPE,
+			Id:       r.FullName,
+			Name:     r.Name,
+			FullName: r.FullName,
+			Data:     r.ConvertApiScope(),
+		})
 	}
 	return
 }
 
-func toPlanModel(plan *models.ApiBitbucketPlan) dsmodels.DsRemoteApiScopeListEntry[models.BitbucketPlan] {
-	return dsmodels.DsRemoteApiScopeListEntry[models.BitbucketPlan]{
-		Type:     api.RAS_ENTRY_TYPE_SCOPE,
-		Id:       plan.Key,
-		Name:     plan.Name,
-		FullName: plan.Name,
-		Data: &models.BitbucketPlan{
-			PlanKey:   plan.Key,
-			Name:      plan.Name,
-			ShortName: plan.ShortName,
-			ShortKey:  plan.ShortKey,
-			Type:      plan.Type,
-			Enabled:   plan.Enabled,
-			Href:      plan.Link.Href,
-			Rel:       plan.Link.Rel,
-		},
-	}
-}
-
-// RemoteScopes list all available scope for users
-// @Summary list all available scope for users
-// @Description list all available scope for users
-// @Tags plugins/bitbucket
+// RemoteScopes list all available scopes on the remote server
+// @Summary list all available scopes on the remote server
+// @Description list all available scopes on the remote server
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param groupId query string false "group ID"
 // @Param pageToken query string false "page Token"
-// @Success 200  {object} api.RemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Success 200  {object} dsmodels.DsRemoteApiScopeList[models.BitbucketRepo]
+// @Tags plugins/bitbucket
 // @Router /plugins/bitbucket/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.GroupResponse, errors.Error) {
-			if gid != "" {
-				return nil, nil
-			}
-			query := initialQuery(queryData)
-
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-			var res *http.Response
-			query.Set("sort", "workspace.slug")
-			query.Set("fields", "values.workspace.slug,values.workspace.name,pagelen,page,size")
-			res, err = apiClient.Get("/user/permissions/workspaces", query, nil)
-			if err != nil {
-				return nil, err
-			}
-
-			resBody := &models.WorkspaceResponse{}
-			err = api.UnmarshalResponse(res, resBody)
-			if err != nil {
-				return nil, err
-			}
-
-			return resBody.Values, err
-		},
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
-			if gid == "" {
-				return nil, nil
-			}
-			query := initialQuery(queryData)
-
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-			var res *http.Response
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
-			// list projects part
-			res, err = apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
-			if err != nil {
-				return nil, err
-			}
-			var resBody models.ReposResponse
-			err = api.UnmarshalResponse(res, &resBody)
-			if err != nil {
-				return nil, err
-			}
-			return resBody.Values, err
-		},
-	)
+	return raScopeList.Get(input)
 }
 
-// SearchRemoteScopes use the Search API and only return project
-// @Summary use the Search API and only return project
-// @Description use the Search API and only return project
-// @Tags plugins/bitbucket
+// SearchRemoteScopes searches scopes on the remote server
+// @Summary searches scopes on the remote server
+// @Description searches scopes on the remote server
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param search query string false "search"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
-// @Success 200  {object} api.SearchRemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Success 200  {object} dsmodels.DsRemoteApiScopeList[models.BitbucketRepo] "the parentIds are always null"
+// @Tags plugins/bitbucket
 // @Router /plugins/bitbucket/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
-			// create api client
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-
-			// request search
-			query := initialQuery(queryData)
-			if len(queryData.Search) == 0 {
-				return nil, errors.BadInput.New("empty search query")
-			}
-			s := queryData.Search[0]
-			if strings.Contains(s, `"`) {
-				return nil, errors.BadInput.New("search query contains invalid character")
-			}
-			query.Set("sort", "name")
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
-			query.Set("role", "member")
-			query.Set("q", fmt.Sprintf(`full_name~"%s"`, s))
-
-			// list repos part
-			res, err := apiClient.Get("/repositories", query, nil)
-			if err != nil {
-				return nil, err
-			}
-
-			var resBody models.ReposResponse
-			err = api.UnmarshalResponse(res, &resBody)
-			if err != nil {
-				return nil, err
-			}
-
-			return resBody.Values, err
-		},
-	)
+	return raScopeSearch.Get(input)
 }
 
-func initialQuery(queryData *api.RemoteQueryData) url.Values {
-	query := url.Values{}
-	query.Set("page", fmt.Sprintf("%v", queryData.Page))
-	query.Set("pagelen", fmt.Sprintf("%v", queryData.PerPage))
-	return query
+// @Summary Remote server API proxy
+// @Description Forward API requests to the specified remote server
+// @Param connectionId path int true "connection ID"
+// @Param path path string true "path to a API endpoint"
+// @Tags plugins/bitbucket
+// @Router /plugins/bitbucket/connections/{connectionId}/proxy/{path} [GET]
+func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return raProxy.Proxy(input)
 }
