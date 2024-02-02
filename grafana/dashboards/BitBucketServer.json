@@ -73,8 +73,8 @@
       "panels": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "description": "",
           "fieldConfig": {
@@ -125,8 +125,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "mysql",
-                "uid": "P430005175C4C7810"
+                "type": "datasource",
+                "uid": "grafana"
               },
               "format": "table",
               "group": [],
@@ -162,8 +162,8 @@
         },
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "description": "",
           "fieldConfig": {
@@ -244,8 +244,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "mysql",
-                "uid": "P430005175C4C7810"
+                "type": "datasource",
+                "uid": "grafana"
               },
               "editorMode": "code",
               "format": "table",
@@ -299,8 +299,8 @@
         },
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "description": "",
           "fieldConfig": {
@@ -382,8 +382,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "mysql",
-                "uid": "P430005175C4C7810"
+                "type": "datasource",
+                "uid": "grafana"
               },
               "format": "table",
               "group": [],
@@ -458,8 +458,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "grafana"
       },
       "description": "",
       "fieldConfig": {
@@ -509,8 +509,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "format": "table",
           "group": [],
@@ -546,8 +546,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "grafana"
       },
       "description": "",
       "fieldConfig": {
@@ -623,8 +623,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "format": "time_series",
           "group": [],
@@ -660,8 +660,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "grafana"
       },
       "description": "",
       "fieldConfig": {
@@ -712,8 +712,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "format": "table",
           "group": [],
@@ -749,8 +749,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "grafana"
       },
       "description": "",
       "fieldConfig": {
@@ -828,8 +828,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "format": "time_series",
           "group": [],
@@ -865,8 +865,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "grafana"
       },
       "description": "",
       "fieldConfig": {
@@ -917,8 +917,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "format": "table",
           "group": [],
@@ -954,8 +954,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "grafana"
       },
       "description": "",
       "fieldConfig": {
@@ -1036,8 +1036,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "format": "table",
           "group": [],
@@ -1073,8 +1073,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "grafana"
       },
       "description": "",
       "fieldConfig": {
@@ -1123,8 +1123,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "format": "table",
           "group": [],
@@ -1160,8 +1160,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "grafana"
       },
       "description": "",
       "fieldConfig": {
@@ -1242,8 +1242,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "grafana"
           },
           "format": "table",
           "group": [],
@@ -1330,8 +1330,8 @@
           ]
         },
         "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
+          "type": "datasource",
+          "uid": "grafana"
         },
         "definition": "select concat(name, '--', id) as text from repos where id like 'bitbucket_server%'",
         "hide": 0,

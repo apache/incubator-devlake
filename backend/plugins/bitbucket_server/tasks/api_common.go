@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -50,9 +49,9 @@ type BitbucketServerCommitInput struct {
 	CommitSha string
 }
 
-func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *BitbucketServerTaskData) {
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *BitbucketServerTaskData) {
 	data := taskCtx.GetData().(*BitbucketServerTaskData)
-	RawDataSubTaskArgs := &api.RawDataSubTaskArgs{
+	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: BitbucketServerApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -91,7 +90,7 @@ func GetNextPageCustomData(_ *helper.RequestData, prevPageResponse *http.Respons
 	}
 
 	if rawMessages.IsLastPage || rawMessages.NextPageStart == nil {
-		return nil, api.ErrFinishCollect
+		return nil, helper.ErrFinishCollect
 	}
 
 	return strconv.Itoa(*rawMessages.NextPageStart), nil
@@ -120,7 +119,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	return rawMessages.Values, nil
 }
 
-func GetBranchesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {
+func GetBranchesIterator(taskCtx plugin.SubTaskContext) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	clauses := []dal.Clause{
@@ -138,10 +137,10 @@ func GetBranchesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator,
 		return nil, err
 	}
 
-	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerBranchInput{}))
+	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerBranchInput{}))
 }
 
-func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
+func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	clauses := []dal.Clause{
@@ -162,5 +161,5 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 		return nil, err
 	}
 
-	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerInput{}))
+	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerInput{}))
 }
