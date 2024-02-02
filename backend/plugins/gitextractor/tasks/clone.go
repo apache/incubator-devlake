@@ -28,6 +28,8 @@ import (
 	"strings"
 )
 
+const useGoGitInGitExtractor = "USE_GO_GIT_IN_GIT_EXTRACTOR"
+
 var CloneGitRepoMeta = plugin.SubTaskMeta{
 	Name:             "cloneGitRepo",
 	EntryPoint:       CloneGitRepo,
@@ -38,10 +40,10 @@ var CloneGitRepoMeta = plugin.SubTaskMeta{
 }
 
 func useGoGit(subTaskCtx plugin.SubTaskContext, taskData *GitExtractorTaskData) bool {
-	if subTaskCtx.GetConfig("USE_GO_GIT_IN_GIT_EXTRACTOR") == "1" {
+	if subTaskCtx.GetConfigReader().GetBool(useGoGitInGitExtractor) {
 		return true
 	}
-	if taskData != nil && taskData.Options.UseGoGit == "1" {
+	if taskData != nil && taskData.Options.UseGoGit {
 		return true
 	}
 	return false
