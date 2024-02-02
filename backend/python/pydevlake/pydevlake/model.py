@@ -65,7 +65,7 @@ class ToolTable(SQLModel):
 
 
 class Connection(ToolTable, Model):
-    name: str
+    name: str = Field(unique=True)
     proxy: Optional[AnyUrl]
 
     @validator('proxy', pre=True)
