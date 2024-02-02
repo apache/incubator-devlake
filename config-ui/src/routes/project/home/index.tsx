@@ -19,7 +19,7 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import { Table, Button, Modal, Input, Checkbox, message } from 'antd';
+import { Flex, Table, Button, Modal, Input, Checkbox, message } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -118,14 +118,12 @@ export const ProjectHomePage = () => {
   };
 
   return (
-    <PageHeader
-      breadcrumbs={[{ name: 'Projects', path: PATHS.PROJECTS() }]}
-      extra={
+    <PageHeader breadcrumbs={[{ name: 'Projects', path: PATHS.PROJECTS() }]}>
+      <Flex style={{ marginBottom: 16 }} justify="flex-end">
         <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           New Project
         </Button>
-      }
-    >
+      </Flex>
       <Table
         rowKey="name"
         size="middle"
