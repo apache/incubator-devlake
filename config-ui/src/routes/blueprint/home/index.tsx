@@ -94,11 +94,6 @@ export const BlueprintHomePage = () => {
         { name: 'Advanced', path: PATHS.BLUEPRINTS() },
         { name: 'Blueprints', path: PATHS.BLUEPRINTS() },
       ]}
-      extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
-          New Blueprint
-        </Button>
-      }
       description="This is a complete list of all Blueprints you have created, whether they belong to Projects or not."
     >
       <Flex vertical gap="middle">
@@ -111,6 +106,9 @@ export const BlueprintHomePage = () => {
               </Radio>
             ))}
           </Radio.Group>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
+            New Blueprint
+          </Button>
         </Flex>
         <Table
           rowKey="id"
