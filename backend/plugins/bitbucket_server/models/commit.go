@@ -28,7 +28,7 @@ type BitbucketServerCommit struct {
 	RepoId        string `gorm:"primaryKey"` // PullRequestId is not unique across multiple repos of a connection
 	PullRequestId int    `gorm:"primaryKey;autoIncrement:false"`
 	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
-	AuthorId      int    `gorm:"type:varchar(255)"`
+	AuthorId      int
 	AuthorName    string `gorm:"type:varchar(255)"`
 	AuthorEmail   string `gorm:"type:varchar(255)"`
 	AuthoredDate  time.Time

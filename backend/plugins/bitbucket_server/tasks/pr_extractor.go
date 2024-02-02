@@ -121,13 +121,11 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			if rawL.Author != nil {
-				// TODO:
-
 				bitbucketUser, err := convertUser(rawL.Author.User, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}
-				results = append(results, bitbucketUser) // TODO:
+				results = append(results, bitbucketUser)
 				bitbucketPr.AuthorName = bitbucketUser.DisplayName
 				bitbucketPr.AuthorId = bitbucketUser.BitbucketId
 			}

@@ -90,7 +90,6 @@ func TestPrDataFlow(t *testing.T) {
 			"account_status",
 			"display_name",
 			"html_url",
-			"has2_fa_enabled",
 		),
 	)
 
