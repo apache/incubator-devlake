@@ -103,6 +103,8 @@ func (p Jira) Name() string {
 
 func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CollectBoardFilterBeginMeta,
+
 		tasks.CollectStatusMeta,
 		tasks.ExtractStatusMeta,
 
@@ -156,6 +158,8 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.ExtractAccountsMeta,
 		tasks.ConvertAccountsMeta,
+
+		tasks.CollectBoardFilterEndMeta,
 	}
 }
 
@@ -209,6 +213,9 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board: %d", op.BoardId))
 		}
+		if op.ScopeConfigId == 0 && scope.ScopeConfigId != 0 {
+			op.ScopeConfigId = scope.ScopeConfigId
+		}
 	}
 	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
 		var scopeConfig models.JiraScopeConfig
@@ -220,6 +227,9 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "fail to make scopeConfig")
 		}
+	}
+	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
+		op.ScopeConfig = new(models.JiraScopeConfig)
 	}
 
 	// set default page size

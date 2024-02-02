@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,14 +16,17 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 10,
-  "iteration": 1683690480749,
+  "id": 7,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 4,
         "w": 24,
@@ -28,13 +34,23 @@
         "y": 0
       },
       "id": 24,
+      "links": [],
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "- Use Cases: This dashboard answers the question \"What makes a great developer experience? And how can we define and track that?\". This dashboard heavily focuses on actionability. All metrics can be deterministically improved as long as OSS maintainers invested time into them.\n- Data Source Required: GitHub",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -74,6 +90,7 @@
         "y": 4
       },
       "id": 8,
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -91,15 +108,16 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in ($repo_id)\n)\n\nselect\n  avg((TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/1440)\nfrom issue_comment_list\nwhere comment_rank = 1",
+          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in (${repo_id:sqlstring}+'')\n)\n\nselect\n  avg((TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/1440)\nfrom issue_comment_list\nwhere comment_rank = 1",
           "refId": "A",
           "select": [
             [
@@ -158,6 +176,7 @@
         "y": 4
       },
       "id": 4,
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -173,15 +192,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n\tAVG(i.lead_time_minutes/1440) issue_lead_time\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  date(i.created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n  and i.status = \"DONE\"\n  and b.id in ($repo_id)",
+          "rawSql": "select \n\tAVG(i.lead_time_minutes/1440) issue_lead_time\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  date(i.created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n  and i.status = \"DONE\"\n  and b.id in (${repo_id:sqlstring}+'')",
           "refId": "A",
           "select": [
             [
@@ -240,6 +260,7 @@
         "y": 4
       },
       "id": 12,
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -255,15 +276,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in ($repo_id)\n)\n\nselect\n  100 * sum(case when (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60 < $iir_sla then 1 else null end) / count(*)\nfrom issue_comment_list\nwhere comment_rank = 1",
+          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in (${repo_id:sqlstring}+'')\n)\n\nselect\n  100 * sum(case when (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60 < $iir_sla then 1 else null end) / count(*)\nfrom issue_comment_list\nwhere comment_rank = 1",
           "refId": "A",
           "select": [
             [
@@ -321,6 +343,7 @@
         "y": 4
       },
       "id": 10,
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -336,15 +359,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\n  join issue_labels il on il.issue_id = i.id\nwhere\n  il.label_name = \"$label_gfi\" and\n  i.status != 'DONE' and\n  b.id in ($repo_id)",
+          "rawSql": "select\n  count(distinct i.id)\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\n  join issue_labels il on il.issue_id = i.id\nwhere\n  il.label_name = \"$label_gfi\" and\n  i.status != 'DONE' and\n  b.id in (${repo_id:sqlstring}+'')",
           "refId": "A",
           "select": [
             [
@@ -356,6 +381,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -403,6 +445,7 @@
         "y": 12
       },
       "id": 16,
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -418,15 +461,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with pr_comment_list as(\n  select\n    pr.id as issue_id,\n    pr.url,\n    pr.title,\n    pr.created_date as pr_created_date,\n    prc.id as comment_id,\n    prc.created_date as comment_date,\n    prc.account_id,\n    case when prc.id is not null then rank() over (partition by pr.id order by prc.created_date asc) else null end as comment_rank\n  from\n    pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n  where\n    date(pr.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and pr.base_repo_id in ($repo_id)\n)\n\nselect\n  avg((TIMESTAMPDIFF(MINUTE, pr_created_date, comment_date))/1440)\nfrom pr_comment_list\nwhere comment_rank = 1",
+          "rawSql": "with pr_comment_list as(\n  select\n    pr.id as issue_id,\n    pr.url,\n    pr.title,\n    pr.created_date as pr_created_date,\n    prc.id as comment_id,\n    prc.created_date as comment_date,\n    prc.account_id,\n    case when prc.id is not null then rank() over (partition by pr.id order by prc.created_date asc) else null end as comment_rank\n  from\n    pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n  where\n    date(pr.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and pr.base_repo_id in (${repo_id:sqlstring}+'')\n)\n\nselect\n  avg((TIMESTAMPDIFF(MINUTE, pr_created_date, comment_date))/1440)\nfrom pr_comment_list\nwhere comment_rank = 1",
           "refId": "A",
           "select": [
             [
@@ -485,6 +529,7 @@
         "y": 12
       },
       "id": 14,
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -500,15 +545,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n\tavg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status in ('CLOSED', 'MERGED')\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n\tavg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status in ('CLOSED', 'MERGED')\n\tand pr.base_repo_id in (${repo_id:sqlstring}+'')\n\n\n",
           "refId": "A",
           "select": [
             [
@@ -567,6 +613,7 @@
         "y": 12
       },
       "id": 18,
+      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -582,15 +629,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  100 * sum(case when TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else null end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status in ('CLOSED', 'MERGED')\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  100 * sum(case when TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else null end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status in ('CLOSED', 'MERGED')\n\tand pr.base_repo_id in (${repo_id:sqlstring}+'')\n\n\n",
           "refId": "A",
           "select": [
             [
@@ -602,6 +651,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -649,6 +715,13 @@
         "y": 12
       },
       "id": 20,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Merge Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/PRMergeRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -664,15 +737,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  100 * count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('CLOSED', 'MERGED') then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n  and pr.base_repo_id in ($repo_id)",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  100 * count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('CLOSED', 'MERGED') then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n  and pr.base_repo_id in (${repo_id:sqlstring}+'')",
           "refId": "A",
           "select": [
             [
@@ -684,6 +759,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -700,7 +792,10 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
@@ -709,12 +804,21 @@
       },
       "id": 22,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -723,7 +827,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 30,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [
     "OSS Maintainer Dashboard"
@@ -731,7 +835,6 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "All",
@@ -739,8 +842,6 @@
         },
         "datasource": "mysql",
         "definition": "select concat(name, '-', id) from repos",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Repo",
@@ -760,8 +861,6 @@
           "text": "24",
           "value": "24"
         },
-        "description": null,
-        "error": null,
         "hide": 0,
         "label": "Time to Initial Issue Response SLA (in hours)",
         "name": "iir_sla",
@@ -782,8 +881,6 @@
           "text": "7",
           "value": "7"
         },
-        "description": null,
-        "error": null,
         "hide": 0,
         "label": "PR Resolution Time SLA (in days)",
         "name": "prrt_sla",
@@ -804,8 +901,6 @@
           "text": "good first issue",
           "value": "good first issue"
         },
-        "description": null,
-        "error": null,
         "hide": 0,
         "label": "Label for good first issues",
         "name": "label_gfi",
@@ -830,5 +925,6 @@
   "timezone": "",
   "title": "Contributor Experience",
   "uid": "bwsP5Nz4z",
-  "version": 6
+  "version": 2,
+  "weekStart": ""
 }

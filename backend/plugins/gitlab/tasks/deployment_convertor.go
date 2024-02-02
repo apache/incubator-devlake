@@ -29,6 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/spf13/cast"
 	"reflect"
+	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -83,11 +84,17 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				deployableDuration := cast.ToFloat64(*gitlabDeployment.DeployableDuration)
 				duration = &deployableDuration
 			}
-			if duration == nil || *duration == 0 {
-				if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableStartedAt != nil {
-					deployableDuration := float64(gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableStartedAt).Milliseconds() / 1e3)
-					duration = &deployableDuration
-				}
+			// Use duration field in resp. DO NOT calculate it manually.
+			// GitLab Cloud and GitLab Server both have this fields in response.
+			//if duration == nil || *duration == 0 {
+			//	if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableStartedAt != nil {
+			//		deployableDuration := float64(gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableStartedAt).Milliseconds() / 1e3)
+			//		duration = &deployableDuration
+			//	}
+			//}
+			createdDate := time.Now()
+			if gitlabDeployment.DeployableCreatedAt != nil {
+				createdDate = *gitlabDeployment.DeployableCreatedAt
 			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.NewDomainEntity(idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId)),
@@ -103,21 +110,20 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{StatusRunning},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),
-				OriginalStatus: gitlabDeployment.Status,
-				Environment:    gitlabDeployment.Environment,
+				OriginalStatus:      gitlabDeployment.Status,
+				Environment:         gitlabDeployment.Environment,
+				OriginalEnvironment: gitlabDeployment.Environment,
 				TaskDatesInfo: devops.TaskDatesInfo{
-					CreatedDate:  gitlabDeployment.CreatedDate,
+					CreatedDate:  createdDate,
 					StartedDate:  gitlabDeployment.DeployableStartedAt,
 					FinishedDate: gitlabDeployment.DeployableFinishedAt,
 				},
+				DurationSec:       duration,
 				QueuedDurationSec: gitlabDeployment.QueuedDuration,
 				CommitSha:         gitlabDeployment.Sha,
 				RefName:           gitlabDeployment.Ref,
 				RepoId:            projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				RepoUrl:           repo.WebUrl,
-			}
-			if duration != nil {
-				domainDeployCommit.DurationSec = duration
 			}
 			if data.RegexEnricher != nil {
 				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {

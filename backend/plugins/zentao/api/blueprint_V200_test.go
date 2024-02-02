@@ -19,9 +19,10 @@ package api
 
 import (
 	"database/sql"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"gorm.io/gorm/migrator"
-	"testing"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
 
@@ -87,7 +88,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Options: map[string]interface{}{
 					"ConnectionId": uint64(1),
 					"projectId":    int64(1),
-					"timeAfter":    "",
 				},
 			},
 		},

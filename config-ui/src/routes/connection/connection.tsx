@@ -19,13 +19,14 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { DeleteOutlined, PlusOutlined, NodeIndexOutlined, LinkOutlined, ClearOutlined } from '@ant-design/icons';
-import { theme, Table, Button, Modal, message, Space } from 'antd';
+import { theme, Space, Table, Button, Modal, message } from 'antd';
 
 import API from '@/api';
-import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { PageHeader, Message } from '@/components';
-import { selectConnection, removeConnection } from '@/features';
-import { useTips, useRefreshData } from '@/hooks';
+import { PATHS } from '@/config';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { selectConnection, removeConnection, showTips } from '@/features';
+import { useRefreshData } from '@/hooks';
 import {
   ConnectionStatus,
   DataScopeRemote,
@@ -70,7 +71,6 @@ export const Connection = () => {
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
 
   const navigate = useNavigate();
-  const { setTips } = useTips();
   const { ready, data } = useRefreshData(
     () => API.scope.list(plugin, connectionId, { page, pageSize, blueprints: true }),
     [version, page, pageSize],
@@ -125,7 +125,7 @@ export const Connection = () => {
 
     if (res.status === 'success') {
       message.success('Delete Connection Successful.');
-      navigate('/connections');
+      navigate(PATHS.CONNECTIONS());
     } else if (res.status === 'conflict') {
       setType('deleteConnectionFailed');
       setConflict(res.conflict);
@@ -218,12 +218,7 @@ export const Connection = () => {
 
     if (success) {
       setVersion((v) => v + 1);
-      setTips(
-        <Message
-          content="Scope Config(s) have been updated. If you would like to re-transform or re-collect the data in the related
-        project(s), please go to the Project page and do so."
-        />,
-      );
+      dispatch(showTips({ type: 'scope-config-changed' }));
       handleHideDialog();
     }
   };
@@ -231,7 +226,7 @@ export const Connection = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Connections', path: '/connections' },
+        { name: 'Connections', path: PATHS.CONNECTIONS() },
         { name, path: '' },
       ]}
       extra={
@@ -240,106 +235,110 @@ export const Connection = () => {
         </Button>
       }
     >
-      <div style={{ marginBottom: 36 }}>
-        <span>Status:</span>
-        <ConnectionStatus connection={connection} />
-      </div>
-      <div style={{ marginBottom: 36 }}>
-        Please note: In order to view DORA metrics, you will need to add Scope Configs.
-      </div>
-      <div style={{ marginBottom: 36 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleShowCreateDataScopeDialog}>
-          Add Data Scope
-        </Button>
-        {plugin !== 'tapd' && pluginConfig.scopeConfig && (
-          <Button
-            style={{ marginLeft: 8 }}
-            type="primary"
-            disabled={!scopeIds.length}
-            icon={<NodeIndexOutlined />}
-            onClick={() => handleShowScopeConfigSelectDialog(scopeIds)}
-          >
-            Associate Scope Config
+      <Space style={{ display: 'flex' }} direction="vertical" size={36}>
+        <div>
+          <span style={{ marginRight: 4 }}>Status:</span>
+          <ConnectionStatus connection={connection} />
+        </div>
+        <div>Please note: In order to view DORA metrics, you will need to add Scope Configs.</div>
+        <div>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleShowCreateDataScopeDialog}>
+            Add Data Scope
           </Button>
-        )}
-      </div>
-      <Table
-        rowKey="id"
-        size="middle"
-        loading={!ready}
-        columns={[
-          {
-            title: 'Data Scope',
-            dataIndex: 'name',
-            key: 'name',
-          },
-          {
-            title: 'Project',
-            dataIndex: 'projects',
-            key: 'projects',
-            render: (projects) => (
-              <>
-                {projects.length ? (
-                  <ul>
-                    {projects.map((it: string) => (
-                      <li key={it}>
-                        <Link to={`/projects/${it}`}>{it}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  '-'
-                )}
-              </>
-            ),
-          },
-          {
-            title: 'Scope Config',
-            key: 'scopeConfig',
-            align: 'center',
-            width: 400,
-            render: (_, { id, configId, configName }) => (
-              <>
-                <span>{configId ? configName : 'N/A'}</span>
-                {pluginConfig.scopeConfig && (
+          {plugin !== 'tapd' && pluginConfig.scopeConfig && (
+            <Button
+              style={{ marginLeft: 8 }}
+              type="primary"
+              disabled={!scopeIds.length}
+              icon={<NodeIndexOutlined />}
+              onClick={() => handleShowScopeConfigSelectDialog(scopeIds)}
+            >
+              Associate Scope Config
+            </Button>
+          )}
+        </div>
+        <Table
+          rowKey="id"
+          size="middle"
+          loading={!ready}
+          columns={[
+            {
+              title: 'Data Scope',
+              dataIndex: 'name',
+              key: 'name',
+            },
+            {
+              title: 'Project',
+              dataIndex: 'projects',
+              key: 'projects',
+              render: (projects) => (
+                <>
+                  {projects.length ? (
+                    <ul>
+                      {projects.map((it: string) => (
+                        <li key={it}>
+                          <Link to={PATHS.PROJECT(it)}>{it}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    '-'
+                  )}
+                </>
+              ),
+            },
+            {
+              title: 'Scope Config',
+              key: 'scopeConfig',
+              align: 'center',
+              width: 400,
+              render: (_, { id, configId, configName }) => (
+                <>
+                  <span>{configId ? configName : 'N/A'}</span>
+                  {pluginConfig.scopeConfig && (
+                    <Button
+                      type="link"
+                      icon={<LinkOutlined />}
+                      onClick={() => {
+                        handleShowScopeConfigSelectDialog([id]);
+                        setScopeConfigId(configId);
+                      }}
+                    />
+                  )}
+                </>
+              ),
+            },
+            {
+              title: '',
+              dataIndex: 'id',
+              key: 'id',
+              align: 'center',
+              width: 200,
+              render: (id) => (
+                <Space>
+                  <Button type="primary" icon={<ClearOutlined />} onClick={() => handleShowClearDataScopeDialog(id)} />
                   <Button
-                    type="link"
-                    icon={<LinkOutlined />}
-                    onClick={() => {
-                      handleShowScopeConfigSelectDialog([id]);
-                      setScopeConfigId(configId);
-                    }}
+                    type="primary"
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleShowDeleteDataScopeDialog(id)}
                   />
-                )}
-              </>
-            ),
-          },
-          {
-            title: '',
-            dataIndex: 'id',
-            key: 'id',
-            align: 'center',
-            width: 200,
-            render: (id) => (
-              <Space>
-                <Button type="primary" icon={<ClearOutlined />} onClick={() => handleShowClearDataScopeDialog(id)} />
-                <Button type="primary" icon={<DeleteOutlined />} onClick={() => handleShowDeleteDataScopeDialog(id)} />
-              </Space>
-            ),
-          },
-        ]}
-        dataSource={dataSource}
-        pagination={{
-          current: page,
-          pageSize,
-          total,
-          onChange: setPage,
-        }}
-        rowSelection={{
-          selectedRowKeys: scopeIds,
-          onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
-        }}
-      />
+                </Space>
+              ),
+            },
+          ]}
+          dataSource={dataSource}
+          pagination={{
+            current: page,
+            pageSize,
+            total,
+            onChange: setPage,
+          }}
+          rowSelection={{
+            selectedRowKeys: scopeIds,
+            onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
+          }}
+        />
+      </Space>
       {type === 'deleteConnection' && (
         <Modal
           open
@@ -361,6 +360,7 @@ export const Connection = () => {
       )}
       {type === 'createDataScope' && (
         <Modal
+          getContainer={false}
           open
           width={820}
           centered

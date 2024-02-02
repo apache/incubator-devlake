@@ -165,12 +165,13 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 			TaskDatesInfo:    dateInfo,
 			DurationSec:      &duration,
 			//QueuedDurationSec: queuedDuration,
-			RepoId:      request.RepoId,
-			RepoUrl:     request.RepoUrl,
-			Environment: request.Environment,
-			RefName:     request.RefName,
-			CommitSha:   request.CommitSha,
-			CommitMsg:   request.CommitMsg,
+			RepoId:              request.RepoId,
+			RepoUrl:             request.RepoUrl,
+			Environment:         request.Environment,
+			OriginalEnvironment: request.Environment,
+			RefName:             request.RefName,
+			CommitSha:           request.CommitSha,
+			CommitMsg:           request.CommitMsg,
 		}
 		err = tx.CreateOrUpdate(deploymentCommit)
 		if err != nil {
@@ -204,13 +205,14 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 				TaskDatesInfo:    dateInfo,
 				DurationSec:      &duration,
 				//QueuedDurationSec: queuedDuration,
-				RepoId:      request.RepoId,
-				Name:        fmt.Sprintf(`deployment for %s`, commit.CommitSha),
-				RepoUrl:     commit.RepoUrl,
-				Environment: request.Environment,
-				RefName:     commit.RefName,
-				CommitSha:   commit.CommitSha,
-				CommitMsg:   commit.CommitMsg,
+				RepoId:              request.RepoId,
+				Name:                fmt.Sprintf(`deployment for %s`, commit.CommitSha),
+				RepoUrl:             commit.RepoUrl,
+				Environment:         request.Environment,
+				OriginalEnvironment: request.Environment,
+				RefName:             commit.RefName,
+				CommitSha:           commit.CommitSha,
+				CommitMsg:           commit.CommitMsg,
 			}
 			err = tx.CreateOrUpdate(deploymentCommit)
 			if err != nil {

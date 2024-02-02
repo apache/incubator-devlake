@@ -19,7 +19,7 @@
 import { useState, useEffect } from 'react';
 import { Modal, Input } from 'antd';
 
-import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { Block } from '@/components';
 import { updateWebhook, selectWebhook } from '@/features';
 import { operator } from '@/utils';

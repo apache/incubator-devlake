@@ -31,7 +31,7 @@ ReactDOM.render(
   <ConfigProvider
     theme={{
       token: {
-        colorPrimary: import.meta.env.DEVLAKE_PRIMARY_COLOR ?? '#7497F7',
+        colorPrimary: import.meta.env.DEVLAKE_COLOR_CUSTOM ?? '#7497F7',
       },
     }}
   >

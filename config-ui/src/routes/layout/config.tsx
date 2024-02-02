@@ -30,6 +30,8 @@ import {
 
 import { DOC_URL } from '@/release';
 
+const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
+
 type MenuItem = {
   key: string;
   label: string;
@@ -39,32 +41,32 @@ type MenuItem = {
 
 export const menuItems: MenuItem[] = [
   {
-    key: '/connections',
+    key: `${PATH_PREFIX}/connections`,
     label: 'Connections',
     icon: <AppstoreOutlined />,
   },
   {
-    key: '/projects',
+    key: `${PATH_PREFIX}/projects`,
     label: 'Projects',
     icon: <ProjectOutlined />,
   },
   {
-    key: '/advanced',
+    key: `${PATH_PREFIX}/advanced`,
     label: 'Advanced',
     icon: <ExperimentOutlined />,
     children: [
       {
-        key: '/advanced/blueprints',
+        key: `${PATH_PREFIX}/advanced/blueprints`,
         label: 'Blueprints',
       },
       {
-        key: '/advanced/pipelines',
+        key: `${PATH_PREFIX}/advanced/pipelines`,
         label: 'Pipelines',
       },
     ],
   },
   {
-    key: '/keys',
+    key: `${PATH_PREFIX}/keys`,
     label: 'API Keys',
     icon: <KeyOutlined />,
   },

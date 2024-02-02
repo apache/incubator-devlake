@@ -47,3 +47,15 @@ func (connection SlackConnection) Sanitize() SlackConnection {
 	connection.SlackConn = connection.SlackConn.Sanitize()
 	return connection
 }
+
+func (connection *SlackConnection) MergeFromRequest(target *SlackConnection, body map[string]interface{}) error {
+	token := target.Token
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedToken := target.Token
+	if modifiedToken == "" || modifiedToken == utils.SanitizeString(token) {
+		target.Token = token
+	}
+	return nil
+}

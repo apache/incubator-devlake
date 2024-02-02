@@ -106,16 +106,16 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jenkins/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "find connection from db")
+		return nil, errors.BadInput.Wrap(err, "get merged connection")
 	}
 	// test connection
-	result, err := testConnection(context.TODO(), connection.JenkinsConn)
-	if err != nil {
+	if result, err := testConnection(context.TODO(), connection.JenkinsConn); err != nil {
 		return nil, err
+	} else {
+		return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 	}
-	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create jenkins connection

@@ -82,7 +82,7 @@ export const DataScopeRemote = ({ plugin, connectionId, disabledScope, onCancel,
           onChange={setSelectedScope}
         />
       )}
-      <Flex justify="flex-end" gap="small">
+      <Flex style={{ marginTop: 16 }} justify="flex-end" gap="small">
         <Button disabled={operating} onClick={onCancel}>
           Cancel
         </Button>

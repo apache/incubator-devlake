@@ -111,18 +111,21 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		results = append(results, sprintIssue)
 	}
 	if issue.ResolutionDate != nil {
-		issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
+		temp := uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
+		issue.LeadTimeMinutes = &temp
 	}
 	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.StoryPointField != "" {
 		unknownStoryPoint := apiIssue.Fields.AllFields[data.Options.ScopeConfig.StoryPointField]
 		switch sp := unknownStoryPoint.(type) {
 		case string:
 			// string, try to parse
-			issue.StoryPoint, _ = strconv.ParseFloat(sp, 32)
+			temp, _ := strconv.ParseFloat(sp, 32)
+			issue.StoryPoint = &temp
 		case nil:
 		default:
 			// not string, convert to float64, ignore it if failed
-			issue.StoryPoint, _ = unknownStoryPoint.(float64)
+			temp, _ := unknownStoryPoint.(float64)
+			issue.StoryPoint = &temp
 		}
 
 	}
@@ -137,10 +140,12 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 	if value, ok := mappings.standardStatusMappings[issue.Type][issue.StatusKey]; ok {
 		issue.StdStatus = value.StandardStatus
 	}
+	// issue commments
 	results = append(results, issue)
 	for _, comment := range comments {
 		results = append(results, comment)
 	}
+	// worklogs
 	for _, worklog := range worklogs {
 		results = append(results, worklog)
 	}
@@ -151,13 +156,16 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 	} else {
 		issueUpdated = &issue.Updated
 	}
+	// changelogs
 	for _, changelog := range changelogs {
 		changelog.IssueUpdated = issueUpdated
 		results = append(results, changelog)
 	}
+	// changelog items
 	for _, changelogItem := range changelogItems {
 		results = append(results, changelogItem)
 	}
+	// users
 	for _, user := range users {
 		if user.AccountId != "" {
 			results = append(results, user)
@@ -168,6 +176,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		BoardId:      data.Options.BoardId,
 		IssueId:      issue.IssueId,
 	})
+	// labels
 	labels := apiIssue.Fields.Labels
 	for _, v := range labels {
 		issueLabel := &models.JiraIssueLabel{
@@ -177,6 +186,14 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		}
 		results = append(results, issueLabel)
 	}
+	// components
+	components := apiIssue.Fields.Components
+	var componentNames []string
+	for _, v := range components {
+		componentNames = append(componentNames, v.Name)
+	}
+	issue.Components = strings.Join(componentNames, ",")
+	// issuelinks
 	issuelinks := apiIssue.Fields.Issuelinks
 	for _, v := range issuelinks {
 		issueLink := &models.JiraIssueRelationship{

@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	githubGraphQLTasks "github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
 )
 
 func TestGithubDeploymentDataFlow(t *testing.T) {
@@ -38,27 +39,73 @@ func TestGithubDeploymentDataFlow(t *testing.T) {
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
-			Name:         "panjf2000/ants",
-			GithubId:     134018330,
+			Name:         "facebook/OpenBIC",
+			GithubId:     335709078,
 		},
 		RegexEnricher: regexEnricher,
 	}
 
-	// import raw/tool data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_deployments.csv", &models.GithubDeployment{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos.csv", &models.GithubRepo{})
+	// import raw data table
+	dataflowTester.FlushTabler(&models.GithubDeployment{})
+	dataflowTester.FlushTabler(&models.GithubRepo{})
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_graphql_deployment.csv", "_raw_github_graphql_deployment")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos2.csv", &models.GithubRepo{})
+
+	dataflowTester.Subtask(githubGraphQLTasks.ExtractDeploymentsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.GithubDeployment{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_github_deployments.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
 	// verify convertor
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.FlushTabler(&devops.CICDDeployment{})
 	dataflowTester.Subtask(tasks.ConvertDeploymentsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_deployment_commits.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
+	dataflowTester.VerifyTable(&devops.CicdDeploymentCommit{},
+		"./snapshot_tables/cicd_deployment_commits.csv",
+		[]string{
+			"cicd_scope_id",
+			"cicd_deployment_id",
+			"name",
+			"result",
+			"status",
+			"original_status",
+			"environment",
+			"original_environment",
+			"created_date",
+			"queued_date",
+			"started_date",
+			"finished_date",
+			"commit_sha",
+			"commit_msg",
+			"ref_name",
+			"repo_id",
+			"repo_url",
+			"prev_success_deployment_commit_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 
-	dataflowTester.VerifyTableWithOptions(&devops.CICDDeployment{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_deployments.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
+	dataflowTester.VerifyTable(&devops.CICDDeployment{},
+		"./snapshot_tables/cicd_deployments.csv",
+		[]string{
+			"cicd_scope_id",
+			"name",
+			"result",
+			"status",
+			"original_status",
+			"environment",
+			"created_date",
+			"queued_date",
+			"started_date",
+			"finished_date",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 }

@@ -130,31 +130,35 @@ func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
 }
 
 type CustomMerge[M dal.Tabler] interface {
-	Merge(target, src *M) error
+	MergeFromRequest(target *M, body map[string]interface{}) error
 }
 
-func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+// PatchModel will get an "M" from database and try to merge update from request body
+// zeroFields decides whether "M" will be zeroed if "M" doesn't implement CustomMerge.
+func (self *ModelApiHelper[M]) PatchModel(input *plugin.ApiResourceInput, zeroFields bool) (*M, error) {
 	model, err := self.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
 	if v, ok := (interface{}(model)).(CustomMerge[M]); ok {
-		modifiedModel := new(M)
-		err = utils.DecodeMapStruct(input.Body, modifiedModel, true)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to decode map struct %s", self.modelName))
-		}
-		if err := v.Merge(model, modifiedModel); err != nil {
-			return nil, errors.Convert(err)
+		if err := v.MergeFromRequest(model, input.Body); err != nil {
+			return nil, err
 		}
 	} else {
-		err = utils.DecodeMapStruct(input.Body, model, true)
+		err = utils.DecodeMapStruct(input.Body, model, zeroFields)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
 		}
 	}
-	err = self.dalHelper.Update(model)
+	return model, nil
+}
+
+func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	model, err := self.PatchModel(input, true)
 	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	if err := self.dalHelper.Update(model); err != nil {
 		return nil, err
 	}
 	model = self.Sanitize(model)

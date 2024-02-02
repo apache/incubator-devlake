@@ -187,7 +187,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			errMessage = err.Error()
 		} else if res.StatusCode >= HttpMinStatusRetryCode {
 			needRetry = true
-			errMessage = fmt.Sprintf("Http DoAsync error calling [%s %s]. Response: %s", method, path, string(respBody))
+			errMessage = fmt.Sprintf("Http DoAsync error calling [method:%s path:%s query:%s]. Response: %s", method, path, query, string(respBody))
 			err = errors.HttpStatus(res.StatusCode).New(errMessage)
 		}
 

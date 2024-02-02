@@ -52,6 +52,18 @@ type OpsgenieConnection struct {
 	OpsgenieConn          `mapstructure:",squash"`
 }
 
+func (connection *OpsgenieConnection) MergeFromRequest(target *OpsgenieConnection, body map[string]interface{}) error {
+	token := target.Token
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedToken := target.Token
+	if modifiedToken == "" || modifiedToken == utils.SanitizeString(token) {
+		target.Token = token
+	}
+	return nil
+}
+
 func (connection OpsgenieConnection) Sanitize() OpsgenieConnection {
 	connection.OpsgenieConn = connection.OpsgenieConn.Sanitize()
 	return connection

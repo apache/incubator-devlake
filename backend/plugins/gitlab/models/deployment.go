@@ -29,9 +29,9 @@ type GitlabDeployment struct {
 	ConnectionId uint64 `json:"connection_id" gorm:"primaryKey"`
 	GitlabId     int    `json:"gitlab_id" gorm:"primaryKey"`
 
-	CreatedDate time.Time `json:"created_date"`
-	UpdatedDate time.Time `json:"updated_date"`
-	Status      string    `json:"status"` //created, running, success, failed, canceled, or blocked
+	CreatedDate time.Time  `json:"created_date"`
+	UpdatedDate *time.Time `json:"updated_date"`
+	Status      string     `json:"status"` //created, running, success, failed, canceled, or blocked
 
 	DeploymentId int    `json:"id" gorm:"primaryKey"`
 	Iid          int    `json:"iid"`
@@ -40,13 +40,13 @@ type GitlabDeployment struct {
 	Environment  string `json:"environment" gorm:"type:varchar(255)"`
 	Name         string `json:"name" gorm:"type:varchar(255)"`
 
-	DeployableCommitAuthorEmail string    `json:"deployable_commit_author_email" gorm:"type:varchar(255)"`
-	DeployableCommitAuthorName  string    `json:"deployable_commit_author_name" gorm:"type:varchar(255)"`
-	DeployableCommitCreatedAt   time.Time `json:"deployable_commit_created_at"`
-	DeployableCommitID          string    `json:"deployable_commit_id" gorm:"type:varchar(255)"`
-	DeployableCommitMessage     string    `json:"deployable_commit_message"`
-	DeployableCommitShortID     string    `json:"deployable_commit_short_id" gorm:"type:varchar(255)"`
-	DeployableCommitTitle       string    `json:"deployable_commit_title" gorm:"type:varchar(255)"`
+	DeployableCommitAuthorEmail string     `json:"deployable_commit_author_email" gorm:"type:varchar(255)"`
+	DeployableCommitAuthorName  string     `json:"deployable_commit_author_name" gorm:"type:varchar(255)"`
+	DeployableCommitCreatedAt   *time.Time `json:"deployable_commit_created_at"`
+	DeployableCommitID          string     `json:"deployable_commit_id" gorm:"type:varchar(255)"`
+	DeployableCommitMessage     string     `json:"deployable_commit_message"`
+	DeployableCommitShortID     string     `json:"deployable_commit_short_id" gorm:"type:varchar(255)"`
+	DeployableCommitTitle       string     `json:"deployable_commit_title" gorm:"type:varchar(255)"`
 
 	//DeployableCoverage   any       `json:"deployable_coverage"`
 	DeployableCreatedAt  *time.Time `json:"deployable_created_at"`
@@ -62,13 +62,13 @@ type GitlabDeployment struct {
 	DeployableDuration  *float64   `json:"deployable_duration"`
 	QueuedDuration      *float64   `json:"queued_duration"`
 
-	DeployableUserID        int       `json:"deployable_user_id"`
-	DeployableUserName      string    `json:"deployable_user_name" gorm:"type:varchar(255)"`
-	DeployableUserUsername  string    `json:"deployable_user_username" gorm:"type:varchar(255)"`
-	DeployableUserState     string    `json:"deployable_user_state" gorm:"type:varchar(255)"`
-	DeployableUserAvatarURL string    `json:"deployable_user_avatar_url" gorm:"type:varchar(255)"`
-	DeployableUserWebURL    string    `json:"deployable_user_web_url" gorm:"type:varchar(255)"`
-	DeployableUserCreatedAt time.Time `json:"deployable_user_created_at"`
+	DeployableUserID        int        `json:"deployable_user_id"`
+	DeployableUserName      string     `json:"deployable_user_name" gorm:"type:varchar(255)"`
+	DeployableUserUsername  string     `json:"deployable_user_username" gorm:"type:varchar(255)"`
+	DeployableUserState     string     `json:"deployable_user_state" gorm:"type:varchar(255)"`
+	DeployableUserAvatarURL string     `json:"deployable_user_avatar_url" gorm:"type:varchar(255)"`
+	DeployableUserWebURL    string     `json:"deployable_user_web_url" gorm:"type:varchar(255)"`
+	DeployableUserCreatedAt *time.Time `json:"deployable_user_created_at"`
 	//DeployableUserBio          any       `json:"deployable_user_bio"`
 	//DeployableUserLocation     any       `json:"deployable_user_location"`
 	DeployableUserPublicEmail  string `json:"deployable_user_public_email" gorm:"type:varchar(255)"`
@@ -78,13 +78,13 @@ type GitlabDeployment struct {
 	DeployableUserWebsiteURL   string `json:"deployable_user_website_url" gorm:"type:varchar(255)"`
 	DeployableUserOrganization string `json:"deployable_user_organization" gorm:"type:varchar(255)"`
 
-	DeployablePipelineCreatedAt time.Time `json:"deployable_pipeline_created_at"`
-	DeployablePipelineID        int       `json:"deployable_pipeline_id"`
-	DeployablePipelineRef       string    `json:"deployable_pipeline_ref" gorm:"type:varchar(255)"`
-	DeployablePipelineSha       string    `json:"deployable_pipeline_sha" gorm:"type:varchar(255)"`
-	DeployablePipelineStatus    string    `json:"deployable_pipeline_status" gorm:"type:varchar(255)"`
-	DeployablePipelineUpdatedAt time.Time `json:"deployable_pipeline_updated_at"`
-	DeployablePipelineWebURL    string    `json:"deployable_pipeline_web_url" gorm:"type:varchar(255)"`
+	DeployablePipelineCreatedAt *time.Time `json:"deployable_pipeline_created_at"`
+	DeployablePipelineID        int        `json:"deployable_pipeline_id"`
+	DeployablePipelineRef       string     `json:"deployable_pipeline_ref" gorm:"type:varchar(255)"`
+	DeployablePipelineSha       string     `json:"deployable_pipeline_sha" gorm:"type:varchar(255)"`
+	DeployablePipelineStatus    string     `json:"deployable_pipeline_status" gorm:"type:varchar(255)"`
+	DeployablePipelineUpdatedAt *time.Time `json:"deployable_pipeline_updated_at"`
+	DeployablePipelineWebURL    string     `json:"deployable_pipeline_web_url" gorm:"type:varchar(255)"`
 
 	UserAvatarURL string `json:"user_avatar_url" gorm:"type:varchar(255)"`
 	UserID        int    `json:"user_id"`

@@ -160,11 +160,11 @@ func (r *GitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) errors.Error {
 		r.logger.Info("tagCommit:%s", tagCommit)
 		if tagCommit != "" {
 			ref := &code.Ref{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
-				RepoId:       r.id,
-				Name:         name,
-				CommitSha:    tagCommit,
-				RefType:      TAG,
+				DomainEntityExtended: domainlayer.DomainEntityExtended{Id: fmt.Sprintf("%s:%s", r.id, name)},
+				RepoId:               r.id,
+				Name:                 name,
+				CommitSha:            tagCommit,
+				RefType:              TAG,
 			}
 			err1 = r.store.Refs(ref)
 			if err1 != nil {
@@ -199,11 +199,11 @@ func (r *GitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) errors.Error
 				sha = oid.String()
 			}
 			ref := &code.Ref{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
-				RepoId:       r.id,
-				Name:         name,
-				CommitSha:    sha,
-				RefType:      BRANCH,
+				DomainEntityExtended: domainlayer.DomainEntityExtended{Id: fmt.Sprintf("%s:%s", r.id, name)},
+				RepoId:               r.id,
+				Name:                 name,
+				CommitSha:            sha,
+				RefType:              BRANCH,
 			}
 			ref.IsDefault, err1 = branch.IsHead()
 			if err1 != nil && err1.Error() != TypeNotMatchError {

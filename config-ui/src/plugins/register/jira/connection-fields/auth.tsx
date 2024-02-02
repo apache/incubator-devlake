@@ -64,7 +64,8 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
   useEffect(() => {
     const required =
       (values.authMethod === 'BasicAuth' && values.username && values.password) ||
-      (values.authMethod === 'AccessToken' && values.token);
+      (values.authMethod === 'AccessToken' && values.token) ||
+      type === 'update';
     setErrors({
       endpoint: !values.endpoint ? 'endpoint is required' : '',
       auth: required ? '' : 'auth is required',
@@ -167,7 +168,7 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
             }
             required
           >
-            <Input.Password
+            <Input
               style={{ width: 386 }}
               placeholder={type === 'update' ? '********' : 'Your PAT'}
               value={values.password}
@@ -191,7 +192,7 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
                 <Input placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
               </Block>
               <Block title="Password" required>
-                <Input.Password
+                <Input
                   style={{ width: 386 }}
                   placeholder={type === 'update' ? '********' : 'Your Password'}
                   value={values.password}
@@ -210,7 +211,7 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
               }
               required
             >
-              <Input.Password
+              <Input
                 style={{ width: 386 }}
                 placeholder={type === 'update' ? '********' : 'Your Password'}
                 value={values.token}

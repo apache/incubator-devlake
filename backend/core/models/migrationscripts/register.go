@@ -103,5 +103,10 @@ func All() []plugin.MigrationScript {
 		new(addCommitMsgtoDeploymentCommit),
 		new(modifyIssueOriginalTypeLength),
 		new(addCommitMsgtoPipelineCommit),
+		new(modfiyFieldsSort),
+		new(modifyIssueLeadTimeMinutesToUint),
+		new(addUrgencyToIssues),
+		new(modifyRefsIdLength),
+		new(addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits),
 	}
 }

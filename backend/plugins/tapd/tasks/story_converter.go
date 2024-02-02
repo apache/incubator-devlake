@@ -55,6 +55,8 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolL := inputRow.(*models.TapdStory)
+			timeRemainingMinutes := int64(toolL.Remain)
+			storyPoint := float64(toolL.Size)
 			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: storyIdGen.Generate(toolL.ConnectionId, toolL.Id),
@@ -65,14 +67,14 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:                 toolL.StdType,
 				OriginalType:         toolL.Type,
 				Status:               toolL.StdStatus,
-				StoryPoint:           float64(toolL.Size),
+				StoryPoint:           &storyPoint,
 				OriginalStatus:       toolL.Status,
 				ResolutionDate:       (*time.Time)(toolL.Completed),
 				CreatedDate:          (*time.Time)(toolL.Created),
 				UpdatedDate:          (*time.Time)(toolL.Modified),
 				ParentIssueId:        storyIdGen.Generate(toolL.ConnectionId, toolL.ParentId),
 				Priority:             toolL.Priority,
-				TimeRemainingMinutes: int64(toolL.Remain),
+				TimeRemainingMinutes: &timeRemainingMinutes,
 				CreatorId:            getAccountIdGen().Generate(data.Options.ConnectionId, toolL.Creator),
 				CreatorName:          toolL.Creator,
 				AssigneeName:         toolL.Owner,
@@ -90,7 +92,8 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, issueAssignee)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
-				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
+				temp := uint(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
+				domainL.LeadTimeMinutes = &temp
 			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, toolL.WorkspaceId),

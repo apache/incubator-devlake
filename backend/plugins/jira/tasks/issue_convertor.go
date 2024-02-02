@@ -103,9 +103,10 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Priority:                jiraIssue.PriorityName,
 				CreatedDate:             &jiraIssue.Created,
 				UpdatedDate:             &jiraIssue.Updated,
-				LeadTimeMinutes:         int64(jiraIssue.LeadTimeMinutes),
+				LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
 				TimeSpentMinutes:        jiraIssue.SpentMinutes,
 				OriginalProject:         jiraIssue.ProjectName,
+				Component:               jiraIssue.Components,
 			}
 			if jiraIssue.CreatorAccountId != "" {
 				issue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId)

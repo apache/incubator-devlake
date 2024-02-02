@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { uniqWith } from 'lodash';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { theme, Collapse, Tag, Form, Select } from 'antd';
@@ -250,7 +250,12 @@ const renderCollapseItems = ({
             }
           >
             <Select
-              options={fields.map((it) => ({ label: it.name, value: it.name }))}
+              showSearch
+              options={fields.map((it) => ({ label: it.name, value: it.id }))}
+              optionFilterProp="children"
+              filterOption={(input: string, option?: { label: string; value: string }) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
               value={transformation.storyPointField}
               onChange={(value) =>
                 onChangeTransformation({

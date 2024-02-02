@@ -23,6 +23,8 @@ export type OperateConfig = {
   formatMessage?: () => string;
   formatReason?: (err: unknown) => string;
   hideToast?: boolean;
+  hideSuccessToast?: boolean;
+  hideErrorToast?: boolean;
 };
 
 /**
@@ -32,6 +34,9 @@ export type OperateConfig = {
  * @param config.setOperating -> Control the status of the request
  * @param config.formatMessage -> Show the message for the success
  * @param config.formatReason -> Show the reason for the failure
+ * @param config.hideToast -> Hide all the toast
+ * @param config.hideSuccessToast -> Hide the success toast
+ * @param config.hideErrorToast -> Hide the error toast
  * @returns
  */
 export const operator = async <T>(request: () => Promise<T>, config?: OperateConfig): Promise<[boolean, any?]> => {
@@ -41,14 +46,14 @@ export const operator = async <T>(request: () => Promise<T>, config?: OperateCon
     setOperating?.(true);
     const res = await request();
     const content = formatMessage?.() ?? 'Operation successfully completed';
-    if (!config?.hideToast) {
+    if (!config?.hideToast && !config?.hideSuccessToast) {
       message.success(content);
     }
     return [true, res];
   } catch (err) {
     console.error('Operation failed.', err);
     const reason = formatReason?.(err) ?? (err as any).response?.data?.message ?? 'Operation failed.';
-    if (!config?.hideToast) {
+    if (!config?.hideToast && !config?.hideErrorToast) {
       message.error(reason);
     }
 

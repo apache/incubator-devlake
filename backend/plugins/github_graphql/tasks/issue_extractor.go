@@ -152,7 +152,8 @@ func convertGithubIssue(milestoneMap map[int]int, issue GraphqlQueryIssue, conne
 		githubIssue.AuthorName = issue.Author.Login
 	}
 	if issue.ClosedAt != nil {
-		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.Sub(issue.CreatedAt).Minutes())
+		temp := uint(issue.ClosedAt.Sub(issue.CreatedAt).Minutes())
+		githubIssue.LeadTimeMinutes = &temp
 	}
 	if issue.Milestone != nil {
 		if milestoneId, ok := milestoneMap[issue.Milestone.Number]; ok {
@@ -183,14 +184,12 @@ func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQu
 		}
 		if issueRegexes.TypeRequirementRegex != nil && issueRegexes.TypeRequirementRegex.MatchString(label.Name) {
 			githubIssue.StdType = ticket.REQUIREMENT
-			joinedLabels = append(joinedLabels, label.Name)
 		} else if issueRegexes.TypeBugRegex != nil && issueRegexes.TypeBugRegex.MatchString(label.Name) {
 			githubIssue.StdType = ticket.BUG
-			joinedLabels = append(joinedLabels, label.Name)
 		} else if issueRegexes.TypeIncidentRegex != nil && issueRegexes.TypeIncidentRegex.MatchString(label.Name) {
 			githubIssue.StdType = ticket.INCIDENT
-			joinedLabels = append(joinedLabels, label.Name)
 		}
+		joinedLabels = append(joinedLabels, label.Name)
 	}
 	if len(joinedLabels) > 0 {
 		githubIssue.Type = strings.Join(joinedLabels, ",")

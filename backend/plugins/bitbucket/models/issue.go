@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type BitbucketIssue struct {
@@ -38,7 +39,7 @@ type BitbucketIssue struct {
 	AssigneeId         string `gorm:"type:varchar(255)"`
 	AssigneeName       string `gorm:"type:varchar(255)"`
 	MilestoneId        int    `gorm:"index"`
-	LeadTimeMinutes    uint
+	LeadTimeMinutes    *uint
 	Url                string `gorm:"type:varchar(255)"`
 	ClosedAt           *time.Time
 	BitbucketCreatedAt time.Time

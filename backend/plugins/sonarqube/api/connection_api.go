@@ -103,9 +103,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/sonarqube/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// test connection
 	return testConnection(context.TODO(), connection.SonarqubeConn)

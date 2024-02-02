@@ -108,6 +108,9 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "find connection from db")
 	}
+	if err := helper.DecodeMapStruct(input.Body, connection, false); err != nil {
+		return nil, err
+	}
 	// test connection
 	result, err := testConnection(context.TODO(), connection.GiteeConn)
 	if err != nil {
@@ -143,8 +146,13 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Router /plugins/gitee/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.GiteeConnection{}
-	err := connectionHelper.Patch(connection, input)
-	if err != nil {
+	if err := connectionHelper.First(&connection, input.Params); err != nil {
+		return nil, err
+	}
+	if err := (&models.GiteeConnection{}).MergeFromRequest(connection, input.Body); err != nil {
+		return nil, errors.Convert(err)
+	}
+	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil

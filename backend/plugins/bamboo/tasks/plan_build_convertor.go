@@ -71,7 +71,7 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				DurationSec:  float64(line.BuildDuration / 1e3),
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdDate,
-					StartedDate:  line.BuildCompletedDate,
+					StartedDate:  line.BuildStartedTime,
 					FinishedDate: line.BuildCompletedDate,
 				},
 				CicdScopeId: planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),

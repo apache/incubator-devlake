@@ -18,14 +18,14 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
-import { Form, Space, Tag, Input, message } from 'antd';
+import { Space, Tag, Input, message } from 'antd';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 import { uniqBy } from 'lodash';
 
 import API from '@/api';
-import { Loading } from '@/components';
+import { Loading, Block } from '@/components';
 import { IPluginConfig } from '@/types';
 
 import * as T from './types';
@@ -133,7 +133,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
 
     const newItems = (res.children ?? []).map((it) => ({
       ...it,
-      title: it.name,
+      title: it.fullName ?? it.name,
     }));
 
     setSearch((s) => ({
@@ -149,8 +149,8 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   }, [searchDebounce, search.page]);
 
   return (
-    <Form layout="vertical">
-      <Form.Item label={config.title} required>
+    <>
+      <Block title={config.title} required>
         <Space wrap>
           {selectedScope.length ? (
             selectedScope.map((sc) => (
@@ -167,8 +167,8 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
             <span>Please select scope...</span>
           )}
         </Space>
-      </Form.Item>
-      <Form.Item>
+      </Block>
+      <Block>
         <Input
           prefix={<SearchOutlined />}
           placeholder={config.searchPlaceholder ?? 'Search'}
@@ -211,7 +211,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
             onSelectItemIds={(selectedIds: ID[]) => onChange(allItems.filter((it) => selectedIds.includes(it.id)))}
           />
         )}
-      </Form.Item>
-    </Form>
+      </Block>
+    </>
   );
 };

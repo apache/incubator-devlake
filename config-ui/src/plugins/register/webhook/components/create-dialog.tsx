@@ -20,7 +20,7 @@ import { useState, useMemo } from 'react';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { Modal, Input } from 'antd';
 
-import { useAppDispatch } from '@/app/hook';
+import { useAppDispatch } from '@/hooks';
 import { Block, CopyText, ExternalLink } from '@/components';
 import { addWebhook } from '@/features';
 import { operator } from '@/utils';

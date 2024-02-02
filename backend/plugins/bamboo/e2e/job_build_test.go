@@ -18,6 +18,8 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -25,14 +27,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
-	"testing"
 )
 
 func TestBambooJobBuildDataFlow(t *testing.T) {
 
 	var bamboo impl.Bamboo
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
-	taskData := &tasks.BambooTaskData{
+	taskData := &tasks.BambooOptions{
 		Options: &models.BambooOptions{
 			ConnectionId: 1,
 			PlanKey:      "TEST-PLA3",
