@@ -80,7 +80,7 @@ class GitPullRequestCommit(ToolModel, table=True):
     commit_id: str = Field(primary_key=True)
     pull_request_id: str
     author_name: str = Field(source='/author/name')
-    author_email: str = Field(source='/author/email')
+    author_email: Optional[str] = Field(source='/author/email')
     author_date: datetime.datetime = Field(source='/author/date')
 
 
