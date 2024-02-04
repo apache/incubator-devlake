@@ -96,7 +96,7 @@ export const ApiKeys = () => {
       breadcrumbs={[{ name: 'API Keys', path: PATHS.APIKEYS() }]}
       description="You can generate and manage your API keys to access the DevLake API."
     >
-      <Flex justify="flex-end">
+      <Flex style={{ marginBottom: 16 }} justify="flex-end">
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal('create')}>
           New API Key
         </Button>
