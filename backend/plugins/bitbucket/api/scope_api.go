@@ -93,7 +93,7 @@ func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Tags plugins/bitbucket
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path string true "repo ID"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [GET]
