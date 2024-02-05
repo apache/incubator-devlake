@@ -161,6 +161,5 @@ backend/server/api/docs/docs.go
 __pycache__
 venv
 
-/backend/plugins/gitextractor/parser/output
-/backend/plugins/gitextractor/parser/output_gogit
-/backend/plugins/gitextractor/parser/output_libgit2
+/backend/plugins/gitextractor/parser/output*
+/backend/plugins/gitextractor/parser/demo_repo/

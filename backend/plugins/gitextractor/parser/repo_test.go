@@ -27,21 +27,21 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 var (
-	enableRepoTest       = false
-	repoId               = "test-repo-id"
-	runInLocal           = true
-	ctx                  = context.Background()
-	subTaskCtx           = &testSubTaskContext{}
-	devlakeRepoRemoteURL = "https://github.com/apache/incubator-devlake"
-	output               = "./output"
+	enableRepoTest                = false
+	repoId                        = "test-repo-id"
+	runInLocal                    = true
+	ctx                           = context.Background()
+	subTaskCtx                    = &testSubTaskContext{}
+	repoIncubatorDevlakeRemoteURL = "https://github.com/apache/incubator-devlake"
+	output                        = "./output"
 
-	repoMericoLake        = "/Users/houlinwei/Code/go/src/github.com/merico-dev/lake"
-	repoMericoLakeWebsite = "/Users/houlinwei/Code/go/src/github.com/merico-dev/website"
-	simpleRepo            = "/Users/houlinwei/Code/go/src/github.com/merico-dev/test/demo1"
+	repoIncubatorApacheDevlakeWebsite = ""
+	simpleRepo                        = ""
 
 	logger log.Logger
 
@@ -57,6 +57,15 @@ func TestMain(m *testing.M) {
 		return
 	}
 	fmt.Println("test main starts")
+
+	if path, err := os.Getwd(); err != nil {
+		panic(err)
+	} else {
+		repoIncubatorApacheDevlakeWebsite = filepath.Join(path, "test_repo", "website")
+		simpleRepo = filepath.Join(path, "test_repo", "demo")
+		fmt.Println("simple repo and website repo path have been initialised.")
+	}
+
 	logger = logruslog.Global.Nested("git extractor")
 	fmt.Println("logger inited")
 
@@ -99,11 +108,11 @@ func getRepos(localRepoDir string) (RepoCollector, RepoCollector) {
 			panic(err)
 		}
 	} else {
-		gitRepo, err = gitRepoCreator.CloneOverHTTP(subTaskCtx, repoId, devlakeRepoRemoteURL, "", "", "")
+		gitRepo, err = gitRepoCreator.CloneOverHTTP(subTaskCtx, repoId, repoIncubatorDevlakeRemoteURL, "", "", "")
 		if err != nil {
 			panic(err)
 		}
-		goGitRepo, err = goGitRepoCreator.CloneGoGitRepoOverHTTP(subTaskCtx, repoId, devlakeRepoRemoteURL, "", "", "")
+		goGitRepo, err = goGitRepoCreator.CloneGoGitRepoOverHTTP(subTaskCtx, repoId, repoIncubatorDevlakeRemoteURL, "", "", "")
 		if err != nil {
 			panic(err)
 		}
@@ -115,7 +124,7 @@ func TestGitRepo_CountRepoInfo(t *testing.T) {
 	if !enableRepoTest {
 		return
 	}
-	goGitRepo, gitRepo := getRepos(repoMericoLakeWebsite)
+	goGitRepo, gitRepo := getRepos(repoIncubatorApacheDevlakeWebsite)
 
 	{
 		tagsCount1, err1 := gitRepo.CountTags(ctx)
