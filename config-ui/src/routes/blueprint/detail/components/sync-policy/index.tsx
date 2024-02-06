@@ -117,12 +117,17 @@ export const SyncPolicy = ({
           </div>
 
           <div className="time-selection">
-            {/* @ts-ignore */}
             <DatePicker
               value={timeAfter ? dayjs(timeAfter) : null}
               placeholder="Select start from"
               onChange={(_, date) =>
-                onChangeTimeAfter(date ? dayjs(date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ') : null)
+                onChangeTimeAfter(
+                  date
+                    ? dayjs(date as string)
+                        .utc()
+                        .format('YYYY-MM-DD[T]HH:mm:ssZ')
+                    : null,
+                )
               }
             />
             <strong>to Now</strong>
