@@ -193,7 +193,7 @@ export const BlueprintConnectionDetailPage = () => {
             Manage Data Scope
           </Button>
           {pluginConfig.scopeConfig && (
-            <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
+            <ExternalLink style={{ marginLeft: 8 }} link={PATHS.CONNECTION(connection.plugin, connection.id)}>
               <Button type="primary" icon={<FormOutlined />}>
                 Edit Scope Config
               </Button>
