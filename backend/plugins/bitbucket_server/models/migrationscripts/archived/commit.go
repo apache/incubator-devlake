@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type BitbucketServerCommit struct {
@@ -36,7 +36,7 @@ type BitbucketServerCommit struct {
 	Message       string
 	Additions     int `gorm:"comment:Added lines of code"`
 	Deletions     int `gorm:"comment:Deleted lines of code"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (BitbucketServerCommit) TableName() string {

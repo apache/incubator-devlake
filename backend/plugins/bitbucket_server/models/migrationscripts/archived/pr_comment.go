@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type BitbucketServerPrComment struct {
@@ -33,7 +33,7 @@ type BitbucketServerPrComment struct {
 	CreatedAt     time.Time
 	UpdatedAt     *time.Time
 	Body          string
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (BitbucketServerPrComment) TableName() string {

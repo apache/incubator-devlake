@@ -17,9 +17,7 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/common"
-)
+import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 
 type BitbucketServerUser struct {
 	ConnectionId  uint64  `gorm:"primaryKey"`
@@ -32,7 +30,7 @@ type BitbucketServerUser struct {
 	AccountStatus string  `gorm:"type:varchar(255)"`
 	DisplayName   string  `gorm:"type:varchar(255)"`
 	HtmlUrl       *string `gorm:"type:varchar(255)"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (BitbucketServerUser) TableName() string {

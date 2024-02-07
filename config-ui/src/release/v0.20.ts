@@ -42,12 +42,6 @@ const URLS = {
       TRANSFORMATION:
         'https://devlake.apache.org/docs/v0.20/Configuration/BitBucket#step-3---adding-transformation-rules-optional',
     },
-    BITBUCKET_SERVER: {
-      BASIS: 'https://devlake.apache.org/docs/v0.20/Configuration/BitBucket-Server',
-      RATE_LIMIT: 'https://devlake.apache.org/docs/v0.20/Configuration/BitBucket-Server#fixed-rate-limit-optional',
-      TRANSFORMATION:
-        'https://devlake.apache.org/docs/v0.20/Configuration/BitBucket-Server#step-3---adding-transformation-rules-optional',
-    },
     GITHUB: {
       BASIS: 'https://devlake.apache.org/docs/v0.20/Configuration/GitHub',
       RATE_LIMIT: 'https://devlake.apache.org/docs/v0.20/Configuration/GitHub#fixed-rate-limit-optional',

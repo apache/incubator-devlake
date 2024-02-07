@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type BitbucketServerPrCommit struct {
@@ -31,7 +31,7 @@ type BitbucketServerPrCommit struct {
 	CommitAuthorName   string
 	CommitAuthorEmail  string
 	CommitAuthoredDate time.Time
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (BitbucketServerPrCommit) TableName() string {

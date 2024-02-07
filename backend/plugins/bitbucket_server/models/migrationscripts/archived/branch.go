@@ -17,9 +17,7 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/common"
-)
+import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 
 type BitbucketServerBranch struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
@@ -29,7 +27,7 @@ type BitbucketServerBranch struct {
 	LatestCommit string `gorm:"type:varchar(255)"`
 	IsDefault    bool
 
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (BitbucketServerBranch) TableName() string {

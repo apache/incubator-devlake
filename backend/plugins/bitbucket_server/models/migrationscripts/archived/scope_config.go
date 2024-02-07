@@ -18,16 +18,17 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"gorm.io/datatypes"
 )
 
 type BitbucketServerScopeConfig struct {
-	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	Name               string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
-	PrType             string `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
-	PrComponent        string `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
-	PrBodyClosePattern string `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
+	archived.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	ConnectionId         uint64 `json:"connectionId" gorm:"index" validate:"required" mapstructure:"connectionId,omitempty"`
+	Name                 string `mapstructure:"name" json:"name" gorm:"type:varchar(255);uniqueIndex" validate:"required"`
+	PrType               string `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
+	PrComponent          string `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
+	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
 
 	// DeploymentPattern  string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
 	// ProductionPattern  string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
@@ -38,9 +39,4 @@ type BitbucketServerScopeConfig struct {
 
 func (BitbucketServerScopeConfig) TableName() string {
 	return "_tool_bitbucket_server_scope_configs"
-}
-
-func (cfg *BitbucketServerScopeConfig) SetConnectionId(c *BitbucketServerScopeConfig, connectionId uint64) {
-	c.ConnectionId = connectionId
-	c.ScopeConfig.ConnectionId = connectionId
 }

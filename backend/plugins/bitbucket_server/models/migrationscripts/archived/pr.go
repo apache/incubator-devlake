@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type BitbucketServerPullRequest struct {
@@ -50,7 +50,7 @@ type BitbucketServerPullRequest struct {
 	Url                      string `gorm:"type:varchar(255)"`
 	AuthorName               string `gorm:"type:varchar(255)"`
 	AuthorId                 int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (BitbucketServerPullRequest) TableName() string {
