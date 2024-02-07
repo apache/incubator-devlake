@@ -228,10 +228,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1087,10 +1084,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2806,10 +2800,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3213,10 +3204,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3714,10 +3702,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select distinct name from projects",
         "hide": 0,
         "includeAll": true,
@@ -3738,10 +3723,7 @@
           "text": "https://github.com/apache/incubator-devlake/pull/5799",
           "value": "github:GithubPullRequest:1:1460714136"
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select concat(Url, '--', id) from pull_requests",
         "hide": 0,
         "includeAll": false,
@@ -3762,10 +3744,7 @@
           "text": "2023 report",
           "value": "2023 report"
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select benchmarks from dora_benchmarks",
         "hide": 0,
         "includeAll": false,

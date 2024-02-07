@@ -64,10 +64,7 @@
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -236,10 +233,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1199,10 +1193,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select distinct name from teams",
         "hide": 0,
         "includeAll": true,
@@ -1223,10 +1214,7 @@
           "text": "2023 report",
           "value": "2023 report"
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select benchmarks from dora_benchmarks",
         "hide": 0,
         "includeAll": false,
