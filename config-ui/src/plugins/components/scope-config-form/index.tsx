@@ -39,6 +39,7 @@ import { TIPS_MAP } from './misc';
 interface Props {
   plugin: string;
   connectionId: ID;
+  defaultName?: string;
   showWarning?: boolean;
   scopeId?: ID;
   scopeConfigId?: ID;
@@ -49,6 +50,7 @@ interface Props {
 export const ScopeConfigForm = ({
   plugin,
   connectionId,
+  defaultName,
   showWarning = false,
   scopeId,
   scopeConfigId,
@@ -56,7 +58,7 @@ export const ScopeConfigForm = ({
   onSubmit,
 }: Props) => {
   const [step, setStep] = useState(1);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(defaultName);
   const [entities, setEntities] = useState<string[]>([]);
   const [transformation, setTransformation] = useState<any>({});
   const [hasError, setHasError] = useState(false);
