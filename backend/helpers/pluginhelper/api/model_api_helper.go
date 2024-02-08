@@ -190,7 +190,7 @@ func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.A
 	}, err
 }
 
-func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (self *ModelApiHelper[M]) PutMultipleCb(input *plugin.ApiResourceInput, beforeSave func(*M) errors.Error) (*plugin.ApiResourceOutput, errors.Error) {
 	var req struct {
 		Data []*M `json:"data"`
 	}
@@ -199,6 +199,12 @@ func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plu
 		return nil, err
 	}
 	for i, item := range req.Data {
+		if beforeSave != nil {
+			err := beforeSave(item)
+			if err != nil {
+				return nil, err
+			}
+		}
 		err := self.dalHelper.CreateOrUpdate(item)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("failed to save item %d", i))
