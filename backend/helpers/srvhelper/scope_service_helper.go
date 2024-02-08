@@ -64,6 +64,10 @@ func NewScopeSrvHelper[
 	}
 }
 
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetPluginName() string {
+	return scopeSrv.pluginName
+}
+
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) Validate(scope *S) errors.Error {
 	connectionId := (*scope).ScopeConnectionId()
 	connectionCount := errors.Must1(scopeSrv.db.Count(dal.From(new(SC)), dal.Where("id = ?", connectionId)))
