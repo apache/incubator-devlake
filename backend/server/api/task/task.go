@@ -18,12 +18,13 @@ limitations under the License.
 package task
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services"
-	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,7 +64,7 @@ func GetTaskByPipeline(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid pipeline ID format"))
 		return
 	}
-	tasks, err := services.GetTasksWithLastStatus(pipelineId)
+	tasks, err := services.GetTasksWithLastStatus(pipelineId, nil)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks"))
 		return

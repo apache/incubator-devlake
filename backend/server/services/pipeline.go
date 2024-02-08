@@ -371,7 +371,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 		}
 		failedTasks = append(failedTasks, task)
 	} else {
-		tasks, err := GetTasksWithLastStatus(pipelineId)
+		tasks, err := GetTasksWithLastStatus(pipelineId, tx)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error getting tasks")
 		}
