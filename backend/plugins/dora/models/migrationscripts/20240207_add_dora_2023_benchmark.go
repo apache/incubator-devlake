@@ -62,7 +62,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Metric:     "Deployment frequency",
 		Low:        "Fewer than once per six months(low)",
 		Medium:     "Between once per month and once every 6 months(medium)",
-		High:       "Between once per week and once per month(high)",
+		High:       "Between once per day and once per month(high)",
 		Elite:      "On-demand(elite)",
 		Benchmarks: "2021 report",
 	}
@@ -185,7 +185,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*adddoraBenchmark2023) Version() uint64 {
-	return 20240201000002
+	return 20240207000002
 }
 
 func (*adddoraBenchmark2023) Name() string {
