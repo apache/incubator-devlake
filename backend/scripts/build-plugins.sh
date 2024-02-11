@@ -52,7 +52,7 @@ fi
 
 if [ -z "$DEVLAKE_PLUGINS" ]; then
     echo "Building all plugins"
-    PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -name logs -not -empty)
+    PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -name logs -not -empty -not -name azuredevops)
 else
     echo "Building the following plugins: $PLUGIN"
     PLUGINS=
