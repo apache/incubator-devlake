@@ -37,12 +37,8 @@ var CollectApiBranchesMeta = plugin.SubTaskMeta{
 
 func CollectApiBranches(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BRANCHES_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
-	if err != nil {
-		return err
-	}
-
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	collectorWithState, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
 		ApiClient:             data.ApiClient,
 		Incremental:           false,
 		PageSize:              100,
