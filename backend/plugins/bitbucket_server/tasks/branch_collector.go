@@ -44,6 +44,7 @@ func CollectApiBranches(taskCtx plugin.SubTaskContext) errors.Error {
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
+		Incremental:           false,
 		PageSize:              100,
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query:                 GetQueryForNextPage,
