@@ -28,7 +28,7 @@ export const Title = styled.div`
 
 export const Description = styled.p`
   margin-top: 12px;
-  margin-bottom: 36px;
+  margin-bottom: 16px;
 `;
 
 export const Content = styled.div``;

@@ -18,7 +18,7 @@
 
 import { useState, useMemo } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Table, Modal, Input, Select, Button, Tag } from 'antd';
+import { Flex, Table, Modal, Input, Select, Button, Tag } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
@@ -94,13 +94,13 @@ export const ApiKeys = () => {
   return (
     <PageHeader
       breadcrumbs={[{ name: 'API Keys', path: PATHS.APIKEYS() }]}
-      extra={
+      description="You can generate and manage your API keys to access the DevLake API."
+    >
+      <Flex style={{ marginBottom: 16 }} justify="flex-end">
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal('create')}>
           New API Key
         </Button>
-      }
-    >
-      <p>You can generate and manage your API keys to access the DevLake API.</p>
+      </Flex>
       <Table
         rowKey="id"
         size="middle"

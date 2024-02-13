@@ -63,7 +63,7 @@ export const JiraConfig: IPluginConfig = {
       storyPointField: '',
       typeMappings: {},
       remotelinkCommitShaPattern: '',
-      remotelinkRepoPattern: [''],
+      remotelinkRepoPattern: [],
     },
   },
 };
