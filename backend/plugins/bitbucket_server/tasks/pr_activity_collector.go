@@ -36,20 +36,17 @@ var CollectApiPrActivitiesMeta = plugin.SubTaskMeta{
 }
 
 func CollectApiPullRequestsActivities(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_ACTIVITIES_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
-	if err != nil {
-		return err
-	}
-
-	iterator, err := GetPullRequestsIterator(taskCtx, collectorWithState)
+	iterator, err := GetPullRequestsIterator(taskCtx)
 	if err != nil {
 		return err
 	}
 	defer iterator.Close()
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_ACTIVITIES_TABLE)
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
 		ApiClient:             data.ApiClient,
+		Incremental:           false,
 		PageSize:              100,
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query:                 GetQueryForNextPage,
@@ -61,5 +58,5 @@ func CollectApiPullRequestsActivities(taskCtx plugin.SubTaskContext) errors.Erro
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return collector.Execute()
 }

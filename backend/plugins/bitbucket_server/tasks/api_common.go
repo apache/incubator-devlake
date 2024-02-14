@@ -140,7 +140,7 @@ func GetBranchesIterator(taskCtx plugin.SubTaskContext) (*helper.DalCursorIterat
 	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerBranchInput{}))
 }
 
-func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
+func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	clauses := []dal.Clause{
@@ -150,9 +150,6 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
 			data.Options.FullName, data.Options.ConnectionId,
 		),
-	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("bitbucket_server_updated_at > ?", *collectorWithState.Since))
 	}
 
 	// construct the input iterator
