@@ -248,7 +248,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.FullName))
 		}
 	}
-	// Set GithubScopeConfig if it's nil, this has lower priority
+	// Set scope config if it's nil, this has lower priority
 	if op.BitbucketServerScopeConfig == nil && op.ScopeConfigId != 0 {
 		var scopeConfig models.BitbucketServerScopeConfig
 		db := taskCtx.GetDal()

@@ -35,14 +35,19 @@ var CollectApiPrCommitsMeta = plugin.SubTaskMeta{
 }
 
 func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	iterator, err := GetPullRequestsIterator(taskCtx)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	if err != nil {
+		return err
+	}
+
+	iterator, err := GetPullRequestsIterator(taskCtx, collectorWithState)
 	if err != nil {
 		return err
 	}
 	defer iterator.Close()
 
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
 		ApiClient:             data.ApiClient,
 		Incremental:           false,
@@ -57,5 +62,5 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

@@ -119,28 +119,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	return rawMessages.Values, nil
 }
 
-func GetBranchesIterator(taskCtx plugin.SubTaskContext) (*helper.DalCursorIterator, errors.Error) {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketServerTaskData)
-	clauses := []dal.Clause{
-		dal.Select("bb.branch"),
-		dal.From("_tool_bitbucket_server_branches bb"),
-		dal.Where(
-			`bb.repo_id = ? and bb.connection_id = ?`,
-			data.Options.FullName, data.Options.ConnectionId,
-		),
-	}
-
-	// construct the input iterator
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return nil, err
-	}
-
-	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerBranchInput{}))
-}
-
-func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*helper.DalCursorIterator, errors.Error) {
+func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	clauses := []dal.Clause{
@@ -150,6 +129,10 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*helper.DalCursorIt
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
 			data.Options.FullName, data.Options.ConnectionId,
 		),
+	}
+
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("bpr.bitbucket_server_updated_at > ?", *collectorWithState.Since))
 	}
 
 	// construct the input iterator
