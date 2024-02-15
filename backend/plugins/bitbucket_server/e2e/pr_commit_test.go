@@ -46,7 +46,6 @@ func TestPrCommitDataFlow(t *testing.T) {
 	)
 
 	// verify commit extraction
-	dataflowTester.FlushTabler(&models.BitbucketServerCommit{})
 	dataflowTester.FlushTabler(&models.BitbucketServerPrCommit{})
 	dataflowTester.Subtask(tasks.ExtractApiPrCommitsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(

@@ -68,14 +68,11 @@ func (p BitbucketServer) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.BitbucketServerConnection{},
 		&models.BitbucketServerUser{},
-		&models.BitbucketServerCommit{},
 		&models.BitbucketServerPullRequest{},
 		&models.BitbucketServerPrComment{},
 		&models.BitbucketServerRepo{},
-		&models.BitbucketServerRepoCommit{},
 		&models.BitbucketServerPrCommit{},
 		&models.BitbucketServerScopeConfig{},
-		&models.BitbucketServerBranch{},
 	}
 }
 
@@ -89,9 +86,6 @@ func (p BitbucketServer) Name() string {
 
 func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.CollectApiBranchesMeta,
-		tasks.ExtractApiBranchesMeta,
-
 		tasks.CollectApiPullRequestsMeta,
 		tasks.ExtractApiPullRequestsMeta,
 
@@ -101,16 +95,12 @@ func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectApiPrCommitsMeta,
 		tasks.ExtractApiPrCommitsMeta,
 
-		tasks.CollectApiCommitsMeta,
-		tasks.ExtractApiCommitsMeta,
-
-		tasks.ConvertRepoMeta,
+		tasks.ConvertRepoMeta, // ?
 		tasks.ConvertPullRequestsMeta,
 
 		tasks.ConvertPrCommentsMeta,
 		tasks.ConvertPrCommitsMeta,
 
-		tasks.ConvertCommitsMeta,
 		tasks.ConvertUsersMeta,
 	}
 }

@@ -54,7 +54,18 @@ type ApiPrActivityResponse struct {
 		State       string `json:"state"`
 	} `json:"comment"`
 
-	Commit *ApiCommitResponse `json:"commit"`
+	Commit *struct {
+		BitbucketId        string          `json:"id"`
+		DisplayId          string          `json:"displayId"`
+		Author             ApiUserResponse `json:"author"`
+		Message            string          `json:"message"`
+		AuthorTimestamp    int64           `json:"authorTimestamp"`
+		CommitterTimestamp int64           `json:"committerTimestamp"`
+		Parents            []struct {
+			BitbucketID string `json:"id"`
+			DisplayID   string `json:"displayId"`
+		} `json:"parents"`
+	} `json:"commit"`
 }
 
 func ExtractApiPullRequestActivities(taskCtx plugin.SubTaskContext) errors.Error {

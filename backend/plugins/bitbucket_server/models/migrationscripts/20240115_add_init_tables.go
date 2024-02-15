@@ -30,14 +30,11 @@ func (script *addInitTables20240115) Up(basicRes context.BasicRes) errors.Error 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&archived.BitbucketServerUser{},
-		&archived.BitbucketServerCommit{},
-		&archived.BitbucketServerBranch{},
 		&archived.BitbucketServerConnection{},
 		&archived.BitbucketServerPullRequest{},
 		&archived.BitbucketServerPrComment{},
 		&archived.BitbucketServerPrCommit{},
 		&archived.BitbucketServerRepo{},
-		&archived.BitbucketServerRepoCommit{},
 		&archived.BitbucketServerScopeConfig{},
 	)
 }

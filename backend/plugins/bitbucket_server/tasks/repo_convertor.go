@@ -47,8 +47,6 @@ var ConvertRepoMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 
-type ApiRepoResponse models.BitbucketServerApiRepo
-
 func GetApiRepo(
 	op *BitbucketServerOptions,
 	apiClient plugin.ApiClient,

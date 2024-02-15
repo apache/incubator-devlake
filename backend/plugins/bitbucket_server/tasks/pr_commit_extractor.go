@@ -65,22 +65,6 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			// need to extract 2 kinds of entities here
-			results := make([]interface{}, 0, 3)
-			bitbucketRepoCommit := &models.BitbucketServerRepoCommit{
-				ConnectionId: data.Options.ConnectionId,
-				RepoId:       repoId,
-				CommitSha:    apiPullRequestCommit.BitbucketId,
-			}
-			results = append(results, bitbucketRepoCommit)
-
-			bitbucketCommit, err := convertPullRequestCommit(apiPullRequestCommit, data.Options.ConnectionId)
-			if err != nil {
-				return nil, err
-			}
-			bitbucketCommit.ConnectionId = data.Options.ConnectionId
-			bitbucketCommit.RepoId = repoId
-			results = append(results, bitbucketCommit)
 
 			bitbucketPullRequestCommit := &models.BitbucketServerPrCommit{
 				ConnectionId:       data.Options.ConnectionId,
@@ -91,11 +75,8 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				CommitAuthorEmail:  apiPullRequestCommit.Author.EmailAddress,
 				CommitAuthoredDate: time.UnixMilli(apiPullRequestCommit.AuthorTimestamp),
 			}
-			if err != nil {
-				return nil, err
-			}
-			results = append(results, bitbucketPullRequestCommit)
-			return results, nil
+
+			return []interface{}{bitbucketPullRequestCommit}, nil
 		},
 	})
 
@@ -104,17 +85,4 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-func convertPullRequestCommit(prCommit *ApiPrCommitResponse, connId uint64) (*models.BitbucketServerCommit, errors.Error) {
-	bitbucketCommit := &models.BitbucketServerCommit{
-		CommitSha:     prCommit.BitbucketId,
-		Message:       prCommit.Message,
-		AuthorId:      prCommit.Author.BitbucketId,
-		AuthorName:    prCommit.Author.Name,
-		AuthorEmail:   prCommit.Author.EmailAddress,
-		AuthoredDate:  time.UnixMilli(prCommit.AuthorTimestamp),
-		CommittedDate: time.UnixMilli(prCommit.CommitterTimestamp),
-	}
-	return bitbucketCommit, nil
 }
