@@ -17,28 +17,20 @@
  */
 
 import { DOC_URL } from '@/release';
-import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
 
-export const BitBucketConfig: IPluginConfig = {
-  plugin: 'bitbucket',
-  name: 'BitBucket',
-  icon: ({ color }) => <Icon fill={color} />,
+export const BitBucketServerConfig = {
+  plugin: 'bitbucket_server',
+  name: 'BitBucket Data Center',
+  icon: Icon,
   sort: 5,
   connection: {
-    docLink: DOC_URL.PLUGIN.BITBUCKET.BASIS,
-    initialValues: {
-      endpoint: 'https://api.bitbucket.org/2.0/',
-    },
+    docLink: DOC_URL.PLUGIN.BITBUCKET_SERVER.BASIS,
     fields: [
       'name',
       {
         key: 'endpoint',
-        multipleVersions: {
-          cloud: 'https://api.bitbucket.org/2.0/',
-          server: '',
-        },
       },
       'username',
       {
@@ -49,15 +41,16 @@ export const BitBucketConfig: IPluginConfig = {
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses dynamic rate limit for optimized data collection for BitBucket. But you can adjust the collection speed by entering a fixed value.',
-        learnMore: DOC_URL.PLUGIN.BITBUCKET.RATE_LIMIT,
+          'By default, DevLake uses dynamic rate limit for optimized data collection for BitBucket Server. But you can adjust the collection speed by entering a fixed value.',
+        learnMore: DOC_URL.PLUGIN.BITBUCKET_SERVER.RATE_LIMIT,
         externalInfo:
-          'The maximum rate limit for different entities in BitBucket Cloud is 60,000 or 1,000 requests/hour.',
+          'The maximum rate limit for different entities in BitBucket Server is 60,000 or 1,000 requests/hour.',
         defaultValue: 1000,
       },
     ],
   },
   dataScope: {
+    localSearch: true,
     searchPlaceholder: 'Enter the keywords to search for repositories that you have read access',
     title: 'Repositories',
     millerColumn: {
@@ -65,14 +58,8 @@ export const BitBucketConfig: IPluginConfig = {
     },
   },
   scopeConfig: {
-    entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
+    entities: ['CODEREVIEW', 'CROSS', 'CODE'],
     transformation: {
-      issueStatusTodo: 'new,open',
-      issueStatusInProgress: '',
-      issueStatusDone: 'closed',
-      issueStatusOther: 'on hold,wontfix,duplicate,invalid',
-      deploymentPattern: '',
-      productionPattern: '',
       refdiff: {
         tagsLimit: 10,
         tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',

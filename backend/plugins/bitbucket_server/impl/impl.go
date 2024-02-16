@@ -24,13 +24,12 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/api"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
+	"github.com/apache/incubator-devlake/plugins/bitbucket_server/api"
+	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
+	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/bitbucket_server/tasks"
 )
 
 var _ interface {
@@ -43,100 +42,70 @@ var _ interface {
 	plugin.CloseablePluginTask
 	plugin.DataSourcePluginBlueprintV200
 	plugin.PluginSource
-} = (*Bitbucket)(nil)
+} = (*BitbucketServer)(nil)
 
-type Bitbucket struct{}
+type BitbucketServer struct{}
 
-func (p Bitbucket) Connection() dal.Tabler {
-	return &models.BitbucketConnection{}
+func (p BitbucketServer) Connection() dal.Tabler {
+	return &models.BitbucketServerConnection{}
 }
 
-func (p Bitbucket) Scope() plugin.ToolLayerScope {
-	return &models.BitbucketRepo{}
+func (p BitbucketServer) Scope() plugin.ToolLayerScope {
+	return &models.BitbucketServerRepo{}
 }
 
-func (p Bitbucket) ScopeConfig() dal.Tabler {
-	return &models.BitbucketScopeConfig{}
+func (p BitbucketServer) ScopeConfig() dal.Tabler {
+	return &models.BitbucketServerScopeConfig{}
 }
 
-func (p Bitbucket) Init(basicRes context.BasicRes) errors.Error {
+func (p BitbucketServer) Init(basicRes context.BasicRes) errors.Error {
 	api.Init(basicRes, p)
 
 	return nil
 }
 
-func (p Bitbucket) GetTablesInfo() []dal.Tabler {
+func (p BitbucketServer) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
-		&models.BitbucketConnection{},
-		&models.BitbucketAccount{},
-		&models.BitbucketCommit{},
-		&models.BitbucketPullRequest{},
-		&models.BitbucketIssue{},
-		&models.BitbucketPrComment{},
-		&models.BitbucketIssueComment{},
-		&models.BitbucketPipeline{},
-		&models.BitbucketRepo{},
-		&models.BitbucketRepoCommit{},
-		&models.BitbucketDeployment{},
-		&models.BitbucketPipelineStep{},
-		&models.BitbucketPrCommit{},
-		&models.BitbucketScopeConfig{},
+		&models.BitbucketServerConnection{},
+		&models.BitbucketServerUser{},
+		&models.BitbucketServerPullRequest{},
+		&models.BitbucketServerPrComment{},
+		&models.BitbucketServerRepo{},
+		&models.BitbucketServerPrCommit{},
+		&models.BitbucketServerScopeConfig{},
 	}
 }
 
-func (p Bitbucket) Description() string {
-	return "To collect and enrich data from Bitbucket"
+func (p BitbucketServer) Description() string {
+	return "To collect and enrich data from Bitbucket Server"
 }
 
-func (p Bitbucket) Name() string {
-	return "bitbucket"
+func (p BitbucketServer) Name() string {
+	return "bitbucket_server"
 }
 
-func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
+func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectApiPullRequestsMeta,
 		tasks.ExtractApiPullRequestsMeta,
 
-		tasks.CollectApiPrCommentsMeta,
-		tasks.ExtractApiPrCommentsMeta,
+		tasks.CollectApiPrActivitiesMeta,
+		tasks.ExtractApiPrActivitiesMeta,
 
 		tasks.CollectApiPrCommitsMeta,
 		tasks.ExtractApiPrCommitsMeta,
 
-		tasks.CollectApiCommitsMeta,
-		tasks.ExtractApiCommitsMeta,
-
-		tasks.CollectApiIssuesMeta,
-		tasks.ExtractApiIssuesMeta,
-
-		tasks.CollectApiIssueCommentsMeta,
-		tasks.ExtractApiIssueCommentsMeta,
-
-		tasks.CollectApiPipelinesMeta,
-		tasks.ExtractApiPipelinesMeta,
-
-		tasks.CollectApiDeploymentsMeta,
-		tasks.ExtractApiDeploymentsMeta,
-
-		// must run after deployment to match
-		tasks.CollectPipelineStepsMeta,
-		tasks.ExtractPipelineStepsMeta,
-
-		tasks.ConvertRepoMeta,
-		tasks.ConvertAccountsMeta,
+		tasks.ConvertRepoMeta, // ?
 		tasks.ConvertPullRequestsMeta,
+
 		tasks.ConvertPrCommentsMeta,
 		tasks.ConvertPrCommitsMeta,
-		tasks.ConvertCommitsMeta,
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueCommentsMeta,
-		tasks.ConvertPipelineMeta,
-		tasks.ConvertPipelineStepMeta,
-		tasks.ConvertiDeploymentMeta,
+
+		tasks.ConvertUsersMeta,
 	}
 }
 
-func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+func (p BitbucketServer) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	logger := taskCtx.GetLogger()
 	logger.Debug("%v", options)
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
@@ -148,15 +117,15 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		nil,
 		p.Name(),
 	)
-	connection := &models.BitbucketConnection{}
+	connection := &models.BitbucketServerConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get bitbucket connection by the given connection ID")
+		return nil, errors.Default.Wrap(err, "unable to get bitbucket server connection by the given connection ID")
 	}
 
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get bitbucket API client instance")
+		return nil, errors.Default.Wrap(err, "unable to get bitbucket server API client instance")
 	}
 	err = EnrichOptions(taskCtx, op, apiClient.ApiClient)
 	if err != nil {
@@ -164,13 +133,7 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
-	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
-	}
-	taskData := &tasks.BitbucketTaskData{
+	taskData := &tasks.BitbucketServerTaskData{
 		Options:       op,
 		ApiClient:     apiClient,
 		RegexEnricher: regexEnricher,
@@ -179,22 +142,25 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	return taskData, nil
 }
 
-func (p Bitbucket) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/bitbucket/" // the "/" fixes an issue where records from "bitbucket_server" are counted as "bitbucket" records and vice versa
+func (p BitbucketServer) RootPkgPath() string {
+	return "github.com/apache/incubator-devlake/plugins/bitbucket_server/" // the "/" fixes an issue where records from "bitbucket_server" are counted as "bitbucket" records and vice versa
 }
 
-func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
+func (p BitbucketServer) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Bitbucket) MakeDataSourcePipelinePlanV200(
+func (p BitbucketServer) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
 	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
-func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
+func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
 		"test": {
 			"POST": api.TestConnection,
 		},
@@ -207,16 +173,13 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
-		"connections/:connectionId/test": {
-			"POST": api.TestExistingConnection,
-		},
 		"connections/:connectionId/scopes/*scopeId": {
 			// Behind 'GetScopeDispatcher', there are two paths so far:
 			// GetScopeLatestSyncState "connections/:connectionId/scopes/:scopeId/latest-sync-state"
 			// GetScope "connections/:connectionId/scopes/:scopeId"
 			// Because there may be slash in scopeId, so we handle it manually.
 			"GET":    api.GetScopeDispatcher,
-			"PATCH":  api.PatchScope,
+			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/remote-scopes": {
@@ -226,23 +189,23 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET": api.SearchRemoteScopes,
 		},
 		"connections/:connectionId/scopes": {
-			"GET": api.GetScopes,
-			"PUT": api.PutScopes,
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
 		},
 		"connections/:connectionId/scope-configs": {
-			"POST": api.PostScopeConfig,
+			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.PatchScopeConfig,
+		"connections/:connectionId/scope-configs/*scopeConfigId": {
+			"PATCH":  api.UpdateScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
 	}
 }
 
-func (p Bitbucket) Close(taskCtx plugin.TaskContext) errors.Error {
-	data, ok := taskCtx.GetData().(*tasks.BitbucketTaskData)
+func (p BitbucketServer) Close(taskCtx plugin.TaskContext) errors.Error {
+	data, ok := taskCtx.GetData().(*tasks.BitbucketServerTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
@@ -251,9 +214,9 @@ func (p Bitbucket) Close(taskCtx plugin.TaskContext) errors.Error {
 }
 
 func EnrichOptions(taskCtx plugin.TaskContext,
-	op *tasks.BitbucketOptions,
+	op *tasks.BitbucketServerOptions,
 	apiClient *helper.ApiClient) errors.Error {
-	var repo models.BitbucketRepo
+	var repo models.BitbucketServerRepo
 	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
 	err := tasks.ValidateTaskOptions(op)
 	if err != nil {
@@ -269,13 +232,13 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
-			var repo *models.BitbucketApiRepo
+			var repo *models.BitbucketServerApiRepo
 			repo, err = tasks.GetApiRepo(op, apiClient)
 			if err != nil {
 				return err
 			}
-			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			scope := repo.ConvertApiScope()
+			logger.Debug(fmt.Sprintf("Current repo: %s", repo.Slug))
+			scope := repo.ConvertApiScope().(*models.BitbucketServerRepo)
 			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {
@@ -285,18 +248,18 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.FullName))
 		}
 	}
-	// Set GithubScopeConfig if it's nil, this has lower priority
-	if op.BitbucketScopeConfig == nil && op.ScopeConfigId != 0 {
-		var scopeConfig models.BitbucketScopeConfig
+	// Set scope config if it's nil, this has lower priority
+	if op.BitbucketServerScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.BitbucketServerScopeConfig
 		db := taskCtx.GetDal()
 		err = db.First(&scopeConfig, dal.Where("id = ?", repo.ScopeConfigId))
 		if err != nil && !db.IsErrorNotFound(err) {
 			return errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.BitbucketScopeConfig = &scopeConfig
+		op.BitbucketServerScopeConfig = &scopeConfig
 	}
-	if op.BitbucketScopeConfig == nil && op.ScopeConfigId == 0 {
-		op.BitbucketScopeConfig = new(models.BitbucketScopeConfig)
+	if op.BitbucketServerScopeConfig == nil && op.ScopeConfigId == 0 {
+		op.BitbucketServerScopeConfig = new(models.BitbucketServerScopeConfig)
 	}
 	return err
 }
