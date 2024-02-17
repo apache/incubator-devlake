@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "playground"
+version = "0.1.0"
+description = ""
+authors = []
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.11"
+pandas = "^2.2.0"
+sqlalchemy = "^2.0.27"
+ipykernel = "^6.29.2"
+networkx = "^3.2.1"
+mysql-connector-python = "^8.3.0"
+pyarrow = "^15.0.0"
+graphviz = "^0.20.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
