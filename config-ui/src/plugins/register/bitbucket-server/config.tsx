@@ -17,13 +17,14 @@
  */
 
 import { DOC_URL } from '@/release';
+import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
 
-export const BitBucketServerConfig = {
+export const BitBucketServerConfig: IPluginConfig = {
   plugin: 'bitbucket_server',
   name: 'BitBucket Data Center',
-  icon: Icon,
+  icon: ({ color }) => <Icon fill={color} />,
   sort: 5,
   connection: {
     docLink: DOC_URL.PLUGIN.BITBUCKET_SERVER.BASIS,
@@ -50,7 +51,6 @@ export const BitBucketServerConfig = {
     ],
   },
   dataScope: {
-    localSearch: true,
     searchPlaceholder: 'Enter the keywords to search for repositories that you have read access',
     title: 'Repositories',
     millerColumn: {
