@@ -17,8 +17,8 @@
  */
 
 import { useMemo, useState, useEffect } from 'react';
-import { CaretRightOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { theme, Collapse, Tag, Form, Input, Checkbox, Select } from 'antd';
+import { CaretRightOutlined } from '@ant-design/icons';
+import { theme, Collapse, Form, Input } from 'antd';
 
 import { ExternalLink, HelpTooltip } from '@/components';
 import { DOC_URL } from '@/release';
@@ -111,7 +111,7 @@ const renderCollapseItems = ({
   onChangeTransformation: any;
   useCustom: boolean;
   onChangeUseCustom: any;
-}) => 
+}) =>
   [
     {
       key: 'CODEREVIEW',
