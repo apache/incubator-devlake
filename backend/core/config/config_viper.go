@@ -72,7 +72,7 @@ func initConfig(v *viper.Viper) {
 
 	if _, err := os.Stat(v.ConfigFileUsed()); err != nil {
 		if os.IsNotExist(err) {
-			logrus.Info("no [.env] file, please make sure you have set the environment variable.")
+			logrus.Info("no [.env] file, devlake will read configuration from environment, please make sure you have set correct environment variable.")
 		} else {
 			panic(fmt.Errorf("failed to get config file info: %v", err))
 		}
