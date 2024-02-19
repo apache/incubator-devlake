@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 )
 
@@ -27,36 +28,34 @@ type modifyCustomFieldName struct{}
 
 func (*modifyCustomFieldName) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	var err errors.Error
 	issuesNameList := []string{"_tool_tapd_stories", "_tool_tapd_bugs", "_tool_tapd_tasks"}
 	for _, issuesName := range issuesNameList {
 		switch issuesName {
 		case "_tool_tapd_bugs":
 			for i := 6; i < 9; i++ {
-				err = db.RenameColumn(issuesName, fmt.Sprintf("custom_field%d", i), fmt.Sprintf("custom_field_%d", i))
-				if err != nil {
+				oldColumnName := fmt.Sprintf("custom_field%d", i)
+				newColumnName := fmt.Sprintf("custom_field_%d", i)
+				if err := renameColumnSafely(db, issuesName, oldColumnName, newColumnName, dal.Text); err != nil {
 					return err
 				}
 			}
-		case "_tool_tapd_stories":
-			fallthrough
-		case "_tool_tapd_tasks":
-			err = db.RenameColumn(issuesName, `custom_field6`, `custom_field_six`)
-			if err != nil {
-				return err
+		case "_tool_tapd_tasks", "_tool_tapd_stories":
+			tableName := issuesName
+			renameColumnMap := map[string]string{
+				"custom_field6": "custom_field_six",
+				"custom_field7": "custom_field_seven",
+				"custom_field8": "custom_field_eight",
 			}
-			err = db.RenameColumn(issuesName, `custom_field7`, `custom_field_seven`)
-			if err != nil {
-				return err
-			}
-			err = db.RenameColumn(issuesName, `custom_field8`, `custom_field_eight`)
-			if err != nil {
-				return err
+			for oldColumn, newColumn := range renameColumnMap {
+				if err := renameColumnSafely(db, tableName, oldColumn, newColumn, dal.Text); err != nil {
+					return err
+				}
 			}
 		}
 		for i := 9; i <= 50; i++ {
-			err = db.RenameColumn(issuesName, fmt.Sprintf("custom_field%d", i), fmt.Sprintf("custom_field_%d", i))
-			if err != nil {
+			oldColumnName := fmt.Sprintf("custom_field%d", i)
+			newColumnName := fmt.Sprintf("custom_field_%d", i)
+			if err := renameColumnSafely(db, issuesName, oldColumnName, newColumnName, dal.Text); err != nil {
 				return err
 			}
 		}
@@ -70,4 +69,20 @@ func (*modifyCustomFieldName) Version() uint64 {
 
 func (*modifyCustomFieldName) Name() string {
 	return "modify tapd custom field name"
+}
+
+func renameColumnSafely(db dal.Dal, table, oldColumn string, newColumn string, newColumnType dal.ColumnType) errors.Error {
+	if table == "" || oldColumn == "" || newColumn == "" {
+		return errors.BadInput.New("empty params")
+	}
+	if db.HasColumn(table, oldColumn) {
+		if !db.HasColumn(table, newColumn) {
+			return db.RenameColumn(table, oldColumn, newColumn)
+		}
+	} else {
+		if !db.HasColumn(table, newColumn) {
+			return db.AddColumn(table, newColumn, newColumnType)
+		}
+	}
+	return nil
 }
