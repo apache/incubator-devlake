@@ -24,7 +24,7 @@ if [ -n "$ADMIN_USER" ] && [ -n "$ADMIN_PASS" ]; then
     auth_basic_user_file /etc/nginx/.htpasswd;
     '
 fi
-export DNS=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
+export DNS=$(awk 'BEGIN{ORS=" "} $1=="nameserver" {if ($2 ~ ":") {print "["$2"]"} else {print $2}}' /etc/resolv.conf)
 export DNS_VALID=${DNS_VALID:-300s}
 export DEVLAKE_ENDPOINT_PROTO=${DEVLAKE_ENDPOINT_PROTO:-http}
 export GRAFANA_ENDPOINT_PROTO=${GRAFANA_ENDPOINT_PROTO:-http}
