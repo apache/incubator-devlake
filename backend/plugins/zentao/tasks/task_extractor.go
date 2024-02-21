@@ -146,7 +146,7 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 		StoryTitle:         res.StoryTitle,
 		LatestStoryVersion: 0,
 		AssignedToRealName: res.AssignedToRealName,
-		PriOrder:           res.PriOrder,
+		PriOrder:           res.PriOrder.String(),
 		NeedConfirm:        res.NeedConfirm,
 		Progress:           res.Progress,
 		Url:                url,
