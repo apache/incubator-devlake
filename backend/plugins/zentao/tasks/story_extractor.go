@@ -120,7 +120,7 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				NotifyEmail:      res.NotifyEmail,
 				URChanged:        res.URChanged,
 				Deleted:          res.Deleted,
-				PriOrder:         res.PriOrder,
+				PriOrder:         res.PriOrder.String(),
 				PlanTitle:        res.PlanTitle,
 				Url:              row.Url,
 			}
