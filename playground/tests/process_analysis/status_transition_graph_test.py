@@ -64,7 +64,7 @@ def test_convert_status_transition_graph_to_graphiz_dot():
         }
         subgraph IN_PROGRESS {
             label=IN_PROGRESS
-            rank=same
+            rank=""
             node [fillcolor=yellow]
             "In Progress" [label=<In Progress<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> penwidth=2.73]
         }

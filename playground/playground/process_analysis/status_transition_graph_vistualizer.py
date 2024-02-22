@@ -94,7 +94,7 @@ class StatusTransitionGraphVisualizer:
             case "DONE":
                 return "max"
             case _:
-                return "same"
+                return ""
 
     def __category_color(self, category: str) -> str:
         return self.config.category_fill_color.get(
