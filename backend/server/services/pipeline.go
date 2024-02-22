@@ -103,7 +103,7 @@ func pipelineServiceInit() {
 		panic(err)
 	}
 
-	err = ReloadBlueprints(cronManager)
+	err = ReloadBlueprints()
 	if err != nil {
 		panic(err)
 	}
