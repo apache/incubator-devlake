@@ -26,7 +26,7 @@ import (
 
 type adddoraBenchmark2023 struct{}
 
-type doraBenchmark2023 struct {
+type doraBenchmarkBasic struct {
 	archived.Model
 	Metric     string `gorm:"type:varchar(255)"`
 	Low        string `gorm:"type:varchar(255)"`
@@ -36,7 +36,7 @@ type doraBenchmark2023 struct {
 	Benchmarks string `gorm:"type:varchar(20)"`
 }
 
-func (doraBenchmark2023) TableName() string {
+func (doraBenchmarkBasic) TableName() string {
 	return "dora_benchmarks"
 }
 
@@ -48,14 +48,14 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 	}
 	err = migrationhelper.AutoMigrateTables(
 		baseRes,
-		&doraBenchmark2023{},
+		&doraBenchmarkBasic{},
 	)
 	if err != nil {
 		return err
 	}
 
 	// 2021 benchmarks
-	doraBenchmark2021DF := &doraBenchmark2023{
+	doraBenchmark2021DF := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 1,
 		},
@@ -70,7 +70,8 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 	if err != nil {
 		return errors.Convert(err)
 	}
-	doraBenchmark2021LTC := &doraBenchmark2023{
+
+	doraBenchmark2021LTC := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 2,
 		},
@@ -85,24 +86,10 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 	if err != nil {
 		return errors.Convert(err)
 	}
-	doraBenchmark2021TTS := &doraBenchmark2023{
+
+	doraBenchmark2021CFR := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 3,
-		},
-		Metric:     "Time to restore service",
-		Low:        "More than one week(low)",
-		Medium:     "Between one day and one week(medium)",
-		High:       "Less than one day(high)",
-		Elite:      "Less than one hour(elite)",
-		Benchmarks: "2021 report",
-	}
-	err = db.Create(doraBenchmark2021TTS)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	doraBenchmark2021CFR := &doraBenchmark2023{
-		Model: archived.Model{
-			ID: 4,
 		},
 		Metric:     "Change failure rate",
 		Low:        "> 30%(low)",
@@ -116,8 +103,24 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		return errors.Convert(err)
 	}
 
+	doraBenchmark2021TTS := &doraBenchmarkBasic{
+		Model: archived.Model{
+			ID: 4,
+		},
+		Metric:     "Time to restore service",
+		Low:        "More than one week(low)",
+		Medium:     "Between one day and one week(medium)",
+		High:       "Less than one day(high)",
+		Elite:      "Less than one hour(elite)",
+		Benchmarks: "2021 report",
+	}
+	err = db.Create(doraBenchmark2021TTS)
+	if err != nil {
+		return errors.Convert(err)
+	}
+
 	// 2023 benchmarks
-	doraBenchmark2023DF := &doraBenchmark2023{
+	doraBenchmark2023DF := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 5,
 		},
@@ -133,7 +136,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		return errors.Convert(err)
 	}
 
-	doraBenchmark2023LTC := &doraBenchmark2023{
+	doraBenchmark2023LTC := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 6,
 		},
@@ -149,7 +152,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		return errors.Convert(err)
 	}
 
-	doraBenchmark2023CFR := &doraBenchmark2023{
+	doraBenchmark2023CFR := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 7,
 		},
@@ -165,25 +168,9 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		return errors.Convert(err)
 	}
 
-	doraBenchmark2023TTS := &doraBenchmark2023{
+	doraBenchmark2023FDRT := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 8,
-		},
-		Metric:     "Time to restore service",
-		Low:        "More than one week(low)",
-		Medium:     "Between one day and one week(medium)",
-		High:       "Less than one day(high)",
-		Elite:      "Less than one hour(elite)",
-		Benchmarks: "2023 report",
-	}
-	err = db.Create(doraBenchmark2023TTS)
-	if err != nil {
-		return errors.Convert(err)
-	}
-
-	doraBenchmark2023FDRT := &doraBenchmark2023{
-		Model: archived.Model{
-			ID: 9,
 		},
 		Metric:     "Failed deployment recovery time",
 		Low:        "More than one week(low)",
@@ -201,7 +188,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*adddoraBenchmark2023) Version() uint64 {
-	return 20240219000002
+	return 20240222000002
 }
 
 func (*adddoraBenchmark2023) Name() string {
