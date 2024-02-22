@@ -19,6 +19,8 @@ class StatusChange:
 
 
 class StatusTransitionGraph:
+    """A directed graph that represents the transitions between statuses of issues from a DevLake data source."""
+
     def __init__(self):
         self.graph = nx.DiGraph()
         self.total_transition_count = 0
@@ -41,19 +43,19 @@ class StatusTransitionGraph:
         if not self.graph.has_node(to_status):
             self.graph.add_node(to_status, count=0, category=status_change.to_value)
 
-        if not for_same_issue(status_change, previous_status_change):
+        if not _for_same_issue(status_change, previous_status_change):
             self.graph.nodes[from_status]["count"] += 1
         self.graph.nodes[to_status]["count"] += 1
 
     def __update_edges(
         self, status_change: StatusChange, previous_status_change: StatusChange | None
     ):
-        duration = days_between(status_change, previous_status_change)
+        duration = _days_between(status_change, previous_status_change)
         edge_from = status_change.original_from_value
         edge_to = status_change.original_to_value
         if self.graph.has_edge(edge_from, edge_to):
             self.graph.edges[edge_from, edge_to]["avg_duration"] = (
-                calculate_avg_duration(
+                _calculate_avg_duration(
                     self.graph.edges[edge_from, edge_to]["count"],
                     self.graph.edges[edge_from, edge_to]["avg_duration"],
                     duration,
@@ -65,6 +67,8 @@ class StatusTransitionGraph:
 
     @classmethod
     def from_database(cls, db_engine: Engine) -> "StatusTransitionGraph":
+        """Create a StatusTransitionGraph using a connection to a DevLake database."""
+        
         query = "select i.issue_key as issue_key, i.created_date as created_date, \
                     ic.original_from_value as original_from_value, ic.from_value as from_value, \
                     ic.original_to_value as original_to_value, ic.to_value as to_value, \
@@ -77,6 +81,11 @@ class StatusTransitionGraph:
 
     @classmethod
     def from_data_frame(cls, df: pd.DataFrame) -> "StatusTransitionGraph":
+        """Create a StatusTransitionGraph from a Pandas DataFrame.
+        For advanced usage, and testing. For most use cases, use the from_database method.
+
+        Note: The DataFrame must have a column for each field in the StatusChange class."""
+
         process_graph: StatusTransitionGraph = cls()
 
         df = df.copy().sort_values(by=["issue_key", "changed_date"], ascending=True)
@@ -90,7 +99,7 @@ class StatusTransitionGraph:
         return process_graph
 
 
-def for_same_issue(
+def _for_same_issue(
     status_change: StatusChange, previous_status_change: StatusChange | None
 ) -> bool:
     if previous_status_change is None:
@@ -98,21 +107,21 @@ def for_same_issue(
     return status_change.issue_key == previous_status_change.issue_key
 
 
-def days_between(
+def _days_between(
     status_change: StatusChange, previous_status_change: StatusChange | None
 ) -> float:
-    if for_same_issue(status_change, previous_status_change):
-        return timedelta_between(
+    if _for_same_issue(status_change, previous_status_change):
+        return _timedelta_between(
             status_change.changed_date, previous_status_change.changed_date
         ) / timedelta(days=1)
-    return timedelta_between(
+    return _timedelta_between(
         status_change.changed_date, status_change.created_date
     ) / timedelta(days=1)
 
 
-def timedelta_between(current: pd.Timestamp, previous: pd.Timestamp) -> timedelta:
+def _timedelta_between(current: pd.Timestamp, previous: pd.Timestamp) -> timedelta:
     return current.to_pydatetime() - previous.to_pydatetime()
 
 
-def calculate_avg_duration(count: int, avg_duration: float, duration: float) -> float:
+def _calculate_avg_duration(count: int, avg_duration: float, duration: float) -> float:
     return (avg_duration * count + duration) / (count + 1)

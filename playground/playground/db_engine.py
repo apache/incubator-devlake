@@ -1,7 +1,11 @@
+"""Database engine utility."""
+
 from urllib.parse import urlparse, parse_qsl
 from sqlalchemy.engine import Engine, create_engine
 
 def create_db_engine(db_url: str) -> Engine:
+    """Create a SQLAlchemy engine for the given database URL."""
+
     # SQLAlchemy doesn't understand postgres:// scheme
     db_url = db_url.replace("postgres://", "postgresql://")
     # Use MySQL connector for mysql:// scheme
