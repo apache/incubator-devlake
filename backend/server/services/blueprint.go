@@ -250,7 +250,6 @@ var bpCronIdMap map[uint64]cron.EntryID
 
 // ReloadBlueprints reloades cronjobs based on blueprints
 func ReloadBlueprints() (err errors.Error) {
-
 	enable := true
 	isManual := false
 	blueprints, _, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
@@ -266,7 +265,10 @@ func ReloadBlueprints() (err errors.Error) {
 	cronManager.Stop()
 	bpCronIdMap = make(map[uint64]cron.EntryID, len(blueprints))
 	for _, blueprint := range blueprints {
-		reloadBlueprint(blueprint)
+		err := reloadBlueprint(blueprint)
+		if err != nil {
+			return err
+		}
 	}
 	if len(blueprints) > 0 {
 		cronManager.Start()
@@ -287,7 +289,7 @@ func reloadBlueprint(blueprint *models.Blueprint) errors.Error {
 		delete(bpCronIdMap, blueprint.ID)
 		logger.Info("removed blueprint %d from cronjobs, cron id: %v", blueprint.ID, cronId)
 	}
-	if blueprint.Enable && blueprint.IsManual == false {
+	if blueprint.Enable && !blueprint.IsManual {
 		if cronId, err := cronManager.AddJob(blueprint.CronConfig, &BlueprintJob{blueprint}); err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return errors.Default.Wrap(err, "created cron job failed")
