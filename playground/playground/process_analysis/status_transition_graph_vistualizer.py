@@ -42,7 +42,9 @@ class StatusTransitionGraphVisualizer:
         Args:
             source: The StatusTransitionGraph to visualize.
             threshold: Number between 0.0 and 1.0, defaults to 1.0 (or 100%.)
-                Exlude edges from the visualization that represent less than the percentage of total transactions within the threshold."""
+                Exclude edges from the visualization that represent less than 
+                the percentage of total status transition within the threshold.
+        """
 
         dot_graph = graphviz.Digraph("Status Transitions", format="svg", strict=True)
         dot_graph.attr("graph", rankdir="TD")
@@ -55,8 +57,7 @@ class StatusTransitionGraphVisualizer:
                 cluster.attr(label=str(category))
                 cluster.attr(rank=self.__category_rank(category))
                 cluster.attr("node", fillcolor=self.__category_color(category))
-                for item in nodes:
-                    node, _ = item
+                for node, _ in nodes:
                     count = graph.nodes[node]["count"]
                     penwidth = count / source.total_transition_count * self.config.node_penwidth_factor
                     cluster.node(

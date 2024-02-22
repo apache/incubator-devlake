@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pandas as pd
+
 from playground.process_analysis.status_transition_graph import StatusTransitionGraph
 from playground.process_analysis.status_transition_graph_vistualizer import StatusTransitionGraphVisualizer
 
@@ -17,10 +18,10 @@ def test_create_status_transition_graph_from_data_frame():
 
     assert result.total_transition_count == 11
     assert sorted(list(result.graph.nodes.data())) == [
-        ('Done', {'count': 2, 'category': 'DONE'}), 
-        ('In Progress', {'count': 3, 'category': 'IN_PROGRESS'}), 
-        ('Ready', {'count': 3, 'category': 'TODO'}), 
-        ('To Do', {'count': 5, 'category': 'TODO'}), 
+        ('Done', {'count': 2, 'category': 'DONE'}),
+        ('In Progress', {'count': 3, 'category': 'IN_PROGRESS'}),
+        ('Ready', {'count': 3, 'category': 'TODO'}),
+        ('To Do', {'count': 5, 'category': 'TODO'}),
         ("Won't Fix", {'count': 2, 'category': 'DONE'})
     ]
     assert sorted(list(result.graph.edges.data())) == [
@@ -49,7 +50,7 @@ def test_convert_of_empty_status_transition_graph_to_graphiz_dot():
 def test_convert_status_transition_graph_to_graphiz_dot():
     source = StatusTransitionGraph.from_data_frame(test_data_frame)
     dot = StatusTransitionGraphVisualizer().visualize(source)
-    
+
     assert dot.source.replace("\t", "") == """strict digraph "Status Transitions" {
         graph [rankdir=TD]
         node [color=darkslategray fontname=Arial fontsize=12 style=filled]

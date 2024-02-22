@@ -84,7 +84,8 @@ class StatusTransitionGraph:
         """Create a StatusTransitionGraph from a Pandas DataFrame.
         For advanced usage, and testing. For most use cases, use the from_database method.
 
-        Note: The DataFrame must have a column for each field in the StatusChange class."""
+        Note: The DataFrame must have a column for each field in the StatusChange class.
+        """
 
         process_graph: StatusTransitionGraph = cls()
 
