@@ -46,23 +46,23 @@ class StatusTransitionGraphVisualizer:
 
         dot_graph = graphviz.Digraph("Status Transitions", format="svg", strict=True)
         dot_graph.attr("graph", rankdir="TD")
+        dot_graph.attr("node", color=self.config.node_border_color, **self.__default_attrs())
+        dot_graph.attr("edge", color=self.config.edge_color, **self.__default_attrs())
 
         graph = source.graph
         for category, nodes in groupby(graph.nodes(data="category"), itemgetter(1)):
             with dot_graph.subgraph(name=f"{category}") as cluster:
                 cluster.attr(label=str(category))
                 cluster.attr(rank=self.__category_rank(category))
+                cluster.attr("node", fillcolor=self.__category_color(category))
                 for item in nodes:
-                    node_name, _ = item
-                    node = graph.nodes[node_name]
-                    penwidth = node["count"] / source.total_transition_count * self.config.node_penwidth_factor
+                    node, _ = item
+                    count = graph.nodes[node]["count"]
+                    penwidth = count / source.total_transition_count * self.config.node_penwidth_factor
                     cluster.node(
-                        name=node_name,
-                        label=self.__node_label(node_name, node["count"]),
-                        color=self.config.node_border_color,
-                        fillcolor=self.__category_color(category),
+                        name=node,
+                        label=self.__node_label(node, count),
                         penwidth=str(round(penwidth, 2)),
-                        **self.__default_attrs(),
                     )
 
         for edge in graph.edges.data():
@@ -73,8 +73,6 @@ class StatusTransitionGraphVisualizer:
                     edge[1],
                     label=self.__edge_label(edge[2]["avg_duration"], edge[2]["count"]),
                     penwidth=str(round(penwidth, 2)),
-                    color=self.config.edge_color,
-                    **self.__default_attrs(),
                 )
 
         return dot_graph

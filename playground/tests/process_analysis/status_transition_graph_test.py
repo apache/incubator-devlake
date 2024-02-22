@@ -5,6 +5,13 @@ from playground.process_analysis.status_transition_graph import StatusTransition
 from playground.process_analysis.status_transition_graph_vistualizer import StatusTransitionGraphVisualizer
 
 
+def test_empty_status_transition_graph():
+    result = StatusTransitionGraph.from_data_frame(pd.DataFrame([]))
+    assert result.total_transition_count == 0
+    assert result.graph.number_of_nodes() == 0
+    assert result.graph.number_of_edges() == 0
+
+
 def test_create_status_transition_graph_from_data_frame():
     result = StatusTransitionGraph.from_data_frame(test_data_frame)
 
@@ -27,36 +34,53 @@ def test_create_status_transition_graph_from_data_frame():
     ]
 
 
+def test_convert_of_empty_status_transition_graph_to_graphiz_dot():
+    result = StatusTransitionGraph.from_data_frame(pd.DataFrame([]))
+    dot = StatusTransitionGraphVisualizer().visualize(result)
+
+    assert dot.source.replace("\t", "") == """strict digraph "Status Transitions" {
+        graph [rankdir=TD]
+        node [color=darkslategray fontname=Arial fontsize=12 style=filled]
+        edge [color=darkslategray fontname=Arial fontsize=12 style=filled]
+    }
+    """.replace("    ", "") # remove indentation
+
+
 def test_convert_status_transition_graph_to_graphiz_dot():
     source = StatusTransitionGraph.from_data_frame(test_data_frame)
     dot = StatusTransitionGraphVisualizer().visualize(source)
     
     assert dot.source.replace("\t", "") == """strict digraph "Status Transitions" {
         graph [rankdir=TD]
+        node [color=darkslategray fontname=Arial fontsize=12 style=filled]
+        edge [color=darkslategray fontname=Arial fontsize=12 style=filled]
         subgraph TODO {
             label=TODO
             rank=min
-            "To Do" [label=<To Do<BR/>(<FONT POINT-SIZE="8">5x</FONT>)> color=darkslategray fillcolor=lightgray fontname=Arial fontsize=12 penwidth=4.55 style=filled]
-            Ready [label=<Ready<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> color=darkslategray fillcolor=lightgray fontname=Arial fontsize=12 penwidth=2.73 style=filled]
+            node [fillcolor=lightgray]
+            "To Do" [label=<To Do<BR/>(<FONT POINT-SIZE="8">5x</FONT>)> penwidth=4.55]
+            Ready [label=<Ready<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> penwidth=2.73]
         }
         subgraph IN_PROGRESS {
             label=IN_PROGRESS
             rank=same
-            "In Progress" [label=<In Progress<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> color=darkslategray fillcolor=yellow fontname=Arial fontsize=12 penwidth=2.73 style=filled]
+            node [fillcolor=yellow]
+            "In Progress" [label=<In Progress<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> penwidth=2.73]
         }
         subgraph DONE {
             label=DONE
             rank=max
-            Done [label=<Done<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> color=darkslategray fillcolor=green fontname=Arial fontsize=12 penwidth=1.82 style=filled]
-            "Won\'t Fix" [label=<Won\'t Fix<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> color=darkslategray fillcolor=green fontname=Arial fontsize=12 penwidth=1.82 style=filled]
+            node [fillcolor=green]
+            Done [label=<Done<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> penwidth=1.82]
+            "Won\'t Fix" [label=<Won\'t Fix<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> penwidth=1.82]
         }
-        "To Do" -> Ready [label=<2.7 days avg<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> color=darkslategray fontname=Arial fontsize=12 penwidth=10.91 style=filled]
-        "To Do" -> "In Progress" [label=<1.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> color=darkslategray fontname=Arial fontsize=12 penwidth=3.64 style=filled]
-        "To Do" -> "Won\'t Fix" [label=<2.5 days avg<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> color=darkslategray fontname=Arial fontsize=12 penwidth=7.27 style=filled]
-        Ready -> "In Progress" [label=<2.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> color=darkslategray fontname=Arial fontsize=12 penwidth=3.64 style=filled]
-        "In Progress" -> Done [label=<1.0 days avg<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> color=darkslategray fontname=Arial fontsize=12 penwidth=7.27 style=filled]
-        "In Progress" -> "To Do" [label=<4.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> color=darkslategray fontname=Arial fontsize=12 penwidth=3.64 style=filled]
-        "Won\'t Fix" -> "In Progress" [label=<9.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> color=darkslategray fontname=Arial fontsize=12 penwidth=3.64 style=filled]
+        "To Do" -> Ready [label=<2.7 days avg<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> penwidth=10.91]
+        "To Do" -> "In Progress" [label=<1.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> penwidth=3.64]
+        "To Do" -> "Won\'t Fix" [label=<2.5 days avg<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> penwidth=7.27]
+        Ready -> "In Progress" [label=<2.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> penwidth=3.64]
+        "In Progress" -> Done [label=<1.0 days avg<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> penwidth=7.27]
+        "In Progress" -> "To Do" [label=<4.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> penwidth=3.64]
+        "Won\'t Fix" -> "In Progress" [label=<9.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> penwidth=3.64]
     }
     """.replace("    ", "") # remove indentation
 
@@ -64,7 +88,7 @@ def test_convert_status_transition_graph_to_graphiz_dot():
 def _pd_timestamp_from(datetime_str: str) -> pd.Timestamp:
     return pd.Timestamp(datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S"))
 
-test_data_frame = df = pd.DataFrame([
+test_data_frame = pd.DataFrame([
     {
         "issue_key": "ISSUE-3",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),

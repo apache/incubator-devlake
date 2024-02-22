@@ -68,7 +68,7 @@ class StatusTransitionGraph:
     @classmethod
     def from_database(cls, db_engine: Engine) -> "StatusTransitionGraph":
         """Create a StatusTransitionGraph using a connection to a DevLake database."""
-        
+
         query = "select i.issue_key as issue_key, i.created_date as created_date, \
                     ic.original_from_value as original_from_value, ic.from_value as from_value, \
                     ic.original_to_value as original_to_value, ic.to_value as to_value, \
@@ -87,6 +87,9 @@ class StatusTransitionGraph:
         Note: The DataFrame must have a column for each field in the StatusChange class."""
 
         process_graph: StatusTransitionGraph = cls()
+
+        if df.empty:
+            return process_graph
 
         df = df.copy().sort_values(by=["issue_key", "changed_date"], ascending=True)
 
