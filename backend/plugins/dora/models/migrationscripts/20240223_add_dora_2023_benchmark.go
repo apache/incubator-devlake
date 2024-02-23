@@ -26,17 +26,17 @@ import (
 
 type adddoraBenchmark2023 struct{}
 
-type doraBenchmark2023 struct {
+type doraBenchmarkBasic struct {
 	archived.Model
 	Metric     string `gorm:"type:varchar(255)"`
 	Low        string `gorm:"type:varchar(255)"`
 	Medium     string `gorm:"type:varchar(255)"`
 	High       string `gorm:"type:varchar(255)"`
 	Elite      string `gorm:"type:varchar(255)"`
-	Benchmarks string `gorm:"type:varchar(20)"`
+	DoraReport string `gorm:"type:varchar(20)"`
 }
 
-func (doraBenchmark2023) TableName() string {
+func (doraBenchmarkBasic) TableName() string {
 	return "dora_benchmarks"
 }
 
@@ -48,14 +48,14 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 	}
 	err = migrationhelper.AutoMigrateTables(
 		baseRes,
-		&doraBenchmark2023{},
+		&doraBenchmarkBasic{},
 	)
 	if err != nil {
 		return err
 	}
 
 	// 2021 benchmarks
-	doraBenchmark2021DF := &doraBenchmark2023{
+	doraBenchmark2021DF := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 1,
 		},
@@ -64,13 +64,14 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between once per month and once every 6 months(medium)",
 		High:       "Between once per day and once per month(high)",
 		Elite:      "On-demand(elite)",
-		Benchmarks: "2021 report",
+		DoraReport: "2021",
 	}
 	err = db.Create(doraBenchmark2021DF)
 	if err != nil {
 		return errors.Convert(err)
 	}
-	doraBenchmark2021LTC := &doraBenchmark2023{
+
+	doraBenchmark2021LTC := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 2,
 		},
@@ -79,45 +80,47 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between one week and six months(medium)",
 		High:       "Less than one week(high)",
 		Elite:      "Less than one hour(elite)",
-		Benchmarks: "2021 report",
+		DoraReport: "2021",
 	}
 	err = db.Create(doraBenchmark2021LTC)
 	if err != nil {
 		return errors.Convert(err)
 	}
-	doraBenchmark2021TTS := &doraBenchmark2023{
+
+	doraBenchmark2021CFR := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 3,
-		},
-		Metric:     "Time to restore service",
-		Low:        "More than one week(low)",
-		Medium:     "Between one day and one week(medium)",
-		High:       "Less than one day(high)",
-		Elite:      "Less than one hour(elite)",
-		Benchmarks: "2021 report",
-	}
-	err = db.Create(doraBenchmark2021TTS)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	doraBenchmark2021CFR := &doraBenchmark2023{
-		Model: archived.Model{
-			ID: 4,
 		},
 		Metric:     "Change failure rate",
 		Low:        "> 30%(low)",
 		Medium:     "21%-30%(medium)",
 		High:       "16%-20%(high)",
 		Elite:      "0-15%(elite)",
-		Benchmarks: "2021 report",
+		DoraReport: "2021",
 	}
 	err = db.Create(doraBenchmark2021CFR)
 	if err != nil {
 		return errors.Convert(err)
 	}
 
+	doraBenchmark2021TTS := &doraBenchmarkBasic{
+		Model: archived.Model{
+			ID: 4,
+		},
+		Metric:     "Time to restore service",
+		Low:        "More than one week(low)",
+		Medium:     "Between one day and one week(medium)",
+		High:       "Less than one day(high)",
+		Elite:      "Less than one hour(elite)",
+		DoraReport: "2021",
+	}
+	err = db.Create(doraBenchmark2021TTS)
+	if err != nil {
+		return errors.Convert(err)
+	}
+
 	// 2023 benchmarks
-	doraBenchmark2023DF := &doraBenchmark2023{
+	doraBenchmark2023DF := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 5,
 		},
@@ -126,14 +129,14 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between once per week and once per month(medium)",
 		High:       "Between once per day and once per week(high)",
 		Elite:      "On-demand(elite)",
-		Benchmarks: "2023 report",
+		DoraReport: "2023",
 	}
 	err = db.Create(doraBenchmark2023DF)
 	if err != nil {
 		return errors.Convert(err)
 	}
 
-	doraBenchmark2023LTC := &doraBenchmark2023{
+	doraBenchmark2023LTC := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 6,
 		},
@@ -142,41 +145,41 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between one week and one month(medium)",
 		High:       "Between one day and one week(high)",
 		Elite:      "Less than one day(elite)",
-		Benchmarks: "2023 report",
+		DoraReport: "2023",
 	}
 	err = db.Create(doraBenchmark2023LTC)
 	if err != nil {
 		return errors.Convert(err)
 	}
 
-	doraBenchmark2023TTS := &doraBenchmark2023{
+	doraBenchmark2023CFR := &doraBenchmarkBasic{
 		Model: archived.Model{
 			ID: 7,
-		},
-		Metric:     "Time to restore service",
-		Low:        "More than one week(low)",
-		Medium:     "Between one day and one week(medium)",
-		High:       "Less than one day(high)",
-		Elite:      "Less than one hour(elite)",
-		Benchmarks: "2023 report",
-	}
-	err = db.Create(doraBenchmark2023TTS)
-	if err != nil {
-		return errors.Convert(err)
-	}
-
-	doraBenchmark2023CFR := &doraBenchmark2023{
-		Model: archived.Model{
-			ID: 8,
 		},
 		Metric:     "Change failure rate",
 		Low:        "> 15%(low)",
 		Medium:     "10%-15%(medium)",
 		High:       "5%-10%(high)",
 		Elite:      "0-5%(elite)",
-		Benchmarks: "2023 report",
+		DoraReport: "2023",
 	}
 	err = db.Create(doraBenchmark2023CFR)
+	if err != nil {
+		return errors.Convert(err)
+	}
+
+	doraBenchmark2023FDRT := &doraBenchmarkBasic{
+		Model: archived.Model{
+			ID: 8,
+		},
+		Metric:     "Failed deployment recovery time",
+		Low:        "More than one week(low)",
+		Medium:     "Between one day and one week(medium)",
+		High:       "Less than one day(high)",
+		Elite:      "Less than one hour(elite)",
+		DoraReport: "2023",
+	}
+	err = db.Create(doraBenchmark2023FDRT)
 	if err != nil {
 		return errors.Convert(err)
 	}
@@ -185,7 +188,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*adddoraBenchmark2023) Version() uint64 {
-	return 20240207000002
+	return 20240223000003
 }
 
 func (*adddoraBenchmark2023) Name() string {
