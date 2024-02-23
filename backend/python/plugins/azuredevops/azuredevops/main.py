@@ -4,7 +4,6 @@
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
 # the License.  You may obtain a copy of the License at
-
 #     http://www.apache.org/licenses/LICENSE-2.0
 
 # Unless required by applicable law or agreed to in writing, software
@@ -27,6 +26,7 @@ from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
 from pydevlake.api import APIException
+from pydevlake.extractor import autoextract
 
 
 _SUPPORTED_EXTERNAL_SOURCE_PROVIDERS = ['github', 'githubenterprise', 'bitbucket', 'git']
@@ -50,9 +50,9 @@ class AzureDevOpsPlugin(Plugin):
         yield Repo(
             name=git_repo.name,
             url=git_repo.url,
-            forked_from=git_repo.parent_repository_url
+            forked_from=git_repo.parent_repository_url,
+            updated_date=git_repo.updated_date,
         )
-
         yield CicdScope(
             name=git_repo.name,
             description=git_repo.name,
@@ -88,7 +88,7 @@ class AzureDevOpsPlugin(Plugin):
             url = urlparse(raw_repo['remoteUrl'])
             url = url._replace(netloc=url.hostname)
             raw_repo['url'] = url.geturl()
-            repo = GitRepository(**raw_repo)
+            repo = autoextract(raw_repo, GitRepository)
             if not repo.default_branch:
                 continue
             if "parentRepository" in raw_repo:
