@@ -80,7 +80,7 @@ func InitPlugins(basicRes context.BasicRes) {
 				panic(fmt.Errorf("failed to initialize plugin %v due to %w", pluginName, err))
 			}
 		} else {
-			basicRes.GetLogger().Info("plugin: %s doesn't implement 'PluginInit', it will be skipped.")
+			basicRes.GetLogger().Info("plugin: %s doesn't implement 'PluginInit', it will be skipped.", pluginName)
 		}
 	}
 }
