@@ -19,7 +19,7 @@ package code
 
 import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"time"
 )
 
@@ -30,11 +30,11 @@ type Repo struct {
 	Name        string     `json:"name"`
 	Url         string     `json:"url"`
 	Description string     `json:"description"`
-	OwnerId     string     `json:"ownerId" gorm:"type:varchar(255)"`
+	OwnerId     string     `json:"owner_id" gorm:"type:varchar(255)"`
 	Language    string     `json:"language" gorm:"type:varchar(255)"`
-	ForkedFrom  string     `json:"forkedFrom"`
-	CreatedDate *time.Time `json:"createdDate"`
-	UpdatedDate *time.Time `json:"updatedDate"`
+	ForkedFrom  string     `json:"forked_from"`
+	CreatedDate *time.Time `json:"created_date"`
+	UpdatedDate *time.Time `json:"updated_date"`
 	Deleted     bool       `json:"deleted"`
 }
 
