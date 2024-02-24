@@ -1,0 +1,2 @@
+id,name,description,url,created_date,updated_date
+azuredevops_go:AzuredevopsRepo:1:0d50ba13-f9ad-49b0-9b21-d29eda50ca33,project-1/first-repo,"",https://dev.azure.com/devlake/project-1/_git/first-repo,"",""

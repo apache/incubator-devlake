@@ -1,2 +1,0 @@
-id,name,pipeline_id,result,status,original_status,original_result,type,environment,duration_sec,queued_duration_sec,created_date,queued_date,started_date,finished_date,cicd_scope_id
-azuredevops:AzuredevopsTimelineRecord:1:cfa20e98-6997-523c-4233-f0a7302c929f:12,deploy production,azuredevops:AzuredevopsBuild:1:12,SUCCESS,DONE,completed,succeeded,DEPLOYMENT,PRODUCTION,6,,2023-02-25T06:22:36.807+00:00,,2023-02-25T06:22:36.807+00:00,2023-02-25T06:22:43.233+00:00,azuredevops:AzuredevopsRepo:1:0d50ba13-f9ad-49b0-9b21-d29eda50ca33
