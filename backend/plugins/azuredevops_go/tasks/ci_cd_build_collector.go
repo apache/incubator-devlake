@@ -38,7 +38,7 @@ var CollectBuildsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiBuilds",
 	EntryPoint:       CollectBuilds,
 	EnabledByDefault: true,
-	Description:      "Collect Builds data from Azure DevOps API, supports diffSync",
+	Description:      "Collect Builds data from Azure DevOps API, supports timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	ProductTables:    []string{RawBuildTable},
 }
@@ -63,6 +63,12 @@ func CollectBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					if reqData.CustomData != nil {
 						pag := reqData.CustomData.(CustomPageDate)
 						query.Set("continuationToken", pag.ContinuationToken)
+					}
+
+					if createdAfter != nil {
+						// If specified, filters to builds that finished/started/queued after this date
+						// based on the queryOrder specified.
+						query.Set("minTime", createdAfter.Format(time.RFC3339))
 					}
 					return query, nil
 				},

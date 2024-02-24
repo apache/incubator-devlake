@@ -18,7 +18,7 @@ limitations under the License.
 # Azure Devops Python Plugin
 
 This is a revamped version of the Python Azure DevOps Plugin, originally located at `../../python/plugins/azuredevops`.
-The plugin is able to coexist with Python version as both implementation come with their on `_raw` and `_tool` tables.
+The plugin is able to coexist with the Python version as both implementations come with their own `_raw` and `_tool` tables.
 
 **Read access** to the following Azure DevOps Scopes is required:
 
