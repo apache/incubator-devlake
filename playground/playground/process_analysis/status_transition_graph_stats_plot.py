@@ -21,8 +21,9 @@ class StatusTransitionGraphStatsPlot:
                 continue
             fig.add_trace(Box(
                 y=durations,
-                name=f"{edge[0]} -> {edge[1]}",
-                boxpoints='outliers'
+                name=f"{edge[0]} ⮕ {edge[1]}",
+                boxpoints='outliers',
+                boxmean=True
             ))
 
         fig.update_layout(
