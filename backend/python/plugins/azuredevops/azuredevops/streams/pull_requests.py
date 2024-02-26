@@ -37,7 +37,7 @@ class GitPullRequests(Stream):
 
     def convert(self, pr: GitPullRequest, ctx):
         repo_id = ctx.scope.domain_id()
-        # If the PR is from a fork, we forge a new repo ID for the base repo but it doesn't correspond to a real repo
+        # If the PR is from a fork, we forge a new repo ID for the base repo, but it doesn't correspond to a real repo
         base_repo_id = domain_id(GitRepository, ctx.connection.id, pr.fork_repo_id) if pr.fork_repo_id is not None else repo_id
 
         # Use the same status values as GitHub plugin
@@ -56,7 +56,7 @@ class GitPullRequests(Stream):
             original_status=pr.status.value,
             title=pr.title,
             description=pr.description,
-            url=pr.url,
+            url=f"{ctx.scope.url}/pullrequest/{pr.pull_request_id}",
             author_name=pr.created_by_name,
             author_id=pr.created_by_id,
             pull_request_key=pr.pull_request_id,
@@ -64,7 +64,7 @@ class GitPullRequests(Stream):
             merged_date=pr.closed_date,
             closed_date=pr.closed_date,
             type=pr.type,
-            component="", # not supported
+            component="",  # not supported
             merge_commit_sha=pr.merge_commit_sha,
             head_ref=pr.source_ref_name,
             base_ref=pr.target_ref_name,

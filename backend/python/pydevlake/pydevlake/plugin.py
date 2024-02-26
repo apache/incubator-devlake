@@ -71,7 +71,7 @@ class Plugin(ABC):
     @abstractmethod
     def test_connection(self, connection: Connection) -> msg.TestConnectionResult:
         """
-        Test if the the connection with the datasource can be established with the given connection.
+        Test if the connection with the datasource can be established with the given connection.
         Must raise an exception if the connection can't be established.
         """
         pass

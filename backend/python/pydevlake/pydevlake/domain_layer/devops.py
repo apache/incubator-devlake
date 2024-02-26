@@ -100,7 +100,7 @@ class CICDTask(DomainModel, table=True):
     original_result: Optional[str]
 
     type: Optional[CICDType]
-    environment: Optional[CICDEnvironment]
+    environment: Optional[str]
 
     created_date: Optional[datetime]
     queued_date: Optional[datetime]

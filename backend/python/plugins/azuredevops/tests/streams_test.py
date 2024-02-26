@@ -287,7 +287,7 @@ def test_pull_requests_stream(context):
         original_status='active',
         title='ticket-2 PR',
         description='Updated main.java by ticket-2',
-        url='https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/pullRequests/1',
+        url='https://github.com/johndoe/test-repo/pullrequest/1',
         author_name='John Doe',
         author_id='bc538feb-9fdd-6cf8-80e1-7c56950d0289',
         pull_request_key=1,

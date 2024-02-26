@@ -33,7 +33,7 @@ type doraBenchmarkBasic struct {
 	Medium     string `gorm:"type:varchar(255)"`
 	High       string `gorm:"type:varchar(255)"`
 	Elite      string `gorm:"type:varchar(255)"`
-	Benchmarks string `gorm:"type:varchar(20)"`
+	DoraReport string `gorm:"type:varchar(20)"`
 }
 
 func (doraBenchmarkBasic) TableName() string {
@@ -64,7 +64,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between once per month and once every 6 months(medium)",
 		High:       "Between once per day and once per month(high)",
 		Elite:      "On-demand(elite)",
-		Benchmarks: "2021 report",
+		DoraReport: "2021",
 	}
 	err = db.Create(doraBenchmark2021DF)
 	if err != nil {
@@ -80,7 +80,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between one week and six months(medium)",
 		High:       "Less than one week(high)",
 		Elite:      "Less than one hour(elite)",
-		Benchmarks: "2021 report",
+		DoraReport: "2021",
 	}
 	err = db.Create(doraBenchmark2021LTC)
 	if err != nil {
@@ -96,7 +96,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "21%-30%(medium)",
 		High:       "16%-20%(high)",
 		Elite:      "0-15%(elite)",
-		Benchmarks: "2021 report",
+		DoraReport: "2021",
 	}
 	err = db.Create(doraBenchmark2021CFR)
 	if err != nil {
@@ -112,7 +112,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between one day and one week(medium)",
 		High:       "Less than one day(high)",
 		Elite:      "Less than one hour(elite)",
-		Benchmarks: "2021 report",
+		DoraReport: "2021",
 	}
 	err = db.Create(doraBenchmark2021TTS)
 	if err != nil {
@@ -129,7 +129,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between once per week and once per month(medium)",
 		High:       "Between once per day and once per week(high)",
 		Elite:      "On-demand(elite)",
-		Benchmarks: "2023 report",
+		DoraReport: "2023",
 	}
 	err = db.Create(doraBenchmark2023DF)
 	if err != nil {
@@ -145,7 +145,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between one week and one month(medium)",
 		High:       "Between one day and one week(high)",
 		Elite:      "Less than one day(elite)",
-		Benchmarks: "2023 report",
+		DoraReport: "2023",
 	}
 	err = db.Create(doraBenchmark2023LTC)
 	if err != nil {
@@ -161,7 +161,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "10%-15%(medium)",
 		High:       "5%-10%(high)",
 		Elite:      "0-5%(elite)",
-		Benchmarks: "2023 report",
+		DoraReport: "2023",
 	}
 	err = db.Create(doraBenchmark2023CFR)
 	if err != nil {
@@ -177,7 +177,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 		Medium:     "Between one day and one week(medium)",
 		High:       "Less than one day(high)",
 		Elite:      "Less than one hour(elite)",
-		Benchmarks: "2023 report",
+		DoraReport: "2023",
 	}
 	err = db.Create(doraBenchmark2023FDRT)
 	if err != nil {
@@ -188,7 +188,7 @@ func (u *adddoraBenchmark2023) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*adddoraBenchmark2023) Version() uint64 {
-	return 20240222000002
+	return 20240223000003
 }
 
 func (*adddoraBenchmark2023) Name() string {
