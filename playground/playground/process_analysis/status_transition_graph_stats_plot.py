@@ -16,7 +16,7 @@ class StatusTransitionGraphStatsPlot:
                        reverse=True)
 
         for edge in edges[:max_edges]:
-            durations = edge[2]["durations"]
+            durations = list(map(lambda d: round(d, 5), edge[2]["durations"]))
             if len(durations) < 4:
                 continue
             fig.add_trace(Box(
