@@ -102,10 +102,10 @@ class StatusTransitionGraphVisualizer:
         )
 
     def __node_label(self, name: str, count: int) -> str:
-        return f'<{name}<BR/>(<FONT POINT-SIZE="{self.config.sub_fontsize}">{str(count)+"x"}</FONT>)>'
+        return f'<{name}<BR/><FONT POINT-SIZE="{self.config.sub_fontsize}">({str(count)+"x"})</FONT>>'
 
     def __edge_label(self, avg_duration: float, count: int) -> str:
-        return f'<{avg_duration:0.1f} days avg<BR/>(<FONT POINT-SIZE="{self.config.sub_fontsize}">{str(count)+"x"}</FONT>)>'
+        return f'<{avg_duration:0.1f} days avg<BR/><FONT POINT-SIZE="{self.config.sub_fontsize}">({str(count)+"x"})</FONT>>'
 
     def __default_attrs(self) -> dict:
         return {

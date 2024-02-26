@@ -59,29 +59,29 @@ def test_convert_status_transition_graph_to_graphiz_dot():
             label=TODO
             rank=min
             node [fillcolor=lightgray]
-            "To Do" [label=<To Do<BR/>(<FONT POINT-SIZE="8">5x</FONT>)> penwidth=4.55]
-            Ready [label=<Ready<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> penwidth=2.73]
+            "To Do" [label=<To Do<BR/><FONT POINT-SIZE="8">(5x)</FONT>> penwidth=4.55]
+            Ready [label=<Ready<BR/><FONT POINT-SIZE="8">(3x)</FONT>> penwidth=2.73]
         }
         subgraph IN_PROGRESS {
             label=IN_PROGRESS
             rank=""
             node [fillcolor=yellow]
-            "In Progress" [label=<In Progress<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> penwidth=2.73]
+            "In Progress" [label=<In Progress<BR/><FONT POINT-SIZE="8">(3x)</FONT>> penwidth=2.73]
         }
         subgraph DONE {
             label=DONE
             rank=max
             node [fillcolor=green]
-            Done [label=<Done<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> penwidth=1.82]
-            "Won\'t Fix" [label=<Won\'t Fix<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> penwidth=1.82]
+            Done [label=<Done<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=1.82]
+            "Won\'t Fix" [label=<Won\'t Fix<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=1.82]
         }
-        "To Do" -> Ready [label=<2.7 days avg<BR/>(<FONT POINT-SIZE="8">3x</FONT>)> penwidth=10.91]
-        "To Do" -> "In Progress" [label=<1.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> penwidth=3.64]
-        "To Do" -> "Won\'t Fix" [label=<2.5 days avg<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> penwidth=7.27]
-        Ready -> "In Progress" [label=<2.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> penwidth=3.64]
-        "In Progress" -> Done [label=<1.0 days avg<BR/>(<FONT POINT-SIZE="8">2x</FONT>)> penwidth=7.27]
-        "In Progress" -> "To Do" [label=<4.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> penwidth=3.64]
-        "Won\'t Fix" -> "In Progress" [label=<9.0 days avg<BR/>(<FONT POINT-SIZE="8">1x</FONT>)> penwidth=3.64]
+        "To Do" -> Ready [label=<2.7 days avg<BR/><FONT POINT-SIZE="8">(3x)</FONT>> penwidth=10.91]
+        "To Do" -> "In Progress" [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> penwidth=3.64]
+        "To Do" -> "Won\'t Fix" [label=<2.5 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=7.27]
+        Ready -> "In Progress" [label=<2.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> penwidth=3.64]
+        "In Progress" -> Done [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=7.27]
+        "In Progress" -> "To Do" [label=<4.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> penwidth=3.64]
+        "Won\'t Fix" -> "In Progress" [label=<9.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> penwidth=3.64]
     }
     """.replace("    ", "") # remove indentation
 
