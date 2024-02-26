@@ -3,8 +3,8 @@ from itertools import groupby
 from operator import itemgetter
 import enum
 
-import graphviz
 import statistics
+import graphviz
 
 from playground.process_analysis.status_transition_graph import StatusTransitionGraph
 
@@ -13,7 +13,7 @@ class StatisticLabelConfig(enum.Enum):
     MEDIAN = "med"
     IQR = "iqr"
     MIN_MAX = "min-max"
-    
+
 
 @dataclass
 class VisualizerConfig:

@@ -1,11 +1,11 @@
 from datetime import timedelta
 from dataclasses import dataclass
 
-import pandas as pd
 import networkx as nx
-from playground.process_analysis.issue_filter import IssueFilter
-
+import pandas as pd
 from sqlalchemy.engine import Engine
+
+from playground.process_analysis.issue_filter import IssueFilter
 
 
 @dataclass(frozen=True)
