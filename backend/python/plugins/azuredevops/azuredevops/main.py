@@ -51,13 +51,13 @@ class AzureDevOpsPlugin(Plugin):
             name=git_repo.name,
             url=git_repo.url,
             forked_from=git_repo.parent_repository_url,
-            updated_date=git_repo.updated_date,
+            # updated_date=git_repo.updated_date,
         )
         yield CicdScope(
             name=git_repo.name,
             description=git_repo.name,
             url=git_repo.url,
-            updatedDate=git_repo.updated_date,
+            # updatedDate=git_repo.updated_date,
         )
 
     def remote_scope_groups(self, connection) -> list[RemoteScopeGroup]:

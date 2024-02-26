@@ -64,7 +64,7 @@ class GitPullRequests(Stream):
             merged_date=pr.closed_date,
             closed_date=pr.closed_date,
             type=pr.type,
-            component="", # not supported
+            component="",  # not supported
             merge_commit_sha=pr.merge_commit_sha,
             head_ref=pr.source_ref_name,
             base_ref=pr.target_ref_name,
