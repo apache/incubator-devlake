@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 import networkx as nx
+from playground.process_analysis.issue_filter import IssueFilter
 
 from sqlalchemy.engine import Engine
 
@@ -10,6 +11,7 @@ from sqlalchemy.engine import Engine
 @dataclass(frozen=True)
 class StatusChange:
     issue_key: str
+    issue_type: str
     created_date: pd.Timestamp
     original_from_value: str
     from_value: str
@@ -66,10 +68,10 @@ class StatusTransitionGraph:
             self.graph.add_edge(edge_from, edge_to, count=1, avg_duration=duration)
 
     @classmethod
-    def from_database(cls, db_engine: Engine) -> "StatusTransitionGraph":
+    def from_database(cls, db_engine: Engine, issue_filter: IssueFilter | None = None) -> "StatusTransitionGraph":
         """Create a StatusTransitionGraph using a connection to a DevLake database."""
 
-        query = "select i.issue_key as issue_key, i.created_date as created_date, \
+        query = "select i.issue_key as issue_key, i.original_type as issue_type, i.created_date as created_date, \
                     ic.original_from_value as original_from_value, ic.from_value as from_value, \
                     ic.original_to_value as original_to_value, ic.to_value as to_value, \
                     ic.created_date as changed_date \
@@ -77,10 +79,11 @@ class StatusTransitionGraph:
                     join issues i on i.id = ic.issue_id \
                 where ic.field_name = 'status';"
         df = pd.read_sql_query(query, db_engine)
-        return cls.from_data_frame(df)
+
+        return cls.from_data_frame(df, issue_filter)
 
     @classmethod
-    def from_data_frame(cls, df: pd.DataFrame) -> "StatusTransitionGraph":
+    def from_data_frame(cls, df: pd.DataFrame, issue_filter: IssueFilter | None = None) -> "StatusTransitionGraph":
         """Create a StatusTransitionGraph from a Pandas DataFrame.
         For advanced usage, and testing. For most use cases, use the from_database method.
 
@@ -93,6 +96,9 @@ class StatusTransitionGraph:
             return process_graph
 
         df = df.copy().sort_values(by=["issue_key", "changed_date"], ascending=True)
+
+        if issue_filter is not None:
+            df = issue_filter.apply(df)
 
         previous_status_change: StatusChange = None
         for item in df.itertuples(index=False):

@@ -92,6 +92,7 @@ def _pd_timestamp_from(datetime_str: str) -> pd.Timestamp:
 test_data_frame = pd.DataFrame([
     {
         "issue_key": "ISSUE-3",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "To Do",
         "from_value": "TODO",
@@ -101,6 +102,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-1",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "To Do",
         "from_value": "TODO",
@@ -110,6 +112,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-1",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "Ready",
         "from_value": "TODO",
@@ -119,6 +122,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-1",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "In Progress",
         "from_value": "IN_PROGRESS",
@@ -128,6 +132,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-2",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "In Progress",
         "from_value": "IN_PROGRESS",
@@ -137,6 +142,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-2",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "To Do",
         "from_value": "TODO",
@@ -146,6 +152,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-2",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "To Do",
         "from_value": "TODO",
@@ -155,6 +162,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-2",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "In Progress",
         "from_value": "IN_PROGRESS",
@@ -164,6 +172,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-2",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "To Do",
         "from_value": "TODO",
@@ -173,6 +182,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-2",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "Won't Fix",
         "from_value": "DONE",
@@ -182,6 +192,7 @@ test_data_frame = pd.DataFrame([
     },
     {
         "issue_key": "ISSUE-4",
+        "issue_type": "Bug",
         "created_date": _pd_timestamp_from("2021-01-01 00:00:00"),
         "original_from_value": "To Do",
         "from_value": "TODO",
