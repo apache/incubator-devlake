@@ -47,10 +47,18 @@ func init() {
 		logLevel = logrus.ErrorLevel
 	}
 	inner.SetLevel(logLevel)
-	inner.SetFormatter(&logrus.TextFormatter{
-		TimestampFormat: time.DateTime,
-		FullTimestamp:   true,
-	})
+
+	if format := os.Getenv("LOGGING_FORMAT"); format == "json" {
+		inner.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: time.DateTime,
+		})
+	} else {
+		inner.SetFormatter(&logrus.TextFormatter{
+			TimestampFormat: time.DateTime,
+			FullTimestamp:   true,
+		})
+	}
+
 	basePath := cfg.GetString("LOGGING_DIR")
 	if basePath == "" {
 		basePath = "./logs"
