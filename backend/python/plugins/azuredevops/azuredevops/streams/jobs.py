@@ -81,9 +81,9 @@ class Jobs(Substream):
         type = devops.CICDType.BUILD
         if ctx.scope_config.deployment_pattern and ctx.scope_config.deployment_pattern.search(j.name):
             type = devops.CICDType.DEPLOYMENT
-        environment = devops.CICDEnvironment.TESTING
-        if ctx.scope_config.production_pattern and ctx.scope_config.production_pattern.search(j.name):
-            environment = devops.CICDEnvironment.PRODUCTION
+        environment = devops.CICDEnvironment.PRODUCTION
+        if ctx.scope_config.production_pattern is not None and not ctx.scope_config.production_pattern.search(j.name):
+            environment = ""
 
         if j.finish_time:
             duration_sec = abs(j.finish_time.timestamp()-j.start_time.timestamp())
