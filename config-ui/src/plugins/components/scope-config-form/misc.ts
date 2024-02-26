@@ -31,6 +31,10 @@ export const TIPS_MAP: Record<string, { name: string; link: string }> = {
     name: 'BitBucket',
     link: DOC_URL.PLUGIN.BITBUCKET.TRANSFORMATION,
   },
+  circleci: {
+    name: 'CircleCI',
+    link: DOC_URL.PLUGIN.CIRCLECI.TRANSFORMATION,
+  },
   github: {
     name: 'GitHub',
     link: DOC_URL.PLUGIN.GITHUB.TRANSFORMATION,
