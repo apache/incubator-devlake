@@ -13,16 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from http import HTTPStatus
 from typing import Iterable
 
-from http import HTTPStatus
-
+import pydevlake.domain_layer.devops as devops
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import Job, Build, GitRepository
 from azuredevops.streams.builds import Builds
 from pydevlake import Context, Substream, DomainType
 from pydevlake.api import APIException
-import pydevlake.domain_layer.devops as devops
 
 
 class Jobs(Substream):
@@ -82,11 +81,12 @@ class Jobs(Substream):
         if ctx.scope_config.deployment_pattern and ctx.scope_config.deployment_pattern.search(j.name):
             type = devops.CICDType.DEPLOYMENT
         environment = devops.CICDEnvironment.PRODUCTION
-        if ctx.scope_config.production_pattern is not None and not ctx.scope_config.production_pattern.search(j.name):
+        if ctx.scope_config.production_pattern is not None and ctx.scope_config.production_pattern.search(
+                j.name) is None:
             environment = ""
 
         if j.finish_time:
-            duration_sec = abs(j.finish_time.timestamp()-j.start_time.timestamp())
+            duration_sec = abs(j.finish_time.timestamp() - j.start_time.timestamp())
         else:
             duration_sec = float(0.0)
 
@@ -95,10 +95,10 @@ class Jobs(Substream):
             name=j.name,
             pipeline_id=j.build_id,
             status=status,
-            original_status = str(j.state),
-            original_result = str(j.result),
+            original_status=str(j.state),
+            original_result=str(j.result),
             created_date=j.start_time,
-            started_date =j.start_time,
+            started_date=j.start_time,
             finished_date=j.finish_time,
             result=result,
             type=type,

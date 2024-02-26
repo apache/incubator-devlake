@@ -66,7 +66,7 @@ class CICDPipeline(DomainModel, table=True):
     queued_duration_sec: Optional[float]
 
     type: Optional[CICDType]
-    environment: Optional[str]
+    environment: Optional[CICDEnvironment]
 
 
 class CiCDPipelineCommit(NoPKModel, table=True):

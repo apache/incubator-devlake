@@ -64,7 +64,8 @@ class Builds(Stream):
             type = devops.CICDType.DEPLOYMENT
 
         environment = devops.CICDEnvironment.PRODUCTION
-        if ctx.scope_config.production_pattern is not None and not ctx.scope_config.production_pattern.search(b.name):
+        if ctx.scope_config.production_pattern is not None and ctx.scope_config.production_pattern.search(
+                b.name) is None:
             environment = ""
 
         if b.finish_time:
