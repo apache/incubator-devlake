@@ -1,11 +1,19 @@
 from dataclasses import dataclass, field
 from itertools import groupby
 from operator import itemgetter
+import enum
 
 import graphviz
+import statistics
 
 from playground.process_analysis.status_transition_graph import StatusTransitionGraph
 
+class StatisticLabelConfig(enum.Enum):
+    AVG = "avg"
+    MEDIAN = "med"
+    IQR = "iqr"
+    MIN_MAX = "min-max"
+    
 
 @dataclass
 class VisualizerConfig:
@@ -35,7 +43,10 @@ class StatusTransitionGraphVisualizer:
         self.config = config
 
     def visualize(
-        self, source: StatusTransitionGraph, threshold: float = 1.0
+        self, 
+        source: StatusTransitionGraph, 
+        threshold: float = 1.0,
+        label_statistic: StatisticLabelConfig = StatisticLabelConfig.AVG
     ) -> graphviz.Digraph:
         """Create a Graphviz digraph from a StatusTransitionGraph.
         
@@ -67,12 +78,14 @@ class StatusTransitionGraphVisualizer:
                     )
 
         for edge in graph.edges.data():
-            if edge[2]["count"] > (1.00 - threshold) * source.total_transition_count:
-                penwidth = edge[2]["count"] / source.total_transition_count * self.config.edge_penwidth_factor
+            to_count = len(edge[2]["durations"])
+            if to_count > (1.00 - threshold) * source.total_transition_count:
+                penwidth = to_count / source.total_transition_count * self.config.edge_penwidth_factor
                 dot_graph.edge(
                     edge[0],
                     edge[1],
-                    label=self.__edge_label(edge[2]["avg_duration"], edge[2]["count"]),
+                    labeltooltip=self.__edge_tooltip(edge[2]["durations"]),
+                    label=self.__edge_label(edge[2]["durations"], label_statistic),
                     penwidth=str(round(penwidth, 2)),
                 )
 
@@ -104,8 +117,33 @@ class StatusTransitionGraphVisualizer:
     def __node_label(self, name: str, count: int) -> str:
         return f'<{name}<BR/><FONT POINT-SIZE="{self.config.sub_fontsize}">({str(count)+"x"})</FONT>>'
 
-    def __edge_label(self, avg_duration: float, count: int) -> str:
-        return f'<{avg_duration:0.1f} days avg<BR/><FONT POINT-SIZE="{self.config.sub_fontsize}">({str(count)+"x"})</FONT>>'
+    def __edge_label(self, durations: list[float], label_statistic: StatisticLabelConfig) -> str:
+        stat = ''
+        match label_statistic:
+            case StatisticLabelConfig.AVG:
+                stat = f'{statistics.mean(durations):0.1f} days avg'
+            case StatisticLabelConfig.MEDIAN:
+                stat = f'{statistics.median(durations):0.1f} days med'
+            case StatisticLabelConfig.IQR:
+                if len(durations) >= 4:
+                    quantiles = statistics.quantiles(durations, n=4)
+                    stat = f'{quantiles[0]:0.1f} - {quantiles[2]:0.1f} days IQR (25-75%)'
+            case StatisticLabelConfig.MIN_MAX:
+                if len(durations) >= 2:
+                    stat = f'{min(durations):0.1f} - {max(durations):0.1f} days min-max'
+        count_str = f'<FONT POINT-SIZE="{self.config.sub_fontsize}">({str(len(durations))+"x"})</FONT>'
+        return f'<{stat}<BR/>{count_str}>'
+
+    def __edge_tooltip(self, durations: list[float]) -> str:
+        lines = []
+        lines.append(f"avg: {statistics.mean(durations):0.1f} days")
+        lines.append(f"med: {statistics.median(durations):0.1f} days")
+        if len(durations) >= 4:
+            quantiles = statistics.quantiles(durations, n=4)
+            lines.append(f"IQR (25-75%): {quantiles[0]:0.1f} - {quantiles[2]:0.1f} days")
+        if len(durations) >= 2:
+            lines.append(f"min-max: {min(durations):0.1f} - {max(durations):0.1f} days")
+        return "\n".join(lines)
 
     def __default_attrs(self) -> dict:
         return {

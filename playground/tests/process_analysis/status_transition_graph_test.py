@@ -25,13 +25,13 @@ def test_create_status_transition_graph_from_data_frame():
         ("Won't Fix", {'count': 2, 'category': 'DONE'})
     ]
     assert sorted(list(result.graph.edges.data())) == [
-        ('In Progress', 'Done', {'count': 2, 'avg_duration': 1.0}),
-        ('In Progress', 'To Do', {'count': 1, 'avg_duration': 4.0}),
-        ('Ready', 'In Progress', {'count': 1, 'avg_duration': 2.0}),
-        ('To Do', 'In Progress', {'count': 1, 'avg_duration': 1.0}),
-        ('To Do', 'Ready', {'count': 3, 'avg_duration': 2.6666666666666665}),
-        ('To Do', "Won't Fix", {'count': 2, 'avg_duration': 2.5}),
-        ("Won't Fix", 'In Progress', {'count': 1, 'avg_duration': 9.0})
+        ('In Progress', 'Done', {'durations': [1.0, 1.0]}),
+        ('In Progress', 'To Do', {'durations': [4.0]}),
+        ('Ready', 'In Progress', {'durations': [2.0]}),
+        ('To Do', 'In Progress', {'durations': [1.0]}),
+        ('To Do', 'Ready', {'durations': [1.0, 1.0, 6.0]}),
+        ('To Do', "Won't Fix", {'durations': [1.0, 4.0]}),
+        ("Won't Fix", 'In Progress', {'durations': [9.0]})
     ]
 
 
@@ -51,39 +51,50 @@ def test_convert_status_transition_graph_to_graphiz_dot():
     source = StatusTransitionGraph.from_data_frame(test_data_frame)
     dot = StatusTransitionGraphVisualizer().visualize(source)
 
-    assert dot.source.replace("\t", "") == """strict digraph "Status Transitions" {
+    expected = """strict digraph "Status Transitions" {
         graph [rankdir=TD]
         node [color=darkslategray fontname=Arial fontsize=12 style=filled]
         edge [color=darkslategray fontname=Arial fontsize=12 style=filled]
         subgraph TODO {
-            label=TODO
-            rank=min
-            node [fillcolor=lightgray]
-            "To Do" [label=<To Do<BR/><FONT POINT-SIZE="8">(5x)</FONT>> penwidth=4.55]
-            Ready [label=<Ready<BR/><FONT POINT-SIZE="8">(3x)</FONT>> penwidth=2.73]
+                label=TODO
+                rank=min
+                node [fillcolor=lightgray]
+                "To Do" [label=<To Do<BR/><FONT POINT-SIZE="8">(5x)</FONT>> penwidth=4.55]
+                Ready [label=<Ready<BR/><FONT POINT-SIZE="8">(3x)</FONT>> penwidth=2.73]
         }
         subgraph IN_PROGRESS {
-            label=IN_PROGRESS
-            rank=""
-            node [fillcolor=yellow]
-            "In Progress" [label=<In Progress<BR/><FONT POINT-SIZE="8">(3x)</FONT>> penwidth=2.73]
+                label=IN_PROGRESS
+                rank=""
+                node [fillcolor=yellow]
+                "In Progress" [label=<In Progress<BR/><FONT POINT-SIZE="8">(3x)</FONT>> penwidth=2.73]
         }
         subgraph DONE {
-            label=DONE
-            rank=max
-            node [fillcolor=green]
-            Done [label=<Done<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=1.82]
-            "Won\'t Fix" [label=<Won\'t Fix<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=1.82]
+                label=DONE
+                rank=max
+                node [fillcolor=green]
+                Done [label=<Done<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=1.82]
+                "Won't Fix" [label=<Won't Fix<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=1.82]
         }
-        "To Do" -> Ready [label=<2.7 days avg<BR/><FONT POINT-SIZE="8">(3x)</FONT>> penwidth=10.91]
-        "To Do" -> "In Progress" [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> penwidth=3.64]
-        "To Do" -> "Won\'t Fix" [label=<2.5 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=7.27]
-        Ready -> "In Progress" [label=<2.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> penwidth=3.64]
-        "In Progress" -> Done [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=7.27]
-        "In Progress" -> "To Do" [label=<4.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> penwidth=3.64]
-        "Won\'t Fix" -> "In Progress" [label=<9.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> penwidth=3.64]
+        "To Do" -> Ready [label=<2.7 days avg<BR/><FONT POINT-SIZE="8">(3x)</FONT>> labeltooltip="avg: 2.7 days
+            med: 1.0 days
+            min-max: 1.0 - 6.0 days" penwidth=10.91]
+        "To Do" -> "In Progress" [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="avg: 1.0 days
+            med: 1.0 days" penwidth=3.64]
+        "To Do" -> "Won't Fix" [label=<2.5 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> labeltooltip="avg: 2.5 days
+            med: 2.5 days
+            min-max: 1.0 - 4.0 days" penwidth=7.27]
+        Ready -> "In Progress" [label=<2.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="avg: 2.0 days
+            med: 2.0 days" penwidth=3.64]
+        "In Progress" -> Done [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> labeltooltip="avg: 1.0 days
+            med: 1.0 days
+            min-max: 1.0 - 1.0 days" penwidth=7.27]
+        "In Progress" -> "To Do" [label=<4.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="avg: 4.0 days
+            med: 4.0 days" penwidth=3.64]
+        "Won't Fix" -> "In Progress" [label=<9.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="avg: 9.0 days
+            med: 9.0 days" penwidth=3.64]
     }
     """.replace("    ", "") # remove indentation
+    assert dot.source.replace("\t", "").split('\n') == expected.split('\n')
 
 
 def _pd_timestamp_from(datetime_str: str) -> pd.Timestamp:

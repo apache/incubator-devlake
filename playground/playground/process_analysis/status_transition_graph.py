@@ -56,16 +56,10 @@ class StatusTransitionGraph:
         edge_from = status_change.original_from_value
         edge_to = status_change.original_to_value
         if self.graph.has_edge(edge_from, edge_to):
-            self.graph.edges[edge_from, edge_to]["avg_duration"] = (
-                _calculate_avg_duration(
-                    self.graph.edges[edge_from, edge_to]["count"],
-                    self.graph.edges[edge_from, edge_to]["avg_duration"],
-                    duration,
-                )
-            )
-            self.graph.edges[edge_from, edge_to]["count"] += 1
+            self.graph.edges[edge_from, edge_to]["durations"].append(duration)
+            
         else:
-            self.graph.add_edge(edge_from, edge_to, count=1, avg_duration=duration)
+            self.graph.add_edge(edge_from, edge_to, durations=[duration])
 
     @classmethod
     def from_database(cls, db_engine: Engine, issue_filter: IssueFilter | None = None) -> "StatusTransitionGraph":
@@ -131,7 +125,3 @@ def _days_between(
 
 def _timedelta_between(current: pd.Timestamp, previous: pd.Timestamp) -> timedelta:
     return current.to_pydatetime() - previous.to_pydatetime()
-
-
-def _calculate_avg_duration(count: int, avg_duration: float, duration: float) -> float:
-    return (avg_duration * count + duration) / (count + 1)
