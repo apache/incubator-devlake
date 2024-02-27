@@ -47,21 +47,34 @@ func EnrichPrevSuccessDeploymentCommit(taskCtx plugin.SubTaskContext) errors.Err
 	data := taskCtx.GetData().(*DoraTaskData)
 	// step 1. select all successful deployments in the project and sort them by cicd_scope_id, repo_url, env
 	// and finished_date
-	cursor, err := db.Cursor(
+	var clauses = []dal.Clause{
 		dal.Select("dc.*"),
 		dal.From("cicd_deployment_commits dc"),
-		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)"),
-		dal.Where(
-			`
+		dal.Where(`
 			dc.finished_date IS NOT NULL
-			AND dc.environment IS NOT NULL AND dc.environment != ''
-			AND dc.repo_url IS NOT NULL AND dc.repo_url != ''
-			AND pm.project_name = ? AND dc.result = ?
+			AND dc.environment IS NOT NULL
+			AND dc.environment != ''
+			AND dc.repo_url IS NOT NULL
+			AND dc.repo_url != ''
+			AND dc.result = ?
 			`,
-			data.Options.ProjectName, devops.RESULT_SUCCESS,
+			devops.RESULT_SUCCESS,
 		),
-		dal.Orderby(`dc.cicd_scope_id, dc.repo_url, dc.environment, dc.finished_date`),
-	)
+	}
+	if data.Options.ScopeId != nil {
+		clauses = append(clauses,
+			dal.Where("dc.cicd_scope_id = ?", data.Options.ScopeId),
+			dal.Orderby("dc.repo_url, dc.environment, dc.finished_date"),
+		)
+	} else {
+		clauses = append(clauses,
+			dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)"),
+			dal.Where("pm.project_name = ?", data.Options.ProjectName),
+			dal.Orderby("dc.cicd_scope_id, dc.repo_url, dc.environment, dc.finished_date"),
+		)
+	}
+
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
