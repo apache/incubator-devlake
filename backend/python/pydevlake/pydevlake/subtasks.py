@@ -214,5 +214,6 @@ class Convertor(Subtask):
 
     def delete(self, session, ctx):
         domain_models = self.stream.domain_tables
-        for domain_model in domain_models:
-            session.execute(sql.delete(domain_model).where(domain_model.raw_data_params == self._params(ctx)))
+        if domain_models is not None:
+            for domain_model in domain_models:
+                session.execute(sql.delete(domain_model).where(domain_model.raw_data_params == self._params(ctx)))

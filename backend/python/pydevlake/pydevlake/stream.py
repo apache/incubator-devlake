@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-from typing import Iterable, Type
+from typing import Iterable, Type, Optional
 from abc import abstractmethod
 
 from pydevlake.context import Context
@@ -54,7 +54,7 @@ class Stream:
 
     @property
     @abstractmethod
-    def domain_tables(self) -> list[Type[DomainModel]]:
+    def domain_tables(self) -> Optional[list[Type[DomainModel]]]:
         pass
 
     def raw_model(self, session) -> Type[RawModel]:
