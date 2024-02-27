@@ -52,6 +52,11 @@ class Stream:
     def domain_types(self) -> list[DomainType]:
         pass
 
+    @property
+    @abstractmethod
+    def domain_tables(self) -> list[Type[DomainModel]]:
+        pass
+
     def raw_model(self, session) -> Type[RawModel]:
         if self._raw_model is not None:
             return self._raw_model

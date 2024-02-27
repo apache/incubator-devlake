@@ -78,7 +78,7 @@ def assert_stream_convert(plugin: Union[Plugin, Type[Plugin]], stream_name: str,
     if not isinstance(domain_models, (Iterable, Generator)):
         domain_models = [domain_models]
     for res, exp in zip(domain_models, expected):
-        if res[0] == "updated_at" || exp[0] == "updated_at":
+        if res[0] == "updated_at" or exp[0] == "updated_at":
             pass
         else:
             assert res == exp

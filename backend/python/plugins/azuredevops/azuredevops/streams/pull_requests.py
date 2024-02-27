@@ -24,6 +24,7 @@ import pydevlake.domain_layer.code as code
 class GitPullRequests(Stream):
     tool_model = GitPullRequest
     domain_types = [DomainType.CODE]
+    domain_tables = [code.PullRequest]
 
     def should_run_on(self, scope: GitRepository) -> bool:
         return not scope.is_external()

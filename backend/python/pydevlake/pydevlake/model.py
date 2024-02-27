@@ -128,7 +128,7 @@ class RawDataOrigin(SQLModel):
 
 
 class NoPKModel(RawDataOrigin):
-    created_at:  [datetime] = Field(
+    created_at:  Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=datetime.utcnow)
     )
     updated_at: Optional[datetime] = Field(
