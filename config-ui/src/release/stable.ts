@@ -44,6 +44,7 @@ const URLS = {
     },
     CIRCLECI: {
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/CircleCI#fixed-rate-limit-optional',
+      TRANSFORMATION: 'https://devlake.apache.org/docs/Configuration/CircleCI#step-13---adding-scope-config-optional',
     },
     GITHUB: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/GitHub',
