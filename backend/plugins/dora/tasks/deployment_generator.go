@@ -110,9 +110,7 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: DoraApiParams{
-				ProjectName:  data.Options.ProjectName,
-				ConnectionId: data.Options.ConnectionId,
-				ScopeId:      data.Options.ScopeId,
+				ProjectName: data.Options.ProjectName,
 			},
 			Table: devops.CICDPipeline{}.TableName(),
 		},
