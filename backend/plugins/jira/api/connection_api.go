@@ -100,7 +100,7 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 
 	errMsg := ""
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("it might you use the right token(password) but with the wrong username.please check your username/password")
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("Please check your username/password")
 	}
 
 	if res.StatusCode != http.StatusOK {
