@@ -215,5 +215,4 @@ class Convertor(Subtask):
     def delete(self, session, ctx):
         domain_models = self.stream.domain_tables
         for domain_model in domain_models:
-            print(f"===> domain {domain_model}, param: {self._params(ctx)}")
             session.execute(sql.delete(domain_model).where(domain_model.raw_data_params == self._params(ctx)))
