@@ -91,17 +91,6 @@ func NewApiClientFromConnection(
 		})
 	}
 
-	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
-		if res.StatusCode >= 400 {
-			bytes, err := io.ReadAll(res.Body)
-			if err != nil {
-				return errors.BadInput.Wrap(err, fmt.Sprintf("request failed with status code %d", res.StatusCode))
-			}
-			return errors.BadInput.New(fmt.Sprintf("request failed with status code %d, body: %s", res.StatusCode, string(bytes)))
-		}
-		return nil
-	})
-
 	return apiClient, nil
 }
 
@@ -124,16 +113,13 @@ func NewApiClient(
 	apiClient.client.Transport = &http.Transport{}
 
 	// set insecureSkipVerify
-	insecureSkipVerify, err := utils.StrToBoolOr(br.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to parse IN_SECURE_SKIP_VERIFY")
-	}
+	insecureSkipVerify := br.GetConfigReader().GetBool("IN_SECURE_SKIP_VERIFY")
 	if insecureSkipVerify {
 		apiClient.client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
 	if proxy != "" {
-		err = apiClient.SetProxy(proxy)
+		err := apiClient.SetProxy(proxy)
 		if err != nil {
 			return nil, errors.Convert(err)
 		}
@@ -394,7 +380,11 @@ func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	}
 	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {
-		return errors.Default.New(fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
+		statusCode := res.StatusCode
+		if statusCode == http.StatusUnauthorized || statusCode == http.StatusForbidden {
+			statusCode = http.StatusBadRequest // to avoid Basic Auth Dialog poping up
+		}
+		return errors.HttpStatus(statusCode).Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 	return nil
 }
