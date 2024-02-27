@@ -54,7 +54,7 @@ class Stream:
 
     @property
     @abstractmethod
-    def domain_tables(self) -> Optional[list[Type[DomainModel]]]:
+    def domain_models(self) -> Optional[list[Type[DomainModel]]]:
         pass
 
     def raw_model(self, session) -> Type[RawModel]:

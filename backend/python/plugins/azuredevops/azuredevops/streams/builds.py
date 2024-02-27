@@ -25,7 +25,7 @@ from pydevlake import Context, DomainType, Stream
 class Builds(Stream):
     tool_model = Build
     domain_types = [DomainType.CICD]
-    domain_tables = [devops.CiCDPipelineCommit, devops.CICDPipeline]
+    domain_models = [devops.CiCDPipelineCommit, devops.CICDPipeline]
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope

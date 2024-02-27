@@ -213,7 +213,7 @@ class Convertor(Subtask):
         session.merge(domain_model)
 
     def delete(self, session, ctx):
-        domain_models = self.stream.domain_tables
+        domain_models = self.stream.domain_models
         if domain_models is not None:
             for domain_model in domain_models:
                 session.execute(sql.delete(domain_model).where(domain_model.raw_data_params == self._params(ctx)))
