@@ -32,6 +32,7 @@ import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 import { AzureTransformation } from '@/plugins/register/azure';
 import { TapdTransformation } from '@/plugins/register/tapd';
 import { BambooTransformation } from '@/plugins/register/bamboo';
+import { CircleCITransformation } from '@/plugins/register/circleci';
 import { operator } from '@/utils';
 
 import { TIPS_MAP } from './misc';
@@ -201,6 +202,14 @@ export const ScopeConfigForm = ({
 
               {plugin === 'bitbucket' && (
                 <BitbucketTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
+
+              {plugin === 'circleci' && (
+                <CircleCITransformation
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
