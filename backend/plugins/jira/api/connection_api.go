@@ -54,22 +54,22 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 	// serverInfo checking
 	res, err := apiClient.Get("api/2/serverInfo", nil, nil)
 	if err != nil {
-		// check if `/rest/` was missing
-		if strings.Contains(err.Error(), "status code 404") && !strings.HasSuffix(connection.Endpoint, "/rest/") {
-			endpointUrl, err := url.Parse(connection.Endpoint)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			refUrl, err := url.Parse("/rest/")
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			restUrl := endpointUrl.ResolveReference(refUrl)
-			return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
-		}
 		return nil, err
 	}
 	serverInfoFail := "Failed testing the serverInfo: [ " + res.Request.URL.String() + " ]"
+	// check if `/rest/` was missing
+	if res.StatusCode == http.StatusNotFound && !strings.HasSuffix(connection.Endpoint, "/rest/") {
+		endpointUrl, err := url.Parse(connection.Endpoint)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+		refUrl, err := url.Parse("/rest/")
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+		restUrl := endpointUrl.ResolveReference(refUrl)
+		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
+	}
 	if res.StatusCode == http.StatusUnauthorized {
 		return nil, errors.HttpStatus(http.StatusBadRequest).New("Error username/password")
 	}
