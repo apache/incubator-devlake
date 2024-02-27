@@ -75,22 +75,29 @@ def test_convert_status_transition_graph_to_graphiz_dot():
                 Done [label=<Done<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=1.82]
                 "Won't Fix" [label=<Won't Fix<BR/><FONT POINT-SIZE="8">(2x)</FONT>> penwidth=1.82]
         }
-        "To Do" -> Ready [label=<2.7 days avg<BR/><FONT POINT-SIZE="8">(3x)</FONT>> labeltooltip="avg: 2.7 days
+        "To Do" -> Ready [label=<2.7 days avg<BR/><FONT POINT-SIZE="8">(3x)</FONT>> labeltooltip="To Do ⮕ Ready (3x)
+            avg: 2.7 days
             med: 1.0 days
             min-max: 1.0 - 6.0 days" penwidth=10.91]
-        "To Do" -> "In Progress" [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="avg: 1.0 days
+        "To Do" -> "In Progress" [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="To Do ⮕ In Progress (1x)
+            avg: 1.0 days
             med: 1.0 days" penwidth=3.64]
-        "To Do" -> "Won't Fix" [label=<2.5 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> labeltooltip="avg: 2.5 days
+        "To Do" -> "Won't Fix" [label=<2.5 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> labeltooltip="To Do ⮕ Won't Fix (2x)
+            avg: 2.5 days
             med: 2.5 days
             min-max: 1.0 - 4.0 days" penwidth=7.27]
-        Ready -> "In Progress" [label=<2.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="avg: 2.0 days
+        Ready -> "In Progress" [label=<2.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="Ready ⮕ In Progress (1x)
+            avg: 2.0 days
             med: 2.0 days" penwidth=3.64]
-        "In Progress" -> Done [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> labeltooltip="avg: 1.0 days
+        "In Progress" -> Done [label=<1.0 days avg<BR/><FONT POINT-SIZE="8">(2x)</FONT>> labeltooltip="In Progress ⮕ Done (2x)
+            avg: 1.0 days
             med: 1.0 days
             min-max: 1.0 - 1.0 days" penwidth=7.27]
-        "In Progress" -> "To Do" [label=<4.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="avg: 4.0 days
+        "In Progress" -> "To Do" [label=<4.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="In Progress ⮕ To Do (1x)
+            avg: 4.0 days
             med: 4.0 days" penwidth=3.64]
-        "Won't Fix" -> "In Progress" [label=<9.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="avg: 9.0 days
+        "Won't Fix" -> "In Progress" [label=<9.0 days avg<BR/><FONT POINT-SIZE="8">(1x)</FONT>> labeltooltip="Won't Fix ⮕ In Progress (1x)
+            avg: 9.0 days
             med: 9.0 days" penwidth=3.64]
     }
     """.replace("    ", "") # remove indentation
