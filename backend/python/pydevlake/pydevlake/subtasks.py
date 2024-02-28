@@ -179,6 +179,7 @@ class Extractor(Subtask):
         tool_model = self.stream.extract(json.loads(raw.data))
         tool_model.set_raw_origin(raw)
         tool_model.connection_id = ctx.connection.id
+        tool_model.set_updated_at()
         session.merge(tool_model)
 
     def delete(self, session, ctx):
@@ -206,9 +207,13 @@ class Convertor(Subtask):
 
     def _save(self, tool_model: ToolModel, domain_model: DomainModel, session: Session, connection_id: int):
         domain_model.set_tool_origin(tool_model)
+        domain_model.set_updated_at()
         if isinstance(domain_model, DomainModel):
             domain_model.id = tool_model.domain_id()
         session.merge(domain_model)
 
     def delete(self, session, ctx):
-        pass
+        domain_models = self.stream.domain_models
+        if domain_models is not None:
+            for domain_model in domain_models:
+                session.execute(sql.delete(domain_model).where(domain_model.raw_data_params == self._params(ctx)))
