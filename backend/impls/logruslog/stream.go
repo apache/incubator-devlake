@@ -28,11 +28,7 @@ func GetFileStream(path string) (io.Writer, errors.Error) {
 	if path == "" {
 		return os.Stdout, nil
 	}
-<<<<<<< HEAD
-	err := os.MkdirAll(filepath.Dir(path), 0700)
-=======
 	err := os.MkdirAll(filepath.Dir(path), 0770)
->>>>>>> 43580a2a4 (fix(security): fix cwe-276, (parts of)cwe-22)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
