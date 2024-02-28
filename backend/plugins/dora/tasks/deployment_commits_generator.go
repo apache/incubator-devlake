@@ -112,6 +112,19 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+	count, err := db.Count(clauses...)
+	if err != nil {
+		return errors.Default.Wrap(err, "error getting count of clauses")
+	}
+	if count == 0 {
+		// Clear previous results from the project
+		deleteSql := fmt.Sprintf("DELETE cdc FROM cicd_deployment_commits cdc LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id) WHERE pm.project_name = '%s'", data.Options.ProjectName)
+		err := db.Exec(deleteSql)
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
+		}
+		return nil
+	}
 
 	enricher, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
