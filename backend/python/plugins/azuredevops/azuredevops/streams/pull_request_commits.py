@@ -26,6 +26,7 @@ class GitPullRequestCommits(Substream):
     tool_model = GitPullRequestCommit
     domain_types = [DomainType.CODE]
     parent_stream = GitPullRequests
+    domain_models = [code.PullRequestCommit]
 
     def should_run_on(self, scope: GitRepository) -> bool:
         return not scope.is_external()
