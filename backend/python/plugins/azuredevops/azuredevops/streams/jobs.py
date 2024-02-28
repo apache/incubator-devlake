@@ -28,6 +28,7 @@ class Jobs(Substream):
     tool_model = Job
     domain_types = [DomainType.CICD]
     parent_stream = Builds
+    domain_models = [devops.CICDTask]
 
     def collect(self, state, context, parent: Build) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
