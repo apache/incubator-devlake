@@ -28,11 +28,11 @@ func GetFileStream(path string) (io.Writer, errors.Error) {
 	if path == "" {
 		return os.Stdout, nil
 	}
-	err := os.MkdirAll(filepath.Dir(path), 0777)
+	err := os.MkdirAll(filepath.Dir(path), 0700)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
