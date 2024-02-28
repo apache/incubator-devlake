@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -62,6 +63,19 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+	count, err := db.Count(clauses...)
+	if err != nil {
+		return errors.Default.Wrap(err, "error getting count of clauses")
+	}
+	if count == 0 {
+		// Clear previous results from the project
+		deleteSql := fmt.Sprintf("DELETE FROM project_issue_metrics WHERE project_name = '%s'", data.Options.ProjectName)
+		err := db.Exec(deleteSql)
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting previous project_issue_metrics")
+		}
+		return nil
+	}
 
 	enricher, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
