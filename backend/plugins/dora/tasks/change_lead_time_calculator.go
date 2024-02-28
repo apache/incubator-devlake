@@ -65,7 +65,7 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Default.Wrap(err, "error getting count of clauses")
 	}
 	if count == 0 {
-		// empty previous result in project
+		// Clear previous results from the project
 		deleteSql := fmt.Sprintf("DELETE FROM project_pr_metrics WHERE project_name = '%s'", data.Options.ProjectName)
 		err := db.Exec(deleteSql)
 		if err != nil {

@@ -96,7 +96,7 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Default.Wrap(err, "error getting count of clauses")
 	}
 	if count == 0 {
-		// empty previous result in project
+		// Clear previous results from the project
 		deleteSql := fmt.Sprintf("DELETE cd FROM cicd_deployments cd LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id) WHERE pm.project_name = '%s'", data.Options.ProjectName)
 		err := db.Exec(deleteSql)
 		if err != nil {
