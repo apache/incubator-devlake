@@ -49,7 +49,9 @@ func init() {
 	inner.SetLevel(logLevel)
 
 	var formatter logrus.Formatter
+
     format := os.Getenv("LOGGING_FORMAT")
+	
 	switch format {
 	case "json":
 		formatter = &logrus.JSONFormatter{
@@ -61,6 +63,7 @@ func init() {
 			FullTimestamp:   true,
 		}
 	}
+	
 	inner.SetFormatter(formatter)
 
 	basePath := cfg.GetString("LOGGING_DIR")
