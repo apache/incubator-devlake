@@ -155,7 +155,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err := (&models.ZentaoConnection{}).MergeFromRequest(&existedConnection, input.Body); err != nil {
 		return nil, errors.Convert(err)
 	}
-	if err := connectionHelper.SaveWithCreateOrUpdate(existedConnection); err != nil {
+	if err := connectionHelper.SaveWithCreateOrUpdate(&existedConnection); err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: existedConnection.Sanitize()}, nil
