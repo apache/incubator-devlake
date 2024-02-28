@@ -84,7 +84,7 @@ class StatusTransitionGraphVisualizer:
                 dot_graph.edge(
                     edge[0],
                     edge[1],
-                    labeltooltip=self.__edge_tooltip(edge[2]["durations"]),
+                    labeltooltip=self.__edge_tooltip(edge[0], edge[1], edge[2]["durations"]),
                     label=self.__edge_label(edge[2]["durations"], label_statistic),
                     penwidth=str(round(penwidth, 2)),
                 )
@@ -115,7 +115,7 @@ class StatusTransitionGraphVisualizer:
         )
 
     def __node_label(self, name: str, count: int) -> str:
-        return f'<{name}<BR/><FONT POINT-SIZE="{self.config.sub_fontsize}">({str(count)+"x"})</FONT>>'
+        return f'<{name}<BR/>{self.__count_label(count)}>'
 
     def __edge_label(self, durations: list[float], label_statistic: StatisticLabelConfig) -> str:
         stat = ''
@@ -131,11 +131,15 @@ class StatusTransitionGraphVisualizer:
             case StatisticLabelConfig.MIN_MAX:
                 if len(durations) >= 2:
                     stat = f'{min(durations):0.1f} - {max(durations):0.1f} days min-max'
-        count_str = f'<FONT POINT-SIZE="{self.config.sub_fontsize}">({str(len(durations))+"x"})</FONT>'
-        return f'<{stat}<BR/>{count_str}>'
+        count = len(durations)
+        return f'<{stat}<BR/>{self.__count_label(count)}>'
 
-    def __edge_tooltip(self, durations: list[float]) -> str:
+    def __count_label(self, count: int) -> str:
+        return f'<FONT POINT-SIZE="{self.config.sub_fontsize}">({str(count)+"x"})</FONT>'
+
+    def __edge_tooltip(self, from_state:str, to_state:str, durations: list[float]) -> str:
         lines = []
+        lines.append(f"{from_state} ⮕ {to_state} ({len(durations)}x)")
         lines.append(f"avg: {statistics.mean(durations):0.1f} days")
         lines.append(f"med: {statistics.median(durations):0.1f} days")
         if len(durations) >= 4:
