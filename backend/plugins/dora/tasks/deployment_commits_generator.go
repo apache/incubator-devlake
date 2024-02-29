@@ -59,21 +59,6 @@ type pipelineCommitEx struct {
 func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
-	// Clear previous results from the project
-	deleteSql := fmt.Sprintf(`DELETE FROM cicd_deployment_commits
-	WHERE cicd_scope_id IN (
-	  SELECT cicd_scope_id
-	  FROM (
-		SELECT cdc.cicd_scope_id
-		FROM cicd_deployment_commits cdc
-		LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id)
-		WHERE pm.project_name = '%s'
-	  ) AS subquery
-	);`, data.Options.ProjectName)
-	err := db.Exec(deleteSql)
-	if err != nil {
-		return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
-	}
 	// select all cicd_pipeline_commits from all "Deployments" in the project
 	// Note that failed records shall be included as well
 	noneSkippedResult := []string{devops.RESULT_FAILURE, devops.RESULT_SUCCESS}
@@ -116,11 +101,40 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	if data.Options.ScopeId != nil {
 		clauses = append(clauses, dal.Where(`p.cicd_scope_id = ?`, data.Options.ScopeId))
+		// Clear previous results from the project
+		deleteSql := `DELETE FROM cicd_deployment_commits
+				WHERE cicd_scope_id IN (
+				SELECT cicd_scope_id
+				FROM (
+					SELECT cdc.cicd_scope_id
+					FROM cicd_deployment_commits cdc
+					LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id)
+				) AS subquery
+				);`
+		err := db.Exec(deleteSql)
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
+		}
 	} else {
 		clauses = append(clauses,
 			dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = p.cicd_scope_id)"),
 			dal.Where(`pm.project_name = ?`, data.Options.ProjectName),
 		)
+		// Clear previous results from the project
+		deleteSql := fmt.Sprintf(`DELETE FROM cicd_deployment_commits
+			WHERE cicd_scope_id IN (
+			SELECT cicd_scope_id
+			FROM (
+				SELECT cdc.cicd_scope_id
+				FROM cicd_deployment_commits cdc
+				LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id)
+				WHERE pm.project_name = '%s'
+			) AS subquery
+			);`, data.Options.ProjectName)
+		err := db.Exec(deleteSql)
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
+		}
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
