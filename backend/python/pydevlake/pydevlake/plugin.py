@@ -218,7 +218,7 @@ class Plugin(ABC):
                 name=subtask.name,
                 entry_point_name=subtask.verb,
                 arguments=[subtask.stream.name],
-                required=True,
+                required=False,
                 enabled_by_default=False,
                 description=subtask.description,
                 domain_types=[dm.value for dm in subtask.stream.domain_types]
