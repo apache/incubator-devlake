@@ -102,15 +102,8 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	if data.Options.ScopeId != nil {
 		clauses = append(clauses, dal.Where(`p.cicd_scope_id = ?`, data.Options.ScopeId))
 		// Clear previous results from the project
-		deleteSql := `DELETE FROM cicd_deployment_commits
-				WHERE cicd_scope_id IN (
-				SELECT cicd_scope_id
-				FROM (
-					SELECT cdc.cicd_scope_id
-					FROM cicd_deployment_commits cdc
-				) AS subquery
-				);`
-		err := db.Exec(deleteSql)
+		deleteSql := `DELETE FROM cicd_deployment_commits WHERE cicd_scope_id = ? ;`
+		err := db.Exec(deleteSql, data.Options.ScopeId)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
 		}

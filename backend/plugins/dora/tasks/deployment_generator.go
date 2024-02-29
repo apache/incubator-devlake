@@ -80,15 +80,8 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			dal.Where("p.cicd_scope_id = ?", data.Options.ScopeId),
 		)
 		// Clear previous results from the cicd_scope_id
-		deleteSql := `DELETE FROM cicd_deployments
-				WHERE cicd_scope_id IN (
-				SELECT cicd_scope_id
-				FROM (
-					SELECT cd.cicd_scope_id
-					FROM cicd_deployments cd
-				) AS subquery
-				);`
-		err := db.Exec(deleteSql)
+		deleteSql := `DELETE FROM cicd_deployments WHERE cicd_scope_id = ?;`
+		err := db.Exec(deleteSql, data.Options.ScopeId)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous deployments")
 		}
