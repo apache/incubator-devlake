@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"math"
 	"reflect"
 	"time"
@@ -48,8 +47,7 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	data := taskCtx.GetData().(*DoraTaskData)
 	// Clear previous results from the project
-	deleteSql := fmt.Sprintf("DELETE FROM project_pr_metrics WHERE project_name = '%s'", data.Options.ProjectName)
-	err := db.Exec(deleteSql)
+	err := db.Exec("DELETE FROM project_pr_metrics WHERE project_name = ? ", data.Options.ProjectName)
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting previous project_pr_metrics")
 	}

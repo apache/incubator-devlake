@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
@@ -100,17 +99,17 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			dal.Where("pm.project_name = ?", data.Options.ProjectName),
 		)
 		// Clear previous results from the project
-		deleteSql := fmt.Sprintf(`DELETE FROM cicd_deployments
+		deleteSql := `DELETE FROM cicd_deployments
 				WHERE cicd_scope_id IN (
 				SELECT cicd_scope_id
 				FROM (
 					SELECT cd.cicd_scope_id
 					FROM cicd_deployments cd
 					LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id)
-					WHERE pm.project_name = '%s'
+					WHERE pm.project_name = ?
 				) AS subquery
-				);`, data.Options.ProjectName)
-		err := db.Exec(deleteSql)
+				);`
+		err := db.Exec(deleteSql, data.Options.ProjectName)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous deployments")
 		}

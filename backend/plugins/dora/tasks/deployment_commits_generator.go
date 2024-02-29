@@ -121,17 +121,17 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			dal.Where(`pm.project_name = ?`, data.Options.ProjectName),
 		)
 		// Clear previous results from the project
-		deleteSql := fmt.Sprintf(`DELETE FROM cicd_deployment_commits
+		deleteSql := `DELETE FROM cicd_deployment_commits
 			WHERE cicd_scope_id IN (
 			SELECT cicd_scope_id
 			FROM (
 				SELECT cdc.cicd_scope_id
 				FROM cicd_deployment_commits cdc
 				LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id)
-				WHERE pm.project_name = '%s'
+				WHERE pm.project_name = ?
 			) AS subquery
-			);`, data.Options.ProjectName)
-		err := db.Exec(deleteSql)
+			);`
+		err := db.Exec(deleteSql, data.Options.ProjectName)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
 		}

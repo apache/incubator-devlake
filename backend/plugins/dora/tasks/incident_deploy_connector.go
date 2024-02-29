@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
@@ -49,8 +48,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 	// Clear previous results from the project
-	deleteSql := fmt.Sprintf("DELETE FROM project_issue_metrics WHERE project_name = '%s'", data.Options.ProjectName)
-	err := db.Exec(deleteSql)
+	err := db.Exec("DELETE FROM project_issue_metrics WHERE project_name = ?", data.Options.ProjectName)
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting previous project_issue_metrics")
 	}
