@@ -48,6 +48,13 @@ type pipelineEx struct {
 func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
+	// Clear previous results from the project
+	deleteSql := fmt.Sprintf("DELETE cd FROM cicd_deployments cd LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id) WHERE pm.project_name = '%s'", data.Options.ProjectName)
+	err := db.Exec(deleteSql)
+	if err != nil {
+		return errors.Default.Wrap(err, "error deleting previous deployments")
+	}
+
 	// Note that failed records shall be included as well
 	noneSkippedResult := []string{devops.RESULT_FAILURE, devops.RESULT_SUCCESS}
 	var clauses = []dal.Clause{
@@ -91,19 +98,6 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	count, err := db.Count(clauses...)
-	if err != nil {
-		return errors.Default.Wrap(err, "error getting count of clauses")
-	}
-	if count == 0 {
-		// Clear previous results from the project
-		deleteSql := fmt.Sprintf("DELETE cd FROM cicd_deployments cd LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id) WHERE pm.project_name = '%s'", data.Options.ProjectName)
-		err := db.Exec(deleteSql)
-		if err != nil {
-			return errors.Default.Wrap(err, "error deleting previous deployments")
-		}
-		return nil
-	}
 
 	enricher, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
