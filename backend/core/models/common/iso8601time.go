@@ -97,6 +97,9 @@ func (jt Iso8601Time) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON FIXME ...
 func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 	timeString := string(b)
+	if timeString == `""` {
+		return nil
+	}
 	if timeString == "null" {
 		return nil
 	}
