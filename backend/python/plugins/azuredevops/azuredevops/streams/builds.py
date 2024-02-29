@@ -67,7 +67,7 @@ class Builds(Stream):
         environment = devops.CICDEnvironment.PRODUCTION
         if ctx.scope_config.production_pattern is not None and ctx.scope_config.production_pattern.search(
                 b.name) is None:
-            environment = ""
+            environment = devops.CICDEnvironment.EMPTY
 
         if b.finish_time:
             duration_sec = abs(b.finish_time.timestamp() - b.start_time.timestamp())
