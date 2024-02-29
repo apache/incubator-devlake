@@ -84,7 +84,7 @@ class Jobs(Substream):
         environment = devops.CICDEnvironment.PRODUCTION
         if ctx.scope_config.production_pattern is not None and ctx.scope_config.production_pattern.search(
                 j.name) is None:
-            environment = devops.CICDEnvironment.EMPTY
+            environment = None
 
         if j.finish_time:
             duration_sec = abs(j.finish_time.timestamp() - j.start_time.timestamp())
