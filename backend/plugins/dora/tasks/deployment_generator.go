@@ -49,7 +49,16 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 	// Clear previous results from the project
-	deleteSql := fmt.Sprintf("DELETE cd FROM cicd_deployments cd LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id) WHERE pm.project_name = '%s'", data.Options.ProjectName)
+    deleteSql := fmt.Sprintf(`DELETE FROM cicd_deployments
+	WHERE cicd_scope_id IN (
+	  SELECT cicd_scope_id
+	  FROM (
+		SELECT cd.cicd_scope_id
+		FROM cicd_deployments cd
+		LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id)
+		WHERE pm.project_name = '%s'
+	  ) AS subquery
+	);`, data.Options.ProjectName)
 	err := db.Exec(deleteSql)
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting previous deployments")
