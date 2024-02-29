@@ -28,12 +28,12 @@ import (
 type JenkinsApiParams models.JenkinsApiParams
 type JenkinsOptions struct {
 	ConnectionId         uint64                     `json:"connectionId" mapstructure:"connectionId"`
-	ScopeId              string                     `json:"scopeId" mapstructure:"scopeId"`
-	ScopeConfigId        uint64                     `json:"scopeConfigId" mapstructure:"scopeConfigId"`
-	JobFullName          string                     `json:"jobFullName" mapstructure:"jobFullName"` // "path1/path2/job name"
-	JobName              string                     `json:"jobName" mapstructure:"jobName"`         // "job name"
-	JobPath              string                     `json:"jobPath" mapstructure:"jobPath"`         // "job/path1/job/path2"
-	Tasks                []string                   `json:"tasks,omitempty" mapstructure:"tasks"`
+	ScopeConfigId        uint64                     `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	FullName             string                     `json:"fullName,omitempty" mapstructure:"fullName,omitempty"`       // "path1/path2/job name"
+	JobFullName          string                     `json:"jobFullName,omitempty" mapstructure:"jobFullName,omitempty"` // "path1/path2/job name"
+	JobName              string                     `json:"jobName,omitempty" mapstructure:"jobName,omitempty"`         // "job name"
+	JobPath              string                     `json:"jobPath,omitempty" mapstructure:"jobPath,omitempty"`         // "job/path1/job/path2"
+	Tasks                []string                   `json:"tasks,omitempty" mapstructure:"tasks,omitempty"`
 	ScopeConfig          *models.JenkinsScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
 	api.CollectorOptions `mapstructure:",squash"`
 }
