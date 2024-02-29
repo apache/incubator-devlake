@@ -54,7 +54,6 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting previous project_issue_metrics")
 	}
-
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
 		dal.From(`issues i`),

@@ -59,7 +59,6 @@ type pipelineCommitEx struct {
 func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
-
 	// Clear previous results from the project
 	deleteSql := fmt.Sprintf(`DELETE FROM cicd_deployment_commits
 	WHERE cicd_scope_id IN (

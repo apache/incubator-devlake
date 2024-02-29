@@ -49,7 +49,7 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 	// Clear previous results from the project
-    deleteSql := fmt.Sprintf(`DELETE FROM cicd_deployments
+	deleteSql := fmt.Sprintf(`DELETE FROM cicd_deployments
 	WHERE cicd_scope_id IN (
 	  SELECT cicd_scope_id
 	  FROM (

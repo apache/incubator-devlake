@@ -47,7 +47,6 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	data := taskCtx.GetData().(*DoraTaskData)
-
 	// Clear previous results from the project
 	deleteSql := fmt.Sprintf("DELETE FROM project_pr_metrics WHERE project_name = '%s'", data.Options.ProjectName)
 	err := db.Exec(deleteSql)
