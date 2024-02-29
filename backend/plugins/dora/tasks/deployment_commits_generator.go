@@ -108,7 +108,6 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				FROM (
 					SELECT cdc.cicd_scope_id
 					FROM cicd_deployment_commits cdc
-					LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id)
 				) AS subquery
 				);`
 		err := db.Exec(deleteSql)
