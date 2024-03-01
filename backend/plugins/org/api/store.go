@@ -110,7 +110,7 @@ func (d *dbStore) deleteAll(i interface{}) errors.Error {
 
 func (d *dbStore) save(items []interface{}) errors.Error {
 	for _, item := range items {
-		batch, err := d.driver.ForType(reflect.TypeOf(item))
+		batch, err := d.driver.ForType(reflect.TypeOf(item), "")
 		if err != nil {
 			return err
 		}

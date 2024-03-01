@@ -118,7 +118,7 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 		}
 		for _, result := range results {
 			// get the batch operator for the specific type
-			batch, err := divider.ForType(reflect.TypeOf(result))
+			batch, err := divider.ForType(reflect.TypeOf(result), "")
 			if err != nil {
 				return errors.Default.Wrap(err, "error getting batch from result")
 			}

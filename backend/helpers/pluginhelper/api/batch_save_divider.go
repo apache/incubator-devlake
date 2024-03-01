@@ -19,13 +19,12 @@ package api
 
 import (
 	"fmt"
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models/common"
+	"reflect"
 )
 
 // BatchSaveDivider creates and caches BatchSave, this is helpful when dealing with massive amount of data records
@@ -55,7 +54,7 @@ func NewBatchSaveDivider(basicRes context.BasicRes, batchSize int, table string,
 }
 
 // ForType returns a `BatchSave` instance for specific type
-func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, errors.Error) {
+func (d *BatchSaveDivider) ForType(rowType reflect.Type, rawParamTable string) (*BatchSave, errors.Error) {
 	// get the cache for the specific type
 	batch := d.batches[rowType]
 	var err errors.Error
@@ -76,11 +75,14 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, errors.Err
 			return nil, errors.Default.New(fmt.Sprintf("type %s must have RawDataOrigin embeded", rowElemType.Name()))
 		}
 		// all good, delete outdated records before we insertion
-		d.log.Debug("deleting outdate records for %s", rowElemType.Name())
-		if d.table != "" && d.params != "" {
+		d.log.Debug("deleting outdated records for %s", rowElemType.Name())
+		if rawParamTable == "" {
+			rawParamTable = d.table
+		}
+		if d.params != "" {
 			err = d.db.Delete(
 				row,
-				dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.table, d.params),
+				dal.Where("_raw_data_table = ? AND _raw_data_params = ?", rawParamTable, d.params),
 			)
 			if err != nil {
 				return nil, err

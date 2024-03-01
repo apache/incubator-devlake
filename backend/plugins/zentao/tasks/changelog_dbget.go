@@ -41,11 +41,11 @@ type actionHistoryHandler struct {
 
 func newActionHistoryHandler(taskCtx plugin.SubTaskContext, divider *api.BatchSaveDivider) (*actionHistoryHandler, errors.Error) {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-	changelogBachSave, err := divider.ForType(reflect.TypeOf(&models.ZentaoChangelog{}))
+	changelogBachSave, err := divider.ForType(reflect.TypeOf(&models.ZentaoChangelog{}), "")
 	if err != nil {
 		return nil, err
 	}
-	changelogDetailBachSave, err := divider.ForType(reflect.TypeOf(&models.ZentaoChangelogDetail{}))
+	changelogDetailBachSave, err := divider.ForType(reflect.TypeOf(&models.ZentaoChangelogDetail{}), "")
 	if err != nil {
 		return nil, err
 	}

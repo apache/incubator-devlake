@@ -265,7 +265,7 @@ func (collector *GraphqlCollector) BatchSaveWithOrigin(divider *BatchSaveDivider
 	RAW_DATA_ORIGIN := "RawDataOrigin"
 	for _, result := range results {
 		// get the batch operator for the specific type
-		batch, err := divider.ForType(reflect.TypeOf(result))
+		batch, err := divider.ForType(reflect.TypeOf(result), collector.table)
 		if err != nil {
 			return err
 		}

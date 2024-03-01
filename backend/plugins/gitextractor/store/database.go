@@ -56,7 +56,7 @@ func (d *Database) updateRawDataFields(rawData *common.RawDataOrigin) {
 }
 
 func (d *Database) RepoCommits(repoCommit *code.RepoCommit) errors.Error {
-	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit))
+	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit), repoCommit.RawDataOrigin.RawDataTable)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (d *Database) Commits(commit *code.Commit) errors.Error {
 		FullName:     commit.AuthorName,
 		UserName:     commit.AuthorName,
 	}
-	accountBatch, err := d.driver.ForType(reflect.TypeOf(account))
+	accountBatch, err := d.driver.ForType(reflect.TypeOf(account), "")
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (d *Database) Commits(commit *code.Commit) errors.Error {
 	if err != nil {
 		return err
 	}
-	commitBatch, err := d.driver.ForType(reflect.TypeOf(commit))
+	commitBatch, err := d.driver.ForType(reflect.TypeOf(commit), "")
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (d *Database) Commits(commit *code.Commit) errors.Error {
 }
 
 func (d *Database) Refs(ref *code.Ref) errors.Error {
-	batch, err := d.driver.ForType(reflect.TypeOf(ref))
+	batch, err := d.driver.ForType(reflect.TypeOf(ref), "")
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func (d *Database) Refs(ref *code.Ref) errors.Error {
 }
 
 func (d *Database) CommitFiles(file *code.CommitFile) errors.Error {
-	batch, err := d.driver.ForType(reflect.TypeOf(file))
+	batch, err := d.driver.ForType(reflect.TypeOf(file), "")
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (d *Database) CommitFiles(file *code.CommitFile) errors.Error {
 }
 
 func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error {
-	batch, err := d.driver.ForType(reflect.TypeOf(commitFileComponent))
+	batch, err := d.driver.ForType(reflect.TypeOf(commitFileComponent), "")
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComp
 }
 
 func (d *Database) RepoSnapshot(snapshotElement *code.RepoSnapshot) errors.Error {
-	batch, err := d.driver.ForType(reflect.TypeOf(snapshotElement))
+	batch, err := d.driver.ForType(reflect.TypeOf(snapshotElement), "")
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func (d *Database) RepoSnapshot(snapshotElement *code.RepoSnapshot) errors.Error
 }
 
 func (d *Database) CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error {
-	batch, err := d.driver.ForType(reflect.TypeOf(commitLineChange))
+	batch, err := d.driver.ForType(reflect.TypeOf(commitLineChange), "")
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func (d *Database) CommitParents(pp []*code.CommitParent) errors.Error {
 	if len(pp) == 0 {
 		return nil
 	}
-	batch, err := d.driver.ForType(reflect.TypeOf(pp[0]))
+	batch, err := d.driver.ForType(reflect.TypeOf(pp[0]), "")
 	if err != nil {
 		return err
 	}

@@ -109,7 +109,8 @@ func (converter *DataConverter) Execute() errors.Error {
 
 		for _, result := range results {
 			// get the batch operator for the specific type
-			batch, err := divider.ForType(reflect.TypeOf(result))
+			rawParamTable := reflect.ValueOf(inputRow).Elem().FieldByName("RawDataTable").String()
+			batch, err := divider.ForType(reflect.TypeOf(result), rawParamTable)
 			if err != nil {
 				return errors.Default.Wrap(err, "error getting batch from result")
 			}
@@ -118,6 +119,7 @@ func (converter *DataConverter) Execute() errors.Error {
 			if origin.IsValid() {
 				origin.Set(reflect.ValueOf(inputRow).Elem().FieldByName(RAW_DATA_ORIGIN))
 			}
+
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {

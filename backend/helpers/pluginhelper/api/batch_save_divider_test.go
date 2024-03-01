@@ -70,18 +70,18 @@ func TestBatchSaveDivider(t *testing.T) {
 	divider := NewBatchSaveDivider(mockRes, 10, "a", "b")
 
 	// for same type should return the same BatchSave
-	jiraIssue1, err := divider.ForType(reflect.TypeOf(&MockJirIssueBsd{}))
+	jiraIssue1, err := divider.ForType(reflect.TypeOf(&MockJirIssueBsd{}), "")
 	assert.Nil(t, err)
 
-	jiraIssue2, err := divider.ForType(reflect.TypeOf(&MockJirIssueBsd{}))
+	jiraIssue2, err := divider.ForType(reflect.TypeOf(&MockJirIssueBsd{}), "")
 	assert.Nil(t, err)
 	assert.Equal(t, jiraIssue1, jiraIssue2)
 
 	// for different types should return different BatchSaves
-	jiraChangelog1, err := divider.ForType(reflect.TypeOf(&MockJiraChangelogBsd{}))
+	jiraChangelog1, err := divider.ForType(reflect.TypeOf(&MockJiraChangelogBsd{}), "")
 	assert.Nil(t, err)
 
-	jiraChangelog, err := divider.ForType(reflect.TypeOf(&MockJiraChangelogBsd{}))
+	jiraChangelog, err := divider.ForType(reflect.TypeOf(&MockJiraChangelogBsd{}), "")
 	assert.Nil(t, err)
 	assert.Equal(t, jiraChangelog1, jiraChangelog)
 
