@@ -75,7 +75,11 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if err := api.DecodeMapStruct(input.Body, connection, false); err != nil {
 		return nil, err
 	}
-	return testOpsgenieConn(context.Background(), connection.OpsgenieConn)
+	testConnectionResult, testConnectionErr := testOpsgenieConn(context.Background(), connection.OpsgenieConn)
+	if testConnectionErr != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
+	}
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
 // TestConnection test opsgenie connection
@@ -93,7 +97,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, err
 	}
-	return testOpsgenieConn(context.Background(), connection)
+	testConnectionResult, testConnectionErr := testOpsgenieConn(context.TODO(), connection)
+	if testConnectionErr != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
+	}
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
 // @Summary create opsgenie connection
