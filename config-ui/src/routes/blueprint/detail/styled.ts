@@ -59,26 +59,6 @@ export const ConnectionItem = styled.li`
     margin-right: 0;
   }
 
-  .title {
-    display: flex;
-    align-items: center;
-
-    .icon {
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-
-      & > svg {
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    span + span {
-      margin-left: 8px;
-    }
-  }
-
   .count {
     margin: 24px 0;
   }
