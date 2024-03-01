@@ -86,7 +86,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	// test connection
 	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
@@ -111,7 +111,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	// test connection
 	result, err := testConnection(context.TODO(), connection.BitbucketConn)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
