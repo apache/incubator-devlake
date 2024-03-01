@@ -83,6 +83,6 @@ func WrapTestConnectionErrResp(basicRes context.BasicRes, err errors.Error) erro
 		return err
 	}
 	statusCode := err.GetType().GetHttpCode()
-	message := "Something is wrong when testing your connection, please check your input params."
+	message := "Something went wrong when testing your connection, please check your connection details."
 	return errors.HttpStatus(statusCode).New(message)
 }
