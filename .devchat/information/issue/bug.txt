@@ -1,0 +1,1 @@
+We're using devlake to collect development data from third-party platforms. help me to write a bug issue for devlake in english, including following sections: Title, What happened, What do you expect to happen, How to produce. if there are any concept or nouns I have not clarified, please tell me. The bug context is that

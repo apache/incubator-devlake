@@ -1,0 +1,1 @@
+BP(blueprints) is type of task planning, it can be triggered, manually or cronly.

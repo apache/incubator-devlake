@@ -1,0 +1,1 @@
+A data scope means a smallest collection of data that can be synchrozed by devlake. like a jira board, a jenkins job, etc.

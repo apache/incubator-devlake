@@ -1,0 +1,1 @@
+Pipeline is a group of several runnable tasks.
