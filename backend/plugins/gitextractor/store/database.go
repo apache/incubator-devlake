@@ -56,7 +56,7 @@ func (d *Database) updateRawDataFields(rawData *common.RawDataOrigin) {
 }
 
 func (d *Database) RepoCommits(repoCommit *code.RepoCommit) errors.Error {
-	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit), repoCommit.RawDataOrigin.RawDataTable)
+	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit), "")
 	if err != nil {
 		return err
 	}
