@@ -1,0 +1,1 @@
+A connection is an instance of a data source, eg: jira connection, jenkins connection. data should be isolated on different connection.

@@ -1,0 +1,1 @@
+Customize is a devlake plugin, it can be used in two ways. One is to import csv data into domain layer entities through api requets, the other is to resolve and map fields from raw layer to domain layer entity.
