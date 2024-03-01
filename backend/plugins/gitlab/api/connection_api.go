@@ -91,7 +91,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
@@ -110,7 +110,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		return nil, errors.Convert(err)
 	}
 	if result, err := testConnection(context.TODO(), connection.GitlabConn); err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	} else {
 		return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 	}

@@ -18,6 +18,7 @@ limitations under the License.
 package plugin
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"net/http"
@@ -70,4 +71,18 @@ type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error
 //	}
 type PluginApi interface {
 	ApiResources() map[string]map[string]ApiResourceHandler
+}
+
+const wrapResponseError = "WRAP_RESPONSE_ERROR"
+
+func WrapTestConnectionErrResp(basicRes context.BasicRes, err errors.Error) errors.Error {
+	if err == nil {
+		return err
+	}
+	if !basicRes.GetConfigReader().GetBool(wrapResponseError) {
+		return err
+	}
+	statusCode := err.GetType().GetHttpCode()
+	message := "Something is wrong when testing your connection, please check your input params."
+	return errors.HttpStatus(statusCode).New(message)
 }

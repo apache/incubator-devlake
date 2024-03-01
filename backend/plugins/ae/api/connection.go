@@ -73,7 +73,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-	return testConnection(context.TODO(), connection)
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // TestExistingConnection test ae connection
@@ -94,7 +98,11 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if err := api.DecodeMapStruct(input.Body, connection, false); err != nil {
 		return nil, err
 	}
-	return testConnection(context.TODO(), connection.AeConn)
+	result, err := testConnection(context.TODO(), connection.AeConn)
+	if err != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create ae connection
