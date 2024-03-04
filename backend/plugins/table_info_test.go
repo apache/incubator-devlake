@@ -24,6 +24,7 @@ import (
 	ae "github.com/apache/incubator-devlake/plugins/ae/impl"
 	bamboo "github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	bitbucket "github.com/apache/incubator-devlake/plugins/bitbucket/impl"
+	bitbucket_server "github.com/apache/incubator-devlake/plugins/bitbucket_server/impl"
 	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
 	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
@@ -59,6 +60,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("ae/models", ae.AE{}.GetTablesInfo)
 	checker.FeedIn("bamboo/models", bamboo.Bamboo{}.GetTablesInfo)
 	checker.FeedIn("bitbucket/models", bitbucket.Bitbucket{}.GetTablesInfo)
+	checker.FeedIn("bitbucket_server/models", bitbucket_server.BitbucketServer{}.GetTablesInfo)
 	checker.FeedIn("customize/models", customize.Customize{}.GetTablesInfo)
 	checker.FeedIn("dbt", dbt.Dbt{}.GetTablesInfo)
 	checker.FeedIn("dora/models", dora.Dora{}.GetTablesInfo)

@@ -71,7 +71,7 @@ class Plugin(ABC):
     @abstractmethod
     def test_connection(self, connection: Connection) -> msg.TestConnectionResult:
         """
-        Test if the the connection with the datasource can be established with the given connection.
+        Test if the connection with the datasource can be established with the given connection.
         Must raise an exception if the connection can't be established.
         """
         pass
@@ -218,7 +218,7 @@ class Plugin(ABC):
                 name=subtask.name,
                 entry_point_name=subtask.verb,
                 arguments=[subtask.stream.name],
-                required=True,
+                required=False,
                 enabled_by_default=False,
                 description=subtask.description,
                 domain_types=[dm.value for dm in subtask.stream.domain_types]

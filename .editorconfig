@@ -1,5 +1,6 @@
 [*]
 trim_trailing_whitespace = true
+end_of_line = lf
 
 [*.go]
 indent_style = tab

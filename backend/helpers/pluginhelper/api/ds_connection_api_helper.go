@@ -18,8 +18,9 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/server/api/shared"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/server/api/shared"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -47,7 +48,7 @@ func NewDsConnectionApiHelper[
 	}
 }
 
-func (connApi *DsConnectionApiHelper[C, S, SC]) GetMergedConnection(input *plugin.ApiResourceInput) (*C, error) {
+func (connApi *DsConnectionApiHelper[C, S, SC]) GetMergedConnection(input *plugin.ApiResourceInput) (*C, errors.Error) {
 	connection, err := connApi.FindByPk(input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "find connection from db")

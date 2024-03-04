@@ -59,7 +59,7 @@ func TestRepoDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BitbucketRepo{})
-	scope := apiRepo.ConvertApiScope().(*models.BitbucketRepo)
+	scope := apiRepo.ConvertApiScope()
 	scope.ConnectionId = 1
 	err := dataflowTester.Dal.CreateIfNotExist(scope)
 	assert.Nil(t, err)

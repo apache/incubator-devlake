@@ -180,7 +180,7 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 }
 
 func (p Bitbucket) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/bitbucket"
+	return "github.com/apache/incubator-devlake/plugins/bitbucket/" // the "/" fixes an issue where records from "bitbucket_server" are counted as "bitbucket" records and vice versa
 }
 
 func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
@@ -216,7 +216,7 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			// GetScope "connections/:connectionId/scopes/:scopeId"
 			// Because there may be slash in scopeId, so we handle it manually.
 			"GET":    api.GetScopeDispatcher,
-			"PATCH":  api.UpdateScope,
+			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/remote-scopes": {
@@ -226,15 +226,15 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET": api.SearchRemoteScopes,
 		},
 		"connections/:connectionId/scopes": {
-			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
+			"GET": api.GetScopes,
+			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scope-configs": {
-			"POST": api.CreateScopeConfig,
+			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.UpdateScopeConfig,
+			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
@@ -275,7 +275,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 				return err
 			}
 			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			scope := repo.ConvertApiScope().(*models.BitbucketRepo)
+			scope := repo.ConvertApiScope()
 			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {

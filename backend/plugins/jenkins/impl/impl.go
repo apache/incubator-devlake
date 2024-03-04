@@ -230,9 +230,8 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	op *tasks.JenkinsOptions,
 	apiClient *helper.ApiAsyncClient) errors.Error {
 	jenkinsJob := &models.JenkinsJob{}
-	// If this is from BpV200, we should set JobFullName to scopeId
 	if op.JobFullName == "" {
-		op.JobFullName = op.ScopeId
+		op.JobFullName = op.FullName
 	}
 	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
 	op, err := tasks.ValidateTaskOptions(op)

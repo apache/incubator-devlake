@@ -103,7 +103,7 @@ func pipelineServiceInit() {
 		panic(err)
 	}
 
-	err = ReloadBlueprints(cronManager)
+	err = ReloadBlueprints()
 	if err != nil {
 		panic(err)
 	}
@@ -445,7 +445,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 		}
 		failedTasks = append(failedTasks, task)
 	} else {
-		tasks, err := GetTasksWithLastStatus(pipelineId, false)
+		tasks, err := GetTasksWithLastStatus(pipelineId, false, tx)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error getting tasks")
 		}
@@ -466,7 +466,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 	for _, t := range failedTasks {
 		// mark previous task failed
 		t.Status = models.TASK_FAILED
-		err := db.UpdateColumn(t, "status", models.TASK_FAILED)
+		err := tx.UpdateColumn(t, "status", models.TASK_FAILED)
 		if err != nil {
 			return nil, err
 		}

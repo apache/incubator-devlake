@@ -100,7 +100,7 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 
 	errMsg := ""
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("it might you use the right token(password) but with the wrong username.please check your username/password")
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("Please check your username/password")
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -137,7 +137,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	// test connection
 	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
@@ -157,7 +157,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	}
 	// test connection
 	if result, err := testConnection(context.TODO(), connection.JiraConn); err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	} else {
 		return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 	}

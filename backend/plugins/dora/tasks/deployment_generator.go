@@ -49,7 +49,7 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*DoraTaskData)
 	// Note that failed records shall be included as well
 	noneSkippedResult := []string{devops.RESULT_FAILURE, devops.RESULT_SUCCESS}
-	cursor, err := db.Cursor(
+	var clauses = []dal.Clause{
 		dal.Select(
 			`
 				p.*,
@@ -57,7 +57,7 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				as has_testing_tasks,
 				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
 				as has_staging_tasks,
-				EXISTS( SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
+				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
 				as has_production_tasks
 			`,
 			devops.TESTING, noneSkippedResult,
@@ -65,22 +65,49 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			devops.PRODUCTION, noneSkippedResult,
 		),
 		dal.From("cicd_pipelines p"),
-		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = p.cicd_scope_id)"),
-		dal.Where(
-			`
-			pm.project_name = ? AND (
-				p.type = ? OR EXISTS(
-					SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = ? AND t.result IN ?
-				)
-			) AND p.result IN ?
-			`,
-			data.Options.ProjectName,
-			devops.DEPLOYMENT,
-			devops.DEPLOYMENT,
+		dal.Where(`
+			p.result IN ? AND (
+				p.type = ? OR EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = ? AND t.result IN ?)
+			)`,
 			noneSkippedResult,
+			devops.DEPLOYMENT,
+			devops.DEPLOYMENT,
 			noneSkippedResult,
 		),
-	)
+	}
+	if data.Options.ScopeId != nil {
+		clauses = append(clauses,
+			dal.Where("p.cicd_scope_id = ?", data.Options.ScopeId),
+		)
+		// Clear previous results from the cicd_scope_id
+		deleteSql := `DELETE FROM cicd_deployments WHERE cicd_scope_id = ?;`
+		err := db.Exec(deleteSql, data.Options.ScopeId)
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting previous deployments")
+		}
+	} else {
+		clauses = append(clauses,
+			dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = p.cicd_scope_id)"),
+			dal.Where("pm.project_name = ?", data.Options.ProjectName),
+		)
+		// Clear previous results from the project
+		deleteSql := `DELETE FROM cicd_deployments
+				WHERE cicd_scope_id IN (
+				SELECT cicd_scope_id
+				FROM (
+					SELECT cd.cicd_scope_id
+					FROM cicd_deployments cd
+					LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id)
+					WHERE pm.project_name = ?
+				) AS subquery
+				);`
+		err := db.Exec(deleteSql, data.Options.ProjectName)
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting previous deployments")
+		}
+	}
+
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}

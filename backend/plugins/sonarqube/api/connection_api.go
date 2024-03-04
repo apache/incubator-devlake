@@ -91,7 +91,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
-	return testConnection(context.TODO(), connection)
+	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection)
+	if testConnectionErr != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
+	}
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
 // TestExistingConnection test sonarqube connection options
@@ -108,7 +112,11 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		return nil, errors.Convert(err)
 	}
 	// test connection
-	return testConnection(context.TODO(), connection.SonarqubeConn)
+	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.SonarqubeConn)
+	if testConnectionErr != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
+	}
+	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
 // PostConnections create sonarqube connection

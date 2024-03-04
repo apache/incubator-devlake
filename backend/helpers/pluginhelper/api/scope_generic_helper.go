@@ -208,7 +208,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) UpdateScope(input *pl
 	if err != nil {
 		return nil, err
 	}
-	err = DecodeMapStruct(input.Body, scope, false)
+	err = DecodeMapStruct(input.Body, scope, true)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "patch scope error")
 	}

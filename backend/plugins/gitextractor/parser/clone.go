@@ -23,7 +23,6 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-git/go-git/v5/plumbing/protocol/packp/capability"
@@ -122,6 +121,8 @@ func (l *GitRepoCreator) cloneOverHTTP(ctx plugin.SubTaskContext, withGoGit bool
 		_, err := gogit.PlainCloneContext(ctx.GetContext(), dir, true, cloneOptions)
 		done <- struct{}{}
 		if err != nil {
+			// Some sensitive information such as password will be released in this err.
+			err = fmt.Errorf("plain clone git error")
 			l.logger.Error(err, "PlainCloneContext")
 			return nil, err
 		}

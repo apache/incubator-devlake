@@ -25,6 +25,7 @@ from pydevlake import Context, DomainType, Stream
 class Builds(Stream):
     tool_model = Build
     domain_types = [DomainType.CICD]
+    domain_models = [devops.CiCDPipelineCommit, devops.CICDPipeline]
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
@@ -62,9 +63,11 @@ class Builds(Stream):
         type = devops.CICDType.BUILD
         if ctx.scope_config.deployment_pattern and ctx.scope_config.deployment_pattern.search(b.name):
             type = devops.CICDType.DEPLOYMENT
-        environment = devops.CICDEnvironment.TESTING
-        if ctx.scope_config.production_pattern and ctx.scope_config.production_pattern.search(b.name):
-            environment = devops.CICDEnvironment.PRODUCTION
+
+        environment = devops.CICDEnvironment.PRODUCTION
+        if ctx.scope_config.production_pattern is not None and ctx.scope_config.production_pattern.search(
+                b.name) is None:
+            environment = None
 
         if b.finish_time:
             duration_sec = abs(b.finish_time.timestamp() - b.start_time.timestamp())

@@ -26,7 +26,6 @@ import (
 
 var _ plugin.ToolLayerScope = (*BitbucketRepo)(nil)
 var _ plugin.ApiGroup = (*GroupResponse)(nil)
-var _ plugin.ApiScope = (*BitbucketApiRepo)(nil)
 
 type BitbucketRepo struct {
 	common.Scope `mapstructure:",squash"`
@@ -91,7 +90,7 @@ type BitbucketApiRepo struct {
 	} `json:"links"`
 }
 
-func (b BitbucketApiRepo) ConvertApiScope() plugin.ToolLayerScope {
+func (b BitbucketApiRepo) ConvertApiScope() *BitbucketRepo {
 	scope := &BitbucketRepo{}
 	scope.BitbucketId = b.FullName
 	scope.CreatedDate = b.CreatedAt

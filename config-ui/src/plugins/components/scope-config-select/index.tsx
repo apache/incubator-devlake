@@ -96,7 +96,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         rowSelection={{
           type: 'radio',
           selectedRowKeys: trId ? [trId] : [],
-          onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0]),
+          onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0] as ID),
         }}
         pagination={false}
       />
@@ -120,6 +120,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         <ScopeConfigForm
           plugin={plugin}
           connectionId={connectionId}
+          defaultName={`shared-config-<${dataSource.length}>`}
           showWarning={!!updatedId}
           scopeConfigId={updatedId}
           onCancel={handleHideDialog}

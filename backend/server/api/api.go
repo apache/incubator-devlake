@@ -166,7 +166,7 @@ func RunApiServer(router *gin.Engine) {
 	}
 
 	// Start the server
-	err = router.Run(fmt.Sprintf("0.0.0.0:%d", portNum))
+	err = router.Run(fmt.Sprintf(":%d", portNum))
 	if err != nil {
 		panic(err)
 	}

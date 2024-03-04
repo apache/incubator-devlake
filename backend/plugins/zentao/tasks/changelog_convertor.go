@@ -81,10 +81,9 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.Select(fmt.Sprintf("*,%s.id cid,%s.id cdid,%s.id aid ", cn, cdn, an)),
 		dal.From(&models.ZentaoChangelog{}),
-		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.changelog_id = %s.id", cdn, cdn, cn)),
-		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.realname = %s.actor", an, an, cn)),
-		dal.Where(fmt.Sprintf(`%s.project = ? and %s.connection_id = ?`,
-			cn, cn),
+		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.changelog_id = %s.id and %s.connection_id = %d", cdn, cdn, cn, cdn, data.Options.ConnectionId)),
+		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.realname = %s.actor and %s.connection_id = %d", an, an, cn, an, data.Options.ConnectionId)),
+		dal.Where(fmt.Sprintf(`%s.project = ? and %s.connection_id = ?`, cn, cn),
 			data.Options.ProjectId,
 			data.Options.ConnectionId),
 	)

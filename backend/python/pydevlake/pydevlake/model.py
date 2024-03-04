@@ -29,7 +29,6 @@ from sqlalchemy.inspection import inspect
 from sqlmodel import SQLModel
 from pydevlake import Field
 
-
 inflect_engine = inflect.engine()
 
 
@@ -41,6 +40,10 @@ class Model(SQLModel):
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     )
+
+    def set_updated_at(self):
+        if self.updated_at is None:
+            self.updated_at = datetime.utcnow()
 
 
 class ToolTable(SQLModel):
@@ -65,7 +68,7 @@ class ToolTable(SQLModel):
 
 
 class Connection(ToolTable, Model):
-    name: str
+    name: str = Field(unique=True)
     proxy: Optional[AnyUrl]
 
     @validator('proxy', pre=True)
@@ -131,6 +134,10 @@ class NoPKModel(RawDataOrigin):
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     )
+
+    def set_updated_at(self):
+        if self.updated_at is None:
+            self.updated_at = datetime.utcnow()
 
 
 class ToolModel(ToolTable, NoPKModel):

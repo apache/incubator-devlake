@@ -45,8 +45,9 @@ class GitRepository(ToolScope, table=True):
     default_branch: Optional[str]
     project_id: str
     org_id: str
-    parent_repository_url: Optional[str] = Field(source='parentRepository/url')
+    parent_repository_url: Optional[str] = Field(source='/parentRepository/url')
     provider: Optional[str]
+    updated_date: datetime.datetime = Field(source='/project/lastUpdateTime')
 
     def is_external(self):
         return bool(self.provider)

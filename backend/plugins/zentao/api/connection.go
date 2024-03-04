@@ -92,7 +92,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	// test connection
 	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
@@ -116,7 +116,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	}
 	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.ZentaoConn)
 	if testConnectionErr != nil {
-		return nil, testConnectionErr
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
 	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
@@ -155,7 +155,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err := (&models.ZentaoConnection{}).MergeFromRequest(&existedConnection, input.Body); err != nil {
 		return nil, errors.Convert(err)
 	}
-	if err := connectionHelper.SaveWithCreateOrUpdate(existedConnection); err != nil {
+	if err := connectionHelper.SaveWithCreateOrUpdate(&existedConnection); err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: existedConnection.Sanitize()}, nil

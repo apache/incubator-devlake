@@ -91,7 +91,9 @@ func listGithubUserOrgs(
 		return nil, nil, err
 	}
 	var orgs []org
-	errors.Must(api.UnmarshalResponse(orgsBody, &orgs))
+	if err := api.UnmarshalResponse(orgsBody, &orgs); err != nil {
+		return nil, nil, err
+	}
 	for _, o := range orgs {
 		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
 			Type:     api.RAS_ENTRY_TYPE_GROUP,
