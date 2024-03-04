@@ -18,6 +18,7 @@ limitations under the License.
 package srvhelper
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -61,7 +62,10 @@ func (connSrv *ConnectionSrvHelper[C, S, SC]) DeleteConnection(connection *C) (r
 			return errors.Conflict.New("Please delete all data scope(s) before you delete this Data Connection.")
 		}
 		errors.Must(tx.Delete(connection))
-		if reflect.TypeOf(new(SC)) != reflect.TypeOf(new(NoScopeConfig)) {
+		scType := reflect.TypeOf(new(SC))
+		_, ok := scType.Elem().FieldByName("ConnectionId")
+		fmt.Println("scType---------:", scType, ok)
+		if scType != reflect.TypeOf(new(NoScopeConfig)) && ok {
 			errors.Must(connSrv.db.Delete(new(SC), dal.Where("connection_id = ?", connectionId)))
 		}
 		return nil
