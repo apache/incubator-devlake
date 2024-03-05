@@ -88,7 +88,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer repo.Close()
+	defer repo.Close(ctx)
 	if err = repo.CollectAll(subTaskCtx); err != nil {
 		panic(err)
 	}

@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-git/go-git/v5/plumbing/protocol/packp/capability"
 	"github.com/go-git/go-git/v5/plumbing/transport"
-
 	"net"
 	"net/http"
 	neturl "net/url"
@@ -75,8 +74,8 @@ func cloneOverSSH(ctx plugin.SubTaskContext, url, dir, passphrase string, pk []b
 	return nil
 }
 
-func (l *GitRepoCreator) CloneOverHTTP(ctx plugin.SubTaskContext, repoId, url, user, password, proxy string) (*GitRepo, errors.Error) {
-	return withTempDirectory(func(dir string) (*GitRepo, error) {
+func (l *GitRepoCreator) cloneOverHTTP(ctx plugin.SubTaskContext, withGoGit bool, repoId, url, user, password, proxy string) (RepoCollector, errors.Error) {
+	return withTempDirectory(func(dir string) (RepoCollector, error) {
 		var data []byte
 		buf := bytes.NewBuffer(data)
 		done := make(chan struct{}, 1)
@@ -127,12 +126,15 @@ func (l *GitRepoCreator) CloneOverHTTP(ctx plugin.SubTaskContext, repoId, url, u
 			l.logger.Error(err, "PlainCloneContext")
 			return nil, err
 		}
+		if withGoGit {
+			return l.LocalGoGitRepo(dir, repoId)
+		}
 		return l.LocalRepo(dir, repoId)
 	})
 }
 
-func (l *GitRepoCreator) CloneOverSSH(ctx plugin.SubTaskContext, repoId, url, privateKey, passphrase string) (*GitRepo, errors.Error) {
-	return withTempDirectory(func(dir string) (*GitRepo, error) {
+func (l *GitRepoCreator) cloneOverSSH(ctx plugin.SubTaskContext, withGoGit bool, repoId, url, privateKey, passphrase string) (RepoCollector, errors.Error) {
+	return withTempDirectory(func(dir string) (RepoCollector, error) {
 		pk, err := base64.StdEncoding.DecodeString(privateKey)
 		if err != nil {
 			return nil, err
@@ -141,29 +143,11 @@ func (l *GitRepoCreator) CloneOverSSH(ctx plugin.SubTaskContext, repoId, url, pr
 		if err != nil {
 			return nil, err
 		}
+		if withGoGit {
+			return l.LocalGoGitRepo(dir, repoId)
+		}
 		return l.LocalRepo(dir, repoId)
 	})
-}
-
-func withTempDirectory(f func(tempDir string) (*GitRepo, error)) (*GitRepo, errors.Error) {
-	dir, err := os.MkdirTemp("", "gitextractor")
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
-	cleanup := func() {
-		_ = os.RemoveAll(dir)
-	}
-	defer func() {
-		if err != nil {
-			cleanup()
-		}
-	}()
-	repo, err := f(dir)
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
-	repo.cleanup = cleanup
-	return repo, errors.Convert(err)
 }
 
 func setCloneProgress(subTaskCtx plugin.SubTaskContext, cloneProgressInfo string) {
@@ -207,4 +191,27 @@ func refreshCloneProgress(subTaskCtx plugin.SubTaskContext, done chan struct{}, 
 
 func isAzureRepo(ctx context.Context, repoUrl string) bool {
 	return strings.Contains(repoUrl, "dev.azure.com")
+}
+
+func withTempDirectory(f func(tempDir string) (RepoCollector, error)) (RepoCollector, errors.Error) {
+	dir, err := os.MkdirTemp("", "gitextractor")
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	cleanup := func() {
+		_ = os.RemoveAll(dir)
+	}
+	defer func() {
+		if err != nil {
+			cleanup()
+		}
+	}()
+	repo, err := f(dir)
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	if err := repo.SetCleanUp(cleanup); err != nil {
+		return nil, errors.Convert(err)
+	}
+	return repo, nil
 }

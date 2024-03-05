@@ -19,12 +19,14 @@ package parser
 
 import (
 	gocontext "context"
-	"fmt"
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/impls/dalgorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"testing"
 )
 
@@ -40,7 +42,7 @@ func Test_setCloneProgress(t *testing.T) {
 		{
 			name: "test-0",
 			args: args{
-				subTaskCtx: testSubTaskContext{},
+				subTaskCtx: &testSubTaskContext{},
 				cloneProgressInfo: `
 					Enumerating objects: 103, done.
 					Counting objects: 100% (103/103), done.
@@ -51,7 +53,7 @@ func Test_setCloneProgress(t *testing.T) {
 		{
 			name: "test-1",
 			args: args{
-				subTaskCtx: testSubTaskContext{},
+				subTaskCtx: &testSubTaskContext{},
 				cloneProgressInfo: `
 					Enumerating objects: 103, done.
 					Counting objects: 100% (103/103), done.
@@ -66,64 +68,73 @@ func Test_setCloneProgress(t *testing.T) {
 	}
 }
 
-type testSubTaskContext struct{}
+type testSubTaskContext struct {
+	current int
+	total   int
+	Name    string
+}
 
-func (testSubTaskContext) GetConfigReader() config.ConfigReader {
+func (ctx *testSubTaskContext) GetConfigReader() config.ConfigReader {
+	cfg := config.GetConfig()
+	return cfg
+}
+
+func (ctx *testSubTaskContext) GetConfig(name string) string {
+	return config.GetConfig().GetString(name)
+}
+
+func (ctx *testSubTaskContext) GetLogger() log.Logger {
+	return logger
+}
+
+func (ctx *testSubTaskContext) NestedLogger(name string) context.BasicRes {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (testSubTaskContext) GetConfig(name string) string {
+func (ctx *testSubTaskContext) ReplaceLogger(logger log.Logger) context.BasicRes {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (testSubTaskContext) GetLogger() log.Logger {
+func (ctx *testSubTaskContext) GetDal() dal.Dal {
+	//dsn := "mysql://root:admin@127.0.0.1:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC"
+	if runInLocal {
+		dsn := "merico:merico@tcp(127.0.0.1:3306)/lake?charset=utf8mb4&parseTime=True&loc=Local"
+		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		if err != nil {
+			panic(err)
+		}
+		return dalgorm.NewDalgorm(db)
+	} else {
+		panic("implement me")
+	}
+}
+
+func (ctx *testSubTaskContext) GetName() string {
+	return ctx.Name
+}
+
+func (ctx *testSubTaskContext) GetContext() gocontext.Context {
+	return gocontext.Background()
+}
+
+func (ctx *testSubTaskContext) GetData() interface{} {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (testSubTaskContext) NestedLogger(name string) context.BasicRes {
-	//TODO implement me
-	panic("implement me")
+func (ctx *testSubTaskContext) SetProgress(current int, total int) {
+	ctx.current = current
+	ctx.total = total
 }
 
-func (testSubTaskContext) ReplaceLogger(logger log.Logger) context.BasicRes {
-	//TODO implement me
-	panic("implement me")
+func (ctx *testSubTaskContext) IncProgress(quantity int) {
+	ctx.current += quantity
+	ctx.total += quantity
 }
 
-func (testSubTaskContext) GetDal() dal.Dal {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (testSubTaskContext) GetName() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (testSubTaskContext) GetContext() gocontext.Context {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (testSubTaskContext) GetData() interface{} {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (testSubTaskContext) SetProgress(current int, total int) {
-	//TODO implement me
-	fmt.Printf("set current: %d, total: %d\n", current, total)
-}
-
-func (testSubTaskContext) IncProgress(quantity int) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (testSubTaskContext) TaskContext() plugin.TaskContext {
+func (ctx *testSubTaskContext) TaskContext() plugin.TaskContext {
 	//TODO implement me
 	panic("implement me")
 }

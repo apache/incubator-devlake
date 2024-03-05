@@ -160,3 +160,6 @@ backend/server/api/docs/docs.go
 *.pyc
 __pycache__
 venv
+
+/backend/plugins/gitextractor/parser/output*
+/backend/plugins/gitextractor/parser/demo_repo/
