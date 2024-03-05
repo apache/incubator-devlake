@@ -18,33 +18,31 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-		new(addStdTypeToIssue221230),
-		new(addIsDetailRequired20230210),
-		new(addConnectionIdToTransformationRule),
-		new(addGitlabCommitAuthorInfo),
-		new(addTypeEnvToPipeline),
-		new(renameTr2ScopeConfig),
-		new(addGitlabIssueAssignee),
-		new(addMrCommitSha),
-		new(addRawParamTableForScope),
-		new(addProjectArchived),
-		new(addDeployment),
-		new(addEnvNamePattern),
-		new(addQueuedDuration20231129),
-		new(modifyDeploymentMessageType),
-		new(addTimeToGitlabPipelineProject),
-		new(modifyDeploymentCommitTitle),
-	}
+var _ plugin.MigrationScript = (*modifyDeploymentCommitTitle)(nil)
+
+type modifyDeploymentCommitTitle struct{}
+
+type deployment20240305 struct {
+	DeployableCommitTitle string `json:"deployable_commit_title"`
+}
+
+func (deployment20240305) TableName() string {
+	return "_tool_gitlab_deployments"
+}
+
+func (script *modifyDeploymentCommitTitle) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&deployment20240305{})
+}
+
+func (*modifyDeploymentCommitTitle) Version() uint64 {
+	return 20240305155129
+}
+
+func (*modifyDeploymentCommitTitle) Name() string {
+	return "modify _tool_gitlab_deployments deployable_commit_title from varchar to text"
 }
