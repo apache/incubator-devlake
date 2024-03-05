@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 from typing import Optional, Union
+from urllib.parse import urlencode
 from http import HTTPStatus
 import json
 import time
@@ -70,6 +71,12 @@ class Response:
 
     def __str__(self):
         return f'{self.request}: {self.status}'
+
+    def get_url_with_query_string(self) -> str:
+        url = self.request.url
+        if self.request.query_args is not None:
+            url = f'{url}?{urlencode(self.request.query_args)}'
+        return url
 
 
 # Sentinel value to abort processing of requests/responses in hooks

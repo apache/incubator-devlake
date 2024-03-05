@@ -34,6 +34,12 @@ class GitPullRequests(Stream):
         repo: GitRepository = context.scope
         response = api.git_repo_pull_requests(repo.org_id, repo.project_id, repo.id)
         for raw_pr in response:
+            raw_pr["x_request_url"] = response.get_url_with_query_string()
+            raw_pr["x_request_input"] = {
+                "OrgId": repo.org_id,
+                "ProjectId": repo.project_id,
+                "RepoId": repo.id,
+            }
             yield raw_pr, state
 
     def convert(self, pr: GitPullRequest, ctx):

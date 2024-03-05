@@ -122,7 +122,11 @@ func (l *GitRepoCreator) CloneOverHTTP(ctx plugin.SubTaskContext, repoId, url, u
 		done <- struct{}{}
 		if err != nil {
 			// Some sensitive information such as password will be released in this err.
-			err = fmt.Errorf("plain clone git error")
+			if err.Error() == "repository not found" {
+				// do nothing, it's a safe error message.
+			} else {
+				err = fmt.Errorf("plain clone git error")
+			}
 			l.logger.Error(err, "PlainCloneContext")
 			return nil, err
 		}
