@@ -96,6 +96,10 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if testConnectionErr != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
+	if testConnectionResult.Status != http.StatusOK {
+		errMsg := fmt.Sprintf("Test connection fail, unexpected status code: %d", testConnectionResult.Status)
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, errors.Default.New(errMsg))
+	}
 	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
 
