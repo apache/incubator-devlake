@@ -33,19 +33,19 @@ import (
 )
 
 func init() {
-	RegisterSubtaskMeta(&ConvertPipelineMeta)
+	RegisterSubtaskMeta(&ConvertDetailPipelineMeta)
 }
 
-var ConvertPipelineMeta = plugin.SubTaskMeta{
-	Name:             "convertPipelines",
-	EntryPoint:       ConvertPipelines,
+var ConvertDetailPipelineMeta = plugin.SubTaskMeta{
+	Name:             "convertDetailPipelines",
+	EntryPoint:       ConvertDetailPipelines,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table gitlab_pipeline into domain layer table pipeline",
+	Description:      "Convert tool layer table gitlab_detail_pipeline into domain layer table pipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	Dependencies:     []*plugin.SubTaskMeta{&ConvertCommitsMeta},
 }
 
-func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertDetailPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
@@ -68,7 +68,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_PIPELINE_TABLE,
+			Table: RAW_PIPELINE_DETAILS_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipeline := inputRow.(*models.GitlabPipeline)
