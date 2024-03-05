@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -115,6 +116,10 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.SonarqubeConn)
 	if testConnectionErr != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
+	}
+	if testConnectionResult.Status != http.StatusOK {
+		errMsg := fmt.Sprintf("Test connection fail, unexpected status code: %d", testConnectionResult.Status)
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, errors.Default.New(errMsg))
 	}
 	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
