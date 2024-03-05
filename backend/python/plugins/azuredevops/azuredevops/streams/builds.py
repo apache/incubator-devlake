@@ -30,8 +30,16 @@ class Builds(Stream):
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
         api = AzureDevOpsAPI(context.connection)
+        provider = repo.provider or 'tfsgit'
         response = api.builds(repo.org_id, repo.project_id, repo.id, repo.provider or 'tfsgit')
         for raw_build in response:
+            raw_build["x_request_url"] = response.get_url_with_query_string()
+            raw_build["x_request_input"] = {
+                "OrgId": repo.org_id,
+                "ProjectId": repo.project_id,
+                "RepoId": repo.id,
+                "Provider": provider,
+            }
             yield raw_build, state
 
     def convert(self, b: Build, ctx: Context):

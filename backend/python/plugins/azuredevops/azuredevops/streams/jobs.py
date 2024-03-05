@@ -50,6 +50,12 @@ class Jobs(Substream):
         for raw_job in response.json["records"]:
             if raw_job["type"] == "Job":
                 raw_job["build_id"] = parent.domain_id()
+                raw_job["x_request_url"] = response.get_url_with_query_string()
+                raw_job["x_request_input"] = {
+                    "OrgId": repo.org_id,
+                    "ProjectId": repo.project_id,
+                    "BuildId": parent.id,
+                }
                 yield raw_job, state
 
     def convert(self, j: Job, ctx: Context) -> Iterable[devops.CICDPipeline]:
