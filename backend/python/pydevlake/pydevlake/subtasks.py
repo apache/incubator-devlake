@@ -14,19 +14,18 @@
 # limitations under the License.
 
 
-from abc import abstractmethod
 import json
+from abc import abstractmethod
 from datetime import datetime
 from typing import Tuple, Dict, Iterable, Generator
-
 
 import sqlalchemy.sql as sql
 from sqlmodel import Session, select
 
-from pydevlake.model import RawModel, ToolModel, DomainModel, SubtaskRun, raw_data_params
+from pydevlake import logger
 from pydevlake.context import Context
 from pydevlake.message import RemoteProgress
-from pydevlake import logger
+from pydevlake.model import RawModel, ToolModel, DomainModel, SubtaskRun, raw_data_params
 
 
 class Subtask:
@@ -74,7 +73,7 @@ class Subtask:
                 # Send final progress
                 if progress != last_progress:
                     yield RemoteProgress(
-                        increment=progress-last_progress,
+                        increment=progress - last_progress,
                         current=progress
                     )
             except Exception as e:
@@ -144,9 +143,18 @@ class Collector(Subtask):
 
     def process(self, data: object, session: Session, ctx: Context):
         raw_model_class = self.stream.raw_model(session)
+        url, input_info = "", ""
+        if "x_request_url" in data:
+            url = data["x_request_url"]
+            del data["x_request_url"]
+        if "x_request_input" in data:
+            input_info = data["x_request_input"]
+            del data["x_request_input"]
         raw_model = raw_model_class(
             params=self._params(ctx),
-            data=json.dumps(data).encode('utf8')
+            data=json.dumps(data).encode('utf8'),
+            url=url,
+            input=json.dumps(input_info).encode('utf8'),
         )
         session.add(raw_model)
 
@@ -185,6 +193,7 @@ class Extractor(Subtask):
     def delete(self, session, ctx):
         model = self.stream.tool_model
         session.execute(sql.delete(model).where(model.raw_data_params == self._params(ctx)))
+
 
 class Convertor(Subtask):
     @property

@@ -120,7 +120,7 @@ class AzureDevOpsPlugin(Plugin):
         hint = None
         try:
             if connection.organization is None:
-                hint = "You may need to edit your token to set organization to 'All accessible organizations"
+                hint = "You may need to edit your token to set organization to 'All accessible organizations'"
                 res = api.my_profile()
             else:
                 hint = "Organization name may be incorrect or your token may not have access to the organization."
