@@ -46,7 +46,7 @@ type GitlabDeployment struct {
 	DeployableCommitID          string     `json:"deployable_commit_id" gorm:"type:varchar(255)"`
 	DeployableCommitMessage     string     `json:"deployable_commit_message"`
 	DeployableCommitShortID     string     `json:"deployable_commit_short_id" gorm:"type:varchar(255)"`
-	DeployableCommitTitle       string     `json:"deployable_commit_title" gorm:"type:varchar(255)"`
+	DeployableCommitTitle       string     `json:"deployable_commit_title"`
 
 	//DeployableCoverage   any       `json:"deployable_coverage"`
 	DeployableCreatedAt  *time.Time `json:"deployable_created_at"`
