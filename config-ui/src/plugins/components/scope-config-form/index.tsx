@@ -34,9 +34,8 @@ import { AzureTransformation } from '@/plugins/register/azure';
 import { TapdTransformation } from '@/plugins/register/tapd';
 import { BambooTransformation } from '@/plugins/register/bamboo';
 import { CircleCITransformation } from '@/plugins/register/circleci';
+import { DOC_URL } from '@/release';
 import { operator } from '@/utils';
-
-import { TIPS_MAP } from './misc';
 
 interface Props {
   plugin: string;
@@ -116,16 +115,18 @@ export const ScopeConfigForm = ({
 
   return (
     <Flex vertical gap="middle">
-      {TIPS_MAP[plugin] && (
-        <Alert
-          message={
-            <>
-              To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
-              <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
-            </>
-          }
-        />
-      )}
+      <Alert
+        message={
+          <>
+            To learn about how {config.name} transformation is used in DevLake,
+            {/* @ts-ignore */}
+            <ExternalLink link={DOC_URL.PLUGIN[config.plugin.toLocaleUpperCase()].TRANSFORMATION}>
+              check out this doc
+            </ExternalLink>
+            .
+          </>
+        }
+      />
       {step === 1 && (
         <>
           <Card>
