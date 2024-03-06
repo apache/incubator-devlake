@@ -18,15 +18,13 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-	"time"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"reflect"
 )
 
 var DeploymentGeneratorMeta = plugin.SubTaskMeta{
@@ -144,10 +142,6 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				DurationSec:       &pipelineExInfo.DurationSec,
 				QueuedDurationSec: pipelineExInfo.QueuedDurationSec,
-			}
-			if pipelineExInfo.FinishedDate != nil && pipelineExInfo.DurationSec != 0 {
-				s := pipelineExInfo.FinishedDate.Add(-time.Duration(pipelineExInfo.DurationSec) * time.Second)
-				domainDeployment.StartedDate = &s
 			}
 			if pipelineExInfo.Environment == "" {
 				if pipelineExInfo.HasProductionTasks {
