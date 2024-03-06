@@ -339,7 +339,7 @@ export const Connection = () => {
           }}
           rowSelection={{
             selectedRowKeys: scopeIds,
-            onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
+            onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys as ID[]),
           }}
         />
       </Space>
