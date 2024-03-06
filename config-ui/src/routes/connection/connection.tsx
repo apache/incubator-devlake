@@ -53,7 +53,7 @@ export const Connection = () => {
   const [operating, setOperating] = useState(false);
   const [version, setVersion] = useState(1);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const [scopeId, setScopeId] = useState<ID>();
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
@@ -97,7 +97,7 @@ export const Connection = () => {
   const handleHideDialog = () => {
     setType(undefined);
   };
-
+  
   const handleShowDeleteDialog = () => {
     setType('deleteConnection');
   };
@@ -332,10 +332,14 @@ export const Connection = () => {
             pageSize,
             total,
             onChange: setPage,
+            onShowSizeChange: (current,size)=> {
+              setPage(1);
+              setPageSize(size);
+            }
           }}
           rowSelection={{
             selectedRowKeys: scopeIds,
-            onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys as ID[]),
+            onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
           }}
         />
       </Space>
