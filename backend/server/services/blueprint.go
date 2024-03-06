@@ -270,9 +270,7 @@ func ReloadBlueprints() (err errors.Error) {
 			return err
 		}
 	}
-	if len(blueprints) > 0 {
-		cronManager.Start()
-	}
+	cronManager.Start()
 	logger.Info("total %d blueprints were scheduled", len(blueprints))
 	return nil
 }
