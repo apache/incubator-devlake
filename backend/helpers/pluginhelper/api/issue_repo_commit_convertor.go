@@ -43,7 +43,7 @@ func RefineIssueRepoCommit(item *crossdomain.IssueRepoCommit, repoPatterns []*re
 	if err != nil {
 		return item
 	}
-	item.Host = u.Host
+	item.Host = u.Hostname()
 	for _, pattern := range repoPatterns {
 		if pattern.MatchString(commitUrl) {
 			group := pattern.FindStringSubmatch(commitUrl)
