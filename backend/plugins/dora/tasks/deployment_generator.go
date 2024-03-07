@@ -18,13 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
 )
 
 var DeploymentGeneratorMeta = plugin.SubTaskMeta{
@@ -77,32 +78,32 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		clauses = append(clauses,
 			dal.Where("p.cicd_scope_id = ?", data.Options.ScopeId),
 		)
-		// Clear previous results from the cicd_scope_id
-		deleteSql := `DELETE FROM cicd_deployments WHERE cicd_scope_id = ?;`
-		err := db.Exec(deleteSql, data.Options.ScopeId)
-		if err != nil {
-			return errors.Default.Wrap(err, "error deleting previous deployments")
-		}
+		// // Clear previous results from the cicd_scope_id
+		// deleteSql := `DELETE FROM cicd_deployments WHERE cicd_scope_id = ?;`
+		// err := db.Exec(deleteSql, data.Options.ScopeId)
+		// if err != nil {
+		// 	return errors.Default.Wrap(err, "error deleting previous deployments")
+		// }
 	} else {
 		clauses = append(clauses,
 			dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = p.cicd_scope_id)"),
 			dal.Where("pm.project_name = ?", data.Options.ProjectName),
 		)
-		// Clear previous results from the project
-		deleteSql := `DELETE FROM cicd_deployments
-				WHERE cicd_scope_id IN (
-				SELECT cicd_scope_id
-				FROM (
-					SELECT cd.cicd_scope_id
-					FROM cicd_deployments cd
-					LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id)
-					WHERE pm.project_name = ?
-				) AS subquery
-				);`
-		err := db.Exec(deleteSql, data.Options.ProjectName)
-		if err != nil {
-			return errors.Default.Wrap(err, "error deleting previous deployments")
-		}
+		// // Clear previous results from the project
+		// deleteSql := `DELETE FROM cicd_deployments
+		// 		WHERE cicd_scope_id IN (
+		// 		SELECT cicd_scope_id
+		// 		FROM (
+		// 			SELECT cd.cicd_scope_id
+		// 			FROM cicd_deployments cd
+		// 			LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id)
+		// 			WHERE pm.project_name = ?
+		// 		) AS subquery
+		// 		);`
+		// err := db.Exec(deleteSql, data.Options.ProjectName)
+		// if err != nil {
+		// 	return errors.Default.Wrap(err, "error deleting previous deployments")
+		// }
 	}
 
 	cursor, err := db.Cursor(clauses...)

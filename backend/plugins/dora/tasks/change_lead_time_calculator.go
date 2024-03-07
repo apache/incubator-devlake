@@ -46,11 +46,11 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	data := taskCtx.GetData().(*DoraTaskData)
-	// Clear previous results from the project
-	err := db.Exec("DELETE FROM project_pr_metrics WHERE project_name = ? ", data.Options.ProjectName)
-	if err != nil {
-		return errors.Default.Wrap(err, "error deleting previous project_pr_metrics")
-	}
+	// // Clear previous results from the project
+	// err := db.Exec("DELETE FROM project_pr_metrics WHERE project_name = ? ", data.Options.ProjectName)
+	// if err != nil {
+	// 	return errors.Default.Wrap(err, "error deleting previous project_pr_metrics")
+	// }
 
 	// Get pull requests by repo project_name
 	var clauses = []dal.Clause{
