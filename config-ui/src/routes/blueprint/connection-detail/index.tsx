@@ -115,7 +115,7 @@ export const BlueprintConnectionDetailPage = () => {
 
     if (success) {
       handleShowTips();
-      navigate(pname ? PATHS.PROJECT(pname, 'configuration') : PATHS.BLUEPRINT(blueprint.id, 'configuration'));
+      navigate(pname ? PATHS.PROJECT(pname, { tab: 'configuration' }) : PATHS.BLUEPRINT(blueprint.id, 'configuration'));
     }
   };
 

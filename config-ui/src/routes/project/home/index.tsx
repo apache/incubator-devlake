@@ -134,7 +134,7 @@ export const ProjectHomePage = () => {
             dataIndex: 'name',
             key: 'name',
             render: (name: string) => (
-              <Link to={PATHS.PROJECT(name, 'configuration')} style={{ color: '#292b3f' }}>
+              <Link to={PATHS.PROJECT(name, { tab: 'configuration' })} style={{ color: '#292b3f' }}>
                 {name}
               </Link>
             ),
@@ -192,7 +192,7 @@ export const ProjectHomePage = () => {
               <Button
                 type="primary"
                 icon={<SettingOutlined />}
-                onClick={() => navigate(PATHS.PROJECT(name, 'configuration'))}
+                onClick={() => navigate(PATHS.PROJECT(name, { tab: 'configuration' }))}
               />
             ),
           },
