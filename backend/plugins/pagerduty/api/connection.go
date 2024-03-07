@@ -69,7 +69,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if testConnectionErr != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
-	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
+	return testConnectionResult, nil
 }
 
 // TestExistingConnection test pagerduty connection
@@ -93,7 +93,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if testConnectionErr != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
-	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
+	return testConnectionResult, nil
 }
 
 // @Summary create pagerduty connection

@@ -51,7 +51,7 @@ func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plu
 		return nil, errors.HttpStatus(http.StatusForbidden).New("API Key need 'Read' and 'Configuration access' Access rights")
 	}
 
-	if response.StatusCode == http.StatusOK {
+	if response.StatusCode == http.StatusOK || response.StatusCode == http.StatusAccepted {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 	}
 
@@ -79,7 +79,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if testConnectionErr != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
-	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
+	return testConnectionResult, nil
 }
 
 // TestConnection test opsgenie connection
@@ -101,7 +101,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if testConnectionErr != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
-	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
+	return testConnectionResult, nil
 }
 
 // @Summary create opsgenie connection
