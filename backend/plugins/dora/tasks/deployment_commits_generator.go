@@ -47,6 +47,7 @@ type pipelineCommitEx struct {
 	OriginalResult     string
 	DurationSec        *float64
 	QueuedDurationSec  *float64
+	StartedDate        *time.Time
 	CreatedDate        *time.Time
 	FinishedDate       *time.Time
 	Environment        string
@@ -71,6 +72,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				p.status,
 				p.duration_sec,
 				p.queued_duration_sec,
+				p.started_date,
 				p.created_date,
 				p.finished_date,
 				p.environment,
@@ -101,32 +103,32 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	if data.Options.ScopeId != nil {
 		clauses = append(clauses, dal.Where(`p.cicd_scope_id = ?`, data.Options.ScopeId))
-		// Clear previous results from the project
-		deleteSql := `DELETE FROM cicd_deployment_commits WHERE cicd_scope_id = ? ;`
-		err := db.Exec(deleteSql, data.Options.ScopeId)
-		if err != nil {
-			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
-		}
+		// // Clear previous results from the project
+		// deleteSql := `DELETE FROM cicd_deployment_commits WHERE cicd_scope_id = ? ;`
+		// err := db.Exec(deleteSql, data.Options.ScopeId)
+		// if err != nil {
+		// 	return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
+		// }
 	} else {
 		clauses = append(clauses,
 			dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = p.cicd_scope_id)"),
 			dal.Where(`pm.project_name = ?`, data.Options.ProjectName),
 		)
-		// Clear previous results from the project
-		deleteSql := `DELETE FROM cicd_deployment_commits
-			WHERE cicd_scope_id IN (
-			SELECT cicd_scope_id
-			FROM (
-				SELECT cdc.cicd_scope_id
-				FROM cicd_deployment_commits cdc
-				LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id)
-				WHERE pm.project_name = ?
-			) AS subquery
-			);`
-		err := db.Exec(deleteSql, data.Options.ProjectName)
-		if err != nil {
-			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
-		}
+		// // Clear previous results from the project
+		// deleteSql := `DELETE FROM cicd_deployment_commits
+		// 	WHERE cicd_scope_id IN (
+		// 	SELECT cicd_scope_id
+		// 	FROM (
+		// 		SELECT cdc.cicd_scope_id
+		// 		FROM cicd_deployment_commits cdc
+		// 		LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id)
+		// 		WHERE pm.project_name = ?
+		// 	) AS subquery
+		// 	);`
+		// err := db.Exec(deleteSql, data.Options.ProjectName)
+		// if err != nil {
+		// 	return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
+		// }
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -161,6 +163,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				Environment:      pipelineCommit.Environment,
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  *pipelineCommit.CreatedDate,
+					StartedDate:  pipelineCommit.StartedDate,
 					FinishedDate: pipelineCommit.FinishedDate,
 				},
 				DurationSec:       pipelineCommit.DurationSec,
@@ -170,10 +173,13 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoId:            pipelineCommit.RepoId,
 				RepoUrl:           pipelineCommit.RepoUrl,
 			}
-			if pipelineCommit.FinishedDate != nil && pipelineCommit.DurationSec != nil {
-				s := pipelineCommit.FinishedDate.Add(-time.Duration(*pipelineCommit.DurationSec) * time.Second)
-				domainDeployCommit.StartedDate = &s
+			if domainDeployCommit.TaskDatesInfo.StartedDate == nil {
+				if pipelineCommit.FinishedDate != nil && pipelineCommit.DurationSec != nil {
+					s := pipelineCommit.FinishedDate.Add(-time.Duration(*pipelineCommit.DurationSec) * time.Second)
+					domainDeployCommit.StartedDate = &s
+				}
 			}
+
 			// it is tricky when Environment was declared on the cicd_tasks level
 			// lets talk common sense and assume that one pipeline can only be deployed to one environment
 			// so if the pipeline has both staging and production tasks, we will treat it as a production pipeline
