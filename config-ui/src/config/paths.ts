@@ -25,8 +25,22 @@ export const PATHS = {
   CONNECTIONS: () => `${PATH_PREFIX}/connections`,
   CONNECTION: (plugin: string, connectionId: ID) => `${PATH_PREFIX}/connections/${plugin}/${connectionId}`,
   PROJECTS: () => `${PATH_PREFIX}/projects`,
-  PROJECT: (pname: string, tab?: 'configuration' | 'status' | 'settings') =>
-    `${PATH_PREFIX}/projects/${encodeName(pname)}${tab ? `?tab=${tab}` : ''}`,
+  PROJECT: (
+    pname: string,
+    { tab, tabId }: { tab?: 'configuration' | 'status'; tabId?: 'blueprint' | 'webhook' | 'settings' } = {},
+  ) => {
+    let params = '';
+
+    if (tab && tabId) {
+      params = `?tab=${tab}&tabId=${tabId}`;
+    } else if (tab) {
+      params = `?tab=${tab}`;
+    } else if (tabId) {
+      params = `?tabId=${tabId}`;
+    }
+
+    return `${PATH_PREFIX}/projects/${encodeName(pname)}${params}`;
+  },
   PROJECT_CONNECTION: (pname: string, plugin: string, connectionId: ID) =>
     `${PATH_PREFIX}/projects/${encodeName(pname)}/${plugin}-${connectionId}`,
   BLUEPRINTS: () => `${PATH_PREFIX}/advanced/blueprints`,
