@@ -73,6 +73,7 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 				FullName:     GitlabAccount.Name,
 				Email:        GitlabAccount.Email,
 				AvatarUrl:    GitlabAccount.AvatarUrl,
+				CreatedDate:  GitlabAccount.CreatedUserAt,
 			}
 
 			return []interface{}{
