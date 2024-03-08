@@ -119,9 +119,6 @@ func ExecuteMigration() errors.Error {
 	// cronjob for blueprint triggering
 	location := cron.WithLocation(time.UTC)
 	cronManager = cron.New(location)
-	if err != nil {
-		panic(err)
-	}
 
 	// initialize pipeline server, mainly to start the pipeline consuming process
 	pipelineServiceInit()
