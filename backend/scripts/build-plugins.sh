@@ -46,7 +46,7 @@ PLUGIN_SRC_DIR=$ROOT_DIR/plugins
 PLUGIN_OUTPUT_DIR=${PLUGIN_DIR:-$ROOT_DIR/bin/plugins}
 
 if [ -n "$DEVLAKE_DEBUG" ]; then
-    EXTRA="-gcflags='all=-N -l'"
+    GCFLAGS=all=-N\ -l
 fi
 
 if [ -z "$DEVLAKE_PLUGINS" ]; then
@@ -67,7 +67,7 @@ PIDS=""
 for PLUG in $PLUGINS; do
     NAME=$(basename $PLUG)
     echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so with args: $*"
-    go build -buildmode=plugin $EXTRA -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
+    go build -buildmode=plugin --gcflags="$GCFLAGS" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
     PIDS="$PIDS $!"
     # avoid too many processes causing signal killed
     COUNT=$(echo "$PIDS" | wc -w)
