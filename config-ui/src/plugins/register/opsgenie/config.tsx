@@ -17,6 +17,7 @@
  */
 
 import { ExternalLink } from '@/components';
+import { DOC_URL } from '@/release';
 import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
@@ -28,7 +29,7 @@ export const OpsgenieConfig: IPluginConfig = {
   icon: ({ color }) => <Icon fill={color} />,
   sort: 9,
   connection: {
-    docLink: 'TODO',
+    docLink: DOC_URL.PLUGIN.OPSGENIE.BASIS,
     initialValues: {
       endpoint: 'https://api.opsgenie.com/',
     },
@@ -44,14 +45,18 @@ export const OpsgenieConfig: IPluginConfig = {
       {
         key: 'token',
         label: 'Opsgenie API Key',
-        subLabel: <ExternalLink link={'TODO'}>Learn how to create a Atlassian Opsgenie personal API Key</ExternalLink>,
+        subLabel: (
+          <ExternalLink link={DOC_URL.PLUGIN.OPSGENIE.AUTH_TOKEN}>
+            Learn how to create a Atlassian Opsgenie personal API Key
+          </ExternalLink>
+        ),
       },
       'proxy',
       {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses 6,000 requests/hour for data collection for Opsgenie. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'TODO',
+        learnMore: DOC_URL.PLUGIN.OPSGENIE.RATE_LIMIT,
         externalInfo: 'Opsgenie rate limit is based on number of users and domains.',
         defaultValue: 6000,
       },
