@@ -65,7 +65,7 @@ func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plu
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/opsgenie/{connectionId}/test [POST]
+// @Router /plugins/opsgenie/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.OpsgenieConnection{}
 	err := connectionHelper.First(connection, input.Params)
