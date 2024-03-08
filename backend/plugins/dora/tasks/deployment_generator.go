@@ -28,6 +28,8 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+const DORAGenerateDeployment = "dora.generateDeployments"
+
 var DeploymentGeneratorMeta = plugin.SubTaskMeta{
 	Name:             "generateDeployments",
 	EntryPoint:       GenerateDeployment,
@@ -80,7 +82,7 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		)
 		// Clear previous results from the cicd_scope_id
 		deleteSql := `DELETE FROM cicd_deployments WHERE cicd_scope_id = ? and subtask_name = ?;`
-		err := db.Exec(deleteSql, data.Options.ScopeId, "dora.generateDeployments")
+		err := db.Exec(deleteSql, data.Options.ScopeId, DORAGenerateDeployment)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous deployments")
 		}
@@ -100,7 +102,7 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					WHERE pm.project_name = ? and cd.subtask_name = ?
 				) AS subquery
 				);`
-		err := db.Exec(deleteSql, data.Options.ProjectName, "dora.generateDeployments")
+		err := db.Exec(deleteSql, data.Options.ProjectName, DORAGenerateDeployment)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous deployments")
 		}
@@ -153,7 +155,7 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					domainDeployment.Environment = devops.TESTING
 				}
 			}
-			domainDeployment.SubtaskName = "dora.generateDeployments"
+			domainDeployment.SubtaskName = DORAGenerateDeployment
 			return []interface{}{domainDeployment}, nil
 		},
 	})
