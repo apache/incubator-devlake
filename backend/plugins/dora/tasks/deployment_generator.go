@@ -99,9 +99,9 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					SELECT cd.cicd_scope_id
 					FROM cicd_deployments cd
 					LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cd.cicd_scope_id)
-					WHERE pm.project_name = ? and cd.subtask_name = ?
+					WHERE pm.project_name = ?
 				) AS subquery
-				);`
+				) AND subtask_name = ?;`
 		err := db.Exec(deleteSql, data.Options.ProjectName, DORAGenerateDeployment)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous deployments")
