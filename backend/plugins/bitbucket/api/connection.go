@@ -99,7 +99,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Success 200  {object} BitBucketTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/bitbucket/{connectionId}/test [POST]
+// @Router /plugins/bitbucket/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.BitbucketConnection{}
 	err := connectionHelper.First(connection, input.Params)
