@@ -103,7 +103,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Success 200  {object} GitlabTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/gitlab/{connectionId}/test [POST]
+// @Router /plugins/gitlab/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
