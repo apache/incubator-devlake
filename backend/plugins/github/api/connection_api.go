@@ -386,7 +386,7 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 // @Success 200  {object} GithubMultiTestConnResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/github/{connectionId}/test [POST]
+// @Router /plugins/github/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
