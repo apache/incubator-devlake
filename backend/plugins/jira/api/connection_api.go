@@ -146,6 +146,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test jira connection
 // @Description Test Jira Connection
 // @Tags plugins/jira
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} JiraTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"

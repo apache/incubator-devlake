@@ -76,6 +76,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test pagerduty connection
 // @Description Test Pagerduty Connection
 // @Tags plugins/pagerduty
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"

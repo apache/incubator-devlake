@@ -90,6 +90,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test circleci connection
 // @Description Test circleci Connection
 // @Tags plugins/circleci
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} CircleciTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"

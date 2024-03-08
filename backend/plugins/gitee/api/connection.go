@@ -98,6 +98,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test gitee connection
 // @Description Test gitee Connection. endpoint: https://gitee.com/api/v5/
 // @Tags plugins/gitee
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} GiteeTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"

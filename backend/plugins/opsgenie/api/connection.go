@@ -62,6 +62,7 @@ func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plu
 // @Summary test opsgenie connection
 // @Description Test Opsgenie Connection
 // @Tags plugins/opsgenie
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
