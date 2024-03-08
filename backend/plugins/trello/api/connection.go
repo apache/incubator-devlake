@@ -94,10 +94,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test trello connection
 // @Description Test trello Connection
 // @Tags plugins/trello
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} TrelloTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/trello/{connectionId}/test [POST]
+// @Router /plugins/trello/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.TrelloConnection{}
 	err := connectionHelper.First(connection, input.Params)

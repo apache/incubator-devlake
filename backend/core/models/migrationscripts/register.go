@@ -108,5 +108,6 @@ func All() []plugin.MigrationScript {
 		new(addUrgencyToIssues),
 		new(modifyRefsIdLength),
 		new(addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits),
+		new(addSubtabknameToDeployment),
 	}
 }

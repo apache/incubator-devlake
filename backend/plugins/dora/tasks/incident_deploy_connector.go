@@ -47,11 +47,11 @@ type simpleCicdDeploymentCommit struct {
 func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
-	// // Clear previous results from the project
-	// err := db.Exec("DELETE FROM project_issue_metrics WHERE project_name = ?", data.Options.ProjectName)
-	// if err != nil {
-	// 	return errors.Default.Wrap(err, "error deleting previous project_issue_metrics")
-	// }
+	// Clear previous results from the project
+	err := db.Exec("DELETE FROM project_issue_metrics WHERE project_name = ?", data.Options.ProjectName)
+	if err != nil {
+		return errors.Default.Wrap(err, "error deleting previous project_issue_metrics")
+	}
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
 		dal.From(`issues i`),

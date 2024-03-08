@@ -81,10 +81,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test bamboo connection
 // @Description Test bamboo Connection
 // @Tags plugins/bamboo
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} BambooTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/bamboo/{connectionId}/test [POST]
+// @Router /plugins/bamboo/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection, err := dsHelper.ConnApi.FindByPk(input)
 	if err != nil {

@@ -100,17 +100,18 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		errMsg := fmt.Sprintf("Test connection fail, unexpected status code: %d", testConnectionResult.Status)
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, errors.Default.New(errMsg))
 	}
-	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
+	return testConnectionResult, nil
 }
 
 // TestExistingConnection test sonarqube connection options
 // @Summary test sonarqube connection
 // @Description Test sonarqube Connection
 // @Tags plugins/sonarqube
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} SonarqubeTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/sonarqube/{connectionId}/test [POST]
+// @Router /plugins/sonarqube/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
@@ -125,7 +126,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		errMsg := fmt.Sprintf("Test connection fail, unexpected status code: %d", testConnectionResult.Status)
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, errors.Default.New(errMsg))
 	}
-	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
+	return testConnectionResult, nil
 }
 
 // PostConnections create sonarqube connection

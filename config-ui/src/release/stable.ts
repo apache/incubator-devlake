@@ -80,6 +80,11 @@ const URLS = {
       TRANSFORMATION:
         'https://devlake.apache.org/docs/Configuration/Jira#step-3---adding-transformation-rules-optional',
     },
+    OPSGENIE: {
+      BASIS: 'https://devlake.apache.org/docs/Configuration/Opsgenie',
+      AUTH_TOKEN: 'https://devlake.apache.org/docs/Configuration/Opsgenie#step-11---authentication',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/Opsgenie#fixed-rate-limit-optional',
+    },
     PAGERDUTY: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/PagerDuty',
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/PagerDuty/#custom-rate-limit-optional',

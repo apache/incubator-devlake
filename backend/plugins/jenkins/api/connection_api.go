@@ -101,10 +101,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test jenkins connection
 // @Description Test Jenkins Connection
 // @Tags plugins/jenkins
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} JenkinsTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/jenkins/{connectionId}/test [POST]
+// @Router /plugins/jenkins/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {

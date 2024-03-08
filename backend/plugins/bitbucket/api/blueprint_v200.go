@@ -84,7 +84,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 		// construct task options for Jira
 		task, err := helper.MakePipelinePlanTask(
-			"bamboo",
+			"bitbucket",
 			subtaskMetas,
 			scopeConfig.Entities,
 			tasks.BitbucketOptions{

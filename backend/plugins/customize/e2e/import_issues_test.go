@@ -89,10 +89,21 @@ func TestImportIssueDataFlow(t *testing.T) {
 		t.Fatal(err1)
 	}
 	defer issueFile.Close()
-	err = svc.ImportIssue(`{"ConnectionId":1,"Owner":"thenicetgp","Repo":"lake"}`, issueFile)
+	err = svc.ImportIssue("csv-board", issueFile)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	issueFile2, err2 := os.Open("raw_tables/issues_input2.csv")
+	if err2 != nil {
+		t.Fatal(err2)
+	}
+	defer issueFile2.Close()
+	err = svc.ImportIssue("csv-board2", issueFile2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	dataflowTester.VerifyTableWithRawData(
 		ticket.Issue{},
 		"snapshot_tables/issues_output.csv",

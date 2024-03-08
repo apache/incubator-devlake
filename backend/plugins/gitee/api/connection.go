@@ -98,10 +98,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test gitee connection
 // @Description Test gitee Connection. endpoint: https://gitee.com/api/v5/
 // @Tags plugins/gitee
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} GiteeTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/gitee/{connectionId}/test [POST]
+// @Router /plugins/gitee/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.First(connection, input.Params)

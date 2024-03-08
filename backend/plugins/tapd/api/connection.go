@@ -94,10 +94,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test tapd connection
 // @Description Test Tapd Connection
 // @Tags plugins/tapd
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} TapdTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/tapd/{connectionId}/test [POST]
+// @Router /plugins/tapd/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.TapdConnection{}
 	err := connectionHelper.First(connection, input.Params)

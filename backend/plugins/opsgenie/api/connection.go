@@ -51,7 +51,7 @@ func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plu
 		return nil, errors.HttpStatus(http.StatusForbidden).New("API Key need 'Read' and 'Configuration access' Access rights")
 	}
 
-	if response.StatusCode == http.StatusOK {
+	if response.StatusCode == http.StatusOK || response.StatusCode == http.StatusAccepted {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 	}
 
@@ -62,10 +62,11 @@ func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plu
 // @Summary test opsgenie connection
 // @Description Test Opsgenie Connection
 // @Tags plugins/opsgenie
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/opsgenie/{connectionId}/test [POST]
+// @Router /plugins/opsgenie/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.OpsgenieConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -79,7 +80,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if testConnectionErr != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
-	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
+	return testConnectionResult, nil
 }
 
 // TestConnection test opsgenie connection
@@ -101,7 +102,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if testConnectionErr != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
-	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
+	return testConnectionResult, nil
 }
 
 // @Summary create opsgenie connection
