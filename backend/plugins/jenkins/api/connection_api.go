@@ -101,6 +101,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test jenkins connection
 // @Description Test Jenkins Connection
 // @Tags plugins/jenkins
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} JenkinsTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"

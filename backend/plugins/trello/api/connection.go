@@ -94,6 +94,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test trello connection
 // @Description Test trello Connection
 // @Tags plugins/trello
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} TrelloTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"

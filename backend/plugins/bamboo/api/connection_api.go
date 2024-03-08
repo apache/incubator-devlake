@@ -81,6 +81,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test bamboo connection
 // @Description Test bamboo Connection
 // @Tags plugins/bamboo
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} BambooTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
