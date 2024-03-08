@@ -34,6 +34,7 @@ type CICDDeployment struct {
 	TaskDatesInfo
 	DurationSec       *float64
 	QueuedDurationSec *float64
+	SubtaskName       string `gorm:"type:varchar(255)"`
 }
 
 func (CICDDeployment) TableName() string {

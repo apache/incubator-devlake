@@ -41,6 +41,7 @@ type CicdDeploymentCommit struct {
 	RepoId                        string `gorm:"type:varchar(255)"`
 	RepoUrl                       string `gorm:"index;not null"`
 	PrevSuccessDeploymentCommitId string `gorm:"type:varchar(255)"`
+	SubtaskName                   string `gorm:"type:varchar(255)"`
 }
 
 func (cicdDeploymentCommit CicdDeploymentCommit) TableName() string {
