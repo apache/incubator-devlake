@@ -94,6 +94,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test tapd connection
 // @Description Test Tapd Connection
 // @Tags plugins/tapd
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} TapdTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
