@@ -54,7 +54,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "This dashboard is designed to find the details about [deployment frequency](https://devlake.apache.org/docs/Metrics/DeploymentFrequency) in DORA.",
+        "content": "This dashboard shows the details about [deployment frequency](https://devlake.apache.org/docs/Metrics/DeploymentFrequency) in DORA.",
         "mode": "markdown"
       },
       "pluginVersion": "9.5.15",
@@ -68,7 +68,6 @@
           "refId": "A"
         }
       ],
-      "title": "Dashboard Introduction",
       "type": "text"
     },
     {
@@ -775,7 +774,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "# 2023 Benchmarks\n- Elite: >= 7 days per week\n- High: >= 7 days per week\n- Medium: >= 1 days per month\n- Low: < 1 days per month\n# 2021 Benchmarks\n- Elite: >= 7 days per week\n- High: >= 1 days per month\n- Medium: >= 1 days per six months\n- Low: < 1 days per six months",
+        "content": "# 2023 Benchmarks\n- Elite: >= 7 days per week\n- High: >= 1 day per week\n- Medium: >= 1 day per month\n- Low: < 1 day per month\n# 2021 Benchmarks\n- Elite: >= 7 days per week\n- High: >= 1 day per month\n- Medium: >= 1 day per six months\n- Low: < 1 day per six months",
         "mode": "markdown"
       },
       "pluginVersion": "9.5.15",
@@ -1194,7 +1193,9 @@
   "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "DORA"
+  ],
   "templating": {
     "list": [
       {
@@ -1270,6 +1271,6 @@
   "timezone": "",
   "title": "DORA Details - Deployment Frequency",
   "uid": "Deployment-frequency",
-  "version": 8,
+  "version": 11,
   "weekStart": ""
 }

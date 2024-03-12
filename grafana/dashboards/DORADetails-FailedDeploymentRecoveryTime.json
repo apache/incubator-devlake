@@ -54,7 +54,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "This dashboard is designed to find the details about [Failed Deployment Recovery Time\n](https://devlake.apache.org/docs/Metrics/MTTR) in DORA.",
+        "content": "This dashboard shows the details about [Failed Deployment Recovery Time\n](https://devlake.apache.org/docs/Metrics/MTTR) in DORA.",
         "mode": "markdown"
       },
       "pluginVersion": "9.5.15",
@@ -68,7 +68,6 @@
           "refId": "A"
         }
       ],
-      "title": "Dashboard Introduction",
       "type": "text"
     },
     {
@@ -93,8 +92,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 4,
+        "h": 10,
+        "w": 5,
         "x": 0,
         "y": 2
       },
@@ -181,20 +180,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "purple",
-                "value": null
-              },
-              {
                 "color": "green",
-                "value": 24
-              },
-              {
-                "color": "#EAB839",
-                "value": 168
-              },
-              {
-                "color": "red",
-                "value": 720
+                "value": null
               }
             ]
           },
@@ -208,15 +195,14 @@
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              },
-              {
                 "id": "custom.width",
                 "value": 174
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           },
@@ -227,15 +213,14 @@
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              },
-              {
                 "id": "custom.width",
                 "value": 208
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           },
@@ -249,6 +234,30 @@
                 "id": "custom.cellOptions",
                 "value": {
                   "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "purple",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 24
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 168
+                    },
+                    {
+                      "color": "red",
+                      "value": 720
+                    }
+                  ]
                 }
               }
             ]
@@ -268,6 +277,10 @@
                     "url": "${__data.fields[\"metric_hidden\"]}"
                   }
                 ]
+              },
+              {
+                "id": "custom.width",
+                "value": 228
               }
             ]
           },
@@ -287,8 +300,8 @@
       },
       "gridPos": {
         "h": 19,
-        "w": 20,
-        "x": 4,
+        "w": 19,
+        "x": 5,
         "y": 2
       },
       "id": 80,
@@ -307,7 +320,12 @@
         },
         "frameIndex": 1,
         "showHeader": true,
-        "sortBy": []
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "deployment_finished_date"
+          }
+        ]
       },
       "pluginVersion": "9.5.15",
       "targets": [
@@ -360,7 +378,7 @@
           ]
         }
       ],
-      "title": "4. Deployments and Incidents Details",
+      "title": "3. Deployments and Incidents Details",
       "type": "table"
     },
     {
@@ -384,14 +402,17 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 4,
+        "h": 9,
+        "w": 5,
         "x": 0,
-        "y": 9
+        "y": 12
       },
       "id": 88,
       "links": [],
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -400,8 +421,7 @@
           "fields": "/.*/",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "textMode": "auto"
       },
       "pluginVersion": "9.5.15",
       "targets": [
@@ -432,86 +452,16 @@
           }
         }
       ],
-      "title": "2. Incident Count",
-      "type": "gauge"
-    },
-    {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 0,
-        "y": 15
-      },
-      "id": 44,
-      "links": [],
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/.*/",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      },
-      "pluginVersion": "9.5.15",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "--  ***** 2023 report ***** --\n--  Metric 4: Failed deployment recovery time\nwith _deployments as (\n    SELECT\n        cdc.cicd_deployment_id as deployment_id,\n        max(cdc.finished_date) as deployment_finished_date\n    FROM \n        cicd_deployment_commits cdc\n        JOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n    WHERE\n        pm.project_name in ($project)\n        and cdc.result = 'SUCCESS'\n        and cdc.environment = 'PRODUCTION'\n    GROUP BY 1\n    HAVING $__timeFilter(max(cdc.finished_date))\n)\n\nSELECT \n  COUNT(deployment_id)\nFROM _deployments",
-          "refId": "D",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "3. Deployment Count",
-      "type": "gauge"
+      "title": "2. The number of incidents caused by deployments",
+      "type": "stat"
     }
   ],
   "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "DORA"
+  ],
   "templating": {
     "list": [
       {
@@ -545,6 +495,6 @@
   "timezone": "",
   "title": "DORA Details - Failed Deployment Recovery Time",
   "uid": "Failed-deployment-recovery-time",
-  "version": 12,
+  "version": 18,
   "weekStart": ""
 }

@@ -54,7 +54,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "This dashboard is designed to find the details about [Change Failure Rate](https://devlake.apache.org/docs/Metrics/CFR) in DORA.",
+        "content": "This dashboard shows the details about [Change Failure Rate](https://devlake.apache.org/docs/Metrics/CFR) in DORA.",
         "mode": "markdown"
       },
       "pluginVersion": "9.5.15",
@@ -68,7 +68,6 @@
           "refId": "A"
         }
       ],
-      "title": "Dashboard Introduction",
       "type": "text"
     },
     {
@@ -128,7 +127,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -141,6 +141,9 @@
       "id": 86,
       "links": [],
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -149,8 +152,7 @@
           "fields": "/.*/",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "textMode": "auto"
       },
       "pluginVersion": "9.5.15",
       "targets": [
@@ -204,7 +206,7 @@
         }
       ],
       "title": "1. Change Failure Rate",
-      "type": "gauge"
+      "type": "stat"
     },
     {
       "datasource": "mysql",
@@ -404,7 +406,7 @@
           ]
         }
       ],
-      "title": "3. Deployment Related Incident",
+      "title": "2. Deployments that have caused incidents(failure)",
       "type": "table"
     },
     {
@@ -477,6 +479,9 @@
       "id": 84,
       "links": [],
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -485,8 +490,7 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "textMode": "auto"
       },
       "pluginVersion": "9.5.15",
       "targets": [
@@ -539,8 +543,7 @@
           ]
         }
       ],
-      "title": "2. Incident and Deployment Count",
-      "type": "gauge"
+      "type": "stat"
     },
     {
       "datasource": "mysql",
@@ -665,14 +668,16 @@
           ]
         }
       ],
-      "title": "4. How incidents are associated with deployments",
+      "title": "3. How incidents are associated with deployments",
       "type": "table"
     }
   ],
   "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "DORA"
+  ],
   "templating": {
     "list": [
       {
@@ -748,6 +753,6 @@
   "timezone": "",
   "title": "DORA Details - Change Failure Rate",
   "uid": "Change-failure-rate",
-  "version": 12,
+  "version": 16,
   "weekStart": ""
 }
