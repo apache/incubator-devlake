@@ -20,9 +20,9 @@ import { IPluginConfig } from '@/types';
 
 import { AzureConfig } from './azure';
 import { BambooConfig } from './bamboo';
-import { BitBucketConfig } from './bitbucket';
+import { BitbucketConfig } from './bitbucket';
+import { BitbucketServerConfig } from './bitbucket-server';
 import { CircleCIConfig } from './circleci';
-import { BitBucketServerConfig } from './bitbucket-server';
 import { GitHubConfig } from './github';
 import { GitLabConfig } from './gitlab';
 import { JenkinsConfig } from './jenkins';
@@ -37,8 +37,8 @@ import { OpsgenieConfig } from './opsgenie';
 export const pluginConfigs: IPluginConfig[] = [
   AzureConfig,
   BambooConfig,
-  BitBucketConfig,
-  BitBucketServerConfig,
+  BitbucketConfig,
+  BitbucketServerConfig,
   CircleCIConfig,
   GitHubConfig,
   GitLabConfig,

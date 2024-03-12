@@ -198,11 +198,11 @@ const renderCollapseItems = ({
             <ExternalLink link={DOC_URL.PLUGIN.BITBUCKET.TRANSFORMATION}>Learn more</ExternalLink>
           </p>
           <Checkbox disabled checked>
-            <span>Convert a BitBucket Deployment to a DevLake Deployment</span>
+            <span>Convert a Bitbucket Deployment to a DevLake Deployment</span>
             <HelpTooltip content={<img src={ExampleJpg} alt="" width={400} />} />
           </Checkbox>
           <Checkbox checked={useCustom} onChange={onChangeUseCustom}>
-            Convert a BitBucket Pipeline to a DevLake Deployment when its branch/tag name
+            Convert a Bitbucket Pipeline to a DevLake Deployment when its branch/tag name
           </Checkbox>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
             <span>matches</span>
@@ -219,7 +219,7 @@ const renderCollapseItems = ({
               }
             />
             <span>.</span>
-            <HelpTooltip content="View your BitBucket Pipelines: https://support.atlassian.com/bitbucket-cloud/docs/view-your-pipeline/" />
+            <HelpTooltip content="View your Bitbucket Pipelines: https://support.atlassian.com/bitbucket-cloud/docs/view-your-pipeline/" />
           </div>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
             <span>If the name also matches</span>
