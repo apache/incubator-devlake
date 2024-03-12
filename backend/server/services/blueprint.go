@@ -320,21 +320,21 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.S
 	newPipeline.SyncPolicy = blueprint.SyncPolicy
 
 	// if the plan is empty, we should not create the pipeline
-	var shouldCreatePipeline bool
-	for _, stage := range plan {
-		for _, task := range stage {
-			switch task.Plugin {
-			case "org", "refdiff", "dora":
-			default:
-				if !plan.IsEmpty() {
-					shouldCreatePipeline = true
-				}
-			}
-		}
-	}
-	if !shouldCreatePipeline {
-		return nil, ErrEmptyPlan
-	}
+	// var shouldCreatePipeline bool
+	// for _, stage := range plan {
+	// 	for _, task := range stage {
+	// 		switch task.Plugin {
+	// 		case "org", "refdiff", "dora":
+	// 		default:
+	// 			if !plan.IsEmpty() {
+	// 				shouldCreatePipeline = true
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// if !shouldCreatePipeline {
+	// 	return nil, ErrEmptyPlan
+	// }
 	pipeline, err := CreatePipeline(&newPipeline, false)
 	// Return all created tasks to the User
 	if err != nil {
