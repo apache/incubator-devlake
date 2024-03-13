@@ -71,7 +71,7 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
 	}
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("Error username/password")
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("Error credential")
 	}
 
 	resBody := &models.JiraServerInfo{}
@@ -100,7 +100,7 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 
 	errMsg := ""
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("Please check your username/password")
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("Please check your credential")
 	}
 
 	if res.StatusCode != http.StatusOK {
