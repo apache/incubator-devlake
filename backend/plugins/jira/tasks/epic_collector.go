@@ -42,7 +42,7 @@ var CollectEpicsMeta = plugin.SubTaskMeta{
 	Name:             "collectEpics",
 	EntryPoint:       CollectEpics,
 	EnabledByDefault: true,
-	Description:      "collect Jira epics from all boards, does not support either timeFilter or diffSync.",
+	Description:      "collect Jira epics from all boards, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 
