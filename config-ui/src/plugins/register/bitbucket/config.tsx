@@ -21,9 +21,9 @@ import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
 
-export const BitBucketConfig: IPluginConfig = {
+export const BitbucketConfig: IPluginConfig = {
   plugin: 'bitbucket',
-  name: 'BitBucket',
+  name: 'Bitbucket Cloud',
   icon: ({ color }) => <Icon fill={color} />,
   sort: 5,
   connection: {
@@ -35,10 +35,8 @@ export const BitBucketConfig: IPluginConfig = {
       'name',
       {
         key: 'endpoint',
-        multipleVersions: {
-          cloud: 'https://api.bitbucket.org/2.0/',
-          server: '',
-        },
+        subLabel: 'You do not need to enter the endpoint URL, because all versions use the same URL.',
+        disabled: true,
       },
       'username',
       {
@@ -49,10 +47,10 @@ export const BitBucketConfig: IPluginConfig = {
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses dynamic rate limit for optimized data collection for BitBucket. But you can adjust the collection speed by entering a fixed value.',
+          'By default, DevLake uses dynamic rate limit for optimized data collection for Bitbucket. But you can adjust the collection speed by entering a fixed value.',
         learnMore: DOC_URL.PLUGIN.BITBUCKET.RATE_LIMIT,
         externalInfo:
-          'The maximum rate limit for different entities in BitBucket Cloud is 60,000 or 1,000 requests/hour.',
+          'The maximum rate limit for different entities in Bitbucket Cloud is 60,000 or 1,000 requests/hour.',
         defaultValue: 1000,
       },
     ],

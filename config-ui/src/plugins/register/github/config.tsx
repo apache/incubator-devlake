@@ -121,7 +121,7 @@ export const GitHubConfig: IPluginConfig = {
       prType: 'type(.*)',
       prComponent: 'component(.*)',
       prBodyClosePattern:
-        '(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)',
+        '(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/issues\\/)\\d+[ ]*)+)',
       refdiff: {
         tagsLimit: 10,
         tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
