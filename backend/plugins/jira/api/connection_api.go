@@ -206,6 +206,10 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	basicRes.GetLogger().Info("ds helper %+v", dsHelper)
+	if dsHelper != nil {
+		basicRes.GetLogger().Info("ds helper dsHelper %+v", dsHelper.ConnApi)
+	}
 	return dsHelper.ConnApi.GetAll(input)
 }
 
