@@ -25,7 +25,7 @@ export const BitbucketConfig: IPluginConfig = {
   plugin: 'bitbucket',
   name: 'Bitbucket Cloud',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 5,
+  sort: 3,
   connection: {
     docLink: DOC_URL.PLUGIN.BITBUCKET.BASIS,
     initialValues: {
