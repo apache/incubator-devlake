@@ -50,6 +50,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 		nil,
 	)
+	basicRes.GetLogger().Info("init dshelper: %+v", dsHelper)
 	raProxy = api.NewDsRemoteApiProxyHelper[models.JiraConnection](dsHelper.ConnApi.ModelApiHelper)
 	raScopeList = api.NewDsRemoteApiScopeListHelper[models.JiraConnection, models.JiraBoard, JiraRemotePagination](raProxy, listJiraRemoteScopes)
 	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.JiraConnection, models.JiraBoard](raProxy, searchJiraRemoteBoards)

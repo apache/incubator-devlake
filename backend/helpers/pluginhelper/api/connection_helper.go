@@ -127,22 +127,22 @@ func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) error
 
 // List returns all connections with password/token decrypted
 func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
-	c.log.Info("connections :%+v", connections)
-	fmt.Printf("connections :%+v\n", connections)
-	c.log.Info("connection api helper :%+v", c)
-	fmt.Printf("connection api helper :%+v\n", c)
 	if c == nil {
 		c.log.Info("connection api helper is nil")
-		fmt.Printf("connection api helper is nil")
+		fmt.Printf("connection api helper is nil\n")
 	} else {
-		c.log.Info("connection api helper is not nil")
-		fmt.Printf("connection api helper is not nil")
+		c.log.Info("%s, connections :%+v", c.pluginName, connections)
+		fmt.Printf("%s connections :%+v\n", c.pluginName, connections)
+		c.log.Info("%s connection api helper :%+v", c.pluginName, c)
+		fmt.Printf("%s connection api helper :%+v\n", c.pluginName, c)
+		c.log.Info("%s connection api helper is not nil", c.pluginName)
+		fmt.Printf("%s connection api helper is not nil\n", c.pluginName)
 		if c.db == nil {
-			c.log.Info("connection api helper db is nil")
-			fmt.Println("connection api helper db is nil")
+			c.log.Info("%s connection api helper db is nil", c.pluginName)
+			fmt.Printf("%s connection api helper db is nil\n", c.pluginName)
 		} else {
-			c.log.Info("connection api helper db is not nil")
-			fmt.Println("connection api helper db is not nil")
+			c.log.Info("%s connection api helper db is not nil", c.pluginName)
+			fmt.Printf("%s connection api helper db is not nil", c.pluginName)
 		}
 	}
 
