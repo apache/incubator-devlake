@@ -163,7 +163,7 @@ export const Layout = () => {
             ))}
         </Header>
         <Content style={{ overflowY: 'auto' }}>
-          <div style={{ padding: 24 }}>
+          <div style={{ padding: 24, margin: '0 auto', width: 1280 }}>
             <Outlet />
           </div>
           {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
