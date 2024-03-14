@@ -105,16 +105,21 @@ func Init() {
 			panic(err)
 		}
 	}
-	logger.Info("Db migration confirmation needed")
+
+	if !forceMigration {
+		logger.Info("db migration confirmation needed")
+	}
 }
 
 // ExecuteMigration executes all pending migration scripts and initialize services module
 func ExecuteMigration() errors.Error {
 	// apply all pending migration scripts
+	logger.Info("start db migration")
 	err := migrator.Execute()
 	if err != nil {
 		return err
 	}
+	logger.Info("db migration finished successfully")
 
 	// cronjob for blueprint triggering
 	location := cron.WithLocation(time.UTC)

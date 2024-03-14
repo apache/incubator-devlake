@@ -73,6 +73,13 @@ func FindPluginNameBySubPkgPath(subPkgPath string) (string, errors.Error) {
 }
 
 func InitPlugins(basicRes context.BasicRes) {
+	if basicRes == nil {
+		panic("basicRes is nil")
+	} else if basicRes.GetDal() == nil {
+		panic("basicRes.GetDal() return nil")
+	}
+	logger := basicRes.GetLogger()
+	logger.Info("start initialize plugins")
 	for pluginName, pluginMeta := range plugins {
 		if pluginEntry, ok := pluginMeta.(PluginInit); ok {
 			err := pluginEntry.Init(basicRes)
@@ -80,7 +87,8 @@ func InitPlugins(basicRes context.BasicRes) {
 				panic(fmt.Errorf("failed to initialize plugin %v due to %w", pluginName, err))
 			}
 		} else {
-			basicRes.GetLogger().Info("plugin: %s doesn't implement 'PluginInit', it will be skipped.", pluginName)
+			logger.Info("plugin: %s doesn't implement 'PluginInit', it will be skipped.", pluginName)
 		}
 	}
+	logger.Info("plugins initialized succesfully")
 }
