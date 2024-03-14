@@ -53,7 +53,7 @@ func NewConnectionHelper(
 	if vld == nil {
 		vld = validator.New()
 	}
-	return &ConnectionApiHelper{
+	h := &ConnectionApiHelper{
 		encryptionSecret: basicRes.GetConfig(plugin.EncodeKeyEnvStr),
 		log:              basicRes.GetLogger(),
 		db:               basicRes.GetDal(),
@@ -61,6 +61,14 @@ func NewConnectionHelper(
 		bpManager:        services.NewBlueprintManager(basicRes.GetDal()),
 		pluginName:       pluginName,
 	}
+	if h.db == nil {
+		h.log.Info("connection api helper db is nil")
+		fmt.Println("connection api helper db is nil")
+	} else {
+		h.log.Info("connection api helper db is not nil")
+		fmt.Println("connection api helper db is not nil")
+	}
+	return h
 }
 
 // Create a connection record based on request body
@@ -119,6 +127,25 @@ func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) error
 
 // List returns all connections with password/token decrypted
 func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
+	c.log.Info("connections :%+v", connections)
+	fmt.Printf("connections :%+v\n", connections)
+	c.log.Info("connection api helper :%+v", c)
+	fmt.Printf("connection api helper :%+v\n", c)
+	if c == nil {
+		c.log.Info("connection api helper is nil")
+		fmt.Printf("connection api helper is nil")
+	} else {
+		c.log.Info("connection api helper is not nil")
+		fmt.Printf("connection api helper is not nil")
+		if c.db == nil {
+			c.log.Info("connection api helper db is nil")
+			fmt.Println("connection api helper db is nil")
+		} else {
+			c.log.Info("connection api helper db is not nil")
+			fmt.Println("connection api helper db is not nil")
+		}
+	}
+
 	return CallDB(c.db.All, connections)
 }
 
