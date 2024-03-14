@@ -70,8 +70,11 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 		restUrl := endpointUrl.ResolveReference(refUrl)
 		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
 	}
-	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("Error credential")
+	if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden {
+		return nil, errors.HttpStatus(res.StatusCode).New("Please check your credential")
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("%s unexpected status code: %d", serverInfoFail, res.StatusCode))
 	}
 
 	resBody := &models.JiraServerInfo{}
@@ -86,9 +89,6 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 			return nil, errors.Default.New(fmt.Sprintf("%s Support JIRA Server 7+ only", serverInfoFail))
 		}
 	}
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("%s unexpected status code: %d", serverInfoFail, res.StatusCode))
-	}
 
 	// verify credential
 	getStatusFail := "an error occurred while making request to `/rest/agile/1.0/board`"
@@ -100,7 +100,7 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 
 	errMsg := ""
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("Please check your credential")
+		return nil, errors.HttpStatus(res.StatusCode).New("Please check your credential")
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -111,9 +111,7 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
-	if err != nil {
-		return nil, err
-	}
+
 	return &body, nil
 }
 

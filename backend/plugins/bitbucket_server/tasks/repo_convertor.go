@@ -130,7 +130,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 					Id: repoId,
 				},
 				Name:        repository.BitbucketId,
-				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
+				Url:         repository.HTMLUrl,
 				Description: repository.Description,
 				CreatedDate: repository.CreatedDate,
 			}
