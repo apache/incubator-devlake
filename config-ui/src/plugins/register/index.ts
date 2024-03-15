@@ -18,7 +18,7 @@
 
 import { IPluginConfig } from '@/types';
 
-import { AzureConfig } from './azure';
+import { AzureConfig, AzureGoConfig } from './azure';
 import { BambooConfig } from './bamboo';
 import { BitbucketConfig } from './bitbucket';
 import { BitbucketServerConfig } from './bitbucket-server';
@@ -36,6 +36,7 @@ import { OpsgenieConfig } from './opsgenie';
 
 export const pluginConfigs: IPluginConfig[] = [
   AzureConfig,
+  AzureGoConfig,
   BambooConfig,
   BitbucketConfig,
   BitbucketServerConfig,

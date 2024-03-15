@@ -43,6 +43,7 @@ header:
     - "go.mod"
     - "go.sum"
     - "requirements.txt"
+    - "**/testdata/*.txt"
     - "**/empty"
     - "**/*.conf"
     - "deployment/helm/templates/_helpers.tpl"
