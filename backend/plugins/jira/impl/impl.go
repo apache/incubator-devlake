@@ -62,7 +62,6 @@ func (p Jira) ScopeConfig() dal.Tabler {
 
 func (p Jira) Init(basicRes context.BasicRes) errors.Error {
 	api.Init(basicRes, p)
-	fmt.Println("init jira with basic res and p", basicRes, p)
 	return nil
 }
 

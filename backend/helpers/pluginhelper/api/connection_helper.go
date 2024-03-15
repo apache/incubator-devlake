@@ -53,7 +53,7 @@ func NewConnectionHelper(
 	if vld == nil {
 		vld = validator.New()
 	}
-	h := &ConnectionApiHelper{
+	return &ConnectionApiHelper{
 		encryptionSecret: basicRes.GetConfig(plugin.EncodeKeyEnvStr),
 		log:              basicRes.GetLogger(),
 		db:               basicRes.GetDal(),
@@ -61,7 +61,6 @@ func NewConnectionHelper(
 		bpManager:        services.NewBlueprintManager(basicRes.GetDal()),
 		pluginName:       pluginName,
 	}
-	return h
 }
 
 // Create a connection record based on request body
