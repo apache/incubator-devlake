@@ -67,6 +67,17 @@ export const Wrapper = styled.div<{ theme: string }>`
       background-color: #eeeeee;
     }
 
+    & > .beta {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #fff;
+      background-color: #f5a623;
+      border-radius: 8px;
+    }
+
     & > .logo {
       width: 60px;
       height: 60px;
