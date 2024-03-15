@@ -76,7 +76,7 @@ export const AzureConfig: IPluginConfig = {
 
 export const AzureGoConfig: IPluginConfig = {
   plugin: 'azuredevops_go',
-  name: 'Azure DevOps Go Plugin',
+  name: 'Azure DevOps Go(beta)',
   icon: ({ color }) => <Icon fill={color} />,
   sort: 1,
   connection: {

@@ -23,7 +23,7 @@ import Icon from './assets/icon.svg?react';
 
 export const BitbucketServerConfig: IPluginConfig = {
   plugin: 'bitbucket_server',
-  name: 'Bitbucket Server',
+  name: 'Bitbucket Server(beta)',
   icon: ({ color }) => <Icon fill={color} />,
   sort: 3,
   connection: {
