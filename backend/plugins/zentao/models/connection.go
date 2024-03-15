@@ -50,7 +50,11 @@ func (connection ZentaoConn) PrepareApiClient(apiClient plugin.ApiClient) errors
 		return errors.HttpStatus(http.StatusBadRequest).Wrap(err, "failed UnmarshalResponse for tokenResBody")
 	}
 	if tokenResBody.Token == "" {
-		return errors.HttpStatus(http.StatusBadRequest).New("failed to request access token")
+		msg := "failed to request access token"
+		if tokenResBody.Error != "" {
+			msg = tokenResBody.Error
+		}
+		return errors.HttpStatus(http.StatusBadRequest).New(msg)
 	}
 	apiClient.SetHeaders(map[string]string{
 		"Token": fmt.Sprintf("%v", tokenResBody.Token),
