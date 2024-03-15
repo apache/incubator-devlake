@@ -26,6 +26,7 @@ export const BitbucketServerConfig: IPluginConfig = {
   name: 'Bitbucket Server',
   icon: ({ color }) => <Icon fill={color} />,
   sort: 3,
+  isBeta: true,
   connection: {
     docLink: DOC_URL.PLUGIN.BITBUCKET_SERVER.BASIS,
     fields: [
