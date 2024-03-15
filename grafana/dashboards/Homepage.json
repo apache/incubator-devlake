@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 9,
+  "id": 26,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -40,10 +40,10 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "# Welcome to Apache DevLake\n\n  - DevLake provides following dashboards, grouped by use cases and data sources.\n  - The data displayed in these dashboards are queried from DevLake's domain layer data, see <a href=\"https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema\" target=\"_blank\">data schema</a>.\n  - You can also make your own dashboard based on the <a href=\"https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema\" target=\"_blank\">domain layer schema</a>, the SQL exmaples of <a href=\"https://devlake.apache.org/docs/Metrics\" target=\"_blank\">engineering metrics</a>, and <a href=\"https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide\" target=\"_blank\">Grafana manuals</a>.\n  - Feel free to <a href=\"https://github.com/apache/incubator-devlake/issues/new/choose\" target=\"_blank\">fire an issue</a> if you have any question.\n",
+        "content": "# Welcome\n\n  - Dashboards are grouped by use cases and data sources.\n  - All data is queried from <a href=\"https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema\" target=\"_blank\">here</a>. You can go to the 'Explore' page on the left menu to play around.\n  - You can always make your own dashboard based on the <a href=\"https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema\" target=\"_blank\">domain layer schema</a>, SQL exmaples in <a href=\"https://devlake.apache.org/docs/Metrics\" target=\"_blank\">engineering metrics</a>, and <a href=\"https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide\" target=\"_blank\">dashboard manuals</a>.\n",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -78,7 +78,7 @@
         "showStarred": true,
         "tags": []
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -116,7 +116,7 @@
           "Highlights"
         ]
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -179,7 +179,7 @@
           "Engineering Leads Dashboard"
         ]
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "title": "For Engineering Leads",
       "type": "dashlist"
     },
@@ -206,7 +206,7 @@
           "OSS Maintainer Dashboard"
         ]
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "title": "For OSS Maintainers",
       "type": "dashlist"
     },
@@ -230,11 +230,11 @@
         "showSearch": true,
         "showStarred": false,
         "tags": [
-          "QA Dashboard"
+          "Developer"
         ]
       },
-      "pluginVersion": "9.5.2",
-      "title": "For QA Engineers",
+      "pluginVersion": "9.5.15",
+      "title": "For Developers",
       "type": "dashlist"
     },
     {
@@ -286,7 +286,7 @@
           "Data Source Dashboard"
         ]
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "type": "dashlist"
     }
   ],
@@ -305,6 +305,6 @@
   "timezone": "",
   "title": "Homepage",
   "uid": "lCO8w-pVk",
-  "version": 16,
+  "version": 4,
   "weekStart": ""
 }
