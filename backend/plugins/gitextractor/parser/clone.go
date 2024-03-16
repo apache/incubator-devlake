@@ -121,13 +121,13 @@ func (l *GitRepoCreator) cloneOverHTTP(ctx plugin.SubTaskContext, withGoGit bool
 		_, err := gogit.PlainCloneContext(ctx.GetContext(), dir, true, cloneOptions)
 		done <- struct{}{}
 		if err != nil {
+			l.logger.Error(err, "PlainCloneContext")
 			// Some sensitive information such as password will be released in this err.
 			if err.Error() == "repository not found" {
 				// do nothing, it's a safe error message.
 			} else {
 				err = fmt.Errorf("plain clone git error")
 			}
-			l.logger.Error(err, "PlainCloneContext")
 			return nil, err
 		}
 		if withGoGit {
