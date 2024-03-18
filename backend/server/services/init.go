@@ -82,13 +82,8 @@ func Init() {
 	// lock the database to avoid multiple devlake instances from sharing the same one
 	lockDatabase()
 
-	var err error
 	// now, load the plugins
-	err = runner.LoadPlugins(basicRes)
-	if err != nil {
-		logger.Error(err, "failed to load plugins")
-		panic(err)
-	}
+	errors.Must(runner.LoadPlugins(basicRes))
 
 	// pull migration scripts from plugins to migrator
 	for _, pluginInst := range plugin.AllPlugins() {
