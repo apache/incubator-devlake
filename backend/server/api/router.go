@@ -73,6 +73,9 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.DELETE("/projects/*projectName", project.DeleteProject)
 	r.POST("/projects", project.PostProject)
 	r.GET("/projects", project.GetProjects)
+	// on board api
+	r.GET("/kvstore/:onboard", project.GetKvstore)
+	r.PUT("/kvstore", project.PutKvstore)
 
 	// api keys api
 	r.GET("/api-keys", apikeys.GetApiKeys)

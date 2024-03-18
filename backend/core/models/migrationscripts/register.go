@@ -109,5 +109,6 @@ func All() []plugin.MigrationScript {
 		new(modifyRefsIdLength),
 		new(addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits),
 		new(addSubtabknameToDeployment),
+		new(addKvstore),
 	}
 }
