@@ -59,7 +59,10 @@ export const DataScopeSelect = ({
   }, []);
 
   const getDataScope = async (page: number) => {
-    setLoading(true);
+    if (page === 1) {
+      setLoading(true);
+    }
+
     const res = await API.scope.list(plugin, connectionId, { page, pageSize });
     setItems((items) => [
       ...items,
