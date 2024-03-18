@@ -82,13 +82,8 @@ func Init() {
 	// lock the database to avoid multiple devlake instances from sharing the same one
 	lockDatabase()
 
-	var err error
 	// now, load the plugins
-	err = runner.LoadPlugins(basicRes)
-	if err != nil {
-		logger.Error(err, "failed to load plugins")
-		panic(err)
-	}
+	errors.Must(runner.LoadPlugins(basicRes))
 
 	// pull migration scripts from plugins to migrator
 	for _, pluginInst := range plugin.AllPlugins() {
@@ -98,14 +93,17 @@ func Init() {
 	}
 
 	// check if there are pending migration
-	forceMigration := cfg.GetBool("FORCE_MIGRATION")
-	if !migrator.HasPendingScripts() || forceMigration {
-		err = ExecuteMigration()
-		if err != nil {
-			panic(err)
+	if migrator.HasPendingScripts() {
+		if cfg.GetBool("FORCE_MIGRATION") {
+			errors.Must(ExecuteMigration())
+			logger.Info("db migration without confirmation")
+		} else {
+			logger.Info("db migration confirmation needed")
 		}
+	} else {
+		errors.Must(ExecuteMigration())
+		logger.Info("no db migration needed")
 	}
-	logger.Info("Db migration confirmation needed")
 }
 
 // ExecuteMigration executes all pending migration scripts and initialize services module
