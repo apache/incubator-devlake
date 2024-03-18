@@ -22,6 +22,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/base64"
+	goerrors "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -122,11 +123,7 @@ func (l *GitRepoCreator) cloneOverHTTP(ctx plugin.SubTaskContext, withGoGit bool
 		done <- struct{}{}
 		if err != nil {
 			// Some sensitive information such as password will be released in this err.
-			if err.Error() == "repository not found" {
-				// do nothing, it's a safe error message.
-			} else {
-				err = fmt.Errorf("plain clone git error")
-			}
+			err = removePasswordFromError(err, password, url)
 			l.logger.Error(err, "PlainCloneContext")
 			return nil, err
 		}
@@ -218,4 +215,31 @@ func withTempDirectory(f func(tempDir string) (RepoCollector, error)) (RepoColle
 		return nil, errors.Convert(err)
 	}
 	return repo, nil
+}
+
+func removePasswordFromError(err error, password string, gitUrl string) error {
+	if err == nil {
+		return err
+	}
+	newErrMsg := err.Error()
+	var candidatePassword []string
+	if password != "" {
+		candidatePassword = append(candidatePassword, password)
+	}
+	if gitUrl != "" {
+		url, err := neturl.Parse(gitUrl)
+		if err == nil && url != nil && url.User != nil {
+			passwordInGitUrl, ok := url.User.Password()
+			if ok && passwordInGitUrl != "" {
+				candidatePassword = append(candidatePassword, passwordInGitUrl)
+			}
+		}
+	}
+	for _, passwd := range candidatePassword {
+		newErrMsg = strings.Replace(newErrMsg, passwd, strings.Repeat("*", len(password)), -1)
+	}
+	if newErrMsg == err.Error() {
+		return err
+	}
+	return goerrors.New(newErrMsg)
 }
