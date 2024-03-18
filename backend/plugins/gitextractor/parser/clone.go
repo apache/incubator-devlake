@@ -236,9 +236,7 @@ func removePasswordFromError(err error, password string, gitUrl string) error {
 		}
 	}
 	for _, passwd := range candidatePassword {
-		if strings.Contains(newErrMsg, passwd) {
-			newErrMsg = strings.Replace(newErrMsg, passwd, strings.Repeat("*", len(password)), -1)
-		}
+		newErrMsg = strings.Replace(newErrMsg, passwd, strings.Repeat("*", len(password)), -1)
 	}
 	if newErrMsg == err.Error() {
 		return err
