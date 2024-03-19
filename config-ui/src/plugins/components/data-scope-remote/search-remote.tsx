@@ -53,12 +53,14 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   });
 
   const [search, setSearch] = useState<{
+    loading: boolean;
     items: McsItem<T.ResItem>[];
     currentItems: McsItem<T.ResItem>[];
     query: string;
     page: number;
     total: number;
   }>({
+    loading: true,
     items: [],
     currentItems: [],
     query: '',
@@ -138,6 +140,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
 
     setSearch((s) => ({
       ...s,
+      loading: false,
       items: [...allItems, ...newItems],
       currentItems: newItems,
       total: res.count,
@@ -173,7 +176,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
           prefix={<SearchOutlined />}
           placeholder={config.searchPlaceholder ?? 'Search'}
           value={search.query}
-          onChange={(e) => setSearch({ ...search, query: e.target.value })}
+          onChange={(e) => setSearch({ ...search, query: e.target.value, loading: true, currentItems: [] })}
         />
         {!searchDebounce ? (
           <MillerColumnsSelect
@@ -203,7 +206,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
             columnCount={1}
             columnHeight={300}
             getCanExpand={() => false}
-            getHasMore={() => search.total === 0}
+            getHasMore={() => search.loading}
             onScroll={() => setSearch({ ...search, page: search.page + 1 })}
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
             disabledIds={(disabledScope ?? []).map((it) => it.id)}
