@@ -48,25 +48,7 @@ func PutStore(storeKey string, storeValue *models.Store) (*models.Store, errors.
 		return nil, err
 	}
 
-	// create transaction to updte multiple tables
-	var err errors.Error
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil || err != nil {
-			err = tx.Rollback()
-			if err != nil {
-				logger.Error(err, "PutStore: failed to rollback")
-			}
-		}
-	}()
-
-	err = tx.CreateOrUpdate(storeValue, dal.Where("store_key = ?", storeKey))
-	if err != nil {
-		return nil, err
-	}
-
-	// all good, commit transaction
-	err = tx.Commit()
+	err := db.CreateOrUpdate(storeValue, dal.Where("store_key = ?", storeKey))
 	if err != nil {
 		return nil, err
 	}

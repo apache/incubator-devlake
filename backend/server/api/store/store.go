@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package project
+package store
 
 import (
 	"fmt"
@@ -40,7 +40,6 @@ import (
 func GetStore(c *gin.Context) {
 	storeKey := c.Param("storeKey")
 	result, err := services.GetStore(storeKey)
-	fmt.Println(err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error fetching %s data", storeKey)})
 		return
@@ -49,8 +48,8 @@ func GetStore(c *gin.Context) {
 	shared.ApiOutputSuccess(c, result.StoreValue, http.StatusOK)
 }
 
-// @Summary Put a on board project
-// @Description Put a board project
+// @Summary Put the value by given key
+// @Description Put the value by given key
 // @Tags framework/projects
 // @Accept application/json
 // @Param storeKey path string true "storeKey"

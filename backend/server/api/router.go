@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/server/api/apikeys"
+	"github.com/apache/incubator-devlake/server/api/store"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
@@ -74,8 +75,8 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.POST("/projects", project.PostProject)
 	r.GET("/projects", project.GetProjects)
 	// on board api
-	r.GET("/store/:storeKey", project.GetStore)
-	r.PUT("/store/:storeKey", project.PutStore)
+	r.GET("/store/:storeKey", store.GetStore)
+	r.PUT("/store/:storeKey", store.PutStore)
 
 	// api keys api
 	r.GET("/api-keys", apikeys.GetApiKeys)
