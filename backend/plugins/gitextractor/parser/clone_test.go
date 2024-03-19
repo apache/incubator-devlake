@@ -19,12 +19,15 @@ package parser
 
 import (
 	gocontext "context"
+	"errors"
+	"fmt"
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/impls/dalgorm"
+	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"testing"
@@ -137,4 +140,38 @@ func (ctx *testSubTaskContext) IncProgress(quantity int) {
 func (ctx *testSubTaskContext) TaskContext() plugin.TaskContext {
 	//TODO implement me
 	panic("implement me")
+}
+
+func Test_removePasswordFromErro1r(t *testing.T) {
+	type args struct {
+		err      error
+		password string
+		gitUrl   string
+	}
+	err := errors.New("some errors occurred when requesting http://devlakeuser:password@127.0.0.1/repos")
+	tests := []struct {
+		name    string
+		args    args
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "test-0",
+			args: args{
+				err:      err,
+				password: "password",
+				gitUrl:   "http://devlakeuser:password@127.0.0.1/repos",
+			},
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return err.Error() == "some errors occurred when requesting http://devlakeuser:********@127.0.0.1/repos"
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err = removePasswordFromError(tt.args.err, tt.args.password, tt.args.gitUrl)
+			t.Logf("removePasswordFromError return err: %s", err)
+			fmt.Printf("removePasswordFromError return err: %s\n", err)
+			tt.wantErr(t, err)
+		})
+	}
 }
