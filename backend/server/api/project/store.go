@@ -29,8 +29,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Get list of info by onboard
-// @Description GET onboard info
+// @Summary Get the value by given key
+// @Description Get the value by given key
 // @Tags framework/projects
 // @Param storeKey path string true "storeKey"
 // @Success 200  {object} json.RawMessage
@@ -55,7 +55,7 @@ func GetStore(c *gin.Context) {
 // @Accept application/json
 // @Param storeKey path string true "storeKey"
 // @Param project body json.RawMessage false "json"
-// @Success 200  {object} models.Store
+// @Success 200  {object} json.RawMessage
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /store/{storeKey} [PUT]
@@ -75,5 +75,5 @@ func PutStore(c *gin.Context) {
 		return
 	}
 
-	shared.ApiOutputSuccess(c, result, http.StatusCreated)
+	shared.ApiOutputSuccess(c, result.StoreValue, http.StatusCreated)
 }
