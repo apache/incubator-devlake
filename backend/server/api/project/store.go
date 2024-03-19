@@ -32,13 +32,13 @@ import (
 // @Summary Get list of info by onboard
 // @Description GET onboard info
 // @Tags framework/projects
-// @Param onboard path string true "onboard"
+// @Param storeKey path string true "storeKey"
 // @Success 200  {object} json.RawMessage
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /store/{onboard} [get]
+// @Router /store/{storeKey} [get]
 func GetStore(c *gin.Context) {
-	storeKey := c.Param("onboard")
+	storeKey := c.Param("storeKey")
 	result, err := services.GetStore(storeKey)
 	fmt.Println(err)
 	if err != nil {
@@ -53,14 +53,14 @@ func GetStore(c *gin.Context) {
 // @Description Put a board project
 // @Tags framework/projects
 // @Accept application/json
-// @Param onboard path string true "onboard"
+// @Param storeKey path string true "storeKey"
 // @Param project body json.RawMessage false "json"
 // @Success 200  {object} models.Store
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /store/{onboard} [PUT]
+// @Router /store/{storeKey} [PUT]
 func PutStore(c *gin.Context) {
-	storeKey := c.Param("onboard")
+	storeKey := c.Param("storeKey")
 	var body models.Store
 	err := c.ShouldBind(&body.StoreValue)
 	if err != nil {
@@ -69,11 +69,11 @@ func PutStore(c *gin.Context) {
 	}
 	body.StoreKey = storeKey
 
-	onBoardOutput, err := services.PutStore(storeKey, &body)
+	result, err := services.PutStore(storeKey, &body)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("PutStore: failed to put %s", storeKey)))
 		return
 	}
 
-	shared.ApiOutputSuccess(c, onBoardOutput, http.StatusCreated)
+	shared.ApiOutputSuccess(c, result, http.StatusCreated)
 }
