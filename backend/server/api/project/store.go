@@ -33,7 +33,7 @@ import (
 // @Description GET onboard info
 // @Tags framework/projects
 // @Param onboard path string true "onboard"
-// @Success 200  {object} models.Store
+// @Success 200  {object} json.RawMessage
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /store/{onboard} [get]
@@ -46,7 +46,7 @@ func GetStore(c *gin.Context) {
 		return
 	}
 
-	shared.ApiOutputSuccess(c, result, http.StatusOK)
+	shared.ApiOutputSuccess(c, result.StoreValue, http.StatusOK)
 }
 
 // @Summary Put a on board project
