@@ -26,29 +26,29 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-var _ plugin.MigrationScript = (*addKvstore)(nil)
+var _ plugin.MigrationScript = (*addStore)(nil)
 
-type kvstore20240318 struct {
+type store20240318 struct {
 	StoreKey   string          `gorm:"primaryKey;type:varchar(255)"`
 	StoreValue json.RawMessage `gorm:"type:json;serializer:json"`
 	CreatedAt  time.Time       `json:"createdAt" mapstructure:"createdAt"`
 	UpdatedAt  time.Time       `json:"updatedAt" mapstructure:"updatedAt"`
 }
 
-func (kvstore20240318) TableName() string {
-	return "_devlake_kvstore"
+func (store20240318) TableName() string {
+	return "_devlake_store"
 }
 
-type addKvstore struct{}
+type addStore struct{}
 
-func (*addKvstore) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(kvstore20240318{})
+func (*addStore) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(store20240318{})
 }
 
-func (*addKvstore) Version() uint64 {
-	return 20240318111246
+func (*addStore) Version() uint64 {
+	return 20240318111247
 }
 
-func (*addKvstore) Name() string {
-	return "add _devlake_kvstore table"
+func (*addStore) Name() string {
+	return "add _devlake_store table"
 }

@@ -71,18 +71,13 @@ type ApiOutputProject struct {
 	LastPipeline *Pipeline     `json:"lastPipeline,omitempty" mapstructure:"lastPipeline"`
 }
 
-type Kvstore struct {
+type Store struct {
 	StoreKey   string          `gorm:"primaryKey;type:varchar(255)"`
 	StoreValue json.RawMessage `gorm:"type:json;serializer:json"`
 	CreatedAt  time.Time       `json:"createdAt" mapstructure:"createdAt"`
 	UpdatedAt  time.Time       `json:"updatedAt" mapstructure:"updatedAt"`
 }
 
-func (Kvstore) TableName() string {
-	return "_devlake_kvstore"
-}
-
-type ApiKvstore struct {
-	StoreKey   string          `gorm:"primaryKey;type:varchar(255)"`
-	StoreValue json.RawMessage `gorm:"type:json;serializer:json"`
+func (Store) TableName() string {
+	return "_devlake_store"
 }

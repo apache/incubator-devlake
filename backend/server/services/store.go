@@ -26,23 +26,23 @@ import (
 )
 
 // GetProjects returns a paginated list of Projects based on `query`
-func GetKvstore(storeKey string) (*models.Kvstore, errors.Error) {
+func GetStore(storeKey string) (*models.Store, errors.Error) {
 	clauses := []dal.Clause{
-		dal.From(&models.Kvstore{}),
+		dal.From(&models.Store{}),
 		dal.Where("store_key = ?", storeKey),
 	}
 
-	kvstore := &models.Kvstore{}
-	err := db.First(&kvstore, clauses...)
+	kvstore := &models.Store{}
+	err := db.All(&kvstore, clauses...)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error finding %s on _devlake_kvstore table", storeKey))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error finding %s on _devlake_store table", storeKey))
 	}
 
 	return kvstore, nil
 }
 
 // PutOnboard accepts a project instance and insert it to database
-func PutKvstore(storeKey string, storeValue *models.Kvstore) (*models.Kvstore, errors.Error) {
+func PutStore(storeKey string, storeValue *models.Store) (*models.Store, errors.Error) {
 	// verify input
 	if err := VerifyStruct(storeValue); err != nil {
 		return nil, err
@@ -55,12 +55,11 @@ func PutKvstore(storeKey string, storeValue *models.Kvstore) (*models.Kvstore, e
 		if r := recover(); r != nil || err != nil {
 			err = tx.Rollback()
 			if err != nil {
-				logger.Error(err, "PutKvstore: failed to rollback")
+				logger.Error(err, "PutStore: failed to rollback")
 			}
 		}
 	}()
 
-	result := &models.Kvstore{}
 	err = tx.CreateOrUpdate(storeValue, dal.Where("store_key = ?", storeKey))
 	if err != nil {
 		return nil, err
@@ -72,5 +71,5 @@ func PutKvstore(storeKey string, storeValue *models.Kvstore) (*models.Kvstore, e
 		return nil, err
 	}
 
-	return result, nil
+	return storeValue, nil
 }

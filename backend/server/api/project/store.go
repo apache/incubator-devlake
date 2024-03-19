@@ -33,13 +33,14 @@ import (
 // @Description GET onboard info
 // @Tags framework/projects
 // @Param onboard path string true "onboard"
-// @Success 200  {object} models.Kvstore
+// @Success 200  {object} models.Store
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /kvstore/{onboard} [get]
-func GetKvstore(c *gin.Context) {
+// @Router /store/{onboard} [get]
+func GetStore(c *gin.Context) {
 	storeKey := c.Param("onboard")
-	result, err := services.GetKvstore(storeKey)
+	result, err := services.GetStore(storeKey)
+	fmt.Println(err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error fetching %s data", storeKey)})
 		return
@@ -52,24 +53,25 @@ func GetKvstore(c *gin.Context) {
 // @Description Put a board project
 // @Tags framework/projects
 // @Accept application/json
-// @Param project body models.ApiKvstore false "json"
-// @Success 200  {object} models.Kvstore
+// @Param onboard path string true "onboard"
+// @Param project body json.RawMessage false "json"
+// @Success 200  {object} models.Store
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /kvstore [PUT]
-func PutKvstore(c *gin.Context) {
-	var body models.Kvstore
-	err := c.ShouldBind(&body)
+// @Router /store/{onboard} [PUT]
+func PutStore(c *gin.Context) {
+	storeKey := c.Param("onboard")
+	var body models.Store
+	err := c.ShouldBind(&body.StoreValue)
 	if err != nil {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	storeKey := body.StoreKey
-	fmt.Println("storeKey: ", storeKey)
+	body.StoreKey = storeKey
 
-	onBoardOutput, err := services.PutKvstore(storeKey, &body)
+	onBoardOutput, err := services.PutStore(storeKey, &body)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error put on board project"))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("PutStore: failed to put %s", storeKey)))
 		return
 	}
 
