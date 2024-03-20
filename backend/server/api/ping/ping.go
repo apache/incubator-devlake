@@ -20,6 +20,8 @@ package ping
 import (
 	"net/http"
 
+	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/incubator-devlake/server/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,4 +34,36 @@ import (
 // @Router /ping [get]
 func Get(c *gin.Context) {
 	c.Status(http.StatusOK)
+}
+
+// @Summary Ready
+// @Description check if service is ready
+// @Tags framework/ping
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /ready [get]
+func Ready(c *gin.Context) {
+	status, err := services.Ready()
+	if err != nil {
+		shared.ApiOutputError(c, err)
+		return
+	}
+	shared.ApiOutputSuccess(c, shared.ApiBody{Success: true, Message: status}, http.StatusOK)
+}
+
+// @Summary Health
+// @Description check if service is health
+// @Tags framework/ping
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /health [get]
+func Health(c *gin.Context) {
+	msg, err := services.Health()
+	if err != nil {
+		shared.ApiOutputError(c, err)
+		return
+	}
+	shared.ApiOutputSuccess(c, shared.ApiBody{Success: true, Message: msg}, http.StatusOK)
 }
