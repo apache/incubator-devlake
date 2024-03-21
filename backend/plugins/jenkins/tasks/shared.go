@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
 )
 
 const (
@@ -30,6 +31,9 @@ const (
 	ABORTED   = "ABORTED"
 	NOT_BUILD = "NOT_BUILD"
 	UNSTABLE  = "UNSTABLE"
+
+	WORKFLOW_MULTI_BRANCH_PROJECT = "org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
+	WORKFLOW_JOB                  = "org.jenkinsci.plugins.workflow.job.WorkflowJob"
 )
 
 func ignoreHTTPStatus404(res *http.Response) errors.Error {

@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -35,16 +37,25 @@ var EnrichApiBuildWithStagesMeta = plugin.SubTaskMeta{
 func EnrichApiBuildWithStages(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	db := taskCtx.GetDal()
+
 	clauses := []dal.Clause{
 		dal.Select("tjb.*"),
 		dal.From(`_tool_jenkins_builds tjb`),
 		dal.Join(`inner join _tool_jenkins_stages tjs 
-						on tjs.build_name = tjb.full_name 
-						and tjs.connection_id = tjb.connection_id`),
-		dal.Where(`tjb.connection_id = ? 
-							and tjb.job_path = ? and tjb.job_name = ?`,
-			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
+				on tjs.build_name = tjb.full_name 
+				and tjs.connection_id = tjb.connection_id`),
 	}
+
+	if data.Options.Class == WORKFLOW_MULTI_BRANCH_PROJECT {
+		clauses = append(clauses,
+			dal.Where(`tjb.connection_id = ? and tjb.full_name like ?`,
+				data.Options.ConnectionId, fmt.Sprintf("%s%%", data.Options.JobFullName)))
+	} else {
+		clauses = append(clauses,
+			dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ?`,
+				data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName))
+	}
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err

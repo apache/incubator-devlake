@@ -27,6 +27,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
+
+	api "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 func TestJenkinsJobsDataFlow(t *testing.T) {
@@ -49,6 +51,44 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/cicd_scopes.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+}
+
+func TestJenkinsMultibranchJobsDataFlow(t *testing.T) {
+	var jenkins impl.Jenkins
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "jenkins", jenkins)
+
+	taskData := &tasks.JenkinsTaskData{
+		Options: &tasks.JenkinsOptions{
+			ConnectionId: 1,
+			JobName:      `devlake-jenkins`,
+			JobFullName:  `github_org/devlake-jenkins`,
+			JobPath:      ``,
+			Class:        `org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject`,
+			ScopeConfig:  new(models.JenkinsScopeConfig),
+		},
+		Connection: &models.JenkinsConnection{
+			JenkinsConn: models.JenkinsConn{
+				RestConnection: api.RestConnection{
+					Endpoint: "https://1457-62-195-68-26.ngrok-free.app",
+				},
+			},
+		},
+	}
+
+	dataflowTester.FlushTabler(&models.JenkinsJob{})
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_jobs_multibranch.csv", "_raw_jenkins_api_jobs")
+	dataflowTester.Subtask(tasks.ExtractApiJobsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.JenkinsJob{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./raw_tables/_tool_jenkins_jobs_multibranch.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.FlushTabler(&devops.CicdScope{})
+	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_scopes_multibranch.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }
