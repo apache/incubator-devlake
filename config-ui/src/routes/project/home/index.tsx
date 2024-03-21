@@ -228,6 +228,7 @@ export const ProjectHomePage = () => {
               style={{ width: 386 }}
               placeholder="Your Project Name"
               value={name}
+              maxLength={100}
               onChange={(e) => setName(e.target.value)}
             />
           </Block>
