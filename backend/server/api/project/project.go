@@ -97,6 +97,10 @@ func PostProject(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
+	if len(projectInput.BaseProject.Name) > 100 {
+		shared.ApiOutputError(c, errors.BadInput.New("Project name is too long."))
+		return
+	}
 
 	projectOutput, err := services.CreateProject(projectInput)
 	if err != nil {
