@@ -90,6 +90,8 @@ func (p Jenkins) Name() string {
 
 func (p Jenkins) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CollectApiJobsMeta,
+		tasks.ExtractApiJobsMeta,
 		tasks.ConvertJobsMeta,
 		tasks.CollectApiBuildsMeta,
 		tasks.ExtractApiBuildsMeta,

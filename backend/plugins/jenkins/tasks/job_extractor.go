@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -26,16 +27,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
-var ExtractApiStagesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiStages",
-	EntryPoint:       ExtractApiStages,
+// this struct should be moved to `gitub_api_common.go`
+
+var ExtractApiJobsMeta = plugin.SubTaskMeta{
+	Name:             "extractApiJobs",
+	EntryPoint:       ExtractApiJobs,
 	EnabledByDefault: true,
-	Description:      "Extract raw stages data into tool layer table jenkins_stages",
+	Description:      "Extract raw jobs data into tool layer table jenkins_jobs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiStages(taskCtx plugin.SubTaskContext) errors.Error {
+func ExtractApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
+	logger := taskCtx.GetLogger()
+
+	if data.Options.Class != WORKFLOW_MULTI_BRANCH_PROJECT {
+		logger.Debug("class must be %s, got %s", WORKFLOW_MULTI_BRANCH_PROJECT, data.Options.Class)
+		return nil
+	}
+
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
@@ -43,35 +53,23 @@ func ExtractApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 				FullName:     data.Options.JobFullName,
 			},
 			Ctx:   taskCtx,
-			Table: RAW_STAGE_TABLE,
+			Table: RAW_JOB_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			body := &models.Stage{}
+			body := &models.Job{}
+
 			err := errors.Convert(json.Unmarshal(row.Data, body))
-			if err != nil {
-				return nil, err
-			}
-			input := &SimpleBuild{}
-			err = errors.Convert(json.Unmarshal(row.Input, input))
 			if err != nil {
 				return nil, err
 			}
 
 			results := make([]interface{}, 0)
+			job := body.ToJenkinsJob()
+			job.ConnectionId = data.Options.ConnectionId
+			job.ScopeConfigId = data.Options.ScopeConfigId
+			job.Path = strings.Replace(body.URL, data.Connection.Endpoint, "", 1)
 
-			stage := &models.JenkinsStage{
-				ConnectionId:        data.Options.ConnectionId,
-				ID:                  body.ID,
-				Name:                body.Name,
-				ExecNode:            body.ExecNode,
-				Status:              body.Status,
-				StartTimeMillis:     body.StartTimeMillis,
-				DurationMillis:      body.DurationMillis,
-				PauseDurationMillis: body.PauseDurationMillis,
-				BuildName:           input.FullName,
-			}
-
-			results = append(results, stage)
+			results = append(results, job)
 			return results, nil
 		},
 	})
