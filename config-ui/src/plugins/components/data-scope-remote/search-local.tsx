@@ -31,6 +31,7 @@ import * as T from './types';
 import * as S from './styled';
 
 interface Props {
+  mode: 'single' | 'multiple';
   plugin: string;
   connectionId: ID;
   config: IPluginConfig['dataScope'];
@@ -41,7 +42,7 @@ interface Props {
 
 let canceling = false;
 
-export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
+export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
   const [miller, setMiller] = useState<{
     items: McsItem<T.ResItem>[];
     loadedIds: ID[];
@@ -235,6 +236,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
           <Input prefix={<SearchOutlined />} value={query} onChange={(e) => setQuery(e.target.value)} />
         )}
         <MillerColumnsSelect
+          mode={mode}
           items={scopes}
           columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
           columnHeight={300}

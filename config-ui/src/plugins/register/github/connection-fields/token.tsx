@@ -41,7 +41,7 @@ interface Props {
   initialValue: string;
   value: string;
   error: string;
-  setValue: (value?: string) => void;
+  setValue: (value: string) => void;
   setError: (error?: string) => void;
 }
 

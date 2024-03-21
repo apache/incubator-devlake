@@ -16,19 +16,29 @@
  *
  */
 
-import styled from 'styled-components';
+import { createContext } from 'react';
 
-export const DialogWrapper = styled.div``;
+const initialValue: {
+  step: number;
+  records: Array<{
+    plugin: string;
+    connectionId: ID;
+  }>;
+  done: boolean;
+  projectName?: string;
+  plugin?: string;
+  setStep: (value: number) => void;
+  setRecords: (value: Array<{ plugin: string; connectionId: ID }>) => void;
+  setProjectName: (value: string) => void;
+  setPlugin: (value: string) => void;
+} = {
+  step: 0,
+  records: [],
+  done: false,
+  setStep: () => {},
+  setRecords: () => {},
+  setProjectName: () => {},
+  setPlugin: () => {},
+};
 
-export const Label = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-export const LabelInfo = styled.i`
-  color: #ff8b8b;
-`;
-
-export const LabelDescription = styled.p`
-  margin: 0;
-`;
+export const Context = createContext(initialValue);

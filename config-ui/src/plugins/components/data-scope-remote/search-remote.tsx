@@ -32,6 +32,7 @@ import * as T from './types';
 import * as S from './styled';
 
 interface Props {
+  mode: 'single' | 'multiple';
   plugin: string;
   connectionId: ID;
   config: IPluginConfig['dataScope'];
@@ -40,7 +41,7 @@ interface Props {
   onChange: (selectedScope: any[]) => void;
 }
 
-export const SearchRemote = ({ plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
+export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
   const [miller, setMiller] = useState<{
     items: McsItem<T.ResItem>[];
     loadedIds: ID[];
@@ -180,6 +181,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
         />
         {!searchDebounce ? (
           <MillerColumnsSelect
+            mode={mode}
             items={miller.items}
             columnCount={config.millerColumn?.columnCount ?? 1}
             columnHeight={300}
@@ -202,6 +204,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
           />
         ) : (
           <MillerColumnsSelect
+            mode={mode}
             items={search.currentItems}
             columnCount={1}
             columnHeight={300}

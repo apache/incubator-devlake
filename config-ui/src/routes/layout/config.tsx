@@ -41,14 +41,14 @@ type MenuItem = {
 
 export const menuItems: MenuItem[] = [
   {
-    key: `${PATH_PREFIX}/connections`,
-    label: 'Connections',
-    icon: <AppstoreOutlined />,
-  },
-  {
     key: `${PATH_PREFIX}/projects`,
     label: 'Projects',
     icon: <ProjectOutlined />,
+  },
+  {
+    key: `${PATH_PREFIX}/connections`,
+    label: 'Connections',
+    icon: <AppstoreOutlined />,
   },
   {
     key: `${PATH_PREFIX}/advanced`,

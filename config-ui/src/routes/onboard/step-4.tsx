@@ -16,13 +16,38 @@
  *
  */
 
-export * from './api-keys';
-export * from './blueprint';
-export * from './connection';
-export * from './db-migrate';
-export * from './error';
-export * from './layout';
-export * from './not-found';
-export * from './onboard';
-export * from './pipeline';
-export * from './project';
+import { SmileFilled } from '@ant-design/icons';
+import { theme } from 'antd';
+import styled from 'styled-components';
+
+import * as S from './styled';
+
+const Top = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 100px;
+  margin-bottom: 24px;
+  height: 70px;
+
+  span.text {
+    margin-left: 8px;
+    font-size: 20px;
+  }
+`;
+
+export const Step4 = () => {
+  const {
+    token: { green5 },
+  } = theme.useToken();
+
+  return (
+    <>
+      <Top>
+        <SmileFilled style={{ fontSize: 36, color: green5 }} />
+        <span className="text">Congratulations！You have successfully connected to your first repository!</span>
+      </Top>
+      <S.StepContent style={{ padding: 24 }}></S.StepContent>
+    </>
+  );
+};
