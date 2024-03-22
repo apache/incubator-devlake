@@ -434,7 +434,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	logger := collector.args.Ctx.GetLogger()
 	logger.Debug("fetchAsync <<< enqueueing for %s %v", apiUrl, apiQuery)
 	responseHandler := func(res *http.Response) errors.Error {
-		defer logger.Debug("fetchAsync >>> done for %s %v %v", apiUrl, apiQuery, collector.args.RequestBody)
+		defer logger.Debug("fetchAsync >>> done for %s %v", apiUrl, apiQuery)
 		logger := collector.args.Ctx.GetLogger()
 		// read body to buffer
 		body, err := io.ReadAll(res.Body)

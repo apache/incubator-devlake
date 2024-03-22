@@ -38,7 +38,7 @@ func init() {
 const RAW_JOB_TABLE = "github_api_jobs"
 
 var CollectJobsMeta = plugin.SubTaskMeta{
-	Name:             "collectJobs",
+	Name:             "Collect Job Runs",
 	EntryPoint:       CollectJobs,
 	EnabledByDefault: true,
 	Description:      "Collect Jobs data from Github action api, supports both timeFilter and diffSync.",

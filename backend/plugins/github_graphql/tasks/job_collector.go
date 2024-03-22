@@ -87,7 +87,7 @@ type SimpleWorkflowRun struct {
 }
 
 var CollectJobsMeta = plugin.SubTaskMeta{
-	Name:             "CollectJobs",
+	Name:             "Collect Job Runs",
 	EntryPoint:       CollectJobs,
 	EnabledByDefault: true,
 	Description:      "Collect Jobs(CheckRun) data from GithubGraphql api, supports both timeFilter and diffSync.",

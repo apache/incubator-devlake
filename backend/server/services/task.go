@@ -236,3 +236,70 @@ func RerunTask(taskId uint64) (*models.Task, errors.Error) {
 	rerunTask.Options = taskOption
 	return rerunTask, nil
 }
+
+// GetSubTasksInfo returns subtask list of the pipeline, only the most recently subtasks would be returned
+func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) ([]models.SubtasksInfo, errors.Error) {
+	if tx == nil {
+		tx = db
+	}
+	var tasks []*models.Task
+	err := tx.All(&tasks, dal.Where("pipeline_id = ?", pipelineId))
+	if err != nil {
+		return nil, err
+	}
+	var subtasksInfo []models.SubtasksInfo
+	for _, task := range tasks {
+		// skip org plugin step
+		if task.Plugin == "org" {
+			continue
+		}
+		subTaskResult := models.SubtasksInfo{
+			ID:           task.ID,
+			PipelineID:   task.PipelineId,
+			CreatedAt:    task.CreatedAt,
+			UpdatedAt:    task.UpdatedAt,
+			BeganAt:      *task.BeganAt,
+			FinishedAt:   *task.FinishedAt,
+			Plugin:       task.Plugin,
+			Status:       task.Status,
+			Message:      task.Message,
+			ErrorName:    task.ErrorName,
+			SpentSeconds: task.SpentSeconds,
+		}
+		if shouldSanitize {
+			taskOption, err := SanitizePluginOption(task.Plugin, task.Options)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+			subTaskResult.Options = taskOption
+		}
+
+		subtasks := []*models.Subtask{}
+		err := tx.All(&subtasks, dal.Where("task_id = ?", task.ID))
+		if err != nil {
+			return nil, err
+		}
+		for _, subtask := range subtasks {
+			t := &models.SubtaskDetails{
+				ID:              subtask.ID,
+				CreatedAt:       &subtask.CreatedAt,
+				UpdatedAt:       &subtask.UpdatedAt,
+				TaskID:          subtask.TaskID,
+				Name:            subtask.Name,
+				Number:          subtask.Number,
+				BeganAt:         subtask.BeganAt,
+				FinishedAt:      subtask.FinishedAt,
+				SpentSeconds:    subtask.SpentSeconds,
+				FinishedRecords: subtask.FinishedRecords,
+				Sequence:        subtask.Sequence,
+				IsCollector:     subtask.IsCollector,
+				IsFailed:        subtask.IsFailed,
+				Message:         subtask.Message,
+			}
+			subTaskResult.SubtaskDetails = append(subTaskResult.SubtaskDetails, t)
+		}
+		subtasksInfo = append(subtasksInfo, subTaskResult)
+	}
+
+	return subtasksInfo, nil
+}

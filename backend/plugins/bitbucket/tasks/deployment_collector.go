@@ -26,7 +26,7 @@ import (
 const RAW_DEPLOYMENT_TABLE = "bitbucket_api_deployments"
 
 var CollectApiDeploymentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiDeployments",
+	Name:             "Collect Deployments",
 	EntryPoint:       CollectApiDeployments,
 	EnabledByDefault: true,
 	Description:      "Collect deployment data from bitbucket api",

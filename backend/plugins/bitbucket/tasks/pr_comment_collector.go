@@ -26,7 +26,7 @@ import (
 const RAW_PULL_REQUEST_COMMENTS_TABLE = "bitbucket_api_pull_request_comments"
 
 var CollectApiPrCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequestsComments",
+	Name:             "Collect PR Comments",
 	EntryPoint:       CollectApiPullRequestsComments,
 	EnabledByDefault: true,
 	Required:         false,
