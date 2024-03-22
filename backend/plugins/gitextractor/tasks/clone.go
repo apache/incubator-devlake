@@ -19,19 +19,20 @@ package tasks
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
-	"strings"
 )
 
 const useGoGitInGitExtractor = "USE_GO_GIT_IN_GIT_EXTRACTOR"
 
 var CloneGitRepoMeta = plugin.SubTaskMeta{
-	Name:             "cloneGitRepo",
+	Name:             "Clone Git Repo",
 	EntryPoint:       CloneGitRepo,
 	EnabledByDefault: true,
 	Required:         true,
