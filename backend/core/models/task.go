@@ -100,8 +100,8 @@ func (Subtask) TableName() string {
 
 type SubtaskDetails struct {
 	ID              uint64     `json:"id"`
-	CreatedAt       *time.Time `json:"created_at"`
-	UpdatedAt       *time.Time `json:"updated_at"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
 	TaskID          uint64     `json:"task_id"`
 	Name            string     `json:"name"`
 	Number          int        `json:"number"`
@@ -120,8 +120,8 @@ type SubtasksInfo struct {
 	PipelineID     uint64            `json:"pipelineId"`
 	CreatedAt      time.Time         `json:"createdAt"`
 	UpdatedAt      time.Time         `json:"updatedAt"`
-	BeganAt        time.Time         `json:"beganAt"`
-	FinishedAt     any               `json:"finishedAt"`
+	BeganAt        *time.Time        `json:"beganAt"`
+	FinishedAt     *time.Time        `json:"finishedAt"`
 	Plugin         string            `json:"plugin"`
 	Options        any               `json:"options"`
 	Status         string            `json:"status"`

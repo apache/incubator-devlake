@@ -258,8 +258,8 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) ([]mode
 			PipelineID:   task.PipelineId,
 			CreatedAt:    task.CreatedAt,
 			UpdatedAt:    task.UpdatedAt,
-			BeganAt:      *task.BeganAt,
-			FinishedAt:   *task.FinishedAt,
+			BeganAt:      task.BeganAt,
+			FinishedAt:   task.FinishedAt,
 			Plugin:       task.Plugin,
 			Status:       task.Status,
 			Message:      task.Message,
@@ -282,8 +282,8 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) ([]mode
 		for _, subtask := range subtasks {
 			t := &models.SubtaskDetails{
 				ID:              subtask.ID,
-				CreatedAt:       &subtask.CreatedAt,
-				UpdatedAt:       &subtask.UpdatedAt,
+				CreatedAt:       subtask.CreatedAt,
+				UpdatedAt:       subtask.UpdatedAt,
 				TaskID:          subtask.TaskID,
 				Name:            subtask.Name,
 				Number:          subtask.Number,
