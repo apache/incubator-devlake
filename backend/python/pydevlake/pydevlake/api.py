@@ -23,8 +23,10 @@ import json
 import time
 
 import requests as req
+import requests.models
 
-from pydevlake.logger import logger
+import pydevlake.logger
+from pydevlake.logger import logger, DEBUG
 from pydevlake.model import Connection
 
 
@@ -108,8 +110,8 @@ class APIBase:
     def base_url(self) -> Optional[str]:
         return None
 
-    def send(self, request: Request):
-        request = self._apply_hooks(request, self.request_hooks())
+    def send(self, request: Request) -> Response:
+        request: Request = self._apply_hooks(request, self.request_hooks())
         if request is ABORT:
             return ABORT
 
@@ -117,7 +119,7 @@ class APIBase:
         if self.proxy:
             proxies['http'] = self.proxy
             proxies['https'] = self.proxy
-        res = self.session.get(
+        res: requests.models.Response = self.session.get(
             url=request.url,
             headers=request.headers,
             params=request.query_args,
@@ -145,11 +147,14 @@ class APIBase:
                 target = result
         return target
 
-    def get(self, *path_args, **query_args):
-        parts = [self.base_url, *path_args] if self.base_url else path_args
-        url = "/".join([str(a).strip('/') for a in parts])
+    def get(self, *path_args, **query_args) -> Response:
+        parts: list[str] = [self.base_url, *path_args] if self.base_url else path_args
+        url: str = "/".join([str(a).strip('/') for a in parts])
         req = Request(url, query_args)
-        return self.send(req)
+        resp = self.send(req)
+        if logger.isEnabledFor(DEBUG): # explicit check because logger call is potentially expensive
+            logger.debug(f'PyDevlake REST call to GET {resp.get_url_with_query_string()} responded with {resp.status} and {resp.json}')
+        return resp
 
     def request_hooks(self):
         if not hasattr(self, '_request_hooks'):
