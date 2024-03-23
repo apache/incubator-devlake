@@ -52,6 +52,7 @@ func TestAzuredevopsBuildDataFlow(t *testing.T) {
 
 	dataflowTester.FlushTabler(&models.AzuredevopsBuild{})
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_azuredevops_go_api_builds.csv", "_raw_azuredevops_go_api_builds")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_azuredevops_go_repos.csv", &models.AzuredevopsRepo{})
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 
 	// Omit the datetime columns to avoid test failures caused by the varying precision
