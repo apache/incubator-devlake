@@ -34,7 +34,7 @@ func init() {
 }
 
 var ConvertPullRequestCommitsMeta = plugin.SubTaskMeta{
-	Name:             "convertPullRequestCommits",
+	Name:             "Convert PR Commits",
 	EntryPoint:       ConvertPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_commits into  domain layer table pull_request_commits",

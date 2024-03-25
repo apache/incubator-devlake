@@ -35,7 +35,7 @@ func init() {
 }
 
 var ConvertPullRequestCommentsMeta = plugin.SubTaskMeta{
-	Name:             "convertPullRequestComments",
+	Name:             "Convert PR Comments",
 	EntryPoint:       ConvertPullRequestComments,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequestComments data from Github api",

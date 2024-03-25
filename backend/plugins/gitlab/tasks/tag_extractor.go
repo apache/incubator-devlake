@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -41,7 +42,7 @@ type GitlabApiTag struct {
 }
 
 var ExtractTagMeta = plugin.SubTaskMeta{
-	Name:             "extractApiTag",
+	Name:             "Extract Tags",
 	EntryPoint:       ExtractApiTag,
 	EnabledByDefault: false,
 	Description:      "Extract raw tag data into tool layer table GitlabTag",

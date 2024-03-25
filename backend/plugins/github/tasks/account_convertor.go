@@ -37,7 +37,7 @@ func init() {
 }
 
 var ConvertAccountsMeta = plugin.SubTaskMeta{
-	Name:             "convertAccounts",
+	Name:             "Convert Users",
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_accounts into  domain layer table accounts",

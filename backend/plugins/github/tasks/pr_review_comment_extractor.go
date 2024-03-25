@@ -36,7 +36,7 @@ func init() {
 }
 
 var ExtractApiPrReviewCommentsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPrReviewComments",
+	Name:             "Extract PR Review Comments",
 	EntryPoint:       ExtractApiPrReviewComments,
 	EnabledByDefault: true,
 	Description: "Extract raw comment data  into tool layer table github_pull_request_comments" +

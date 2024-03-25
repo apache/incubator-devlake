@@ -35,7 +35,7 @@ func init() {
 }
 
 var EnrichPullRequestIssuesMeta = plugin.SubTaskMeta{
-	Name:             "enrichPullRequestIssues",
+	Name:             "Enrich PR Issues",
 	EntryPoint:       EnrichPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Create tool layer table github_pull_request_issues from github_pull_requests",

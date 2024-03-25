@@ -32,7 +32,7 @@ func init() {
 }
 
 var ExtractApiMrCommitsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiMergeRequestsCommits",
+	Name:             "Extract MR Commits",
 	EntryPoint:       ExtractApiMergeRequestsCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests commit data into tool layer table GitlabMrCommit and GitlabCommit",

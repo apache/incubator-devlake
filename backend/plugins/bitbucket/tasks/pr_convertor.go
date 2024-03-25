@@ -31,7 +31,7 @@ import (
 )
 
 var ConvertPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "convertPullRequests",
+	Name:             "Convert Pull Requests",
 	EntryPoint:       ConvertPullRequests,
 	EnabledByDefault: true,
 	Required:         false,

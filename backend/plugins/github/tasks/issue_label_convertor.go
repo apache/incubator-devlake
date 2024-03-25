@@ -34,7 +34,7 @@ func init() {
 }
 
 var ConvertIssueLabelsMeta = plugin.SubTaskMeta{
-	Name:             "convertIssueLabels",
+	Name:             "Convert Issue Labels",
 	EntryPoint:       ConvertIssueLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issue_labels into  domain layer table issue_labels",

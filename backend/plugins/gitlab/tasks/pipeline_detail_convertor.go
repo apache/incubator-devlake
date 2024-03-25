@@ -37,7 +37,7 @@ func init() {
 }
 
 var ConvertDetailPipelineMeta = plugin.SubTaskMeta{
-	Name:             "convertDetailPipelines",
+	Name:             "Convert Detail Pipelines",
 	EntryPoint:       ConvertDetailPipelines,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_detail_pipeline into domain layer table pipeline",

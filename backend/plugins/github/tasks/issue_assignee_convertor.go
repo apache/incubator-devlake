@@ -34,7 +34,7 @@ func init() {
 }
 
 var ConvertIssueAssigneeMeta = plugin.SubTaskMeta{
-	Name:             "convertIssueAssignee",
+	Name:             "Convert Issue Assignees",
 	EntryPoint:       ConvertIssueAssignee,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table _tool_github_issue_assignees into  domain layer table issue_assignees",

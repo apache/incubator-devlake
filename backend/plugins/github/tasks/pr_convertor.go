@@ -35,7 +35,7 @@ func init() {
 }
 
 var ConvertPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "convertPullRequests",
+	Name:             "Convert Pull Requests",
 	EntryPoint:       ConvertPullRequests,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequests data from Github api",

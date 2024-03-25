@@ -33,7 +33,7 @@ func init() {
 }
 
 var ExtractApiPipelineDetailsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPipelineDetails",
+	Name:             "Extract Pipeline Details",
 	EntryPoint:       ExtractApiPipelineDetails,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipeline details data into tool layer table GitlabPipeline",
