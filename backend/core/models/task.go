@@ -135,5 +135,6 @@ type SubtasksInfo struct {
 type SubTasksOuput struct {
 	SubtasksInfo   []SubtasksInfo `json:"subtasks"`
 	CompletionRate float64        `json:"completionRate"`
+	Status         string         `json:"status"`
 	Count          int64          `json:"count"`
 }

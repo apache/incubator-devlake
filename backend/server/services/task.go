@@ -252,6 +252,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	var totalSubtasksCount int64
 	var totalFinishedSubTasksCount int64
 	var count int64
+	var status string
 	for _, task := range tasks {
 		// skip org plugin step
 		if task.Plugin == "org" {
@@ -309,6 +310,14 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 		finishedSubTasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and finished_at is not null", task.ID)))
 		totalFinishedSubTasksCount += finishedSubTasksCount
 		count++
+
+		if task.Status == models.TASK_FAILED {
+			status = models.TASK_FAILED
+		} else if task.Status == models.TASK_PARTIAL && status != models.TASK_FAILED {
+			status = models.TASK_PARTIAL
+		} else if task.Status == models.TASK_COMPLETED && status != models.TASK_FAILED && status != models.TASK_PARTIAL {
+			status = models.TASK_COMPLETED
+		}
 	}
 
 	subTasksOuput := &models.SubTasksOuput{}
@@ -319,6 +328,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
 	subTasksOuput.CompletionRate = roundedCompletionRate
 
+	subTasksOuput.Status = status
 	subTasksOuput.Count = count
 	return subTasksOuput, nil
 }
