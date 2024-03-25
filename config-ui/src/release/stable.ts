@@ -30,6 +30,13 @@ const URLS = {
       TRANSFORMATION:
         'https://devlake.apache.org/docs/Configuration/AzureDevOps#step-3---adding-transformation-rules-optional',
     },
+    AZUREDEVOPS_GO: {
+      BASIS: 'https://devlake.apache.org/docs/Configuration/AzureDevOps',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/AzureDevOps/#custom-rate-limit-optional',
+      AUTH_TOKEN: 'https://devlake.apache.org/docs/Configuration/AzureDevOps#auth-tokens',
+      TRANSFORMATION:
+        'https://devlake.apache.org/docs/Configuration/AzureDevOps#step-3---adding-transformation-rules-optional',
+    },
     BAMBOO: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/Bamboo',
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/Bamboo/#custom-rate-limit-optional',
