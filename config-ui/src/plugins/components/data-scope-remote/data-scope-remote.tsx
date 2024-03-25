@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Flex, Button } from 'antd';
 
 import API from '@/api';
@@ -27,16 +27,34 @@ import { SearchLocal } from './search-local';
 import { SearchRemote } from './search-remote';
 
 interface Props {
+  mode?: 'single' | 'multiple';
   plugin: string;
   connectionId: ID;
+  selectedScope?: any[];
   disabledScope?: any[];
-  onCancel: () => void;
-  onSubmit: (origin: any) => void;
+  onChangeSelectedScope?: (scope: any[]) => void;
+  footer?: React.ReactNode;
+  onCancel?: () => void;
+  onSubmit?: (origin: any) => void;
 }
 
-export const DataScopeRemote = ({ plugin, connectionId, disabledScope, onCancel, onSubmit }: Props) => {
+export const DataScopeRemote = ({
+  mode = 'multiple',
+  plugin,
+  connectionId,
+  disabledScope,
+  onChangeSelectedScope,
+  footer,
+  onCancel,
+  onSubmit,
+  ...props
+}: Props) => {
   const [selectedScope, setSelectedScope] = useState<any[]>([]);
   const [operating, setOperating] = useState(false);
+
+  useEffect(() => {
+    setSelectedScope(props.selectedScope ?? []);
+  }, [props.selectedScope]);
 
   const config = useMemo(() => getPluginConfig(plugin).dataScope, [plugin]);
 
@@ -50,7 +68,7 @@ export const DataScopeRemote = ({ plugin, connectionId, disabledScope, onCancel,
     );
 
     if (success) {
-      onSubmit(res);
+      onSubmit?.(res);
     }
   };
 
@@ -61,35 +79,41 @@ export const DataScopeRemote = ({ plugin, connectionId, disabledScope, onCancel,
           connectionId,
           disabledItems: disabledScope?.map((it) => ({ id: it.id })),
           selectedItems: selectedScope,
-          onChangeSelectedItems: setSelectedScope,
+          onChangeSelectedItems: onChangeSelectedScope ?? setSelectedScope,
         })
       ) : config.localSearch ? (
         <SearchLocal
+          mode={mode}
           plugin={plugin}
           connectionId={connectionId}
           config={config}
           disabledScope={disabledScope ?? []}
           selectedScope={selectedScope}
-          onChange={setSelectedScope}
+          onChange={onChangeSelectedScope ?? setSelectedScope}
         />
       ) : (
         <SearchRemote
+          mode={mode}
           plugin={plugin}
           connectionId={connectionId}
           config={config}
           disabledScope={disabledScope ?? []}
           selectedScope={selectedScope}
-          onChange={setSelectedScope}
+          onChange={onChangeSelectedScope ?? setSelectedScope}
         />
       )}
-      <Flex style={{ marginTop: 16 }} justify="flex-end" gap="small">
-        <Button disabled={operating} onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="primary" loading={operating} disabled={!selectedScope.length} onClick={handleSubmit}>
-          Save
-        </Button>
-      </Flex>
+      {footer !== undefined ? (
+        footer
+      ) : (
+        <Flex style={{ marginTop: 16 }} justify="flex-end" gap="small">
+          <Button disabled={operating} onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="primary" loading={operating} disabled={!selectedScope.length} onClick={handleSubmit}>
+            Save
+          </Button>
+        </Flex>
+      )}
     </Flex>
   );
 };

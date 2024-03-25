@@ -26,7 +26,6 @@ interface Props {
   label?: string;
   subLabel?: string;
   placeholder?: string;
-  name: string;
   initialValue: string;
   value: string;
   error: string;

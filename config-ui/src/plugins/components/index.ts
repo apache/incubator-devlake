@@ -18,6 +18,7 @@
 
 export * from './connection-form';
 export * from './connection-list';
+export * from './connection-select';
 export * from './connection-status';
 export * from './data-scope-remote';
 export * from './data-scope-select';
