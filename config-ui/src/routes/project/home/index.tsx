@@ -28,13 +28,12 @@ import { getCron, cronPresets, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
+import { OnboardCard } from '@/routes/onboard/card';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
 import { IBlueprint, IBPMode } from '@/types';
 
 import { validName } from '../utils';
-
-import * as S from './styled';
 
 export const ProjectHomePage = () => {
   const [version, setVersion] = useState(1);
@@ -119,6 +118,7 @@ export const ProjectHomePage = () => {
 
   return (
     <PageHeader breadcrumbs={[{ name: 'Projects', path: PATHS.PROJECTS() }]}>
+      <OnboardCard style={{ marginBottom: 32 }} />
       <Flex style={{ marginBottom: 16 }} justify="flex-end">
         <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           New Project
@@ -218,36 +218,33 @@ export const ProjectHomePage = () => {
         onOk={handleCreate}
         onCancel={handleHideDialog}
       >
-        <S.DialogWrapper>
-          <Block
-            title="Project Name"
-            description="Give your project a unique name with letters, numbers, -, _ or /"
-            required
-          >
-            <Input
-              style={{ width: 386 }}
-              placeholder="Your Project Name"
-              value={name}
-              maxLength={100}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </Block>
-          <Block
-            title="Project Settings"
-            description={
-              <>
-                <ExternalLink link={DOC_URL.DORA}>DORA metrics</ExternalLink>
-                <span style={{ marginLeft: 4 }}>
-                  are four widely-adopted metrics for measuring software delivery performance.
-                </span>
-              </>
-            }
-          >
-            <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
-              Enable DORA Metrics
-            </Checkbox>
-          </Block>
-        </S.DialogWrapper>
+        <Block
+          title="Project Name"
+          description="Give your project a unique name with letters, numbers, -, _ or /"
+          required
+        >
+          <Input
+            style={{ width: 386 }}
+            placeholder="Your Project Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Block>
+        <Block
+          title="Project Settings"
+          description={
+            <>
+              <ExternalLink link={DOC_URL.DORA}>DORA metrics</ExternalLink>
+              <span style={{ marginLeft: 4 }}>
+                are four widely-adopted metrics for measuring software delivery performance.
+              </span>
+            </>
+          }
+        >
+          <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
+            Enable DORA Metrics
+          </Checkbox>
+        </Block>
       </Modal>
     </PageHeader>
   );

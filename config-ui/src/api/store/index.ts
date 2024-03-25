@@ -16,13 +16,8 @@
  *
  */
 
-export * from './api-keys';
-export * from './blueprint';
-export * from './connection';
-export * from './db-migrate';
-export * from './error';
-export * from './layout';
-export * from './not-found';
-export * from './onboard';
-export * from './pipeline';
-export * from './project';
+import { request } from '@/utils';
+
+export const get = (key: string) => request(`/store/${key}`);
+
+export const set = (key: string, value: any) => request(`/store/${key}`, { method: 'PUT', data: value });

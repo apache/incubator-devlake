@@ -37,7 +37,6 @@ import {
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { operator } from '@/utils';
 
-import { layoutLoader } from './loader';
 import { menuItems, menuItemsMatch, headerItems } from './config';
 import * as S from './styled';
 import './tips-transition.css';
@@ -49,7 +48,7 @@ export const Layout = () => {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [operating, setOperating] = useState(false);
 
-  const { version, plugins } = useLoaderData() as Awaited<ReturnType<typeof layoutLoader>>;
+  const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
