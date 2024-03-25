@@ -77,7 +77,7 @@ func GetTaskByPipeline(c *gin.Context) {
 // @Tags framework/tasks
 // @Accept application/json
 // @Param pipelineId path int true "pipelineId"
-// @Success 200  {object} models.SubtasksInfo
+// @Success 200  {object} models.SubTasksOuput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /pipelines/{pipelineId}/subtasks [get]
@@ -87,13 +87,13 @@ func GetSubtaskByPipeline(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid pipeline ID format"))
 		return
 	}
-	subtasksInfo, err := services.GetSubTasksInfo(pipelineId, true, nil)
+	subTasksOuput, err := services.GetSubTasksInfo(pipelineId, true, nil)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks"))
 		return
 	}
 
-	shared.ApiOutputSuccess(c, subtasksInfo, http.StatusOK)
+	shared.ApiOutputSuccess(c, subTasksOuput, http.StatusOK)
 }
 
 // RerunTask rerun the specified task.

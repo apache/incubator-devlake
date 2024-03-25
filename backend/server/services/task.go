@@ -20,6 +20,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -238,7 +239,7 @@ func RerunTask(taskId uint64) (*models.Task, errors.Error) {
 }
 
 // GetSubTasksInfo returns subtask list of the pipeline, only the most recently subtasks would be returned
-func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) ([]models.SubtasksInfo, errors.Error) {
+func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*models.SubTasksOuput, errors.Error) {
 	if tx == nil {
 		tx = db
 	}
@@ -248,6 +249,9 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) ([]mode
 		return nil, err
 	}
 	var subtasksInfo []models.SubtasksInfo
+	var totalSubtasksCount int64
+	var totalFinishedSubTasksCount int64
+	var count int64
 	for _, task := range tasks {
 		// skip org plugin step
 		if task.Plugin == "org" {
@@ -275,7 +279,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) ([]mode
 		}
 
 		subtasks := []*models.Subtask{}
-		err := tx.All(&subtasks, dal.Where("task_id = ?", task.ID))
+		err = tx.All(&subtasks, dal.Where("task_id = ?", task.ID))
 		if err != nil {
 			return nil, err
 		}
@@ -299,7 +303,22 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) ([]mode
 			subTaskResult.SubtaskDetails = append(subTaskResult.SubtaskDetails, t)
 		}
 		subtasksInfo = append(subtasksInfo, subTaskResult)
+
+		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ?", task.ID)))
+		totalSubtasksCount += collectSubtasksCount
+		finishedSubTasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and finished_at is not null", task.ID)))
+		totalFinishedSubTasksCount += finishedSubTasksCount
+		count++
 	}
 
-	return subtasksInfo, nil
+	subTasksOuput := &models.SubTasksOuput{}
+	subTasksOuput.SubtasksInfo = subtasksInfo
+	subTasksOuput.Count = totalSubtasksCount
+
+	completionRateFloat := float64(totalFinishedSubTasksCount) / float64(totalSubtasksCount)
+	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
+	subTasksOuput.CompletionRate = roundedCompletionRate
+
+	subTasksOuput.Count = count
+	return subTasksOuput, nil
 }

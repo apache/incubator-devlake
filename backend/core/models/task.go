@@ -131,3 +131,9 @@ type SubtasksInfo struct {
 	SpentSeconds   int               `json:"spentSeconds"`
 	SubtaskDetails []*SubtaskDetails `json:"subtaskDetails"`
 }
+
+type SubTasksOuput struct {
+	SubtasksInfo   []SubtasksInfo `json:"subtasks"`
+	CompletionRate float64        `json:"completionRate"`
+	Count          int64          `json:"count"`
+}

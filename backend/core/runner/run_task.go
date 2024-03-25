@@ -261,7 +261,7 @@ func RunPluginSubTasks(
 			// subtask was disabled
 			continue
 		}
-		if strings.Contains(strings.ToLower(subtaskMeta.Name), "collect") {
+		if strings.Contains(strings.ToLower(subtaskMeta.Name), "collect") || strings.Contains(strings.ToLower(subtaskMeta.Name), "clone git repo") {
 			collectSubtaskNumber++
 			isCollector = true
 		} else {
