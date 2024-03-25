@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 21,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -47,7 +47,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "- Use Cases: This dashboard shows the basic Git and Code Review metrics from BitBucket.\n- Data Source Required: BitBucket",
+        "content": "- Use Cases: This dashboard shows the basic Git and Code Review metrics from Bitbucket.\n- Data Source Required: Bitbucket Cloud or Server/data center",
         "mode": "markdown"
       },
       "pluginVersion": "9.5.15",
@@ -103,7 +103,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
@@ -195,7 +195,7 @@
           ]
         }
       ],
-      "title": "1.1 Number of New Pull Requests [Selected Time Range]",
+      "title": "1.1 Number of New Pull Requests",
       "type": "stat"
     },
     {
@@ -232,17 +232,29 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pull Request Count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
@@ -260,14 +272,14 @@
       ],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.5,
+        "barWidth": 0.25,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -292,7 +304,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(distinct id) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in (${repo_id})\n    and $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    count(distinct id) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in (${repo_id})\n    and $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -333,7 +345,7 @@
           ]
         }
       ],
-      "title": "1.2 Total Number of New Pull Requests [Each Month]",
+      "title": "1.2 Number of New Pull Requests",
       "type": "barchart"
     },
     {
@@ -399,14 +411,14 @@
       ],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.5,
+        "barWidth": 0.25,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -472,7 +484,7 @@
           ]
         }
       ],
-      "title": "1.3 Top Contributors By Merged PRs",
+      "title": "1.3 Top 20 Contributors By Merged PRs",
       "type": "barchart"
     },
     {
@@ -519,7 +531,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 0.05
               }
             ]
           },
@@ -587,7 +599,7 @@
           ]
         }
       ],
-      "title": "2.1 Ratio of Non-merging Pull Requests of All Closed or Merged PRs",
+      "title": "2.1 Ratio of unmerged Pull Requests of All Closed or Merged PRs",
       "type": "stat"
     },
     {
@@ -601,28 +613,18 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Pull Request Count",
+            "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "opacity",
+            "fillOpacity": 80,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -639,7 +641,53 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Open"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Closed without merging"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Closed and merged"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
@@ -656,29 +704,37 @@
         }
       ],
       "options": {
+        "barRadius": 0,
+        "barWidth": 0.25,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
         "legend": {
-          "calcs": [
-            "sum"
-          ],
+          "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
         "tooltip": {
-          "mode": "multi",
+          "mode": "single",
           "sort": "none"
-        }
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
           "datasource": "mysql",
-          "format": "time_series",
+          "editorMode": "code",
+          "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'OPEN' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'CLOSED' then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'MERGED' then id else null end) as \"PR: Merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\n  with _prs as (\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    count(distinct case when status = 'OPEN' then id else null end) as open,\n    count(distinct case when status = 'CLOSED' then id else null end) as closed,\n    count(distinct case when status = 'MERGED' then id else null end) as merged\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in (${repo_id})\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  open as \"PR: Open\",\n  closed as \"PR: Closed without merging\",\n  merged as \"PR: Closed and merged\"\nFROM _prs\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -690,6 +746,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -702,8 +775,8 @@
           ]
         }
       ],
-      "title": "2.2 Pull Request Status Distribution [Each Month]",
-      "type": "timeseries"
+      "title": "2.2 Pull Request Status Distribution",
+      "type": "barchart"
     },
     {
       "datasource": "mysql",
@@ -718,11 +791,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
-              },
-              {
                 "color": "red",
-                "value": 80
+                "value": null
               }
             ]
           }
@@ -839,7 +909,7 @@
               "fill": "solid"
             },
             "lineWidth": 1,
-            "pointSize": 4,
+            "pointSize": 10,
             "scaleDistribution": {
               "type": "linear"
             },
@@ -858,7 +928,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -887,7 +958,7 @@
           ],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -898,12 +969,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('MERGED', 'CLOSED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('MERGED', 'CLOSED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -915,6 +987,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -927,7 +1016,7 @@
           ]
         }
       ],
-      "title": "2.4 Ratio of Non-merging PRs of All Closed or Merged PRs [Each Month]",
+      "title": "2.4 Ratio of Non-merging PRs of All Closed or Merged PRs",
       "type": "timeseries"
     },
     {
@@ -943,14 +1032,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -1016,7 +1107,7 @@
           ]
         }
       ],
-      "title": "2.5 Mean Time to Merge of Pull Requests in Days [Selected Time Range]",
+      "title": "2.5 Mean Time to Merge of Pull Requests",
       "type": "stat"
     },
     {
@@ -1053,14 +1144,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -1087,7 +1180,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -1106,12 +1199,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in (${repo_id})\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in (${repo_id})\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -1123,6 +1217,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1135,7 +1246,7 @@
           ]
         }
       ],
-      "title": "2.6 Mean Time to Merge of Pull Requests in Days [Each Month]",
+      "title": "2.6 Mean Time to Merge of Pull Requests",
       "type": "barchart"
     },
     {
@@ -1206,6 +1317,34 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "Month",
+          "value": "DAYOFMONTH"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "DAYOFMONTH"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "WEEKDAY"
+          }
+        ],
+        "query": "Month : DAYOFMONTH, Week : WEEKDAY",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
       }
     ]
   },
@@ -1217,6 +1356,6 @@
   "timezone": "",
   "title": "Bitbucket",
   "uid": "4LzQHZa4k",
-  "version": 3,
+  "version": 5,
   "weekStart": ""
 }
