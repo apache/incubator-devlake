@@ -252,7 +252,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	var totalSubtasksCount int64
 	var totalFinishedSubTasksCount int64
 	var count int64
-	var status string
+	var status []string
 	for _, task := range tasks {
 		// skip org plugin step
 		if task.Plugin == "org" {
@@ -311,13 +311,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 		totalFinishedSubTasksCount += finishedSubTasksCount
 		count++
 
-		if task.Status == models.TASK_FAILED {
-			status = models.TASK_FAILED
-		} else if task.Status == models.TASK_PARTIAL && status != models.TASK_FAILED {
-			status = models.TASK_PARTIAL
-		} else if task.Status == models.TASK_COMPLETED && status != models.TASK_FAILED && status != models.TASK_PARTIAL {
-			status = models.TASK_COMPLETED
-		}
+		status = append(status, task.Status)
 	}
 
 	subTasksOuput := &models.SubTasksOuput{}
@@ -328,7 +322,36 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
 	subTasksOuput.CompletionRate = roundedCompletionRate
 
-	subTasksOuput.Status = status
+	subTasksOuput.Status = getTaskStatus(status)
 	subTasksOuput.Count = count
+
 	return subTasksOuput, nil
+}
+
+func getTaskStatus(statuses []string) string {
+	var status string
+	if len(statuses) == 0 {
+		return status
+	}
+
+	failedCount := 0
+	completedCount := 0
+	for _, s := range statuses {
+		if s == models.TASK_FAILED {
+			failedCount++
+		} else if s == models.TASK_COMPLETED {
+			completedCount++
+		}
+	}
+	if failedCount > 0 && completedCount > 0 {
+		status = "TASK_PARTIAL"
+	} else if failedCount == len(statuses) {
+		status = models.TASK_FAILED
+	} else if completedCount == len(statuses) {
+		status = models.TASK_COMPLETED
+	} else {
+		status = models.TASK_RUNNING
+	}
+
+	return status
 }
