@@ -1826,10 +1826,7 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "1. Mean Pipeline Runs success rate over time.\n2. The Pipeline runs being calculated are filtered by \"workflow runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
