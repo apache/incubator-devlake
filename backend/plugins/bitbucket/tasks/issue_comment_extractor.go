@@ -46,7 +46,7 @@ type BitbucketIssueCommentsResponse struct {
 }
 
 var ExtractApiIssueCommentsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiIssueComments",
+	Name:             "Extract Issue Comments",
 	EntryPoint:       ExtractApiIssueComments,
 	EnabledByDefault: true,
 	Required:         false,

@@ -31,7 +31,7 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractPrs
 
 var ExtractPrsMeta = plugin.SubTaskMeta{
-	Name:             "extractPrs",
+	Name:             "Extract Pull Requests",
 	EntryPoint:       ExtractPrs,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",

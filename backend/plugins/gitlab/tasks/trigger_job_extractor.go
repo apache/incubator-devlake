@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"time"
 )
 
 func init() {
@@ -46,7 +47,7 @@ type ApiTriggerJob struct {
 }
 
 var ExtractApiTriggerJobsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiTriggerJobs",
+	Name:             "Extract Trigger Jobs",
 	EntryPoint:       ExtractApiTriggerJobs,
 	EnabledByDefault: true,
 	Description:      "Extract raw Gitlab trigger jobs data into tool layer table GitlabPipeline",

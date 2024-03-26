@@ -110,5 +110,6 @@ func All() []plugin.MigrationScript {
 		new(addOriginalEnvironmentToCicdDeploymentsAndCicdDeploymentCommits),
 		new(addSubtabknameToDeployment),
 		new(addStore),
+		new(addSubtaskField),
 	}
 }

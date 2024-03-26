@@ -35,7 +35,7 @@ func init() {
 }
 
 var ConvertApiMergeRequestsMeta = plugin.SubTaskMeta{
-	Name:             "convertApiMergeRequests",
+	Name:             "Convert Merge Requests",
 	EntryPoint:       ConvertApiMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Add domain layer PullRequest according to GitlabMergeRequest",

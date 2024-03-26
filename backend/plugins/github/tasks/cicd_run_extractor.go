@@ -32,7 +32,7 @@ func init() {
 }
 
 var ExtractRunsMeta = plugin.SubTaskMeta{
-	Name:             "extractRuns",
+	Name:             "Extract Workflow Runs",
 	EntryPoint:       ExtractRuns,
 	EnabledByDefault: true,
 	Description:      "Extract raw run data into tool layer table github_runs",

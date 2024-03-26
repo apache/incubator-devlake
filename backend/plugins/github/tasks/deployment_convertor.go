@@ -39,7 +39,7 @@ const (
 )
 
 var ConvertDeploymentsMeta = plugin.SubTaskMeta{
-	Name:             "ConvertDeployments",
+	Name:             "Convert Deployments",
 	EntryPoint:       ConvertDeployment,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_deployments into domain layer table deployment",

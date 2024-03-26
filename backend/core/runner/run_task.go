@@ -246,6 +246,44 @@ func RunPluginSubTasks(
 	taskCtx.SetSyncPolicy(syncPolicy)
 	taskCtx.SetData(taskData)
 
+	// record subtasks sequence to DB
+	collectSubtaskNumber := 0
+	otherSubtaskNumber := 0
+	isCollector := false
+	subtask := []models.Subtask{}
+	for _, subtaskMeta := range subtaskMetas {
+		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
+		if err != nil {
+			// sth went wrong
+			return errors.Default.Wrap(err, fmt.Sprintf("error getting context subtask %s", subtaskMeta.Name))
+		}
+		if subtaskCtx == nil {
+			// subtask was disabled
+			continue
+		}
+		if strings.Contains(strings.ToLower(subtaskMeta.Name), "collect") || strings.Contains(strings.ToLower(subtaskMeta.Name), "clone git repo") {
+			collectSubtaskNumber++
+			isCollector = true
+		} else {
+			otherSubtaskNumber++
+			isCollector = false
+		}
+		s := models.Subtask{
+			Name:        subtaskCtx.GetName(),
+			TaskID:      task.ID,
+			IsCollector: isCollector,
+		}
+		if isCollector {
+			s.Sequence = collectSubtaskNumber
+		} else {
+			s.Sequence = otherSubtaskNumber
+		}
+		subtask = append(subtask, s)
+	}
+	if err := basicRes.GetDal().CreateOrUpdate(subtask); err != nil {
+		basicRes.GetLogger().Error(err, "error writing subtask list to DB")
+	}
+
 	// execute subtasks in order
 	taskCtx.SetProgress(0, steps)
 	subtaskNumber := 0
@@ -259,7 +297,6 @@ func RunPluginSubTasks(
 			// subtask was disabled
 			continue
 		}
-
 		// run subtask
 		logger.Info("executing subtask %s", subtaskMeta.Name)
 		subtaskNumber++
@@ -274,6 +311,13 @@ func RunPluginSubTasks(
 		if err != nil {
 			err = errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
 			logger.Error(err, "")
+			where := dal.Where("task_id = ? and name = ?", task.ID, subtaskCtx.GetName())
+			if err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
+				{ColumnName: "is_failed", Value: 1},
+				{ColumnName: "message", Value: err.Error()},
+			}, where); err != nil {
+				basicRes.GetLogger().Error(err, "error writing subtask %v status to DB", subtaskCtx.GetName())
+			}
 			return err
 		}
 		taskCtx.IncProgress(1)
@@ -286,6 +330,7 @@ func RunPluginSubTasks(
 func UpdateProgressDetail(basicRes context.BasicRes, taskId uint64, progressDetail *models.TaskProgressDetail, p *plugin.RunningProgress) {
 	task := &models.Task{}
 	task.ID = taskId
+	subtask := &models.Subtask{}
 	switch p.Type {
 	case plugin.TaskSetProgress:
 		progressDetail.TotalSubTasks = p.Total
@@ -307,6 +352,14 @@ func UpdateProgressDetail(basicRes context.BasicRes, taskId uint64, progressDeta
 		progressDetail.SubTaskName = p.SubTaskName
 		progressDetail.SubTaskNumber = p.SubTaskNumber
 	}
+	// update subtask progress
+	where := dal.Where("task_id = ? and name = ?", taskId, progressDetail.SubTaskName)
+	err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
+		{ColumnName: "finished_records", Value: progressDetail.FinishedRecords},
+	}, where)
+	if err != nil {
+		basicRes.GetLogger().Error(err, "failed to update _devlake_subtasks progress")
+	}
 }
 
 func runSubtask(
@@ -323,17 +376,27 @@ func runSubtask(
 		Number:  subtaskNumber,
 		BeganAt: &beginAt,
 	}
+	recordSubtask(basicRes, subtask)
+	// defer to record subtask status
 	defer func() {
 		finishedAt := time.Now()
 		subtask.FinishedAt = &finishedAt
 		subtask.SpentSeconds = finishedAt.Unix() - beginAt.Unix()
+
 		recordSubtask(basicRes, subtask)
 	}()
 	return entryPoint(ctx)
 }
 
 func recordSubtask(basicRes context.BasicRes, subtask *models.Subtask) {
-	if err := basicRes.GetDal().Create(subtask); err != nil {
+	where := dal.Where("task_id = ? and name = ?", subtask.TaskID, subtask.Name)
+	if err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
+		{ColumnName: "began_at", Value: subtask.BeganAt},
+		{ColumnName: "finished_at", Value: subtask.FinishedAt},
+		{ColumnName: "spent_seconds", Value: subtask.SpentSeconds},
+		{ColumnName: "finished_records", Value: subtask.FinishedRecords},
+		{ColumnName: "number", Value: subtask.Number},
+	}, where); err != nil {
 		basicRes.GetLogger().Error(err, "error writing subtask %d status to DB: %v", subtask.ID)
 	}
 }

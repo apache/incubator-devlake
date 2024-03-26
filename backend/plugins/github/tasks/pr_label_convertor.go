@@ -34,7 +34,7 @@ func init() {
 }
 
 var ConvertPullRequestLabelsMeta = plugin.SubTaskMeta{
-	Name:             "convertPullRequestLabels",
+	Name:             "Convert PR Labels",
 	EntryPoint:       ConvertPullRequestLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_labels into  domain layer table pull_request_labels",

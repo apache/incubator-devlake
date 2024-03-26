@@ -35,7 +35,7 @@ func init() {
 }
 
 var CollectApiIssuesMeta = plugin.SubTaskMeta{
-	Name:             "collectApiIssues",
+	Name:             "Collect Issues",
 	EntryPoint:       CollectApiIssues,
 	EnabledByDefault: true,
 	Description:      "Collect issues data from Github api, supports both timeFilter and diffSync.",

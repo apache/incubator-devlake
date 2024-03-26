@@ -36,11 +36,13 @@ const (
 )
 
 type RunningProgress struct {
-	Type          ProgressType
-	Current       int
-	Total         int
-	SubTaskName   string
-	SubTaskNumber int
+	Type                 ProgressType
+	Current              int
+	Total                int
+	SubTaskName          string
+	SubTaskNumber        int
+	CollectSubtaskNumber int
+	OtherSubtaskNumber   int
 } // nolint
 
 // ExecContext This interface define all resources that needed for task/subtask execution

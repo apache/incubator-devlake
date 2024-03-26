@@ -36,12 +36,14 @@ const (
 var PendingTaskStatus = []string{TASK_CREATED, TASK_RERUN, TASK_RUNNING}
 
 type TaskProgressDetail struct {
-	TotalSubTasks    int    `json:"totalSubTasks"`
-	FinishedSubTasks int    `json:"finishedSubTasks"`
-	TotalRecords     int    `json:"totalRecords"`
-	FinishedRecords  int    `json:"finishedRecords"`
-	SubTaskName      string `json:"subTaskName"`
-	SubTaskNumber    int    `json:"subTaskNumber"`
+	TotalSubTasks        int    `json:"totalSubTasks"`
+	FinishedSubTasks     int    `json:"finishedSubTasks"`
+	TotalRecords         int    `json:"totalRecords"`
+	FinishedRecords      int    `json:"finishedRecords"`
+	SubTaskName          string `json:"subTaskName"`
+	SubTaskNumber        int    `json:"subTaskNumber"`
+	CollectSubtaskNumber int    `json:"collectSubtaskNumber"`
+	OtherSubtaskNumber   int    `json:"otherSubtaskNumber"`
 }
 
 type NewTask struct {
@@ -79,14 +81,60 @@ func (Task) TableName() string {
 
 type Subtask struct {
 	common.Model
-	TaskID       uint64     `json:"task_id" gorm:"index"`
-	Name         string     `json:"name" gorm:"index"`
-	Number       int        `json:"number"`
-	BeganAt      *time.Time `json:"beganAt"`
-	FinishedAt   *time.Time `json:"finishedAt" gorm:"index"`
-	SpentSeconds int64      `json:"spentSeconds"`
+	TaskID          uint64     `json:"task_id" gorm:"index"`
+	Name            string     `json:"name" gorm:"index"`
+	Number          int        `json:"number"`
+	BeganAt         *time.Time `json:"beganAt"`
+	FinishedAt      *time.Time `json:"finishedAt" gorm:"index"`
+	SpentSeconds    int64      `json:"spentSeconds"`
+	FinishedRecords int        `json:"finishedRecords"`
+	Sequence        int        `json:"sequence"`
+	IsCollector     bool       `json:"isCollector"`
+	IsFailed        bool       `json:"isFailed"`
+	Message         string     `json:"message"`
 }
 
 func (Subtask) TableName() string {
 	return "_devlake_subtasks"
+}
+
+type SubtaskDetails struct {
+	ID              uint64     `json:"id"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	TaskID          uint64     `json:"task_id"`
+	Name            string     `json:"name"`
+	Number          int        `json:"number"`
+	BeganAt         *time.Time `json:"began_at"`
+	FinishedAt      *time.Time `json:"finished_at"`
+	SpentSeconds    int64      `json:"spent_seconds"`
+	FinishedRecords int        `json:"finished_records"`
+	Sequence        int        `json:"sequence"`
+	IsCollector     bool       `json:"is_collector"`
+	IsFailed        bool       `json:"is_failed"`
+	Message         string     `json:"message"`
+}
+
+type SubtasksInfo struct {
+	ID             uint64            `json:"id"`
+	PipelineID     uint64            `json:"pipelineId"`
+	CreatedAt      time.Time         `json:"createdAt"`
+	UpdatedAt      time.Time         `json:"updatedAt"`
+	BeganAt        *time.Time        `json:"beganAt"`
+	FinishedAt     *time.Time        `json:"finishedAt"`
+	Plugin         string            `json:"plugin"`
+	Options        any               `json:"options"`
+	Status         string            `json:"status"`
+	FailedSubTask  string            `json:"failedSubTask"`
+	Message        string            `json:"message"`
+	ErrorName      string            `json:"errorName"`
+	SpentSeconds   int               `json:"spentSeconds"`
+	SubtaskDetails []*SubtaskDetails `json:"subtaskDetails"`
+}
+
+type SubTasksOuput struct {
+	SubtasksInfo   []SubtasksInfo `json:"subtasks"`
+	CompletionRate float64        `json:"completionRate"`
+	Status         string         `json:"status"`
+	Count          int64          `json:"count"`
 }

@@ -32,7 +32,7 @@ func init() {
 }
 
 var ExtractApiCommitsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiCommits",
+	Name:             "Extract Commits",
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: false,
 	Description:      "Extract raw commit data into tool layer table github_commits",

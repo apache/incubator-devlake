@@ -31,7 +31,7 @@ func init() {
 const RAW_COMMIT_TABLE = "gitlab_api_commit"
 
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiCommits",
+	Name:             "Collect Commits",
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: false,
 	Description:      "Collect commit data from gitlab api, does not support either timeFilter or diffSync.",

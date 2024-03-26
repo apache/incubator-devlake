@@ -36,7 +36,7 @@ func init() {
 const RAW_ISSUE_TABLE = "gitlab_api_issues"
 
 var CollectApiIssuesMeta = plugin.SubTaskMeta{
-	Name:             "collectApiIssues",
+	Name:             "Collect Issues",
 	EntryPoint:       CollectApiIssues,
 	EnabledByDefault: true,
 	Description:      "Collect issues data from Gitlab api, supports both timeFilter and diffSync.",

@@ -34,7 +34,7 @@ func init() {
 const RAW_MERGE_REQUEST_DETAIL_TABLE = "gitlab_api_merge_request_details"
 
 var CollectApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiMergeRequestDetails",
+	Name:             "Collect MR Details",
 	EntryPoint:       CollectApiMergeRequestDetails,
 	EnabledByDefault: true,
 	Description:      "Collect merge request Details data from gitlab api, supports timeFilter but not diffSync.",

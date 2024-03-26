@@ -59,7 +59,7 @@ type GitlabApiProject struct {
 }
 
 var ConvertProjectMeta = plugin.SubTaskMeta{
-	Name:             "convertApiProject",
+	Name:             "Convert Projects",
 	EntryPoint:       ConvertApiProjects,
 	EnabledByDefault: true,
 	Description:      "Add domain layer Repo according to GitlabProject",

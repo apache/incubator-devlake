@@ -19,15 +19,16 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"time"
 )
 
 var ExtractApiCommitsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiCommits",
+	Name:             "Extract Commits",
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: false,
 	Required:         false,

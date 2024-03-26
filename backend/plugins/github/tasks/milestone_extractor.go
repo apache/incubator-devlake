@@ -32,7 +32,7 @@ func init() {
 }
 
 var ExtractMilestonesMeta = plugin.SubTaskMeta{
-	Name:             "extractMilestones",
+	Name:             "Extract Milestones",
 	EntryPoint:       ExtractMilestones,
 	EnabledByDefault: true,
 	Description:      "Extract raw milestone data into tool layer table github_milestones",

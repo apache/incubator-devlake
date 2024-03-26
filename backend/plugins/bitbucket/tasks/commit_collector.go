@@ -26,7 +26,7 @@ import (
 const RAW_COMMIT_TABLE = "bitbucket_api_commits"
 
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiCommits",
+	Name:             "Collect Commits",
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: false,
 	Required:         false,

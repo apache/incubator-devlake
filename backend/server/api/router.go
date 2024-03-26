@@ -48,6 +48,7 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.GET("/pipelines/:pipelineId", pipelines.Get)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.GetTaskByPipeline)
+	r.GET("/pipelines/:pipelineId/subtasks", task.GetSubtaskByPipeline)
 	r.POST("/pipelines/:pipelineId/rerun", pipelines.PostRerun)
 	r.GET("/pipelines/:pipelineId/logging.tar.gz", pipelines.DownloadLogs)
 

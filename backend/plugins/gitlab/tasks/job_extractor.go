@@ -51,7 +51,7 @@ type ApiJob struct {
 }
 
 var ExtractApiJobsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiJobs",
+	Name:             "Extract Job Runs",
 	EntryPoint:       ExtractApiJobs,
 	EnabledByDefault: true,
 	Description:      "Extract raw GitlabJob data into tool layer table GitlabPipeline",

@@ -32,7 +32,7 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractAccounts
 
 var ExtractJobsMeta = plugin.SubTaskMeta{
-	Name:             "extractJobs",
+	Name:             "Extract Jobs",
 	EntryPoint:       ExtractJobs,
 	EnabledByDefault: true,
 	Description:      "Extract raw run data into tool layer table github_jobs",

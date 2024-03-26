@@ -31,7 +31,7 @@ import (
 )
 
 var ConvertPrCommentsMeta = plugin.SubTaskMeta{
-	Name:             "convertPullRequestComments",
+	Name:             "Convert PR Comments",
 	EntryPoint:       ConvertPullRequestComments,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequestComments data from Bitbucket api",

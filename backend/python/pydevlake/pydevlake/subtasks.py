@@ -34,7 +34,8 @@ class Subtask:
 
     @property
     def name(self):
-        return f'{self.verb.lower()}{self.stream.plugin_name.capitalize()}{self.stream.name.capitalize()}'
+        #return f'{self.verb.lower()}{self.stream.plugin_name.capitalize()}{self.stream.name.capitalize()}'
+        return f'{self.verb.capitalize()} {self.stream.name.capitalize()}'
 
     @property
     def description(self):

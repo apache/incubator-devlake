@@ -39,7 +39,7 @@ func init() {
 const RAW_COMMIT_STATS_TABLE = "github_api_commit_stats"
 
 var CollectApiCommitStatsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiCommitStats",
+	Name:             "Collect Commit Stats",
 	EntryPoint:       CollectApiCommitStats,
 	EnabledByDefault: false,
 	Description:      "Collect commitStats data from Github api, does not support either timeFilter or diffSync.",
