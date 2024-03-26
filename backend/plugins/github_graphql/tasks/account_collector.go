@@ -58,7 +58,7 @@ type GraphqlQueryAccount struct {
 }
 
 var CollectAccountMeta = plugin.SubTaskMeta{
-	Name:             "CollectAccount",
+	Name:             "Collect Users",
 	EntryPoint:       CollectAccount,
 	EnabledByDefault: true,
 	Description:      "Collect Account data from GithubGraphql api, does not support either timeFilter or diffSync.",

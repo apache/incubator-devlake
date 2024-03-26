@@ -61,7 +61,7 @@ type ApiPipeline struct {
 }
 
 var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPipelines",
+	Name:             "Extract Pipelines",
 	EntryPoint:       ExtractApiPipelines,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",

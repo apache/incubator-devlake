@@ -116,7 +116,7 @@ func getGitRepo(subTaskCtx plugin.SubTaskContext) parser.RepoCollector {
 }
 
 var CollectGitCommitMeta = plugin.SubTaskMeta{
-	Name:             "collectGitCommits",
+	Name:             "Collect Commits",
 	EntryPoint:       CollectGitCommits,
 	EnabledByDefault: true,
 	Description:      "collect git commits into Domain Layer Tables",
@@ -125,7 +125,7 @@ var CollectGitCommitMeta = plugin.SubTaskMeta{
 }
 
 var CollectGitBranchMeta = plugin.SubTaskMeta{
-	Name:             "collectGitBranches",
+	Name:             "Collect Branches",
 	EntryPoint:       CollectGitBranches,
 	EnabledByDefault: true,
 	Description:      "collect git branch into Domain Layer Tables",
@@ -134,7 +134,7 @@ var CollectGitBranchMeta = plugin.SubTaskMeta{
 }
 
 var CollectGitTagMeta = plugin.SubTaskMeta{
-	Name:             "collectGitTags",
+	Name:             "Collect Tags",
 	EntryPoint:       CollectGitTags,
 	EnabledByDefault: true,
 	Description:      "collect git tag into Domain Layer Tables",
@@ -143,7 +143,7 @@ var CollectGitTagMeta = plugin.SubTaskMeta{
 }
 
 var CollectGitDiffLineMeta = plugin.SubTaskMeta{
-	Name:             "collectDiffLine",
+	Name:             "Collect DiffLine",
 	EntryPoint:       CollectGitDiffLines,
 	EnabledByDefault: false,
 	Description:      "collect git commit diff line into Domain Layer Tables",

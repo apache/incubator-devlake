@@ -71,7 +71,7 @@ type GraphqlQueryIssue struct {
 }
 
 var CollectIssuesMeta = plugin.SubTaskMeta{
-	Name:             "CollectIssues",
+	Name:             "Collect Issues",
 	EntryPoint:       CollectIssues,
 	EnabledByDefault: true,
 	Description:      "Collect Issue data from GithubGraphql api, supports both timeFilter and diffSync.",

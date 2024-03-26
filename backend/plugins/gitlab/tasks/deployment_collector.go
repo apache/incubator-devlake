@@ -39,7 +39,7 @@ func init() {
 }
 
 var CollectDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "CollectDeployment",
+	Name:             "Collect Deployments",
 	EntryPoint:       CollectDeployment,
 	EnabledByDefault: true,
 	Description:      "Collect gitlab deployment from api into raw layer table",

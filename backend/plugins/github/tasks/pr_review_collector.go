@@ -40,7 +40,7 @@ const RAW_PR_REVIEW_TABLE = "github_api_pull_request_reviews"
 // this struct should be moved to `gitub_api_common.go`
 
 var CollectApiPullRequestReviewsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequestReviews",
+	Name:             "Collect PR Reviews",
 	EntryPoint:       CollectApiPullRequestReviews,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestReviews data from Github api, supports both timeFilter and diffSync.",

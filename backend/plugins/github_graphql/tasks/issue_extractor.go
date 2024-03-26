@@ -33,7 +33,7 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractAccounts
 
 var ExtractIssuesMeta = plugin.SubTaskMeta{
-	Name:             "extractIssues",
+	Name:             "Extract Issues",
 	EntryPoint:       ExtractIssues,
 	EnabledByDefault: true,
 	Description:      "Extract raw Issues data into tool layer table github_issues",

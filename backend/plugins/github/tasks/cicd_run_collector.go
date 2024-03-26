@@ -47,7 +47,7 @@ type SimpleGithubApiJob struct {
 }
 
 var CollectRunsMeta = plugin.SubTaskMeta{
-	Name:             "collectRuns",
+	Name:             "Collect Workflow Runs",
 	EntryPoint:       CollectRuns,
 	EnabledByDefault: true,
 	Description:      "Collect Runs data from Github action api, supports both timeFilter and diffSync.",

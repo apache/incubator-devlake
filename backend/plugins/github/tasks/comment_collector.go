@@ -35,7 +35,7 @@ func init() {
 const RAW_COMMENTS_TABLE = "github_api_comments"
 
 var CollectApiCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiComments",
+	Name:             "Collect Comments",
 	EntryPoint:       CollectApiComments,
 	EnabledByDefault: true,
 	Description:      "Collect comments data from Github api, supports both timeFilter and diffSync.",

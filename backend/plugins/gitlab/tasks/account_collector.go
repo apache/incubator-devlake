@@ -38,7 +38,7 @@ func init() {
 const RAW_USER_TABLE = "gitlab_api_users"
 
 var CollectAccountsMeta = plugin.SubTaskMeta{
-	Name:             "collectAccounts",
+	Name:             "Collect Users",
 	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
 	Description:      "collect gitlab users, does not support either timeFilter or diffSync.",

@@ -35,7 +35,7 @@ func init() {
 const RAW_COMMIT_TABLE = "github_api_commits"
 
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiCommits",
+	Name:             "Collect Commits",
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: false,
 	Description:      "Collect commits data from Github api, supports both timeFilter and diffSync.",

@@ -40,7 +40,7 @@ func init() {
 const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
 
 var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequests",
+	Name:             "Collect Pull Requests",
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequests data from Github api, supports both timeFilter and diffSync.",

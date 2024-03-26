@@ -18,13 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
-	"time"
 )
 
 func init() {
@@ -32,7 +33,7 @@ func init() {
 }
 
 var EnrichMergeRequestsMeta = plugin.SubTaskMeta{
-	Name:             "enrichMrs",
+	Name:             "Enrich  Merge Requests",
 	EntryPoint:       EnrichMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Enrich merge requests data from GitlabCommit, GitlabMrNote and GitlabMergeRequest",

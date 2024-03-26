@@ -77,7 +77,7 @@ type Reviewer struct {
 }
 
 var ExtractApiMergeRequestsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiMergeRequests",
+	Name:             "Extract Merge Requests",
 	EntryPoint:       ExtractApiMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests data into tool layer table GitlabMergeRequest and GitlabReviewer",

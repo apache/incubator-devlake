@@ -49,7 +49,7 @@ type MergeRequestNote struct {
 }
 
 var ExtractApiMrNotesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiMergeRequestsNotes",
+	Name:             "Extract MR Notes",
 	EntryPoint:       ExtractApiMergeRequestsNotes,
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests notes data into tool layer table GitlabMrNote",

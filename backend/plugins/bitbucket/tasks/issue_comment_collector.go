@@ -26,7 +26,7 @@ import (
 const RAW_ISSUE_COMMENTS_TABLE = "bitbucket_api_issue_comments"
 
 var CollectApiIssueCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiIssueComments",
+	Name:             "Collect Issue Comments",
 	EntryPoint:       CollectApiIssueComments,
 	EnabledByDefault: true,
 	Required:         false,

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -70,7 +71,7 @@ type BitbucketApiPipeline struct {
 }
 
 var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPipelines",
+	Name:             "Extract Pipelines",
 	EntryPoint:       ExtractApiPipelines,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipelines data into tool layer table BitbucketPipeline",

@@ -40,7 +40,7 @@ import (
 const RAW_REPOSITORIES_TABLE = "bitbucket_api_repositories"
 
 var ConvertRepoMeta = plugin.SubTaskMeta{
-	Name:             "convertRepo",
+	Name:             "Convert Repos",
 	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table bitbucket_repos into  domain layer table repos and boards",
