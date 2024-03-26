@@ -248,12 +248,13 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	if err != nil {
 		return nil, err
 	}
+	filterTasks := filterTasks(tasks)
 	var subtasksInfo []models.SubtasksInfo
 	var totalSubtasksCount int64
 	var totalFinishedSubTasksCount int64
 	var count int64
 	var status []string
-	for _, task := range tasks {
+	for _, task := range filterTasks {
 		// skip org plugin step
 		if task.Plugin == "org" {
 			continue
@@ -326,6 +327,31 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	subTasksOuput.Count = count
 
 	return subTasksOuput, nil
+}
+
+func filterTasks(tasks []*models.Task) []*models.Task {
+	taskMap := make(map[string]*models.Task)
+
+	for _, task := range tasks {
+		if task.Plugin == "org" {
+			continue
+		}
+
+		if existingTask, ok := taskMap[task.Plugin]; ok {
+			if task.BeganAt != nil && (existingTask.BeganAt == nil || task.BeganAt.After(*existingTask.BeganAt)) {
+				taskMap[task.Plugin] = task
+			}
+		} else {
+			taskMap[task.Plugin] = task
+		}
+	}
+
+	var filteredTasks []*models.Task
+	for _, task := range taskMap {
+		filteredTasks = append(filteredTasks, task)
+	}
+
+	return filteredTasks
 }
 
 func getTaskStatus(statuses []string) string {
