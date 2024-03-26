@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 7,
+  "id": 20,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -103,15 +103,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -195,7 +192,7 @@
           ]
         }
       ],
-      "title": "1.1 Number of New Pull Requests [Selected Time Range]",
+      "title": "1.1 Number of New Pull Requests",
       "type": "stat"
     },
     {
@@ -232,17 +229,29 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pull Request Count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
@@ -267,7 +276,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -292,7 +301,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(distinct id) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in (${repo_id})\n    and $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    count(distinct id) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in (${repo_id})\n    and $__timeFilter(created_date)\n    -- Enable the following condition to remove the month with incomplete data\n    -- and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -333,7 +342,7 @@
           ]
         }
       ],
-      "title": "1.2 Total Number of New Pull Requests [Each Month]",
+      "title": "1.2 Number of New Pull Requests",
       "type": "barchart"
     },
     {
@@ -406,7 +415,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -519,7 +528,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 0.05
               }
             ]
           },
@@ -587,7 +596,7 @@
           ]
         }
       ],
-      "title": "2.1 Ratio of Non-merging Pull Requests of All Closed or Merged PRs",
+      "title": "2.1 Ratio of unmerged Pull Requests of All Closed or Merged PRs",
       "type": "stat"
     },
     {
@@ -601,28 +610,18 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Pull Request Count",
+            "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "opacity",
+            "fillOpacity": 80,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -639,7 +638,53 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Open"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Closed without merging"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Closed and merged"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
@@ -656,29 +701,40 @@
         }
       ],
       "options": {
+        "barRadius": 0,
+        "barWidth": 0.25,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
         "legend": {
-          "calcs": [
-            "sum"
-          ],
+          "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
+        "text": {
+          "valueSize": 12
+        },
         "tooltip": {
-          "mode": "multi",
+          "mode": "single",
           "sort": "none"
-        }
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
           "datasource": "mysql",
-          "format": "time_series",
+          "editorMode": "code",
+          "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'OPEN' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'CLOSED' then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'MERGED' then id else null end) as \"PR: Merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nwith _prs as (\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    count(distinct case when status = 'OPEN' then id else null end) as open,\n    count(distinct case when status = 'CLOSED' then id else null end) as closed,\n    count(distinct case when status = 'MERGED' then id else null end) as merged\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    -- Enable the following condition to remove the month with incomplete data\n    -- and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and base_repo_id in (${repo_id})\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  open as \"PR: Open\",\n  closed as \"PR: Closed without merging\",\n  merged as \"PR: Closed and merged\"\nFROM _prs\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -690,6 +746,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -702,8 +775,8 @@
           ]
         }
       ],
-      "title": "2.2 Pull Request Status Distribution [Each Month]",
-      "type": "timeseries"
+      "title": "2.2 Pull Request Status Distribution",
+      "type": "barchart"
     },
     {
       "datasource": "mysql",
@@ -718,12 +791,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
-              },
-              {
                 "color": "red",
-                "value": 80
+                "value": null
               }
             ]
           }
@@ -889,7 +958,7 @@
           ],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -900,12 +969,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('MERGED', 'CLOSED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('MERGED', 'CLOSED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -917,6 +987,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -929,7 +1016,7 @@
           ]
         }
       ],
-      "title": "2.4 Ratio of Non-merging PRs of All Closed or Merged PRs [Each Month]",
+      "title": "2.4 Ratio of unmerged PRs of All Closed or Merged PRs",
       "type": "timeseries"
     },
     {
@@ -950,10 +1037,11 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -1019,7 +1107,7 @@
           ]
         }
       ],
-      "title": "2.5 Mean Time to Merge of Pull Requests in Days [Selected Time Range]",
+      "title": "2.5 Mean Time to Merge of Pull Requests",
       "type": "stat"
     },
     {
@@ -1061,10 +1149,11 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -1091,7 +1180,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -1110,12 +1199,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in (${repo_id})\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and base_repo_id in (${repo_id})\n    -- Enable the following condition to remove the month with incomplete data\n    -- and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -1127,6 +1217,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1139,42 +1246,8 @@
           ]
         }
       ],
-      "title": "2.6 Mean Time to Merge of Pull Requests in Days [Each Month]",
+      "title": "2.6 Mean Time to Merge of Pull Requests",
       "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 24,
-        "x": 0,
-        "y": 35
-      },
-      "id": 99,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
-        "mode": "markdown"
-      },
-      "pluginVersion": "9.5.15",
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "grafana"
-          },
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "type": "text"
     },
     {
       "collapsed": false,
@@ -1182,7 +1255,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 35
       },
       "id": 102,
       "panels": [],
@@ -1203,7 +1276,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1211,7 +1285,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 38
+        "y": 36
       },
       "id": 103,
       "links": [
@@ -1245,7 +1319,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(distinct id)\nFROM \n  cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and result = 'SUCCESS'\n  and id like \"%azure%\"\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
+          "rawSql": "SELECT\n  count(distinct id)\nFROM \n  cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and result = 'SUCCESS'\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
           "refId": "A",
           "select": [
             [
@@ -1286,7 +1360,7 @@
           ]
         }
       ],
-      "title": "3.1 Total Number of Successful Pipeline runs [Selected Time Range]",
+      "title": "3.1 Number of Successful Pipeline runs",
       "type": "stat"
     },
     {
@@ -1301,8 +1375,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "red",
                 "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.9
               }
             ]
           },
@@ -1314,7 +1392,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 38
+        "y": 36
       },
       "id": 104,
       "links": [
@@ -1348,7 +1426,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  1.0 * count(case when result = 'SUCCESS' then id else null end)/count(distinct id)\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%azure%\"\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
+          "rawSql": "SELECT\n  1.0 * count(case when result = 'SUCCESS' then id else null end)/count(distinct id)\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
           "refId": "A",
           "select": [
             [
@@ -1389,12 +1467,180 @@
           ]
         }
       ],
-      "title": "3.2 Mean Pipeline runs Success Rate",
+      "title": "3.2 Mean Pipeline runs Success Rate %",
       "type": "stat"
     },
     {
       "datasource": "mysql",
       "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "successful_count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed_count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "id": 110,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.25,
+        "fullHighlight": false,
+        "groupWidth": 0.25,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _builds as (\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -$interval(date(finished_date))+1 DAY) as time,\n    count(distinct case when result = 'SUCCESS' then id else null end) as successful_count,\n    count(distinct case when result != 'SUCCESS' then id else null end) as failed_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and cicd_scope_id in (${repo_id})\n    -- Enable the following condition to remove the month with incomplete data\n    -- and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  successful_count,\n  failed_count\nFROM _builds\nORDER BY time\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "3.3 Number of successful and failed pipeline runs",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Number of successful Pipeline runs / Number of total Pipeline runs",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1487,8 +1733,8 @@
       "gridPos": {
         "h": 6,
         "w": 6,
-        "x": 12,
-        "y": 38
+        "x": 0,
+        "y": 42
       },
       "id": 105,
       "links": [
@@ -1535,7 +1781,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  result,\n  count(distinct id) as build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%azure%\"\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1\nORDER BY 2 desc",
+          "rawSql": "SELECT\n  IF(result = '', 'Unknown', result) as result,\n  count(distinct id) as build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1\nORDER BY 2 desc",
           "refId": "A",
           "select": [
             [
@@ -1576,113 +1822,12 @@
           ]
         }
       ],
-      "title": "3.3 Total Pipeline runs Result Distribution",
+      "title": "3.4 Total Pipeline runs Result Distribution",
       "type": "piechart"
     },
     {
       "datasource": "mysql",
-      "description": "Number of successful Pipeline runs / Number of total Pipeline runs",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "light-orange",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 38
-      },
-      "id": 106,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Build Duration",
-          "url": "https://devlake.apache.org/docs/Metrics/BuildDuration"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.5.15",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  avg(duration_sec/60) as duration_in_minutes\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%azure%\"\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "project_id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "gitlab_commits",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "3.4 Mean Pipeline runs Duration in Minutes",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "",
+      "description": "1. Mean Pipeline Runs success rate over time.\n2. The Pipeline runs being calculated are filtered by \"workflow runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1691,7 +1836,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Pipeline runs Count",
+            "axisLabel": "Rate(%)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -1706,7 +1851,7 @@
               "type": "linear"
             },
             "thresholdsStyle": {
-              "mode": "off"
+              "mode": "line"
             }
           },
           "mappings": [],
@@ -1719,175 +1864,21 @@
               },
               {
                 "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 44
-      },
-      "id": 107,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Build Count",
-          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
-        }
-      ],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.5,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(distinct id) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%azure%\"\n    and cicd_scope_id in (${repo_id})\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Pipeline runs Count\"\nFROM _builds\nORDER BY time\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "3.1.1 Total Number of Successful Pipeline runs [Each Month]",
-      "type": "barchart"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. Mean Pipeline runs success rate over time.\n2. The Pipeline runs being calculated are filtered by \"Pipeline runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Pipeline runs Success Rate(%)",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
+                "value": 0.9
               }
             ]
           },
           "unit": "percentunit"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Pipeline runs Success Rate"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 44
+        "w": 18,
+        "x": 6,
+        "y": 42
       },
-      "id": 108,
+      "id": 112,
       "interval": "",
       "links": [
         {
@@ -1907,7 +1898,7 @@
           ],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -1919,7 +1910,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
+        "xTickLabelRotation": 45,
         "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
@@ -1931,7 +1922,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result,\r\n    id\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%azure%\"\r\n    and cicd_scope_id in (${repo_id})\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n  GROUP BY \r\n    time, result, id\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Pipeline runs Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY time\r\nORDER BY time",
+          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -$interval(date(finished_date))+1 DAY) as time,\r\n    result,\r\n    id\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    -- and id like \"%azure%\"\r\n    and cicd_scope_id in (${repo_id})\r\n    -- Enable the following condition to remove the month with incomplete data\r\n    -- and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n  GROUP BY \r\n    time, result, id\r\n)\r\n\r\nSELECT \r\n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%m/%Y') else concat('W', date_format(time,'%u %Y')) end as _time,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Pipeline Runs Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY time\r\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -1972,8 +1963,109 @@
           ]
         }
       ],
-      "title": "3.2.1 Pipeline runs Success Rate [Each Month]",
+      "title": "3.5 Pipeline run success rate %",
       "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "1. Mean Pipeline runs success rate over time.\n2. The Pipeline runs being calculated are filtered by \"Pipeline runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "m"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 48
+      },
+      "id": 106,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Duration",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildDuration"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  avg(duration_sec/60) as duration_in_minutes\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "project_id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "gitlab_commits",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "3.6 Mean Pipeline runs Duration in Minutes",
+      "type": "stat"
     },
     {
       "datasource": "mysql",
@@ -1986,7 +2078,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Pipeline runs Duration(minutes)",
+            "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -2017,13 +2109,14 @@
                 "value": 60
               }
             ]
-          }
+          },
+          "unit": "s"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "mean_duration_minutes"
+              "options": "mean_duration_sec"
             },
             "properties": [
               {
@@ -2039,11 +2132,11 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 50
+        "w": 18,
+        "x": 6,
+        "y": 48
       },
-      "id": 109,
+      "id": 111,
       "links": [
         {
           "targetBlank": true,
@@ -2053,14 +2146,14 @@
       ],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.5,
+        "barWidth": 0.25,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -2069,7 +2162,7 @@
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         },
         "xTickLabelRotation": 0,
@@ -2085,7 +2178,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    avg(duration_sec) as mean_duration_sec\n  FROM \n    cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and id like \"%azure%\"\n    and cicd_scope_id in (${repo_id})\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  mean_duration_sec/60 as mean_duration_minutes\nFROM _builds\nORDER BY time\n",
+          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -$interval(date(finished_date))+1 DAY) as time,\n    avg(duration_sec) as mean_duration_sec\n  FROM \n    cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    -- and id like \"%azure%\"\n    and cicd_scope_id in (${repo_id})\n    -- Enable the following condition to remove the month with incomplete data\n    -- and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  mean_duration_sec\nFROM _builds\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -2126,8 +2219,42 @@
           ]
         }
       ],
-      "title": "3.4.1 Mean Pipeline runs Duration in Minutes [Each Month]",
+      "title": "3.7 Mean pipeline run duration",
       "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 99,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
     }
   ],
   "refresh": "",
@@ -2163,6 +2290,34 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "Month",
+          "value": "DAYOFMONTH"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "DAYOFMONTH"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "WEEKDAY"
+          }
+        ],
+        "query": "Month : DAYOFMONTH, Week : WEEKDAY",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
       }
     ]
   },
@@ -2174,6 +2329,6 @@
   "timezone": "",
   "title": "Azure DevOps",
   "uid": "ba7e3a95-80ed-4067-a54b-2a82758eb3dd",
-  "version": 3,
+  "version": 5,
   "weekStart": ""
 }
