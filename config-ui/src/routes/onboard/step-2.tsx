@@ -96,7 +96,7 @@ export const Step2 = () => {
           ...payload,
         });
 
-        const newRecords = [...records, { plugin, connectionId: connection.id }];
+        const newRecords = [...records, { plugin, connectionId: connection.id, pipelineId: '', scopeName: '' }];
 
         setRecords(newRecords);
 
