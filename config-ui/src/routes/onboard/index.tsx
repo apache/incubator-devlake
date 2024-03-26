@@ -24,6 +24,7 @@ import API from '@/api';
 import { PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
 
+import type { Record } from './context';
 import { Context } from './context';
 import { Step0 } from './step-0';
 import { Step1 } from './step-1';
@@ -49,7 +50,7 @@ const steps = [
 
 export const Onboard = () => {
   const [step, setStep] = useState(0);
-  const [records, setRecords] = useState<Array<{ plugin: string; connectionId: ID }>>([]);
+  const [records, setRecords] = useState<Record[]>([]);
   const [projectName, setProjectName] = useState<string>();
   const [plugin, setPlugin] = useState<string>();
 

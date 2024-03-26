@@ -18,17 +18,21 @@
 
 import { createContext } from 'react';
 
+export type Record = {
+  plugin: string;
+  connectionId: ID;
+  pipelineId: ID;
+  scopeName: string;
+};
+
 const initialValue: {
   step: number;
-  records: Array<{
-    plugin: string;
-    connectionId: ID;
-  }>;
+  records: Record[];
   done: boolean;
   projectName?: string;
   plugin?: string;
   setStep: (value: number) => void;
-  setRecords: (value: Array<{ plugin: string; connectionId: ID }>) => void;
+  setRecords: (value: Record[]) => void;
   setProjectName: (value: string) => void;
   setPlugin: (value: string) => void;
 } = {
