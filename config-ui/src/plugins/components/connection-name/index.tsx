@@ -16,25 +16,43 @@
  *
  */
 
-import { IPipeline } from '@/types';
-import { request } from '@/utils';
+import { useMemo } from 'react';
+import { theme } from 'antd';
+import styled from 'styled-components';
 
-export const list = (): Promise<{ count: number; pipelines: IPipeline[] }> => request('/pipelines');
+import { getPluginConfig } from '@/plugins';
 
-export const get = (id: ID) => request(`/pipelines/${id}`);
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
 
-export const remove = (id: ID) =>
-  request(`/pipelines/${id}`, {
-    method: 'delete',
-  });
+  .icon {
+    display: inline-flex;
+    margin-right: 8px;
+    width: 24px;
 
-export const rerun = (id: ID) =>
-  request(`/pipelines/${id}/rerun`, {
-    method: 'post',
-  });
+    & > svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+`;
 
-export const log = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
+interface Props {
+  plugin: string;
+}
 
-export const tasks = (id: ID) => request(`/pipelines/${id}/tasks`);
+export const ConnectionName = ({ plugin }: Props) => {
+  const config = useMemo(() => getPluginConfig(plugin), [plugin]);
 
-export const subTasks = (id: ID) => request(`/pipelines/${id}/subtasks`);
+  const {
+    token: { colorPrimary },
+  } = theme.useToken();
+
+  return (
+    <Wrapper>
+      <span className="icon">{config.icon({ color: colorPrimary })}</span>
+      <span className="name">Manage Connections: {config.name}</span>
+    </Wrapper>
+  );
+};

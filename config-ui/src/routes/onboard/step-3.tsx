@@ -36,7 +36,7 @@ export const Step3 = () => {
   const [operating, setOperating] = useState(false);
   const [scopes, setScopes] = useState<any[]>([]);
 
-  const { step, records, done, projectName, plugin, setStep } = useContext(Context);
+  const { step, records, done, projectName, plugin, setStep, setRecords } = useContext(Context);
 
   useEffect(() => {
     fetch(`/onboard/step-3/${plugin}.md`)
@@ -97,17 +97,22 @@ export const Step3 = () => {
         // 4. trigger this blueprint
         await API.blueprint.trigger(blueprint.id, { skipCollectors: false, fullSync: false });
 
+        // 5. get current run pipeline
+        const pipeline = await API.blueprint.pipelines(blueprint.id);
+
         const newRecords = records.map((it) =>
           it.plugin !== plugin
             ? it
             : {
                 ...it,
-                scopeId: getPluginScopeId(plugin, scopes[0].data),
+                pipelineId: pipeline.pipelines[0].id,
                 scopeName: scopes[0]?.fullName ?? scopes[0].name,
               },
         );
 
-        // 5. update store
+        setRecords(newRecords);
+
+        // 6. update store
         await API.store.set('onboard', {
           step: 4,
           records: newRecords,
