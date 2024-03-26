@@ -84,7 +84,7 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	// change
 	if record.Jql != jql {
-		return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previos jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
+		return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
 	}
 	// no change
 	return nil
