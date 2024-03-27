@@ -33,8 +33,8 @@ type PaginatedProjects struct {
 	Count    int64                      `json:"count"`
 }
 
-// @Summary Create and run a new project
-// @Description Create and run a new project
+// @Summary Get a project
+// @Description Get a project
 // @Tags framework/projects
 // @Accept application/json
 // @Param projectName path string true "project name"
@@ -53,8 +53,8 @@ func GetProject(c *gin.Context) {
 	shared.ApiOutputSuccess(c, projectOutput, http.StatusOK)
 }
 
-// @Summary Create and run a new project
-// @Description Create and run a new project
+// @Summary Get project exist check
+// @Description Get project exist check
 // @Tags framework/projects
 // @Accept application/json
 // @Param projectName path string true "project name"
