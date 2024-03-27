@@ -244,17 +244,21 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 		tx = db
 	}
 	var tasks []*models.Task
-	err := tx.All(&tasks, dal.Where("pipeline_id = ?", pipelineId))
+	err := tx.All(&tasks, dal.Where("pipeline_id = ?", pipelineId), dal.Orderby("id"))
 	if err != nil {
 		return nil, err
 	}
-	filterTasks := filterTasks(tasks)
+
+	lastTasks := filterTasksWithLastStatus(tasks)
 	var subtasksInfo []models.SubtasksInfo
 	var totalSubtasksCount int64
 	var totalFinishedSubTasksCount int64
 	var count int64
 	var status []string
-	for _, task := range filterTasks {
+	for _, task := range lastTasks {
+		if task.Plugin == "org" {
+			continue
+		}
 		subTaskResult := models.SubtasksInfo{
 			ID:           task.ID,
 			PipelineID:   task.PipelineId,
@@ -302,9 +306,9 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 		}
 		subtasksInfo = append(subtasksInfo, subTaskResult)
 
-		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ?", task.ID)))
+		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = 1", task.ID)))
 		totalSubtasksCount += collectSubtasksCount
-		finishedSubTasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and finished_at is not null", task.ID)))
+		finishedSubTasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = 1 and finished_at is not null", task.ID)))
 		totalFinishedSubTasksCount += finishedSubTasksCount
 		count++
 
@@ -312,9 +316,9 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	}
 
 	subTasksOuput := &models.SubTasksOuput{}
+
 	subTasksOuput.SubtasksInfo = subtasksInfo
 	subTasksOuput.Count = totalSubtasksCount
-
 	completionRateFloat := float64(totalFinishedSubTasksCount) / float64(totalSubtasksCount)
 	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
 	subTasksOuput.CompletionRate = roundedCompletionRate
@@ -325,14 +329,11 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	return subTasksOuput, nil
 }
 
-func filterTasks(tasks []*models.Task) []*models.Task {
+// filterTasksWithLastStatus returns the latest task for each plugin
+func filterTasksWithLastStatus(tasks []*models.Task) []*models.Task {
 	taskMap := make(map[string]*models.Task)
-
+	sortedTasks := tasks
 	for _, task := range tasks {
-		if task.Plugin == "org" {
-			continue
-		}
-
 		if existingTask, ok := taskMap[task.Plugin]; ok {
 			if task.BeganAt != nil && (existingTask.BeganAt == nil || task.BeganAt.After(*existingTask.BeganAt)) {
 				taskMap[task.Plugin] = task
@@ -345,6 +346,9 @@ func filterTasks(tasks []*models.Task) []*models.Task {
 	var filteredTasks []*models.Task
 	for _, task := range taskMap {
 		filteredTasks = append(filteredTasks, task)
+	}
+	for i, task := range sortedTasks {
+		filteredTasks[i] = taskMap[task.Plugin]
 	}
 
 	return filteredTasks
