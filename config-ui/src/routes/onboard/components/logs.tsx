@@ -44,11 +44,11 @@ const Wrapper = styled.div`
   }
 
   span.name {
-    flex: 1;
+    flex: auto;
   }
 
   span.status {
-    flex: 1;
+    flex: 0 0 140px;
     text-align: right;
   }
 
@@ -67,7 +67,7 @@ interface LogsProps {
     tasks: Array<{
       step: number;
       name: string;
-      status: 'pending' | 'running' | 'success' | 'failed';
+      status: string;
       finishedRecords: number;
     }>;
   };

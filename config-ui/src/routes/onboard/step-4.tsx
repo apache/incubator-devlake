@@ -113,8 +113,7 @@ export const Step4 = () => {
 
   const { data } = useAutoRefresh(
     async () => {
-      const taskRes = await API.pipeline.subTasks(record?.pipelineId as string);
-      return taskRes.tasks;
+      return await API.pipeline.subTasks(record?.pipelineId as string);
     },
     [],
     {
@@ -133,29 +132,29 @@ export const Step4 = () => {
 
     const collector = {
       plugin: collectorTask.plugin,
-      scopeName: collectorTask.option?.name,
+      scopeName: collectorTask.options?.name,
       status: collectorTask.status,
       tasks: (collectorTask.subtaskDetails ?? [])
-        .filter((it: any) => it.is_collector === '1')
-        .map((it: any) => ({
+        .filter((it) => it.isCollector)
+        .map((it) => ({
           step: it.sequence,
           name: it.name,
-          status: it.is_failed === '1' ? 'failed' : !it.began_at ? 'pending' : it.finished_at ? 'success' : 'running',
-          finishedRecords: it.finished_records,
+          status: it.isFailed ? 'failed' : !it.beganAt ? 'pending' : it.finishedAt ? 'success' : 'running',
+          finishedRecords: it.finishedRecords,
         })),
     };
 
     const extractor = {
       plugin: extractorTask.plugin,
-      scopeName: extractorTask.option?.name,
+      scopeName: extractorTask.options?.name,
       status: extractorTask.status,
       tasks: (extractorTask.subtaskDetails ?? [])
-        .filter((it: any) => it.is_collector === '1')
-        .map((it: any) => ({
+        .filter((it) => it.isCollector)
+        .map((it) => ({
           step: it.sequence,
           name: it.name,
-          status: it.is_failed === '1' ? 'failed' : !it.began_at ? 'pending' : it.finished_at ? 'success' : 'running',
-          finishedRecords: it.finished_records,
+          status: it.isFailed ? 'failed' : !it.beganAt ? 'pending' : it.finishedAt ? 'success' : 'running',
+          finishedRecords: it.finishedRecords,
         })),
     };
 
