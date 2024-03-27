@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -312,6 +313,8 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	}
 
 	subTasksOuput := &models.SubTasksOuput{}
+	sortTasks(subtasksInfo)
+
 	subTasksOuput.SubtasksInfo = subtasksInfo
 	subTasksOuput.Count = totalSubtasksCount
 
@@ -376,4 +379,16 @@ func getTaskStatus(statuses []string) string {
 	}
 
 	return status
+}
+
+func sortTasks(tasks []models.SubtasksInfo) {
+	sort.Slice(tasks, func(i, j int) bool {
+		if tasks[i].Plugin == "gitextractor" {
+			return false
+		}
+		if tasks[j].Plugin == "gitextractor" {
+			return true
+		}
+		return tasks[i].Plugin < tasks[j].Plugin
+	})
 }
