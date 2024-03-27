@@ -16,27 +16,23 @@
  *
  */
 
-import { IPipeline } from '@/types';
-import { request } from '@/utils';
-
-import { SubTasksRes } from './types';
-
-export const list = (): Promise<{ count: number; pipelines: IPipeline[] }> => request('/pipelines');
-
-export const get = (id: ID) => request(`/pipelines/${id}`);
-
-export const remove = (id: ID) =>
-  request(`/pipelines/${id}`, {
-    method: 'delete',
-  });
-
-export const rerun = (id: ID) =>
-  request(`/pipelines/${id}/rerun`, {
-    method: 'post',
-  });
-
-export const log = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
-
-export const tasks = (id: ID) => request(`/pipelines/${id}/tasks`);
-
-export const subTasks = (id: ID): Promise<SubTasksRes> => request(`/pipelines/${id}/subtasks`);
+export type SubTasksRes = {
+  completionRate: number;
+  status: string;
+  subtasks: Array<{
+    plugin: string;
+    options: {
+      name: string;
+    };
+    status: string;
+    subtaskDetails: Array<{
+      isCollector: boolean;
+      isFailed: boolean;
+      sequence: number;
+      name: string;
+      beganAt: string;
+      finishedAt: string;
+      finishedRecords: number;
+    }>;
+  }>;
+};
