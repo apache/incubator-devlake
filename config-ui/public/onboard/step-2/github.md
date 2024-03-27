@@ -21,7 +21,7 @@ limitations under the License.
 2. In the upper-right corner of any page, click your profile photo, then click Settings.
 3. In the left sidebar, click <> Developer settings.
 4. In the left sidebar, under 'Personal access tokens', click Tokens (classic).
-5. Choose the following scopes: repo:status, repo:deployment, read:user and read:org.
+5. Choose the following scopes: `repo:status`, `repo:deployment`, `read:user` and `read:org`.
 
 Check [this doc](https://devlake.apache.org/docs/Configuration/GitHub/#personal-access-tokens) for more details.
 
