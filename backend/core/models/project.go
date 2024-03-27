@@ -71,6 +71,10 @@ type ApiOutputProject struct {
 	LastPipeline *Pipeline     `json:"lastPipeline,omitempty" mapstructure:"lastPipeline"`
 }
 
+type ApiProjectCheck struct {
+	Exist bool `json:"exist" mapstructure:"exist"`
+}
+
 type Store struct {
 	StoreKey   string          `gorm:"primaryKey;type:varchar(255)"`
 	StoreValue json.RawMessage `gorm:"type:json;serializer:json"`
