@@ -100,18 +100,18 @@ func (Subtask) TableName() string {
 
 type SubtaskDetails struct {
 	ID              uint64     `json:"id"`
-	CreatedAt       time.Time  `json:"created_at"`
-	UpdatedAt       time.Time  `json:"updated_at"`
-	TaskID          uint64     `json:"task_id"`
+	CreatedAt       time.Time  `json:"createdAt"`
+	UpdatedAt       time.Time  `json:"updatedAt"`
+	TaskID          uint64     `json:"taskId"`
 	Name            string     `json:"name"`
 	Number          int        `json:"number"`
-	BeganAt         *time.Time `json:"began_at"`
-	FinishedAt      *time.Time `json:"finished_at"`
-	SpentSeconds    int64      `json:"spent_seconds"`
-	FinishedRecords int        `json:"finished_records"`
+	BeganAt         *time.Time `json:"beganAt"`
+	FinishedAt      *time.Time `json:"finishedAt"`
+	SpentSeconds    int64      `json:"spentSeconds"`
+	FinishedRecords int        `json:"finishedRecords"`
 	Sequence        int        `json:"sequence"`
-	IsCollector     bool       `json:"is_collector"`
-	IsFailed        bool       `json:"is_failed"`
+	IsCollector     bool       `json:"isCollector"`
+	IsFailed        bool       `json:"isFailed"`
 	Message         string     `json:"message"`
 }
 
