@@ -21,7 +21,6 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"sort"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -245,17 +244,21 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 		tx = db
 	}
 	var tasks []*models.Task
-	err := tx.All(&tasks, dal.Where("pipeline_id = ?", pipelineId))
+	err := tx.All(&tasks, dal.Where("pipeline_id = ?", pipelineId), dal.Orderby("id"))
 	if err != nil {
 		return nil, err
 	}
-	filterTasks := filterTasks(tasks)
+
+	lastTasks := filterTasksWithLastStatus(tasks)
 	var subtasksInfo []models.SubtasksInfo
 	var totalSubtasksCount int64
 	var totalFinishedSubTasksCount int64
 	var count int64
 	var status []string
-	for _, task := range filterTasks {
+	for _, task := range lastTasks {
+		if task.Plugin == "org" {
+			continue
+		}
 		subTaskResult := models.SubtasksInfo{
 			ID:           task.ID,
 			PipelineID:   task.PipelineId,
@@ -313,7 +316,6 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	}
 
 	subTasksOuput := &models.SubTasksOuput{}
-	sortTasks(subtasksInfo)
 
 	subTasksOuput.SubtasksInfo = subtasksInfo
 	subTasksOuput.Count = totalSubtasksCount
@@ -327,14 +329,11 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	return subTasksOuput, nil
 }
 
-func filterTasks(tasks []*models.Task) []*models.Task {
+// filterTasksWithLastStatus returns the latest task for each plugin
+func filterTasksWithLastStatus(tasks []*models.Task) []*models.Task {
 	taskMap := make(map[string]*models.Task)
-
+	sortTasks := tasks
 	for _, task := range tasks {
-		if task.Plugin == "org" {
-			continue
-		}
-
 		if existingTask, ok := taskMap[task.Plugin]; ok {
 			if task.BeganAt != nil && (existingTask.BeganAt == nil || task.BeganAt.After(*existingTask.BeganAt)) {
 				taskMap[task.Plugin] = task
@@ -347,6 +346,9 @@ func filterTasks(tasks []*models.Task) []*models.Task {
 	var filteredTasks []*models.Task
 	for _, task := range taskMap {
 		filteredTasks = append(filteredTasks, task)
+	}
+	for i, task := range sortTasks {
+		filteredTasks[i] = taskMap[task.Plugin]
 	}
 
 	return filteredTasks
@@ -378,16 +380,4 @@ func getTaskStatus(statuses []string) string {
 	}
 
 	return status
-}
-
-func sortTasks(tasks []models.SubtasksInfo) {
-	sort.Slice(tasks, func(i, j int) bool {
-		if tasks[i].Plugin == "gitextractor" {
-			return false
-		}
-		if tasks[j].Plugin == "gitextractor" {
-			return true
-		}
-		return tasks[i].Plugin < tasks[j].Plugin
-	})
 }
