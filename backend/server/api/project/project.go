@@ -41,9 +41,9 @@ type PaginatedProjects struct {
 // @Success 200  {object} models.ApiOutputProject
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /projects/:projectName [get]
+// @Router /projects/{projectName} [get]
 func GetProject(c *gin.Context) {
-	projectName := c.Param("projectName")[1:]
+	projectName := c.Param("projectName")
 
 	projectOutput, err := services.GetProject(projectName)
 	if err != nil {
@@ -51,6 +51,29 @@ func GetProject(c *gin.Context) {
 		return
 	}
 	shared.ApiOutputSuccess(c, projectOutput, http.StatusOK)
+}
+
+// @Summary Create and run a new project
+// @Description Create and run a new project
+// @Tags framework/projects
+// @Accept application/json
+// @Param projectName path string true "project name"
+// @Success 200  {object} models.ApiOutputProject
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /projects/{projectName}/check [get]
+func GetProjectCheck(c *gin.Context) {
+	projectName := c.Param("projectName")
+
+	projectOutputCheck := &models.ApiProjectCheck{}
+	_, err := services.GetProject(projectName)
+	if err != nil {
+		projectOutputCheck.Exist = false
+	} else {
+		projectOutputCheck.Exist = true
+	}
+
+	shared.ApiOutputSuccess(c, projectOutputCheck, http.StatusOK) // //shared.ApiOutputSuccess(c, projectOutputCheck, http.StatusOK)
 }
 
 // @Summary Get list of projects
