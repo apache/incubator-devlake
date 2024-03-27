@@ -83,9 +83,13 @@ func GetAllPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 		dal.Select("gp.gitlab_id, gp.gitlab_id as iid"),
 		dal.From("_tool_gitlab_pipelines gp"),
 		dal.Where(
-			`gp.project_id = ? and gp.connection_id = ? and gp.gitlab_id not in (select json_extract(tj.input, '$.GitlabId') as gitlab_id from _raw_gitlab_api_trigger_job tj)`,
+			`gp.project_id = ? and gp.connection_id = ? `,
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
+	}
+
+	if db.HasTable("_raw_gitlab_api_trigger_job") {
+		clauses = append(clauses, dal.Where("and gp.gitlab_id not in (select json_extract(tj.input, '$.GitlabId') as gitlab_id from _raw_gitlab_api_trigger_job tj)"))
 	}
 	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
 		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", collectorWithState.Since))
