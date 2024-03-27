@@ -20,6 +20,8 @@ import { useState, useEffect, useContext } from 'react';
 import { Input, Flex, Button, message } from 'antd';
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css';
 
 import API from '@/api';
 import { Block } from '@/components';
@@ -109,7 +111,17 @@ export const Step1 = () => {
             />
           </Block>
         </div>
-        <Markdown className="qa" rehypePlugins={[rehypeRaw]}>
+        <Markdown
+          className="qa"
+          rehypePlugins={[rehypeRaw]}
+          components={{
+            img: ({ alt, ...props }) => (
+              <Zoom>
+                <img alt={alt} {...props} />
+              </Zoom>
+            ),
+          }}
+        >
           {QA}
         </Markdown>
       </S.StepContent>

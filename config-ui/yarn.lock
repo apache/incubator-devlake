@@ -3701,6 +3701,7 @@ __metadata:
     react-dom: ^18.2.0
     react-is: ^18.2.0
     react-markdown: ^9.0.1
+    react-medium-image-zoom: ^5.1.10
     react-redux: ^9.1.0
     react-router-dom: ^6.22.2
     react-transition-group: ^4.4.5
@@ -7719,6 +7720,16 @@ __metadata:
     "@types/react": ">=18"
     react: ">=18"
   checksum: ca1daa650d48b84a5a9771683cdb3f3d2d418247ce0faf73ede3207c65f2a21cdebb9df37afda67f6fc8f0f0a7b9ce00eb239781954a4d6c7ad88ea4df068add
+  languageName: node
+  linkType: hard
+
+"react-medium-image-zoom@npm:^5.1.10":
+  version: 5.1.10
+  resolution: "react-medium-image-zoom@npm:5.1.10"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 9c2cf83fc63eb705f1696ad6b50c457d8a77f0b458d7d9cc8975f20ebd3ee8ef6fbdc39af145fb9a5fd81191ceb37de1fb362bf67d6d31a183aa407b2a522030
   languageName: node
   linkType: hard
 
