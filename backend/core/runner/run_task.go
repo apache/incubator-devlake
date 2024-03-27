@@ -47,9 +47,6 @@ func RunTask(
 	if err := db.First(task, dal.Where("id = ?", taskId)); err != nil {
 		return err
 	}
-	if task.Status == models.TASK_COMPLETED {
-		return errors.Default.New("invalid task status")
-	}
 	dbPipeline := &models.Pipeline{}
 	if err := db.First(dbPipeline, dal.Where("id = ? ", task.PipelineId)); err != nil {
 		return err
@@ -60,6 +57,9 @@ func RunTask(
 		return err
 	}
 	beganAt := time.Now()
+	if dbPipeline.BeganAt != nil {
+		beganAt = *dbPipeline.BeganAt
+	}
 	// make sure task status always correct even if it panicked
 	defer func() {
 		if r := recover(); r != nil {
@@ -118,6 +118,10 @@ func RunTask(
 			err = nil
 		}
 	}()
+
+	if task.Status == models.TASK_COMPLETED {
+		return nil
+	}
 
 	// start execution
 	logger.Info("start executing task: %d", task.ID)
@@ -298,7 +302,6 @@ func RunPluginSubTasks(
 			continue
 		}
 		// run subtask
-		logger.Info("executing subtask %s", subtaskMeta.Name)
 		subtaskNumber++
 		if progress != nil {
 			progress <- plugin.RunningProgress{
@@ -307,18 +310,24 @@ func RunPluginSubTasks(
 				SubTaskNumber: subtaskNumber,
 			}
 		}
-		err = runSubtask(basicRes, subtaskCtx, task.ID, subtaskNumber, subtaskMeta.EntryPoint)
-		if err != nil {
-			err = errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
-			logger.Error(err, "")
-			where := dal.Where("task_id = ? and name = ?", task.ID, subtaskCtx.GetName())
-			if err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
-				{ColumnName: "is_failed", Value: 1},
-				{ColumnName: "message", Value: err.Error()},
-			}, where); err != nil {
-				basicRes.GetLogger().Error(err, "error writing subtask %v status to DB", subtaskCtx.GetName())
+		subtaskFinsied := errors.Must1(basicRes.GetDal().Count(dal.From(&models.Subtask{}), dal.Where("task_id = ? AND name = ?", task.ID, subtaskMeta.Name)))
+		if subtaskFinsied > 0 {
+			logger.Info("subtask %s already finished previously", subtaskMeta.Name)
+		} else {
+			logger.Info("executing subtask %s", subtaskMeta.Name)
+			err = runSubtask(basicRes, subtaskCtx, task.ID, subtaskNumber, subtaskMeta.EntryPoint)
+			if err != nil {
+				err = errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
+				logger.Error(err, "")
+				where := dal.Where("task_id = ? and name = ?", task.ID, subtaskCtx.GetName())
+				if err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
+					{ColumnName: "is_failed", Value: 1},
+					{ColumnName: "message", Value: err.Error()},
+				}, where); err != nil {
+					basicRes.GetLogger().Error(err, "error writing subtask %v status to DB", subtaskCtx.GetName())
+				}
+				return err
 			}
-			return err
 		}
 		taskCtx.IncProgress(1)
 	}
