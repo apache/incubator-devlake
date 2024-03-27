@@ -79,34 +79,14 @@ func pipelineServiceInit() {
 	}
 
 	// standalone mode: reset pipeline status
-	errMsg := "The process was terminated unexpectedly"
-	err := db.UpdateColumns(
-		&models.Pipeline{},
-		[]dal.DalSet{
-			{ColumnName: "status", Value: models.TASK_FAILED},
-			{ColumnName: "message", Value: errMsg},
-		},
-		dal.Where("status = ?", models.TASK_RUNNING),
-	)
-	if err != nil {
-		panic(err)
-	}
-	err = db.UpdateColumns(
-		&models.Task{},
-		[]dal.DalSet{
-			{ColumnName: "status", Value: models.TASK_FAILED},
-			{ColumnName: "message", Value: errMsg},
-		},
-		dal.Where("status = ?", models.TASK_RUNNING),
-	)
-	if err != nil {
-		panic(err)
+	if cfg.GetBool("RESUME_PIPELINES") {
+		markInterruptedPipelineAs(models.TASK_RESUME)
+	} else {
+		markInterruptedPipelineAs(models.TASK_FAILED)
 	}
 
-	err = ReloadBlueprints()
-	if err != nil {
-		panic(err)
-	}
+	// load cronjobs for blueprints
+	errors.Must(ReloadBlueprints())
 
 	var pipelineMaxParallel = cfg.GetInt64("PIPELINE_MAX_PARALLEL")
 	if pipelineMaxParallel < 0 {
@@ -118,6 +98,23 @@ func pipelineServiceInit() {
 	}
 	// run pipeline with independent goroutine
 	go RunPipelineInQueue(pipelineMaxParallel)
+}
+
+func markInterruptedPipelineAs(status string) {
+	errors.Must(db.UpdateColumns(
+		&models.Pipeline{},
+		[]dal.DalSet{
+			{ColumnName: "status", Value: status},
+		},
+		dal.Where("status = ?", models.TASK_RUNNING),
+	))
+	errors.Must(db.UpdateColumns(
+		&models.Task{},
+		[]dal.DalSet{
+			{ColumnName: "status", Value: status},
+		},
+		dal.Where("status = ?", models.TASK_RUNNING),
+	))
 }
 
 // CreatePipeline and return the model
@@ -238,7 +235,7 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	// prepare query to find an appropriate pipeline to execute
 	pipeline = &models.Pipeline{}
 	err = tx.First(pipeline,
-		dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}),
+		dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN, models.TASK_RESUME}),
 		dal.Join(
 			`left join _devlake_pipeline_labels ON
 				_devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
@@ -254,11 +251,16 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	)
 	if err == nil {
 		// mark the pipeline running, now we want a write lock
+		if pipeline.BeganAt == nil {
+			now := time.Now()
+			pipeline.BeganAt = &now
+			globalPipelineLog.Info("resumed pipeline #%d", pipeline.ID)
+		}
 		errors.Must(tx.LockTables(dal.LockTables{{Table: "_devlake_pipelines", Exclusive: true}}))
 		err = tx.UpdateColumns(&models.Pipeline{}, []dal.DalSet{
 			{ColumnName: "status", Value: models.TASK_RUNNING},
 			{ColumnName: "message", Value: ""},
-			{ColumnName: "began_at", Value: time.Now()},
+			{ColumnName: "began_at", Value: pipeline.BeganAt},
 		}, dal.Where("id = ?", pipeline.ID))
 		if err != nil {
 			panic(err)
