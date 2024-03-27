@@ -17,6 +17,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CloseOutlined } from '@ant-design/icons';
 import { theme, Layout } from 'antd';
 
@@ -53,6 +54,8 @@ export const Onboard = () => {
   const [records, setRecords] = useState<Record[]>([]);
   const [projectName, setProjectName] = useState<string>();
   const [plugin, setPlugin] = useState<string>();
+
+  const navigate = useNavigate();
 
   const {
     token: { colorPrimary },
@@ -95,7 +98,10 @@ export const Onboard = () => {
             <>
               <S.Header>
                 <h1>Connect to your first repository</h1>
-                <CloseOutlined style={{ fontSize: 18, color: '#70727F', cursor: 'pointer' }} />
+                <CloseOutlined
+                  style={{ fontSize: 18, color: '#70727F', cursor: 'pointer' }}
+                  onClick={() => navigate('/')}
+                />
               </S.Header>
               <S.Content>
                 {[1, 2, 3].includes(step) && (
