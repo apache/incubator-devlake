@@ -345,7 +345,6 @@ func UpdateProgressDetail(basicRes context.BasicRes, taskId uint64, progressDeta
 		}
 	case plugin.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total
-		progressDetail.FinishedRecords = p.Current
 	case plugin.SubTaskIncProgress:
 		progressDetail.FinishedRecords = p.Current
 	case plugin.SetCurrentSubTask:
