@@ -255,10 +255,6 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	var count int64
 	var status []string
 	for _, task := range filterTasks {
-		// skip org plugin step
-		if task.Plugin == "org" {
-			continue
-		}
 		subTaskResult := models.SubtasksInfo{
 			ID:           task.ID,
 			PipelineID:   task.PipelineId,
