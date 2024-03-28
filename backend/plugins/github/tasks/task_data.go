@@ -33,6 +33,7 @@ type GithubOptions struct {
 	Owner                   string                    `json:"owner" mapstructure:"owner,omitempty"`
 	Repo                    string                    `json:"repo"  mapstructure:"repo,omitempty"`
 	Name                    string                    `json:"name"  mapstructure:"name,omitempty"`
+	FullName                string                    `json:"fullName"  mapstructure:"fullName,omitempty"`
 	ScopeConfig             *models.GithubScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
 	helper.CollectorOptions `mapstructure:",squash"`
 }

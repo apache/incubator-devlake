@@ -26,6 +26,7 @@ import (
 type GitlabOptions struct {
 	ConnectionId            uint64                    `mapstructure:"connectionId" json:"connectionId"`
 	ProjectId               int                       `mapstructure:"projectId" json:"projectId"`
+	FullName                string                    `mapstructure:"fullName" json:"fullName"`
 	ScopeConfigId           uint64                    `mapstructure:"scopeConfigId" json:"scopeConfigId"`
 	ScopeConfig             *models.GitlabScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
 	helper.CollectorOptions `mapstructure:",squash"`
