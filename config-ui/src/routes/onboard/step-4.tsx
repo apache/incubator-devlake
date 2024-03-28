@@ -17,6 +17,7 @@
  */
 
 import { useState, useContext, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SmileFilled, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { theme, Progress, Space, Button, Modal } from 'antd';
 import styled from 'styled-components';
@@ -24,6 +25,7 @@ import styled from 'styled-components';
 import API from '@/api';
 import { useAutoRefresh } from '@/hooks';
 import { ConnectionName, ConnectionForm } from '@/plugins';
+import { operator } from '@/utils';
 
 import { Logs } from './components';
 import { Context } from './context';
@@ -113,9 +115,12 @@ const getStatus = (data: any) => {
 };
 
 export const Step4 = () => {
+  const [operating, setOperating] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const { records, plugin } = useContext(Context);
+  const navigate = useNavigate();
+
+  const { step, records, projectName, plugin } = useContext(Context);
 
   const record = useMemo(() => records.find((it) => it.plugin === plugin), [plugin, records]);
 
@@ -173,6 +178,26 @@ export const Step4 = () => {
     token: { green5, orange5, red5 },
   } = theme.useToken();
 
+  const handleFinish = async () => {
+    const [success] = await operator(
+      () =>
+        API.store.set('onboard', {
+          step,
+          records,
+          done: true,
+          projectName,
+          plugin,
+        }),
+      {
+        setOperating,
+      },
+    );
+
+    if (success) {
+      navigate('/');
+    }
+  };
+
   if (!plugin || !record) {
     return null;
   }
@@ -205,7 +230,9 @@ export const Step4 = () => {
                 <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
                   Check Dashboard
                 </Button>
-                <Button type="link">finish</Button>
+                <Button loading={operating} onClick={handleFinish}>
+                  Finish and Exit
+                </Button>
               </Space>
             </div>
           </div>
