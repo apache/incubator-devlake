@@ -18,7 +18,7 @@
 
 import { useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SmileFilled, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { theme, Progress, Space, Button, Modal } from 'antd';
 import styled from 'styled-components';
 
@@ -30,21 +30,7 @@ import { operator } from '@/utils';
 import { Logs } from './components';
 import { Context } from './context';
 
-const Top = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 100px;
-  margin-bottom: 24px;
-  height: 70px;
-
-  span.text {
-    margin-left: 8px;
-    font-size: 20px;
-  }
-`;
-
-const Content = styled.div`
+const Wrapper = styled.div`
   padding: 24px;
   background-color: #fff;
   box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px 0px rgba(0, 0, 0, 0.07);
@@ -69,21 +55,21 @@ const Content = styled.div`
       margin-top: 30px;
     }
   }
-`;
 
-const LogsWrapper = styled.div`
-  .tip {
-    font-size: 12px;
-    font-weight: 600;
-    color: #70727f;
-  }
+  .logs {
+    .tip {
+      font-size: 12px;
+      font-weight: 600;
+      color: #70727f;
+    }
 
-  .detail {
-    display: flex;
-    margin-top: 12px;
+    .detail {
+      display: flex;
+      margin-top: 12px;
 
-    & > div {
-      flex: 1;
+      & > div {
+        flex: 1;
+      }
     }
   }
 `;
@@ -205,78 +191,72 @@ export const Step4 = () => {
   const { connectionId, scopeName } = record;
 
   return (
-    <>
-      <Top>
-        <SmileFilled style={{ fontSize: 36, color: green5 }} />
-        <span className="text">Congratulations！You have successfully connected to your first repository!</span>
-      </Top>
-      <Content>
-        {status === 'running' && (
-          <div className="top">
-            <div className="info">syncing up data from {scopeName}...</div>
-            <div className="tip">
-              This may take a few minutes to hours, depending on the size of your data and rate limits of the tool you
-              choose.
-            </div>
-            <Progress type="circle" size={120} percent={percent} />
+    <Wrapper>
+      {status === 'running' && (
+        <div className="top">
+          <div className="info">syncing up data from {scopeName}...</div>
+          <div className="tip">
+            This may take a few minutes to hours, depending on the size of your data and rate limits of the tool you
+            choose.
           </div>
-        )}
-        {status === 'success' && (
-          <div className="top">
-            <div className="info">{scopeName} is successfully collected !</div>
-            <CheckCircleOutlined style={{ fontSize: 120, color: green5 }} />
-            <div className="action">
-              <Space direction="vertical">
-                <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
-                  Check Dashboard
-                </Button>
-                <Button loading={operating} onClick={handleFinish}>
-                  Finish and Exit
-                </Button>
-              </Space>
-            </div>
-          </div>
-        )}
-        {status === 'partial' && (
-          <div className="top">
-            <div className="info">{scopeName} is parted collected！</div>
-            <CheckCircleOutlined style={{ fontSize: 120, color: orange5 }} />
-            <div className="action">
-              <Space>
-                <Button type="primary">Re-collect Data</Button>
-                <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
-                  Check Dashboard
-                </Button>
-              </Space>
-            </div>
-          </div>
-        )}
-        {status === 'failed' && (
-          <div className="top">
-            <div className="info">Something went wrong with the collection process. </div>
-            <div className="info">
-              Please check out the
-              <Button type="link" onClick={() => setOpen(true)}>
-                network and token permission
+          <Progress type="circle" size={120} percent={percent} />
+        </div>
+      )}
+      {status === 'success' && (
+        <div className="top">
+          <div className="info">{scopeName} is successfully collected !</div>
+          <CheckCircleOutlined style={{ fontSize: 120, color: green5 }} />
+          <div className="action">
+            <Space direction="vertical">
+              <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
+                Check Dashboard
               </Button>
-              and retry data collection
-            </div>
-            <CloseCircleOutlined style={{ fontSize: 120, color: red5 }} />
-            <div className="action">
-              <Space direction="vertical">
-                <Button type="primary">Re-collect Data</Button>
-              </Space>
-            </div>
+              <Button loading={operating} onClick={handleFinish}>
+                Finish and Exit
+              </Button>
+            </Space>
           </div>
-        )}
-        <LogsWrapper>
-          <div className="tip">Sync progress details</div>
-          <div className="detail">
-            <Logs log={collector} />
-            <Logs log={extractor} style={{ marginLeft: 16 }} />
+        </div>
+      )}
+      {status === 'partial' && (
+        <div className="top">
+          <div className="info">{scopeName} is parted collected！</div>
+          <CheckCircleOutlined style={{ fontSize: 120, color: orange5 }} />
+          <div className="action">
+            <Space>
+              <Button type="primary">Re-collect Data</Button>
+              <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
+                Check Dashboard
+              </Button>
+            </Space>
           </div>
-        </LogsWrapper>
-      </Content>
+        </div>
+      )}
+      {status === 'failed' && (
+        <div className="top">
+          <div className="info">Something went wrong with the collection process. </div>
+          <div className="info">
+            Please check out the
+            <Button type="link" onClick={() => setOpen(true)}>
+              network and token permission
+            </Button>
+            and retry data collection
+          </div>
+          <CloseCircleOutlined style={{ fontSize: 120, color: red5 }} />
+          <div className="action">
+            <Space direction="vertical">
+              <Button type="primary">Re-collect Data</Button>
+            </Space>
+          </div>
+        </div>
+      )}
+      <div className="logs">
+        <div className="tip">Sync progress details</div>
+        <div className="detail">
+          <Logs log={collector} />
+          <Logs log={extractor} style={{ marginLeft: 16 }} />
+        </div>
+      </div>
       <Modal
         open={open}
         width={820}
@@ -287,6 +267,6 @@ export const Step4 = () => {
       >
         <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={() => setOpen(false)} />
       </Modal>
-    </>
+    </Wrapper>
   );
 };
