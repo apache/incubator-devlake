@@ -22,6 +22,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"regexp"
+	"sort"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -30,9 +34,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
-	"regexp"
-	"sort"
-	"strconv"
 
 	git "github.com/libgit2/git2go/v33"
 )
@@ -349,7 +350,10 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 		return nil, errors.Convert(err)
 	}
 	cfg := config.GetConfig()
-	skipCommitFiles := cfg.GetBool(SkipCommitFiles)
+	skipCommitFiles := true
+	if cfg.IsSet(SkipCommitFiles) {
+		skipCommitFiles = cfg.GetBool(SkipCommitFiles)
+	}
 	if !skipCommitFiles {
 		err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
 		if err != nil {
