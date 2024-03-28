@@ -90,6 +90,7 @@ func makeDataSourcePipelinePlanV200(
 			tasks.BitbucketOptions{
 				ConnectionId: bitbucketRepo.ConnectionId,
 				FullName:     bitbucketRepo.BitbucketId,
+				Name:         bitbucketRepo.BitbucketId,
 			},
 		)
 		if err != nil {

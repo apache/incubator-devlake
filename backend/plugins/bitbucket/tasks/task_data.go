@@ -27,6 +27,7 @@ type BitbucketOptions struct {
 	ConnectionId                 uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
 	Tasks                        []string `json:"tasks,omitempty" mapstructure:",omitempty"`
 	FullName                     string   `json:"fullName" mapstructure:"fullName"`
+	Name                         string   `json:"name" mapstructure:"name"`
 	ScopeConfigId                uint64   `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	*models.BitbucketScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
 	api.CollectorOptions         `mapstructure:",squash"`
