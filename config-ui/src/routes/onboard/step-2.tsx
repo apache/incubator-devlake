@@ -75,6 +75,8 @@ export const Step2 = () => {
         }),
       {
         setOperating: setTesting,
+        formatMessage: () => 'Connection success.',
+        formatReason: () => 'Connection failed. Please check your token or network.',
       },
     );
 
