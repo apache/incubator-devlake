@@ -65,7 +65,14 @@ export const StepItem = styled.li<{ $actived: boolean; $activedColor: string }>`
     border: 1px solid rgba(0, 0, 0, 0.25);
     border-radius: 50%;
 
-    ${({ $actived, $activedColor }) => ($actived ? `color: #fff; background-color: ${$activedColor};` : '')}
+    ${({ $actived, $activedColor }) =>
+      $actived
+        ? `
+          color: #fff;
+          background-color: ${$activedColor};
+          border: none;
+          `
+        : ''}
   }
 
   span:last-child {
