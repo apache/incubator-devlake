@@ -185,7 +185,7 @@ class Plugin(ABC):
                     "scopeId": scope.id,
                     "scopeName": scope.name,
                     "connectionId": connection.id,
-                    "name": scope.name
+                    "fullName": scope.name
                 }
             ),
             *self.extra_tasks(scope, config, connection)

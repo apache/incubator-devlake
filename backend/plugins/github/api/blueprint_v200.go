@@ -110,6 +110,7 @@ func makeDataSourcePipelinePlanV200(
 			ConnectionId: githubRepo.ConnectionId,
 			GithubId:     githubRepo.GithubId,
 			Name:         githubRepo.FullName,
+			FullName:     githubRepo.FullName,
 		}
 		stage, err := addGithub(subtaskMetas, connection, scopeConfig.Entities, stage, op)
 		if err != nil {

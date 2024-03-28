@@ -152,7 +152,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Options: map[string]interface{}{
 					"connectionId": connectionID,
 					"projectId":    gitlabProjectId,
-					"name":         gitlabProjectName,
+					"fullName":     pathWithNamespace,
 				},
 			},
 			{
