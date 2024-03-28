@@ -216,7 +216,7 @@ export const Step4 = () => {
             <div className="info">syncing up data from {scopeName}...</div>
             <div className="tip">
               This may take a few minutes to hours, depending on the size of your data and rate limits of the tool you
-              choose. Exit
+              choose.
             </div>
             <Progress type="circle" size={120} percent={percent} />
           </div>
