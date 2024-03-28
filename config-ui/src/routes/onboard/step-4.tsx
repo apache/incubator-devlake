@@ -124,7 +124,7 @@ export const Step4 = () => {
 
   const [status, percent, collector, extractor] = useMemo(() => {
     const status = getStatus(data);
-    const percent = (data?.completionRate ?? 0) * 100;
+    const percent = Math.floor((data?.completionRate ?? 0) * 100);
 
     const collectorTask = (data?.subtasks ?? [])[0] ?? {};
     const extractorTask = (data?.subtasks ?? [])[1] ?? {};
