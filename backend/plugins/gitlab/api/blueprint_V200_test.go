@@ -159,10 +159,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"proxy":  "",
-					"repoId": expectDomainScopeId,
-					"name":   gitlabProjectName,
-					"url":    "https://git:nddtf@this_is_cloneUrl",
+					"proxy":    "",
+					"repoId":   expectDomainScopeId,
+					"name":     gitlabProjectName,
+					"fullName": pathWithNamespace,
+					"url":      "https://git:nddtf@this_is_cloneUrl",
 				},
 			},
 		},
