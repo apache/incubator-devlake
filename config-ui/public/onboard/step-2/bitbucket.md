@@ -15,30 +15,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-##### Q1. How to create a Bitbucket app password?
+##### Q1. How to generate a Bitbucket app password?
 
-1. Log in to [bitbucket.org](https://bitbucket.org).
+1. Sign in at [bitbucket.org](https://bitbucket.org).
 2. Select the **Settings** cog in the upper-right corner of the top navigation bar.
 3. Under **Personal settings**, select **Personal Bitbucket settings**.
 4. On the left sidebar, select **App passwords**.
 5. Select **Create app password**.
-6. Give the App password a name.
-7. Select the permissions the App password needs. See Q2.
+6. Give the 'App password' a name.
+7. Select the permissions the 'App password needs'. See **Q2**.
 8. Select the **Create** button.
 
-Check [this doc](https://devlake.apache.org/docs/Configuration/BitBucket/#username-and-app-password) for more details.
+For detailed instructions, refer to [this doc](https://devlake.apache.org/docs/Configuration/BitBucket/#username-and-app-password).
 
-##### Q2. What app password permission should I choose?
+##### Q2. Which app password permissions should be included in a token?
 
 The following permissions are required to collect data from Bitbucket repositories:
 `Account:Read` `Workspace` `membership:Read` `Repositories:Read` `Projects:Read` `Pull requests:Read` `Issues:Read` `Pipelines:Read` `Runners:Read`
 
-##### Q3. Can I connect to the Bitbucket server?
+##### Q3. Is connecting to the Bitbucket Server/Data Center possible?
 
-Sure, you could
+Yes, you can.
 
-1. Go to the Connections page.
-2. Click Create a New Connection.
-3. Choose ‘Bitbucket server’ and finish the connection.
+1. Navigate to the **Connections** page.
+2. Click on Bitbucket Server, and Click on **Create a New Connection**.
+3. Finish the configuration.
 
-Bitbucket server is not supported to simplify this onboard process.
+Please note that GitLab Server integration is not included to ease the onboarding process.

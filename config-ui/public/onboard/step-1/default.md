@@ -18,4 +18,4 @@ limitations under the License.
 ##### What is a project?
 
 - On a high level, a project can be viewed as a real-world project or product line. It represents a specific initiative or endeavor within the software development domain.
-- On a lower level, a project is a way of organizing and grouping data from different domains.
+- On a lower level, a project is a way of organizing and grouping data from different tools.
