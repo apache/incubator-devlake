@@ -22,10 +22,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -40,8 +43,11 @@ var CollectApiBuildsMeta = plugin.SubTaskMeta{
 }
 
 type SimpleJob struct {
-	Name string
-	Path string
+	FullName string
+	Name     string
+	Path     string
+	Class    string
+	URL      string
 }
 
 type SimpleJenkinsApiBuild struct {
@@ -50,6 +56,21 @@ type SimpleJenkinsApiBuild struct {
 }
 
 func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
+	data := taskCtx.GetData().(*JenkinsTaskData)
+	logger := taskCtx.GetLogger()
+
+	logger.Debug("Collecting builds data from jenkins api, class: %s", data.Options.Class)
+
+	if data.Options.Class == WORKFLOW_MULTI_BRANCH_PROJECT {
+		return collectMultiBranchJobApiBuilds(taskCtx)
+	}
+
+	return collectSingleJobApiBuilds(taskCtx)
+}
+
+// collectSingleJobApiBuilds collects builds data from a single job using Jenkins api.
+func collectSingleJobApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
+	// The API input is defined in the plugin's task definition, be that the UI or advanced blueprint.
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -116,4 +137,90 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collector.Execute()
+}
+
+// collectMultiBranchJobApiBuilds collects builds data from a multi-branch workflow using Jenkins api.
+func collectMultiBranchJobApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*JenkinsTaskData)
+	logger := taskCtx.GetLogger()
+
+	// Jobs added through the multi-branch workflow have _raw_data_table set to "jenkins_api_jobs".
+	// This check works, but it's not very robust. It would be better to use a more explicit check like a "source" column.
+	clauses := []dal.Clause{
+		dal.Select("j.full_name,j.name,j.path,j.class,j.url"),
+		dal.From("_tool_jenkins_jobs as j"),
+		dal.Where(`j.connection_id = ? and j.class = ? and j._raw_data_table = ?`,
+			data.Options.ConnectionId, WORKFLOW_JOB, fmt.Sprintf("_raw_%s", RAW_JOB_TABLE)),
+	}
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleJob{}))
+	if err != nil {
+		return err
+	}
+
+	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+		Params: JenkinsApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			FullName:     data.Options.JobFullName,
+		},
+		Ctx:   taskCtx,
+		Table: RAW_BUILD_TABLE,
+	})
+	if err != nil {
+		return err
+	}
+
+	logger.Debug("About to call collectorWithState.InitCollector")
+
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:   data.ApiClient,
+		Input:       iterator,
+		UrlTemplate: "{{ .Input.Path }}api/json",
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
+			query := url.Values{}
+			treeValue := "allBuilds[timestamp,number,duration,building,estimatedDuration,fullDisplayName,result,actions[lastBuiltRevision[SHA1,branch[name]],remoteUrls,mercurialRevisionNumber,causes[*]],changeSet[kind,revisions[revision]]]"
+			query.Set("tree", treeValue)
+
+			logger.Debug("Query: %v", query)
+
+			return query, nil
+		},
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+			var data struct {
+				Builds []json.RawMessage `json:"allBuilds"`
+			}
+			err := helper.UnmarshalResponse(res, &data)
+			if err != nil {
+				return nil, err
+			}
+
+			builds := make([]json.RawMessage, 0, len(data.Builds))
+			for _, build := range data.Builds {
+				var buildObj map[string]interface{}
+				err := json.Unmarshal(build, &buildObj)
+				if err != nil {
+					return nil, errors.Convert(err)
+				}
+				if buildObj["result"] != nil {
+					builds = append(builds, build)
+				}
+			}
+
+			logger.Debug("Returning this number of builds: %v", len(builds))
+			return builds, nil
+		},
+		AfterResponse: ignoreHTTPStatus404,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return collectorWithState.Execute()
 }
