@@ -114,9 +114,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		[]*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig]{
 			{
 				Scope: models.GitlabProject{
-					GitlabId:      gitlabProjectId,
-					Name:          gitlabProjectName,
-					HttpUrlToRepo: httpUrlToRepo,
+					GitlabId:          gitlabProjectId,
+					Name:              gitlabProjectName,
+					PathWithNamespace: pathWithNamespace,
+					HttpUrlToRepo:     httpUrlToRepo,
 				},
 				ScopeConfig: &models.GitlabScopeConfig{
 					ScopeConfig: common.ScopeConfig{
