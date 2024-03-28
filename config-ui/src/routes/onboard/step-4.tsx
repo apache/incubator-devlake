@@ -86,6 +86,14 @@ const LogsWrapper = styled.div`
   }
 `;
 
+const DashboardURLMap: Record<string, string> = {
+  github: '/grafana/d/KXWvOFQnz/github?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
+  gitlab: '/grafana/d/msSjEq97z/gitlab?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
+  bitbucket: '/grafana/d/4LzQHZa4k/bitbucket?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
+  azuredevops:
+    '/grafana/d/ba7e3a95-80ed-4067-a54b-2a82758eb3dd/azure-devops?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
+};
+
 const getStatus = (data: any) => {
   if (!data) {
     return 'running';
@@ -194,7 +202,9 @@ export const Step4 = () => {
             <CheckCircleOutlined style={{ fontSize: 120, color: green5 }} />
             <div className="action">
               <Space direction="vertical">
-                <Button type="primary">Check Dashboard</Button>
+                <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
+                  Check Dashboard
+                </Button>
                 <Button type="link">finish</Button>
               </Space>
             </div>
@@ -207,7 +217,9 @@ export const Step4 = () => {
             <div className="action">
               <Space>
                 <Button type="primary">Re-collect Data</Button>
-                <Button type="primary">Check Dashboard</Button>
+                <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
+                  Check Dashboard
+                </Button>
               </Space>
             </div>
           </div>
