@@ -42,7 +42,9 @@ export const OnboardCard = ({ style }: Props) => {
           <Progress type="circle" size={30} format={() => `${data.step}/4`} percent={(data.step / 4) * 100} />
           <div style={{ marginLeft: 16 }}>
             <h4>Onboard Session</h4>
-            <h5>You are not far from connecting to your first tool. Continue to finish it..</h5>
+            <h5 style={{ fontWeight: 400 }}>
+              You are not far from connecting to your first tool. Continue to finish it.
+            </h5>
           </div>
         </Flex>
         <Button type="primary" onClick={() => navigate('/onboard')}>
