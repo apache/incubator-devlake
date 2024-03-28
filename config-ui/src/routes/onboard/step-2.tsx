@@ -17,7 +17,7 @@
  */
 
 import { useState, useContext, useEffect, useMemo } from 'react';
-import { Flex, Button } from 'antd';
+import { Flex, Button, Tooltip } from 'antd';
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 
@@ -75,6 +75,8 @@ export const Step2 = () => {
         }),
       {
         setOperating: setTesting,
+        formatMessage: () => 'Connection success.',
+        formatReason: () => 'Connection failed. Please check your token or network.',
       },
     );
 
@@ -138,9 +140,17 @@ export const Step2 = () => {
               error=""
               setError={() => {}}
             />
-            <Button style={{ marginTop: 16 }} disabled={!payload.token} loading={testing} onClick={handleTest}>
-              Connect
-            </Button>
+            <Tooltip title="Test Connection">
+              <Button
+                style={{ marginTop: 16 }}
+                type="primary"
+                disabled={!payload.token}
+                loading={testing}
+                onClick={handleTest}
+              >
+                Connect
+              </Button>
+            </Tooltip>
           </div>
         )}
         {['bitbucket'].includes(plugin) && (
@@ -161,9 +171,17 @@ export const Step2 = () => {
               error=""
               setError={() => {}}
             />
-            <Button disabled={!payload.username || !payload.password} loading={testing} onClick={handleTest}>
-              Connect
-            </Button>
+            <Tooltip title="Test Connection">
+              <Button
+                style={{ marginTop: 16 }}
+                type="primary"
+                disabled={!payload.username || !payload.password}
+                loading={testing}
+                onClick={handleTest}
+              >
+                Connect
+              </Button>
+            </Tooltip>
           </div>
         )}
         <Markdown className="qa" rehypePlugins={[rehypeRaw]}>

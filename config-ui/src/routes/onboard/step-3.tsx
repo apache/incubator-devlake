@@ -123,7 +123,7 @@ export const Step3 = () => {
       },
       {
         setOperating,
-        hideToast: true,
+        formatMessage: () => 'Congratulations！You have successfully connected to your first repository!',
       },
     );
 
