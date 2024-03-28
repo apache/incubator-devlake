@@ -130,8 +130,8 @@ type SubtasksInfo struct {
 	ErrorName         string            `json:"errorName"`
 	SpentSeconds      int               `json:"spentSeconds"`
 	SubtaskDetails    []*SubtaskDetails `json:"subtaskDetails"`
-	TotalTransfrom    int64             `json:"totalTransfromData"`
-	FinishedTransfrom int64             `json:"finishedTransfromData"`
+	TotalTransform    int64             `json:"totalTransform"`
+	FinishedTransform int64             `json:"finishedTransform"`
 }
 
 type SubTasksOuput struct {
