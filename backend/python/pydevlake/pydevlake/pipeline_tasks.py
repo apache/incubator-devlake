@@ -27,6 +27,7 @@ def gitextractor(url: str, repo_name: str, scope_id: str, proxy: Optional[str]):
         options={
             "url": url,
             "name": repo_name,
+            "fullName": repo_name,
             "repoId": scope_id,
             "proxy": proxy
         },

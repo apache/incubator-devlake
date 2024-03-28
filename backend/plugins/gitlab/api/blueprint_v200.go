@@ -145,10 +145,11 @@ func makePipelinePlanV200(
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"name":   gitlabProject.Name,
-					"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
-					"proxy":  connection.Proxy,
+					"url":      cloneUrl.String(),
+					"name":     gitlabProject.Name,
+					"fullName": gitlabProject.PathWithNamespace,
+					"repoId":   didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
+					"proxy":    connection.Proxy,
 				},
 			})
 		}
