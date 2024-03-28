@@ -28,7 +28,6 @@ import { getCron, cronPresets, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
-import { OnboardCard } from '@/routes/onboard/card';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
 import { IBlueprint, IBPMode } from '@/types';
@@ -118,7 +117,6 @@ export const ProjectHomePage = () => {
 
   return (
     <PageHeader breadcrumbs={[{ name: 'Projects', path: PATHS.PROJECTS() }]}>
-      <OnboardCard style={{ marginBottom: 32 }} />
       <Flex style={{ marginBottom: 16 }} justify="flex-end">
         <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           New Project
