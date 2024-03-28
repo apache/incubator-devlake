@@ -82,7 +82,7 @@ export const Step3 = () => {
           cronConfig: presets[0],
           isManual: false,
           skipOnFail: true,
-          timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
+          timeAfter: formatTime(dayjs().subtract(14, 'day').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
           connections: [
             {
               pluginName: plugin,
