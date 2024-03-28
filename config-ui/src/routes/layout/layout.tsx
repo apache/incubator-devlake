@@ -34,6 +34,7 @@ import {
   selectTipsPayload,
   hideTips,
 } from '@/features';
+import { OnboardCard } from '@/routes/onboard/card';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { operator } from '@/utils';
 
@@ -163,6 +164,7 @@ export const Layout = () => {
         </Header>
         <Content style={{ overflowY: 'auto' }}>
           <div style={{ padding: 24, margin: '0 auto', width: 1280 }}>
+            <OnboardCard style={{ marginBottom: 32 }} />
             <Outlet />
           </div>
           {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
