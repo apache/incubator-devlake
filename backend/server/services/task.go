@@ -280,6 +280,8 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 			subTaskResult.Options = taskOption
 		}
 
+		var totalTransfrom int64
+		var finishedTransfrom int64
 		subtasks := []*models.Subtask{}
 		err = tx.All(&subtasks, dal.Where("task_id = ?", task.ID))
 		if err != nil {
@@ -302,8 +304,17 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 				IsFailed:        subtask.IsFailed,
 				Message:         subtask.Message,
 			}
+			if !subtask.IsCollector {
+				totalTransfrom++
+				if subtask.FinishedAt != nil {
+					finishedTransfrom++
+				}
+			}
+
 			subTaskResult.SubtaskDetails = append(subTaskResult.SubtaskDetails, t)
 		}
+		subTaskResult.TotalTransfrom = totalTransfrom
+		subTaskResult.FinishedTransfrom = finishedTransfrom
 		subtasksInfo = append(subtasksInfo, subTaskResult)
 
 		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = 1", task.ID)))
