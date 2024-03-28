@@ -15,20 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-##### Q1. What Bitbucket data will be collected?
+##### Q1. Which types of Bitbucket data are collected?
 
-`issues` `repos` `commits` `branches` `pull requests` `pr comments` `pipeline runs` `job runs` `deployments` `users`
+The data collected includes: `issues`, `repos`, `commits`, `branches`, `pull requests`, `pr comments`, `pipeline runs`, `job runs`, `deployments`, `users`, etc.
 
-Check [this doc](https://devlake.apache.org/docs/Overview/SupportedDataSources/#data-collection-scope-by-each-plugin) for more details.
+For a comprehensive scope of data collection, refer to the [Supported Data Sources documentation](https://devlake.apache.org/docs/Overview/SupportedDataSources/#data-collection-scope-by-each-plugin).
 
-##### Q2. The data from which time range will be collected?
+##### Q2. What time range is covered in the data collection?
 
-Only the data from last 14 days will be collected to speed up the sync up time. You can always change the time range in the project details page later.
+Data **updated** from the past 14 days is collected to expedite synchronization. The time range can be adjusted on the project details page at any point.
 
-##### Q3. Can I do transformations on the collected data?
+##### Q3. Is it possible to transform the collected data?
 
-Yes. You can do transformations by adding a Scope Config to the repositories you choose later.
+Yes, data transformations can be applied by setting up a Scope Config for the selected repositories afterward.
 
-##### Q4. What is the frequency to sync up data?
+##### Q4. How often is the data synchronized?
 
-The data will be synced daily, you can change it in the project details page later.
+Data synchronization occurs daily. This frequency can be modified on the project details page as needed.

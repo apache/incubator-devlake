@@ -17,9 +17,14 @@ limitations under the License.
 
 ##### GitHub tells you:
 
-1. What is your issue lead time?
+1. What is the lead time for issues in your workflow?
+
    ![1](/onboard/assets/github/1.png)
-2. How fast is your Code Review process?
+
+2. What is the turnaround time for your Code Review process?
+   
    ![2](/onboard/assets/github/2.png)
-3. How is your CI/CD process?
+
+3. How effective is your CI/CD pipeline?
+
    ![3](/onboard/assets/github/3.png)

@@ -17,9 +17,14 @@ limitations under the License.
 
 ##### Azure DevOps tells you:
 
-1. How much code have you submitted?
+1. What is the volume of code you have contributed?
+
    ![1](/onboard/assets/gitlab/1.png)
-2. How are your Pull Requests handled?
+
+2. What is the procedure for managing your Pull Requests?
+
    ![2](/onboard/assets/gitlab/2.png)
-3. How fast is your Code Review process?
+
+3. What is the turnaround time for your Code Review process?
+
    ![3](/onboard/assets/gitlab/3.png)

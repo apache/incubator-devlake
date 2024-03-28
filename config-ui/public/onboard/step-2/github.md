@@ -15,30 +15,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-##### Q1. How to create a classic GitHub personal access token?
+##### Q1. How to generate a GitHub personal access token (classic)?
 
-1. Log in to [github.com](https://github.com).
-2. In the upper-right corner of any page, click your profile photo, then click Settings.
-3. In the left sidebar, click <> Developer settings.
-4. In the left sidebar, under 'Personal access tokens', click Tokens (classic).
-5. Choose the following scopes: `repo:status`, `repo:deployment`, `read:user` and `read:org`.
+1. Sign in at [github.com](https://github.com).
+2. Click your profile photo in the upper-right corner, select **Settings**.
+3. On the left sidebar, click **Developer settings**.
+4. Click **Tokens (classic)** under **Personal access tokens**.
+5. Select the scopes: `repo:status`, `repo:deployment`, `read:user` and `read:org`.
 
-Check [this doc](https://devlake.apache.org/docs/Configuration/GitHub/#personal-access-tokens) for more details.
+For detailed instructions, refer to [this doc](https://devlake.apache.org/docs/Configuration/GitHub/#personal-access-tokens).
 
-##### Q2. What token scopes should I choose?
+##### Q2. Which scopes should be included in a token?
 
-Normally, only the following scopes are required:
+Typically, the necessary scopes are:
 `repo:status` `repo:deployment` `read:user` `read:org`
 
-However, if you want to collect data from private repositories, you need to give full permission to repo:
+For private repositories, extend permissions with:
 `repo` `read:user` `read:org`
 
-##### Q3. Can I connect to the GitHub server?
+##### Q3. Is connecting to the GitHub Server version possible?
 
-Sure, you could
+Yes, you can.
 
-1. Go to the Connections page.
-2. Click Create a New Connection.
-3. Choose 'GitHub server' and finish the connection.
+1. Navigate to the **Connections** page.
+2. Click on GitHub, and click on **Create a New Connection**.
+3. Select 'GitHub Server' and finish the configuration.
 
-GitHub server is not supported to simplify this onboard process.
+Please note that GitHub Server integration is not included to ease the onboarding process.
