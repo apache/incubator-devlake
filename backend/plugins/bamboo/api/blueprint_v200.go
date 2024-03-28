@@ -77,7 +77,7 @@ func makePipelinePlanV200(
 			subtaskMetas,
 			scopeConfig.Entities,
 			models.BambooOptions{
-				ConnectionId: scope.ConnectionId,
+				ConnectionId: connection.ID,
 				PlanKey:      scope.PlanKey,
 			},
 		)

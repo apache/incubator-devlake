@@ -20,53 +20,25 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"github.com/go-playground/validator/v10"
 )
 
-var vld *validator.Validate
-var connectionHelper *helper.ConnectionApiHelper
-var scopeHelper *helper.ScopeApiHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig]
-var scHelper *helper.ScopeConfigHelper[models.CircleciScopeConfig, *models.CircleciScopeConfig]
-var remoteHelper *helper.RemoteApiHelper[models.CircleciConnection, models.CircleciProject, RemoteProject, helper.NoRemoteGroupResponse]
 var basicRes context.BasicRes
+var vld *validator.Validate
+
 var dsHelper *helper.DsHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.CircleciConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.CircleciConnection, models.CircleciProject, srvhelper.NoPagintation]
+
+// var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.CircleciConnection, models.CircleciProject]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = helper.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-	params := &helper.ReflectionParameters{
-		ScopeIdFieldName:     "Id",
-		ScopeIdColumnName:    "id",
-		RawScopeParamName:    "Slug",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = helper.NewScopeHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		helper.NewScopeDatabaseHelperImpl[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
-		nil,
-	)
-	remoteHelper = helper.NewRemoteHelper[models.CircleciConnection, models.CircleciProject, RemoteProject, helper.NoRemoteGroupResponse](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
-	scHelper = helper.NewScopeConfigHelper[models.CircleciScopeConfig, *models.CircleciScopeConfig](
-		basicRes,
-		vld,
-		p.Name(),
-	)
-
 	dsHelper = helper.NewDataSourceHelper[
 		models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig,
 	](
@@ -79,5 +51,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 		nil,
 	)
-
+	raProxy = api.NewDsRemoteApiProxyHelper[models.CircleciConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[models.CircleciConnection, models.CircleciProject, srvhelper.NoPagintation](raProxy, listCircleciRemoteScopes)
+	// raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.CircleciConnection, models.CircleciProject](raProxy, searchCircleciProjects)
 }
