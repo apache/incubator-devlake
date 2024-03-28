@@ -81,7 +81,7 @@ export const Step1 = () => {
               onChange={(e) => setProjectName(e.target.value)}
             />
           </Block>
-          <Block title="Data Connections" description="You can only choose one data connection" required>
+          <Block title="Data Connection" description="You can only choose one data connection" required>
             <ConnectionSelect
               placeholder="Select a Data Connection"
               options={[
