@@ -22,76 +22,76 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// CreateScopeConfig create scope config for Bamboo
-// @Summary create scope config for Bamboo
-// @Description create scope config for Bamboo
-// @Tags plugins/bamboo
+// PostScopeConfig create scope config for Circleci
+// @Summary create scope config for Circleci
+// @Description create scope config for Circleci
 // @Accept application/json
 // @Param connectionId path int true "connectionId"
-// @Param scopeConfig body models.BambooScopeConfig true "scope config"
-// @Success 200  {object} models.BambooScopeConfig
+// @Param scopeConfig body models.CircleciScopeConfig true "scope config"
+// @Success 200  {object} models.CircleciScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bamboo/connections/{connectionId}/scope-configs [POST]
-func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Create(input)
+// @Tags plugins/circleci
+// @Router /plugins/circleci/connections/{connectionId}/scope-configs [POST]
+func PostScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeConfigApi.Post(input)
 }
 
-// UpdateScopeConfig update scope config for Bamboo
-// @Summary update scope config for Bamboo
-// @Description update scope config for Bamboo
-// @Tags plugins/bamboo
+// PatchScopeConfig update scope config for Circleci
+// @Summary update scope config for Circleci
+// @Description update scope config for Circleci
+// @Tags plugins/circleci
 // @Accept application/json
 // @Param id path int true "id"
-// @Param scopeConfig body models.BambooScopeConfig true "scope config"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} models.BambooScopeConfig
+// @Param scopeConfig body models.CircleciScopeConfig true "scope config"
+// @Success 200  {object} models.CircleciScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bamboo/connections/{connectionId}/scope-configs/{id} [PATCH]
-func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Update(input)
+// @Router /plugins/circleci/connections/{connectionId}/scope-configs/{id} [PATCH]
+func PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeConfigApi.Patch(input)
 }
 
-// GetScopeConfig return onescope config
-// @Summary return onescope config
-// @Description return onescope config
-// @Tags plugins/bamboo
+// GetScopeConfig return one scope config
+// @Summary return one scope config
+// @Description return one scope config
+// @Tags plugins/circleci
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} models.BambooScopeConfig
+// @Success 200  {object} models.CircleciScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bamboo/connections/{connectionId}/scope-configs/{id} [GET]
+// @Router /plugins/circleci/connections/{connectionId}/scope-configs/{id} [GET]
 func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Get(input)
+	return dsHelper.ScopeConfigApi.GetDetail(input)
 }
 
 // GetScopeConfigList return all scope configs
 // @Summary return all scope configs
 // @Description return all scope configs
-// @Tags plugins/bamboo
+// @Tags plugins/circleci
+// @Param connectionId path int true "connectionId"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Param connectionId path int true "connectionId"
-// @Success 200  {object} []models.BambooScopeConfig
+// @Success 200  {object} []models.CircleciScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bamboo/connections/{connectionId}/scope-configs [GET]
+// @Router /plugins/circleci/connections/{connectionId}/scope-configs [GET]
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.List(input)
+	return dsHelper.ScopeConfigApi.GetAll(input)
 }
 
 // DeleteScopeConfig delete a scope config
 // @Summary delete a scope config
 // @Description delete a scope config
-// @Tags plugins/bamboo
+// @Tags plugins/circleci
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bamboo/connections/{connectionId}/scope-configs/{id} [DELETE]
+// @Router /plugins/circleci/connections/{connectionId}/scope-configs/{id} [DELETE]
 func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Delete(input)
+	return dsHelper.ScopeConfigApi.Delete(input)
 }
