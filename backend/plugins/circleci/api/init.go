@@ -21,7 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"github.com/go-playground/validator/v10"
@@ -30,7 +29,7 @@ import (
 var basicRes context.BasicRes
 var vld *validator.Validate
 
-var dsHelper *helper.DsHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig]
+var dsHelper *api.DsHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig]
 var raProxy *api.DsRemoteApiProxyHelper[models.CircleciConnection]
 var raScopeList *api.DsRemoteApiScopeListHelper[models.CircleciConnection, models.CircleciProject, srvhelper.NoPagintation]
 
@@ -39,7 +38,7 @@ var raScopeList *api.DsRemoteApiScopeListHelper[models.CircleciConnection, model
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
 	vld = validator.New()
-	dsHelper = helper.NewDataSourceHelper[
+	dsHelper = api.NewDataSourceHelper[
 		models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig,
 	](
 		br,

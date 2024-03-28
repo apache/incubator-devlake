@@ -41,14 +41,15 @@ func MakeDataSourcePipelinePlanV200(
 		return nil, nil, err
 	}
 	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
-
+	if err != nil {
+		return nil, nil, err
+	}
 	plan, err := makePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
 	scopes, err := makeScopesV200(scopeDetails, connection)
-
-	return plan, scopes, nil
+	return plan, scopes, err
 }
 
 func makePipelinePlanV200(
@@ -70,7 +71,7 @@ func makePipelinePlanV200(
 			subtaskMetas,
 			scopeConfig.Entities,
 			tasks.CircleciOptions{
-				ConnectionId: scope.ConnectionId,
+				ConnectionId: connection.ID,
 				ProjectSlug:  scope.Slug,
 			},
 		)
