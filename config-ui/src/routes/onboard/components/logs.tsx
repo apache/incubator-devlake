@@ -17,7 +17,7 @@
  */
 
 import { LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { theme, Progress } from 'antd';
+import { theme, Tooltip, Progress } from 'antd';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -34,6 +34,9 @@ const Wrapper = styled.div`
     & > span.name {
       flex: auto;
       font-weight: 600;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     & > span.progress {
@@ -97,7 +100,9 @@ export const Logs = ({ style, log: { plugin, name, percent, tasks } }: LogsProps
   return (
     <Wrapper style={style}>
       <div className="title">
-        <span className="name">{name}</span>
+        <Tooltip title={name}>
+          <span className="name">{name}</span>
+        </Tooltip>
         <span className="progress">
           <Progress size="small" percent={percent} showInfo={false} />
         </span>
