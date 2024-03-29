@@ -194,7 +194,7 @@ export const Step4 = () => {
     <Wrapper>
       {status === 'running' && (
         <div className="top">
-          <div className="info">syncing up data from {scopeName}...</div>
+          <div className="info">Syncing up data from {scopeName}...</div>
           <div className="tip">
             This may take a few minutes to hours, depending on the size of your data and rate limits of the tool you
             choose.
@@ -251,7 +251,7 @@ export const Step4 = () => {
         </div>
       )}
       <div className="logs">
-        <div className="tip">Sync progress details</div>
+        <div className="tip">Data synchronization progress:</div>
         <div className="detail">
           <Logs log={collector} />
           <Logs log={extractor} style={{ marginLeft: 16 }} />
