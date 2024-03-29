@@ -61,7 +61,7 @@ const Wrapper = styled.div`
 
   .action {
     margin: 0 auto;
-    width: 268px;
+    width: 200px;
     margin-top: 64px;
   }
 `;
@@ -97,7 +97,7 @@ export const Step0 = () => {
         Integrate your first Git tool and observe engineering metrics with just a few clicks.
       </div>
       <div className="action">
-        <Button block type="primary" loading={operating} onClick={handleSubmit}>
+        <Button block size="large" type="primary" loading={operating} onClick={handleSubmit}>
           Start
         </Button>
       </div>

@@ -34,7 +34,7 @@ import {
   selectTipsPayload,
   hideTips,
 } from '@/features';
-import { OnboardCard } from '@/routes/onboard/card';
+import { OnboardCard } from '@/routes/onboard/components';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { operator } from '@/utils';
 
