@@ -229,7 +229,7 @@ export const Step4 = () => {
       )}
       {status === 'partial' && (
         <div className="top">
-          <div className="info">{scopeName} is parted collected！</div>
+          <div className="info">Data from {scopeName} has been partially collected!</div>
           <CheckCircleOutlined style={{ fontSize: 120, color: orange5 }} />
           <div className="action">
             <Space>
