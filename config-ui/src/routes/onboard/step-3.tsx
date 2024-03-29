@@ -104,6 +104,7 @@ export const Step3 = () => {
             ? it
             : {
                 ...it,
+                blueprintId: blueprint.id,
                 pipelineId: pipeline.pipelines[0].id,
                 scopeName: scopes[0]?.fullName ?? scopes[0].name,
               },
