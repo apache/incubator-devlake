@@ -103,11 +103,10 @@ const getStatus = (data: any) => {
 
 export const Step4 = () => {
   const [operating, setOperating] = useState(false);
-  const [version, setVersion] = useState(0);
 
   const navigate = useNavigate();
 
-  const { step, records, projectName, plugin } = useContext(Context);
+  const { step, records, done, projectName, plugin, setRecords } = useContext(Context);
 
   const record = useMemo(() => records.find((it) => it.plugin === plugin), [plugin, records]);
 
@@ -115,7 +114,7 @@ export const Step4 = () => {
     async () => {
       return await API.pipeline.subTasks(record?.pipelineId as string);
     },
-    [version],
+    [record],
     {
       cancel: (data) => {
         return !!(data && ['TASK_COMPLETED', 'TASK_PARTIAL', 'TASK_FAILED'].includes(data.status));
@@ -199,14 +198,39 @@ export const Step4 = () => {
     }
 
     const [success] = await operator(
-      () => API.blueprint.trigger(record.blueprintId, { skipCollectors: false, fullSync: false }),
+      async () => {
+        // 1. re trigger this bulueprint
+        await API.blueprint.trigger(record.blueprintId, { skipCollectors: false, fullSync: false });
+
+        // 2. get current run pipeline
+        const pipeline = await API.blueprint.pipelines(record.blueprintId);
+
+        const newRecords = records.map((it) =>
+          it.plugin !== plugin
+            ? it
+            : {
+                ...it,
+                pipelineId: pipeline.pipelines[0].id,
+              },
+        );
+
+        setRecords(newRecords);
+
+        // 3. update store
+        await API.store.set('onboard', {
+          step: 4,
+          records: newRecords,
+          done,
+          projectName,
+          plugin,
+        });
+      },
       {
         setOperating,
       },
     );
 
     if (success) {
-      setVersion(version + 1);
     }
   };
 
@@ -264,7 +288,7 @@ export const Step4 = () => {
       {status === 'failed' && (
         <div className="top">
           <div className="info">Something went wrong with the collection process.</div>
-          <div className="tips">
+          <div className="tip">
             Please verify your network connection and ensure your token's rate limits have not been exceeded, then
             attempt to collect the data again. Alternatively, you may report the issue by filing a bug on{' '}
             <ExternalLink link="https://github.com/apache/incubator-devlake/issues/new/choose">GitHub</ExternalLink>.
