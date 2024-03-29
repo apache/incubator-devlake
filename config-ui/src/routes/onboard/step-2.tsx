@@ -136,7 +136,10 @@ export const Step2 = () => {
               subLabel={`Create a personal access token in ${config.name}`}
               initialValue=""
               value={payload.token}
-              setValue={(token) => setPayload({ ...payload, token })}
+              setValue={(token) => {
+                setPayload({ ...payload, token });
+                setTestStatus(false);
+              }}
               error=""
               setError={() => {}}
             />
@@ -158,7 +161,10 @@ export const Step2 = () => {
             <ConnectionUsername
               initialValue=""
               value={payload.username}
-              setValue={(username) => setPayload({ ...payload, username })}
+              setValue={(username) => {
+                setPayload({ ...payload, username });
+                setTestStatus(false);
+              }}
               error=""
               setError={() => {}}
             />
@@ -167,7 +173,10 @@ export const Step2 = () => {
               label="App Password"
               initialValue=""
               value={payload.password}
-              setValue={(password) => setPayload({ ...payload, password })}
+              setValue={(password) => {
+                setPayload({ ...payload, password });
+                setTestStatus(false);
+              }}
               error=""
               setError={() => {}}
             />
