@@ -18,10 +18,9 @@
 
 import { useState, useContext, useEffect, useMemo } from 'react';
 import { Flex, Button, Tooltip } from 'antd';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 
 import API from '@/api';
+import { Markdown } from '@/components';
 import { getPluginConfig } from '@/plugins';
 import { ConnectionToken } from '@/plugins/components/connection-form/fields/token';
 import { ConnectionUsername } from '@/plugins/components/connection-form/fields/username';
@@ -193,9 +192,7 @@ export const Step2 = () => {
             </Tooltip>
           </div>
         )}
-        <Markdown className="qa" rehypePlugins={[rehypeRaw]}>
-          {QA}
-        </Markdown>
+        <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 36 }} justify="space-between">
         <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>

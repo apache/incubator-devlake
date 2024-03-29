@@ -18,13 +18,9 @@
 
 import { useState, useEffect, useContext } from 'react';
 import { Input, Flex, Button, message } from 'antd';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-import Zoom from 'react-medium-image-zoom';
-import 'react-medium-image-zoom/dist/styles.css';
 
 import API from '@/api';
-import { Block } from '@/components';
+import { Block, Markdown } from '@/components';
 import { ConnectionSelect } from '@/plugins';
 import { validName } from '@/routes/project';
 import { operator } from '@/utils';
@@ -121,19 +117,7 @@ export const Step1 = () => {
             />
           </Block>
         </div>
-        <Markdown
-          className="qa"
-          rehypePlugins={[rehypeRaw]}
-          components={{
-            img: ({ alt, ...props }) => (
-              <Zoom>
-                <img alt={alt} {...props} />
-              </Zoom>
-            ),
-          }}
-        >
-          {QA}
-        </Markdown>
+        <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 64 }} justify="space-between">
         <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>

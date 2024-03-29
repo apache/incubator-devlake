@@ -19,11 +19,10 @@
 import { useState, useContext, useEffect, useMemo } from 'react';
 import { Flex, Button } from 'antd';
 import dayjs from 'dayjs';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 
 import API from '@/api';
 import { cronPresets } from '@/config';
+import { Markdown } from '@/components';
 import { IBPMode } from '@/types';
 import { DataScopeRemote, getPluginScopeId } from '@/plugins';
 import { operator, formatTime } from '@/utils';
@@ -149,9 +148,7 @@ export const Step3 = () => {
             footer={null}
           />
         </div>
-        <Markdown className="qa" rehypePlugins={[rehypeRaw]}>
-          {QA}
-        </Markdown>
+        <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 36 }} justify="space-between">
         <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>
