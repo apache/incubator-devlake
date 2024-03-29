@@ -162,7 +162,7 @@ export const Step4 = () => {
   }, [data]);
 
   const {
-    token: { green5, orange5, red5 },
+    token: { green5, orange5, red5, colorPrimary },
   } = theme.useToken();
 
   const handleFinish = async () => {
@@ -235,12 +235,14 @@ export const Step4 = () => {
       )}
       {status === 'failed' && (
         <div className="top">
-          <div className="info">Something went wrong with the collection process. </div>
+          <div className="info" style={{ marginBottom: 10 }}>
+            Something went wrong with the collection process.
+          </div>
           <div className="info">
-            Please check out the
-            <Button type="link" onClick={() => setOpen(true)}>
+            Please check out the{' '}
+            <span style={{ color: colorPrimary, cursor: 'pointer' }} onClick={() => setOpen(true)}>
               network and token permission
-            </Button>
+            </span>{' '}
             and retry data collection
           </div>
           <CloseCircleOutlined style={{ fontSize: 120, color: red5 }} />
