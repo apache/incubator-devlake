@@ -19,12 +19,12 @@
 import { useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { theme, Progress, Space, Button, Modal } from 'antd';
+import { theme, Progress, Space, Button } from 'antd';
 import styled from 'styled-components';
 
 import API from '@/api';
+import { ExternalLink } from '@/components';
 import { useAutoRefresh } from '@/hooks';
-import { ConnectionName, ConnectionForm } from '@/plugins';
 import { operator } from '@/utils';
 
 import { Logs } from './components';
@@ -103,7 +103,6 @@ const getStatus = (data: any) => {
 
 export const Step4 = () => {
   const [operating, setOperating] = useState(false);
-  const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -170,7 +169,7 @@ export const Step4 = () => {
   }, [data]);
 
   const {
-    token: { green5, orange5, red5, colorPrimary },
+    token: { green5, orange5, red5 },
   } = theme.useToken();
 
   const handleFinish = async () => {
@@ -197,7 +196,7 @@ export const Step4 = () => {
     return null;
   }
 
-  const { connectionId, scopeName } = record;
+  const { scopeName } = record;
 
   return (
     <Wrapper>
@@ -244,15 +243,11 @@ export const Step4 = () => {
       )}
       {status === 'failed' && (
         <div className="top">
-          <div className="info" style={{ marginBottom: 10 }}>
-            Something went wrong with the collection process.
-          </div>
-          <div className="info">
-            Please check out the{' '}
-            <span style={{ color: colorPrimary, cursor: 'pointer' }} onClick={() => setOpen(true)}>
-              network and token permission
-            </span>{' '}
-            and retry data collection
+          <div className="info">Something went wrong with the collection process.</div>
+          <div className="tips">
+            Please verify your network connection and ensure your token's rate limits have not been exceeded, then
+            attempt to collect the data again. Alternatively, you may report the issue by filing a bug on{' '}
+            <ExternalLink link="https://github.com/apache/incubator-devlake/issues/new/choose">GitHub</ExternalLink>.
           </div>
           <CloseCircleOutlined style={{ fontSize: 120, color: red5 }} />
           <div className="action">
@@ -269,16 +264,6 @@ export const Step4 = () => {
           <Logs log={extractor} style={{ marginLeft: 16 }} />
         </div>
       </div>
-      <Modal
-        open={open}
-        width={820}
-        centered
-        title={<ConnectionName plugin={plugin} />}
-        footer={null}
-        onCancel={() => setOpen(false)}
-      >
-        <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={() => setOpen(false)} />
-      </Modal>
     </Wrapper>
   );
 };
