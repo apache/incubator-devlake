@@ -57,7 +57,7 @@ export const useAutoRefresh = <T>(
         });
     }, option?.interval ?? 5000);
     return () => clearInterval(timer.current);
-  }, []);
+  }, [...deps]);
 
   useEffect(() => {
     if (option?.cancel?.(data) || (option?.retryLimit && option?.retryLimit <= retryCount.current)) {
