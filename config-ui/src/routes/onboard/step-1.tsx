@@ -55,6 +55,16 @@ export const Step1 = () => {
       return;
     }
 
+    const [, res] = await operator(() => API.project.checkName(projectName), {
+      setOperating,
+      hideToast: true,
+    });
+
+    if (res.exist) {
+      message.error(`Project name "${projectName}" already exists, please try another name.`);
+      return;
+    }
+
     const [success] = await operator(() => API.store.set('onboard', { step: 2, records, done, projectName, plugin }), {
       setOperating,
       hideToast: true,
