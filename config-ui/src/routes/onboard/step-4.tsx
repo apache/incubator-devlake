@@ -135,7 +135,7 @@ export const Step4 = () => {
 
     const collector = {
       plugin: collectorTask.plugin,
-      name: `Collect non-Git entitles in ${collectorTask.options?.fullName} ?? 'Unknown'`,
+      name: `Collect non-Git entitles in ${collectorTask.options?.fullName ?? 'Unknown'}`,
       percent: collectorSubtasks.length
         ? Math.floor(((collectorSubtasks.length - collectorSubtasksFinished.length) / collectorSubtasks.length) * 100)
         : 0,
@@ -152,7 +152,7 @@ export const Step4 = () => {
 
     const extractor = {
       plugin: extractorTask.plugin,
-      name: `Collect Git entitles in ${extractorTask.options?.fullName} ?? 'Unknown'`,
+      name: `Collect Git entitles in ${extractorTask.options?.fullName ?? 'Unknown'}`,
       percent: extractorSubtasks.length
         ? Math.floor(((extractorSubtasks.length - extractorSubtasksFinished.length) / extractorSubtasks.length) * 100)
         : 0,
