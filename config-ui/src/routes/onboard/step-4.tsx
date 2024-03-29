@@ -205,8 +205,9 @@ export const Step4 = () => {
         <div className="top">
           <div className="info">Syncing up data from {scopeName}...</div>
           <div className="tip">
-            This may take a few minutes to hours, depending on the size of your data and rate limits of the tool you
-            choose.
+            This may take a few minutes to hours, depending on the volume of your data and the rate limits imposed by
+            the selected tool. To speed up, only data updated from the past 14 days will be collected. However, this
+            timeframe can be modified at any time via the project details page.
           </div>
           <Progress type="circle" size={120} percent={percent} />
         </div>
