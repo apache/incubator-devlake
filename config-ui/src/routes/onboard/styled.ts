@@ -137,6 +137,7 @@ export const StepContent = styled.div`
     }
 
     li {
+      font-size: 12px;
       line-height: 20px;
     }
 
