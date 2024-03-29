@@ -31,6 +31,7 @@ import { Logs } from './components';
 import { Context } from './context';
 
 const Wrapper = styled.div`
+  margin-top: 150px;
   padding: 24px;
   background-color: #fff;
   box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px 0px rgba(0, 0, 0, 0.07);
