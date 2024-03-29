@@ -157,7 +157,7 @@ export const Step3 = () => {
         <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>
           Previous Step
         </Button>
-        <Button type="primary" loading={operating} onClick={handleSubmit}>
+        <Button type="primary" loading={operating} disabled={!scopes.length} onClick={handleSubmit}>
           Next Step
         </Button>
       </Flex>

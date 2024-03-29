@@ -22,7 +22,7 @@ export type SubTasksRes = {
   subtasks: Array<{
     plugin: string;
     options: {
-      name: string;
+      fullName: string;
     };
     status: string;
     subtaskDetails: Array<{
