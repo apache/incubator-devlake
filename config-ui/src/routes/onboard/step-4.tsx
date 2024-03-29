@@ -103,6 +103,7 @@ const getStatus = (data: any) => {
 
 export const Step4 = () => {
   const [operating, setOperating] = useState(false);
+  const [version, setVersion] = useState(0);
 
   const navigate = useNavigate();
 
@@ -114,7 +115,7 @@ export const Step4 = () => {
     async () => {
       return await API.pipeline.subTasks(record?.pipelineId as string);
     },
-    [],
+    [version],
     {
       cancel: (data) => {
         return !!(data && ['TASK_COMPLETED', 'TASK_PARTIAL', 'TASK_FAILED'].includes(data.status));
@@ -192,6 +193,23 @@ export const Step4 = () => {
     }
   };
 
+  const handleRecollectData = async () => {
+    if (!record) {
+      return null;
+    }
+
+    const [success] = await operator(
+      () => API.blueprint.trigger(record.blueprintId, { skipCollectors: false, fullSync: false }),
+      {
+        setOperating,
+      },
+    );
+
+    if (success) {
+      setVersion(version + 1);
+    }
+  };
+
   if (!plugin || !record) {
     return null;
   }
@@ -233,7 +251,9 @@ export const Step4 = () => {
           <CheckCircleOutlined style={{ fontSize: 120, color: orange5 }} />
           <div className="action">
             <Space>
-              <Button type="primary">Re-collect Data</Button>
+              <Button type="primary" onClick={handleRecollectData}>
+                Re-collect Data
+              </Button>
               <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
                 Check Dashboard
               </Button>
@@ -252,7 +272,9 @@ export const Step4 = () => {
           <CloseCircleOutlined style={{ fontSize: 120, color: red5 }} />
           <div className="action">
             <Space direction="vertical">
-              <Button type="primary">Re-collect Data</Button>
+              <Button type="primary" onClick={handleRecollectData}>
+                Re-collect Data
+              </Button>
             </Space>
           </div>
         </div>

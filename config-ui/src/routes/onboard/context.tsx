@@ -21,6 +21,7 @@ import { createContext } from 'react';
 export type Record = {
   plugin: string;
   connectionId: ID;
+  blueprintId: ID;
   pipelineId: ID;
   scopeName: string;
 };
