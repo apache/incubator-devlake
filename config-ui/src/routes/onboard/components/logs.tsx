@@ -62,7 +62,7 @@ interface LogsProps {
   style?: React.CSSProperties;
   log: {
     plugin: string;
-    scopeName: string;
+    name: string;
     status: string;
     tasks: Array<{
       step: number;
@@ -73,7 +73,7 @@ interface LogsProps {
   };
 }
 
-export const Logs = ({ style, log: { plugin, scopeName, status, tasks } }: LogsProps) => {
+export const Logs = ({ style, log: { plugin, name, status, tasks } }: LogsProps) => {
   const {
     token: { green5, red5, colorPrimary },
   } = theme.useToken();
@@ -84,9 +84,7 @@ export const Logs = ({ style, log: { plugin, scopeName, status, tasks } }: LogsP
 
   return (
     <Wrapper style={style}>
-      <div className="title">
-        {plugin}:{scopeName}
-      </div>
+      <div className="title">{name}</div>
       <ul>
         {tasks.map((task) => (
           <li>

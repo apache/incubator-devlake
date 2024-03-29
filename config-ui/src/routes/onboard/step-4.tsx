@@ -132,7 +132,7 @@ export const Step4 = () => {
 
     const collector = {
       plugin: collectorTask.plugin,
-      scopeName: collectorTask.options?.name,
+      name: `Collect non-Git entitles in ${collectorTask.options?.fullName} ?? 'Unknown'`,
       status: collectorTask.status,
       tasks: (collectorTask.subtaskDetails ?? [])
         .filter((it) => it.isCollector)
@@ -146,7 +146,7 @@ export const Step4 = () => {
 
     const extractor = {
       plugin: extractorTask.plugin,
-      scopeName: extractorTask.options?.name,
+      name: `Collect Git entitles in ${extractorTask.options?.fullName} ?? 'Unknown'`,
       status: extractorTask.status,
       tasks: (extractorTask.subtaskDetails ?? [])
         .filter((it) => it.isCollector)
