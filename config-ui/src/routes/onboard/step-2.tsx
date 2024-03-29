@@ -97,7 +97,10 @@ export const Step2 = () => {
           ...payload,
         });
 
-        const newRecords = [...records, { plugin, connectionId: connection.id, pipelineId: '', scopeName: '' }];
+        const newRecords = [
+          ...records,
+          { plugin, connectionId: connection.id, blueprintId: '', pipelineId: '', scopeName: '' },
+        ];
 
         setRecords(newRecords);
 
