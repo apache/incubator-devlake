@@ -130,24 +130,32 @@ export const Step4 = () => {
     const collectorTask = (data?.subtasks ?? [])[0] ?? {};
     const extractorTask = (data?.subtasks ?? [])[1] ?? {};
 
+    const collectorSubtasks = (collectorTask.subtaskDetails ?? []).filter((it) => it.isCollector);
+    const collectorSubtasksFinished = collectorSubtasks.filter((it) => it.finishedAt || it.isFailed);
+
     const collector = {
       plugin: collectorTask.plugin,
       name: `Collect non-Git entitles in ${collectorTask.options?.fullName} ?? 'Unknown'`,
-      status: collectorTask.status,
-      tasks: (collectorTask.subtaskDetails ?? [])
-        .filter((it) => it.isCollector)
-        .map((it) => ({
-          step: it.sequence,
-          name: it.name,
-          status: it.isFailed ? 'failed' : !it.beganAt ? 'pending' : it.finishedAt ? 'success' : 'running',
-          finishedRecords: it.finishedRecords,
-        })),
+      percent: collectorSubtasks.length
+        ? Math.floor(((collectorSubtasks.length - collectorSubtasksFinished.length) / collectorSubtasks.length) * 100)
+        : 0,
+      tasks: collectorSubtasks.map((it) => ({
+        step: it.sequence,
+        name: it.name,
+        status: it.isFailed ? 'failed' : !it.beganAt ? 'pending' : it.finishedAt ? 'success' : 'running',
+        finishedRecords: it.finishedRecords,
+      })),
     };
+
+    const extractorSubtasks = (extractorTask.subtaskDetails ?? []).filter((it) => it.isCollector);
+    const extractorSubtasksFinished = extractorSubtasks.filter((it) => it.finishedAt || it.isFailed);
 
     const extractor = {
       plugin: extractorTask.plugin,
       name: `Collect Git entitles in ${extractorTask.options?.fullName} ?? 'Unknown'`,
-      status: extractorTask.status,
+      percent: extractorSubtasks.length
+        ? Math.floor(((extractorSubtasks.length - extractorSubtasksFinished.length) / extractorSubtasks.length) * 100)
+        : 0,
       tasks: (extractorTask.subtaskDetails ?? [])
         .filter((it) => it.isCollector)
         .map((it) => ({

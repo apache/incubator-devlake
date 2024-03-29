@@ -17,7 +17,7 @@
  */
 
 import { LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { theme } from 'antd';
+import { theme, Progress } from 'antd';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -27,7 +27,19 @@ const Wrapper = styled.div`
   background: #f6f6f8;
 
   .title {
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    & > span.name {
+      flex: auto;
+      font-weight: 600;
+    }
+
+    & > span.progress {
+      margin-left: 12px;
+      flex: 0 0 60px;
+    }
   }
 
   ul {
@@ -63,7 +75,7 @@ interface LogsProps {
   log: {
     plugin: string;
     name: string;
-    status: string;
+    percent: number;
     tasks: Array<{
       step: number;
       name: string;
@@ -73,7 +85,7 @@ interface LogsProps {
   };
 }
 
-export const Logs = ({ style, log: { plugin, name, status, tasks } }: LogsProps) => {
+export const Logs = ({ style, log: { plugin, name, percent, tasks } }: LogsProps) => {
   const {
     token: { green5, red5, colorPrimary },
   } = theme.useToken();
@@ -84,7 +96,12 @@ export const Logs = ({ style, log: { plugin, name, status, tasks } }: LogsProps)
 
   return (
     <Wrapper style={style}>
-      <div className="title">{name}</div>
+      <div className="title">
+        <span className="name">{name}</span>
+        <span className="progress">
+          <Progress size="small" percent={percent} showInfo={false} />
+        </span>
+      </div>
       <ul>
         {tasks.map((task) => (
           <li>
