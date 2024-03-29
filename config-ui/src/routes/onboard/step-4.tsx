@@ -31,6 +31,7 @@ import { Logs } from './components';
 import { Context } from './context';
 
 const Wrapper = styled.div`
+  margin-top: 150px;
   padding: 24px;
   background-color: #fff;
   box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px 0px rgba(0, 0, 0, 0.07);
@@ -129,24 +130,32 @@ export const Step4 = () => {
     const collectorTask = (data?.subtasks ?? [])[0] ?? {};
     const extractorTask = (data?.subtasks ?? [])[1] ?? {};
 
+    const collectorSubtasks = (collectorTask.subtaskDetails ?? []).filter((it) => it.isCollector);
+    const collectorSubtasksFinished = collectorSubtasks.filter((it) => it.finishedAt || it.isFailed);
+
     const collector = {
       plugin: collectorTask.plugin,
-      scopeName: collectorTask.options?.name,
-      status: collectorTask.status,
-      tasks: (collectorTask.subtaskDetails ?? [])
-        .filter((it) => it.isCollector)
-        .map((it) => ({
-          step: it.sequence,
-          name: it.name,
-          status: it.isFailed ? 'failed' : !it.beganAt ? 'pending' : it.finishedAt ? 'success' : 'running',
-          finishedRecords: it.finishedRecords,
-        })),
+      name: `Collect non-Git entitles in ${collectorTask.options?.fullName ?? 'Unknown'}`,
+      percent: collectorSubtasks.length
+        ? Math.floor(((collectorSubtasks.length - collectorSubtasksFinished.length) / collectorSubtasks.length) * 100)
+        : 0,
+      tasks: collectorSubtasks.map((it) => ({
+        step: it.sequence,
+        name: it.name,
+        status: it.isFailed ? 'failed' : !it.beganAt ? 'pending' : it.finishedAt ? 'success' : 'running',
+        finishedRecords: it.finishedRecords,
+      })),
     };
+
+    const extractorSubtasks = (extractorTask.subtaskDetails ?? []).filter((it) => it.isCollector);
+    const extractorSubtasksFinished = extractorSubtasks.filter((it) => it.finishedAt || it.isFailed);
 
     const extractor = {
       plugin: extractorTask.plugin,
-      scopeName: extractorTask.options?.name,
-      status: extractorTask.status,
+      name: `Collect Git entitles in ${extractorTask.options?.fullName ?? 'Unknown'}`,
+      percent: extractorSubtasks.length
+        ? Math.floor(((extractorSubtasks.length - extractorSubtasksFinished.length) / extractorSubtasks.length) * 100)
+        : 0,
       tasks: (extractorTask.subtaskDetails ?? [])
         .filter((it) => it.isCollector)
         .map((it) => ({
@@ -161,7 +170,7 @@ export const Step4 = () => {
   }, [data]);
 
   const {
-    token: { green5, orange5, red5 },
+    token: { green5, orange5, red5, colorPrimary },
   } = theme.useToken();
 
   const handleFinish = async () => {
@@ -194,7 +203,7 @@ export const Step4 = () => {
     <Wrapper>
       {status === 'running' && (
         <div className="top">
-          <div className="info">syncing up data from {scopeName}...</div>
+          <div className="info">Syncing up data from {scopeName}...</div>
           <div className="tip">
             This may take a few minutes to hours, depending on the size of your data and rate limits of the tool you
             choose.
@@ -234,12 +243,14 @@ export const Step4 = () => {
       )}
       {status === 'failed' && (
         <div className="top">
-          <div className="info">Something went wrong with the collection process. </div>
+          <div className="info" style={{ marginBottom: 10 }}>
+            Something went wrong with the collection process.
+          </div>
           <div className="info">
-            Please check out the
-            <Button type="link" onClick={() => setOpen(true)}>
+            Please check out the{' '}
+            <span style={{ color: colorPrimary, cursor: 'pointer' }} onClick={() => setOpen(true)}>
               network and token permission
-            </Button>
+            </span>{' '}
             and retry data collection
           </div>
           <CloseCircleOutlined style={{ fontSize: 120, color: red5 }} />
@@ -251,7 +262,7 @@ export const Step4 = () => {
         </div>
       )}
       <div className="logs">
-        <div className="tip">Sync progress details</div>
+        <div className="tip">Data synchronization progress:</div>
         <div className="detail">
           <Logs log={collector} />
           <Logs log={extractor} style={{ marginLeft: 16 }} />
