@@ -16,4 +16,5 @@
  *
  */
 
+export * from './card';
 export * from './logs';

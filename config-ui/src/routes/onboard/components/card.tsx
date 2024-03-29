@@ -39,7 +39,12 @@ export const OnboardCard = ({ style }: Props) => {
     <Card style={style}>
       <Flex align="center" justify="space-between">
         <Flex align="center">
-          <Progress type="circle" size={30} format={() => `${data.step}/4`} percent={(data.step / 4) * 100} />
+          <Progress
+            type="circle"
+            size={30}
+            format={() => `${data.step > 3 ? 3 : data.step}/3`}
+            percent={(data.step / 3) * 100}
+          />
           <div style={{ marginLeft: 16 }}>
             <h4>Onboard Session</h4>
             <h5 style={{ fontWeight: 400 }}>
