@@ -17,6 +17,7 @@
  */
 
 import { LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { theme } from 'antd';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -48,8 +49,7 @@ const Wrapper = styled.div`
   }
 
   span.status {
-    flex: 0 0 140px;
-    text-align: right;
+    flex: 0 0 150px;
   }
 
   span.anticon {
@@ -74,6 +74,10 @@ interface LogsProps {
 }
 
 export const Logs = ({ style, log: { plugin, scopeName, status, tasks } }: LogsProps) => {
+  const {
+    token: { green5, red5, colorPrimary },
+  } = theme.useToken();
+
   if (!plugin) {
     return null;
   }
@@ -94,9 +98,9 @@ export const Logs = ({ style, log: { plugin, scopeName, status, tasks } }: LogsP
             ) : (
               <span className="status">Records collected: {task.finishedRecords}</span>
             )}
-            {task.status === 'running' && <LoadingOutlined />}
-            {task.status === 'success' && <CheckCircleOutlined />}
-            {task.status === 'failed' && <CloseCircleOutlined />}
+            {task.status === 'running' && <LoadingOutlined style={{ color: colorPrimary }} />}
+            {task.status === 'success' && <CheckCircleOutlined style={{ color: green5 }} />}
+            {task.status === 'failed' && <CloseCircleOutlined style={{ color: red5 }} />}
           </li>
         ))}
       </ul>
