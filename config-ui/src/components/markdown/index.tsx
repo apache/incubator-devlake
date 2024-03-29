@@ -16,14 +16,35 @@
  *
  */
 
-export * from './action';
-export * from './block';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './markdown';
-export * from './message';
-export * from './no-data';
-export * from './page-header';
-export * from './tip-layout';
-export * from './tooltip';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css';
+
+interface Props {
+  className?: string;
+  children: string;
+}
+
+export const Markdown = ({ className, children }: Props) => {
+  return (
+    <ReactMarkdown
+      className={className}
+      rehypePlugins={[rehypeRaw]}
+      components={{
+        img: ({ alt, ...props }) => (
+          <Zoom>
+            <img alt={alt} {...props} />
+          </Zoom>
+        ),
+        a: ({ href, children, ...props }) => (
+          <a href={href} {...props} target="_blank" rel="noreferrer">
+            {children}
+          </a>
+        ),
+      }}
+    >
+      {children}
+    </ReactMarkdown>
+  );
+};
