@@ -19,11 +19,12 @@ package runner
 
 import (
 	gocontext "context"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"time"
 )
 
 // RunPipeline FIXME ...
@@ -37,7 +38,7 @@ func RunPipeline(
 	var tasks []models.Task
 	err := db.All(
 		&tasks,
-		dal.Where("pipeline_id = ? AND status in ?", pipelineId, []string{models.TASK_CREATED, models.TASK_RERUN}),
+		dal.Where("pipeline_id = ? AND status in ?", pipelineId, []string{models.TASK_CREATED, models.TASK_RERUN, models.TASK_RESUME}),
 		dal.Orderby("pipeline_row, pipeline_col"),
 	)
 	if err != nil {
