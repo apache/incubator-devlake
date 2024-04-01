@@ -16,20 +16,49 @@
  *
  */
 
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Flex, Progress, Button } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import { Card, Flex, Progress, Button, Modal } from 'antd';
 
 import API from '@/api';
 import { useRefreshData } from '@/hooks';
+import { operator } from '@/utils';
 
 interface Props {
   style?: React.CSSProperties;
 }
 
 export const OnboardCard = ({ style }: Props) => {
+  const [oeprating, setOperating] = useState(false);
+  const [version, setVersion] = useState(0);
+
   const navigate = useNavigate();
 
-  const { ready, data } = useRefreshData(() => API.store.get('onboard'), []);
+  const [modal, contextHolder] = Modal.useModal();
+
+  const { ready, data } = useRefreshData(() => API.store.get('onboard'), [version]);
+
+  const handleClose = async () => {
+    modal.confirm({
+      width: 600,
+      title: 'Permanently close this entry?',
+      content: 'You will not be able to get back to the onboard session again.',
+      okButtonProps: {
+        loading: oeprating,
+      },
+      okText: 'Confirm',
+      onOk: async () => {
+        const [success] = await operator(() => API.store.set('onboard', { ...data, done: true }), {
+          setOperating,
+        });
+
+        if (success) {
+          setVersion(version + 1);
+        }
+      },
+    });
+  };
 
   if (!ready || !data || data.done) {
     return null;
@@ -56,6 +85,11 @@ export const OnboardCard = ({ style }: Props) => {
           Continue
         </Button>
       </Flex>
+      <CloseOutlined
+        style={{ position: 'absolute', top: 10, right: 20, cursor: 'pointer', fontSize: 12 }}
+        onClick={handleClose}
+      />
+      {contextHolder}
     </Card>
   );
 };
