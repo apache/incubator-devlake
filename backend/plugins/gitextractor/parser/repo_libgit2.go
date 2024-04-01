@@ -26,7 +26,6 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -37,8 +36,6 @@ import (
 
 	git "github.com/libgit2/git2go/v33"
 )
-
-const SkipCommitFiles = "SKIP_COMMIT_FILES"
 
 var TypeNotMatchError = "the requested type does not match the type in the ODB"
 
@@ -231,6 +228,7 @@ func (r *GitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
 
 // CollectCommits Collect data from each commit, we can also get the diff line
 func (r *GitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
+	taskOpts := subtaskCtx.GetData().(*GitExtractorTaskData).Options
 	opts, err := getDiffOpts()
 	if err != nil {
 		return err
@@ -290,13 +288,16 @@ func (r *GitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
 		if commit.ParentCount() > 0 {
 			parent = commit.Parent(0)
 		}
-		var stats *git.DiffStats
-		if stats, err = r.getDiffComparedToParent(c.Sha, commit, parent, opts, componentMap); err != nil {
-			return err
+
+		if !*taskOpts.SkipCommitStat {
+			var stats *git.DiffStats
+			if stats, err = r.getDiffComparedToParent(taskOpts, c.Sha, commit, parent, opts, componentMap); err != nil {
+				return err
+			}
+			r.logger.Debug("state: %#+v\n", stats.Deletions())
+			c.Additions += stats.Insertions()
+			c.Deletions += stats.Deletions()
 		}
-		r.logger.Debug("state: %#+v\n", stats.Deletions())
-		c.Additions += stats.Insertions()
-		c.Deletions += stats.Deletions()
 
 		err = r.store.Commits(c)
 		if err != nil {
@@ -331,7 +332,7 @@ func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) error
 	return r.store.CommitParents(commitParents)
 }
 
-func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, errors.Error) {
+func (r *GitRepo) getDiffComparedToParent(taskOpts *GitExtractorOptions, commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, errors.Error) {
 	var err error
 	var parentTree, tree *git.Tree
 	if parent != nil {
@@ -349,12 +350,7 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	cfg := config.GetConfig()
-	skipCommitFiles := true
-	if cfg.IsSet(SkipCommitFiles) {
-		skipCommitFiles = cfg.GetBool(SkipCommitFiles)
-	}
-	if !skipCommitFiles {
+	if !*taskOpts.SkipCommitFiles {
 		err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
 		if err != nil {
 			return nil, errors.Convert(err)

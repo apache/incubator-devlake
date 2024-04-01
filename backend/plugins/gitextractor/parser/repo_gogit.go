@@ -22,6 +22,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -33,7 +35,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/storer"
-	"regexp"
 )
 
 type GoGitRepo struct {
@@ -268,13 +269,13 @@ func (r *GoGitRepo) getComponentMap(subtaskCtx plugin.SubTaskContext) (map[strin
 
 // CollectCommits Collect data from each commit, we can also get the diff line
 func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error) {
+	taskOpts := subtaskCtx.GetData().(*GitExtractorTaskData).Options
 	// check it first
 	componentMap, err := r.getComponentMap(subtaskCtx)
 	if err != nil {
 		return err
 	}
 
-	skipCommitFiles := subtaskCtx.GetConfigReader().GetBool(SkipCommitFiles)
 	repo := r.repo
 	store := r.store
 
@@ -306,19 +307,21 @@ func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error)
 			return err
 		}
 
-		stats, err := commit.StatsContext(subtaskCtx.GetContext())
-		if err != nil {
-			return err
-		} else {
-			for _, stat := range stats {
-				codeCommit.Additions += stat.Addition
-				// In some repos, deletion may be zero, which is different from git log --stat.
-				// It seems go-git doesn't get the correct changes.
-				// I have run object.DiffTreeWithOptions manually with different diff algorithms,
-				// but get the same result with StatsContext.
-				// I cannot reproduce it with another repo.
-				// A similar issue: https://github.com/go-git/go-git/issues/367
-				codeCommit.Deletions += stat.Deletion
+		if !*taskOpts.SkipCommitStat {
+			stats, err := commit.StatsContext(subtaskCtx.GetContext())
+			if err != nil {
+				return err
+			} else {
+				for _, stat := range stats {
+					codeCommit.Additions += stat.Addition
+					// In some repos, deletion may be zero, which is different from git log --stat.
+					// It seems go-git doesn't get the correct changes.
+					// I have run object.DiffTreeWithOptions manually with different diff algorithms,
+					// but get the same result with StatsContext.
+					// I cannot reproduce it with another repo.
+					// A similar issue: https://github.com/go-git/go-git/issues/367
+					codeCommit.Deletions += stat.Deletion
+				}
 			}
 		}
 
@@ -335,7 +338,7 @@ func (r *GoGitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) (err error)
 		if err != nil {
 			return err
 		}
-		if !skipCommitFiles {
+		if !*taskOpts.SkipCommitFiles {
 			if err := r.storeDiffCommitFilesComparedToParent(subtaskCtx, componentMap, commit); err != nil {
 				return err
 			}
