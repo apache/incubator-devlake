@@ -38,6 +38,7 @@ var CloneGitRepoMeta = plugin.SubTaskMeta{
 	Required:         true,
 	Description:      "clone a git repo, make it available to later tasks",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	ForceRunOnResume: true,
 }
 
 func useGoGit(subTaskCtx plugin.SubTaskContext, taskData *GitExtractorTaskData) bool {
