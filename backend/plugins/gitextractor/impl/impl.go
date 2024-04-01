@@ -70,14 +70,14 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 
 	// commit stat, especially commit files(part of stat) are expensive to collect, so we skip them by default
 	cfg := taskCtx.GetConfigReader()
-	loadBool := func(optValue **bool, key string, defValue bool) {
+	loadBool := func(optValue **bool, cfgKey string, defValue bool) {
 		// if user specified the option, use it
 		if *optValue != nil {
 			return
 		}
 		// or fallback to .env configuration
-		if cfg.IsSet(key) {
-			defValue = cfg.GetBool(key)
+		if cfg.IsSet(cfgKey) {
+			defValue = cfg.GetBool(cfgKey)
 		}
 		*optValue = &defValue
 	}
