@@ -32,7 +32,7 @@ const Wrapper = styled.div`
     justify-content: space-between;
 
     & > span.name {
-      flex: auto;
+      width: 220px;
       font-weight: 600;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -41,7 +41,7 @@ const Wrapper = styled.div`
 
     & > span.progress {
       margin-left: 12px;
-      flex: 0 0 60px;
+      flex: auto;
     }
   }
 
