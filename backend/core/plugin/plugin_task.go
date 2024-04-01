@@ -106,6 +106,7 @@ type SubTaskMeta struct {
 	Dependencies     []*SubTaskMeta
 	DependencyTables []string
 	ProductTables    []string
+	ForceRunOnResume bool // Should a subtask be ran dispite it was finished before
 }
 
 // PluginTask Implement this interface to let framework run tasks for you
