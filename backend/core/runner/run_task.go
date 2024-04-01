@@ -314,7 +314,7 @@ func RunPluginSubTasks(
 		if !subtaskMeta.ForceRunOnResume {
 			sfc := errors.Must1(
 				basicRes.GetDal().Count(
-					dal.From(&models.Subtask{}), dal.Where("task_id = ? AND name = ?", task.ID, subtaskMeta.Name),
+					dal.From(&models.Subtask{}), dal.Where("task_id = ? AND name = ? AND finished_at IS NOT NULL", task.ID, subtaskMeta.Name),
 				),
 			)
 			subtaskFinsied = sfc > 0
