@@ -33,7 +33,7 @@ type CircleciTestConnResponse struct {
 	shared.ApiBody
 }
 
-func testConnection(ctx context.Context, connection models.CircleciConn) (*CircleciTestConnResponse, errors.Error) {
+func testConnection(ctx context.Context, connection *models.CircleciConnection) (*CircleciTestConnResponse, errors.Error) {
 	// validate
 	if vld != nil {
 		if err := vld.Struct(connection); err != nil {
@@ -41,7 +41,7 @@ func testConnection(ctx context.Context, connection models.CircleciConn) (*Circl
 		}
 	}
 	// test connection
-	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +73,7 @@ func testConnection(ctx context.Context, connection models.CircleciConn) (*Circl
 // @Router /plugins/circleci/test [POST]
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// process input
-	var connection models.CircleciConn
-	err := api.Decode(input.Body, &connection, vld)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +95,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CircleciConnection{}
-	err := connectionHelper.First(connection, input.Params)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "find connection from db")
 	}
@@ -105,7 +103,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		return nil, err
 	}
 	// test connection
-	result, err := testConnection(context.TODO(), connection.CircleciConn)
+	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
@@ -121,13 +119,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/circleci/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// update from request and save to database
-	connection := &models.CircleciConnection{}
-	err := connectionHelper.Create(connection, input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.Post(input)
 }
 
 // PatchConnection @Summary patch circleci connection
@@ -139,17 +131,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CircleciConnection{}
-	if err := connectionHelper.First(&connection, input.Params); err != nil {
-		return nil, err
-	}
-	if err := (&models.CircleciConnection{}).MergeFromRequest(connection, input.Body); err != nil {
-		return nil, errors.Convert(err)
-	}
-	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
+	return dsHelper.ConnApi.Patch(input)
 }
 
 // DeleteConnection @Summary delete a circleci connection
@@ -160,14 +142,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	conn := &models.CircleciConnection{}
-	output, err := connectionHelper.Delete(conn, input)
-	if err != nil {
-		return output, err
-	}
-	output.Body = conn.Sanitize()
-	return output, nil
-
+	return dsHelper.ConnApi.Delete(input)
 }
 
 // ListConnections @Summary get all circleci connections
@@ -178,15 +153,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/circleci/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connections []models.CircleciConnection
-	err := connectionHelper.List(&connections)
-	if err != nil {
-		return nil, err
-	}
-	for idx, c := range connections {
-		connections[idx] = c.Sanitize()
-	}
-	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.GetAll(input)
 }
 
 // GetConnection @Summary get circleci connection detail
@@ -197,7 +164,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CircleciConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
+	return dsHelper.ConnApi.GetDetail(input)
 }
