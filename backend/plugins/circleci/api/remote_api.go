@@ -18,18 +18,15 @@ limitations under the License.
 package api
 
 import (
-	gocontext "context"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 )
-
-// RemoteApiScope
-var _ plugin.ApiScope = (*RemoteProject)(nil)
 
 type RemoteProject struct {
 	Id    string `json:"id"`
@@ -39,7 +36,7 @@ type RemoteProject struct {
 }
 
 // ConvertApiScope implements plugin.ApiScope.
-func (c RemoteProject) ConvertApiScope() plugin.ToolLayerScope {
+func (c RemoteProject) ConvertApiScope() *models.CircleciProject {
 	return &models.CircleciProject{
 		Id:             c.Id,
 		Name:           c.Name,
@@ -48,22 +45,22 @@ func (c RemoteProject) ConvertApiScope() plugin.ToolLayerScope {
 	}
 }
 
-func getRemoteProjects(
-	basicRes context.BasicRes,
-	gid string,
-	queryData *api.RemoteQueryData,
-	connection models.CircleciConnection,
-) ([]RemoteProject, errors.Error) {
+func listCircleciRemoteScopes(
+	connection *models.CircleciConnection,
+	apiClient plugin.ApiClient,
+	groupId string,
+	page srvhelper.NoPagintation,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.CircleciProject],
+	nextPage *srvhelper.NoPagintation,
+	err errors.Error,
+) {
 	// create api client
-	apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-	if err != nil {
-		return nil, err
-	}
 	res, err := apiClient.Get("private/me", nil, http.Header{
 		"Accept": []string{"application/json"},
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var projects struct {
@@ -71,11 +68,19 @@ func getRemoteProjects(
 	}
 	err = api.UnmarshalResponse(res, &projects)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	// hack the queryData to stop pagination
-	queryData.PerPage = len(projects.FollowedProjects) + 1
-	return projects.FollowedProjects, err
+	for _, p := range projects.FollowedProjects {
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.CircleciProject]{
+			Type:     api.RAS_ENTRY_TYPE_SCOPE,
+			Id:       p.Id,
+			ParentId: nil,
+			Name:     p.Name,
+			FullName: p.Slug,
+			Data:     p.ConvertApiScope(),
+		})
+	}
+	return children, nil, nil
 }
 
 // RemoteScopes list all available scope for users
@@ -91,5 +96,15 @@ func getRemoteProjects(
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.GetScopesFromRemote(input, nil, getRemoteProjects)
+	return raScopeList.Get(input)
+}
+
+// @Summary Remote server API proxy
+// @Description Forward API requests to the specified remote server
+// @Param connectionId path int true "connection ID"
+// @Param path path string true "path to a API endpoint"
+// @Tags plugins/circle
+// @Router /plugins/bitbucket/connections/{connectionId}/proxy/{path} [GET]
+func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return raProxy.Proxy(input)
 }
