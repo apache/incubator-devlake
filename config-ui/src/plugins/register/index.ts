@@ -25,6 +25,7 @@ import { BitbucketServerConfig } from './bitbucket-server';
 import { CircleCIConfig } from './circleci';
 import { GitHubConfig } from './github';
 import { GitLabConfig } from './gitlab';
+import { GrafanaOncallConfig } from './grafanaoncall';
 import { JenkinsConfig } from './jenkins';
 import { JiraConfig } from './jira';
 import { PagerDutyConfig } from './pagerduty';
@@ -43,6 +44,7 @@ export const pluginConfigs: IPluginConfig[] = [
   CircleCIConfig,
   GitHubConfig,
   GitLabConfig,
+  GrafanaOncallConfig,
   JenkinsConfig,
   JiraConfig,
   PagerDutyConfig,

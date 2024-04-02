@@ -67,6 +67,13 @@ const URLS = {
       TRANSFORMATION:
         'https://devlake.apache.org/docs/v0.21/Configuration/GitLab#step-3---adding-transformation-rules-optional',
     },
+    GRAFANA_ONCALL: {
+      BASIS: 'https://devlake.apache.org/docs/v0.21/Configuration/GitLab',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/v0.21/Configuration/GitLab#fixed-rate-limit-optional',
+      AUTH_TOKEN: 'https://devlake.apache.org/docs/v0.21/Configuration/GitLab#auth-tokens',
+      TRANSFORMATION:
+        'https://devlake.apache.org/docs/v0.21/Configuration/GitLab#step-3---adding-transformation-rules-optional',
+    },
     JENKINS: {
       BASIS: 'https://devlake.apache.org/docs/v0.21/Configuration/Jenkins',
       RATE_LIMIT: 'https://devlake.apache.org/docs/v0.21/Configuration/Jenkins#fixed-rate-limit-optional',

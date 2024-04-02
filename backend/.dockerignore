@@ -1,0 +1,4 @@
+backend/bin/plugins/
+python/plugins/.venv
+python/plugins/azuredevops/.venv/
+python/plugins/grafanaoncall/.venv/
