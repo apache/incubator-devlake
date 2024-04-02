@@ -41,7 +41,7 @@ var CloneGitRepoMeta = plugin.SubTaskMeta{
 	ForceRunOnResume: true,
 }
 
-func useGoGit(subTaskCtx plugin.SubTaskContext, taskData *GitExtractorTaskData) bool {
+func useGoGit(subTaskCtx plugin.SubTaskContext, taskData *parser.GitExtractorTaskData) bool {
 	if subTaskCtx.GetConfigReader().GetBool(useGoGitInGitExtractor) {
 		return true
 	}
@@ -52,7 +52,7 @@ func useGoGit(subTaskCtx plugin.SubTaskContext, taskData *GitExtractorTaskData) 
 }
 
 func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
-	taskData, ok := subTaskCtx.GetData().(*GitExtractorTaskData)
+	taskData, ok := subTaskCtx.GetData().(*parser.GitExtractorTaskData)
 	if !ok {
 		panic("git repo reference not found on context")
 	}
@@ -77,7 +77,7 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 // NewGitRepo create and return a new parser git repo
-func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *GitExtractorOptions) (parser.RepoCollector, errors.Error) {
+func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *parser.GitExtractorOptions) (parser.RepoCollector, errors.Error) {
 	var err errors.Error
 	var repo parser.RepoCollector
 	p := parser.NewGitRepoCreator(storage, logger)
@@ -94,7 +94,7 @@ func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Sto
 }
 
 // NewGoGitRepo create and return a new parser git repo with go-git
-func NewGoGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *GitExtractorOptions) (parser.RepoCollector, errors.Error) {
+func NewGoGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *parser.GitExtractorOptions) (parser.RepoCollector, errors.Error) {
 	var err errors.Error
 	var repo parser.RepoCollector
 	p := parser.NewGitRepoCreator(storage, logger)

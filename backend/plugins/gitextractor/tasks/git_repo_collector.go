@@ -18,43 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 )
-
-type GitExtractorTaskData struct {
-	Options *GitExtractorOptions
-	GitRepo parser.RepoCollector
-}
-
-type GitExtractorOptions struct {
-	RepoId     string `json:"repoId"`
-	Name       string `json:"name"`
-	Url        string `json:"url"`
-	User       string `json:"user"`
-	Password   string `json:"password"`
-	PrivateKey string `json:"privateKey"`
-	Passphrase string `json:"passphrase"`
-	Proxy      string `json:"proxy"`
-	UseGoGit   bool   `json:"use_go_git"`
-}
-
-func (o GitExtractorOptions) Valid() errors.Error {
-	if o.RepoId == "" {
-		return errors.BadInput.New("empty repoId")
-	}
-	if o.Url == "" {
-		return errors.BadInput.New("empty url")
-	}
-	url := strings.TrimPrefix(o.Url, "ssh://")
-	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
-		return errors.BadInput.New("wrong url")
-	}
-	return nil
-}
 
 func CollectGitCommits(subTaskCtx plugin.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
@@ -105,7 +72,7 @@ func CollectGitDiffLines(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 func getGitRepo(subTaskCtx plugin.SubTaskContext) parser.RepoCollector {
-	taskData, ok := subTaskCtx.GetData().(*GitExtractorTaskData)
+	taskData, ok := subTaskCtx.GetData().(*parser.GitExtractorTaskData)
 	if !ok {
 		panic("git repo reference not found on context")
 	}
