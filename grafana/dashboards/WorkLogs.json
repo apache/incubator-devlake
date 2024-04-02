@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 38,
+  "id": 24,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -71,7 +71,7 @@
     },
     {
       "datasource": "mysql",
-      "fieldConfig": {
+              "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
@@ -159,7 +159,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 153
+                "value": 214
               }
             ]
           },
@@ -172,6 +172,18 @@
               {
                 "id": "custom.width",
                 "value": 228
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Details"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 991
               }
             ]
           }
@@ -205,7 +217,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n_activities as (\n  SELECT \n    *,\n    ROW_NUMBER() OVER (PARTITION BY `Date` ORDER BY `Time` desc) AS _row_number\n  FROM (\n    SELECT DATE_FORMAT(created_date, '%d/%m/%Y') as Date, created_date as Time, 'Create an issue' as Activity, concat('#', issue_key, ' ', title) as Details, a.name as Name\n    FROM issues i\n    join _accounts a on i.creator_id = a.account_id\n    where $__timeFilter(created_date)\n\n    union\n\n    SELECT DATE_FORMAT(resolution_date, '%d/%m/%Y') as Date, resolution_date as Time, 'Issue resolved' as Activity, concat('#', issue_key, ' ', title) as Details, a.name as Name \n    FROM issues i\n    join _accounts a on i.assignee_id = a.account_id\n    where $__timeFilter(resolution_date)\n\n    union\n\n    SELECT DATE_FORMAT(authored_date, '%d/%m/%Y') as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name \n    FROM commits c\n    join _accounts a on c.author_id = a.account_id\n    where $__timeFilter(authored_date)\n\n    union\n\n    SELECT DATE_FORMAT(created_date, '%d/%m/%Y') as Date, created_date as Time, 'Open a PR' as Activity, concat('#', pull_request_key, ' ', title) as Details, a.name as Name\n    FROM pull_requests pr\n    join _accounts a on pr.author_id = a.account_id\n    where $__timeFilter(created_date)\n\n    union\n\n    SELECT DATE_FORMAT(merged_date, '%d/%m/%Y') as Date, merged_date as Time, 'PR gets merged' as Activity, concat('#', pull_request_key, ' ', title) as Details, a.name as Name \n    FROM pull_requests pr\n    join _accounts a on pr.author_id = a.account_id\n    where $__timeFilter(merged_date)\n\n    union\n\n    SELECT DATE_FORMAT(prc.created_date, '%d/%m/%Y') as Date, prc.created_date as Time, 'Comment on PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name \n    FROM pull_request_comments prc\n    left join pull_requests pr on prc.pull_request_id = pr.id\n    join _accounts a on prc.account_id = a.account_id\n    WHERE \n      prc.type = 'NORMAL'\n      and $__timeFilter(prc.created_date)\n\n    union\n\n    SELECT DATE_FORMAT(prc.created_date, '%d/%m/%Y') as Date, prc.created_date as Time, 'Review PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name  \n    FROM pull_request_comments prc\n    left join pull_requests pr on prc.pull_request_id = pr.id\n    join _accounts a on prc.account_id = a.account_id\n    WHERE \n      prc.type in ('REVIEW', 'DIFF')\n      and $__timeFilter(prc.created_date)\n  ) t\n\n  ORDER BY Time desc\n)\n\nSELECT \n  CASE WHEN _row_number = 1 THEN `Date` ELSE NULL END AS `Date`, `Time`, Activity, Details, Name\nFROM _activities",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n_activities as (\n  SELECT \n    *,\n    ROW_NUMBER() OVER (PARTITION BY `Date` ORDER BY `Time` desc) AS _row_number\n  FROM (\n    SELECT DATE_FORMAT(created_date, '%Y-%m-%d | %W') as Date, created_date as Time, 'Create an issue' as Activity, concat('#', issue_key, ' ', title) as Details, a.name as Name\n    FROM issues i\n    join _accounts a on i.creator_id = a.account_id\n    where $__timeFilter(created_date)\n\n    union\n\n    SELECT DATE_FORMAT(resolution_date, '%Y-%m-%d | %W') as Date, resolution_date as Time, 'Issue resolved' as Activity, concat('#', issue_key, ' ', title) as Details, a.name as Name \n    FROM issues i\n    join _accounts a on i.assignee_id = a.account_id\n    where $__timeFilter(resolution_date)\n\n    union\n\n    SELECT DATE_FORMAT(authored_date, '%Y-%m-%d | %W') as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name \n    FROM commits c\n    join _accounts a on c.author_id = a.account_id\n    where $__timeFilter(authored_date)\n\n    union\n\n    SELECT DATE_FORMAT(created_date, '%Y-%m-%d | %W') as Date, created_date as Time, 'Open a PR' as Activity, concat('#', pull_request_key, ' ', title) as Details, a.name as Name\n    FROM pull_requests pr\n    join _accounts a on pr.author_id = a.account_id\n    where $__timeFilter(created_date)\n\n    union\n\n    SELECT DATE_FORMAT(merged_date, '%Y-%m-%d | %W') as Date, merged_date as Time, 'PR gets merged' as Activity, concat('#', pull_request_key, ' ', title) as Details, a.name as Name \n    FROM pull_requests pr\n    join _accounts a on pr.author_id = a.account_id\n    where $__timeFilter(merged_date)\n\n    union\n\n    SELECT DATE_FORMAT(prc.created_date, '%Y-%m-%d | %W') as Date, prc.created_date as Time, 'Comment on PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name \n    FROM pull_request_comments prc\n    left join pull_requests pr on prc.pull_request_id = pr.id\n    join _accounts a on prc.account_id = a.account_id\n    WHERE \n      prc.type = 'NORMAL'\n      and $__timeFilter(prc.created_date)\n\n    union\n\n    SELECT DATE_FORMAT(prc.created_date, '%Y-%m-%d | %W') as Date, prc.created_date as Time, 'Review PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name  \n    FROM pull_request_comments prc\n    left join pull_requests pr on prc.pull_request_id = pr.id\n    join _accounts a on prc.account_id = a.account_id\n    WHERE \n      prc.type in ('REVIEW', 'DIFF')\n      and $__timeFilter(prc.created_date)\n  ) t\n\n  ORDER BY Time desc\n)\n\nSELECT \n  CASE WHEN _row_number = 1 THEN `Date` ELSE NULL END AS `Date`, `Time`, Activity, Details, Name\nFROM _activities",
           "refId": "A",
           "sql": {
             "columns": [
@@ -432,7 +444,7 @@
           }
         }
       ],
-      "title": "Code Commits",
+      "title": "Code commits",
       "type": "stat"
     },
     {
@@ -503,12 +515,12 @@
           }
         }
       ],
-      "title": "Lines of Code",
+      "title": "Lines of code",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "fieldConfig": {
+              "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
@@ -529,11 +541,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 5,
+        "w": 10,
         "x": 14,
         "y": 22
       },
-      "id": 14,
+      "id": 20,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -553,7 +565,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_prs as (\n  SELECT DATE_FORMAT(prc.created_date, '%d/%m/%Y') as Date, prc.created_date as Time, 'Comment on PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name, pr.id\n  FROM pull_request_comments prc\n  left join pull_requests pr on prc.pull_request_id = pr.id\n  join _accounts a on prc.account_id = a.account_id\n  WHERE \n    prc.type = 'NORMAL'\n    and $__timeFilter(prc.created_date)\n)\n\nSELECT \n  count(distinct id) FROM _prs\n",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_prs as (\n  SELECT pr.id as pr_id, pr.merged_date, concat('#', pr.pull_request_key, ' ', pr.title) as details, prc.id as comment_id, prc.created_date as comment_date, a.name, prc.type as comment_type\n  FROM pull_requests pr\n  left join pull_request_comments prc on pr.id = prc.pull_request_id\n  left join _accounts a on prc.account_id = a.account_id\n  WHERE \n    $__timeFilter(pr.created_date)\n)\n\nSELECT \n  concat(count(distinct case when name is not null then pr_id end), '/', count(distinct pr_id)) as text\nFROM _prs\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -574,78 +586,7 @@
           }
         }
       ],
-      "title": "Reviewed or commented PRs",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 5,
-        "x": 19,
-        "y": 22
-      },
-      "id": 15,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [],
-          "fields": "/.*/",
-          "values": true
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.5.15",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_prs as (\n  SELECT DATE_FORMAT(prc.created_date, '%d/%m/%Y') as Date, prc.created_date as Time, 'Comment on PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name, pr.id as pr_id, prc.id as prc_id\n  FROM pull_request_comments prc\n  left join pull_requests pr on prc.pull_request_id = pr.id\n  join _accounts a on prc.account_id = a.account_id\n  WHERE \n    prc.type = 'NORMAL'\n    and $__timeFilter(prc.created_date)\n)\n\nSELECT \n  count(distinct prc_id) FROM _prs\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Reviews & comments",
+      "title": "The count of PRs reviewed or commented by the selected users / Total PRs created within this timeframe.",
       "type": "stat"
     },
     {
@@ -716,12 +657,12 @@
           }
         }
       ],
-      "title": "Merged PRs / Open PRs",
+      "title": "PRs merged / PRs created by the selected users",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -854,7 +795,7 @@
           ]
         }
       ],
-      "title": "Merged PRs per month",
+      "title": "The monthly count of PRs merged out of the total created by the selected users",
       "type": "barchart"
     },
     {
@@ -867,7 +808,7 @@
       },
       "id": 11,
       "panels": [],
-      "title": "Work Culture",
+      "title": "Batch Size and Latency",
       "type": "row"
     },
     {
@@ -882,7 +823,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -937,12 +879,12 @@
           }
         }
       ],
-      "title": "Average PR Size",
+      "title": "Average PR size",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "fieldConfig": {
+              "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
@@ -952,7 +894,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -986,7 +929,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_prs as (\n  SELECT DATE_FORMAT(prc.created_date, '%d/%m/%Y') as Date, prc.created_date as Time, 'Comment on PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name, pr.id as pr_id, prc.id as prc_id\n  FROM pull_request_comments prc\n  left join pull_requests pr on prc.pull_request_id = pr.id\n  join _accounts a on prc.account_id = a.account_id\n  WHERE \n    prc.type = 'NORMAL'\n    and $__timeFilter(prc.created_date)\n)\n\nSELECT \n  round(count(distinct prc_id)/count(distinct pr_id) , 1) FROM _prs\n",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_prs as (\n  SELECT DATE_FORMAT(prc.created_date, '%d/%m/%Y') as Date, prc.created_date as Time, 'Comment on PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name, pr.id as pr_id, prc.id as prc_id\n  FROM pull_request_comments prc\n  left join pull_requests pr on prc.pull_request_id = pr.id\n  join _accounts a on prc.account_id = a.account_id\n  WHERE \n    $__timeFilter(prc.created_date)\n)\n\nSELECT \n  round(count(distinct prc_id)/count(distinct pr_id) , 1) FROM _prs\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1007,7 +950,7 @@
           }
         }
       ],
-      "title": "Average Review Depth",
+      "title": "Average review depth",
       "type": "stat"
     },
     {
@@ -1023,7 +966,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -1093,12 +1037,12 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "red",
-          "value": "1"
+          "selected": true,
+          "text": "blue",
+          "value": "2"
         },
         "datasource": "mysql",
-        "definition": "select concat(name, '--', id) from teams",
+                  "definition": "select concat(name, '--', id) from teams",
         "hide": 0,
         "includeAll": false,
         "label": "Team",
@@ -1123,7 +1067,7 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select concat(users.name, '--', users.id) from users left join team_users on users.id = team_users.user_id where team_users.team_id in ($team)",
+                  "definition": "select concat(users.name, '--', users.id) from users left join team_users on users.id = team_users.user_id where team_users.team_id in ($team)",
         "hide": 0,
         "includeAll": true,
         "label": "User",
@@ -1147,6 +1091,6 @@
   "timezone": "",
   "title": "Work Logs",
   "uid": "d449042e-22f0-4357-b8b7-22083f47618d",
-  "version": 7,
+  "version": 5,
   "weekStart": ""
 }
