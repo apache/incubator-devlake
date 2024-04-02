@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { theme, Layout, Modal } from 'antd';
@@ -49,7 +49,12 @@ const steps = [
   },
 ];
 
-export const Onboard = () => {
+interface Props {
+  logo?: React.ReactNode;
+  title?: React.ReactNode;
+}
+
+export const Onboard = ({ logo, title }: Props) => {
   const [step, setStep] = useState(0);
   const [records, setRecords] = useState<Record[]>([]);
   const [projectName, setProjectName] = useState<string>();
@@ -106,7 +111,7 @@ export const Onboard = () => {
       <Layout style={{ height: '100vh' }}>
         <S.Inner>
           {step === 0 ? (
-            <Step0 />
+            <Step0 logo={logo} title={title} />
           ) : (
             <>
               <S.Header>
