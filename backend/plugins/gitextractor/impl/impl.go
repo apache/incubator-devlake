@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 )
 
@@ -58,21 +59,41 @@ func (p GitExtractor) SubTaskMetas() []plugin.SubTaskMeta {
 
 // PrepareTaskData based on task context and user input options, return data that shared among all subtasks
 func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	var op tasks.GitExtractorOptions
+	log := taskCtx.GetLogger().Nested("gitextractor.PrepareTaskData")
+	var op parser.GitExtractorOptions
 	if err := helper.Decode(options, &op, nil); err != nil {
 		return nil, err
 	}
 	if err := op.Valid(); err != nil {
 		return nil, err
 	}
-	taskData := &tasks.GitExtractorTaskData{
+
+	// commit stat, especially commit files(part of stat) are expensive to collect, so we skip them by default
+	cfg := taskCtx.GetConfigReader()
+	loadBool := func(optValue **bool, cfgKey string, defValue bool) {
+		// if user specified the option, use it
+		if *optValue != nil {
+			return
+		}
+		// or fallback to .env configuration
+		if cfg.IsSet(cfgKey) {
+			defValue = cfg.GetBool(cfgKey)
+		}
+		*optValue = &defValue
+	}
+	loadBool(&op.SkipCommitStat, "SKIP_COMMIT_STAT", true)
+	loadBool(&op.SkipCommitFiles, "SKIP_COMMIT_FILES", true)
+	log.Info("SkipCommitStat: %v", *op.SkipCommitStat)
+	log.Info("SkipCommitFiles: %v", *op.SkipCommitFiles)
+
+	taskData := &parser.GitExtractorTaskData{
 		Options: &op,
 	}
 	return taskData, nil
 }
 
 func (p GitExtractor) Close(taskCtx plugin.TaskContext) errors.Error {
-	if taskData, ok := taskCtx.GetData().(*tasks.GitExtractorTaskData); ok {
+	if taskData, ok := taskCtx.GetData().(*parser.GitExtractorTaskData); ok {
 		if taskData.GitRepo != nil {
 			if err := taskData.GitRepo.Close(taskCtx.GetContext()); err != nil {
 				return errors.Convert(err)
