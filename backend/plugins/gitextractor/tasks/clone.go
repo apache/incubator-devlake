@@ -18,18 +18,13 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"strings"
+	"os"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 )
-
-const useGoGitInGitExtractor = "USE_GO_GIT_IN_GIT_EXTRACTOR"
 
 var CloneGitRepoMeta = plugin.SubTaskMeta{
 	Name:             "Clone Git Repo",
@@ -41,16 +36,6 @@ var CloneGitRepoMeta = plugin.SubTaskMeta{
 	ForceRunOnResume: true,
 }
 
-func useGoGit(subTaskCtx plugin.SubTaskContext, taskData *parser.GitExtractorTaskData) bool {
-	if subTaskCtx.GetConfigReader().GetBool(useGoGitInGitExtractor) {
-		return true
-	}
-	if taskData != nil && taskData.Options.UseGoGit {
-		return true
-	}
-	return false
-}
-
 func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	taskData, ok := subTaskCtx.GetData().(*parser.GitExtractorTaskData)
 	if !ok {
@@ -58,54 +43,41 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	}
 	op := taskData.Options
 	storage := store.NewDatabase(subTaskCtx, op.RepoId)
-	var repo parser.RepoCollector
 	var err errors.Error
 	logger := subTaskCtx.GetLogger()
-	if useGoGit(subTaskCtx, taskData) {
-		logger.Info("use go-git in gitextractor")
-		repo, err = NewGoGitRepo(subTaskCtx, logger, storage, op)
+
+	// temporary dir for cloning
+	localDir, e := os.MkdirTemp("", "gitextractor")
+	if e != nil {
+		return errors.Convert(e)
+	}
+
+	// clone repo
+	repoCloner := parser.NewGitcliCloner(subTaskCtx)
+	err = repoCloner.CloneRepo(subTaskCtx, localDir)
+	if err != nil {
+		return err
+	}
+
+	// We have done comparison experiments for git2go and go-git, and the results show that git2go has better performance.
+	var repoCollector parser.RepoCollector
+	if *taskData.Options.UseGoGit {
+		repoCollector, err = parser.NewLibgit2RepoCollector(localDir, op.RepoId, storage, logger)
 	} else {
-		logger.Info("use libgit2 in gitextractor")
-		repo, err = NewGitRepo(subTaskCtx, logger, storage, op)
+		repoCollector, err = parser.NewGogitRepoCollector(localDir, op.RepoId, storage, logger)
 	}
 	if err != nil {
 		return err
 	}
-	taskData.GitRepo = repo
+
+	// inject clean up callback to remove the cloned dir
+	cleanup := func() {
+		_ = os.RemoveAll(localDir)
+	}
+	repoCollector.SetCleanUp(cleanup)
+
+	// pass the collector down to next subtask
+	taskData.GitRepo = repoCollector
 	subTaskCtx.TaskContext().SetData(taskData)
 	return nil
-}
-
-// NewGitRepo create and return a new parser git repo
-func NewGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *parser.GitExtractorOptions) (parser.RepoCollector, errors.Error) {
-	var err errors.Error
-	var repo parser.RepoCollector
-	p := parser.NewGitRepoCreator(storage, logger)
-	if strings.HasPrefix(op.Url, "http") {
-		repo, err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
-	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
-		repo, err = p.CloneOverSSH(ctx, op.RepoId, url, op.PrivateKey, op.Passphrase)
-	} else if strings.HasPrefix(op.Url, "/") {
-		repo, err = p.LocalRepo(op.Url, op.RepoId)
-	} else {
-		return nil, errors.BadInput.New(fmt.Sprintf("unsupported url [%s]", op.Url))
-	}
-	return repo, err
-}
-
-// NewGoGitRepo create and return a new parser git repo with go-git
-func NewGoGitRepo(ctx plugin.SubTaskContext, logger log.Logger, storage models.Store, op *parser.GitExtractorOptions) (parser.RepoCollector, errors.Error) {
-	var err errors.Error
-	var repo parser.RepoCollector
-	p := parser.NewGitRepoCreator(storage, logger)
-	if strings.HasPrefix(op.Url, "http") {
-		repo, err = p.CloneGoGitRepoOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
-	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
-		repo, err = p.CloneGoGitRepoOverSSH(ctx, op.RepoId, url, op.PrivateKey, op.Passphrase)
-	} else if strings.HasPrefix(op.Url, "/") {
-		repo, err = p.LocalGoGitRepo(op.Url, op.RepoId)
-	} else {
-		return nil, errors.BadInput.New(fmt.Sprintf("unsupported url [%s]", op.Url))
-	}
-	return repo, err
 }
