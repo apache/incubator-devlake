@@ -16,14 +16,16 @@
  *
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloseOutlined } from '@ant-design/icons';
-import { Card, Flex, Progress, Button, Modal } from 'antd';
+import { CloseOutlined, LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
+import { theme, Card, Flex, Progress, Space, Button, Modal } from 'antd';
 
 import API from '@/api';
-import { useRefreshData } from '@/hooks';
+import { useRefreshData, useAutoRefresh } from '@/hooks';
 import { operator } from '@/utils';
+
+import { DashboardURLMap } from '../step-4';
 
 interface Props {
   style?: React.CSSProperties;
@@ -35,9 +37,53 @@ export const OnboardCard = ({ style }: Props) => {
 
   const navigate = useNavigate();
 
+  const {
+    token: { green5, orange5, red5 },
+  } = theme.useToken();
+
   const [modal, contextHolder] = Modal.useModal();
 
   const { ready, data } = useRefreshData(() => API.store.get('onboard'), [version]);
+
+  const record = useMemo(() => (data ? data.records.find((it: any) => it.plugin === data.plugin) : null), [data]);
+
+  const tasksRes = useAutoRefresh(
+    async () => {
+      if (!record) {
+        return;
+      }
+
+      return await API.pipeline.subTasks(record?.pipelineId as string);
+    },
+    [record],
+    {
+      cancel: (data) => {
+        return !!(data && ['TASK_COMPLETED', 'TASK_PARTIAL', 'TASK_FAILED'].includes(data.status));
+      },
+    },
+  );
+
+  const status = useMemo(() => {
+    if (!data || data.step !== 4) {
+      return 'prepare';
+    }
+
+    if (!tasksRes.data) {
+      return 'running';
+    }
+
+    switch (tasksRes.data.status) {
+      case 'TASK_COMPLETED':
+        return 'success';
+      case 'TASK_PARTIAL':
+        return 'partial';
+      case 'TASK_FAILED':
+        return 'failed';
+      case 'TASK_RUNNING':
+      default:
+        return 'running';
+    }
+  }, [data, tasksRes]);
 
   const handleClose = async () => {
     modal.confirm({
@@ -66,24 +112,65 @@ export const OnboardCard = ({ style }: Props) => {
 
   return (
     <Card style={style}>
-      <Flex align="center" justify="space-between">
+      <Flex style={{ paddingRight: 50 }} align="center" justify="space-between">
         <Flex align="center">
-          <Progress
-            type="circle"
-            size={30}
-            format={() => `${data.step > 3 ? 3 : data.step}/3`}
-            percent={(data.step / 3) * 100}
-          />
+          {status === 'prepare' && (
+            <Progress type="circle" size={30} format={() => `${data.step}/3`} percent={(data.step / 3) * 100} />
+          )}
+          {status === 'running' && <LoadingOutlined />}
+          {status === 'success' && <CheckCircleFilled style={{ color: green5 }} />}
+          {status === 'partial' && <CheckCircleFilled style={{ color: orange5 }} />}
+          {status === 'failed' && <CloseCircleFilled style={{ color: red5 }} />}
           <div style={{ marginLeft: 16 }}>
             <h4>Onboard Session</h4>
-            <h5 style={{ fontWeight: 400 }}>
-              You are not far from connecting to your first tool. Continue to finish it.
-            </h5>
+            {['prepare', 'running'].includes(status) && (
+              <h5 style={{ fontWeight: 400 }}>
+                You are not far from connecting to your first tool. Continue to finish it.
+              </h5>
+            )}
+            {status === 'success' && (
+              <h5 style={{ fontWeight: 400 }}>The data of your first tool has been collected. Please check it out.</h5>
+            )}
+            {status === 'partial' && (
+              <h5 style={{ fontWeight: 400 }}>
+                The data of your first tool has been parted collected. Please check it out.
+              </h5>
+            )}
+            {status === 'failed' && (
+              <h5 style={{ fontWeight: 400 }}>Something went wrong with the collection process.</h5>
+            )}
           </div>
         </Flex>
-        <Button type="primary" onClick={() => navigate('/onboard')}>
-          Continue
-        </Button>
+        {status === 'prepare' && (
+          <Space>
+            <Button type="primary" onClick={() => navigate('/onboard')}>
+              Continue
+            </Button>
+          </Space>
+        )}
+        {['running', 'failed'].includes(status) && (
+          <Space>
+            <Button type="primary" onClick={() => navigate('/onboard')}>
+              Details
+            </Button>
+          </Space>
+        )}
+        {status === 'success' && (
+          <Space>
+            <Button type="primary" onClick={() => window.open(DashboardURLMap[data.plugin])}>
+              Check Dashboard
+            </Button>
+            <Button onClick={handleClose}>Finish</Button>
+          </Space>
+        )}
+        {status === 'partial' && (
+          <Space>
+            <Button type="primary" onClick={() => navigate('/onboard')}>
+              Details
+            </Button>
+            <Button onClick={() => window.open(DashboardURLMap[data.plugin])}>Check Dashboard</Button>
+          </Space>
+        )}
       </Flex>
       <CloseOutlined
         style={{ position: 'absolute', top: 10, right: 20, cursor: 'pointer', fontSize: 12 }}
