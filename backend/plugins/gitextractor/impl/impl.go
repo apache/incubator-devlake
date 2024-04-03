@@ -18,12 +18,15 @@ limitations under the License.
 package impl
 
 import (
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
+	giturls "github.com/whilp/git-urls"
 )
 
 var _ interface {
@@ -64,8 +67,16 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 	if err := helper.Decode(options, &op, nil); err != nil {
 		return nil, err
 	}
-	if err := op.Valid(); err != nil {
-		return nil, err
+
+	parsedURL, err := giturls.Parse(op.Url)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "failed to parse git url")
+	}
+
+	// append user name to the git url
+	if op.User != "" {
+		parsedURL.User = url.UserPassword(op.User, op.Password)
+		op.Url = parsedURL.String()
 	}
 
 	// commit stat, especially commit files(part of stat) are expensive to collect, so we skip them by default
@@ -81,13 +92,16 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 		}
 		*optValue = &defValue
 	}
+	loadBool(&op.UseGoGit, "UseGoGit", false)
 	loadBool(&op.SkipCommitStat, "SKIP_COMMIT_STAT", true)
 	loadBool(&op.SkipCommitFiles, "SKIP_COMMIT_FILES", true)
+	log.Info("UseGoGit: %v", *op.UseGoGit)
 	log.Info("SkipCommitStat: %v", *op.SkipCommitStat)
 	log.Info("SkipCommitFiles: %v", *op.SkipCommitFiles)
 
 	taskData := &parser.GitExtractorTaskData{
-		Options: &op,
+		Options:   &op,
+		ParsedURL: parsedURL,
 	}
 	return taskData, nil
 }

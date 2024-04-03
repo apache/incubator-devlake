@@ -40,7 +40,7 @@ ARG HTTP_PROXY=
 ARG HTTPS_PROXY=
 
 RUN apt-get update
-RUN apt-get install -y gcc binutils libfindbin-libs-perl cmake libssh2-1-dev libssl-dev zlib1g-dev
+RUN apt-get install -y gcc binutils libfindbin-libs-perl cmake libssh2-1-dev libssl-dev zlib1g-dev git openssh-client corkscrew
 
 RUN if [ "$(arch)" != "aarch64" ] ; then \
         apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu ; \

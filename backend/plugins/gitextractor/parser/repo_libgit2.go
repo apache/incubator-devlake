@@ -37,9 +37,11 @@ import (
 	git "github.com/libgit2/git2go/v33"
 )
 
+var _ RepoCollector = (*Libgit2RepoCollector)(nil)
+
 var TypeNotMatchError = "the requested type does not match the type in the ODB"
 
-type GitRepo struct {
+type Libgit2RepoCollector struct {
 	id     string
 	logger log.Logger
 
@@ -48,7 +50,20 @@ type GitRepo struct {
 	cleanup func()
 }
 
-func (r *GitRepo) SetCleanUp(f func()) error {
+func NewLibgit2RepoCollector(localDir string, repoId string, store models.Store, logger log.Logger) (*Libgit2RepoCollector, errors.Error) {
+	repo, err := git.OpenRepository(localDir)
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	return &Libgit2RepoCollector{
+		id:     repoId,
+		logger: logger,
+		store:  store,
+		repo:   repo,
+	}, nil
+}
+
+func (r *Libgit2RepoCollector) SetCleanUp(f func()) error {
 	if f != nil {
 		r.cleanup = f
 	}
@@ -56,7 +71,7 @@ func (r *GitRepo) SetCleanUp(f func()) error {
 }
 
 // CollectAll The main parser subtask
-func (r *GitRepo) CollectAll(subtaskCtx plugin.SubTaskContext) error {
+func (r *Libgit2RepoCollector) CollectAll(subtaskCtx plugin.SubTaskContext) error {
 	subtaskCtx.SetProgress(0, -1)
 	err := r.CollectTags(subtaskCtx)
 	if err != nil {
@@ -74,7 +89,7 @@ func (r *GitRepo) CollectAll(subtaskCtx plugin.SubTaskContext) error {
 }
 
 // Close resources
-func (r *GitRepo) Close(ctx context.Context) error {
+func (r *Libgit2RepoCollector) Close(ctx context.Context) error {
 	defer func() {
 		if r.cleanup != nil {
 			r.cleanup()
@@ -84,7 +99,7 @@ func (r *GitRepo) Close(ctx context.Context) error {
 }
 
 // CountTags Count git tags subtask
-func (r *GitRepo) CountTags(ctx context.Context) (int, error) {
+func (r *Libgit2RepoCollector) CountTags(ctx context.Context) (int, error) {
 	tags, err := r.repo.Tags.List()
 	if err != nil {
 		return 0, errors.Convert(err)
@@ -93,7 +108,7 @@ func (r *GitRepo) CountTags(ctx context.Context) (int, error) {
 }
 
 // CountBranches count the number of branches in a git repo
-func (r *GitRepo) CountBranches(ctx context.Context) (int, error) {
+func (r *Libgit2RepoCollector) CountBranches(ctx context.Context) (int, error) {
 	var branchIter *git.BranchIterator
 	branchIter, err := r.repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
@@ -118,7 +133,7 @@ func (r *GitRepo) CountBranches(ctx context.Context) (int, error) {
 }
 
 // CountCommits count the number of commits in a git repo
-func (r *GitRepo) CountCommits(ctx context.Context) (int, error) {
+func (r *Libgit2RepoCollector) CountCommits(ctx context.Context) (int, error) {
 	odb, err := r.repo.Odb()
 	if err != nil {
 		return 0, errors.Convert(err)
@@ -143,7 +158,7 @@ func (r *GitRepo) CountCommits(ctx context.Context) (int, error) {
 }
 
 // CollectTags Collect Tags data
-func (r *GitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) error {
+func (r *Libgit2RepoCollector) CollectTags(subtaskCtx plugin.SubTaskContext) error {
 	return errors.Convert(r.repo.Tags.Foreach(func(name string, id *git.Oid) error {
 		select {
 		case <-subtaskCtx.GetContext().Done():
@@ -182,7 +197,7 @@ func (r *GitRepo) CollectTags(subtaskCtx plugin.SubTaskContext) error {
 }
 
 // CollectBranches Collect branch data
-func (r *GitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
+func (r *Libgit2RepoCollector) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
 	var repoInter *git.BranchIterator
 	repoInter, err := r.repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
@@ -227,7 +242,7 @@ func (r *GitRepo) CollectBranches(subtaskCtx plugin.SubTaskContext) error {
 }
 
 // CollectCommits Collect data from each commit, we can also get the diff line
-func (r *GitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
+func (r *Libgit2RepoCollector) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
 	taskOpts := subtaskCtx.GetData().(*GitExtractorTaskData).Options
 	opts, err := getDiffOpts()
 	if err != nil {
@@ -316,7 +331,7 @@ func (r *GitRepo) CollectCommits(subtaskCtx plugin.SubTaskContext) error {
 	}))
 }
 
-func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) errors.Error {
+func (r *Libgit2RepoCollector) storeParentCommits(commitSha string, commit *git.Commit) errors.Error {
 	var commitParents []*code.CommitParent
 	for i := uint(0); i < commit.ParentCount(); i++ {
 		parent := commit.Parent(i)
@@ -332,7 +347,7 @@ func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) error
 	return r.store.CommitParents(commitParents)
 }
 
-func (r *GitRepo) getDiffComparedToParent(taskOpts *GitExtractorOptions, commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, errors.Error) {
+func (r *Libgit2RepoCollector) getDiffComparedToParent(taskOpts *GitExtractorOptions, commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, errors.Error) {
 	var err error
 	var parentTree, tree *git.Tree
 	if parent != nil {
@@ -364,7 +379,7 @@ func (r *GitRepo) getDiffComparedToParent(taskOpts *GitExtractorOptions, commitS
 	return stats, nil
 }
 
-func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, componentMap map[string]*regexp.Regexp) errors.Error {
+func (r *Libgit2RepoCollector) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, componentMap map[string]*regexp.Regexp) errors.Error {
 	var commitFile *code.CommitFile
 	var commitFileComponent *code.CommitFileComponent
 	var err error
@@ -428,7 +443,7 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 }
 
 // CollectDiffLine get line diff data from a specific branch
-func (r *GitRepo) CollectDiffLine(subtaskCtx plugin.SubTaskContext) error {
+func (r *Libgit2RepoCollector) CollectDiffLine(subtaskCtx plugin.SubTaskContext) error {
 	//Using this subtask,we can get every line change in every commit.
 	//We maintain a snapshot structure to get which commit each deleted line belongs to
 	snapshot := make(map[string] /*file path*/ *models.FileBlame)
