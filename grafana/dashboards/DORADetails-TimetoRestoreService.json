@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 44,
+  "id": 10,
   "links": [
     {
       "asDropdown": false,
@@ -30,7 +30,7 @@
       "title": "Go Back",
       "tooltip": "",
       "type": "link",
-      "url": "/d/qNo8_0M4z2/dora2?orgId=1"
+      "url": "/d/qNo8_0M4z/dora?orgId=1"
     }
   ],
   "liveNow": false,
@@ -242,7 +242,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 431
+                "value": 819
               }
             ]
           },
@@ -436,7 +436,7 @@
           "value": "$__all"
         },
         "datasource": "mysql",
-        "definition": "select distinct name from projects",
+                  "definition": "select distinct name from projects",
         "hide": 0,
         "includeAll": true,
         "label": "Project",
@@ -460,6 +460,6 @@
   "timezone": "",
   "title": "DORA Details - Time to Restore Service",
   "uid": "Time-to-restore-service",
-  "version": 21,
+  "version": 3,
   "weekStart": ""
 }
