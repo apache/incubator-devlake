@@ -70,8 +70,8 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.GET("/plugins", plugininfo.GetPluginMetas)
 
 	// project api
-	r.GET("/projects/:projectName", project.GetProject)
-	r.GET("/projects/:projectName/check", project.GetProjectCheck)
+	r.GET("/projects/*projectName", project.GetProject)
+	r.HEAD("/projects/*projectName", project.GetProjectCheck)
 	r.PATCH("/projects/*projectName", project.PatchProject)
 	r.DELETE("/projects/*projectName", project.DeleteProject)
 	r.POST("/projects", project.PostProject)
