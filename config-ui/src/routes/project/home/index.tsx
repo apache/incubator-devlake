@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Flex, Table, Button, Modal, Input, Checkbox, message } from 'antd';
@@ -27,6 +27,7 @@ import { PageHeader, Block, ExternalLink } from '@/components';
 import { getCron, cronPresets, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
+import { OnboardTour } from '@/routes/onboard/components';
 import { DOC_URL } from '@/release';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
@@ -42,6 +43,10 @@ export const ProjectHomePage = () => {
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const nameRef = useRef(null);
+  const connectionRef = useRef(null);
+  const configRef = useRef(null);
 
   const { ready, data } = useRefreshData(() => API.project.list({ page, pageSize }), [version, page, pageSize]);
 
@@ -132,7 +137,7 @@ export const ProjectHomePage = () => {
             dataIndex: 'name',
             key: 'name',
             render: (name: string) => (
-              <Link to={PATHS.PROJECT(name, { tab: 'configuration' })} style={{ color: '#292b3f' }}>
+              <Link to={PATHS.PROJECT(name, { tab: 'configuration' })} style={{ color: '#292b3f' }} ref={nameRef}>
                 {name}
               </Link>
             ),
@@ -145,7 +150,7 @@ export const ProjectHomePage = () => {
               !val || !val.length ? (
                 'N/A'
               ) : (
-                <ul>
+                <ul ref={connectionRef}>
                   {val.map((it) => (
                     <li key={`${it.pluginName}-${it.connectionId}`}>
                       <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
@@ -188,6 +193,7 @@ export const ProjectHomePage = () => {
             align: 'center',
             render: (name: any) => (
               <Button
+                ref={configRef}
                 type="primary"
                 icon={<SettingOutlined />}
                 onClick={() => navigate(PATHS.PROJECT(name, { tab: 'configuration' }))}
@@ -244,6 +250,9 @@ export const ProjectHomePage = () => {
           </Checkbox>
         </Block>
       </Modal>
+      {ready && dataSource.length === 1 && (
+        <OnboardTour nameRef={nameRef} connectionRef={connectionRef} configRef={configRef} />
+      )}
     </PageHeader>
   );
 };
