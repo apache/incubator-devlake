@@ -74,7 +74,9 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	cleanup := func() {
 		_ = os.RemoveAll(localDir)
 	}
-	repoCollector.SetCleanUp(cleanup)
+	if e := repoCollector.SetCleanUp(cleanup); e != nil {
+		return errors.Convert(e)
+	}
 
 	// pass the collector down to next subtask
 	taskData.GitRepo = repoCollector
