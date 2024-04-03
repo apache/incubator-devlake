@@ -18,14 +18,13 @@ limitations under the License.
 package parser
 
 import (
-	"strings"
-
-	"github.com/apache/incubator-devlake/core/errors"
+	"net/url"
 )
 
 type GitExtractorTaskData struct {
-	Options *GitExtractorOptions
-	GitRepo RepoCollector
+	Options   *GitExtractorOptions
+	ParsedURL *url.URL
+	GitRepo   RepoCollector
 }
 
 type GitExtractorOptions struct {
@@ -37,21 +36,7 @@ type GitExtractorOptions struct {
 	PrivateKey      string `json:"privateKey" mapstructure:"privateKey"`
 	Passphrase      string `json:"passphrase" mapstructure:"passphrase"`
 	Proxy           string `json:"proxy" mapstructure:"proxy"`
-	UseGoGit        bool   `json:"useGoGit" mapstructure:"useGoGit"`
+	UseGoGit        *bool  `json:"useGoGit" mapstructure:"useGoGit"`
 	SkipCommitStat  *bool  `json:"skipCommitStat" mapstructure:"skipCommitStat" comment:"skip all commit stat including added/deleted lines and commit files as well"`
 	SkipCommitFiles *bool  `json:"skipCommitFiles" mapstructure:"skipCommitFiles"`
-}
-
-func (o GitExtractorOptions) Valid() errors.Error {
-	if o.RepoId == "" {
-		return errors.BadInput.New("empty repoId")
-	}
-	if o.Url == "" {
-		return errors.BadInput.New("empty url")
-	}
-	url := strings.TrimPrefix(o.Url, "ssh://")
-	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
-		return errors.BadInput.New("wrong url")
-	}
-	return nil
 }
