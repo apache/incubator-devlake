@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 43,
+  "id": 36,
   "links": [
     {
       "asDropdown": false,
@@ -30,7 +30,7 @@
       "title": "Go Back",
       "tooltip": "",
       "type": "link",
-      "url": "/d/qNo8_0M4z2/dora2?orgId=1"
+      "url": "/d/qNo8_0M4z/dora?orgId=1"
     }
   ],
   "liveNow": false,
@@ -774,6 +774,18 @@
                 "value": true
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR title"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 674
+              }
+            ]
           }
         ]
       },
@@ -797,12 +809,7 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "change_lead_time_in_hours"
-          }
-        ]
+        "sortBy": []
       },
       "pluginVersion": "9.5.15",
       "targets": [
@@ -874,7 +881,7 @@
           "value": "$__all"
         },
         "datasource": "mysql",
-        "definition": "select distinct name from projects",
+                  "definition": "select distinct name from projects",
         "hide": 0,
         "includeAll": true,
         "label": "Project",
@@ -895,7 +902,7 @@
           "value": "2023"
         },
         "datasource": "mysql",
-        "definition": "select dora_report from dora_benchmarks",
+                  "definition": "select dora_report from dora_benchmarks",
         "hide": 0,
         "includeAll": false,
         "label": "DORA Report",
@@ -916,7 +923,7 @@
           "value": "Failed Deployment Recovery Time"
         },
         "datasource": "mysql",
-        "definition": "SELECT \n  CASE \n    WHEN dora_report = '2023' THEN \"Failed Deployment Recovery Time\"\n    WHEN dora_report = '2021' THEN \"Median Time to Restore Service\"\n    ELSE NULL \n  END AS title_value\nFROM dora_benchmarks\nWHERE dora_report = '${dora_report:raw}'",
+                  "definition": "SELECT \n  CASE \n    WHEN dora_report = '2023' THEN \"Failed Deployment Recovery Time\"\n    WHEN dora_report = '2021' THEN \"Median Time to Restore Service\"\n    ELSE NULL \n  END AS title_value\nFROM dora_benchmarks\nWHERE dora_report = '${dora_report:raw}'",
         "hide": 2,
         "includeAll": false,
         "label": "TitleValue",
@@ -940,6 +947,6 @@
   "timezone": "",
   "title": "DORA Details - Lead Time for Changes",
   "uid": "Lead-time-for-changes",
-  "version": 15,
+  "version": 6,
   "weekStart": ""
 }
