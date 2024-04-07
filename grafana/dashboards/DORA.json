@@ -184,7 +184,7 @@
                   {
                     "targetBlank": false,
                     "title": "",
-                    "url": "/d/${__data.fields[\"metric_hidden\"]}"
+                    "url": "/d/${__data.fields[\"metric_hidden\"]}?var-project=${project:raw}&from=${__from}&to=${__to}"
                   }
                 ]
               }
@@ -351,7 +351,7 @@
         {
           "targetBlank": false,
           "title": "link",
-          "url": "/d/Deployment-frequency/dora-drill-down-deployment-frequency?orgId=1"
+          "url": "/d/Deployment-frequency/dora-drill-down-deployment-frequency?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -494,7 +494,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Lead-time-for-changes/dora-drill-down-lead-time-for-changes?orgId=1"
+          "url": "/d/Lead-time-for-changes/dora-drill-down-lead-time-for-changes?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -638,7 +638,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Change-failure-rate/dora-drill-down-change-failure-rate?orgId=1"
+          "url": "/d/Change-failure-rate/dora-drill-down-change-failure-rate?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -786,11 +786,11 @@
       "links": [
         {
           "title": "Failed Deployment Recovery Time",
-          "url": "/d/Failed-deployment-recovery-time/dora-details-failed-deployment-recovery-time?orgId=1"
+          "url": "/d/Failed-deployment-recovery-time/dora-details-failed-deployment-recovery-time?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         },
         {
           "title": "Median Time to Restore Service",
-          "url": "/d/Time-to-restore-service/dora-details-median-time-to-restore-service?orgId=1"
+          "url": "/d/Time-to-restore-service/dora-details-median-time-to-restore-service?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -917,7 +917,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Deployment-frequency/dora-drill-down-deployment-frequency?orgId=1"
+          "url": "/d/Deployment-frequency/dora-drill-down-deployment-frequency?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -1047,7 +1047,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Lead-time-for-changes/dora-drill-down-lead-time-for-changes?orgId=1"
+          "url": "/d/Lead-time-for-changes/dora-drill-down-lead-time-for-changes?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -1197,7 +1197,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Change-failure-rate/dora-drill-down-change-failure-rate?orgId=1"
+          "url": "/d/Change-failure-rate/dora-drill-down-change-failure-rate?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -1351,11 +1351,11 @@
       "links": [
         {
           "title": "Failed Deployment Recovery Time",
-          "url": "/d/Failed-deployment-recovery-time/dora-details-failed-deployment-recovery-time?orgId=1"
+          "url": "/d/Failed-deployment-recovery-time/dora-details-failed-deployment-recovery-time?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         },
         {
           "title": "Median Time To Restore Service",
-          "url": "/d/Time-to-restore-service/dora-details-median-time-to-restore-service?orgId=1"
+          "url": "/d/Time-to-restore-service/dora-details-median-time-to-restore-service?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
