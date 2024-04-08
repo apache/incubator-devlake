@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/impls/logruslog"
-	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
 
@@ -40,18 +39,23 @@ type RemoteProgress struct {
 
 type RemoteContext interface {
 	plugin.ExecContext
-	GetSettings() map[string]any
+	GetRemoteConfig() *RemoteConfig
+}
+
+// RemoteConfig holds common configuration for all remote calls
+type RemoteConfig struct {
+	LogLevel string `json:"log_level"`
 }
 
 type remoteContextImpl struct {
-	parent   plugin.ExecContext
-	logger   log.Logger
-	ctx      context.Context
-	Settings map[string]any `json:"settings"`
+	parent       plugin.ExecContext
+	logger       log.Logger
+	ctx          context.Context
+	remoteConfig *RemoteConfig
 }
 
-func (r remoteContextImpl) GetSettings() map[string]any {
-	return r.Settings
+func (r remoteContextImpl) GetRemoteConfig() *RemoteConfig {
+	return r.remoteConfig
 }
 
 func (r remoteContextImpl) GetConfigReader() config.ConfigReader {
@@ -60,10 +64,9 @@ func (r remoteContextImpl) GetConfigReader() config.ConfigReader {
 
 func (r remoteContextImpl) ReplaceLogger(logger log.Logger) ctx.BasicRes {
 	return &remoteContextImpl{
-		parent:   r.parent,
-		logger:   logger,
-		ctx:      r.ctx,
-		Settings: r.Settings,
+		parent: r.parent,
+		logger: logger,
+		ctx:    r.ctx,
 	}
 }
 
@@ -72,28 +75,26 @@ func (r remoteContextImpl) NestedLogger(name string) ctx.BasicRes {
 }
 
 func NewRemoteContext(logger log.Logger, cfg *viper.Viper) RemoteContext {
+	remoteCfg := &RemoteConfig{
+		LogLevel: cfg.GetString("LOGGING_LEVEL"),
+	}
 	return &remoteContextImpl{
-		logger:   logger,
-		Settings: cfg.AllSettings(),
-		ctx:      context.Background(),
+		logger:       logger,
+		ctx:          context.Background(),
+		remoteConfig: remoteCfg,
 	}
 }
 
 func NewChildRemoteContext(ec plugin.ExecContext) RemoteContext {
 	return &remoteContextImpl{
-		parent:   ec,
-		logger:   ec.GetLogger(),
-		ctx:      ec.GetContext(),
-		Settings: DefaultContext.GetSettings(),
+		parent: ec,
+		logger: ec.GetLogger(),
+		ctx:    ec.GetContext(),
 	}
 }
 
 func (r remoteContextImpl) GetConfig(name string) string {
-	val, ok := r.Settings[name]
-	if !ok {
-		return ""
-	}
-	return cast.ToString(val)
+	return config.GetConfig().GetString(name)
 }
 
 func (r remoteContextImpl) GetLogger() log.Logger {

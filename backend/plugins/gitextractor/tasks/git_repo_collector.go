@@ -18,43 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 )
-
-type GitExtractorTaskData struct {
-	Options *GitExtractorOptions
-	GitRepo parser.RepoCollector
-}
-
-type GitExtractorOptions struct {
-	RepoId     string `json:"repoId"`
-	Name       string `json:"name"`
-	Url        string `json:"url"`
-	User       string `json:"user"`
-	Password   string `json:"password"`
-	PrivateKey string `json:"privateKey"`
-	Passphrase string `json:"passphrase"`
-	Proxy      string `json:"proxy"`
-	UseGoGit   bool   `json:"use_go_git"`
-}
-
-func (o GitExtractorOptions) Valid() errors.Error {
-	if o.RepoId == "" {
-		return errors.BadInput.New("empty repoId")
-	}
-	if o.Url == "" {
-		return errors.BadInput.New("empty url")
-	}
-	url := strings.TrimPrefix(o.Url, "ssh://")
-	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
-		return errors.BadInput.New("wrong url")
-	}
-	return nil
-}
 
 func CollectGitCommits(subTaskCtx plugin.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
@@ -94,18 +61,16 @@ func CollectGitTags(subTaskCtx plugin.SubTaskContext) errors.Error {
 
 func CollectGitDiffLines(subTaskCtx plugin.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
-	if count, err := repo.CountTags(subTaskCtx.GetContext()); err != nil {
-		subTaskCtx.GetLogger().Error(err, "unable to get line content")
+	opt := subTaskCtx.GetData().(*parser.GitExtractorTaskData).Options
+	if !*opt.SkipCommitStat {
 		subTaskCtx.SetProgress(0, -1)
-		return errors.Convert(err)
-	} else {
-		subTaskCtx.SetProgress(0, count)
+		return errors.Convert(repo.CollectDiffLine(subTaskCtx))
 	}
-	return errors.Convert(repo.CollectDiffLine(subTaskCtx))
+	return nil
 }
 
 func getGitRepo(subTaskCtx plugin.SubTaskContext) parser.RepoCollector {
-	taskData, ok := subTaskCtx.GetData().(*GitExtractorTaskData)
+	taskData, ok := subTaskCtx.GetData().(*parser.GitExtractorTaskData)
 	if !ok {
 		panic("git repo reference not found on context")
 	}
@@ -116,7 +81,7 @@ func getGitRepo(subTaskCtx plugin.SubTaskContext) parser.RepoCollector {
 }
 
 var CollectGitCommitMeta = plugin.SubTaskMeta{
-	Name:             "collectGitCommits",
+	Name:             "Collect Commits",
 	EntryPoint:       CollectGitCommits,
 	EnabledByDefault: true,
 	Description:      "collect git commits into Domain Layer Tables",
@@ -125,7 +90,7 @@ var CollectGitCommitMeta = plugin.SubTaskMeta{
 }
 
 var CollectGitBranchMeta = plugin.SubTaskMeta{
-	Name:             "collectGitBranches",
+	Name:             "Collect Branches",
 	EntryPoint:       CollectGitBranches,
 	EnabledByDefault: true,
 	Description:      "collect git branch into Domain Layer Tables",
@@ -134,7 +99,7 @@ var CollectGitBranchMeta = plugin.SubTaskMeta{
 }
 
 var CollectGitTagMeta = plugin.SubTaskMeta{
-	Name:             "collectGitTags",
+	Name:             "Collect Tags",
 	EntryPoint:       CollectGitTags,
 	EnabledByDefault: true,
 	Description:      "collect git tag into Domain Layer Tables",
@@ -143,7 +108,7 @@ var CollectGitTagMeta = plugin.SubTaskMeta{
 }
 
 var CollectGitDiffLineMeta = plugin.SubTaskMeta{
-	Name:             "collectDiffLine",
+	Name:             "Collect DiffLine",
 	EntryPoint:       CollectGitDiffLines,
 	EnabledByDefault: false,
 	Description:      "collect git commit diff line into Domain Layer Tables",

@@ -32,7 +32,7 @@ func init() {
 }
 
 var ExtractAccountsMeta = plugin.SubTaskMeta{
-	Name:             "extractAccounts",
+	Name:             "Extract Users",
 	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_gitlab_accounts",

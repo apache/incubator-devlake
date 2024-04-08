@@ -78,7 +78,8 @@ func CreateApiServer() *gin.Engine {
 
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
-	router.GET("/health", ping.Get)
+	router.GET("/ready", ping.Ready)
+	router.GET("/health", ping.Health)
 	router.GET("/version", version.Get)
 
 	// Api keys

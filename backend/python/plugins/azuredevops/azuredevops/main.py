@@ -139,7 +139,7 @@ class AzureDevOpsPlugin(Plugin):
 
     def extra_stages(self, scope_config_pairs: list[tuple[GitRepository, GitRepositoryConfig]], _):
         for scope, config in scope_config_pairs:
-            if DomainType.CODE in config.domain_types and not scope.is_external():
+            if DomainType.CODE in config.domain_types and not scope.is_external() and scope.scope_config_id != 0:
                 yield [refdiff(scope.id, config.refdiff)]
 
 

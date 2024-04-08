@@ -118,7 +118,7 @@ type GraphqlQueryCommit struct {
 }
 
 var CollectPrsMeta = plugin.SubTaskMeta{
-	Name:             "CollectPrs",
+	Name:             "Collect Pull Requests",
 	EntryPoint:       CollectPrs,
 	EnabledByDefault: true,
 	Description:      "Collect Pr data from GithubGraphql api, supports both timeFilter and diffSync.",

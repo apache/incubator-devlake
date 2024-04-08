@@ -28,7 +28,7 @@ const RAW_PIPELINE_STEPS_TABLE = "bitbucket_api_pipeline_steps"
 var _ plugin.SubTaskEntryPoint = CollectPipelineSteps
 
 var CollectPipelineStepsMeta = plugin.SubTaskMeta{
-	Name:             "CollectPipelineSteps",
+	Name:             "Collect Pipeline Steps",
 	EntryPoint:       CollectPipelineSteps,
 	EnabledByDefault: true,
 	Description:      "Collect PipelineSteps data from Bitbucket api",

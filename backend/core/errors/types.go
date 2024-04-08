@@ -36,8 +36,9 @@ var (
 	Conflict     = register(&Type{httpCode: http.StatusConflict, meta: "internal"})
 
 	//500+
-	Internal = register(&Type{httpCode: http.StatusInternalServerError, meta: "internal"})
-	Timeout  = register(&Type{httpCode: http.StatusGatewayTimeout, meta: "timeout"})
+	Internal    = register(&Type{httpCode: http.StatusInternalServerError, meta: "internal"})
+	Timeout     = register(&Type{httpCode: http.StatusGatewayTimeout, meta: "timeout"})
+	Unavailable = register(&Type{httpCode: http.StatusServiceUnavailable, meta: "unavailable"})
 
 	//cached values
 	typesByHttpCode = newSyncMap[int, *Type]()

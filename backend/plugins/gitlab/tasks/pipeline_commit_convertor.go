@@ -34,7 +34,7 @@ func init() {
 }
 
 var ConvertPipelineCommitMeta = plugin.SubTaskMeta{
-	Name:             "convertPipelineCommits",
+	Name:             "Convert Pipeline Commits",
 	EntryPoint:       ConvertPipelineCommits,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_pipeline_project into domain layer table pipeline",

@@ -28,7 +28,7 @@ const RAW_PULL_REQUEST_TABLE = "bitbucket_api_pull_requests"
 // this struct should be moved to `bitbucket_api_common.go`
 
 var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequests",
+	Name:             "Collect Pull Requests",
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
 	Required:         false,

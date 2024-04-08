@@ -26,7 +26,7 @@ import (
 const RAW_ISSUE_TABLE = "bitbucket_api_issues"
 
 var CollectApiIssuesMeta = plugin.SubTaskMeta{
-	Name:             "collectApiIssues",
+	Name:             "Collect Issues",
 	EntryPoint:       CollectApiIssues,
 	EnabledByDefault: true,
 	Description:      "Collect issues data from Bitbucket api",

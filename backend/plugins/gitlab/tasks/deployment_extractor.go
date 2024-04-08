@@ -35,7 +35,7 @@ func init() {
 }
 
 var ExtractDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "ExtractDeployment",
+	Name:             "Extract Deployments",
 	EntryPoint:       ExtractDeployment,
 	EnabledByDefault: true,
 	Description:      "Extract gitlab deployment from raw layer to tool layer",

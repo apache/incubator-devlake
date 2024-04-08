@@ -41,7 +41,7 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 COPY --from=builder /home/node/code/dist/. ./
 EXPOSE 4000 4443
-RUN apt update && apt install -y apache2-utils
+RUN apt update && apt install -y apache2-utils iproute2
 COPY --from=builder /home/node/code/nginx.sh /usr/bin/nginx.sh
 RUN chmod +x /usr/bin/nginx.sh
 USER 101

@@ -33,7 +33,7 @@ import (
 const RAW_ACCOUNT_TABLE = "bitbucket_api_accounts"
 
 var ConvertAccountsMeta = plugin.SubTaskMeta{
-	Name:             "convertAccounts",
+	Name:             "Convert Users",
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Required:         false,

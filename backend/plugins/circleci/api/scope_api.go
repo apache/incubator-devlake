@@ -20,74 +20,73 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 )
 
-// nolint
-type scopeReq struct {
-	Data []models.CircleciPipeline `json:"data"`
-}
+type PutScopesReqBody api.PutScopesReqBody[models.CircleciProject]
+type ScopeDetail api.ScopeDetail[models.CircleciProject, models.CircleciScopeConfig]
 
-// PutScope create or update circleci pipeline
-// @Summary create or update circleci pipeline
-// @Description Create or update circleci pipeline
+// PutScopes create or update project
+// @Summary create or update project
+// @Description Create or update project
 // @Tags plugins/circleci
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scope body scopeReq true "json"
-// @Success 200  {object} models.CircleciPipeline
+// @Param scope body PutScopesReqBody true "json"
+// @Success 200  {object} []models.CircleciProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId}/scopes [PUT]
-func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
-// UpdateScope patch to circleci pipeline
-// @Summary patch to circleci pipeline
-// @Description patch to circleci pipeline
+// PatchScope patch to project
+// @Summary patch to project
+// @Description patch to project
 // @Tags plugins/circleci
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scopeId path int true "pipeline id"
-// @Param scope body models.CircleciPipeline true "json"
-// @Success 200  {object} models.CircleciPipeline
+// @Param scopeId path string true "project ID"
+// @Param scope body models.CircleciProject true "json"
+// @Success 200  {object} models.CircleciProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId}/scopes/{scopeId} [PATCH]
-func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.Patch(input)
 }
 
-// GetScopeList get Circleci pipelines
-// @Summary get Circleci pipelines
-// @Description get Circleci pipelines
+// GetScopes get projects
+// @Summary get projects
+// @Description get projects
 // @Tags plugins/circleci
 // @Param connectionId path int true "connection ID"
 // @Param searchTerm query string false "search term for scope name"
+// @Param pageSize query int false "page size, default 50"
+// @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []models.CircleciPipeline
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId}/scopes/ [GET]
-func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+func GetScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
-// GetScope get one Circleci pipeline
-// @Summary get one Circleci pipeline
-// @Description get one Circleci pipeline
+// GetScope get one project
+// @Summary get one project
+// @Description get one project
 // @Tags plugins/circleci
 // @Param connectionId path int true "connection ID"
-// @Param scopeId path int true "pipeline id"
-// @Param pageSize query int false "page size, default 50"
-// @Param page query int false "page size, default 1"
-// @Success 200  {object} models.CircleciPipeline
+// @Param scopeId path string true "project ID"
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -95,7 +94,7 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Description delete data associated with plugin scope
 // @Tags plugins/circleci
 // @Param connectionId path int true "connection ID"
-// @Param scopeId path int true "scope ID"
+// @Param scopeId path string true "scope ID"
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
@@ -103,5 +102,5 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }

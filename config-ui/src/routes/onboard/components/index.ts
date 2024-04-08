@@ -16,19 +16,6 @@
  *
  */
 
-import styled from 'styled-components';
-
-export const DialogWrapper = styled.div``;
-
-export const Label = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-export const LabelInfo = styled.i`
-  color: #ff8b8b;
-`;
-
-export const LabelDescription = styled.p`
-  margin: 0;
-`;
+export * from './card';
+export * from './logs';
+export * from './tour';

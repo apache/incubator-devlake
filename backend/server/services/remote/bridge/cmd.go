@@ -51,7 +51,7 @@ func NewCmdInvoker(execPath string) *CmdInvoker {
 }
 
 func (c *CmdInvoker) Call(methodName string, ctx plugin.ExecContext, args ...any) *CallResult {
-	serializedArgs, err := serialize(args...)
+	serializedArgs, err := serialize(append([]any{DefaultContext.GetRemoteConfig()}, args...)...)
 	if err != nil {
 		return &CallResult{
 			Err: err,
@@ -92,7 +92,7 @@ func (c *CmdInvoker) Stream(methodName string, ctx plugin.ExecContext, args ...a
 		outbound: nil,
 		inbound:  recvChannel,
 	}
-	serializedArgs, err := serialize(args...)
+	serializedArgs, err := serialize(append([]any{DefaultContext.GetRemoteConfig()}, args...)...)
 	if err != nil {
 		recvChannel <- NewStreamResult(nil, err)
 		return stream

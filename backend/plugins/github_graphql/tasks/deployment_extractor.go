@@ -31,7 +31,7 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractDeployments
 
 var ExtractDeploymentsMeta = plugin.SubTaskMeta{
-	Name:             "extractDeployments",
+	Name:             "Extract Deployments",
 	EntryPoint:       ExtractDeployments,
 	EnabledByDefault: true,
 	Description:      "extract raw deployment data into tool layer table github_graphql_deployment",

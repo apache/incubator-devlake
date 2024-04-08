@@ -15,17 +15,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package parser
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-func (l *GitRepoCreator) CloneOverHTTP(ctx plugin.SubTaskContext, repoId, url, user, password, proxy string) (RepoCollector, errors.Error) {
-	return l.cloneOverHTTP(ctx, false, repoId, url, user, password, proxy)
+var _ plugin.MigrationScript = (*addSubtaskField)(nil)
+
+type subtask20240322 struct {
+	FinishedRecords int    `json:"finishedRecords"`
+	Sequence        int    `json:"sequence"`
+	IsCollector     bool   `json:"isCollector"`
+	IsFailed        bool   `json:"isFailed"`
+	Message         string `json:"message"`
 }
 
-func (l *GitRepoCreator) CloneOverSSH(ctx plugin.SubTaskContext, repoId, url, privateKey, passphrase string) (RepoCollector, errors.Error) {
-	return l.cloneOverSSH(ctx, false, repoId, url, privateKey, passphrase)
+func (subtask20240322) TableName() string {
+	return "_devlake_subtasks"
+}
+
+type addSubtaskField struct{}
+
+func (*addSubtaskField) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(subtask20240322{})
+}
+
+func (*addSubtaskField) Version() uint64 {
+	return 20240322111247
+}
+
+func (*addSubtaskField) Name() string {
+	return "add some fields to _devlake_subtasks table"
 }

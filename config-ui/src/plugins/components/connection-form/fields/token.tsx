@@ -42,7 +42,6 @@ interface Props {
   type: 'create' | 'update';
   label?: string;
   subLabel?: string;
-  name: string;
   initialValue: string;
   value: string;
   error: string;

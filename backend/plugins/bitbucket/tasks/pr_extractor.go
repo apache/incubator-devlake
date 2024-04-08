@@ -29,7 +29,7 @@ import (
 )
 
 var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPullRequests",
+	Name:             "Extract Pull Requests",
 	EntryPoint:       ExtractApiPullRequests,
 	EnabledByDefault: true,
 	Required:         false,

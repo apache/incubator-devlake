@@ -24,6 +24,8 @@ export const list = (data: Pagination): Promise<{ count: number; projects: IProj
 
 export const get = (name: string): Promise<IProject> => request(`/projects/${name}`);
 
+export const checkName = (name: string) => request(`/projects/${name}/check`);
+
 export const create = (data: Pick<IProject, 'name' | 'description' | 'metrics'>) =>
   request('/projects', {
     method: 'post',

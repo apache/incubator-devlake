@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 42,
+  "id": 17,
   "links": [
     {
       "asDropdown": false,
@@ -30,7 +30,7 @@
       "title": "Go Back ",
       "tooltip": "",
       "type": "link",
-      "url": "/d/qNo8_0M4z2/dora2?orgId=1"
+      "url": "/d/qNo8_0M4z/dora?orgId=1"
     }
   ],
   "liveNow": false,
@@ -147,7 +147,7 @@
     },
     {
       "datasource": "mysql",
-      "fieldConfig": {
+              "fieldConfig": {
         "defaults": {
           "color": {
             "fixedColor": "rgba(255, 255, 255, 1)",
@@ -159,7 +159,7 @@
               "type": "auto"
             },
             "filterable": true,
-            "inspect": false
+            "inspect": true
           },
           "mappings": [
             {
@@ -265,28 +265,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "url"
-            },
-            "properties": [
-              {
-                "id": "links",
-                "value": [
-                  {
-                    "targetBlank": true,
-                    "title": "",
-                    "url": "${__data.fields[\"metric_hidden\"]}"
-                  }
-                ]
-              },
-              {
-                "id": "custom.width",
-                "value": 228
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "metric_hidden"
             },
             "properties": [
@@ -337,7 +315,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "--  ***** 2023 report ***** --\n--  Metric 4: Failed deployment recovery time\nwith _deployments as (\n    SELECT\n        cdc.cicd_deployment_id as deployment_id,\n        max(cdc.finished_date) as deployment_finished_date\n    FROM \n        cicd_deployment_commits cdc\n        JOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n    WHERE\n        pm.project_name in ($project)\n        and cdc.result = 'SUCCESS'\n        and cdc.environment = 'PRODUCTION'\n    GROUP BY 1\n    HAVING $__timeFilter(max(cdc.finished_date))\n),\n\n_incidents_for_deployments as (\n    SELECT\n\t\tfd.deployment_id as \"deployment_id\",\n        fd.deployment_finished_date,\n        -- date_format(fd.deployment_finished_date,'%y/%m') as deployment_finished_month,\n        i.id as incident_id,\n        i.title,\n        i.url,\n        i.url as \"metric_hidden\",\n        -- i.created_date as incident_create_date,\n        i.resolution_date as incident_resolution_date,\n\t\tTIMESTAMPDIFF(HOUR, fd.deployment_finished_date, i.resolution_date) as \"failed_deployment_recovery_time\"\n    FROM\n        issues i\n        left join project_issue_metrics pim on i.id = pim.id\n        join _deployments fd on pim.deployment_id = fd.deployment_id\n    WHERE\n        i.type = 'INCIDENT'\n    and $__timeFilter(i.resolution_date)\n)\n\nselect \n    * \nFROM \n    _incidents_for_deployments\nwhere incident_resolution_date IS NOT NULL",
+          "rawSql": "--  ***** 2023 report ***** --\n--  Metric 4: Failed deployment recovery time\nwith _deployments as (\n    SELECT\n        cdc.cicd_deployment_id as deployment_id,\n        max(cdc.finished_date) as deployment_finished_date\n    FROM \n        cicd_deployment_commits cdc\n        JOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n    WHERE\n        pm.project_name in ($project)\n        and cdc.result = 'SUCCESS'\n        and cdc.environment = 'PRODUCTION'\n    GROUP BY 1\n    HAVING $__timeFilter(max(cdc.finished_date))\n),\n\n_incidents_for_deployments as (\n    SELECT\n\t\tfd.deployment_id as \"deployment_id\",\n        fd.deployment_finished_date,\n        -- date_format(fd.deployment_finished_date,'%y/%m') as deployment_finished_month,\n        i.id as incident_caused_by_deployment,\n        i.title as incident_title,\n        i.url as incident_url,\n        i.url as \"metric_hidden\",\n        -- i.created_date as incident_create_date,\n        i.resolution_date as incident_resolution_date,\n\t\tTIMESTAMPDIFF(HOUR, fd.deployment_finished_date, i.resolution_date) as \"failed_deployment_recovery_time\"\n    FROM\n        issues i\n        left join project_issue_metrics pim on i.id = pim.id\n        join _deployments fd on pim.deployment_id = fd.deployment_id\n    WHERE\n        i.type = 'INCIDENT'\n    and $__timeFilter(i.resolution_date)\n)\n\nselect \n    * \nFROM \n    _incidents_for_deployments\nwhere incident_resolution_date IS NOT NULL",
           "refId": "A",
           "select": [
             [
@@ -471,7 +449,7 @@
           "value": "$__all"
         },
         "datasource": "mysql",
-        "definition": "select distinct name from projects",
+                  "definition": "select distinct name from projects",
         "hide": 0,
         "includeAll": true,
         "label": "Project",
@@ -495,6 +473,6 @@
   "timezone": "",
   "title": "DORA Details - Failed Deployment Recovery Time",
   "uid": "Failed-deployment-recovery-time",
-  "version": 18,
+  "version": 3,
   "weekStart": ""
 }

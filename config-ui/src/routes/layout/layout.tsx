@@ -34,10 +34,10 @@ import {
   selectTipsPayload,
   hideTips,
 } from '@/features';
+import { OnboardCard } from '@/routes/onboard/components';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { operator } from '@/utils';
 
-import { layoutLoader } from './loader';
 import { menuItems, menuItemsMatch, headerItems } from './config';
 import * as S from './styled';
 import './tips-transition.css';
@@ -49,7 +49,7 @@ export const Layout = () => {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [operating, setOperating] = useState(false);
 
-  const { version, plugins } = useLoaderData() as Awaited<ReturnType<typeof layoutLoader>>;
+  const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -164,6 +164,7 @@ export const Layout = () => {
         </Header>
         <Content style={{ overflowY: 'auto' }}>
           <div style={{ padding: 24, margin: '0 auto', width: 1280 }}>
+            <OnboardCard style={{ marginBottom: 32 }} />
             <Outlet />
           </div>
           {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (

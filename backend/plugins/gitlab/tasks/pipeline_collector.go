@@ -34,7 +34,7 @@ func init() {
 const RAW_PIPELINE_TABLE = "gitlab_api_pipeline"
 
 var CollectApiPipelinesMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPipelines",
+	Name:             "Collect Pipelines",
 	EntryPoint:       CollectApiPipelines,
 	EnabledByDefault: true,
 	Description:      "Collect pipeline data from gitlab api, supports both timeFilter and diffSync.",

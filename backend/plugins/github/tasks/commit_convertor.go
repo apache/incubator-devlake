@@ -34,7 +34,7 @@ func init() {
 }
 
 var ConvertCommitsMeta = plugin.SubTaskMeta{
-	Name:             "convertCommits",
+	Name:             "Convert Commits",
 	EntryPoint:       ConvertCommits,
 	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_commits into  domain layer table commits",

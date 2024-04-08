@@ -18,6 +18,9 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
@@ -66,4 +69,19 @@ type ApiOutputProject struct {
 	Metrics      []*BaseMetric `json:"metrics" mapstructure:"metrics"`
 	Blueprint    *Blueprint    `json:"blueprint" mapstructure:"blueprint"`
 	LastPipeline *Pipeline     `json:"lastPipeline,omitempty" mapstructure:"lastPipeline"`
+}
+
+type ApiProjectCheck struct {
+	Exist bool `json:"exist" mapstructure:"exist"`
+}
+
+type Store struct {
+	StoreKey   string          `gorm:"primaryKey;type:varchar(255)"`
+	StoreValue json.RawMessage `gorm:"type:json;serializer:json"`
+	CreatedAt  time.Time       `json:"createdAt" mapstructure:"createdAt"`
+	UpdatedAt  time.Time       `json:"updatedAt" mapstructure:"updatedAt"`
+}
+
+func (Store) TableName() string {
+	return "_devlake_store"
 }

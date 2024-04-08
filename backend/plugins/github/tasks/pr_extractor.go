@@ -33,7 +33,7 @@ func init() {
 }
 
 var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPullRequests",
+	Name:             "Extract Pull Requests",
 	EntryPoint:       ExtractApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",

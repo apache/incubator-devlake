@@ -42,7 +42,14 @@ var basicRes context.BasicRes
 var migrator plugin.Migrator
 var cronManager *cron.Cron
 var vld *validator.Validate
+var serviceStatus string
 
+const (
+	SERVICE_STATUS_INIT         = "initializing"
+	SERVICE_STATUS_WAIT_CONFIRM = "waiting for migration confirmation"
+	SERVICE_STATUS_MIGRATING    = "migrating"
+	SERVICE_STATUS_READY        = "ready"
+)
 const failToCreateCronJob = "created cron job failed"
 
 // InitResources creates resources needed by services module
@@ -50,6 +57,7 @@ func InitResources() {
 	var err error
 
 	// basic resources initialization
+	serviceStatus = SERVICE_STATUS_INIT
 	vld = validator.New()
 	basicRes = runner.CreateAppBasicRes()
 	cfg = basicRes.GetConfigReader()
@@ -98,6 +106,7 @@ func Init() {
 			errors.Must(ExecuteMigration())
 			logger.Info("db migration without confirmation")
 		} else {
+			serviceStatus = SERVICE_STATUS_WAIT_CONFIRM
 			logger.Info("db migration confirmation needed")
 		}
 	} else {
@@ -108,6 +117,7 @@ func Init() {
 
 // ExecuteMigration executes all pending migration scripts and initialize services module
 func ExecuteMigration() errors.Error {
+	serviceStatus = SERVICE_STATUS_MIGRATING
 	// apply all pending migration scripts
 	err := migrator.Execute()
 	if err != nil {
@@ -120,6 +130,7 @@ func ExecuteMigration() errors.Error {
 
 	// initialize pipeline server, mainly to start the pipeline consuming process
 	pipelineServiceInit()
+	serviceStatus = SERVICE_STATUS_READY
 	return nil
 }
 

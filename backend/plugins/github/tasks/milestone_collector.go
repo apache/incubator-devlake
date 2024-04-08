@@ -35,7 +35,7 @@ func init() {
 const RAW_MILESTONE_TABLE = "github_milestones"
 
 var CollectMilestonesMeta = plugin.SubTaskMeta{
-	Name:             "collectApiMilestones",
+	Name:             "Collect Milestones",
 	EntryPoint:       CollectApiMilestones,
 	EnabledByDefault: true,
 	Description:      "Collect milestone data from Github api, does not support either timeFilter or diffSync.",

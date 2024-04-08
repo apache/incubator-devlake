@@ -34,7 +34,7 @@ func init() {
 const RAW_TRIGGER_JOB_TABLE = "gitlab_api_trigger_job"
 
 var CollectApiTriggerJobsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiTriggerJobs",
+	Name:             "Collect Trigger Jobs",
 	EntryPoint:       CollectApiTriggerJobs,
 	EnabledByDefault: false,
 	Description:      "Collect job data from gitlab api, supports both timeFilter and diffSync.",

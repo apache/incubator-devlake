@@ -37,7 +37,7 @@ func init() {
 }
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
-	Name:             "convertIssues",
+	Name:             "Convert Issues",
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_issues into  domain layer table issues",

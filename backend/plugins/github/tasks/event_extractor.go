@@ -32,7 +32,7 @@ func init() {
 }
 
 var ExtractApiEventsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiEvents",
+	Name:             "Extract Events",
 	EntryPoint:       ExtractApiEvents,
 	EnabledByDefault: true,
 	Description:      "Extract raw Events data into tool layer table github_issue_events",

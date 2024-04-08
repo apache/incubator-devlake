@@ -54,7 +54,7 @@ type IssuesResponse struct {
 }
 
 var ExtractApiIssuesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiIssues",
+	Name:             "Extract Issues",
 	EntryPoint:       ExtractApiIssues,
 	EnabledByDefault: true,
 	Description:      "Extract raw Issues data into tool layer table bitbucket_issues",

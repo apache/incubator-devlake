@@ -26,6 +26,7 @@ import plugin from './plugin';
 import * as project from './project';
 import * as scope from './scope';
 import * as scopeConfig from './scope-config';
+import * as store from './store';
 import * as task from './task';
 
 const migrate = () => request('/proceed-db-migration');
@@ -39,8 +40,9 @@ export const API = {
   pipeline,
   plugin,
   project,
-  scopeConfig,
   scope,
+  scopeConfig,
+  store,
   task,
   migrate,
   ping,

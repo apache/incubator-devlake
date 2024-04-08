@@ -41,7 +41,7 @@ type SimpleAccount struct {
 }
 
 var CollectAccountsMeta = plugin.SubTaskMeta{
-	Name:             "collectAccounts",
+	Name:             "Collect Users",
 	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
 	Description:      "Collect accounts data from Github api, does not support either timeFilter or diffSync.",

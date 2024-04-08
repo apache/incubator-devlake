@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 14,
+  "id": 35,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -103,12 +103,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -148,6 +144,7 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
@@ -165,6 +162,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -177,16 +191,16 @@
           ]
         }
       ],
-      "title": "1.1 Number of New Issues [Selected Time Range]",
+      "title": "1.1 Number of New Issues",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -214,12 +228,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -242,7 +252,7 @@
       ],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.5,
+        "barWidth": 0.25,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
@@ -251,7 +261,7 @@
           ],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -270,12 +280,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(distinct i.id) as issue_count\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and b.id in (${repo_id})\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_count as \"Issue Count\"\nFROM _issues\nORDER BY time\n",
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -$interval(date(i.created_date))+1 DAY) as time,\n    count(distinct i.id) as issue_count\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    $__timeFilter(i.created_date)\n    -- Enable the following condition to remove the month with incomplete data\n    -- and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and b.id in (${repo_id})\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  issue_count as \"Issue Count\"\nFROM _issues\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -287,6 +298,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -299,7 +327,7 @@
           ]
         }
       ],
-      "title": "1.2 Number of New Issues [Each Month]",
+      "title": "1.2 Number of New Issues",
       "type": "barchart"
     },
     {
@@ -343,10 +371,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -415,12 +439,12 @@
           ]
         }
       ],
-      "title": "2.1 Number of Closed Issues [Issues Created in Selected Time Range]",
+      "title": "2.1 Number of Closed Issues",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -429,28 +453,18 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Issue Count",
+            "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "opacity",
+            "fillOpacity": 80,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -481,7 +495,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "green",
                   "mode": "fixed"
                 }
               }
@@ -495,7 +509,7 @@
         "x": 7,
         "y": 11
       },
-      "id": 76,
+      "id": 111,
       "links": [
         {
           "targetBlank": true,
@@ -504,29 +518,40 @@
         }
       ],
       "options": {
+        "barRadius": 0,
+        "barWidth": 0.25,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
         "legend": {
-          "calcs": [
-            "sum"
-          ],
+          "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
+        "text": {
+          "valueSize": 12
+        },
         "tooltip": {
-          "mode": "multi",
+          "mode": "single",
           "sort": "none"
-        }
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
           "datasource": "mysql",
-          "format": "time_series",
+          "editorMode": "code",
+          "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(i.created_date), INTERVAL -DAYOFMONTH(date(i.created_date))+1 DAY) as time,\n  count(distinct case when status != 'DONE' then i.id else null end) as open_issue_count,\n  count(distinct case when status = 'DONE' then i.id else null end) as closed_issue_count\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nWHERE\n  $__timeFilter(i.created_date)\n  and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  and b.id in (${repo_id})\ngroup by 1\n",
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.created_date), INTERVAL -$interval(date(i.created_date))+1 DAY) as time,\n    count(distinct case when status != 'DONE' then i.id else null end) as open_issue_count,\n    count(distinct case when status = 'DONE' then i.id else null end) as closed_issue_count\n  FROM issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n  WHERE\n    $__timeFilter(i.created_date)\n    -- Enable the following condition to remove the month with incomplete data\n    -- and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and b.id in (${repo_id})\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  open_issue_count,\n  closed_issue_count\nFROM _issues\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -538,6 +563,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -550,8 +592,8 @@
           ]
         }
       ],
-      "title": "2.2 Number of Open and Closed Issues [Issues Created in Each Month]",
-      "type": "timeseries"
+      "title": "2.2 Number of open and closed issues by Issue creation time",
+      "type": "barchart"
     },
     {
       "datasource": "mysql",
@@ -574,7 +616,8 @@
                 "value": 14
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -640,12 +683,12 @@
           ]
         }
       ],
-      "title": "2.3 Mean Issue Lead Time in Days [Issues Closed in Selected Time Range]",
+      "title": "2.3 Mean Issue Lead Time by issue resolution time",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -685,7 +728,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -705,14 +749,14 @@
       ],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.5,
+        "barWidth": 0.25,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -731,127 +775,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.resolution_date), INTERVAL -DAY(date(i.resolution_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/1440) as issue_lead_time\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    b.id in (${repo_id})\n    and i.status = \"DONE\"\n    and $__timeFilter(i.resolution_date)\n    and i.resolution_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_lead_time as \"Mean Issue Lead Time in Days\"\nFROM _issues\nORDER BY time\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "2.4 Mean Issue Lead Time in Days [Issues Closed in Each Month]",
-      "type": "barchart"
-    },
-    {
-      "datasource": "mysql",
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Queue Time (Days)",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 100,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "line"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 30
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      },
-      "id": 93,
-      "links": [],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.1,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {},
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 45,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "-- Get the queue time of all outstanding bugs\nwith _outstanding_issues as(\n  select \n    DISTINCT\n    b.name as repo_name,\n    i.issue_key as issue_key,\n    i.title,\n    i.created_date,\n    (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n    concat(b.url,'/',i.issue_key) as url\n  from \n    issues i\n    left join board_issues bi on i.id = bi.issue_id\n    left join boards b on bi.board_id = b.id\n  where\n    b.id in (${repo_id})\n    and $__timeFilter(i.created_date)\n    and i.status != 'DONE'\n)\n\nselect issue_key, title, queue_time_in_days from _outstanding_issues\norder by 3 desc",
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.resolution_date), INTERVAL -$interval(date(i.resolution_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/1440) as issue_lead_time\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    b.id in (${repo_id})\n    and i.status = \"DONE\"\n    and $__timeFilter(i.resolution_date)\n    and i.resolution_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  issue_lead_time as \"Mean Issue Lead Time in Days\"\nFROM _issues\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -892,7 +822,142 @@
           ]
         }
       ],
-      "title": "2.5 Queue Time in Days [All Open Issues]",
+      "title": "2.4 Mean issue lead time by issue resolution time",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+              "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Queue Time",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 93,
+      "links": [],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.25,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Get the queue time of all outstanding bugs\nwith _outstanding_issues as(\n  select \n    DISTINCT\n    b.name as repo_name,\n    i.issue_key,\n    i.title,\n    i.created_date,\n    (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as queue_time_in_days,\n    concat(b.url,'/',i.issue_key) as url\n  from \n    issues i\n    left join board_issues bi on i.id = bi.issue_id\n    left join boards b on bi.board_id = b.id\n  where\n    b.id in (${repo_id})\n    and $__timeFilter(i.created_date)\n    and i.status != 'DONE'\n)\n\nselect concat('#', issue_key) as issue_key, title, url, queue_time_in_days from _outstanding_issues\norder by 4 desc\nlimit 20",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "2.5 Top 20 Queue Time [All Open Issues]",
       "type": "barchart"
     },
     {
@@ -908,6 +973,7 @@
             "cellOptions": {
               "type": "auto"
             },
+            "filterable": false,
             "inspect": false
           },
           "mappings": [],
@@ -915,7 +981,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -926,36 +993,6 @@
           "unit": "none"
         },
         "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "<avg_bug_age"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "semi-dark-green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": ">=avg_bug_age"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
           {
             "matcher": {
               "id": "byName",
@@ -976,7 +1013,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 590
+                "value": 718
               }
             ]
           },
@@ -1013,6 +1050,24 @@
               {
                 "id": "custom.width",
                 "value": 256
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "url"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "",
+                    "url": "${__data.fields.url}"
+                  }
+                ]
               }
             ]
           }
@@ -1114,11 +1169,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
+                "color": "blue",
+                "value": null
               }
             ]
           }
@@ -1205,12 +1257,12 @@
           ]
         }
       ],
-      "title": "3.1 Number of New Pull Requests [Selected Time Range]",
+      "title": "3.1 Number of New Pull Requests",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1242,16 +1294,29 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
+                "color": "blue",
+                "value": null
               }
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pull Request Count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
@@ -1276,7 +1341,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -1301,7 +1366,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(distinct id) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in (${repo_id})\n    and $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    count(distinct id) as pr_count\n  FROM pull_requests\n  WHERE\n    base_repo_id in (${repo_id})\n    and $__timeFilter(created_date)\n    -- Enable the following condition to remove the month with incomplete data\n    -- and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -1342,12 +1407,12 @@
           ]
         }
       ],
-      "title": "3.2 Total Number of New Pull Requests [Each Month]",
+      "title": "3.2 Number of New Pull Requests",
       "type": "barchart"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1379,7 +1444,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1414,7 +1480,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -1439,7 +1505,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  author_name,\n\tcount(distinct pr.id) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id})\n  and pr.status = 'MERGED'\ngroup by 1\norder by 2 desc\nlimit 20\n",
+          "rawSql": "-- The PR/MR statuses are standardized to 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  author_name,\n\tcount(distinct pr.id) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id})\n  and pr.status = 'MERGED'\ngroup by 1\norder by 2 desc\nlimit 20\n",
           "refId": "A",
           "select": [
             [
@@ -1480,7 +1546,7 @@
           ]
         }
       ],
-      "title": "3.3 Top Contributors By Merged PRs",
+      "title": "3.3 Top 20 Contributors By Merged PRs",
       "type": "barchart"
     },
     {
@@ -1511,7 +1577,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1522,11 +1588,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 0.05
               }
             ]
           },
@@ -1565,12 +1632,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  count(distinct case when status = 'MERGED' then id else null end)/count(distinct case when status in ('CLOSED', 'MERGED') then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id})",
+          "rawSql": "-- The PR/MR statuses are standardized to 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nselect\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('CLOSED', 'MERGED') then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in (${repo_id})",
           "refId": "A",
           "select": [
             [
@@ -1582,6 +1650,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1594,12 +1679,12 @@
           ]
         }
       ],
-      "title": "4.1 Ratio of Non-merging Pull Requests of All Closed PRs",
+      "title": "4.1 Ratio of unmerged PRs of All Closed PRs",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1608,28 +1693,18 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Pull Request Count",
+            "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "opacity",
+            "fillOpacity": 80,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -1640,12 +1715,59 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Open"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Closed without merging"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Closed and merged"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
@@ -1662,29 +1784,40 @@
         }
       ],
       "options": {
+        "barRadius": 0,
+        "barWidth": 0.25,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
         "legend": {
-          "calcs": [
-            "sum"
-          ],
+          "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
+        "text": {
+          "valueSize": 12
+        },
         "tooltip": {
           "mode": "multi",
           "sort": "none"
-        }
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
           "datasource": "mysql",
-          "format": "time_series",
+          "editorMode": "code",
+          "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'OPEN' then id else null end) as \"PR: Open\",\n  count(distinct case when status = 'CLOSED' then id else null end) as \"PR: Closed without merging\",\n  count(distinct case when status = 'MERGED' then id else null end) as \"PR: Closed and merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nwith _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    count(distinct case when status = 'OPEN' then id else null end) as open,\n    count(distinct case when status = 'CLOSED' then id else null end) as closed,\n    count(distinct case when status = 'MERGED' then id else null end) as merged\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    -- Enable the following condition to remove the month with incomplete data\n    -- and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and base_repo_id in (${repo_id})\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  open as \"PR: Open\",\n  closed as \"PR: Closed without merging\",\n  merged as \"PR: Closed and merged\"\nFROM _prs\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -1696,6 +1829,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1708,8 +1858,8 @@
           ]
         }
       ],
-      "title": "4.2 Pull Request Status Distribution [Each Month]",
-      "type": "timeseries"
+      "title": "4.2 Pull Request Status Distribution",
+      "type": "barchart"
     },
     {
       "datasource": "mysql",
@@ -1724,11 +1874,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
-              },
-              {
                 "color": "red",
-                "value": 80
+                "value": null
               }
             ]
           }
@@ -1815,12 +1962,12 @@
           ]
         }
       ],
-      "title": "4.3 Number of Pull Requests Closed without Merging [Selected Time Range]",
+      "title": "4.3 Number of PRs Closed without Merging",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1864,7 +2011,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -1891,7 +2039,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -1902,12 +2050,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('CLOSED', 'MERGED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to DevLake's statuses 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('CLOSED', 'MERGED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -1919,6 +2068,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1931,7 +2097,7 @@
           ]
         }
       ],
-      "title": "4.4 Ratio of Non-merging Pull Requests of All Closed PRs [Each Month]",
+      "title": "4.4 Ratio of unmerged PRs of All Closed PRs",
       "type": "timeseries"
     },
     {
@@ -1947,14 +2113,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -2020,12 +2188,12 @@
           ]
         }
       ],
-      "title": "4.5 Mean Time to Merge of Pull Requests in Days [Selected Time Range]",
+      "title": "4.5 Mean Time to Merge of Pull Requests",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2057,7 +2225,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2091,7 +2260,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -2110,12 +2279,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and base_repo_id in (${repo_id})\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440) as time_to_merge\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    -- Enable the following condition to remove the month with incomplete data\n    -- and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and base_repo_id in (${repo_id})\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  time_to_merge as \"Time to Merge\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -2127,6 +2297,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -2139,7 +2326,7 @@
           ]
         }
       ],
-      "title": "4.6 Mean Time to Merge of Pull Requests in Days [Each Month]",
+      "title": "4.6 Mean Time to Merge of Pull Requests in Days",
       "type": "barchart"
     },
     {
@@ -2155,14 +2342,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -2226,12 +2415,12 @@
           ]
         }
       ],
-      "title": "4.7 Mean Time to Close of Pull Requests in Days [Selected Time Range]",
+      "title": "4.7 Mean Time to Close of Pull Requests in Days",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2263,7 +2452,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2297,7 +2487,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -2316,12 +2506,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and base_repo_id in (${repo_id})\n    and status in ('CLOSED', 'MERGED')\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  time_to_close as \"Time to Close\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _prs as(\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n    avg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\n  FROM pull_requests\n  WHERE\n    $__timeFilter(created_date)\n    -- Enable the following condition to remove the month with incomplete data\n    -- and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and base_repo_id in (${repo_id})\n    and status in ('CLOSED', 'MERGED')\n  group by 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  time_to_close as \"Time to Close\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -2333,6 +2524,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -2345,7 +2553,7 @@
           ]
         }
       ],
-      "title": "4.8 Mean Time to Close of Pull Requests in Days [Each Month]",
+      "title": "4.8 Mean Time to Close of Pull Requests in Days",
       "type": "barchart"
     },
     {
@@ -2371,10 +2579,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "blue",
+                "value": null
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -2457,7 +2667,7 @@
           ]
         }
       ],
-      "title": "5.1 Total Number of Successful workflow runs [Selected Time Range]",
+      "title": "5.1 Total Number of Successful workflow runs",
       "type": "stat"
     },
     {
@@ -2472,7 +2682,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue"
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.9
               }
             ]
           },
@@ -2564,7 +2779,175 @@
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "successful_workflow_run_count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed_workflow_run_count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 74
+      },
+      "id": 109,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Count",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.25,
+        "fullHighlight": false,
+        "groupWidth": 0.25,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _workflow_runs as (\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -$interval(date(finished_date))+1 DAY) as time,\n    count(distinct case when result = 'SUCCESS' then id else null end) as successful_workflow_run_count,\n    count(distinct case when result != 'SUCCESS' then id else null end) as failed_workflow_run_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and id like \"%github%\"\n    and cicd_scope_id in (${repo_id})\n    -- Enable the following condition to remove the month with incomplete data\n    -- and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  successful_workflow_run_count,\n  failed_workflow_run_count\nFROM _workflow_runs\nORDER BY time\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "5.3 Number of successful and failed workflow runs",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+        "description": "Number of successful workflow runs / Number of total workflow runs",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2657,8 +3040,8 @@
       "gridPos": {
         "h": 6,
         "w": 6,
-        "x": 12,
-        "y": 74
+        "x": 0,
+        "y": 80
       },
       "id": 105,
       "links": [
@@ -2705,7 +3088,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  result,\n  count(distinct id) as build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%github%\"\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1\nORDER BY 2 desc",
+          "rawSql": "SELECT\n  IF(result = '', 'Unknown', result) as result,\n  count(distinct id) as build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%github%\"\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1\nORDER BY 2 desc",
           "refId": "A",
           "select": [
             [
@@ -2746,8 +3129,165 @@
           ]
         }
       ],
-      "title": "5.3 Total Workflow Runs Result Distribution",
+      "title": "5.4 Total Workflow Runs Result Distribution",
       "type": "piechart"
+    },
+    {
+      "datasource": "mysql",
+              "description": "1. Mean Workflow Runs success rate over time.\n2. The workflow runs being calculated are filtered by \"workflow runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Rate(%)",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.9
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Workflow Runs Success Rate"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 80
+      },
+      "id": 108,
+      "interval": "",
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Build Success Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/BuildSuccessRate"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -$interval(date(finished_date))+1 DAY) as time,\r\n    result,\r\n    id\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%github%\"\r\n    and cicd_scope_id in (${repo_id})\r\n    -- Enable the following condition to remove the month with incomplete data\r\n    -- and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n  GROUP BY \r\n    time, result, id\r\n)\r\n\r\nSELECT \r\n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%m/%Y') else concat('W', date_format(time,'%u %Y')) end as _time,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Workflow Runs Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY time\r\nORDER BY time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "5.5 Workflow Runs Success Rate",
+      "type": "barchart"
     },
     {
       "datasource": "mysql",
@@ -2761,19 +3301,20 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "light-orange"
+                "color": "light-orange",
+                "value": null
               }
             ]
           },
-          "unit": "none"
+          "unit": "m"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 6,
-        "x": 18,
-        "y": 74
+        "x": 0,
+        "y": 86
       },
       "id": 106,
       "links": [
@@ -2846,12 +3387,12 @@
           ]
         }
       ],
-      "title": "5.4 Mean Workflow Runs Duration in Minutes",
+      "title": "5.6 Mean Workflow Runs Duration",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "",
+              "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2860,7 +3401,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Workflow Runs Count",
+            "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -2883,480 +3424,22 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 80
-      },
-      "id": 107,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Build Count",
-          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
-        }
-      ],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.5,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(distinct id) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%github%\"\n    and cicd_scope_id in (${repo_id})\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Workflow Runs Count\"\nFROM _builds\nORDER BY time\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "5.1.1 Total Number of Successful workflow runs [Each Month]",
-      "type": "barchart"
-    },
-    {
-      "datasource": "mysql",
-      "description": "1. Mean Workflow Runs success rate over time.\n2. The workflow runs being calculated are filtered by \"workflow runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Workflow Runs Success Rate(%)",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Workflow Runs Success Rate"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 80
-      },
-      "id": 108,
-      "interval": "",
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Build Success Rate",
-          "url": "https://devlake.apache.org/docs/Metrics/BuildSuccessRate"
-        }
-      ],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.5,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result,\r\n    id\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%github%\"\r\n    and cicd_scope_id in (${repo_id})\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n  GROUP BY \r\n    time, result, id\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Workflow Runs Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY time\r\nORDER BY time",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "progress"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "ca_analysis",
-          "timeColumn": "create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "5.2.1 Workflow Runs Success Rate [Each Month]",
-      "type": "barchart"
-    },
-    {
-      "datasource": "mysql",
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Workflow Runs Count",
-            "axisPlacement": "auto",
-            "barAlignment": 1,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 4,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "successful_workflow_run_count"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "failed_workflow_run_count"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 86
-      },
-      "id": 109,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Build Count",
-          "url": "https://devlake.apache.org/docs/Metrics/BuildCount"
-        }
-      ],
-      "options": {
-        "legend": {
-          "calcs": [
-            "sum"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n  count(distinct case when result = 'SUCCESS' then id else null end) as successful_workflow_run_count,\n  count(distinct case when result != 'SUCCESS' then id else null end) as failed_workflow_run_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%github%\"\n  and cicd_scope_id in (${repo_id})\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "5.3.1 Number of Successful and Failed workflow runs [Each Month]",
-      "type": "timeseries"
-    },
-    {
-      "datasource": "mysql",
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Workflow Runs Duration(minutes)",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "purple"
+                "color": "purple",
+                "value": null
               },
               {
                 "color": "red",
                 "value": 60
               }
             ]
-          }
+          },
+          "unit": "s"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "mean_duration_minutes"
+              "options": "mean_duration_sec"
             },
             "properties": [
               {
@@ -3372,9 +3455,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 92
+        "w": 18,
+        "x": 6,
+        "y": 86
       },
       "id": 110,
       "links": [
@@ -3386,14 +3469,14 @@
       ],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.5,
+        "barWidth": 0.25,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -3402,7 +3485,7 @@
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         },
         "xTickLabelRotation": 0,
@@ -3418,7 +3501,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    avg(duration_sec) as mean_duration_sec\n  FROM \n    cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and id like \"%github%\"\n    and cicd_scope_id in (${repo_id})\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  mean_duration_sec/60 as mean_duration_minutes\nFROM _builds\nORDER BY time\n",
+          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -$interval(date(finished_date))+1 DAY) as time,\n    avg(duration_sec) as mean_duration_sec\n  FROM \n    cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and id like \"%github%\"\n    and cicd_scope_id in (${repo_id})\n    -- Enable the following condition to remove the month with incomplete data\n    -- and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  case when '$interval' = 'DAYOFMONTH' then date_format(time,'%M %Y') else concat('W', date_format(time,'%u %Y')) end as _time,\n  mean_duration_sec\nFROM _builds\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -3459,7 +3542,7 @@
           ]
         }
       ],
-      "title": "5.4.1 Mean Workflow Runs Duration in Minutes [Each Month]",
+      "title": "5.7 Mean Workflow Runs Duration",
       "type": "barchart"
     },
     {
@@ -3471,7 +3554,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 98
+        "y": 92
       },
       "id": 101,
       "options": {
@@ -3517,7 +3600,7 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select concat(name, '--', id) as text from repos where id like 'github%'",
+                  "definition": "select concat(name, '--', id) as text from repos where id like 'github%'",
         "hide": 0,
         "includeAll": true,
         "label": "Repo",
@@ -3530,6 +3613,34 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "Month",
+          "value": "DAYOFMONTH"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "DAYOFMONTH"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "WEEKDAY"
+          }
+        ],
+        "query": "Month : DAYOFMONTH, Week : WEEKDAY",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
       }
     ]
   },
@@ -3541,6 +3652,6 @@
   "timezone": "",
   "title": "GitHub",
   "uid": "KXWvOFQnz",
-  "version": 9,
+  "version": 25,
   "weekStart": ""
 }

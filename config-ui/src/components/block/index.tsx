@@ -29,7 +29,7 @@ const Wrapper = styled.div`
   }
 
   & > p {
-    margin-top: 0;
+    margin-top: 5px;
   }
 
   & + & {

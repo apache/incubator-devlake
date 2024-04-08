@@ -35,7 +35,7 @@ const (
 )
 
 var CollectDeploymentsMeta = plugin.SubTaskMeta{
-	Name:             "CollectDeployments",
+	Name:             "Collect Deployments",
 	EntryPoint:       CollectDeployments,
 	EnabledByDefault: true,
 	Description:      "collect github deployments to raw and tool layer from GithubGraphql api",

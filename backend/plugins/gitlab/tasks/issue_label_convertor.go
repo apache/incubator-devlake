@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
 )
 
 func init() {
@@ -33,7 +34,7 @@ func init() {
 }
 
 var ConvertIssueLabelsMeta = plugin.SubTaskMeta{
-	Name:             "convertIssueLabels",
+	Name:             "Convert Issue Labels",
 	EntryPoint:       ConvertIssueLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_issue_labels into  domain layer table issue_labels",

@@ -20,6 +20,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import {
   DBMigrate,
+  Onboard,
   Error,
   Layout,
   layoutLoader,
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
     element: <DBMigrate />,
   },
   {
+    path: `${PATH_PREFIX}/onboard`,
+    element: <Onboard />,
+  },
+  {
     path: `${PATH_PREFIX}`,
     element: <Layout />,
     loader: layoutLoader,
@@ -55,15 +60,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="connections" />,
-      },
-      {
-        path: 'connections',
-        element: <Connections />,
-      },
-      {
-        path: 'connections/:plugin/:id',
-        element: <Connection />,
+        element: <Navigate to="projects" />,
       },
       {
         path: 'projects',
@@ -76,6 +73,14 @@ export const router = createBrowserRouter([
       {
         path: 'projects/:pname/:unique',
         element: <BlueprintConnectionDetailPage />,
+      },
+      {
+        path: 'connections',
+        element: <Connections />,
+      },
+      {
+        path: 'connections/:plugin/:id',
+        element: <Connection />,
       },
       {
         path: 'advanced',

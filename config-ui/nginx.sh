@@ -17,6 +17,23 @@
 #
 
 set -e
+
+
+if (ip -4 addr | grep -q "inet") && ! (ip -6 addr | grep -q "inet6"); then
+  export LISTENER='
+  listen 4000;
+  '
+elif ! (ip -4 addr | grep -q "inet") && (ip -6 addr | grep -q "inet6"); then
+  export LISTENER='
+  listen [::]:4000;
+  '
+else
+  export LISTENER='
+  listen 4000;
+  listen [::]:4000;
+  '
+fi
+
 if [ -n "$ADMIN_USER" ] && [ -n "$ADMIN_PASS" ]; then
     htpasswd -c -b /etc/nginx/.htpasswd "$ADMIN_USER" "$ADMIN_PASS"
     export SERVER_CONF='
@@ -28,7 +45,7 @@ export DNS=$(awk 'BEGIN{ORS=" "} $1=="nameserver" {if ($2 ~ ":") {print "["$2"]"
 export DNS_VALID=${DNS_VALID:-300s}
 export DEVLAKE_ENDPOINT_PROTO=${DEVLAKE_ENDPOINT_PROTO:-http}
 export GRAFANA_ENDPOINT_PROTO=${GRAFANA_ENDPOINT_PROTO:-http}
-envsubst '${DEVLAKE_ENDPOINT} ${DEVLAKE_ENDPOINT_PROTO} ${GRAFANA_ENDPOINT} ${GRAFANA_ENDPOINT_PROTO} ${USE_EXTERNAL_GRAFANA} ${SERVER_CONF} ${DNS} ${DNS_VALID}' \
+envsubst '${LISTENER} ${DEVLAKE_ENDPOINT} ${DEVLAKE_ENDPOINT_PROTO} ${GRAFANA_ENDPOINT} ${GRAFANA_ENDPOINT_PROTO} ${USE_EXTERNAL_GRAFANA} ${SERVER_CONF} ${DNS} ${DNS_VALID}' \
     < /etc/nginx/conf.d/default.conf.tpl \
     > /etc/nginx/conf.d/default.conf
 nginx -g 'daemon off;'
