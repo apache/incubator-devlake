@@ -146,7 +146,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 		done <- true
 	}()
 	if e := cmd.Start(); e != nil {
-		g.logger.Error(err, "failed to start")
+		g.logger.Error(e, "failed to start")
 		return errors.Default.New("failed to start")
 	}
 	<-done
