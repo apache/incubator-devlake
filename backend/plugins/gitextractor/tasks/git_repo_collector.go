@@ -61,14 +61,12 @@ func CollectGitTags(subTaskCtx plugin.SubTaskContext) errors.Error {
 
 func CollectGitDiffLines(subTaskCtx plugin.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
-	if count, err := repo.CountTags(subTaskCtx.GetContext()); err != nil {
-		subTaskCtx.GetLogger().Error(err, "unable to get line content")
+	opt := subTaskCtx.GetData().(*parser.GitExtractorTaskData).Options
+	if !*opt.SkipCommitStat {
 		subTaskCtx.SetProgress(0, -1)
-		return errors.Convert(err)
-	} else {
-		subTaskCtx.SetProgress(0, count)
+		return errors.Convert(repo.CollectDiffLine(subTaskCtx))
 	}
-	return errors.Convert(repo.CollectDiffLine(subTaskCtx))
+	return nil
 }
 
 func getGitRepo(subTaskCtx plugin.SubTaskContext) parser.RepoCollector {

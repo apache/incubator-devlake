@@ -372,6 +372,10 @@ func (r *GogitRepoCollector) storeParentCommits(commitSha string, commit *object
 	for i := 0; i < commit.NumParents(); i++ {
 		parent, err := commit.Parent(i)
 		if err != nil {
+			// parent commit might not exist when repo is shallow cloned (tradeoff of supporting timeAfter paramenter)
+			if err.Error() == "object not found" {
+				continue
+			}
 			return err
 		}
 		if parent != nil {

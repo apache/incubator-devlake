@@ -62,9 +62,9 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	// We have done comparison experiments for git2go and go-git, and the results show that git2go has better performance.
 	var repoCollector parser.RepoCollector
 	if *taskData.Options.UseGoGit {
-		repoCollector, err = parser.NewLibgit2RepoCollector(localDir, op.RepoId, storage, logger)
-	} else {
 		repoCollector, err = parser.NewGogitRepoCollector(localDir, op.RepoId, storage, logger)
+	} else {
+		repoCollector, err = parser.NewLibgit2RepoCollector(localDir, op.RepoId, storage, logger)
 	}
 	if err != nil {
 		return err
