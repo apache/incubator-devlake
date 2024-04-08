@@ -3694,7 +3694,7 @@ __metadata:
     husky: ^8.0.0
     lint-staged: ^13.1.0
     lodash: ^4.17.21
-    miller-columns-select: 1.4.0
+    miller-columns-select: 1.4.1
     prettier: ^2.7.1
     react: ^18.2.0
     react-copy-to-clipboard: ^5.1.0
@@ -6426,9 +6426,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"miller-columns-select@npm:1.4.0":
-  version: 1.4.0
-  resolution: "miller-columns-select@npm:1.4.0"
+"miller-columns-select@npm:1.4.1":
+  version: 1.4.1
+  resolution: "miller-columns-select@npm:1.4.1"
   dependencies:
     classnames: ^2.3.2
     react-infinite-scroll-component: ^6.1.0
@@ -6436,7 +6436,7 @@ __metadata:
   peerDependencies:
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: f8f4c32c546bd5cbaf73dad608b6527c7608417d5b54245fe83ff1004e78c7ed0e8a53a09f913b9cc1b6e05a7c31f9dbdc3cf943b309c9a5c401337fa17c2832
+  checksum: 88452c6d09d27116c1ef05dda7cab26f5d565ef2d63eac007ef9cc3d331cd0510997bcf0b45191678b323b0089b9bbca4973fabb12732c2c3ebc1d940164e8a5
   languageName: node
   linkType: hard
 
