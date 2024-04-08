@@ -76,9 +76,12 @@ func (d *Database) Commits(commit *code.Commit) errors.Error {
 		return err
 	}
 	d.updateRawDataFields(&account.RawDataOrigin)
-	err = accountBatch.Add(account)
-	if err != nil {
-		return err
+	// Skip accounts without email, such accounts fail in PostgreSQL
+	if account.Email != "" {
+		err = accountBatch.Add(account)
+		if err != nil {
+			return err
+		}
 	}
 	commitBatch, err := d.driver.ForType(reflect.TypeOf(commit))
 	if err != nil {

@@ -30,5 +30,6 @@ func All() []plugin.MigrationScript {
 		new(modifyFileMetricsKeyLength),
 		new(modifyComponentLength),
 		new(addSonarQubeScopeConfig20231214),
+		new(modifyCommitCharacterType),
 	}
 }
