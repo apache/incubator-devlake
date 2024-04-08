@@ -85,7 +85,11 @@ func (r *Libgit2RepoCollector) CollectAll(subtaskCtx plugin.SubTaskContext) erro
 	if err != nil {
 		return err
 	}
-	return r.CollectDiffLine(subtaskCtx)
+	opt := subtaskCtx.GetData().(*GitExtractorTaskData).Options
+	if !*opt.SkipCommitStat {
+		return r.CollectDiffLine(subtaskCtx)
+	}
+	return nil
 }
 
 // Close resources
