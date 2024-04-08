@@ -75,7 +75,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const DashboardURLMap: Record<string, string> = {
+export const DashboardURLMap: Record<string, string> = {
   github: '/grafana/d/KXWvOFQnz/github?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
   gitlab: '/grafana/d/msSjEq97z/gitlab?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
   bitbucket: '/grafana/d/4LzQHZa4k/bitbucket?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
