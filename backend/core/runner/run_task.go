@@ -57,8 +57,8 @@ func RunTask(
 		return err
 	}
 	beganAt := time.Now()
-	if dbPipeline.BeganAt != nil {
-		beganAt = *dbPipeline.BeganAt
+	if task.BeganAt != nil {
+		beganAt = *task.BeganAt
 	}
 	// make sure task status always correct even if it panicked
 	defer func() {
