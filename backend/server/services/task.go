@@ -329,7 +329,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	subTasksOuput := &models.SubTasksOuput{}
 
 	subTasksOuput.SubtasksInfo = subtasksInfo
-	subTasksOuput.Count = totalSubtasksCount
+	subTasksOuput.Count = totalSubtasksCount + 1 // +1: add transform task
 	completionRateFloat := float64(totalFinishedSubTasksCount) / float64(totalSubtasksCount)
 	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
 	subTasksOuput.CompletionRate = roundedCompletionRate
