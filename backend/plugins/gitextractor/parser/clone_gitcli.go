@@ -128,6 +128,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 		g.logger.Error(err, "stderr pipe error")
 		return errors.Default.New("stderr pipe error")
 	}
+	combinedOutput := new(strings.Builder)
 	stdoutScanner := bufio.NewScanner(stdout)
 	stdoutScanner.Split(bufio.ScanLines)
 	stderrScanner := bufio.NewScanner(stderr)
@@ -135,25 +136,27 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	done := make(chan bool)
 	go func() {
 		for stdoutScanner.Scan() {
-			fmt.Printf("stdout: %s\n", stdoutScanner.Text())
+			// TODO: extract progress?
+			combinedOutput.WriteString(fmt.Sprintf("stdout: %s\n", stdoutScanner.Text()))
 		}
 		done <- true
 	}()
 	go func() {
+		// TODO: extract progress?
 		for stderrScanner.Scan() {
-			fmt.Printf("stderr: %s\n", stderrScanner.Text())
+			combinedOutput.WriteString(fmt.Sprintf("stderr: %s\n", stderrScanner.Text()))
 		}
 		done <- true
 	}()
 	if e := cmd.Start(); e != nil {
-		g.logger.Error(e, "failed to start")
+		g.logger.Error(e, "failed to start\n%s", combinedOutput.String())
 		return errors.Default.New("failed to start")
 	}
 	<-done
 	<-done
 	err = cmd.Wait()
 	if err != nil {
-		g.logger.Error(err, "git exited with error")
+		g.logger.Error(err, "git exited with error\n%s", combinedOutput.String())
 		return errors.Default.New("git exit error")
 	}
 	return nil
