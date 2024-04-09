@@ -105,7 +105,7 @@ class AzureDevOpsPlugin(Plugin):
             for repo in res.json['repositories']:
                 props = repo['properties']
                 yield GitRepository(
-                    id=repo['id'],
+                    id=f"{org}/{proj}/{provider}/{repo['id']}",
                     name=f'{provider}/{proj}/{repo["name"]}',
                     project_id=proj,
                     org_id=org,
