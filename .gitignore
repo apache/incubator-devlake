@@ -163,3 +163,5 @@ venv
 
 /backend/plugins/gitextractor/parser/output*
 /backend/plugins/gitextractor/parser/demo_repo/
+
+__debug_bin*
