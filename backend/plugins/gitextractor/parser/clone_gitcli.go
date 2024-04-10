@@ -110,6 +110,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	if *taskData.Options.SkipCommitStat {
 		args = append(args, "--filter=blob:none")
 	}
+	fmt.Printf("%v", args)
 	cmd := exec.CommandContext(ctx.GetContext(), "git", args...)
 	cmd.Env = env
 	// stdout, stderr := cmd.CombinedOutput()
@@ -157,6 +158,9 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	err = cmd.Wait()
 	if err != nil {
 		g.logger.Error(err, "git exited with error\n%s", combinedOutput.String())
+		if strings.Contains(combinedOutput.String(), "stderr: fatal: error processing shallow info: 4") {
+			return errors.BadInput.New("No data found for the selected time range. Please revise the 'Time Range' on your Project/Blueprint/Configuration page or in the API parameter.")
+		}
 		return errors.Default.New("git exit error")
 	}
 	return nil
