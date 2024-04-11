@@ -30,7 +30,7 @@ require (
 	github.com/swaggo/swag v1.16.1
 	github.com/tidwall/gjson v1.14.3
 	github.com/viant/afs v1.16.0
-	golang.org/x/crypto v0.21.0
+	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
 	golang.org/x/sync v0.3.0
@@ -93,7 +93,6 @@ require (
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/skeema/knownhosts v1.2.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -104,7 +103,6 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
-	github.com/whilp/git-urls v1.0.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
@@ -120,8 +118,10 @@ require (
 )
 
 require (
+	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
+	github.com/rogpeppe/go-internal v1.11.0
 	golang.org/x/mod v0.13.0
 )
 
