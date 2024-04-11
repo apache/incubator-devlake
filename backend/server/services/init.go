@@ -128,7 +128,7 @@ func ExecuteMigration() errors.Error {
 		return errors.BadInput.New("already migrating")
 	}
 	if serviceStatus == SERVICE_STATUS_READY {
-		return errors.BadInput.New("no migration needed")
+		return nil
 	}
 	serviceStatus = SERVICE_STATUS_MIGRATING
 	statusLock.Unlock() // unlock to allow other API requests to check the status
