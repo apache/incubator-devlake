@@ -131,6 +131,8 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		return nil, err
 	}
 
+	op.ConnectionEndpoint = connection.Endpoint
+
 	err = EnrichOptions(taskCtx, op, apiClient)
 	if err != nil {
 		return nil, err
@@ -255,6 +257,8 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
 		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
 		op.JobPath = job.Path
+		op.URL = job.URL
+		op.Class = job.Class
 		jenkinsJob := job.ToJenkinsJob()
 
 		jenkinsJob.ConnectionId = op.ConnectionId
