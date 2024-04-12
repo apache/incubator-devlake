@@ -135,7 +135,12 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 
 	currentTime := time.Now()
 	oldState.LatestSuccessStart = &currentTime
-	oldState.TimeAfter = syncPolicy.TimeAfter
+	if syncPolicy != nil {
+		oldState.TimeAfter = syncPolicy.TimeAfter
+		if syncPolicy.TimeAfter != nil && oldTimeAfter != nil && (oldTimeAfter).Before(*syncPolicy.TimeAfter) && !syncPolicy.FullSync {
+			oldState.TimeAfter = oldTimeAfter
+		}
+	}
 
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
