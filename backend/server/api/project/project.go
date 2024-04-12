@@ -43,7 +43,7 @@ type PaginatedProjects struct {
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects/{projectName} [get]
 func GetProject(c *gin.Context) {
-	projectName := c.Param("projectName")
+	projectName := c.Param("projectName")[1:]
 
 	projectOutput, err := services.GetProject(projectName)
 	if err != nil {
@@ -61,9 +61,9 @@ func GetProject(c *gin.Context) {
 // @Success 200  {object} models.ApiOutputProject
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /projects/{projectName}/check [get]
+// @Router /projects/check/{projectName} [get]
 func GetProjectCheck(c *gin.Context) {
-	projectName := c.Param("projectName")
+	projectName := c.Param("projectName")[1:]
 
 	projectOutputCheck := &models.ApiProjectCheck{}
 	_, err := services.GetProject(projectName)
