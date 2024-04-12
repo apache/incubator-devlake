@@ -61,7 +61,7 @@ func GetProject(c *gin.Context) {
 // @Success 200  {object} models.ApiOutputProject
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /projects/check/{projectName} [get]
+// @Router /check/projects/{projectName} [get]
 func GetProjectCheck(c *gin.Context) {
 	projectName := c.Param("projectName")[1:]
 
