@@ -20,92 +20,99 @@ package api
 import (
 	"time"
 
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 // CollectorStateManager manages the state of the collector. It is used to determine whether
 // the collector should run in incremental mode or full sync mode and what time range to collect.
 type CollectorStateManager struct {
-	IsIncremental bool
-	Since         *time.Time
-	Until         *time.Time
+	db         dal.Dal
+	state      *models.CollectorLatestState
+	syncPolicy *models.SyncPolicy
+	// IsIncremental indicates whether the collector should run in incremental mode or full sync mode
+	isIncremental bool
+	// Since is the start time of the time range to collect
+	since *time.Time
+	// Until is the end time of the time range to collect
+	until *time.Time
 }
 
-// type CollectorOptions struct {
-// 	TimeAfter string `json:"timeAfter,omitempty" mapstructure:"timeAfter,omitempty"`
-// }
-
 // NewCollectorStateManager create a new CollectorStateManager
-func NewCollectorStateManager(subtaskCtx plugin.SubTaskContext, rawTable, rawParams string) (*CollectorStateManager, errors.Error) {
-	db := subtaskCtx.GetDal()
-	syncPolicy := subtaskCtx.TaskContext().SyncPolicy()
+func NewCollectorStateManager(basicRes context.BasicRes, syncPolicy *models.SyncPolicy, rawTable, rawParams string) (stateManager *CollectorStateManager, err errors.Error) {
+	// load sync policy and make sure it is not nil
+	if syncPolicy == nil {
+		syncPolicy = &models.SyncPolicy{}
+	}
 
-	// CollectorLatestState retrieves the latest collector state from the database
-	oldState := models.CollectorLatestState{}
-	err := db.First(&oldState, dal.Where(`raw_data_table = ? AND raw_data_params = ?`, rawTable, rawParams))
+	// load the previous state from the database
+	db := basicRes.GetDal()
+	state := &models.CollectorLatestState{}
+	err = db.First(state, dal.Where(`raw_data_table = ? AND raw_data_params = ?`, rawTable, rawParams))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
-			oldState = models.CollectorLatestState{
+			state = &models.CollectorLatestState{
 				RawDataTable:  rawTable,
 				RawDataParams: rawParams,
 			}
+			err = nil
 		} else {
-			return nil, errors.Default.Wrap(err, "failed to load JiraLatestCollectorMeta")
-		}
-	}
-	// Extract timeAfter and latestSuccessStart from old state
-	oldTimeAfter := oldState.TimeAfter
-	oldLatestSuccessStart := oldState.LatestSuccessStart
-
-	// Calculate incremental and since based on syncPolicy and old state
-	var isIncremental bool
-	var since *time.Time
-
-	if oldLatestSuccessStart == nil {
-		// 1. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
-		isIncremental = false
-		if syncPolicy != nil {
-			since = syncPolicy.TimeAfter
-		}
-	} else if syncPolicy == nil {
-		// 2. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
-		isIncremental = true
-		since = oldLatestSuccessStart
-	} else if syncPolicy.FullSync {
-		// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
-		isIncremental = false
-		since = syncPolicy.TimeAfter
-	} else if syncPolicy.TimeAfter == nil {
-		// 4. If no syncPolicy TimeAfter, incremental and since is oldState.LatestSuccessStart
-		isIncremental = true
-		since = oldLatestSuccessStart
-	} else {
-		// 5. If syncPolicy.TimeAfter not nil
-		if oldTimeAfter != nil && syncPolicy.TimeAfter.Before(*oldTimeAfter) {
-			// 4.1 If oldTimeAfter not nil and syncPolicy.TimeAfter before oldTimeAfter, incremental is false and since is syncPolicy.TimeAfter
-			isIncremental = false
-			since = syncPolicy.TimeAfter
-		} else {
-			// 4.2 If oldTimeAfter nil or syncPolicy.TimeAfter after oldTimeAfter, incremental is true and since is oldState.LatestSuccessStart
-			isIncremental = true
-			since = oldLatestSuccessStart
+			err = errors.Default.Wrap(err, "failed to load the previous collector state")
+			return
 		}
 	}
 
-	currentTime := time.Now()
-	oldState.LatestSuccessStart = &currentTime
-	oldState.TimeAfter = syncPolicy.TimeAfter
+	// fullsync by default
+	now := time.Now()
+	stateManager = &CollectorStateManager{
+		db:            db,
+		state:         state,
+		syncPolicy:    syncPolicy,
+		isIncremental: false,
+		since:         syncPolicy.TimeAfter,
+		until:         &now,
+	}
+	// fallback to previous timeAfter if no new value was specified
+	if stateManager.since == nil {
+		stateManager.since = state.TimeAfter
+	}
 
-	return &CollectorStateManager{
-		IsIncremental: isIncremental,
-		Since:         since,
-		Until:         &currentTime,
-	}, nil
+	// if fullsync is set or no previous success start time, we are in the full sync mode
+	if syncPolicy.FullSync || state.LatestSuccessStart == nil {
+		return
+	}
+
+	// if timeAfter is not set or after the previous vaule, we are in the incremental mode
+	if syncPolicy.TimeAfter == nil || state.TimeAfter == nil || !syncPolicy.TimeAfter.Before(*state.TimeAfter) {
+		stateManager.isIncremental = true
+		stateManager.since = state.LatestSuccessStart
+	}
+
+	return
 }
 
-func (c *CollectorStateManager) Save() errors.Error {
-	return nil
+func (c *CollectorStateManager) IsIncremental() bool {
+	return c.isIncremental
+}
+
+func (c *CollectorStateManager) GetSince() *time.Time {
+	return c.since
+}
+
+func (c *CollectorStateManager) GetUntil() *time.Time {
+	return c.until
+}
+
+func (c *CollectorStateManager) Close() errors.Error {
+	// update timeAfter in the database only for fullsync mode
+	if !c.isIncremental {
+		if c.syncPolicy.TimeAfter != nil {
+			c.state.TimeAfter = c.syncPolicy.TimeAfter
+		}
+	}
+	// always update the latest success start time
+	c.state.LatestSuccessStart = c.until
+	return c.db.Update(c.state)
 }
