@@ -55,7 +55,12 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 		ctx,
 		ctx.TaskContext().SyncPolicy(),
 		"gitextractor",
-		taskData.Options.RepoId,
+		fmt.Sprintf(
+			`{"RepoId: "%s","SkipCommitStat": %v, "SkipCommitFiles": %v}`,
+			taskData.Options.RepoId,
+			*taskData.Options.SkipCommitStat,
+			*taskData.Options.SkipCommitFiles,
+		),
 	)
 	if err != nil {
 		return err
