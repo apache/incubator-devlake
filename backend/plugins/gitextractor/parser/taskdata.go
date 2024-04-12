@@ -22,9 +22,10 @@ import (
 )
 
 type GitExtractorTaskData struct {
-	Options   *GitExtractorOptions
-	ParsedURL *url.URL
-	GitRepo   RepoCollector
+	Options         *GitExtractorOptions
+	ParsedURL       *url.URL
+	GitRepo         RepoCollector
+	SkipAllSubtasks bool // skip all tasks without error if true
 }
 
 type GitExtractorOptions struct {

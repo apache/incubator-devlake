@@ -312,12 +312,13 @@ func RunPluginSubTasks(
 		}
 		subtaskFinsied := false
 		if !subtaskMeta.ForceRunOnResume {
-			sfc := errors.Must1(
-				basicRes.GetDal().Count(
+			if task.ID > 0 {
+				sfc := errors.Must1(basicRes.GetDal().Count(
 					dal.From(&models.Subtask{}), dal.Where("task_id = ? AND name = ? AND finished_at IS NOT NULL", task.ID, subtaskMeta.Name),
 				),
-			)
-			subtaskFinsied = sfc > 0
+				)
+				subtaskFinsied = sfc > 0
+			}
 		}
 		if subtaskFinsied {
 			logger.Info("subtask %s already finished previously", subtaskMeta.Name)
