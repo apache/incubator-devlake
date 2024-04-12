@@ -74,7 +74,7 @@ func NewCollectorStateManager(basicRes context.BasicRes, syncPolicy *models.Sync
 		since:         syncPolicy.TimeAfter,
 		until:         &now,
 	}
-	// fallback to previous timeAfter if no new value was specified
+	// fallback to the previous timeAfter if no new value
 	if stateManager.since == nil {
 		stateManager.since = state.TimeAfter
 	}
@@ -84,7 +84,7 @@ func NewCollectorStateManager(basicRes context.BasicRes, syncPolicy *models.Sync
 		return
 	}
 
-	// if timeAfter is not set or after the previous vaule, we are in the incremental mode
+	// if timeAfter is not set or NOT before the previous vaule, we are in the incremental mode
 	if syncPolicy.TimeAfter == nil || state.TimeAfter == nil || !syncPolicy.TimeAfter.Before(*state.TimeAfter) {
 		stateManager.isIncremental = true
 		stateManager.since = state.LatestSuccessStart
@@ -108,6 +108,7 @@ func (c *CollectorStateManager) GetUntil() *time.Time {
 func (c *CollectorStateManager) Close() errors.Error {
 	// update timeAfter in the database only for fullsync mode
 	if !c.isIncremental {
+		// prefer non-nil value
 		if c.syncPolicy.TimeAfter != nil {
 			c.state.TimeAfter = c.syncPolicy.TimeAfter
 		}
