@@ -117,10 +117,10 @@ func TestCollectorStateManager(t *testing.T) {
 		{
 			name:                      "Full sync - with older timeAfter",
 			state:                     &models.CollectorLatestState{TimeAfter: &time1, LatestSuccessStart: &time1},
-			syncPolicy:                &models.SyncPolicy{TimeAfter: &time1, FullSync: true},
+			syncPolicy:                &models.SyncPolicy{TimeAfter: &time0, FullSync: true},
 			expectedIsIncremental:     false,
-			expectedSince:             &time1,
-			expectedNewStateTimeAfter: &time1,
+			expectedSince:             &time0,
+			expectedNewStateTimeAfter: &time0,
 		},
 		{
 			name:                      "Full sync - without timeAfter",
