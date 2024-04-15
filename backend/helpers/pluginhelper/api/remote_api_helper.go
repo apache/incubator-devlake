@@ -358,7 +358,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input
 		p = 1
 	} else {
 		p, err1 = strconv.Atoi(page[0])
-		if err != nil {
+		if err1 != nil {
 			return nil, errors.BadInput.Wrap(err1, fmt.Sprintf("failed to Atoi page:%s", page[0]))
 		}
 	}

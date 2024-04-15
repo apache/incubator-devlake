@@ -100,10 +100,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.E
 	// process args
 	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error processing raw subtask args")
-	}
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate")
+		return nil, err
 	}
 	if args.GraphqlClient == nil {
 		return nil, errors.Default.New("ApiClient is required")
