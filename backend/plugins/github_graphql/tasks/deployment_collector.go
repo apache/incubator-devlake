@@ -90,11 +90,6 @@ type GraphqlQueryDeploymentDeployment struct {
 		} `graphql:"author"`
 		CommittedDate time.Time `graphql:"committedDate"`
 	} `graphql:"commit"`
-	// Commits struct {
-	// 	PageInfo   *api.GraphqlQueryPageInfo
-	// 	Nodes      []GraphqlQueryCommit `graphql:"nodes"`
-	// 	TotalCount graphql.Int
-	// } `graphql:"commits(first: 100)"`
 }
 
 // CollectDeployments will request github api via graphql and store the result into raw layer.

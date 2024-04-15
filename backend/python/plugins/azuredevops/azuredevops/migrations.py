@@ -203,5 +203,5 @@ def add_updated_date_field_in_tool_azuredevops_gitrepositories(b: MigrationScrip
 @migration(20240415163000, name="add queue_time field in _tool_azuredevops_builds")
 def add_queue_time_field_in_tool_azuredevops_builds(b: MigrationScriptBuilder):
     table = '_tool_azuredevops_builds'
-    b.add_column(table, 'display_title', 'LONGTEXT')
-    b.add_column(table, 'url', 'LONGTEXT')
+    b.add_column(table, 'display_title', 'TEXT')
+    b.add_column(table, 'url', 'TEXT')
