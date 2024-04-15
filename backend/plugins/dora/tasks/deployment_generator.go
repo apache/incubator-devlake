@@ -132,6 +132,8 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				CicdScopeId:    pipelineExInfo.CicdScopeId,
 				Name:           pipelineExInfo.Name,
+				DisplayTitle:   pipelineExInfo.DisplayTitle,
+				Url:            pipelineExInfo.Url,
 				Result:         pipelineExInfo.Result,
 				Status:         pipelineExInfo.Status,
 				OriginalStatus: pipelineExInfo.OriginalStatus,

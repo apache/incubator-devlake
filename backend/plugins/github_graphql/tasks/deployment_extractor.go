@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -81,6 +82,8 @@ func convertGithubDeployment(deployment GraphqlQueryDeploymentDeployment, connec
 		GithubId:          githubId,
 		NoPKModel:         common.NewNoPKModel(),
 		Id:                deployment.Id,
+		DisplayTitle:      strings.Split(deployment.Commit.Message, "\n")[0],
+		Url:               deployment.Repository.Url + "/deployments/" + deployment.Environment,
 		DatabaseId:        deployment.DatabaseId,
 		Payload:           deployment.Payload,
 		Description:       deployment.Description,

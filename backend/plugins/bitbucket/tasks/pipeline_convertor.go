@@ -76,11 +76,13 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			domainEntityId := pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId)
 			results := make([]interface{}, 0, 2)
 			domainPipelineCommit := &devops.CiCDPipelineCommit{
-				PipelineId: domainEntityId,
-				RepoId:     repoId,
-				CommitSha:  bitbucketPipeline.CommitSha,
-				Branch:     bitbucketPipeline.RefName,
-				RepoUrl:    repo.HTMLUrl,
+				PipelineId:   domainEntityId,
+				RepoId:       repoId,
+				CommitSha:    bitbucketPipeline.CommitSha,
+				Branch:       bitbucketPipeline.RefName,
+				RepoUrl:      repo.HTMLUrl,
+				DisplayTitle: fmt.Sprintf("%s/%d", domainEntityId, bitbucketPipeline.BuildNumber),
+				Url:          bitbucketPipeline.WebUrl,
 			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
@@ -106,8 +108,10 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					StartedDate:  bitbucketPipeline.BitbucketCreatedOn,
 					FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
 				},
-				DurationSec: float64(bitbucketPipeline.DurationInSeconds),
-				CicdScopeId: repoId,
+				DurationSec:  float64(bitbucketPipeline.DurationInSeconds),
+				CicdScopeId:  repoId,
+				DisplayTitle: fmt.Sprintf("%s/%d", domainEntityId, bitbucketPipeline.BuildNumber),
+				Url:          bitbucketPipeline.WebUrl,
 			}
 			results = append(results, domainPipelineCommit, domainPipeline)
 			return results, nil

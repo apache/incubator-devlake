@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -136,9 +137,10 @@ func ConvertDeployBuildsToDeploymentCommits(taskCtx plugin.SubTaskContext) error
 					StartedDate:  input.ExecutedDate,
 					FinishedDate: input.FinishedDate,
 				},
-				CommitSha: input.VcsRevisionKey,
-				RefName:   input.PlanBranchName,
-				RepoId:    strconv.Itoa(input.RepositoryId),
+				CommitSha:    input.VcsRevisionKey,
+				RefName:      input.PlanBranchName,
+				RepoId:       strconv.Itoa(input.RepositoryId),
+				DisplayTitle: input.GenerateCICDDeploymentCommitName(),
 			}
 			if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, input.Environment) != "" {
 				deploymentCommit.Environment = devops.PRODUCTION

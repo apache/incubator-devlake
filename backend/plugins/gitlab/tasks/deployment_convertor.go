@@ -125,6 +125,8 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				RefName:           gitlabDeployment.Ref,
 				RepoId:            projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				RepoUrl:           repo.WebUrl,
+				DisplayTitle:      gitlabDeployment.DeployableCommitTitle,
+				Url:               repo.WebUrl + "/environments",
 			}
 			if data.RegexEnricher != nil {
 				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {

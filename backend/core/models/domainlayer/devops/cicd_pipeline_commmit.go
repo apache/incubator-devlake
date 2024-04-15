@@ -23,12 +23,14 @@ import (
 
 type CiCDPipelineCommit struct {
 	common.NoPKModel
-	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
-	CommitMsg  string
-	Branch     string `gorm:"type:varchar(255)"`
-	RepoId     string `gorm:"index;type:varchar(255)"`
-	RepoUrl    string
+	PipelineId   string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
+	CommitMsg    string
+	DisplayTitle string
+	Url          string
+	Branch       string `gorm:"type:varchar(255)"`
+	RepoId       string `gorm:"index;type:varchar(255)"`
+	RepoUrl      string
 }
 
 func (CiCDPipelineCommit) TableName() string {

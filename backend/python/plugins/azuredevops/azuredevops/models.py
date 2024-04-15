@@ -115,6 +115,8 @@ class Build(ToolModel, table=True):
     result: Optional[BuildResult]
     source_branch: str
     source_version: str
+    display_title: str = Field(source='/triggerInfo/ci.message')
+    url: str = Field(source='/_links/web/href')
 
 
 class Job(ToolModel, table=True):

@@ -96,6 +96,8 @@ class Builds(Stream):
             environment=environment,
             type=type,
             cicd_scope_id=ctx.scope.domain_id(),
+            display_title=b.display_title,
+            url=b.url,
         )
 
         if b.source_version is not None:
@@ -105,4 +107,6 @@ class Builds(Stream):
                 branch=b.source_branch,
                 repo_id=ctx.scope.domain_id(),
                 repo_url=ctx.scope.url,
+                display_title=b.display_title,
+                url=b.url,
             )

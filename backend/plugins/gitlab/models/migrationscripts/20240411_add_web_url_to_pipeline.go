@@ -18,25 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addConnectionIdToTransformationRule),
-		new(addTypeAndEnvironment),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addScopeConfigId),
-		new(addEnvNamePattern),
-		new(addPlanResultKey),
-		new(renameToolBambooDeployBuild20230919),
-		new(renameToolBambooDeployEnvironments20230919),
-		new(renameMultiBambooRawTables20230920),
-		new(addMissingPrimaryKeyForBambooPlanBuildVcsRevision),
-		new(addQueuedFieldsInJobBuild20231128),
-		new(addLinkHrefToBambooPlanBuild),
-	}
+type addWebUrlToGitlabPipelineProject struct{}
+
+type gitlabPipelineProject20240411 struct {
+	WebUrl string `gorm:"type:varchar(255)"`
+}
+
+func (gitlabPipelineProject20240411) TableName() string {
+	return "_tool_gitlab_pipeline_projects"
+}
+
+func (u *addWebUrlToGitlabPipelineProject) Up(baseRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(baseRes, &gitlabPipelineProject20240411{})
+}
+
+func (*addWebUrlToGitlabPipelineProject) Version() uint64 {
+	return 20240411150359
+}
+
+func (*addWebUrlToGitlabPipelineProject) Name() string {
+	return "add web url to gitlab pipeline projects"
 }
