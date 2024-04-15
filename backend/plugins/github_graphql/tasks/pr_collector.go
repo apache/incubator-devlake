@@ -130,7 +130,7 @@ var _ plugin.SubTaskEntryPoint = CollectPrs
 func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*tasks.GithubTaskData)
 	var err errors.Error
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: tasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -142,7 +142,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitGraphQLCollector(api.GraphqlCollectorArgs{
+	err = apiCollector.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      10,
 		/*
@@ -170,7 +170,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryPrWrapper)
 			prs := query.Repository.PullRequests.Prs
 			for _, rawL := range prs {
-				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.CreatedAt) {
+				if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(rawL.CreatedAt) {
 					return nil, api.ErrFinishCollect
 				}
 			}
@@ -181,5 +181,5 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
