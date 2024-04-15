@@ -45,7 +45,7 @@ def test_builds_stream(context):
             "ci.message": "Add azure-pipelines.yml jobs to Azure Pipelines",
             "ci.triggerRepository": "eaf116f6-821f-42d7-920e-a867e564302e"
         },
-        '_link':{                    
+        '_links':{                    
             "self": {
                 "href": "https://dev.azure.com/linweihoumerico-lake/e8af9e7b-d4bf-4afd-9d0a-c9f8dfac1d59/_apis/build/Builds/15"
             },
