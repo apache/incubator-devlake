@@ -114,10 +114,10 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 					StartedDate:  &jenkinsBuild.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,
 				},
-				DurationSec:  durationSec,
-				CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
-				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, jenkinsBuild.FullName),
-				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, jenkinsBuild.FullName),
+				DurationSec: durationSec,
+				CicdScopeId: jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
+				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, jenkinsBuild.FullName),
+				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, jenkinsBuild.FullName),
 				// DisplayTitle: jenkinsBuild.FullName,
 			}
 			jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
