@@ -56,6 +56,12 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+
+	jenkinsJob := &models.JenkinsJob{}
+	err = db.All(jenkinsJob, dal.Where("connection_id = ? and full_name = ?", data.Options.ConnectionId, data.Options.FullName))
+	if err != nil {
+		return err
+	}
 	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
@@ -72,12 +78,12 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuildCommit := inputRow.(*models.JenkinsBuildCommit)
 			build := &devops.CiCDPipelineCommit{
-				PipelineId: buildIdGen.Generate(jenkinsBuildCommit.ConnectionId, jenkinsBuildCommit.BuildName),
-				CommitSha:  jenkinsBuildCommit.CommitSha,
-				Branch:     jenkinsBuildCommit.Branch,
-				RepoUrl:    jenkinsBuildCommit.RepoUrl,
-				// DisplayTitle: jenkinsBuildCommit.BuildName,
-				// Url:          jenkinsBuildCommit.RepoUrl,
+				PipelineId:   buildIdGen.Generate(jenkinsBuildCommit.ConnectionId, jenkinsBuildCommit.BuildName),
+				CommitSha:    jenkinsBuildCommit.CommitSha,
+				Branch:       jenkinsBuildCommit.Branch,
+				RepoUrl:      jenkinsBuildCommit.RepoUrl,
+				DisplayTitle: jenkinsBuildCommit.BuildName,
+				Url:          jenkinsJob.Url,
 			}
 			return []interface{}{
 				build,

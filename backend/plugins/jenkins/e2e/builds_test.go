@@ -164,6 +164,8 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"repo_url",
 			"branch",
 			"commit_sha",
+			"display_title",
+			"url",
 		),
 	)
 }
