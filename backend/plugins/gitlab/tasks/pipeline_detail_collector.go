@@ -82,7 +82,7 @@ func CollectApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	return collectorWithState.Execute()
 }
 
-func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
+func GetPipelinesIterator(taskCtx plugin.SubTaskContext, apiCollector *helper.StatefulApiCollector) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	clauses := []dal.Clause{
@@ -93,8 +93,8 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *hel
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.Since != nil && collectorWithState.IsIncremental {
-		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *apiCollector.GetSince()))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

@@ -168,7 +168,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*hel
 	return rawDataSubTaskArgs, data
 }
 
-func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
+func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, apiCollector *helper.StatefulApiCollector) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	clauses := []dal.Clause{
@@ -179,9 +179,9 @@ func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState 
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState != nil {
-		if collectorWithState.Since != nil {
-			clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.Since))
+	if apiCollector != nil {
+		if apiCollector.GetSince() != nil {
+			clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *apiCollector.GetSince()))
 		}
 	}
 	// construct the input iterator

@@ -53,7 +53,7 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: JiraApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -71,8 +71,8 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
 		dal.Where("bi.connection_id=? and bi.board_id = ? AND i.std_type != ? and i.changelog_total > 100", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("i.updated > ?", collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("i.updated > ?", apiCollector.GetSince()))
 	}
 
 	if logger.IsLevelEnabled(log.LOG_DEBUG) {
@@ -95,7 +95,7 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// now, let ApiCollector takes care the rest
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:     data.ApiClient,
 		PageSize:      100,
 		GetTotalPages: GetTotalPagesFromResponse,
@@ -125,5 +125,5 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
