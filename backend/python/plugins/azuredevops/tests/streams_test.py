@@ -137,14 +137,18 @@ def test_builds_stream(context):
             duration_sec=31.196409940719604,
             environment=devops.CICDEnvironment.PRODUCTION,
             type=devops.CICDType.DEPLOYMENT,
-            cicd_scope_id=context.scope.domain_id()
+            cicd_scope_id=context.scope.domain_id(),
+            display_title='azure-job',
+            url='https://dev.azure.com/testorg/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/Builds/12'
         ),
         devops.CiCDPipelineCommit(
             pipeline_id='azuredevops:Build:1:12',
             commit_sha='40c59264e73fc5e1a6cab192f1622d26b7bd5c2a',
             branch='refs/heads/main',
             repo_id=context.scope.domain_id(),
-            repo_url='https://github.com/johndoe/test-repo'
+            repo_url='https://github.com/johndoe/test-repo',
+            display_title='azure-job',
+            url='https://dev.azure.com/testorg/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/Builds/12'
         )
     ]
 
