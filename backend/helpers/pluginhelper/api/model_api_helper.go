@@ -216,7 +216,7 @@ func (self *ModelApiHelper[M]) PutMultipleCb(input *plugin.ApiResourceInput, bef
 	}, nil
 }
 
-func parsePagination[P any](input *plugin.ApiResourceInput, query ...dal.Clause) (*P, errors.Error) {
+func parsePagination[P any](input *plugin.ApiResourceInput) (*P, errors.Error) {
 	if !input.Query.Has("page") {
 		input.Query.Set("page", "1")
 	}
