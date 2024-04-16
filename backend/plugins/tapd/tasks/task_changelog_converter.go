@@ -50,8 +50,8 @@ type TaskChangelogItemResult struct {
 	Field             string     `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed string     `json:"value_before"`
 	ValueAfterParsed  string     `json:"value_after"`
-	IterationIdFrom   uint64
-	IterationIdTo     uint64
+	IterationIdFrom   int64
+	IterationIdTo     int64
 	common.NoPKModel
 }
 
