@@ -98,7 +98,7 @@ func GetTotalPagesFromResponse(r *http.Response, args *api.ApiCollectorArgs) (in
 }
 
 // parseIterationChangelog function is used to parse the iteration changelog
-func parseIterationChangelog(taskCtx plugin.SubTaskContext, old string, new string) (iterationFromId uint64, iterationToId uint64, err errors.Error) {
+func parseIterationChangelog(taskCtx plugin.SubTaskContext, old string, new string) (iterationFromId int64, iterationToId int64, err errors.Error) {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDal()
 

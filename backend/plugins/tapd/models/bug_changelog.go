@@ -41,8 +41,8 @@ type TapdBugChangelogItem struct {
 	Field             string `json:"field" gorm:"primaryKey;"`
 	ValueBeforeParsed string `json:"value_before_parsed"`
 	ValueAfterParsed  string `json:"value_after_parsed"`
-	IterationIdFrom   uint64
-	IterationIdTo     uint64
+	IterationIdFrom   int64
+	IterationIdTo     int64
 	common.NoPKModel
 }
 

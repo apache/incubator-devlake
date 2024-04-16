@@ -46,8 +46,8 @@ type BugChangelogItemResult struct {
 	ChangelogId       uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	ValueBeforeParsed string     `json:"value_before"`
 	ValueAfterParsed  string     `json:"value_after"`
-	IterationIdFrom   uint64
-	IterationIdTo     uint64
+	IterationIdFrom   int64
+	IterationIdTo     int64
 	common.NoPKModel
 }
 
