@@ -36,7 +36,7 @@ type TapdTask struct {
 	Begin           *common.CSTTime `json:"begin"`
 	Due             *common.CSTTime `json:"due"`
 	Priority        string          `gorm:"type:varchar(255)" json:"priority"`
-	IterationId     uint64          `json:"iteration_id,string"`
+	IterationId     int64           `json:"iteration_id,string"`
 	Completed       *common.CSTTime `json:"completed"`
 	Effort          float32         `json:"effort,string"`
 	EffortCompleted float32         `json:"effort_completed,string"`

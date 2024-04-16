@@ -35,7 +35,7 @@ type TapdBug struct {
 	Begin        *common.CSTTime `json:"begin"`
 	Due          *common.CSTTime `json:"due"`
 	Priority     string          `json:"priority" gorm:"type:varchar(255)"`
-	IterationId  uint64          `json:"iteration_id,string"`
+	IterationId  int64           `json:"iteration_id,string"`
 	Source       string          `json:"source" gorm:"type:varchar(255)"`
 	Module       string          `json:"module" gorm:"type:varchar(255)"`
 	ReleaseId    uint64          `json:"release_id,string"`
