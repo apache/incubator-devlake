@@ -108,7 +108,7 @@ export const Onboard = ({ logo, title }: Props) => {
         setPlugin: setPlugin,
       }}
     >
-      <Layout style={{ height: '100vh' }}>
+      <Layout style={{ minHeight: '100vh' }}>
         <S.Inner>
           {step === 0 ? (
             <Step0 logo={logo} title={title} />
