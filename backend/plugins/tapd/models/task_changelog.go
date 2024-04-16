@@ -46,8 +46,8 @@ type TapdTaskChangelogItem struct {
 	Field             string `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed string `json:"value_before_parsed"`
 	ValueAfterParsed  string `json:"value_after_parsed"`
-	IterationIdFrom   uint64
-	IterationIdTo     uint64
+	IterationIdFrom   int64
+	IterationIdTo     int64
 	common.NoPKModel
 }
 
@@ -59,8 +59,8 @@ type TapdTaskChangelogItemRes struct {
 	ValueAfterParsed  json.RawMessage `json:"value_after_parsed"`
 	ValueBefore       json.RawMessage `json:"value_before"`
 	ValueAfter        json.RawMessage `json:"value_after"`
-	IterationIdFrom   uint64
-	IterationIdTo     uint64
+	IterationIdFrom   int64
+	IterationIdTo     int64
 	common.NoPKModel
 }
 
