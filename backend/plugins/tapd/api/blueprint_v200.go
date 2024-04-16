@@ -18,17 +18,16 @@ limitations under the License.
 package api
 
 import (
-	"strconv"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
 
 func MakeDataSourcePipelinePlanV200(
@@ -36,53 +35,50 @@ func MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId)
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopes, err := makeScopesV200(bpScopes, connectionId)
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	return plan, scopes, nil
+	plan, err := makePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopes, err := makeScopesV200(scopeDetails, connection)
+	return plan, scopes, err
 }
 
-func makeDataSourcePipelinePlanV200(
+func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan coreModels.PipelinePlan,
-	bpScopes []*coreModels.BlueprintScope,
-	connectionId uint64,
+	scopeDetails []*srvhelper.ScopeDetail[models.TapdWorkspace, models.TapdScopeConfig],
+	connection *models.TapdConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
-	for i, bpScope := range bpScopes {
+
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
+	for i, scopeDetail := range scopeDetails {
 		stage := plan[i]
 		if stage == nil {
 			stage = coreModels.PipelineStage{}
 		}
-		// construct task options for tapd
-		options := make(map[string]interface{})
-		intNum, err := errors.Convert01(strconv.Atoi(bpScope.ScopeId))
-		if err != nil {
-			return nil, err
-		}
-		options["workspaceId"] = intNum
-		options["connectionId"] = connectionId
 
-		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, bpScope.ScopeId)
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		// construct task options for circleci
+		task, err := helper.MakePipelinePlanTask(
+			"tapd",
+			subtaskMetas,
+			scopeConfig.Entities,
+			tasks.TapdOptions{
+				ConnectionId: connection.ID,
+				WorkspaceId:  scope.Id,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
-
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
-		if err != nil {
-			return nil, err
-		}
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "tapd",
-			Subtasks: subtasks,
-			Options:  options,
-		})
+		stage = append(stage, task)
 		plan[i] = stage
 	}
 
@@ -90,28 +86,22 @@ func makeDataSourcePipelinePlanV200(
 }
 
 func makeScopesV200(
-	bpScopes []*coreModels.BlueprintScope,
-	connectionId uint64) ([]plugin.Scope, errors.Error,
-) {
-	scopes := make([]plugin.Scope, 0)
-	for _, bpScope := range bpScopes {
-		// get workspace and scope config from db
+	scopeDetails []*srvhelper.ScopeDetail[models.TapdWorkspace, models.TapdScopeConfig],
+	connection *models.TapdConnection,
+) ([]plugin.Scope, errors.Error) {
+	scopes := make([]plugin.Scope, 0, len(scopeDetails))
 
-		tapdWorkspace, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, bpScope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
+	idgen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
+	for _, scopeDetail := range scopeDetails {
+		// get workspace and scope config from db
+		tapdWorkspace, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 
 		// add wrokspace to scopes
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			domainBoard := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.TapdWorkspace{}).Generate(tapdWorkspace.ConnectionId, tapdWorkspace.Id),
-				},
-				Name: tapdWorkspace.Name,
-				Type: "scrum",
-			}
-			scopes = append(scopes, domainBoard)
+			id := idgen.Generate(connection.ID, tapdWorkspace)
+			board := ticket.NewBoard(id, tapdWorkspace.Name)
+			board.Type = "scrum"
+			scopes = append(scopes, board)
 		}
 	}
 	return scopes, nil

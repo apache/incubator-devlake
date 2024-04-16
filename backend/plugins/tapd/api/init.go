@@ -21,53 +21,22 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
 var basicRes context.BasicRes
-var scopeHelper *api.ScopeApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse]
-var scHelper *api.ScopeConfigHelper[models.TapdScopeConfig, *models.TapdScopeConfig]
 var dsHelper *api.DsHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.TapdConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.TapdConnection, models.TapdWorkspace, srvhelper.NoPagintation]
+
+// var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.TapdConnection, models.TapdWorkspace]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "Id",
-		ScopeIdColumnName:    "id",
-		RawScopeParamName:    "WorkSpaceId",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = api.NewScopeHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
-		nil,
-	)
-	remoteHelper = api.NewRemoteHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
-	scHelper = api.NewScopeConfigHelper[models.TapdScopeConfig, *models.TapdScopeConfig](
-		basicRes,
-		vld,
-		p.Name(),
-	)
-
 	dsHelper = api.NewDataSourceHelper[
 		models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig,
 	](
@@ -80,5 +49,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 		nil,
 	)
-
+	raProxy = api.NewDsRemoteApiProxyHelper(dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper(raProxy, listTapdRemoteScopes)
+	// raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.TapdConnection, models.TapdWorkspace](raProxy, searchTapdRepos)
 }

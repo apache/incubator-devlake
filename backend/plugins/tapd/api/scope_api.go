@@ -26,12 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-type ScopeRes struct {
-	models.TapdWorkspace
-	api.ScopeResDoc[models.TapdScopeConfig]
-}
-
-type ScopeReq api.ScopeReq[models.TapdWorkspace]
+type PutScopesReqBody api.PutScopesReqBody[models.TapdWorkspace]
+type ScopeDetail api.ScopeDetail[models.TapdWorkspace, models.TapdScopeConfig]
 
 // PutScope create or update tapd job
 // @Summary create or update tapd job
@@ -39,13 +35,13 @@ type ScopeReq api.ScopeReq[models.TapdWorkspace]
 // @Tags plugins/tapd
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param scope body ScopeReq true "json"
+// @Param scope body PutScopesReqBody true "json"
 // @Success 200  {object} []models.TapdWorkspace
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scopes [PUT]
-func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
 // UpdateScope patch to tapd job
@@ -61,7 +57,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+	return dsHelper.ScopeApi.Patch(input)
 }
 
 // GetScopeList get tapd jobs
@@ -73,12 +69,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scopes [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
 // GetScope get one tapd job
@@ -87,13 +83,13 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/tapd
 // @Param connectionId path int false "connection ID"
 // @Param scopeId path string false "workspace ID"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
-	return scopeHelper.GetScope(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -109,5 +105,5 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }
