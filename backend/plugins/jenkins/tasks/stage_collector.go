@@ -127,7 +127,7 @@ func collectMultiBranchBuildApiStages(taskCtx plugin.SubTaskContext) errors.Erro
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Params: JenkinsApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			FullName:     data.Options.JobFullName,
@@ -145,8 +145,8 @@ func collectMultiBranchBuildApiStages(taskCtx plugin.SubTaskContext) errors.Erro
 		dal.Where(`tjb.connection_id = ? and tjb.full_name like ? and tjb.class = ?`,
 			data.Options.ConnectionId, fmt.Sprintf("%s%%", data.Options.JobFullName), "WorkflowRun"),
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, apiCollector.GetSince()))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -159,7 +159,7 @@ func collectMultiBranchBuildApiStages(taskCtx plugin.SubTaskContext) errors.Erro
 		return err
 	}
 
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: "{{ .Input.JobPath }}{{ .Input.Number }}/wfapi/describe",
@@ -184,5 +184,5 @@ func collectMultiBranchBuildApiStages(taskCtx plugin.SubTaskContext) errors.Erro
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
