@@ -64,8 +64,8 @@ func TestParseIterationChangelog(t *testing.T) {
 	}).Return(nil).Once()
 	// Test case 2: success scenario
 	iterationFromId, iterationToId, err := parseIterationChangelog(mockCtx, "old", "new")
-	assert.Equal(t, uint64(1), iterationFromId)
-	assert.Equal(t, uint64(2), iterationToId)
+	assert.Equal(t, int64(1), iterationFromId)
+	assert.Equal(t, int64(2), iterationToId)
 	assert.Nil(t, err)
 }
 
