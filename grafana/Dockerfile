@@ -30,6 +30,7 @@ COPY ./dashboards /etc/grafana/dashboards
 COPY ./img/grafana_icon.svg /usr/share/grafana/public/img/grafana_icon.svg
 COPY ./img /usr/share/grafana/public/img/lake
 ENV GF_USERS_ALLOW_SIGN_UP=false
+ENV GF_SERVER_SERVE_FROM_SUB_PATH=false
 ENV GF_DASHBOARDS_JSON_ENABLED=true
 ENV GF_LIVE_ALLOWED_ORIGINS='*'
 ENV GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/Homepage.json
