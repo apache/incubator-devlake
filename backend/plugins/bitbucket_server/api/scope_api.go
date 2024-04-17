@@ -26,12 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
 )
 
-type ScopeRes struct {
-	models.BitbucketServerRepo
-	api.ScopeResDoc[models.BitbucketServerScopeConfig]
-}
-
-type ScopeReq api.ScopeReq[models.BitbucketServerRepo]
+type PutScopesReqBody api.PutScopesReqBody[models.BitbucketServerRepo]
+type ScopeDetail api.ScopeDetail[models.BitbucketServerRepo, models.BitbucketServerScopeConfig]
 
 // PutScope create or update repo
 // @Summary create or update repo
@@ -39,7 +35,7 @@ type ScopeReq api.ScopeReq[models.BitbucketServerRepo]
 // @Tags plugins/bitbucket_server
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scope body ScopeReq true "json"
+// @Param scope body PutScopesReqBody true "json"
 // @Success 200  {object} []models.BitbucketServerRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -74,7 +70,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket_server/connections/{connectionId}/scopes/ [GET]
@@ -97,7 +93,7 @@ func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Tags plugins/bitbucket_server
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path string true "repo ID"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket_server/connections/{connectionId}/scopes/{scopeId} [GET]
