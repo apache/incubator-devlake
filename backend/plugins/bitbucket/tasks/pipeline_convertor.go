@@ -81,8 +81,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				CommitSha:    bitbucketPipeline.CommitSha,
 				Branch:       bitbucketPipeline.RefName,
 				RepoUrl:      repo.HTMLUrl,
-				DisplayTitle: fmt.Sprintf("%s/%d", domainEntityId, bitbucketPipeline.BuildNumber),
-				Url:          bitbucketPipeline.WebUrl,
+				DisplayTitle: fmt.Sprintf("#%d", bitbucketPipeline.BuildNumber),
 			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
@@ -110,8 +109,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				DurationSec:  float64(bitbucketPipeline.DurationInSeconds),
 				CicdScopeId:  repoId,
-				DisplayTitle: fmt.Sprintf("%s/%d", domainEntityId, bitbucketPipeline.BuildNumber),
-				Url:          bitbucketPipeline.WebUrl,
+				DisplayTitle: fmt.Sprintf("#%d", bitbucketPipeline.BuildNumber),
 			}
 			results = append(results, domainPipelineCommit, domainPipeline)
 			return results, nil

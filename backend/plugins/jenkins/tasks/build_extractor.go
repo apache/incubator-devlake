@@ -20,12 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"strings"
-	"time"
 )
 
 // this struct should be moved to `gitub_api_common.go`
@@ -99,6 +100,7 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 							CommitSha:    sha,
 							RepoUrl:      url,
 							Branch:       branch,
+							Number:       body.Number,
 						}
 						results = append(results, &buildCommitRemoteUrl)
 					}

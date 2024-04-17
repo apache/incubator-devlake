@@ -18,23 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyAllEntities),
-		new(modifyJenkinsBuild),
-		new(addJobFields),
-		new(addJobPathForBuilds),
-		new(changeIndexOfJobPath),
-		new(addTransformationRule20221128),
-		new(addFullNameForBuilds),
-		new(addConnectionIdToTransformationRule),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addNumberToJenkinsBuildCommit),
-	}
+type addNumberToJenkinsBuildCommit struct{}
+
+type JenkinsBuildCommit20240410 struct {
+	Number int64 `gorm:"index"`
+}
+
+func (JenkinsBuildCommit20240410) TableName() string {
+	return "_tool_jenkins_build_commits"
+}
+
+func (u *addNumberToJenkinsBuildCommit) Up(baseRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(baseRes, &JenkinsBuildCommit20240410{})
+}
+
+func (*addNumberToJenkinsBuildCommit) Version() uint64 {
+	return 20240410150359
+}
+
+func (*addNumberToJenkinsBuildCommit) Name() string {
+	return "add number field to jenkins build commits"
 }

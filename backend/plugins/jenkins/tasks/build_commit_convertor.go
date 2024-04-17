@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -83,7 +84,7 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 				Branch:       jenkinsBuildCommit.Branch,
 				RepoUrl:      jenkinsBuildCommit.RepoUrl,
 				DisplayTitle: jenkinsBuildCommit.BuildName,
-				Url:          jenkinsJob.Url,
+				Url:          fmt.Sprintf("%s/%d", jenkinsJob.Url, jenkinsBuildCommit.Number),
 			}
 			return []interface{}{
 				build,

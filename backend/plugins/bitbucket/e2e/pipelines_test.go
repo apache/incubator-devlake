@@ -93,4 +93,18 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 			"url",
 		},
 	)
+
+	dataflowTester.VerifyTable(
+		devops.CiCDPipelineCommit{},
+		"./snapshot_tables/cicd_pipeline_commits.csv",
+		[]string{
+			"pipeline_id",
+			"commit_sha",
+			"branch",
+			"repo_id",
+			"repo_url",
+			"display_title",
+			"url",
+		},
+	)
 }

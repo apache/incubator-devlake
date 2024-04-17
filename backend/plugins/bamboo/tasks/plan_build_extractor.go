@@ -53,7 +53,7 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			if errGetHomePage != nil {
 				logger.Warn(errGetHomePage, "get bamboo home")
 			} else {
-				url = homepage + "/browse/" + body.PlanKey
+				url = homepage + "/browse/" + body.PlanResultKey
 			}
 			results := make([]interface{}, 0)
 			results = append(results, body)

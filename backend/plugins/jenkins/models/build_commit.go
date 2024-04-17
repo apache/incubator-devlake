@@ -27,6 +27,7 @@ type JenkinsBuildCommit struct {
 	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
 	Branch       string `gorm:"type:varchar(255)"`
 	RepoUrl      string `gorm:"type:varchar(255)"`
+	Number       int64  `gorm:"index"`
 	common.NoPKModel
 }
 
