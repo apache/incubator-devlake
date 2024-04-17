@@ -33,8 +33,8 @@ import (
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scope-configs [POST]
-func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Create(input)
+func PostScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeConfigApi.Post(input)
 }
 
 // UpdateScopeConfig update scope config for Tapd
@@ -49,8 +49,8 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scope-configs/{id} [PATCH]
-func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Update(input)
+func PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeConfigApi.Patch(input)
 }
 
 // GetScopeConfig return one scope config
@@ -64,7 +64,7 @@ func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scope-configs/{id} [GET]
 func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Get(input)
+	return dsHelper.ScopeConfigApi.GetDetail(input)
 }
 
 // GetScopeConfigList return all scope configs
@@ -79,7 +79,7 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scope-configs [GET]
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.List(input)
+	return dsHelper.ScopeConfigApi.GetAll(input)
 }
 
 // DeleteScopeConfig delete a scope config
@@ -93,5 +93,5 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/tapd/connections/{connectionId}/scope-configs/{id} [DELETE]
 func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Delete(input)
+	return dsHelper.ScopeConfigApi.Delete(input)
 }

@@ -18,21 +18,32 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(encodeConnToken),
-		new(addTransformation),
-		new(deleteIssue),
-		new(modifyCustomFieldName),
-		new(addCustomFieldValue),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addConnIdToLabels),
-		new(addCompanyIdToConnection),
-	}
+var _ plugin.MigrationScript = (*addCompanyIdToConnection)(nil)
+
+type connection20240415 struct {
+	CompanyId uint64
+}
+
+func (connection20240415) TableName() string {
+	return "_tool_tapd_connections"
+}
+
+type addCompanyIdToConnection struct{}
+
+func (script *addCompanyIdToConnection) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &connection20240415{})
+}
+
+func (*addCompanyIdToConnection) Version() uint64 {
+	return 20240415000000
+}
+
+func (script *addCompanyIdToConnection) Name() string {
+	return "add CompanyId to Connection"
 }
