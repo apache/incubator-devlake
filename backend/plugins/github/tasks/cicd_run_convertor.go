@@ -132,7 +132,7 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoId:       repoIdGen.Generate(data.Options.ConnectionId, repoId),
 				RepoUrl:      repo.HTMLUrl,
 				DisplayTitle: line.DisplayTitle,
-				Url:          line.URL,
+				Url:          line.HTMLURL,
 			}
 
 			return []interface{}{

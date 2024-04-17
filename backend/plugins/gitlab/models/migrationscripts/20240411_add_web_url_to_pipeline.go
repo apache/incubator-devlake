@@ -26,7 +26,7 @@ import (
 type addWebUrlToGitlabPipelineProject struct{}
 
 type gitlabPipelineProject20240411 struct {
-	WebUrl string `gorm:"type:varchar(255)"`
+	WebUrl string
 }
 
 func (gitlabPipelineProject20240411) TableName() string {
