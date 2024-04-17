@@ -84,7 +84,7 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 				Branch:       jenkinsBuildCommit.Branch,
 				RepoUrl:      jenkinsBuildCommit.RepoUrl,
 				DisplayTitle: jenkinsBuildCommit.BuildName,
-				Url:          fmt.Sprintf("%s/%d", jenkinsJob.Url, jenkinsBuildCommit.Number),
+				Url:          fmt.Sprintf("%s%d", jenkinsJob.Url, jenkinsBuildCommit.Number),
 			}
 			return []interface{}{
 				build,

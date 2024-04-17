@@ -42,12 +42,20 @@ func (BambooPlanBuildVcsRevision20240411) TableName() string {
 	return "_tool_bamboo_plan_build_commits"
 }
 
+type BambooDeployBuild20240411 struct {
+	EnvKey string `json:"envKey"`
+}
+
+func (BambooDeployBuild20240411) TableName() string {
+	return "_tool_bamboo_deploy_builds"
+}
+
 func (u *addLinkHrefToBambooPlanBuild) Up(baseRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(baseRes, &bambooPlanBuild20240411{}, &BambooPlanBuildVcsRevision20240411{})
+	return migrationhelper.AutoMigrateTables(baseRes, &bambooPlanBuild20240411{}, &BambooPlanBuildVcsRevision20240411{}, &BambooDeployBuild20240411{})
 }
 
 func (*addLinkHrefToBambooPlanBuild) Version() uint64 {
-	return 20240411150361
+	return 20240411150362
 }
 
 func (*addLinkHrefToBambooPlanBuild) Name() string {
