@@ -26,20 +26,15 @@ import (
 )
 
 var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var dsHelper *api.DsHelper[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig]
+
 var basicRes context.BasicRes
+var dsHelper *api.DsHelper[models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.OpsgenieConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.OpsgenieConnection, models.Service, OpsgenieRemotePagination]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-
 	dsHelper = api.NewDataSourceHelper[
 		models.OpsgenieConnection, models.Service, models.OpsenieScopeConfig,
 	](
@@ -52,5 +47,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 		nil,
 	)
-
+	raProxy = api.NewDsRemoteApiProxyHelper[models.OpsgenieConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[models.OpsgenieConnection, models.Service, OpsgenieRemotePagination](raProxy, listOpsgenieRemoteScopes)
 }

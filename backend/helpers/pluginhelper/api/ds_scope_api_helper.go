@@ -24,9 +24,12 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
+
+type ScopeRefDoc = serviceHelper.BlueprintProjectPairs
 
 type PutScopesReqBody[T any] struct {
 	Data []*T `json:"data"`

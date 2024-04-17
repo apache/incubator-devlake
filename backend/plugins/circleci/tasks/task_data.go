@@ -26,9 +26,9 @@ import (
 type CircleciOptions struct {
 	ConnectionId  uint64                      `json:"connectionId" mapstructure:"connectionId"`
 	ProjectSlug   string                      `json:"projectSlug" mapstructure:"projectSlug"`
-	PageSize      uint64                      `mapstruct:"pageSize" mapstructure:"pageSize,omitempty"`
-	ScopeConfigId uint64                      `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
-	ScopeConfig   *models.CircleciScopeConfig `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
+	PageSize      uint64                      `json:"pageSize,omitempty" mapstructure:"pageSize,omitempty"`
+	ScopeConfigId uint64                      `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
+	ScopeConfig   *models.CircleciScopeConfig `json:"scopeConfig,omitempty" mapstructure:"scopeConfig,omitempty"`
 }
 
 type CircleciTaskData struct {
