@@ -196,7 +196,8 @@ func (g *GitcliCloner) execCloneCommand(cmd *exec.Cmd) errors.Error {
 	err = cmd.Wait()
 	if err != nil {
 		g.logger.Error(err, "git exited with error\n%s", combinedOutput.String())
-		if strings.Contains(combinedOutput.String(), "stderr: fatal: error processing shallow info: 4") {
+		if strings.Contains(combinedOutput.String(), "stderr: fatal: error processing shallow info: 4") ||
+			strings.Contains(combinedOutput.String(), "stderr: fatal: the remote end hung up unexpectedly") {
 			return ErrShallowInfoProcessing
 		}
 		return errors.Default.New("git exit error")
