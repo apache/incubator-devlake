@@ -1407,7 +1407,7 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "red",
           "value": "1"
         },
