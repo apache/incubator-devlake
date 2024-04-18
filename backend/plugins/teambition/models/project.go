@@ -84,7 +84,7 @@ func (TeambitionProject) TableName() string {
 }
 
 type TeambitionApiParams struct {
-	ConnectionId uint64
-	// OrganizationId string
-	ProjectId string
+	ConnectionId   uint64
+	OrganizationId string
+	ProjectId      string
 }
