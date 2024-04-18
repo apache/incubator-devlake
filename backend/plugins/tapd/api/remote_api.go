@@ -94,8 +94,12 @@ func listTapdRemoteScopes(
 		}
 	}
 	generateFullNames(root, "")
-	// select the current group
+	// failback to the root
 	if current == nil {
+		// the parentId in the first page is always nil
+		for _, child := range root.children {
+			child.entry.ParentId = nil
+		}
 		current = root
 	}
 	// sort children
