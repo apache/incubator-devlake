@@ -17,13 +17,33 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(reCreateTeambitionConnections),
-		new(addScopeConfigId),
-	}
+var _ plugin.MigrationScript = (*addScopeConfigId)(nil)
+
+type project20240417 struct {
+	ScopeConfigId uint64
+}
+
+func (project20240417) TableName() string {
+	return "_tool_teambition_projects"
+}
+
+type addScopeConfigId struct{}
+
+func (*addScopeConfigId) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &project20240417{})
+}
+
+func (*addScopeConfigId) Version() uint64 {
+	return 20240417165745
+}
+
+func (*addScopeConfigId) Name() string {
+	return "add scope_config_id to scope table"
 }
