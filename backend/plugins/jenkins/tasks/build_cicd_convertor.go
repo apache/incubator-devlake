@@ -18,9 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/spf13/cast"
+	"fmt"
 	"reflect"
 	"time"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -43,13 +45,24 @@ var ConvertBuildsToCicdTasksMeta = plugin.SubTaskMeta{
 func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
+
 	clauses := []dal.Clause{
 		dal.From("_tool_jenkins_builds"),
-		dal.Where(`_tool_jenkins_builds.connection_id = ?
-						and _tool_jenkins_builds.job_path = ?
-						and _tool_jenkins_builds.job_name = ?`,
-			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
+
+	if data.Options.Class == WORKFLOW_MULTI_BRANCH_PROJECT {
+		clauses = append(clauses,
+			dal.Where(`_tool_jenkins_builds.connection_id = ? 
+					and _tool_jenkins_builds.full_name like ?`,
+				data.Options.ConnectionId, fmt.Sprintf("%s%%", data.Options.JobFullName)))
+	} else {
+		clauses = append(clauses,
+			dal.Where(`_tool_jenkins_builds.connection_id = ?
+					and _tool_jenkins_builds.job_path = ?
+					and _tool_jenkins_builds.job_name = ?`,
+				data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName))
+	}
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
