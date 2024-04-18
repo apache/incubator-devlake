@@ -256,20 +256,20 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.TestExistingConnection,
 		},
 		"connections/:connectionId/scopes": {
-			"PUT": api.PutProjectScope,
-			"GET": api.GetProjectScopeList,
+			"PUT": api.PutScopes,
+			"GET": api.GetScopes,
 		},
 		"connections/:connectionId/scopes/:scopeId": {
-			"GET":    api.GetProjectScope,
-			"PATCH":  api.UpdateProjectScope,
+			"GET":    api.GetScope,
+			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteProjectScope,
 		},
 		"connections/:connectionId/scope-configs": {
-			"POST": api.CreateScopeConfig,
+			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.UpdateScopeConfig,
+			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
