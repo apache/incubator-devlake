@@ -29,7 +29,6 @@ var vld *validator.Validate
 var basicRes context.BasicRes
 
 var dsHelper *api.DsHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig]
-var scHelper *api.ScopeConfigHelper[models.ZentaoScopeConfig, *models.ZentaoScopeConfig]
 var raProxy *api.DsRemoteApiProxyHelper[models.ZentaoConnection]
 var raScopeList *api.DsRemoteApiScopeListHelper[models.ZentaoConnection, models.ZentaoProject, ZentaoRemotePagination]
 
