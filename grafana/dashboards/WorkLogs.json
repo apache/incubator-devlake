@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 33,
+  "id": 40,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -34,7 +34,6 @@
         "y": 0
       },
       "id": 19,
-      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -44,7 +43,7 @@
         "content": "- Use Cases: This dashboard shows the work logs of a team or a developer\n- Data Sources Required to show all data: \n   - One of the Git tools, e.g. [GitHub](https://devlake.apache.org/docs/Configuration/GitHub), [GitLab](https://devlake.apache.org/docs/Configuration/GitLab), [Bitbucket](https://devlake.apache.org/docs/Configuration/BitBucket) or [Azure DevOps](https://devlake.apache.org/docs/Configuration/AzureDevOps)\n   - One of the issue tracking tools, e.g. [Jira](https://devlake.apache.org/docs/Configuration/Jira)\n   - You also need to complete the [team configuration](https://devlake.apache.org/docs/Configuration/TeamConfiguration) to use this dashboard",
         "mode": "markdown"
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -71,7 +70,7 @@
     },
     {
       "datasource": "mysql",
-              "fieldConfig": {
+      "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
@@ -210,7 +209,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -335,7 +334,7 @@
       },
       "gridPos": {
         "h": 11,
-        "w": 12,
+        "w": 10,
         "x": 0,
         "y": 21
       },
@@ -353,14 +352,14 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n_activities as (\n  SELECT \n    *,\n    ROW_NUMBER() OVER (PARTITION BY `Date` ORDER BY `Time` desc) AS _row_number\n  FROM (\n    SELECT DATE(created_date) as Date, created_date as Time, 'Create an issue' as Activity, concat('#', issue_key, ' ', title) as Details, a.name as Name\n    FROM issues i\n    join _accounts a on i.creator_id = a.account_id\n    where $__timeFilter(created_date)\n\n    union\n\n    SELECT DATE(resolution_date) as Date, resolution_date as Time, 'Issue resolved' as Activity, concat('#', issue_key, ' ', title) as Details, a.name as Name \n    FROM issues i\n    join _accounts a on i.assignee_id = a.account_id\n    where $__timeFilter(resolution_date)\n\n    union\n\n    SELECT DATE(authored_date) as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name \n    FROM commits c\n    join _accounts a on c.author_id = a.account_id\n    where $__timeFilter(authored_date)\n\n    union\n\n    SELECT DATE(created_date) as Date, created_date as Time, 'Open a PR' as Activity, concat('#', pull_request_key, ' ', title) as Details, a.name as Name\n    FROM pull_requests pr\n    join _accounts a on pr.author_id = a.account_id\n    where $__timeFilter(created_date)\n\n    union\n\n    SELECT DATE(merged_date) as Date, merged_date as Time, 'PR gets merged' as Activity, concat('#', pull_request_key, ' ', title) as Details, a.name as Name \n    FROM pull_requests pr\n    join _accounts a on pr.author_id = a.account_id\n    where $__timeFilter(merged_date)\n\n    union\n\n    SELECT DATE(prc.created_date) as Date, prc.created_date as Time, 'Comment on PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name \n    FROM pull_request_comments prc\n    left join pull_requests pr on prc.pull_request_id = pr.id\n    join _accounts a on prc.account_id = a.account_id\n    WHERE \n      prc.type = 'NORMAL'\n      and $__timeFilter(prc.created_date)\n\n    union\n\n    SELECT DATE(prc.created_date) as Date, prc.created_date as Time, 'Review PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name  \n    FROM pull_request_comments prc\n    left join pull_requests pr on prc.pull_request_id = pr.id\n    join _accounts a on prc.account_id = a.account_id\n    WHERE \n      prc.type in ('REVIEW', 'DIFF')\n      and $__timeFilter(prc.created_date)\n  ) t\n\n  ORDER BY Time desc\n),\n\n_activity_count_per_day as (\n  SELECT \n    Date,\n    count(*) as value\n  FROM _activities\n  GROUP BY 1\n),\n\nlast_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT \n    CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) as d, \n    DATE_FORMAT(CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date), 'w%u %Y') as week_name,\n    DATE_FORMAT(CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date), '%Y%u') as week_number\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_calendar_months_with_rank as (\n  SELECT  \n    d, \n    concat(week_name, ' (', DATE_FORMAT(DATE_SUB(d, INTERVAL WEEKDAY(d) DAY), '%m/%d'), ' ~ ', DATE_FORMAT(DATE_ADD(DATE_SUB(d, INTERVAL WEEKDAY(d) DAY), INTERVAL 6 DAY), '%m/%d'), ')') as week_name,\n    week_number,\n    DATE_FORMAT(d, '%W') as weekday,\n    dense_rank() over(ORDER BY week_number desc) as week_rank\n  FROM  last_few_calendar_months\n  ORDER BY 1 desc\n),\n\n_final_dataset as (\n  SELECT  \n    _calendar_months_with_rank.*, \n    case when _activity_count_per_day.value is null then 0 else _activity_count_per_day.value end as activity_count \n  from _calendar_months_with_rank left join _activity_count_per_day on _calendar_months_with_rank.d = _activity_count_per_day.Date\n)\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 1\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 2\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 3\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 4\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 5\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name,\n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 6\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 7\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 8\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 9\nGROUP BY 1\n\nunion all\n\nSELECT  \n  week_name, \n  sum(case when weekday = 'Monday' then activity_count else null end) as Mon,\n  sum(case when weekday = 'Tuesday' then activity_count else null end) as Tue,\n  sum(case when weekday = 'Wednesday' then activity_count else null end) as Wed,\n  sum(case when weekday = 'Thursday' then activity_count else null end) as Thur,\n  sum(case when weekday = 'Friday' then activity_count else null end) as Fri,\n  sum(case when weekday = 'Saturday' then activity_count else null end) as Sat,\n  sum(case when weekday = 'Sunday' then activity_count else null end) as Sun\nFROM _final_dataset\nwhere week_rank = 10\nGROUP BY 1",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n_activities as (\n  SELECT \n    *,\n    ROW_NUMBER() OVER (PARTITION BY `Date` ORDER BY `Time` desc) AS _row_number\n  FROM (\n    SELECT DATE(created_date) as Date, created_date as Time, 'Create an issue' as Activity, concat('#', issue_key, ' ', title) as Details, a.name as Name\n    FROM issues i\n    join _accounts a on i.creator_id = a.account_id\n    where $__timeFilter(created_date)\n\n    union\n\n    SELECT DATE(resolution_date) as Date, resolution_date as Time, 'Issue resolved' as Activity, concat('#', issue_key, ' ', title) as Details, a.name as Name \n    FROM issues i\n    join _accounts a on i.assignee_id = a.account_id\n    where $__timeFilter(resolution_date)\n\n    union\n\n    SELECT DATE(authored_date) as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name \n    FROM commits c\n    join _accounts a on c.author_id = a.account_id\n    where $__timeFilter(authored_date)\n\n    union\n\n    SELECT DATE(created_date) as Date, created_date as Time, 'Open a PR' as Activity, concat('#', pull_request_key, ' ', title) as Details, a.name as Name\n    FROM pull_requests pr\n    join _accounts a on pr.author_id = a.account_id\n    where $__timeFilter(created_date)\n\n    union\n\n    SELECT DATE(merged_date) as Date, merged_date as Time, 'PR gets merged' as Activity, concat('#', pull_request_key, ' ', title) as Details, a.name as Name \n    FROM pull_requests pr\n    join _accounts a on pr.author_id = a.account_id\n    where $__timeFilter(merged_date)\n\n    union\n\n    SELECT DATE(prc.created_date) as Date, prc.created_date as Time, 'Comment on PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name \n    FROM pull_request_comments prc\n    left join pull_requests pr on prc.pull_request_id = pr.id\n    join _accounts a on prc.account_id = a.account_id\n    WHERE \n      prc.type = 'NORMAL'\n      and $__timeFilter(prc.created_date)\n\n    union\n\n    SELECT DATE(prc.created_date) as Date, prc.created_date as Time, 'Review PR' as Activity, concat('#', pr.pull_request_key, ' ', pr.title) as Details, a.name as Name  \n    FROM pull_request_comments prc\n    left join pull_requests pr on prc.pull_request_id = pr.id\n    join _accounts a on prc.account_id = a.account_id\n    WHERE \n      prc.type in ('REVIEW', 'DIFF')\n      and $__timeFilter(prc.created_date)\n  ) t\n\n  ORDER BY Time desc\n),\n\n_activity_count_per_day as (\n  SELECT \n    Date,\n    count(*) as value\n  FROM _activities\n  GROUP BY 1\n),\n\nlast_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT \n    CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) as d, \n    DATE_FORMAT(CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date), 'w%u %Y') as week_name,\n    DATE_FORMAT(CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date), '%Y%u') as week_number\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_calendar_months_with_rank as (\n  SELECT  \n    d, \n    concat(week_name, ' (', DATE_FORMAT(DATE_SUB(d, INTERVAL WEEKDAY(d) DAY), '%m/%d'), ' ~ ', DATE_FORMAT(DATE_ADD(DATE_SUB(d, INTERVAL WEEKDAY(d) DAY), INTERVAL 6 DAY), '%m/%d'), ')') as week_name,\n    week_number,\n    DATE_FORMAT(d, '%W') as weekday,\n    dense_rank() over(ORDER BY week_number desc) as week_rank\n  FROM  last_few_calendar_months\n  ORDER BY 1 desc\n),\n\n_final_dataset as (\n  SELECT  \n    _calendar_months_with_rank.*, \n    case when _activity_count_per_day.value is null then 0 else _activity_count_per_day.value end as activity_count \n  from _calendar_months_with_rank left join _activity_count_per_day on _calendar_months_with_rank.d = _activity_count_per_day.Date\n),\n\nWeekSummary AS (\n    SELECT\n        week_name,\n        SUM(CASE WHEN weekday = 'Monday' THEN activity_count END) AS Mon,\n        SUM(CASE WHEN weekday = 'Tuesday' THEN activity_count END) AS Tue,\n        SUM(CASE WHEN weekday = 'Wednesday' THEN activity_count END) AS Wed,\n        SUM(CASE WHEN weekday = 'Thursday' THEN activity_count END) AS Thur,\n        SUM(CASE WHEN weekday = 'Friday' THEN activity_count END) AS Fri,\n        SUM(CASE WHEN weekday = 'Saturday' THEN activity_count END) AS Sat,\n        SUM(CASE WHEN weekday = 'Sunday' THEN activity_count END) AS Sun\n    FROM\n        _final_dataset\n    WHERE\n        week_rank BETWEEN 1 AND 52\n    GROUP BY\n        week_name\n)\n\nSELECT \n    week_name, \n    Mon, \n    Tue, \n    Wed, \n    Thur, \n    Fri, \n    Sat, \n    Sun\nFROM WeekSummary\nORDER BY\n   CAST(SUBSTRING(week_name, LOCATE(' ', week_name) + 1, 4) AS UNSIGNED) DESC, \n   CAST(SUBSTRING(week_name, 2, LOCATE(' ', week_name) - 2) AS UNSIGNED) DESC;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -381,7 +380,7 @@
           }
         }
       ],
-      "title": "Activity count in last 10 weeks",
+      "title": "Activity count in the last year",
       "type": "table"
     },
     {
@@ -547,8 +546,8 @@
       },
       "gridPos": {
         "h": 11,
-        "w": 12,
-        "x": 12,
+        "w": 14,
+        "x": 10,
         "y": 21
       },
       "id": 22,
@@ -777,10 +776,11 @@
           "fields": "",
           "values": true
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -849,10 +849,11 @@
           "fields": "",
           "values": true
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -885,7 +886,7 @@
     },
     {
       "datasource": "mysql",
-              "fieldConfig": {
+      "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
@@ -921,10 +922,11 @@
           "fields": "/.*/",
           "values": true
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -993,10 +995,11 @@
           "fields": "/.*/",
           "values": true
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -1029,7 +1032,7 @@
     },
     {
       "datasource": "mysql",
-              "description": "",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1252,7 +1255,7 @@
     },
     {
       "datasource": "mysql",
-              "fieldConfig": {
+      "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
@@ -1409,7 +1412,7 @@
           "value": "1"
         },
         "datasource": "mysql",
-                  "definition": "select concat(name, '--', id) from teams",
+        "definition": "select concat(name, '--', id) from teams",
         "hide": 0,
         "includeAll": false,
         "label": "Team",
@@ -1434,7 +1437,7 @@
           ]
         },
         "datasource": "mysql",
-                  "definition": "select concat(users.name, '--', users.id) from users left join team_users on users.id = team_users.user_id where team_users.team_id in ($team)",
+        "definition": "select concat(users.name, '--', users.id) from users left join team_users on users.id = team_users.user_id where team_users.team_id in ($team)",
         "hide": 0,
         "includeAll": true,
         "label": "User",
@@ -1458,6 +1461,6 @@
   "timezone": "",
   "title": "Work Logs",
   "uid": "d449042e-22f0-4357-b8b7-22083f47618d",
-  "version": 18,
+  "version": 6,
   "weekStart": ""
 }
