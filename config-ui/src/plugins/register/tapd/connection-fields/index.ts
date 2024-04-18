@@ -16,5 +16,4 @@
  *
  */
 
-export * from './config';
-export * from './transformation';
+export * from './company-id';

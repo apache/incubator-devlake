@@ -42,7 +42,16 @@ export const test = (
   payload?: Partial<
     Pick<
       IConnectionAPI,
-      'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy' | 'dbUrl'
+      | 'endpoint'
+      | 'authMethod'
+      | 'username'
+      | 'password'
+      | 'token'
+      | 'appId'
+      | 'secretKey'
+      | 'proxy'
+      | 'dbUrl'
+      | 'companyId'
     >
   >,
 ): Promise<IConnectionTestResult> =>
