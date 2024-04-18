@@ -46,12 +46,22 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Select("*"),
 		dal.From(&models.JenkinsBuildCommit{}),
 		dal.Join(`left join _tool_jenkins_builds tjb 
-						on _tool_jenkins_build_commits.build_name = tjb.full_name 
-						and _tool_jenkins_build_commits.connection_id = tjb.connection_id`),
-		dal.Where(`_tool_jenkins_build_commits.connection_id = ?
-							and tjb.job_path = ? and tjb.job_name = ?`,
-			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
+				on _tool_jenkins_build_commits.build_name = tjb.full_name 
+				and _tool_jenkins_build_commits.connection_id = tjb.connection_id`),
 	}
+
+	if data.Options.Class == WORKFLOW_MULTI_BRANCH_PROJECT {
+		clauses = append(clauses,
+			dal.Where(`_tool_jenkins_build_commits.connection_id = ? 
+					and tjb.full_name like ?`,
+				data.Options.ConnectionId, fmt.Sprintf("%s%%", data.Options.JobFullName)))
+	} else {
+		clauses = append(clauses,
+			dal.Where(`_tool_jenkins_build_commits.connection_id = ?
+					and tjb.job_path = ? and tjb.job_name = ?`,
+				data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName))
+	}
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err

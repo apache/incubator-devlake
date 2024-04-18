@@ -26,7 +26,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
-	giturls "github.com/whilp/git-urls"
+	giturls "github.com/chainguard-dev/git-urls"
 )
 
 var _ interface {
@@ -93,7 +93,7 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 		*optValue = &defValue
 	}
 	loadBool(&op.UseGoGit, "UseGoGit", false)
-	loadBool(&op.SkipCommitStat, "SKIP_COMMIT_STAT", true)
+	loadBool(&op.SkipCommitStat, "SKIP_COMMIT_STAT", false)
 	loadBool(&op.SkipCommitFiles, "SKIP_COMMIT_FILES", true)
 	log.Info("UseGoGit: %v", *op.UseGoGit)
 	log.Info("SkipCommitStat: %v", *op.SkipCommitStat)

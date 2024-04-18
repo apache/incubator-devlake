@@ -60,7 +60,6 @@ type (
 		Blueprints  []*models.Blueprint `mapstructure:"blueprints,omitempty" json:"blueprints"`
 	}
 	// Alias, for swagger purposes
-	ScopeRefDoc                                            = serviceHelper.BlueprintProjectPairs
 	ScopeRes[Scope plugin.ToolLayerScope, ScopeConfig any] struct {
 		Scope       Scope               `mapstructure:"scope,omitempty" json:"scope,omitempty"`
 		ScopeConfig *ScopeConfig        `mapstructure:"scopeConfig,omitempty" json:"scopeConfig,omitempty"`

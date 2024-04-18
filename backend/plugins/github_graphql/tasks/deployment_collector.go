@@ -95,7 +95,7 @@ type GraphqlQueryDeploymentDeployment struct {
 // CollectDeployments will request github api via graphql and store the result into raw layer.
 func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
-	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: githubTasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -107,7 +107,7 @@ func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
+	err = apiCollector.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
@@ -133,7 +133,7 @@ func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryDeploymentWrapper)
 			deployments := query.Repository.Deployments.Deployments
 			for _, rawL := range deployments {
-				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
+				if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(rawL.UpdatedAt) {
 					return nil, helper.ErrFinishCollect
 				}
 			}
@@ -143,5 +143,5 @@ func CollectDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

@@ -18,6 +18,7 @@ limitations under the License.
 package services
 
 import (
+	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/config"
@@ -84,6 +85,7 @@ func GetMigrator() plugin.Migrator {
 }
 
 // Init the services module
+// Should not be called concurrently
 func Init() {
 	InitResources()
 
@@ -115,9 +117,21 @@ func Init() {
 	}
 }
 
+var statusLock sync.Mutex
+
 // ExecuteMigration executes all pending migration scripts and initialize services module
+// This might be called concurrently across multiple API requests
 func ExecuteMigration() errors.Error {
+	statusLock.Lock()
+	defer statusLock.Unlock()
+	if serviceStatus == SERVICE_STATUS_MIGRATING {
+		return errors.BadInput.New("already migrating")
+	}
+	if serviceStatus == SERVICE_STATUS_READY {
+		return nil
+	}
 	serviceStatus = SERVICE_STATUS_MIGRATING
+	statusLock.Unlock() // unlock to allow other API requests to check the status
 	// apply all pending migration scripts
 	err := migrator.Execute()
 	if err != nil {
@@ -130,11 +144,11 @@ func ExecuteMigration() errors.Error {
 
 	// initialize pipeline server, mainly to start the pipeline consuming process
 	pipelineServiceInit()
+	statusLock.Lock()
 	serviceStatus = SERVICE_STATUS_READY
 	return nil
 }
 
-// MigrationRequireConfirmation returns if there were migration scripts waiting to be executed
-func MigrationRequireConfirmation() bool {
-	return migrator.HasPendingScripts()
+func CurrentStatus() string {
+	return serviceStatus
 }

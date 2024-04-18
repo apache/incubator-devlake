@@ -31,8 +31,8 @@ type ChangelogTmp struct {
 	FieldName       string
 	FromValue       string
 	ToValue         string
-	IterationIdFrom uint64
-	IterationIdTo   uint64
+	IterationIdFrom int64
+	IterationIdTo   int64
 	CreatedDate     time.Time
 	common.RawDataOrigin
 }

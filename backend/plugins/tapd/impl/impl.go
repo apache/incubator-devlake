@@ -211,25 +211,11 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 
 	if op.WorkspaceId != 0 {
 		var scope *models.TapdWorkspace
-		// support v100 & advance mode
-		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
 		err = db.First(&scope, dal.Where("connection_id = ? AND id = ?", op.ConnectionId, op.WorkspaceId))
-		if err != nil && db.IsErrorNotFound(err) {
-			scope, err = api.GetApiWorkspace(op, tapdApiClient)
-			if err != nil {
-				return nil, err
-			}
-			logger.Debug(fmt.Sprintf("Current workspace: %d", scope.Id))
-			err = db.CreateIfNotExist(&scope)
-			if err != nil {
-				return nil, err
-			}
-		}
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find workspace: %d", op.WorkspaceId))
 		}
-		op.WorkspaceId = scope.Id
 		if op.ScopeConfigId == 0 {
 			op.ScopeConfigId = scope.ScopeConfigId
 		}
@@ -301,22 +287,19 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
 			"GET": api.GetScopeLatestSyncState,
 		},
-		"connections/:connectionId/remote-scopes-prepare-token": {
-			"GET": api.PrepareFirstPageToken,
-		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
+			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scope-configs": {
-			"POST": api.CreateScopeConfig,
+			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.UpdateScopeConfig,
+			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},

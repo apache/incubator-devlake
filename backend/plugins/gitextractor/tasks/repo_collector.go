@@ -24,6 +24,9 @@ import (
 )
 
 func CollectGitCommits(subTaskCtx plugin.SubTaskContext) errors.Error {
+	if subTaskCtx.TaskContext().GetData().(*parser.GitExtractorTaskData).SkipAllSubtasks {
+		return nil
+	}
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountCommits(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get commit count")
@@ -36,6 +39,9 @@ func CollectGitCommits(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 func CollectGitBranches(subTaskCtx plugin.SubTaskContext) errors.Error {
+	if subTaskCtx.TaskContext().GetData().(*parser.GitExtractorTaskData).SkipAllSubtasks {
+		return nil
+	}
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountBranches(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get branch count")
@@ -48,6 +54,9 @@ func CollectGitBranches(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 func CollectGitTags(subTaskCtx plugin.SubTaskContext) errors.Error {
+	if subTaskCtx.TaskContext().GetData().(*parser.GitExtractorTaskData).SkipAllSubtasks {
+		return nil
+	}
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountTags(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get tag count")
@@ -60,6 +69,9 @@ func CollectGitTags(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 func CollectGitDiffLines(subTaskCtx plugin.SubTaskContext) errors.Error {
+	if subTaskCtx.TaskContext().GetData().(*parser.GitExtractorTaskData).SkipAllSubtasks {
+		return nil
+	}
 	repo := getGitRepo(subTaskCtx)
 	opt := subTaskCtx.GetData().(*parser.GitExtractorTaskData).Options
 	if !*opt.SkipCommitStat {

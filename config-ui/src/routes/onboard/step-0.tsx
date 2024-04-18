@@ -59,7 +59,7 @@ interface Props {
   title?: React.ReactNode;
 }
 
-export const Step0 = ({ logo = <Logo />, title = 'DevLake' }: Props) => {
+export const Step0 = ({ logo = <Logo direction="horizontal" />, title = 'DevLake' }: Props) => {
   const [operating, setOperating] = useState(false);
 
   const { step, records, done, projectName, plugin, setStep } = useContext(Context);

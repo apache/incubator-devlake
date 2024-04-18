@@ -27,15 +27,17 @@ import (
 
 type JenkinsApiParams models.JenkinsApiParams
 type JenkinsOptions struct {
-	ConnectionId         uint64                     `json:"connectionId" mapstructure:"connectionId"`
-	ScopeConfigId        uint64                     `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
-	FullName             string                     `json:"fullName,omitempty" mapstructure:"fullName,omitempty"`       // "path1/path2/job name"
-	JobFullName          string                     `json:"jobFullName,omitempty" mapstructure:"jobFullName,omitempty"` // "path1/path2/job name"
-	JobName              string                     `json:"jobName,omitempty" mapstructure:"jobName,omitempty"`         // "job name"
-	JobPath              string                     `json:"jobPath,omitempty" mapstructure:"jobPath,omitempty"`         // "job/path1/job/path2"
-	Tasks                []string                   `json:"tasks,omitempty" mapstructure:"tasks,omitempty"`
-	ScopeConfig          *models.JenkinsScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
-	api.CollectorOptions `mapstructure:",squash"`
+	ConnectionId       uint64                     `json:"connectionId" mapstructure:"connectionId"`
+	ScopeConfigId      uint64                     `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	FullName           string                     `json:"fullName,omitempty" mapstructure:"fullName,omitempty"`       // "path1/path2/job name"
+	JobFullName        string                     `json:"jobFullName,omitempty" mapstructure:"jobFullName,omitempty"` // "path1/path2/job name"
+	JobName            string                     `json:"jobName,omitempty" mapstructure:"jobName,omitempty"`         // "job name"
+	JobPath            string                     `json:"jobPath,omitempty" mapstructure:"jobPath,omitempty"`         // "job/path1/job/path2"
+	Tasks              []string                   `json:"tasks,omitempty" mapstructure:"tasks,omitempty"`
+	ScopeConfig        *models.JenkinsScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
+	ConnectionEndpoint string                     `json:"connectionEndpoint" mapstructure:"connectionEndpoint"`
+	Class              string                     `json:"class" mapstructure:"class,omitempty"`
+	URL                string                     `json:"url" mapstructure:"url,omitempty"`
 }
 
 type JenkinsTaskData struct {
@@ -64,6 +66,11 @@ func ValidateTaskOptions(op *JenkinsOptions) (*JenkinsOptions, errors.Error) {
 	if i := strings.LastIndex(op.JobFullName, `/`); i >= 0 {
 		op.JobName = op.JobFullName[i+1:]
 		op.JobPath = `job/` + strings.Join(strings.Split(op.JobFullName[:i], `/`), `/job/`)
+
+		if op.Class == WORKFLOW_MULTI_BRANCH_PROJECT {
+			op.JobPath = `view/all/` + op.JobPath
+		}
+
 	} else {
 		op.JobName = op.JobFullName
 		op.JobPath = `view/all`
@@ -71,5 +78,6 @@ func ValidateTaskOptions(op *JenkinsOptions) (*JenkinsOptions, errors.Error) {
 	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
 		op.ScopeConfig = new(models.JenkinsScopeConfig)
 	}
+
 	return op, nil
 }

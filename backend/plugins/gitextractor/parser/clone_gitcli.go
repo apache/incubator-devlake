@@ -30,12 +30,16 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 var _ RepoCloner = (*GitcliCloner)(nil)
+var ErrShallowInfoProcessing = errors.BadInput.New("No data found for the selected time range. Please revise the 'Time Range' on your Project/Blueprint/Configuration page or in the API parameter.")
+var ErrNoDataOnIncrementalMode = errors.NotModified.New("No data found since the previous run.")
 
 type GitcliCloner struct {
-	logger log.Logger
+	logger       log.Logger
+	stateManager *api.CollectorStateManager
 }
 
 func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
@@ -45,6 +49,42 @@ func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
 }
 
 func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) errors.Error {
+	taskData := ctx.GetData().(*GitExtractorTaskData)
+	// load state
+	stateManager, err := api.NewCollectorStateManager(
+		ctx,
+		ctx.TaskContext().SyncPolicy(),
+		"gitextractor",
+		fmt.Sprintf(
+			`{"RepoId: "%s","SkipCommitStat": %v, "SkipCommitFiles": %v}`,
+			taskData.Options.RepoId,
+			*taskData.Options.SkipCommitStat,
+			*taskData.Options.SkipCommitFiles,
+		),
+	)
+	if err != nil {
+		return err
+	}
+	g.stateManager = stateManager
+
+	cmd, err := g.buildCloneCommand(ctx, localDir, g.stateManager.GetSince())
+	if err != nil {
+		return err
+	}
+	err = g.execCloneCommand(cmd)
+	if err != nil {
+		// it is likely that nothing to collect on incrmental mode
+		if errors.Is(err, ErrShallowInfoProcessing) && stateManager.IsIncremental() {
+			return ErrNoDataOnIncrementalMode
+		}
+		return err
+	}
+
+	// save state
+	return g.stateManager.Close()
+}
+
+func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir string, since *time.Time) (*exec.Cmd, errors.Error) {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
 	args := []string{"clone", taskData.Options.Url, localDir, "--bare", "--progress"}
 	env := []string{}
@@ -58,7 +98,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 		if taskData.Options.Proxy != "" {
 			parsedProxyURL, e := url.Parse(taskData.Options.Proxy)
 			if e != nil {
-				return errors.BadInput.Wrap(e, "failed to parse the proxy URL")
+				return nil, errors.BadInput.Wrap(e, "failed to parse the proxy URL")
 			}
 			proxyCommand := "corkscrew"
 			sshCmdArgs = append(sshCmdArgs, "-o", fmt.Sprintf(`ProxyCommand="%s %s %s %%h %%p"`, proxyCommand, parsedProxyURL.Hostname(), parsedProxyURL.Port()))
@@ -68,16 +108,16 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 			pkFile, err := os.CreateTemp("", "gitext-pk")
 			if err != nil {
 				g.logger.Error(err, "create temp private key file error")
-				return errors.Default.New("failed to handle the private key")
+				return nil, errors.Default.New("failed to handle the private key")
 			}
 			if _, e := pkFile.WriteString(taskData.Options.PrivateKey + "\n"); e != nil {
 				g.logger.Error(err, "write private key file error")
-				return errors.Default.New("failed to write the  private key")
+				return nil, errors.Default.New("failed to write the  private key")
 			}
 			pkFile.Close()
 			if e := os.Chmod(pkFile.Name(), 0600); e != nil {
 				g.logger.Error(err, "chmod private key file error")
-				return errors.Default.New("failed to modify the private key")
+				return nil, errors.Default.New("failed to modify the private key")
 			}
 
 			if taskData.Options.Passphrase != "" {
@@ -91,7 +131,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 				if ppout, pperr := pp.CombinedOutput(); pperr != nil {
 					g.logger.Error(pperr, "change private key passphrase error")
 					g.logger.Info(string(ppout))
-					return errors.Default.New("failed to decrypt the private key")
+					return nil, errors.Default.New("failed to decrypt the private key")
 				}
 			}
 			defer os.Remove(pkFile.Name())
@@ -101,23 +141,22 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 			env = append(env, fmt.Sprintf("GIT_SSH_COMMAND=ssh %s", strings.Join(sshCmdArgs, " ")))
 		}
 	}
-	// support time after
-	syncPolicy := ctx.TaskContext().SyncPolicy()
-	if syncPolicy.TimeAfter != nil {
-		args = append(args, fmt.Sprintf("--shallow-since=%s", syncPolicy.TimeAfter.Format(time.RFC3339)))
+	// support time after and diff sync
+	if since != nil {
+		args = append(args, fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339)))
 	}
 	// support skipping blobs collection
 	if *taskData.Options.SkipCommitStat {
 		args = append(args, "--filter=blob:none")
 	}
+	// fmt.Printf("args: %v\n", args)
+	g.logger.Debug("git %v", args)
 	cmd := exec.CommandContext(ctx.GetContext(), "git", args...)
 	cmd.Env = env
-	// stdout, stderr := cmd.CombinedOutput()
-	// fmt.Println("stdout" + string(stdout))
-	// if stderr != nil {
-	// 	fmt.Println("stderr" + stderr.Error())
-	// }
-	// reading progress
+	return cmd, nil
+}
+
+func (g *GitcliCloner) execCloneCommand(cmd *exec.Cmd) errors.Error {
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		g.logger.Error(err, "stdout pipe error")
@@ -157,6 +196,10 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	err = cmd.Wait()
 	if err != nil {
 		g.logger.Error(err, "git exited with error\n%s", combinedOutput.String())
+		if strings.Contains(combinedOutput.String(), "stderr: fatal: error processing shallow info: 4") ||
+			strings.Contains(combinedOutput.String(), "stderr: fatal: the remote end hung up unexpectedly") {
+			return ErrShallowInfoProcessing
+		}
 		return errors.Default.New("git exit error")
 	}
 	return nil

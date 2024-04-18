@@ -19,13 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
-
-// this struct should be moved to `gitub_api_common.go`
 
 var ExtractApiStagesMeta = plugin.SubTaskMeta{
 	Name:             "extractApiStages",

@@ -43,12 +43,12 @@ var CollectApiMergeRequestsMeta = plugin.SubTaskMeta{
 
 func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	apiCollector, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:      data.ApiClient,
 		PageSize:       100,
 		UrlTemplate:    "projects/{{ .Params.ProjectId }}/merge_requests",
@@ -59,8 +59,8 @@ func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			if collectorWithState.Since != nil {
-				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
+			if apiCollector.GetSince() != nil {
+				query.Set("updated_after", apiCollector.GetSince().Format(time.RFC3339))
 			}
 			return query, nil
 		},
@@ -70,5 +70,5 @@ func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

@@ -68,8 +68,7 @@ func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plu
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.OpsgenieConnection{}
-	err := connectionHelper.First(connection, input.Params)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
 		return nil, err
 	}
@@ -114,12 +113,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/opsgenie/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.OpsgenieConnection{}
-	err := connectionHelper.Create(connection, input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.Post(input)
 }
 
 // @Summary patch opsgenie connection
@@ -131,17 +125,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.OpsgenieConnection{}
-	if err := connectionHelper.First(&connection, input.Params); err != nil {
-		return nil, err
-	}
-	if err := (&models.OpsgenieConnection{}).MergeFromRequest(connection, input.Body); err != nil {
-		return nil, errors.Convert(err)
-	}
-	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.Patch(input)
 }
 
 // @Summary delete opsgenie connection
@@ -153,7 +137,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.OpsgenieConnection{}, input)
+	return dsHelper.ConnApi.Delete(input)
 }
 
 // @Summary list opsgenie connections
@@ -164,15 +148,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/opsgenie/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connections []models.OpsgenieConnection
-	err := connectionHelper.List(&connections)
-	if err != nil {
-		return nil, err
-	}
-	for idx, c := range connections {
-		connections[idx] = c.Sanitize()
-	}
-	return &plugin.ApiResourceOutput{Body: connections}, nil
+	return dsHelper.ConnApi.GetAll(input)
 }
 
 // @Summary get opsgenie connection
@@ -183,10 +159,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.OpsgenieConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
+	return dsHelper.ConnApi.GetDetail(input)
 }

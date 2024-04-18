@@ -124,9 +124,6 @@ func (r *GogitRepoCollector) CountBranches(ctx context.Context) (int, error) {
 		func(r *plumbing.Reference) bool {
 			return r.Name().IsBranch() || r.Name().IsRemote()
 		}, refIter)
-	if err != nil {
-		return 0, err
-	}
 	var branchesCount int
 
 	headRef, err := r.repo.Head()

@@ -27,7 +27,7 @@ import { PATHS } from '@/config';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
-import { validName, encodeName } from '../utils';
+import { validName } from '../utils';
 
 import * as S from './styled';
 
@@ -59,7 +59,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     const [success] = await operator(
       () =>
-        API.project.update(encodeName(project.name), {
+        API.project.update(project.name, {
           name,
           description: '',
           metrics: [
