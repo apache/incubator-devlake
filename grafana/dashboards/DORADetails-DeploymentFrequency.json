@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 16,
+  "id": 7,
   "links": [
     {
       "asDropdown": false,
@@ -47,7 +47,6 @@
         "y": 0
       },
       "id": 63,
-      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -57,7 +56,7 @@
         "content": "This dashboard shows the details about [deployment frequency](https://devlake.apache.org/docs/Metrics/DeploymentFrequency) in DORA.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -80,7 +79,7 @@
             "mode": "fixed"
           },
           "custom": {
-            "align": "left",
+            "align": "auto",
             "cellOptions": {
               "mode": "basic",
               "type": "color-background"
@@ -88,6 +87,7 @@
             "filterable": true,
             "inspect": true
           },
+          "links": [],
           "mappings": [
             {
               "options": {
@@ -126,7 +126,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 314
+                "value": 256
               }
             ]
           },
@@ -150,7 +150,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 113
+                "value": 116
               }
             ]
           },
@@ -162,7 +162,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 120
+                "value": 118
               }
             ]
           },
@@ -174,24 +174,70 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 249
+                "value": 295
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "display_title"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 530
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "url"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 498
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "",
+                    "url": "${__data.fields[\"metric_hidden\"]}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric_hidden"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 15,
-        "w": 17,
+        "h": 19,
+        "w": 18,
         "x": 0,
         "y": 2
       },
       "id": 79,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
+          "enablePagination": true,
           "fields": "",
           "reducer": [
             "sum"
@@ -201,7 +247,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -211,7 +257,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _deployment_commit_rank as(\n  SELECT\n  \tpm.project_name,\n  \tIF(cdc._raw_data_table != '', cdc._raw_data_table, cdc.cicd_scope_id) as _raw_data_table,\n  \tcdc.id,\n  \tcdc.cicd_deployment_id,\n  \tcdc.cicd_scope_id,\n  \tresult,\n  \tenvironment,\n    finished_date,\n    row_number() over(partition by cdc.cicd_deployment_id order by finished_date desc) as _deployment_commit_rank\n  FROM cicd_deployment_commits cdc\n  left join project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n  \tand result = 'SUCCESS'\n  \tand environment = 'PRODUCTION'\n)\n\nSELECT \n  project_name, \n  cicd_deployment_id as deployment_id,\n  -- a deployment may have multiple deployment_commits\n  id as deployment_commit_id, \n  result,\n  environment,\n  finished_date\nFROM _deployment_commit_rank\nWHERE \n  _deployment_commit_rank = 1\n  and $__timeFilter(finished_date)\nORDER BY finished_date DESC",
+          "rawSql": "with _deployment_commit_rank as(\n  SELECT\n  \tpm.project_name,\n  \tIF(cdc._raw_data_table != '', cdc._raw_data_table, cdc.cicd_scope_id) as _raw_data_table,\n  \tcdc.id,\n    cdc.display_title,\n    cdc.url,\n  \tcdc.cicd_deployment_id,\n  \tcdc.cicd_scope_id,\n  \tresult,\n  \tenvironment,\n    finished_date,\n    row_number() over(partition by cdc.cicd_deployment_id order by finished_date desc) as _deployment_commit_rank\n  FROM cicd_deployment_commits cdc\n  left join project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n  \tand result = 'SUCCESS'\n  \tand environment = 'PRODUCTION'\n)\n\nSELECT \n  project_name, \n  cicd_deployment_id as deployment_id,\n  case when display_title = '' then 'N/A' else display_title end as display_title,\n  url,\n  url as metric_hidden,\n  -- a deployment may have multiple deployment_commits\n  -- id as deployment_commit_id, \n  result,\n  environment,\n  finished_date\nFROM _deployment_commit_rank\nWHERE \n  _deployment_commit_rank = 1\n  and $__timeFilter(finished_date)\nORDER BY finished_date DESC",
           "refId": "A",
           "select": [
             [
@@ -257,7 +303,7 @@
     },
     {
       "datasource": "mysql",
-              "fieldConfig": {
+      "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
@@ -300,13 +346,12 @@
         ]
       },
       "gridPos": {
-        "h": 15,
-        "w": 7,
-        "x": 17,
+        "h": 19,
+        "w": 6,
+        "x": 18,
         "y": 2
       },
       "id": 75,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -320,7 +365,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -330,7 +375,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- Metric 1: Deployment Frequency\nWITH last_few_calendar_days AS (\n  -- Construct the last few calendar days within the selected time period in the top-right corner\n  SELECT CAST(($__timeTo() - INTERVAL (H + T + U) DAY) AS date) AS day\n  FROM (\n    SELECT 0 H\n    UNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n  ) H\n  CROSS JOIN (\n    SELECT 0 T\n    UNION ALL SELECT 10 UNION ALL SELECT 20 UNION ALL SELECT 30\n    UNION ALL SELECT 40 UNION ALL SELECT 50 UNION ALL SELECT 60\n    UNION ALL SELECT 70 UNION ALL SELECT 80 UNION ALL SELECT 90\n  ) T\n  CROSS JOIN (\n    SELECT 0 U\n    UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3\n    UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6\n    UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9\n  ) U\n  WHERE ($__timeTo() - INTERVAL (H + T + U) DAY) > $__timeFrom()\n),\n\n_deployment_commit_rank as(\n  SELECT\n  \tpm.project_name,\n  \tIF(cdc._raw_data_table != '', cdc._raw_data_table, cdc.cicd_scope_id) as _raw_data_table,\n  \tcdc.id,\n  \tcdc.cicd_deployment_id,\n  \tcdc.cicd_scope_id,\n  \tresult,\n  \tenvironment,\n    finished_date,\n    row_number() over(partition by cdc.cicd_deployment_id order by finished_date desc) as _deployment_commit_rank\n  FROM cicd_deployment_commits cdc\n  left join project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n  \tand result = 'SUCCESS'\n  \tand environment = 'PRODUCTION'\n),\n\n_deployments as (\n  SELECT \n    project_name, \n    cicd_deployment_id as deployment_id,\n    -- a deployment may have multiple deployment_commits\n    id as deployment_commit_id, \n    result,\n    environment,\n    finished_date\n  FROM _deployment_commit_rank\n  WHERE \n    _deployment_commit_rank = 1\n    and $__timeFilter(finished_date)\n)\n\nSELECT\n\tdate_format(last_few_calendar_days.day, '%Y-%m-%d') AS day,\n\tCOALESCE(COUNT(d.finished_date), 0) AS deployment_count\n  -- CASE \n  --     WHEN count(d.finished_date) > 0 THEN 1\n  --     ELSE 0 END\n  -- as is_deployment\nFROM last_few_calendar_days\nLEFT JOIN _deployments d ON last_few_calendar_days.day = DATE(d.finished_date)\n-- FROM _deployments\nGROUP BY 1\nORDER BY 1 DESC",
+          "rawSql": "-- Metric 1: Deployment Frequency\nWITH last_few_calendar_days AS (\n  -- Construct the last few calendar days within the selected time period in the top-right corner\n  SELECT CAST(($__timeTo() - INTERVAL (H + T + U) DAY) AS date) AS day\n  FROM (\n    SELECT 0 H\n    UNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n  ) H\n  CROSS JOIN (\n    SELECT 0 T\n    UNION ALL SELECT 10 UNION ALL SELECT 20 UNION ALL SELECT 30\n    UNION ALL SELECT 40 UNION ALL SELECT 50 UNION ALL SELECT 60\n    UNION ALL SELECT 70 UNION ALL SELECT 80 UNION ALL SELECT 90\n  ) T\n  CROSS JOIN (\n    SELECT 0 U\n    UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3\n    UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6\n    UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9\n  ) U\n  WHERE ($__timeTo() - INTERVAL (H + T + U) DAY) > $__timeFrom()\n),\n\n_deployment_commit_rank as(\n  SELECT\n  \tpm.project_name,\n  \tIF(cdc._raw_data_table != '', cdc._raw_data_table, cdc.cicd_scope_id) as _raw_data_table,\n  \tcdc.id,\n  \tcdc.cicd_deployment_id,\n  \tcdc.cicd_scope_id,\n  \tresult,\n  \tenvironment,\n    finished_date,\n    row_number() over(partition by cdc.cicd_deployment_id order by finished_date desc) as _deployment_commit_rank\n  FROM cicd_deployment_commits cdc\n  left join project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n  \tand result = 'SUCCESS'\n  \tand environment = 'PRODUCTION'\n),\n\n_deployments as (\n  SELECT \n    project_name, \n    cicd_deployment_id as deployment_id,\n    -- a deployment may have multiple deployment_commits\n    id as deployment_commit_id, \n    result,\n    environment,\n    finished_date\n  FROM _deployment_commit_rank\n  WHERE \n    _deployment_commit_rank = 1\n    and $__timeFilter(finished_date)\n)\n\nSELECT\n\tdate_format(last_few_calendar_days.day, '%Y-%m-%d') AS day,\n\tCOALESCE(COUNT(d.finished_date), 0) AS successful_deployments_to_prod\nFROM last_few_calendar_days\nLEFT JOIN _deployments d ON last_few_calendar_days.day = DATE(d.finished_date)\nGROUP BY 1\nORDER BY 1 DESC",
           "refId": "A",
           "select": [
             [
@@ -379,9 +424,10 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-GrYlRd"
+            "mode": "thresholds"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -422,10 +468,9 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 21
       },
       "id": 74,
-      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.7,
@@ -510,6 +555,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -550,10 +596,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 25
+        "y": 29
       },
       "id": 76,
-      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.7,
@@ -639,6 +684,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -679,10 +725,9 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 25
+        "y": 29
       },
       "id": 77,
-      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.7,
@@ -767,7 +812,7 @@
         "h": 9,
         "w": 6,
         "x": 0,
-        "y": 33
+        "y": 37
       },
       "id": 93,
       "options": {
@@ -779,7 +824,7 @@
         "content": "# 2023 Benchmarks\n- Elite: >= 7 days per week\n- High: >= 1 day per week\n- Medium: >= 1 day per month\n- Low: < 1 day per month\n# 2021 Benchmarks\n- Elite: >= 7 days per week\n- High: >= 1 day per month\n- Medium: >= 1 day per six months\n- Low: < 1 day per six months",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "10.4.1",
       "title": "DORA Report",
       "type": "text"
     },
@@ -850,10 +895,9 @@
         "h": 9,
         "w": 6,
         "x": 6,
-        "y": 33
+        "y": 37
       },
       "id": 90,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -864,9 +908,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -987,10 +1033,9 @@
         "h": 9,
         "w": 6,
         "x": 12,
-        "y": 33
+        "y": 37
       },
       "id": 91,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1001,9 +1046,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -1124,10 +1171,9 @@
         "h": 9,
         "w": 6,
         "x": 18,
-        "y": 33
+        "y": 37
       },
       "id": 92,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1138,9 +1184,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": "mysql",
@@ -1196,8 +1244,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
     "DORA"
   ],
@@ -1205,12 +1252,16 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
-        "datasource": "mysql",
-                  "definition": "select distinct name from projects",
+         "datasource": "mysql",
+        "definition": "select distinct name from projects",
         "hide": 0,
         "includeAll": true,
         "label": "Project",
@@ -1230,8 +1281,8 @@
           "text": "2023",
           "value": "2023"
         },
-        "datasource": "mysql",
-                  "definition": "select dora_report from dora_benchmarks",
+         "datasource": "mysql",
+        "definition": "select dora_report from dora_benchmarks",
         "hide": 0,
         "includeAll": false,
         "label": "DORA Report",
@@ -1251,8 +1302,8 @@
           "text": "Failed Deployment Recovery Time",
           "value": "Failed Deployment Recovery Time"
         },
-        "datasource": "mysql",
-                  "definition": "SELECT \n  CASE \n    WHEN dora_report = '2023' THEN \"Failed Deployment Recovery Time\"\n    WHEN dora_report = '2021' THEN \"Median Time to Restore Service\"\n    ELSE NULL \n  END AS title_value\nFROM dora_benchmarks\nWHERE dora_report = '${dora_report:raw}'",
+         "datasource": "mysql",
+        "definition": "SELECT \n  CASE \n    WHEN dora_report = '2023' THEN \"Failed Deployment Recovery Time\"\n    WHEN dora_report = '2021' THEN \"Median Time to Restore Service\"\n    ELSE NULL \n  END AS title_value\nFROM dora_benchmarks\nWHERE dora_report = '${dora_report:raw}'",
         "hide": 2,
         "includeAll": false,
         "label": "TitleValue",
@@ -1276,6 +1327,6 @@
   "timezone": "",
   "title": "DORA Details - Deployment Frequency",
   "uid": "Deployment-frequency",
-  "version": 6,
+  "version": 8,
   "weekStart": ""
 }

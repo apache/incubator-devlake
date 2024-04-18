@@ -18,8 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"testing"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
@@ -92,6 +93,8 @@ func TestDeloymentsDataFlow(t *testing.T) {
 			"original_result",
 			"original_status",
 			"environment",
+			"display_title",
+			"url",
 		},
 	)
 	dataflowTester.VerifyTable(
@@ -106,6 +109,8 @@ func TestDeloymentsDataFlow(t *testing.T) {
 			"original_status",
 			"environment",
 			"original_environment",
+			"display_title",
+			"url",
 		},
 	)
 }

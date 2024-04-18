@@ -113,6 +113,7 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 							CommitSha:    sha,
 							RepoUrl:      url,
 							Branch:       branch,
+							Number:       body.Number,
 						}
 						results = append(results, &buildCommitRemoteUrl)
 					}

@@ -111,5 +111,6 @@ func All() []plugin.MigrationScript {
 		new(addSubtabknameToDeployment),
 		new(addStore),
 		new(addSubtaskField),
+		new(addDisplayTitleAndUrl),
 	}
 }

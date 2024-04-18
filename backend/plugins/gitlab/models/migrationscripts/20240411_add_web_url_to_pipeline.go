@@ -18,23 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyAllEntities),
-		new(modifyJenkinsBuild),
-		new(addJobFields),
-		new(addJobPathForBuilds),
-		new(changeIndexOfJobPath),
-		new(addTransformationRule20221128),
-		new(addFullNameForBuilds),
-		new(addConnectionIdToTransformationRule),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addNumberToJenkinsBuildCommit),
-	}
+type addWebUrlToGitlabPipelineProject struct{}
+
+type gitlabPipelineProject20240411 struct {
+	WebUrl string
+}
+
+func (gitlabPipelineProject20240411) TableName() string {
+	return "_tool_gitlab_pipeline_projects"
+}
+
+func (u *addWebUrlToGitlabPipelineProject) Up(baseRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(baseRes, &gitlabPipelineProject20240411{})
+}
+
+func (*addWebUrlToGitlabPipelineProject) Version() uint64 {
+	return 20240411150359
+}
+
+func (*addWebUrlToGitlabPipelineProject) Name() string {
+	return "add web url to gitlab pipeline projects"
 }

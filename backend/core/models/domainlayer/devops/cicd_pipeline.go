@@ -18,8 +18,9 @@ limitations under the License.
 package devops
 
 import (
-	"github.com/spf13/cast"
 	"strings"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
@@ -27,6 +28,8 @@ import (
 type CICDPipeline struct {
 	domainlayer.DomainEntity
 	Name              string `gorm:"type:varchar(255)"`
+	DisplayTitle      string
+	Url               string
 	Result            string `gorm:"type:varchar(100)"`
 	Status            string `gorm:"type:varchar(100)"`
 	OriginalStatus    string `gorm:"type:varchar(100)"`

@@ -103,6 +103,8 @@ func ConvertDetailPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Environment:       gitlabPipeline.Environment,
 				Type:              gitlabPipeline.Type,
 				DurationSec:       float64(gitlabPipeline.Duration),
+				// DisplayTitle:      gitlabPipeline.Ref,
+				Url: gitlabPipeline.WebUrl,
 			}
 			return []interface{}{
 				domainPipeline,

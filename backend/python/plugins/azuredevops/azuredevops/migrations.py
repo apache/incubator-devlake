@@ -199,3 +199,9 @@ def add_updated_date_field_in_tool_azuredevops_gitrepositories(b: MigrationScrip
     table = "_tool_azuredevops_gitrepositories"
     b.execute(f'ALTER TABLE {table} add COLUMN updated_date datetime(3) DEFAULT NULL', Dialect.MYSQL)
     b.execute(f'ALTER TABLE {table} add COLUMN updated_date TIMESTAMPTZ DEFAULT NULL', Dialect.POSTGRESQL)
+
+@migration(20240415163000, name="add queue_time field in _tool_azuredevops_builds")
+def add_queue_time_field_in_tool_azuredevops_builds(b: MigrationScriptBuilder):
+    table = '_tool_azuredevops_builds'
+    b.add_column(table, 'display_title', 'TEXT')
+    b.add_column(table, 'url', 'TEXT')

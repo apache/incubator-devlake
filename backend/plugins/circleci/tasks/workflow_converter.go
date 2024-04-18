@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -80,8 +81,9 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
 					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
-				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
-				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
+				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
+				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
+				DisplayTitle: fmt.Sprintf("%s#%d", userTool.Name, userTool.PipelineNumber),
 			}
 			result := make([]interface{}, 0, 2)
 			result = append(result, pipeline)
@@ -91,11 +93,12 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 			if p, err := findPipelineById(db, userTool.PipelineId); err == nil {
 				if p.Vcs.Revision != "" {
 					result = append(result, &devops.CiCDPipelineCommit{
-						PipelineId: pipeline.Id,
-						CommitSha:  p.Vcs.Revision,
-						Branch:     p.Vcs.Branch,
-						RepoId:     p.Vcs.OriginRepositoryUrl,
-						RepoUrl:    p.Vcs.OriginRepositoryUrl,
+						PipelineId:   pipeline.Id,
+						CommitSha:    p.Vcs.Revision,
+						Branch:       p.Vcs.Branch,
+						RepoId:       p.Vcs.OriginRepositoryUrl,
+						RepoUrl:      p.Vcs.OriginRepositoryUrl,
+						DisplayTitle: pipeline.DisplayTitle,
 					})
 				}
 			}
