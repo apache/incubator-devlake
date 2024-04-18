@@ -16,43 +16,47 @@
  *
  */
 
-import { useEffect } from 'react';
+import { ChangeEvent, useEffect } from 'react';
 import { Input } from 'antd';
 
 import { Block } from '@/components';
 
 interface Props {
-  type: 'create' | 'update';
-  label?: string;
-  subLabel?: string;
-  initialValue: string;
-  value: string;
+  initialValue: number;
+  value: number;
   error: string;
-  setValue: (value?: string) => void;
-  setError: (value?: string) => void;
+  setValue: (value: number) => void;
+  setError: (value: string) => void;
 }
 
-export const ConnectionToken = ({ type, label, subLabel, initialValue, value, setValue, setError }: Props) => {
+export const CompanyId = ({ initialValue, value, setValue, setError }: Props) => {
   useEffect(() => {
-    setValue(type === 'create' ? initialValue : undefined);
-  }, [type, initialValue]);
+    setValue(initialValue);
+  }, [initialValue]);
 
   useEffect(() => {
-    setError(type === 'create' && !value ? 'token is required' : undefined);
-  }, [type, value]);
+    let error = '';
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
+    if (!value) {
+      error = 'company id is required';
+    } else if (!/\d/.test(value.toString())) {
+      error = 'company id is a number';
+    }
+
+    setError(error);
+  }, [value]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = +e.target.value;
+
+    if (typeof value === 'number' && !isNaN(value)) {
+      setValue(value);
+    }
   };
 
   return (
-    <Block title={label ?? 'Token'} description={subLabel ? subLabel : null} required>
-      <Input
-        style={{ width: 386 }}
-        placeholder={type === 'update' ? '********' : 'Your Token'}
-        value={value}
-        onChange={handleChange}
-      />
+    <Block title="Company ID" description="" required>
+      <Input style={{ width: 386 }} placeholder="Company ID" value={value} onChange={handleChange} />
     </Block>
   );
 };

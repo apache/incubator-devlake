@@ -28,6 +28,7 @@ export interface IConnectionAPI {
   secretKey?: string;
   dbUrl?: string;
   enableGraphql?: boolean;
+  companyId?: number;
   proxy: string;
   rateLimitPerHour?: number;
 }
@@ -81,6 +82,7 @@ export interface IConnection {
   secretKey?: string;
   dbUrl?: string;
   enableGraphql?: boolean;
+  companyId?: number;
   proxy: string;
   rateLimitPerHour?: number;
 }

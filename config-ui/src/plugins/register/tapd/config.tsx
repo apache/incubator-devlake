@@ -20,7 +20,7 @@ import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 import { IPluginConfig } from '@/types';
 
-import { DataScope } from './data-scope';
+import { CompanyId } from './connection-fields';
 import Icon from './assets/icon.svg?react';
 
 export const TAPDConfig: IPluginConfig = {
@@ -56,6 +56,16 @@ export const TAPDConfig: IPluginConfig = {
         label: 'API Token',
         placeholder: 'Your API Token',
       },
+      ({ initialValues, values, errors, setValues, setErrors }: any) => (
+        <CompanyId
+          key="companyId"
+          initialValue={initialValues.companyId}
+          value={values.companyId}
+          error={errors.companyId}
+          setValue={(value) => setValues({ companyId: value })}
+          setError={(error) => setErrors({ companyId: error })}
+        />
+      ),
       'proxy',
       {
         key: 'rateLimitPerHour',
@@ -68,7 +78,10 @@ export const TAPDConfig: IPluginConfig = {
     ],
   },
   dataScope: {
-    render: ({ ...props }: any) => <DataScope {...props} />,
+    title: 'Workspaces',
+    millerColumn: {
+      columnCount: 2.5,
+    },
   },
   scopeConfig: {
     entities: ['TICKET', 'CROSS'],
