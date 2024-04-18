@@ -103,7 +103,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Description Forward API requests to the specified remote server
 // @Param connectionId path int true "connection ID"
 // @Param path path string true "path to a API endpoint"
-// @Tags plugins/circle
+// @Tags plugins/circleci
 // @Router /plugins/bitbucket/connections/{connectionId}/proxy/{path} [GET]
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raProxy.Proxy(input)
