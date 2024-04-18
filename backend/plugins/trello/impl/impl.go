@@ -99,10 +99,7 @@ func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.Default.Wrap(err, "Trello plugin could not decode options")
 	}
 	if op.BoardId == "" {
-		if op.ScopeId == "" {
-			return nil, errors.BadInput.New("one of boardId and scopeId is required")
-		}
-		op.BoardId = op.ScopeId
+		return nil, errors.BadInput.New("trello boardId is required")
 	}
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("trello connectionId is invalid")
@@ -175,22 +172,22 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.Proxy,
 		},
 		"connections/:connectionId/scope-configs": {
-			"POST": api.CreateScopeConfig,
+			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.UpdateScopeConfig,
+			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/scopes/:boardId": {
 			"GET":    api.GetScope,
-			"PATCH":  api.UpdateScope,
+			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
+			"PUT": api.PutScopes,
 		},
 	}
 }

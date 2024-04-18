@@ -26,36 +26,31 @@ import (
 )
 
 var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig]
 var basicRes context.BasicRes
-var scHelper *api.ScopeConfigHelper[models.TrelloScopeConfig, *models.TrelloScopeConfig]
+
+var dsHelper *api.DsHelper[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.TrelloConnection]
+
+// var raScopeList *api.DsRemoteApiScopeListHelper[models.TrelloConnection, models.TrelloBoard, srvhelper.NoPagintation]
+
+// var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.TrelloConnection, models.TrelloBoard]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
+	dsHelper = api.NewDataSourceHelper[
+		models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig,
+	](
+		br,
 		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "BoardId",
-		ScopeIdColumnName: "board_id",
-		RawScopeParamName: "BoardId",
-	}
-	scopeHelper = api.NewScopeHelper[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
+		[]string{"name"},
+		func(c models.TrelloConnection) models.TrelloConnection {
+			return c.Sanitize()
+		},
+		nil,
 		nil,
 	)
-	scHelper = api.NewScopeConfigHelper[models.TrelloScopeConfig, *models.TrelloScopeConfig](
-		basicRes,
-		vld,
-		p.Name(),
-	)
+	raProxy = api.NewDsRemoteApiProxyHelper[models.TrelloConnection](dsHelper.ConnApi.ModelApiHelper)
+	// raScopeList = api.NewDsRemoteApiScopeListHelper[models.TrelloConnection, models.TrelloBoard, srvhelper.NoPagintation](raProxy, listCircleciRemoteScopes)
+	// raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.TrelloConnection, models.TrelloBoard](raProxy, searchCircleciProjects)
 }

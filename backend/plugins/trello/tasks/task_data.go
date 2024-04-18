@@ -23,10 +23,9 @@ import (
 )
 
 type TrelloOptions struct {
-	ConnectionId  uint64 `json:"connectionId"`
-	BoardId       string `json:"boardId"`
-	ScopeId       string
-	ScopeConfigId uint64
+	ConnectionId  uint64 `json:"connectionId" mapstructure:"connectionId,omitempty"`
+	BoardId       string `json:"boardId" mapstructure:"boardId,omitempty"`
+	ScopeConfigId uint64 `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 }
 
 type TrelloTaskData struct {
