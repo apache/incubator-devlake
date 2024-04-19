@@ -23,6 +23,7 @@ import { theme, Layout, Modal } from 'antd';
 
 import API from '@/api';
 import { PageLoading } from '@/components';
+import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 
 import type { Record } from './context';
@@ -86,7 +87,7 @@ export const Onboard = ({ logo, title }: Props) => {
       content: 'You can get back to this session via the card on top of the Projects page.',
       icon: <ExclamationCircleOutlined />,
       okText: 'Confirm',
-      onOk: () => navigate('/'),
+      onOk: () => navigate(PATHS.ROOT()),
     });
   };
 
