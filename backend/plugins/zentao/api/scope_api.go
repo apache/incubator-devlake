@@ -33,8 +33,8 @@ type ScopeDetail api.ScopeDetail[models.ZentaoProject, models.ZentaoScopeConfig]
 // @Tags plugins/zentao
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scope body ProjectScopeReq true "json"
-// @Success 200  {object} []ScopeDetails
+// @Param scope body PutScopesReqBody true "json"
+// @Success 200  {object} []models.ZentaoProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes [PUT]
@@ -65,7 +65,7 @@ func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 // @Param connectionId path int false "connection ID"
 // @Param searchTerm query string false "search term for scope name"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeDetails
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes [GET]
@@ -79,7 +79,7 @@ func GetScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 // @Tags plugins/zentao
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
-// @Success 200  {object} ProjectScopeRes
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/{scopeId} [GET]

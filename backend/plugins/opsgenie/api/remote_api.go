@@ -104,7 +104,7 @@ func listOpsgenieRemoteScopes(
 // @Param connectionId path int false "connection ID"
 // @Param groupId query string false "group ID"
 // @Param pageToken query string false "page Token"
-// @Success 200  {object} RemoteScopesOutput
+// @Success 200  {object} dsmodels.DsRemoteApiScopeList[models.Service]
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId}/remote-scopes [GET]
@@ -121,7 +121,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param search query string false "search"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
-// @Success 200  {object} SearchRemoteScopesOutput
+// @Success 200  {object} dsmodels.DsRemoteApiScopeList[models.Service]
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/opsgenie/connections/{connectionId}/search-remote-scopes [GET]
