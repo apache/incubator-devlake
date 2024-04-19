@@ -24,29 +24,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 )
 
-type ScopeRes struct {
-	models.Service
-	api.ScopeResDoc[any]
-}
+type PutScopesReqBody api.PutScopesReqBody[models.Service]
+type ScopeDetail api.ScopeDetail[models.Service, models.PagerdutyScopeConfig]
 
-type ScopeReq api.ScopeReq[models.Service]
-
-// PutScope create or update pagerduty service
+// PutScopes create or update pagerduty service
 // @Summary create or update pagerduty service
 // @Description Create or update pagerduty service
 // @Tags plugins/pagerduty
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scope body ScopeReq true "json"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes [PUT]
-func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
-// UpdateScope patch to pagerduty service
+// PatchScope patch to pagerduty service
 // @Summary patch to pagerduty service
 // @Description patch to pagerduty service
 // @Tags plugins/pagerduty
@@ -58,8 +54,8 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/{serviceId} [PATCH]
-func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.Patch(input)
 }
 
 // GetScopeList get PagerDuty repos
@@ -71,12 +67,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
 // GetScope get one PagerDuty service
@@ -86,12 +82,12 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param connectionId path int true "connection ID"
 // @Param serviceId path int true "service ID"
 // @Param blueprints query bool false "also return blueprints using this scope as part of the payload"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/{serviceId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -107,5 +103,5 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/{serviceId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }

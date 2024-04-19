@@ -204,7 +204,7 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
+			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,

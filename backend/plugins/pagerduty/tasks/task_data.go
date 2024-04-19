@@ -24,11 +24,11 @@ import (
 )
 
 type PagerDutyOptions struct {
-	ConnectionId uint64   `json:"connectionId"`
-	ServiceId    string   `json:"service_id,omitempty"`
-	ServiceName  string   `json:"service_name,omitempty"`
-	Tasks        []string `json:"tasks,omitempty"`
-	*models.PagerdutyScopeConfig
+	ConnectionId  uint64                       `json:"connectionId" mapstructure:"connectionId,omitempty"`
+	ServiceId     string                       `json:"serviceId,omitempty" mapstructure:"serviceId,omitempty"`
+	ServiceName   string                       `json:"serviceName,omitempty" mapstructure:"serviceName,omitempty"`
+	ScopeConfigId uint64                       `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
+	ScopeConfig   *models.PagerdutyScopeConfig `json:"service_name,omitempty" mapstructure:"serviceName,omitempty"`
 }
 
 type PagerDutyTaskData struct {

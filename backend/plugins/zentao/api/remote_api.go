@@ -102,7 +102,7 @@ func listZentaoRemoteScopes(
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return raScopeList.GetAll(input)
+	return raScopeList.Get(input)
 }
 
 // @Summary Remote server API proxy

@@ -26,38 +26,17 @@ import (
 )
 
 var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-
-var scopeHelper *api.ScopeApiHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig]
-var dsHelper *api.DsHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig]
-
 var basicRes context.BasicRes
 
+var dsHelper *api.DsHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig]
+var raProxy *api.DsRemoteApiProxyHelper[models.PagerDutyConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.PagerDutyConnection, models.Service, PagerdutyRemotePagination]
+
+var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.PagerDutyConnection, models.Service]
+
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
-	basicRes = br
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "Id",
-		ScopeIdColumnName:    "id",
-		RawScopeParamName:    "ScopeId",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = api.NewScopeHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
-		&api.ScopeHelperOptions{},
-	)
-
+	basicRes = br
 	dsHelper = api.NewDataSourceHelper[
 		models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig,
 	](
@@ -70,5 +49,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 		nil,
 	)
-
+	raProxy = api.NewDsRemoteApiProxyHelper[models.PagerDutyConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[models.PagerDutyConnection, models.Service, PagerdutyRemotePagination](raProxy, listPagerdutyRemoteScopes)
+	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.PagerDutyConnection, models.Service](raProxy, searchPagerdutyRemoteScopes)
 }
