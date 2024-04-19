@@ -18,41 +18,16 @@ limitations under the License.
 package api
 
 import (
-	"context"
-	"io"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-// Proxy is a proxy to Zentao API
-// @Summary Proxy to Zentao API
-// @Description Proxy to Zentao API
-// @Tags plugins/zentao
+// @Summary Remote server API proxy
+// @Description Forward API requests to the specified remote server
 // @Param connectionId path int true "connection ID"
-// @Param path path string true "path to Zentao API"
-// @Router /plugins/zentao/connections/{connectionId}/proxy/{path} [GET]
+// @Param path path string true "path to a API endpoint"
+// @Tags plugins/trello
+// @Router /plugins/bitbucket/connections/{connectionId}/proxy/{path} [GET]
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.ZentaoConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := apiClient.Get(input.Params["path"], input.Query, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := errors.Convert01(io.ReadAll(resp.Body))
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Status: resp.StatusCode, ContentType: resp.Header.Get("Content-Type"), Body: body}, nil
+	return raProxy.Proxy(input)
 }

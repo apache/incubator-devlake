@@ -19,9 +19,10 @@ package api
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/core/runner"
 	"net/http"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/runner"
 
 	"github.com/apache/incubator-devlake/server/api/shared"
 
@@ -107,8 +108,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.ZentaoConnection{}
-	err := connectionHelper.First(connection, input.Params)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "find connection from db")
 	}
@@ -131,13 +131,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// update from request and save to database
-	connection := &models.ZentaoConnection{}
-	err := connectionHelper.Create(connection, input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.Post(input)
 }
 
 // @Summary patch zentao connection
@@ -149,17 +143,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	existedConnection := models.ZentaoConnection{}
-	if err := connectionHelper.First(&existedConnection, input.Params); err != nil {
-		return nil, err
-	}
-	if err := (&models.ZentaoConnection{}).MergeFromRequest(&existedConnection, input.Body); err != nil {
-		return nil, errors.Convert(err)
-	}
-	if err := connectionHelper.SaveWithCreateOrUpdate(&existedConnection); err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: existedConnection.Sanitize()}, nil
+	return dsHelper.ConnApi.Patch(input)
 }
 
 // @Summary delete a zentao connection
@@ -171,13 +155,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	conn := &models.ZentaoConnection{}
-	output, err := connectionHelper.Delete(conn, input)
-	if err != nil {
-		return output, err
-	}
-	output.Body = conn.Sanitize()
-	return output, nil
+	return dsHelper.ConnApi.Delete(input)
 }
 
 // @Summary get all zentao connections
@@ -188,15 +166,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connections []models.ZentaoConnection
-	err := connectionHelper.List(&connections)
-	if err != nil {
-		return nil, err
-	}
-	for idx, c := range connections {
-		connections[idx] = c.Sanitize()
-	}
-	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.GetAll(input)
 }
 
 // @Summary get zentao connection detail
@@ -207,7 +177,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.ZentaoConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
+	return dsHelper.ConnApi.GetDetail(input)
 }

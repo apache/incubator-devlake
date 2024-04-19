@@ -15,37 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package migrationscripts
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/plugins/trello/models"
-	"io"
-
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.TrelloConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := apiClient.Get(input.Params["path"], input.Query, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+var _ plugin.MigrationScript = (*addScopeConfigId)(nil)
 
-	body, err := errors.Convert01(io.ReadAll(resp.Body))
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Status: resp.StatusCode, ContentType: resp.Header.Get("Content-Type"), Body: body}, nil
+type project20240417 struct {
+	ScopeConfigId uint64
+}
+
+func (project20240417) TableName() string {
+	return "_tool_teambition_projects"
+}
+
+type addScopeConfigId struct{}
+
+func (*addScopeConfigId) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &project20240417{})
+}
+
+func (*addScopeConfigId) Version() uint64 {
+	return 20240417165745
+}
+
+func (*addScopeConfigId) Name() string {
+	return "add scope_config_id to scope table"
 }

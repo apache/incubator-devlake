@@ -18,75 +18,81 @@ limitations under the License.
 package api
 
 import (
-	"net/http"
+	"fmt"
+	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/plugins/circleci/models"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-type RemoteProject struct {
-	Id    string `json:"id"`
-	Name  string `json:"name"`
-	OrgId string `json:"org_id"`
-	Slug  string `json:"slug"`
+type ZentaoRemotePagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
 }
 
-// ConvertApiScope implements plugin.ApiScope.
-func (c RemoteProject) ConvertApiScope() *models.CircleciProject {
-	return &models.CircleciProject{
-		Id:             c.Id,
-		Name:           c.Name,
-		OrganizationId: c.OrgId,
-		Slug:           c.Slug,
-	}
+type ZentaoRemoteProjects struct {
+	ZentaoRemotePagination
+	Total  int                    `json:"total"`
+	Values []models.ZentaoProject `json:"projects"`
 }
 
-func listCircleciRemoteScopes(
-	connection *models.CircleciConnection,
+func listZentaoRemoteScopes(
+	connection *models.ZentaoConnection,
 	apiClient plugin.ApiClient,
 	groupId string,
-	page srvhelper.NoPagintation,
+	page ZentaoRemotePagination,
 ) (
-	children []dsmodels.DsRemoteApiScopeListEntry[models.CircleciProject],
-	nextPage *srvhelper.NoPagintation,
+	children []dsmodels.DsRemoteApiScopeListEntry[models.ZentaoProject],
+	nextPage *ZentaoRemotePagination,
 	err errors.Error,
 ) {
-	// create api client
-	res, err := apiClient.Get("private/me", nil, http.Header{
-		"Accept": []string{"application/json"},
-	})
+	if page.Page == 0 {
+		page.Page = 1
+	}
+	if page.Limit == 0 {
+		page.Limit = 20
+	}
+	// list projects part
+	res, err := apiClient.Get("/projects", url.Values{
+		"page":  {fmt.Sprintf("%d", page.Page)},
+		"limit": {fmt.Sprintf("%d", page.Limit)},
+	}, nil)
 	if err != nil {
-		return nil, nil, err
+		return
 	}
-
-	var projects struct {
-		FollowedProjects []RemoteProject `json:"followed_projects"`
-	}
-	err = api.UnmarshalResponse(res, &projects)
+	// parse response body
+	resBody := &ZentaoRemoteProjects{}
+	err = api.UnmarshalResponse(res, resBody)
 	if err != nil {
-		return nil, nil, err
+		return
 	}
-	for _, p := range projects.FollowedProjects {
-		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.CircleciProject]{
+	// cnvert to dsmodels.DsRemoteApiScopeListEntry
+	for _, p := range resBody.Values {
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.ZentaoProject]{
 			Type:     api.RAS_ENTRY_TYPE_SCOPE,
-			Id:       p.Id,
-			ParentId: nil,
+			Id:       fmt.Sprintf("%v", p.Id),
 			Name:     p.Name,
-			FullName: p.Slug,
-			Data:     p.ConvertApiScope(),
+			FullName: p.Name,
+			Data:     &p,
 		})
 	}
-	return children, nil, nil
+	// next page
+	if (resBody.Page-1)*resBody.Limit+len(resBody.Values) < resBody.Total {
+		nextPage = &ZentaoRemotePagination{
+			Page:  page.Page + 1,
+			Limit: page.Limit,
+		}
+	}
+	return
 }
 
 // RemoteScopes list all available scope for users
 // @Summary list all available scope for users
 // @Description list all available scope for users
-// @Tags plugins/circleci
+// @Tags plugins/zentao
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param groupId query string false "group ID"
@@ -94,17 +100,17 @@ func listCircleciRemoteScopes(
 // @Success 200  {object} api.RemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/circleci/connections/{connectionId}/remote-scopes [GET]
+// @Router /plugins/zentao/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return raScopeList.Get(input)
+	return raScopeList.GetAll(input)
 }
 
 // @Summary Remote server API proxy
 // @Description Forward API requests to the specified remote server
 // @Param connectionId path int true "connection ID"
 // @Param path path string true "path to a API endpoint"
-// @Tags plugins/circleci
-// @Router /plugins/bitbucket/connections/{connectionId}/proxy/{path} [GET]
+// @Tags plugins/zentao
+// @Router /plugins/zentao/connections/{connectionId}/proxy/{path} [GET]
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return raProxy.Proxy(input)
 }

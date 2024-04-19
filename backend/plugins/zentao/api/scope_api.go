@@ -24,29 +24,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-type ProjectScopeRes struct {
-	models.ZentaoProject
-	api.ScopeResDoc[models.ZentaoScopeConfig]
-}
+type PutScopesReqBody api.PutScopesReqBody[models.ZentaoProject]
+type ScopeDetail api.ScopeDetail[models.ZentaoProject, models.ZentaoScopeConfig]
 
-type ProjectScopeReq api.ScopeReq[models.ZentaoProject]
-
-// PutProjectScope create or update zentao projects
+// PutScopes create or update zentao projects
 // @Summary create or update zentao projects
 // @Description Create or update zentao projects
 // @Tags plugins/zentao
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scope body ProjectScopeReq true "json"
-// @Success 200  {object} []models.ZentaoProject
+// @Success 200  {object} []ScopeDetails
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes [PUT]
-func PutProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return projectScopeHelper.Put(input)
+func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
-// UpdateProjectScope patch to zentao project
+// PatchScope patch to zentao project
 // @Summary patch to zentao project
 // @Description patch to zentao project
 // @Tags plugins/zentao
@@ -58,26 +54,26 @@ func PutProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/{scopeId} [PATCH]
-func UpdateProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return projectScopeHelper.Update(input)
+func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.Patch(input)
 }
 
-// GetProjectScopeList get Gitlab projects
+// GetScopes get Gitlab projects
 // @Summary get Gitlab projects
 // @Description get Gitlab projects
 // @Tags plugins/gitlab
 // @Param connectionId path int false "connection ID"
 // @Param searchTerm query string false "search term for scope name"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ProjectScopeRes
+// @Success 200  {object} []ScopeDetails
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes [GET]
-func GetProjectScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return projectScopeHelper.GetScopeList(input)
+func GetScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
-// GetProjectScope get one project
+// GetScope get one project
 // @Summary get one project
 // @Description get one project
 // @Tags plugins/zentao
@@ -87,8 +83,8 @@ func GetProjectScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOut
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/{scopeId} [GET]
-func GetProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return projectScopeHelper.GetScope(input)
+func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteProjectScope delete plugin data associated with the scope and optionally the scope itself
@@ -104,5 +100,5 @@ func GetProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return projectScopeHelper.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }

@@ -18,16 +18,16 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/plugins/teambition/models"
+	"github.com/apache/incubator-devlake/plugins/teambition/tasks"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
 )
 
 func MakeDataSourcePipelinePlanV200(
@@ -53,8 +53,8 @@ func MakeDataSourcePipelinePlanV200(
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopeDetails []*srvhelper.ScopeDetail[models.ZentaoProject, models.ZentaoScopeConfig],
-	connection *models.ZentaoConnection,
+	scopeDetails []*srvhelper.ScopeDetail[models.TeambitionProject, srvhelper.NoScopeConfig],
+	connection *models.TeambitionConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
 	for i, scopeDetail := range scopeDetails {
@@ -63,13 +63,13 @@ func makePipelinePlanV200(
 			stage = coreModels.PipelineStage{}
 		}
 
-		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		scope := scopeDetail.Scope
 		// construct task options for circleci
 		task, err := helper.MakePipelinePlanTask(
-			"zentao",
+			"teambition",
 			subtaskMetas,
-			scopeConfig.Entities,
-			tasks.ZentaoOptions{
+			nil,
+			tasks.TeambitionOptions{
 				ConnectionId: connection.ID,
 				ProjectId:    scope.Id,
 			},
@@ -85,19 +85,20 @@ func makePipelinePlanV200(
 }
 
 func makeScopesV200(
-	scopeDetails []*srvhelper.ScopeDetail[models.ZentaoProject, models.ZentaoScopeConfig],
-	connection *models.ZentaoConnection,
+	scopeDetails []*srvhelper.ScopeDetail[models.TeambitionProject, srvhelper.NoScopeConfig],
+	connection *models.TeambitionConnection,
 ) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0, len(scopeDetails))
 
-	idgen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
+	idgen := didgen.NewDomainIdGenerator(&models.TeambitionProject{})
 	for _, scopeDetail := range scopeDetails {
-		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		scope, _ := scopeDetail.Scope, scopeDetail.ScopeConfig
 		id := idgen.Generate(connection.ID, scope.Id)
 
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			scopes = append(scopes, ticket.NewBoard(id, scope.Name))
-		}
+		// add cicd_scope to scopes
+		// if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
+		scopes = append(scopes, devops.NewCicdScope(id, scope.Name))
+		// }
 	}
 
 	return scopes, nil
