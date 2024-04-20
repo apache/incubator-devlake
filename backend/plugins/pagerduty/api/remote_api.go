@@ -159,5 +159,15 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return RemoteScopes(input)
+	return raScopeSearch.Get(input)
+}
+
+// @Summary Remote server API proxy
+// @Description Forward API requests to the specified remote server
+// @Param connectionId path int true "connection ID"
+// @Param path path string true "path to a API endpoint"
+// @Tags plugins/github
+// @Router /plugins/github/connections/{connectionId}/proxy/{path} [GET]
+func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return raProxy.Proxy(input)
 }
