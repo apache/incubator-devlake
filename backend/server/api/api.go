@@ -93,6 +93,8 @@ func CreateApiServer() *gin.Engine {
 func SetupApiServer(router *gin.Engine) {
 	// Set gin mode
 	gin.SetMode(basicRes.GetConfig("MODE"))
+	router.UseRawPath = true
+	// router.UnescapePathValues = false
 
 	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
