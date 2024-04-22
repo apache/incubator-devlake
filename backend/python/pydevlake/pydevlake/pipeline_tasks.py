@@ -21,7 +21,7 @@ from pydantic import BaseModel
 from pydevlake.message import PipelineTask
 
 
-def gitextractor(url: str, repo_name: str, scope_id: str, proxy: Optional[str]):
+def gitextractor(url: str, repo_name: str, scope_id: str, proxy: Optional[str], no_shallow_clone: Optional[bool] = False):
     return PipelineTask(
         plugin="gitextractor",
         options={
@@ -29,7 +29,8 @@ def gitextractor(url: str, repo_name: str, scope_id: str, proxy: Optional[str]):
             "name": repo_name,
             "fullName": repo_name,
             "repoId": scope_id,
-            "proxy": proxy
+            "proxy": proxy,
+            "noShallowClone": no_shallow_clone,
         },
     )
 

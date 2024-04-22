@@ -25,7 +25,7 @@ type GitExtractorTaskData struct {
 	Options         *GitExtractorOptions
 	ParsedURL       *url.URL
 	GitRepo         RepoCollector
-	SkipAllSubtasks bool // skip all tasks without error if true
+	SkipAllSubtasks bool // siliently skip all tasks without raising error
 }
 
 type GitExtractorOptions struct {
@@ -40,4 +40,5 @@ type GitExtractorOptions struct {
 	UseGoGit        *bool  `json:"useGoGit" mapstructure:"useGoGit"`
 	SkipCommitStat  *bool  `json:"skipCommitStat" mapstructure:"skipCommitStat" comment:"skip all commit stat including added/deleted lines and commit files as well"`
 	SkipCommitFiles *bool  `json:"skipCommitFiles" mapstructure:"skipCommitFiles"`
+	NoShallowClone  bool   `json:"noShallowClone" mapstructure:"noShallowClone"`
 }

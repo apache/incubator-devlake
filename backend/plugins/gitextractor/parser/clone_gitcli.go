@@ -50,38 +50,45 @@ func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
 
 func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) errors.Error {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
-	// load state
-	stateManager, err := api.NewCollectorStateManager(
-		ctx,
-		ctx.TaskContext().SyncPolicy(),
-		"gitextractor",
-		fmt.Sprintf(
-			`{"RepoId: "%s","SkipCommitStat": %v, "SkipCommitFiles": %v}`,
-			taskData.Options.RepoId,
-			*taskData.Options.SkipCommitStat,
-			*taskData.Options.SkipCommitFiles,
-		),
-	)
-	if err != nil {
-		return err
+	var since *time.Time
+	if !taskData.Options.NoShallowClone {
+		// load state
+		stateManager, err := api.NewCollectorStateManager(
+			ctx,
+			ctx.TaskContext().SyncPolicy(),
+			"gitextractor",
+			fmt.Sprintf(
+				`{"RepoId: "%s","SkipCommitStat": %v, "SkipCommitFiles": %v}`,
+				taskData.Options.RepoId,
+				*taskData.Options.SkipCommitStat,
+				*taskData.Options.SkipCommitFiles,
+			),
+		)
+		if err != nil {
+			return err
+		}
+		g.stateManager = stateManager
+		since = stateManager.GetSince()
 	}
-	g.stateManager = stateManager
 
-	cmd, err := g.buildCloneCommand(ctx, localDir, g.stateManager.GetSince())
+	cmd, err := g.buildCloneCommand(ctx, localDir, since)
 	if err != nil {
 		return err
 	}
 	err = g.execCloneCommand(cmd)
 	if err != nil {
 		// it is likely that nothing to collect on incrmental mode
-		if errors.Is(err, ErrShallowInfoProcessing) && stateManager.IsIncremental() {
+		if errors.Is(err, ErrShallowInfoProcessing) && g.stateManager != nil && g.stateManager.IsIncremental() {
 			return ErrNoDataOnIncrementalMode
 		}
 		return err
 	}
 
 	// save state
-	return g.stateManager.Close()
+	if g.stateManager != nil {
+		return g.stateManager.Close()
+	}
+	return nil
 }
 
 func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir string, since *time.Time) (*exec.Cmd, errors.Error) {
