@@ -73,7 +73,8 @@ func testConnection(ctx context.Context, connection *models.CircleciConnection) 
 // @Router /plugins/circleci/test [POST]
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// process input
-	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
+	connection := &models.CircleciConnection{}
+	err := api.Decode(input.Body, connection, vld)
 	if err != nil {
 		return nil, err
 	}
