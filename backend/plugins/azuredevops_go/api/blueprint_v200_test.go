@@ -153,10 +153,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"proxy":  "",
-					"repoId": expectDomainScopeId,
-					"name":   azureDevOpsProjectName,
-					"url":    "https://git:personal-access-token@this_is_cloneUrl",
+					"proxy":          "",
+					"repoId":         expectDomainScopeId,
+					"name":           azureDevOpsProjectName,
+					"url":            "https://git:personal-access-token@this_is_cloneUrl",
+					"noShallowClone": true,
 				},
 			},
 		},
