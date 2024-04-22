@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
@@ -29,39 +30,38 @@ import (
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
 
+// for documentation purposes
 type ScopeRefDoc = serviceHelper.BlueprintProjectPairs
-
 type PutScopesReqBody[T any] struct {
 	Data []*T `json:"data"`
 }
-
-type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] srvhelper.ScopeDetail[S, SC]
-
-type DsScopeApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
-	*ModelApiHelper[S]
-	*srvhelper.ScopeSrvHelper[C, S, SC]
+type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
+	Scope       S                   `json:"scope"`
+	ScopeConfig *SC                 `json:"scopeConfig,omitempty"`
+	Blueprints  []*models.Blueprint `json:"blueprints,omitempty"`
 }
 
-func NewDsScopeApiHelper[
-	C plugin.ToolLayerConnection,
-	S plugin.ToolLayerScope,
-	SC plugin.ToolLayerScopeConfig](
+type DsScopeApiHelper struct {
+	*AnyModelApiHelper
+	*srvhelper.AnyScopeSrvHelper
+}
+
+func NewDsScopeApiHelper(
 	basicRes context.BasicRes,
-	srvHelper *srvhelper.ScopeSrvHelper[C, S, SC],
-	sterilizer func(s S) S,
-) *DsScopeApiHelper[C, S, SC] {
-	return &DsScopeApiHelper[C, S, SC]{
-		ModelApiHelper: NewModelApiHelper[S](basicRes, srvHelper.ModelSrvHelper, []string{"connectionId", "scopeId"}, sterilizer),
-		ScopeSrvHelper: srvHelper,
+	srvHelper *srvhelper.AnyScopeSrvHelper,
+) *DsScopeApiHelper {
+	return &DsScopeApiHelper{
+		AnyModelApiHelper: NewAnyModelApiHelper(basicRes, srvHelper.AnyModelSrvHelper, []string{"connectionId", "scopeId"}, nil),
+		AnyScopeSrvHelper: srvHelper,
 	}
 }
 
-func (scopeApi *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsScopeApiHelper) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	pagination, err := parsePagination[srvhelper.ScopePagination](input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "failed to decode pathvars into pagination")
 	}
-	scopes, count, err := scopeApi.ScopeSrvHelper.GetScopesPage(pagination)
+	scopes, count, err := scopeApi.GetScopesPageAny(pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -73,12 +73,12 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInp
 	}, nil
 }
 
-func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeDetail(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsScopeApiHelper) GetScopeDetail(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	pkv, err := scopeApi.ExtractPkValues(input)
 	if err != nil {
 		return nil, err
 	}
-	scopeDetail, err := scopeApi.ScopeSrvHelper.GetScopeDetail(input.Query.Get("blueprints") == "true", pkv...)
+	scopeDetail, err := scopeApi.GetScopeDetailAny(input.Query.Get("blueprints") == "true", pkv...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,12 +87,12 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeDetail(input *plugin.ApiReso
 	}, nil
 }
 
-func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsScopeApiHelper) GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	pkv, err := scopeApi.ExtractPkValues(input)
 	if err != nil {
 		return nil, err
 	}
-	scopeLatestSyncStates, err := scopeApi.ScopeSrvHelper.GetScopeLatestSyncState(pkv...)
+	scopeLatestSyncStates, err := scopeApi.GetScopeLatestSyncStateAny(pkv...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeLatestSyncState(input *plugi
 	}, nil
 }
 
-func (scopeApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsScopeApiHelper) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// fix data[].connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
@@ -118,10 +118,10 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourc
 		}
 		dict["connectionId"] = connectionId
 	}
-	return scopeApi.ModelApiHelper.PutMultipleCb(input, func(m *S) errors.Error {
+	return scopeApi.PutMultipleCb(input, func(m any) errors.Error {
 		ok := setRawDataOrigin(m, common.RawDataOrigin{
 			RawDataTable:  fmt.Sprintf("_raw_%s_scopes", scopeApi.GetPluginName()),
-			RawDataParams: plugin.MarshalScopeParams((*m).ScopeParams()),
+			RawDataParams: plugin.MarshalScopeParams(scopeApi.GetScopeParams(m)),
 		})
 		if !ok {
 			panic("set raw data origin failed")
@@ -130,15 +130,14 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourc
 	})
 }
 
-func (scopeApi *DsScopeApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var scope *S
-	scope, err := scopeApi.FindByPk(input)
+func (scopeApi *DsScopeApiHelper) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scope, err := scopeApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
 	}
 	// time.Sleep(1 * time.Minute) # uncomment this line if you were to verify pipelines get blocked while deleting data
 	// check referencing blueprints
-	refs, err := scopeApi.ScopeSrvHelper.DeleteScope(scope, input.Query.Get("delete_data_only") == "true")
+	refs, err := scopeApi.DeleteScopeAny(scope, input.Query.Get("delete_data_only") == "true")
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
 			Success: false,

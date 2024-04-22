@@ -22,16 +22,13 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
-	"github.com/go-playground/validator/v10"
 )
 
 var (
 	basicRes context.BasicRes
-	vld      *validator.Validate
 )
 
 func Init(br context.BasicRes) {
-	vld = validator.New()
 	basicRes = br
 }
 

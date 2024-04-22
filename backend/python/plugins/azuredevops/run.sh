@@ -17,4 +17,7 @@
 #
 
 cd "$(dirname "$0")"
+env >&2
+# [ -n "$VIRTUAL_ENV" ] && echo "Using virtualenv: $VIRTUAL_ENV" >&2 && . "$VIRTUAL_ENV/bin/activate"
+
 poetry run python azuredevops/main.py "$@"

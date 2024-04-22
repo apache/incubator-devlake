@@ -23,33 +23,31 @@ import (
 	"github.com/apache/incubator-devlake/server/api/shared"
 
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 )
 
-// DsConnectionApiHelper
-type DsConnectionApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
-	*ModelApiHelper[C]
-	*srvhelper.ConnectionSrvHelper[C, S, SC]
+// DsAnyConnectionApiHelper
+type DsAnyConnectionApiHelper struct {
+	*AnyModelApiHelper
+	*srvhelper.AnyConnectionSrvHelper
 }
 
-func NewDsConnectionApiHelper[
-	C plugin.ToolLayerConnection,
-	S plugin.ToolLayerScope,
-	SC plugin.ToolLayerScopeConfig](
+func NewAnyDsConnectionApiHelper(
 	basicRes context.BasicRes,
-	connSrvHelper *srvhelper.ConnectionSrvHelper[C, S, SC],
-	sterilizer func(c C) C,
-) *DsConnectionApiHelper[C, S, SC] {
-	return &DsConnectionApiHelper[C, S, SC]{
-		ModelApiHelper:      NewModelApiHelper[C](basicRes, connSrvHelper.ModelSrvHelper, []string{"connectionId"}, sterilizer),
-		ConnectionSrvHelper: connSrvHelper,
+	connSrvHelper *srvhelper.AnyConnectionSrvHelper,
+	sterilizer func(c any) any,
+) *DsAnyConnectionApiHelper {
+	return &DsAnyConnectionApiHelper{
+		AnyModelApiHelper:      NewAnyModelApiHelper(basicRes, connSrvHelper.AnyModelSrvHelper, []string{"connectionId"}, sterilizer),
+		AnyConnectionSrvHelper: connSrvHelper,
 	}
 }
 
-func (connApi *DsConnectionApiHelper[C, S, SC]) GetMergedConnection(input *plugin.ApiResourceInput) (*C, errors.Error) {
-	connection, err := connApi.FindByPk(input)
+func (connApi *DsAnyConnectionApiHelper) GetMergedConnectionAny(input *plugin.ApiResourceInput) (any, errors.Error) {
+	connection, err := connApi.FindByPkAny(input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "find connection from db")
 	}
@@ -61,13 +59,12 @@ func (connApi *DsConnectionApiHelper[C, S, SC]) GetMergedConnection(input *plugi
 	return connection, nil
 }
 
-func (connApi *DsConnectionApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
-	var conn *C
-	conn, err = connApi.FindByPk(input)
+func (connApi *DsAnyConnectionApiHelper) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+	conn, err := connApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
 	}
-	refs, err := connApi.ConnectionSrvHelper.DeleteConnection(conn)
+	refs, err := connApi.DeleteConnectionAny(conn)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
 			Success: false,
@@ -91,4 +88,23 @@ func extractConnectionId(input *plugin.ApiResourceInput) (uint64, errors.Error) 
 		return 0, errors.BadInput.Wrap(err, "connectionId must be a number")
 	}
 	return id, nil
+}
+
+type DsConnectionApiHelper[C dal.Tabler] struct {
+	*DsAnyConnectionApiHelper
+	*ModelApiHelper[C]
+}
+
+func NewDsConnectionApiHelper[C dal.Tabler](
+	anyConnectionApiHelper *DsAnyConnectionApiHelper,
+) *DsConnectionApiHelper[C] {
+	return &DsConnectionApiHelper[C]{
+		DsAnyConnectionApiHelper: anyConnectionApiHelper,
+		ModelApiHelper:           NewModelApiHelper[C](anyConnectionApiHelper.AnyModelApiHelper),
+	}
+}
+
+func (connApi *DsConnectionApiHelper[C]) GetMergedConnection(input *plugin.ApiResourceInput) (*C, errors.Error) {
+	connection, err := connApi.GetMergedConnectionAny(input)
+	return connection.(*C), err
 }

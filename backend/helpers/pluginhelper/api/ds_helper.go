@@ -33,11 +33,11 @@ type DsHelper[
 	SC plugin.ToolLayerScopeConfig,
 ] struct {
 	ConnSrv        *srvhelper.ConnectionSrvHelper[C, S, SC]
-	ConnApi        *DsConnectionApiHelper[C, S, SC]
+	ConnApi        *DsConnectionApiHelper[C]
 	ScopeSrv       *srvhelper.ScopeSrvHelper[C, S, SC]
-	ScopeApi       *DsScopeApiHelper[C, S, SC]
+	ScopeApi       *DsScopeApiHelper
 	ScopeConfigSrv *srvhelper.ScopeConfigSrvHelper[C, S, SC]
-	ScopeConfigApi *DsScopeConfigApiHelper[C, S, SC]
+	ScopeConfigApi *DsScopeConfigApiHelper
 }
 
 func NewDataSourceHelper[
@@ -53,16 +53,19 @@ func NewDataSourceHelper[
 	scopeConfigSterilizer func(s SC) SC,
 ) *DsHelper[C, S, SC] {
 	connSrv := srvhelper.NewConnectionSrvHelper[C, S, SC](basicRes, pluginName)
-	connApi := NewDsConnectionApiHelper[C, S, SC](basicRes, connSrv, connectionSterilizer)
+	connApiAny := NewAnyDsConnectionApiHelper(basicRes, connSrv.AnyConnectionSrvHelper, func(c any) any {
+		return connectionSterilizer(c.(C))
+	})
+	connApi := NewDsConnectionApiHelper[C](connApiAny)
 	scopeSrv := srvhelper.NewScopeSrvHelper[C, S, SC](basicRes, pluginName, scopeSearchColumns)
-	scopeApi := NewDsScopeApiHelper[C, S, SC](basicRes, scopeSrv, scopeSterilizer)
+	scopeApi := NewDsScopeApiHelper(basicRes, scopeSrv.AnyScopeSrvHelper)
 
 	var scSrv *srvhelper.ScopeConfigSrvHelper[C, S, SC]
-	var scApi *DsScopeConfigApiHelper[C, S, SC]
+	var scApi *DsScopeConfigApiHelper
 	scType := reflect.TypeOf(new(SC))
 	if scType != noScopeConfig {
 		scSrv = srvhelper.NewScopeConfigSrvHelper[C, S, SC](basicRes, scopeSearchColumns)
-		scApi = NewDsScopeConfigApiHelper[C, S, SC](basicRes, scSrv, scopeConfigSterilizer)
+		scApi = NewDsScopeConfigApiHelper(basicRes, scSrv.AnyScopeConfigSrvHelper)
 	}
 	return &DsHelper[C, S, SC]{
 		ConnSrv:        connSrv,

@@ -162,7 +162,7 @@ type Dal interface {
 	// RenameTable renames table name
 	RenameTable(oldName, newName string) errors.Error
 	// GetColumns returns table columns in database
-	GetColumns(dst Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
+	GetColumns(dst interface{}, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
 	// GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
 	// RenameColumn renames column name for specified table
@@ -252,7 +252,7 @@ func GetColumnNames(d Dal, dst Tabler, filter func(columnMeta ColumnMeta) bool) 
 }
 
 // GetPrimarykeyColumns get returns PrimaryKey table Meta in database
-func GetPrimarykeyColumns(d Dal, dst Tabler) ([]ColumnMeta, errors.Error) {
+func GetPrimarykeyColumns(d Dal, dst interface{}) ([]ColumnMeta, errors.Error) {
 	return d.GetColumns(dst, func(columnMeta ColumnMeta) bool {
 		isPrimaryKey, ok := columnMeta.PrimaryKey()
 		return isPrimaryKey && ok

@@ -19,21 +19,25 @@ package srvhelper
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// NoScopeConfig is a placeholder for plugins that don't have any scope configuration yet
-type NoScopeConfig struct{}
+type GenericScopeConfigModelInfo[SC plugin.ToolLayerScopeConfig] struct {
+	*GenericModelInfo[SC]
+}
 
-func (NoScopeConfig) TableName() string               { return "" }
-func (NoScopeConfig) ScopeConfigId() uint64           { return 0 }
-func (NoScopeConfig) ScopeConfigConnectionId() uint64 { return 0 }
+func (*GenericScopeConfigModelInfo[SC]) GetConnectionId(scopeConfig any) uint64 {
+	return scopeConfig.(plugin.ToolLayerScopeConfig).ScopeConfigConnectionId()
+}
+
+func (*GenericScopeConfigModelInfo[SC]) GetScopeConfigId(scopeConfig any) uint64 {
+	return scopeConfig.(plugin.ToolLayerScopeConfig).ScopeConfigId()
+}
 
 // ScopeConfigSrvHelper
 type ScopeConfigSrvHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
-	*ModelSrvHelper[SC]
+	*AnyScopeConfigSrvHelper
 }
 
 func NewScopeConfigSrvHelper[
@@ -42,32 +46,20 @@ func NewScopeConfigSrvHelper[
 	SC plugin.ToolLayerScopeConfig,
 ](basicRes context.BasicRes, searchColumns []string) *ScopeConfigSrvHelper[C, S, SC] {
 	return &ScopeConfigSrvHelper[C, S, SC]{
-		ModelSrvHelper: NewModelSrvHelper[SC](basicRes, searchColumns),
+		AnyScopeConfigSrvHelper: NewAnyScopeConfigSrvHelper(
+			basicRes,
+			&GenericScopeConfigModelInfo[SC]{},
+			&GenericScopeModelInfo[S]{},
+		),
 	}
 }
 
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(connectionId uint64) ([]*SC, errors.Error) {
-	var scopeConfigs []*SC
-	err := scopeConfigSrv.db.All(&scopeConfigs,
-		dal.Where("connection_id = ?", connectionId),
-		dal.Orderby("id DESC"),
-	)
-	return scopeConfigs, err
+	all, err := scopeConfigSrv.GetAllByConnectionIdAny(connectionId)
+	return all.([]*SC), err
 }
 
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) DeleteScopeConfig(scopeConfig *SC) (refs []*S, err errors.Error) {
-	err = scopeConfigSrv.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
-		// make sure no scope is using the scopeConfig
-		sc := *scopeConfig
-		errors.Must(tx.All(
-			&refs,
-			dal.Where("connection_id = ? AND scope_config_id = ?", sc.ScopeConfigConnectionId(), sc.ScopeConfigId()),
-		))
-		if len(refs) > 0 {
-			return errors.Conflict.New("Please delete all data scope(s) before you delete this ScopeConfig.")
-		}
-		errors.Must(tx.Delete(scopeConfig))
-		return nil
-	})
-	return
+	all, err := scopeConfigSrv.DeleteScopeConfigAny(scopeConfig)
+	return all.([]*S), err
 }

@@ -20,6 +20,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -33,56 +34,56 @@ import (
 
 var vld = validator.New()
 
-type ModelApiHelper[M dal.Tabler] struct {
+type AnyModelApiHelper struct {
+	*srvhelper.AnyModelSrvHelper
 	basicRes       context.BasicRes
-	dalHelper      *srvhelper.ModelSrvHelper[M]
 	log            log.Logger
 	modelName      string
 	pkPathVarNames []string
-	sterilizers    []func(m M) M
+	sterilizers    []func(m any) any
 }
 
-func NewModelApiHelper[M dal.Tabler](
+func NewAnyModelApiHelper(
 	basicRes context.BasicRes,
-	dalHelper *srvhelper.ModelSrvHelper[M],
+	srvHelper *srvhelper.AnyModelSrvHelper,
 	pkPathVarNames []string, // path variable names of primary key
-	sterilizer func(m M) M,
-) *ModelApiHelper[M] {
-	m := new(M)
+	sterilizer func(m any) any,
+) *AnyModelApiHelper {
+	m := srvHelper.New()
 	modelName := fmt.Sprintf("%T", m)
-	modelApiHelper := &ModelApiHelper[M]{
-		basicRes:       basicRes,
-		dalHelper:      dalHelper,
-		log:            basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
-		modelName:      modelName,
-		pkPathVarNames: pkPathVarNames,
+	modelApiHelper := &AnyModelApiHelper{
+		AnyModelSrvHelper: srvHelper,
+		basicRes:          basicRes,
+		log:               basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
+		modelName:         modelName,
+		pkPathVarNames:    pkPathVarNames,
 	}
 	if sterilizer != nil {
-		modelApiHelper.sterilizers = []func(m M) M{sterilizer}
+		modelApiHelper.sterilizers = []func(m any) any{sterilizer}
 	}
 	return modelApiHelper
 }
 
-func (self *ModelApiHelper[M]) Post(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	model := new(M)
+func (modelApi *AnyModelApiHelper) Post(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	model := modelApi.New()
 	err := utils.DecodeMapStruct(input.Body, model, false)
 	if err != nil {
 		return nil, err
 	}
-	err = self.dalHelper.Create(model)
+	err = modelApi.CreateAny(model)
 	if err != nil {
 		return nil, err
 	}
-	model = self.Sanitize(model)
+	model = modelApi.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Status: http.StatusCreated,
 		Body:   model,
 	}, nil
 }
 
-func (self *ModelApiHelper[M]) ExtractPkValues(input *plugin.ApiResourceInput) ([]interface{}, errors.Error) {
-	pkv := make([]interface{}, len(self.pkPathVarNames))
-	for i, pkn := range self.pkPathVarNames {
+func (modelApi *AnyModelApiHelper) ExtractPkValues(input *plugin.ApiResourceInput) ([]interface{}, errors.Error) {
+	pkv := make([]interface{}, len(modelApi.pkPathVarNames))
+	for i, pkn := range modelApi.pkPathVarNames {
 		var ok bool
 		pkv[i], ok = input.Params[pkn]
 		if !ok {
@@ -92,107 +93,108 @@ func (self *ModelApiHelper[M]) ExtractPkValues(input *plugin.ApiResourceInput) (
 	return pkv, nil
 }
 
-func (self *ModelApiHelper[M]) FindByPk(input *plugin.ApiResourceInput) (*M, errors.Error) {
-	pkv, err := self.ExtractPkValues(input)
+func (modelApi *AnyModelApiHelper) FindByPkAny(input *plugin.ApiResourceInput) (any, errors.Error) {
+	pkv, err := modelApi.ExtractPkValues(input)
 	if err != nil {
 		return nil, err
 	}
-	return self.dalHelper.FindByPk(pkv...)
+	return modelApi.AnyModelSrvHelper.FindByPkAny(pkv...)
 }
 
-func (self *ModelApiHelper[M]) GetDetail(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	model, err := self.FindByPk(input)
+func (modelApi *AnyModelApiHelper) GetDetail(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	model, err := modelApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
 	}
-	model = self.Sanitize(model)
+	model = modelApi.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
 }
 
-func (self *ModelApiHelper[M]) Sanitize(model *M) *M {
-	if self.sterilizers != nil {
-		for _, sterilizer := range self.sterilizers {
-			sanitizedModel := sterilizer(*model)
+func (modelApi *AnyModelApiHelper) Sanitize(model any) any {
+	if modelApi.sterilizers != nil {
+		for _, sterilizer := range modelApi.sterilizers {
+			sanitizedModel := sterilizer(model)
 			model = &sanitizedModel
 		}
 	}
 	return model
 }
 
-func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
-	for idx, m := range models {
-		model := *m
-		models[idx] = self.Sanitize(&model)
+func (modelApi *AnyModelApiHelper) BatchSanitize(models any) any {
+	array := reflect.ValueOf(models)
+	for i := 0; i < array.Len(); i++ {
+		model := array.Index(i)
+		model.Set(reflect.ValueOf(modelApi.Sanitize(model.Interface())))
 	}
 	return models
 }
 
-type CustomMerge[M dal.Tabler] interface {
-	MergeFromRequest(target *M, body map[string]interface{}) error
+type CustomMerge interface {
+	MergeFromRequest(target any, body map[string]interface{}) error
 }
 
-// PatchModel will get an "M" from database and try to merge update from request body
+// PatchModelAny will get an "M" from database and try to merge update from request body
 // zeroFields decides whether "M" will be zeroed if "M" doesn't implement CustomMerge.
-func (self *ModelApiHelper[M]) PatchModel(input *plugin.ApiResourceInput, zeroFields bool) (*M, error) {
-	model, err := self.FindByPk(input)
+func (modelApi *AnyModelApiHelper) PatchModel(input *plugin.ApiResourceInput, zeroFields bool) (any, error) {
+	model, err := modelApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
 	}
-	if v, ok := (interface{}(model)).(CustomMerge[M]); ok {
+	if v, ok := (model).(CustomMerge); ok {
 		if err := v.MergeFromRequest(model, input.Body); err != nil {
 			return nil, err
 		}
 	} else {
 		err = utils.DecodeMapStruct(input.Body, model, zeroFields)
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
+			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", modelApi.modelName))
 		}
 	}
 	return model, nil
 }
 
-func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	model, err := self.PatchModel(input, true)
+func (modelApi *AnyModelApiHelper) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	model, err := modelApi.PatchModel(input, true)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	if err := self.dalHelper.Update(model); err != nil {
+	if err := modelApi.UpdateAny(model); err != nil {
 		return nil, err
 	}
-	model = self.Sanitize(model)
+	model = modelApi.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
 }
 
-func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	model, err := self.FindByPk(input)
+func (modelApi *AnyModelApiHelper) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	model, err := modelApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
 	}
-	err = self.dalHelper.DeleteModel(model)
+	err = modelApi.DeleteModelAny(model)
 	if err != nil {
 		return nil, err
 	}
-	model = self.Sanitize(model)
+	model = modelApi.Sanitize(model)
 	return &plugin.ApiResourceOutput{
 		Body: model,
 	}, nil
 }
 
-func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	all, err := self.dalHelper.GetAll()
-	all = self.BatchSanitize(all)
+func (modelApi *AnyModelApiHelper) GetAll(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	all, err := modelApi.QueryAllAny()
+	all = modelApi.BatchSanitize(all)
 	return &plugin.ApiResourceOutput{
 		Body: all,
 	}, err
 }
 
-func (self *ModelApiHelper[M]) PutMultipleCb(input *plugin.ApiResourceInput, beforeSave func(*M) errors.Error) (*plugin.ApiResourceOutput, errors.Error) {
+func (modelApi *AnyModelApiHelper) PutMultipleCb(input *plugin.ApiResourceInput, beforeSave func(any) errors.Error) (*plugin.ApiResourceOutput, errors.Error) {
 	var req struct {
-		Data []*M `json:"data"`
+		Data []any `json:"data"`
 	}
 	err := utils.DecodeMapStruct(input.Body, &req, false)
 	if err != nil {
@@ -205,12 +207,13 @@ func (self *ModelApiHelper[M]) PutMultipleCb(input *plugin.ApiResourceInput, bef
 				return nil, err
 			}
 		}
-		err := self.dalHelper.CreateOrUpdate(item)
+		err := modelApi.CreateOrUpdateAny(item)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("failed to save item %d", i))
 		}
 	}
-	req.Data = self.BatchSanitize(req.Data)
+	// TODO
+	// req.Data = modelApi.BatchSanitize(req.Data)
 	return &plugin.ApiResourceOutput{
 		Body: req.Data,
 	}, nil
@@ -236,4 +239,21 @@ func parsePagination[P any](input *plugin.ApiResourceInput) (*P, errors.Error) {
 		return nil, errors.BadInput.Wrap(e, "invalid pagination parameters")
 	}
 	return pagination, nil
+}
+
+type ModelApiHelper[M dal.Tabler] struct {
+	apiHelper *AnyModelApiHelper
+}
+
+func NewModelApiHelper[M dal.Tabler](
+	anyModelApiHelper *AnyModelApiHelper,
+) *ModelApiHelper[M] {
+	return &ModelApiHelper[M]{
+		apiHelper: anyModelApiHelper,
+	}
+}
+
+func (modelApi *ModelApiHelper[M]) FindByPk(input *plugin.ApiResourceInput) (*M, errors.Error) {
+	model, err := modelApi.apiHelper.FindByPkAny(input)
+	return model.(*M), err
 }

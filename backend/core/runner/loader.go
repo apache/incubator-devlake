@@ -81,6 +81,7 @@ func LoadGoPlugins(basicRes context.BasicRes) errors.Error {
 }
 
 func LoadRemotePlugins(basicRes context.BasicRes) errors.Error {
+	logger := basicRes.GetLogger().Nested("remote-plugins")
 	remotePluginDir := basicRes.GetConfig("REMOTE_PLUGIN_DIR")
 	if remotePluginDir != "" {
 		basicRes.GetLogger().Info("Loading remote plugins")
@@ -94,6 +95,7 @@ func LoadRemotePlugins(basicRes context.BasicRes) errors.Error {
 				invoker := bridge.NewCmdInvoker(path)
 				result := invoker.Call("plugin-info", bridge.DefaultContext)
 				if result.Err != nil {
+					logger.Error(result.Err, "Error calling plugin-info")
 					return errors.Default.Wrap(result.Err, "Error calling plugin-info")
 				}
 				pluginInfo := &models.PluginInfo{}

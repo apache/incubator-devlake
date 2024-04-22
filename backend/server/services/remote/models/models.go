@@ -47,12 +47,6 @@ type PluginInfo struct {
 	Extension            PluginExtension         `json:"extension"`
 }
 
-// Type aliases used by the API helper for better readability
-type (
-	RemoteScopeConfig any
-	RemoteConnection  any
-)
-
 type DynamicModelInfo struct {
 	JsonSchema map[string]any `json:"json_schema" validate:"required"`
 	TableName  string         `json:"table_name" validate:"required"`
@@ -73,6 +67,13 @@ type ScopeModel struct {
 type ApiParams struct {
 	ConnectionId uint64
 	ScopeId      string
+}
+
+type RemoteConnection any
+
+func (d RemoteConnection) ConnectionId() uint64 {
+	return 0
+	// return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Id").Uint()
 }
 
 type DynamicScopeModel struct {
@@ -158,3 +159,15 @@ type ToolModel struct {
 }
 
 var _ plugin.ToolLayerScope = (*DynamicScopeModel)(nil)
+
+type RemoteScopeConfig struct {
+	models.DynamicTabler
+}
+
+func (d RemoteScopeConfig) ScopeConfigConnectionId() uint64 {
+	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("ConnectionId").Uint()
+}
+
+func (d RemoteScopeConfig) ScopeConfigId() uint64 {
+	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("ScopeConfigId").Uint()
+}

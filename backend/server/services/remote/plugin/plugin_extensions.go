@@ -44,8 +44,7 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	connection := p.connectionTabler.New()
-	err := p.connHelper.FirstById(connection, connectionId)
+	connection, err := p.dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}

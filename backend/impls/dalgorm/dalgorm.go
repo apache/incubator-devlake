@@ -294,8 +294,16 @@ func (d *Dalgorm) UpdateAllColumn(entity interface{}, clauses ...dal.Clause) err
 }
 
 // GetColumns FIXME ...
-func (d *Dalgorm) GetColumns(dst dal.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, _ errors.Error) {
-	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
+func (d *Dalgorm) GetColumns(dst interface{}, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, _ errors.Error) {
+	tableName := ""
+	if tabler, ok := dst.(dal.Tabler); ok {
+		tableName = tabler.TableName()
+	} else if tn, ok := dst.(string); ok {
+		tableName = tn
+	} else {
+		panic(fmt.Errorf("invalid dst: %v", dst))
+	}
+	columnTypes, err := d.db.Migrator().ColumnTypes(tableName)
 	if err != nil {
 		return nil, d.convertGormError(err)
 	}

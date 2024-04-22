@@ -26,64 +26,58 @@ import (
 )
 
 // DsScopeConfigApiHelper
-type DsScopeConfigApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
-	*ModelApiHelper[SC]
-	*srvhelper.ScopeConfigSrvHelper[C, S, SC]
+type DsScopeConfigApiHelper struct {
+	*AnyModelApiHelper
+	*srvhelper.AnyScopeConfigSrvHelper
 }
 
-func NewDsScopeConfigApiHelper[
-	C plugin.ToolLayerConnection,
-	S plugin.ToolLayerScope,
-	SC plugin.ToolLayerScopeConfig,
-](
+func NewDsScopeConfigApiHelper(
 	basicRes context.BasicRes,
-	dalHelper *srvhelper.ScopeConfigSrvHelper[C, S, SC],
-	sterilizer func(sc SC) SC,
-) *DsScopeConfigApiHelper[C, S, SC] {
-	return &DsScopeConfigApiHelper[C, S, SC]{
-		ModelApiHelper:       NewModelApiHelper[SC](basicRes, dalHelper.ModelSrvHelper, []string{"scopeConfigId"}, sterilizer),
-		ScopeConfigSrvHelper: dalHelper,
+	srvHelper *srvhelper.AnyScopeConfigSrvHelper,
+) *DsScopeConfigApiHelper {
+	return &DsScopeConfigApiHelper{
+		AnyModelApiHelper:       NewAnyModelApiHelper(basicRes, srvHelper.AnyModelSrvHelper, []string{"connectionId", "scopeId"}, nil),
+		AnyScopeConfigSrvHelper: srvHelper,
 	}
 }
 
-func (connApi *DsScopeConfigApiHelper[C, S, SC]) GetAll(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (scopeConfigApi *DsScopeConfigApiHelper) GetAll(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
 		return nil, err
 	}
-	scopeConfigs := errors.Must1(connApi.ScopeConfigSrvHelper.GetAllByConnectionId(connectionId))
+	scopeConfigs := errors.Must1(scopeConfigApi.GetAllByConnectionIdAny(connectionId))
 	return &plugin.ApiResourceOutput{
 		Body: scopeConfigs,
 	}, nil
 }
 
-func (connApi *DsScopeConfigApiHelper[C, S, SC]) Post(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (scopeConfigApi *DsScopeConfigApiHelper) Post(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	// fix connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
 		return nil, err
 	}
 	input.Body["connectionId"] = connectionId
-	return connApi.ModelApiHelper.Post(input)
+	return scopeConfigApi.AnyModelApiHelper.Post(input)
 }
 
-func (connApi *DsScopeConfigApiHelper[C, S, SC]) Patch(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (scopeConfigApi *DsScopeConfigApiHelper) Patch(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	// fix connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
 		return nil, err
 	}
 	input.Body["connectionId"] = connectionId
-	return connApi.ModelApiHelper.Patch(input)
+	return scopeConfigApi.AnyModelApiHelper.Patch(input)
 }
 
-func (connApi *DsScopeConfigApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
-	var scopeConfig *SC
-	scopeConfig, err = connApi.FindByPk(input)
+func (scopeConfigApi *DsScopeConfigApiHelper) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+	scopeConfig, err := scopeConfigApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
 	}
-	refs, err := connApi.ScopeConfigSrvHelper.DeleteScopeConfig(scopeConfig)
+	refs, err := scopeConfigApi.DeleteScopeConfigAny(scopeConfig)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
 			Success: false,

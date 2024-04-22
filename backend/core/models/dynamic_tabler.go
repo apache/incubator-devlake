@@ -33,6 +33,7 @@ type DynamicTabler interface {
 	dal.Tabler
 	json.Marshaler
 	json.Unmarshaler
+	ModelName() string
 	NewValue() any
 	New() DynamicTabler
 	NewSlice() DynamicTabler
@@ -55,6 +56,10 @@ func NewDynamicTabler(tableName string, objType reflect.Type) DynamicTabler {
 		objType: objType,
 		table:   tableName,
 	}
+}
+
+func (d *DynamicTablerImpl) ModelName() string {
+	return d.table
 }
 
 func (d *DynamicTablerImpl) NewValue() any {

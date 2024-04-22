@@ -19,7 +19,9 @@ package plugin
 
 import (
 	"fmt"
+	"reflect"
 
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -28,6 +30,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
+	remoteModel "github.com/apache/incubator-devlake/server/services/remote/models"
 	"github.com/apache/incubator-devlake/server/services/remote/models/migrationscripts"
 	"github.com/apache/incubator-devlake/server/services/remote/plugin/doc"
 )
@@ -46,7 +49,7 @@ type (
 		migrationScripts  []plugin.MigrationScript
 		resources         map[string]map[string]plugin.ApiResourceHandler
 		openApiSpec       string
-		connHelper        *api.ConnectionApiHelper
+		dsHelper          *api.DsHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig]
 	}
 	RemotePluginTaskData struct {
 		DbUrl       string                 `json:"db_url"`
@@ -91,12 +94,6 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		script := script
 		scripts = append(scripts, &script)
 	}
-	connectionHelper := api.NewConnectionHelper(
-		basicRes,
-		vld,
-		info.Name,
-	)
-	apiResources := GetDefaultAPI(invoker, connectionTabler, scopeConfigTabler, scopeTabler, connectionHelper)
 	p := remotePluginImpl{
 		name:              info.Name,
 		invoker:           invoker,
@@ -107,9 +104,7 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		scopeConfigTabler: scopeConfigTabler,
 		toolModelTablers:  toolModelTablers,
 		migrationScripts:  scripts,
-		resources:         apiResources,
 		openApiSpec:       *openApiSpec,
-		connHelper:        connectionHelper,
 	}
 	remoteBridge := bridge.NewBridge(invoker)
 	for _, subtask := range info.SubtaskMetas {
@@ -123,6 +118,25 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		})
 	}
 	return &p, nil
+}
+
+func (p *remotePluginImpl) Init(basicRes context.BasicRes) errors.Error {
+	p.dsHelper = api.NewDataSourceHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig](
+		basicRes,
+		p.Name(),
+		[]string{"name"},
+		func(c models.RemoteConnection) models.RemoteConnection {
+			reflect.ValueOf(c.DynamicTabler.Unwrap()).Elem().FieldByName("token").SetString("")
+			return c
+		},
+		nil,
+		nil,
+		p.connectionTabler,
+		p.scopeTabler,
+		p.scopeConfigTabler,
+	)
+	p.resources = GetDefaultAPI(p.invoker, p.connectionTabler, p.scopeConfigTabler, p.scopeTabler, p.dsHelper)
+	return nil
 }
 
 func (p *remotePluginImpl) SubTaskMetas() []plugin.SubTaskMeta {

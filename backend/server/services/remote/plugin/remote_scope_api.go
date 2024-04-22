@@ -18,9 +18,10 @@ limitations under the License.
 package plugin
 
 import (
-	"github.com/apache/incubator-devlake/core/models"
 	"net/http"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/core/models"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -44,8 +45,7 @@ func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.Ap
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
-	connection := pa.connType.New()
-	err := pa.connhelper.First(connection, input.Params)
+	connection, err := pa.dsHelper.ConnApi.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}

@@ -44,7 +44,7 @@ func MakePipelinePlanV200(
 	if err != nil {
 		return nil, nil, err
 	}
-	scopeDetails, err := dsHelper.ScopeApi.MapScopeDetails(connectionId, bpScopes)
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}

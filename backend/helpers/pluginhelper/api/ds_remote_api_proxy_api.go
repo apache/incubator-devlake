@@ -44,7 +44,7 @@ func NewDsRemoteApiProxyHelper[
 ) *DsRemoteApiProxyHelper[C] {
 	return &DsRemoteApiProxyHelper[C]{
 		ModelApiHelper:  modelApiHelper,
-		logger:          modelApiHelper.basicRes.GetLogger().Nested("remote_api_helper"),
+		logger:          modelApiHelper.apiHelper.basicRes.GetLogger().Nested("remote_api_helper"),
 		httpClientCache: make(map[string]*ApiClient),
 	}
 }
@@ -73,7 +73,7 @@ func (rap *DsRemoteApiProxyHelper[C]) getApiClient(connection *C) (*ApiClient, e
 		return rap.httpClientCache[key], nil
 	}
 	// create new client if cache missed
-	client, err := NewApiClientFromConnection(gocontext.TODO(), rap.basicRes, c.(plugin.ApiConnection))
+	client, err := NewApiClientFromConnection(gocontext.TODO(), rap.apiHelper.basicRes, c.(plugin.ApiConnection))
 	if err != nil {
 		return nil, err
 	}
