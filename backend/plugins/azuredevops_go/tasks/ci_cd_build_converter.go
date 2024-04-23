@@ -38,7 +38,7 @@ var ConvertBuildsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertBuilds,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table azuredevops_builds into  domain layer table cicd_pipelines",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{
 		models.AzuredevopsBuild{}.TableName(),
 	},

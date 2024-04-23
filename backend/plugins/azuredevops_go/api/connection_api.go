@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/azuredevops_go/api/azuredevops"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
@@ -51,9 +52,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		},
 		AzuredevopsConn: conn,
 	}
-	vsc := newVsClient(&connection, "https://app.vssps.visualstudio.com/")
+	vsc := azuredevops.NewClient(&connection, nil, "https://app.vssps.visualstudio.com/")
 
-	_, err := vsc.UserProfile()
+	_, err := vsc.GetUserProfile()
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +80,8 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		return nil, errors.BadInput.Wrap(err, "can't read connection from database")
 	}
 
-	vsc := newVsClient(connection, "https://app.vssps.visualstudio.com/")
-	_, err = vsc.UserProfile()
+	vsc := azuredevops.NewClient(connection, nil, "https://app.vssps.visualstudio.com/")
+	_, err = vsc.GetUserProfile()
 	if err != nil {
 		return nil, err
 	}

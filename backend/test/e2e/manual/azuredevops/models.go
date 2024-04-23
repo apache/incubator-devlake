@@ -46,6 +46,7 @@ type (
 	AzureGitRepo struct {
 		RawDataParams       string `json:"_raw_data_params"`
 		Id                  string
+		Type                string
 		Name                string
 		ConnectionId        uint64
 		Url                 string
