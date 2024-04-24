@@ -33,7 +33,7 @@ var _ plugin.SubTaskEntryPoint = ExtractIssueChangelogs
 var ExtractIssueChangelogsMeta = plugin.SubTaskMeta{
 	Name:             "extractIssueChangelogs",
 	EntryPoint:       ExtractIssueChangelogs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "extract Jira Issue change logs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }

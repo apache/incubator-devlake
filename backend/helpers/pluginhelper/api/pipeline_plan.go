@@ -19,7 +19,9 @@ package api
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
@@ -60,6 +62,17 @@ func MakePipelinePlanTask(
 	entities []string,
 	options interface{},
 ) (*models.PipelineTask, errors.Error) {
+	// enable subtasks by default if they are in the config env var ENABLE_SUBTASKS_BY_DEFAULT
+	cfg := config.GetConfig()
+	enableSubtasksByDefault := cfg.GetString("ENABLE_SUBTASKS_BY_DEFAULT")
+	enableSubtasksList := strings.Split(enableSubtasksByDefault, ",")
+	for s := range subtaskMetas {
+		compareName := pluginName + ":" + subtaskMetas[s].Name
+		if stringInSlice(compareName, enableSubtasksList) {
+			subtaskMetas[s].EnabledByDefault = true
+		}
+	}
+
 	subtasks, err := MakePipelinePlanSubtasks(subtaskMetas, entities)
 	if err != nil {
 		return nil, err
@@ -82,4 +95,13 @@ func encodeTaskOptions(op interface{}) (map[string]interface{}, errors.Error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+func stringInSlice(str string, list []string) bool {
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }

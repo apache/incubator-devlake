@@ -35,7 +35,7 @@ func init() {
 var ExtractJobsMeta = plugin.SubTaskMeta{
 	Name:             "Extract Jobs",
 	EntryPoint:       ExtractJobs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Extract raw run data into tool layer table github_jobs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{RAW_JOB_TABLE},

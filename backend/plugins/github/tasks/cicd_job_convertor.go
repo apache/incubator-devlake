@@ -38,7 +38,7 @@ func init() {
 var ConvertJobsMeta = plugin.SubTaskMeta{
 	Name:             "Convert Jobs",
 	EntryPoint:       ConvertJobs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_jobs into  domain layer table cicd_tasks",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{
