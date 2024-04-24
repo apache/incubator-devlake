@@ -100,7 +100,6 @@ export const GitHubConfig: IPluginConfig = {
     ],
   },
   dataScope: {
-    localSearch: true,
     title: 'Repositories',
     millerColumn: {
       columnCount: 2,
