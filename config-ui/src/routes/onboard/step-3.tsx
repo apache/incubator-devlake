@@ -64,7 +64,7 @@ export const Step3 = () => {
             {
               pluginName: 'dora',
               pluginOption: '',
-              enable: false,
+              enable: true,
             },
           ],
         });
