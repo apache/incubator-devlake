@@ -52,8 +52,6 @@ func CollectBoardFilterEnd(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter jql for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
-	logger.Info("collect board filter jql:%s", filterInfo.Jql)
-
 	jql := filterInfo.Jql
 	logger.Info("collect board filter jql:%s", jql)
 
@@ -63,6 +61,7 @@ func CollectBoardFilterEnd(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error finding record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
+	logger.Info("get board filter jql:%s", record.Jql)
 
 	if record.Jql != jql {
 		return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
