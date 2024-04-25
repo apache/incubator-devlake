@@ -256,7 +256,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	var count int64
 	var status []string
 	for _, task := range lastTasks {
-		if task.Plugin == "org" {
+		if task.Plugin == "org" || task.Plugin == "refdiff" || task.Plugin == "dora" {
 			continue
 		}
 		subTaskResult := models.SubtasksInfo{
