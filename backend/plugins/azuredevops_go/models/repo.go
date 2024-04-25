@@ -28,11 +28,14 @@ type AzuredevopsRepo struct {
 	common.Scope  `mapstructure:",squash"`
 	AzureDevOpsPK `mapstructure:",squash"`
 
-	Id        string `json:"id" validate:"required" mapstructure:"id" gorm:"primaryKey"`
-	Name      string `json:"name" mapstructure:"name,omitempty"`
-	Url       string `json:"url" mapstructure:"url,omitempty"`
-	RemoteUrl string `json:"remoteUrl"`
-	IsFork    bool
+	Id         string `json:"id" validate:"required" mapstructure:"id" gorm:"primaryKey"`
+	Type       string `json:"type" validate:"required" mapstructure:"type"`
+	Name       string `json:"name" mapstructure:"name,omitempty"`
+	Url        string `json:"url" mapstructure:"url,omitempty"`
+	RemoteUrl  string `json:"remoteUrl"`
+	ExternalId string
+	IsFork     bool
+	IsPrivate  bool
 }
 
 func (repo AzuredevopsRepo) ScopeId() string {

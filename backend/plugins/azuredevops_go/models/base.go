@@ -21,3 +21,8 @@ type AzureDevOpsPK struct {
 	OrganizationId string
 	ProjectId      string
 }
+
+const (
+	RepositoryTypeADO    = "TfsGit"
+	RepositoryTypeGithub = "github"
+)

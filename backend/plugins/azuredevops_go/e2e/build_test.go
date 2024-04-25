@@ -44,6 +44,7 @@ func TestAzuredevopsBuildDataFlow(t *testing.T) {
 			ProjectId:      "test-project",
 			OrganizationId: "johndoe",
 			RepositoryId:   "0d50ba13-f9ad-49b0-9b21-d29eda50ca33",
+			RepositoryType: models.RepositoryTypeADO,
 			ScopeConfig:    new(models.AzuredevopsScopeConfig),
 		},
 		RegexEnricher: regexEnricher,

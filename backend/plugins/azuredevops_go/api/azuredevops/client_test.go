@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package azuredevops
 
 import (
 	"bytes"
@@ -89,8 +89,8 @@ func TestRetrieveUserProfile(t *testing.T) {
 				},
 			}
 
-			client := newVsClient(conn, ts.URL)
-			p, err := client.UserProfile()
+			client := NewClient(conn, nil, ts.URL)
+			p, err := client.GetUserProfile()
 			if err != nil && err.GetType().GetHttpCode() != code {
 				t.Errorf("User Profile API Response = %d; want: %d", err.GetType().GetHttpCode(), code)
 			}
