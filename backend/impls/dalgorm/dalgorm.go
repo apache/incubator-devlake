@@ -236,7 +236,6 @@ func (d *Dalgorm) Create(entity interface{}, clauses ...dal.Clause) errors.Error
 // CreateWithMap insert record to database
 func (d *Dalgorm) CreateWithMap(entity interface{}, record map[string]interface{}) errors.Error {
 	d.unwrapDynamic(&entity, nil)
-	// return d.convertGormError(buildTx(d.db, nil).Model(entity).Clauses(clause.OnConflict{UpdateAll: true}).Create(record).Error)
 	if record != nil {
 		if id, ok := record["id"]; ok && id != nil {
 			var columns []string
@@ -247,10 +246,11 @@ func (d *Dalgorm) CreateWithMap(entity interface{}, record map[string]interface{
 				Columns:   []clause.Column{{Name: "id"}},
 				DoUpdates: clause.AssignmentColumns(columns),
 			}).Create(record).Error)
+		} else {
+			return d.convertGormError(buildTx(d.db, nil).Model(entity).Clauses(clause.OnConflict{UpdateAll: true}).Create(record).Error)
 		}
 	}
 	return d.convertGormError(buildTx(d.db, nil).Model(entity).Clauses(clause.OnConflict{UpdateAll: true}).Create(record).Error)
-
 }
 
 // Update updates record
