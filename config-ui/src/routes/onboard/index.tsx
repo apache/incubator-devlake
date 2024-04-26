@@ -83,7 +83,7 @@ export const Onboard = ({ logo, title }: Props) => {
   const handleClose = () => {
     modal.confirm({
       width: 820,
-      title: 'Are you sure to exit the onboard session?',
+      title: 'Are you sure to exit the onboarding session?',
       content: 'You can get back to this session via the card on top of the Projects page.',
       icon: <ExclamationCircleOutlined />,
       okText: 'Confirm',
