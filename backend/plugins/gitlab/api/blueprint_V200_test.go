@@ -145,10 +145,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.ExtractApiIssuesMeta.Name,
 					tasks.ConvertIssuesMeta.Name,
 					tasks.ConvertIssueLabelsMeta.Name,
-					tasks.CollectApiJobsMeta.Name,
-					tasks.ExtractApiJobsMeta.Name,
 					tasks.CollectApiPipelinesMeta.Name,
 					tasks.ExtractApiPipelinesMeta.Name,
+					tasks.CollectApiJobsMeta.Name,
+					tasks.ExtractApiJobsMeta.Name,
 				},
 				Options: map[string]interface{}{
 					"connectionId": connectionID,
