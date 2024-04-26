@@ -16,12 +16,44 @@
  *
  */
 
-export * from './connection-form';
-export * from './connection-list';
-export * from './connection-select';
-export * from './connection-status';
-export * from './data-scope-remote';
-export * from './data-scope-select';
-export * from './plugin-name';
-export * from './scope-config-form';
-export * from './scope-config-select';
+import { useMemo } from 'react';
+import { theme } from 'antd';
+import styled from 'styled-components';
+
+import { getPluginConfig } from '@/plugins';
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+
+  .icon {
+    display: inline-flex;
+    margin-right: 8px;
+    width: 24px;
+
+    & > svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+`;
+
+interface Props {
+  plugin: string;
+  name: string;
+}
+
+export const PluginName = ({ plugin, name }: Props) => {
+  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
+
+  const {
+    token: { colorPrimary },
+  } = theme.useToken();
+
+  return (
+    <Wrapper>
+      <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
+      <span>{name}</span>
+    </Wrapper>
+  );
+};
