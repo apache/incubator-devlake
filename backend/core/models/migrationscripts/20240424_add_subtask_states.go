@@ -27,19 +27,6 @@ import (
 
 var _ plugin.MigrationScript = (*addSubtaskStates)(nil)
 
-// type collectorState20240424 struct {
-// 	CreatedAt          time.Time `json:"createdAt"`
-// 	UpdatedAt          time.Time `json:"updatedAt"`
-// 	RawDataParams      string    `gorm:"primaryKey;column:raw_data_params;type:varchar(255);index" json:"raw_data_params"`
-// 	RawDataTable       string    `gorm:"primaryKey;column:raw_data_table;type:varchar(255)" json:"raw_data_table"`
-// 	TimeAfter          *time.Time
-// 	LatestSuccessStart *time.Time
-// }
-
-// func (collectorState20240424) TableName() string {
-// 	return "_devlake_collector_latest_state"
-// }
-
 type subtaskState20240424 struct {
 	CreatedAt          time.Time `json:"createdAt"`
 	UpdatedAt          time.Time `json:"updatedAt"`
@@ -59,27 +46,7 @@ type addSubtaskStates struct{}
 
 func (script *addSubtaskStates) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	// errors.Must(db.RenameTable("_devlake_collector_latest_state", "_devlake_subtask_states"))
 	errors.Must(db.AutoMigrate(&subtaskState20240424{}))
-	// migrationhelper.TransformTable(
-	// 	basicRes,
-	// 	script,
-	// 	"_devlake_subtask_states",
-	// 	func(src *collectorState20240424) (*subtaskState20240424, errors.Error) {
-	// 		plugin := ""
-	// 		subtask := ""
-	// 		return &subtaskState20240424{
-	// 			CreatedAt:          src.CreatedAt,
-	// 			UpdatedAt:          src.UpdatedAt,
-	// 			Plugin:             src.RawDataTable,
-	// 			Subtask:            src.RawDataParams,
-	// 			RawDataParams:      src.RawDataParams,
-	// 			RawDataTable:       src.RawDataTable,
-	// 			TimeAfter:          src.TimeAfter,
-	// 			LatestSuccessStart: src.LatestSuccessStart,
-	// 		}, nil
-	// 	},
-	// )
 	return nil
 }
 
