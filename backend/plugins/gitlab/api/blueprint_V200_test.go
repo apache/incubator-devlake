@@ -178,6 +178,5 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			},
 		},
 	}
-
 	assert.Equal(t, expectPlans, actualPlans)
 }
