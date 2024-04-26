@@ -19,8 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -36,21 +38,21 @@ var ExtractIssueChangelogsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 
-func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*JiraTaskData)
+func ExtractIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
+	data := subtaskCtx.GetData().(*JiraTaskData)
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
 	}
 	connectionId := data.Options.ConnectionId
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+		SubtaskCommonArgs: &api.SubtaskCommonArgs{
+			SubTaskContext: subtaskCtx,
+			Params: utils.ToJsonString(JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_CHANGELOG_TABLE,
+			}),
 		},
+		Table: RAW_CHANGELOG_TABLE,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			// process input
 			var input apiv2models.Input
