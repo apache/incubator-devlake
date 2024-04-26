@@ -112,5 +112,6 @@ func All() []plugin.MigrationScript {
 		new(addStore),
 		new(addSubtaskField),
 		new(addDisplayTitleAndUrl),
+		new(addSubtaskStates),
 	}
 }
