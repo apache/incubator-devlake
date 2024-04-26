@@ -93,8 +93,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			tasks.ExtractApiIssuesMeta,
 			tasks.ConvertIssuesMeta,
 			tasks.ConvertIssueLabelsMeta,
-			//tasks.CollectApiJobsMeta,
-			//tasks.ExtractApiJobsMeta,
+			tasks.CollectApiJobsMeta,
+			tasks.ExtractApiJobsMeta,
 			tasks.CollectApiPipelinesMeta,
 			tasks.ExtractApiPipelinesMeta,
 		},
@@ -145,10 +145,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.ExtractApiIssuesMeta.Name,
 					tasks.ConvertIssuesMeta.Name,
 					tasks.ConvertIssueLabelsMeta.Name,
-					tasks.CollectApiPipelinesMeta.Name,
-					tasks.ExtractApiPipelinesMeta.Name,
 					tasks.CollectApiJobsMeta.Name,
 					tasks.ExtractApiJobsMeta.Name,
+					tasks.CollectApiPipelinesMeta.Name,
+					tasks.ExtractApiPipelinesMeta.Name,
 				},
 				Options: map[string]interface{}{
 					"connectionId": connectionID,
@@ -178,5 +178,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			},
 		},
 	}
+
 	assert.Equal(t, expectPlans, actualPlans)
 }
