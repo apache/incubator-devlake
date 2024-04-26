@@ -60,6 +60,9 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 			taskData.SkipAllSubtasks = true
 			return nil
 		}
+		if errors.Is(err, parser.ErrShallowInfoProcessing) {
+			return nil
+		}
 		return err
 	}
 
