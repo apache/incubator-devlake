@@ -124,5 +124,5 @@ func (c *SubtaskStateManager) Close() errors.Error {
 	// always update the latest success start time
 	c.state.PrevStartedAt = c.until
 	c.state.PrevConfig = c.config
-	return c.db.Update(c.state)
+	return c.db.CreateOrUpdate(c.state)
 }
