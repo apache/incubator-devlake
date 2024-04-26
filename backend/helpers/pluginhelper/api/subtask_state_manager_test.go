@@ -158,7 +158,7 @@ func TestSubtaskStateManager(t *testing.T) {
 				dst := args.Get(0).(*models.SubtaskState)
 				*dst = *tc.state
 			}).Return(nil).Once()
-			mockDal.On("Update", mock.Anything, mock.Anything).Return(nil).Once()
+			mockDal.On("CreateOrUpdate", mock.Anything, mock.Anything).Return(nil).Once()
 			// })
 
 			// mockBasicRes, tc.syncPolicy, "table", "params"
