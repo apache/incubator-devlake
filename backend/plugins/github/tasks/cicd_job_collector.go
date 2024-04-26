@@ -40,7 +40,7 @@ const RAW_JOB_TABLE = "github_api_jobs"
 var CollectJobsMeta = plugin.SubTaskMeta{
 	Name:             "Collect Job Runs",
 	EntryPoint:       CollectJobs,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Description:      "Collect Jobs data from Github action api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{models.GithubRun{}.TableName()},

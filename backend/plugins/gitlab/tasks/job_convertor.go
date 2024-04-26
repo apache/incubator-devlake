@@ -38,7 +38,7 @@ func init() {
 var ConvertJobMeta = plugin.SubTaskMeta{
 	Name:             "Convert Job Runs",
 	EntryPoint:       ConvertJobs,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_job into domain layer table job",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	Dependencies:     []*plugin.SubTaskMeta{&ConvertPipelineCommitMeta},
