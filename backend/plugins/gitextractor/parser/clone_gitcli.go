@@ -30,6 +30,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -39,7 +40,7 @@ var ErrNoDataOnIncrementalMode = errors.NotModified.New("No data found since the
 
 type GitcliCloner struct {
 	logger       log.Logger
-	stateManager *api.CollectorStateManager
+	stateManager *api.SubtaskStateManager
 }
 
 func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
@@ -48,22 +49,27 @@ func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
 	}
 }
 
+// CloneRepoConfig is the configuration for the CloneRepo method
+// the subtask should run in Full Sync mode whenever the configuration is changed
+type CloneRepoConfig struct {
+	SkipCommitStat  *bool
+	SkipCommitFiles *bool
+	NoShallowClone  bool
+}
+
 func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) errors.Error {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
 	var since *time.Time
 	if !taskData.Options.NoShallowClone {
-		// load state
-		stateManager, err := api.NewCollectorStateManager(
-			ctx,
-			ctx.TaskContext().SyncPolicy(),
-			"gitextractor",
-			fmt.Sprintf(
-				`{"RepoId: "%s","SkipCommitStat": %v, "SkipCommitFiles": %v}`,
-				taskData.Options.RepoId,
-				*taskData.Options.SkipCommitStat,
-				*taskData.Options.SkipCommitFiles,
-			),
-		)
+		stateManager, err := api.NewSubtaskStateManager(&api.SubtaskCommonArgs{
+			SubTaskContext: ctx,
+			Params:         utils.ToJsonString(taskData.Options.GitExtractorApiParams),
+			SubtaskConfig: utils.ToJsonString(CloneRepoConfig{
+				SkipCommitStat:  taskData.Options.SkipCommitStat,
+				SkipCommitFiles: taskData.Options.SkipCommitFiles,
+				NoShallowClone:  taskData.Options.NoShallowClone,
+			}),
+		})
 		if err != nil {
 			return err
 		}
@@ -99,6 +105,9 @@ func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir str
 	if taskData.ParsedURL.Scheme == "http" || taskData.ParsedURL.Scheme == "https" {
 		if taskData.Options.Proxy != "" {
 			env = append(env, fmt.Sprintf("HTTPS_PROXY=%s", taskData.Options.Proxy))
+		}
+		if taskData.ParsedURL.Scheme == "https" && ctx.GetConfigReader().GetBool("IN_SECURE_SKIP_VERIFY") {
+			args = append(args, "-c http.sslVerify=false")
 		}
 	} else if taskData.ParsedURL.Scheme == "ssh" {
 		var sshCmdArgs []string

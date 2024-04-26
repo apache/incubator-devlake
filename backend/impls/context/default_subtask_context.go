@@ -19,9 +19,10 @@ package context
 
 import (
 	gocontext "context"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"time"
 )
 
 // DefaultSubTaskContext is default implementation
@@ -67,10 +68,11 @@ func NewStandaloneSubTaskContext(
 	basicRes context.BasicRes,
 	name string,
 	data interface{},
+	pluginName string,
 ) plugin.SubTaskContext {
 	return &DefaultSubTaskContext{
 		newDefaultExecContext(ctx, basicRes, name, data, nil),
-		nil,
+		&DefaultTaskContext{defaultExecContext: newDefaultExecContext(ctx, basicRes, pluginName, data, nil)},
 		time.Time{},
 	}
 }
