@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -42,6 +43,9 @@ func (args *SubtaskCommonArgs) GetRawDataTable() string {
 }
 
 func (args *SubtaskCommonArgs) GetRawDataParams() string {
+	if args.Params == nil || reflect.ValueOf(args.Params).IsZero() {
+		panic(errors.Default.New("Params is nil"))
+	}
 	return utils.ToJsonString(args.Params)
 }
 

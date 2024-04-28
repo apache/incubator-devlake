@@ -39,7 +39,6 @@ type StatefulApiExtractor struct {
 
 // NewStatefulApiExtractor creates a new StatefulApiExtractor
 func NewStatefulApiExtractor(args *StatefulApiExtractorArgs) (*StatefulApiExtractor, errors.Error) {
-	// process args
 	stateManager, err := NewSubtaskStateManager(args.SubtaskCommonArgs)
 	if err != nil {
 		return nil, err
