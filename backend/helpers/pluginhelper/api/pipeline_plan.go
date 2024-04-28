@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/config"
@@ -62,14 +63,22 @@ func MakePipelinePlanTask(
 	entities []string,
 	options interface{},
 ) (*models.PipelineTask, errors.Error) {
-	// enable subtasks by default if they are in the config env var ENABLE_SUBTASKS_BY_DEFAULT
+	// get subtasks enabled by default
 	cfg := config.GetConfig()
 	enableSubtasksByDefault := cfg.GetString("ENABLE_SUBTASKS_BY_DEFAULT")
 	enableSubtasksList := strings.Split(enableSubtasksByDefault, ",")
 	for s := range subtaskMetas {
 		compareName := pluginName + ":" + subtaskMetas[s].Name
-		if stringInSlice(compareName, enableSubtasksList) {
-			subtaskMetas[s].EnabledByDefault = true
+		for _, enableSubtask := range enableSubtasksList {
+			subtaskInfo := strings.Split(enableSubtask, ":")
+			subtaskInfoName := subtaskInfo[0] + ":" + subtaskInfo[1]
+			if len(subtaskInfo) > 2 && (subtaskInfoName == compareName) {
+				v, err := strconv.ParseBool(subtaskInfo[2])
+				if err != nil {
+					break
+				}
+				subtaskMetas[s].EnabledByDefault = v
+			}
 		}
 	}
 
