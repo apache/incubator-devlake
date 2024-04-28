@@ -101,7 +101,7 @@ func TestSubtaskStateManager(t *testing.T) {
 		},
 		{
 			name:                      "config no changed",
-			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time2, PrevConfig: "hello"},
+			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time2, PrevConfig: `"hello"`},
 			syncPolicy:                &models.SyncPolicy{TimeAfter: &time1},
 			config:                    "hello",
 			expectedIsIncremental:     true,
