@@ -173,6 +173,7 @@ func TestSubtaskStateManager(t *testing.T) {
 			stateManager, err := NewSubtaskStateManager(&SubtaskCommonArgs{
 				SubTaskContext: mockSubtaskCtx,
 				SubtaskConfig:  fmt.Sprintf("%v", tc.config),
+				Params:         "whatever",
 			})
 			assert.Nil(t, err)
 			assert.Equal(t, tc.expectedSince, stateManager.since)
