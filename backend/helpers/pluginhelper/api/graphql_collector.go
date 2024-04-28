@@ -90,7 +90,7 @@ type GraphqlCollector struct {
 	workerErrors []error
 }
 
-// ErrFinishCollect is a error which will finish this collector
+// ErrFinishCollect is an error which will finish this collector
 var ErrFinishCollect = errors.Default.New("finish collect")
 
 // NewGraphqlCollector allocates a new GraphqlCollector with the given args.
