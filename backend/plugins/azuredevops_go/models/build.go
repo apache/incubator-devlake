@@ -46,14 +46,14 @@ func (AzuredevopsBuild) TableName() string {
 }
 
 type AzuredevopsApiBuild struct {
-	Id          int       `json:"id"`
-	BuildNumber string    `json:"buildNumber"`
-	Status      string    `json:"status"`
-	Result      string    `json:"result"`
-	QueueTime   time.Time `json:"queueTime"`
-	StartTime   time.Time `json:"startTime"`
-	FinishTime  time.Time `json:"finishTime"`
-	Url         string    `json:"url"`
+	Id          int        `json:"id"`
+	BuildNumber string     `json:"buildNumber"`
+	Status      string     `json:"status"`
+	Result      string     `json:"result"`
+	QueueTime   *time.Time `json:"queueTime"`
+	StartTime   *time.Time `json:"startTime"`
+	FinishTime  *time.Time `json:"finishTime"`
+	Url         string     `json:"url"`
 	Definition  struct {
 		Drafts      []interface{} `json:"drafts"`
 		Id          int           `json:"id"`

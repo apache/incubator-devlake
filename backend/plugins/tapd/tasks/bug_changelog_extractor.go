@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -30,7 +31,7 @@ var _ plugin.SubTaskEntryPoint = ExtractBugChangelog
 var ExtractBugChangelogMeta = plugin.SubTaskMeta{
 	Name:             "extractBugChangelog",
 	EntryPoint:       ExtractBugChangelog,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_bug_changelogs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

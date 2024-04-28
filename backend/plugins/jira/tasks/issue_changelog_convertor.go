@@ -38,7 +38,7 @@ var validID = regexp.MustCompile(`[0-9]+`)
 var ConvertIssueChangelogsMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueChangelogs",
 	EntryPoint:       ConvertIssueChangelogs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "convert Jira Issue change logs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
