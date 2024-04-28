@@ -17,11 +17,14 @@
  */
 
 import { useState, useContext } from 'react';
-import { Flex, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { ExclamationCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import { Modal, Flex, Button } from 'antd';
 import styled from 'styled-components';
 
 import API from '@/api';
 import { Logo } from '@/components';
+import { PATHS } from '@/config';
 import { operator } from '@/utils';
 
 import { Context } from './context';
@@ -29,6 +32,8 @@ import { Context } from './context';
 const Wrapper = styled.div`
   .logo {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 200px;
   }
 
@@ -62,7 +67,34 @@ interface Props {
 export const Step0 = ({ logo = <Logo direction="horizontal" />, title = 'DevLake' }: Props) => {
   const [operating, setOperating] = useState(false);
 
+  const navigate = useNavigate();
+
+  const [modal, contextHolder] = Modal.useModal();
+
   const { step, records, done, projectName, plugin, setStep } = useContext(Context);
+
+  const handleClose = () => {
+    modal.confirm({
+      width: 820,
+      title: 'Are you sure to exit the onboarding session?',
+      content: 'You can get back to this session via the card on top of the Projects page.',
+      icon: <ExclamationCircleOutlined />,
+      okText: 'Confirm',
+      onOk: async () => {
+        const [success] = await operator(
+          () => API.store.set('onboard', { step: 0, records, done, projectName, plugin }),
+          {
+            setOperating,
+            hideToast: true,
+          },
+        );
+
+        if (success) {
+          navigate(PATHS.ROOT());
+        }
+      },
+    });
+  };
 
   const handleSubmit = async () => {
     const [success] = await operator(
@@ -80,7 +112,11 @@ export const Step0 = ({ logo = <Logo direction="horizontal" />, title = 'DevLake
 
   return (
     <Wrapper>
-      <div className="logo">{logo}</div>
+      {contextHolder}
+      <div className="logo">
+        {logo}
+        <CloseOutlined style={{ fontSize: 18, color: '#70727F', cursor: 'pointer' }} onClick={handleClose} />
+      </div>
       <Flex vertical justify="center" align="center">
         <h1>
           Welcome to <span>{title}</span>
