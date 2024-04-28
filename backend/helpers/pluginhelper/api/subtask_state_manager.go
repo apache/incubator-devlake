@@ -49,6 +49,13 @@ func (args *SubtaskCommonArgs) GetSubtaskConfig() string {
 	return utils.ToJsonString(args.SubtaskConfig)
 }
 
+func (args *SubtaskCommonArgs) GetBatchSize() int {
+	if args.BatchSize == 0 {
+		args.BatchSize = 500
+	}
+	return args.BatchSize
+}
+
 // SubtaskStateManager manages the state of a subtask. It is used to determine whether
 // the subtask should run in incremental mode or full sync mode and what time range to collect.
 type SubtaskStateManager struct {

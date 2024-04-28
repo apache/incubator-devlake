@@ -40,9 +40,6 @@ type StatefulApiExtractor struct {
 // NewStatefulApiExtractor creates a new StatefulApiExtractor
 func NewStatefulApiExtractor(args *StatefulApiExtractorArgs) (*StatefulApiExtractor, errors.Error) {
 	// process args
-	if args.BatchSize == 0 {
-		args.BatchSize = 500
-	}
 	stateManager, err := NewSubtaskStateManager(args.SubtaskCommonArgs)
 	if err != nil {
 		return nil, err
@@ -88,7 +85,7 @@ func (extractor *StatefulApiExtractor) Execute() errors.Error {
 	logger.Info("get data from %s where params=%s and got %d", table, params, count)
 	defer cursor.Close()
 	// batch save divider
-	divider := NewBatchSaveDivider(extractor.SubTaskContext, extractor.BatchSize, table, params)
+	divider := NewBatchSaveDivider(extractor.SubTaskContext, extractor.GetBatchSize(), table, params)
 	divider.SetIncrementalMode(extractor.IsIncremental())
 
 	// progress
