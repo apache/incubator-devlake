@@ -30,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -52,6 +51,7 @@ func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
 // CloneRepoConfig is the configuration for the CloneRepo method
 // the subtask should run in Full Sync mode whenever the configuration is changed
 type CloneRepoConfig struct {
+	UseGoGit        *bool
 	SkipCommitStat  *bool
 	SkipCommitFiles *bool
 	NoShallowClone  bool
@@ -63,12 +63,13 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	if !taskData.Options.NoShallowClone {
 		stateManager, err := api.NewSubtaskStateManager(&api.SubtaskCommonArgs{
 			SubTaskContext: ctx,
-			Params:         utils.ToJsonString(taskData.Options.GitExtractorApiParams),
-			SubtaskConfig: utils.ToJsonString(CloneRepoConfig{
+			Params:         taskData.Options.GitExtractorApiParams,
+			SubtaskConfig: CloneRepoConfig{
+				UseGoGit:        taskData.Options.UseGoGit,
 				SkipCommitStat:  taskData.Options.SkipCommitStat,
 				SkipCommitFiles: taskData.Options.SkipCommitFiles,
 				NoShallowClone:  taskData.Options.NoShallowClone,
-			}),
+			},
 		})
 		if err != nil {
 			return err

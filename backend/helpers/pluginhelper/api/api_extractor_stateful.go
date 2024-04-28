@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -30,7 +29,6 @@ import (
 // StatefulApiExtractorArgs is a struct that contains the arguments for a stateful api extractor
 type StatefulApiExtractorArgs struct {
 	*SubtaskCommonArgs
-	Table   string // subtask normally reads from a table
 	Extract func(row *RawData) ([]any, errors.Error)
 }
 
@@ -41,10 +39,6 @@ type StatefulApiExtractor struct {
 
 // NewStatefulApiExtractor creates a new StatefulApiExtractor
 func NewStatefulApiExtractor(args *StatefulApiExtractorArgs) (*StatefulApiExtractor, errors.Error) {
-	// process args
-	if args.BatchSize == 0 {
-		args.BatchSize = 500
-	}
 	stateManager, err := NewSubtaskStateManager(args.SubtaskCommonArgs)
 	if err != nil {
 		return nil, err
@@ -60,13 +54,14 @@ func (extractor *StatefulApiExtractor) Execute() errors.Error {
 	// load data from database
 	db := extractor.GetDal()
 	logger := extractor.GetLogger()
-	table := fmt.Sprintf("_raw_%s", extractor.Table)
+	table := extractor.GetRawDataTable()
+	params := extractor.GetRawDataParams()
 	if !db.HasTable(table) {
 		return nil
 	}
 	clauses := []dal.Clause{
 		dal.From(table),
-		dal.Where("params = ?", extractor.Params),
+		dal.Where("params = ?", params),
 		dal.Orderby("id ASC"),
 	}
 
@@ -86,10 +81,10 @@ func (extractor *StatefulApiExtractor) Execute() errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error running DB query")
 	}
-	logger.Info("get data from %s where params=%s and got %d", table, extractor.Params, count)
+	logger.Info("get data from %s where params=%s and got %d", table, params, count)
 	defer cursor.Close()
 	// batch save divider
-	divider := NewBatchSaveDivider(extractor.SubTaskContext, extractor.BatchSize, table, extractor.Params)
+	divider := NewBatchSaveDivider(extractor.SubTaskContext, extractor.GetBatchSize(), table, params)
 	divider.SetIncrementalMode(extractor.IsIncremental())
 
 	// progress
@@ -121,8 +116,8 @@ func (extractor *StatefulApiExtractor) Execute() errors.Error {
 			// set raw data origin field
 			setRawDataOrigin(result, common.RawDataOrigin{
 				RawDataTable:  table,
+				RawDataParams: params,
 				RawDataId:     row.ID,
-				RawDataParams: row.Params,
 			})
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)

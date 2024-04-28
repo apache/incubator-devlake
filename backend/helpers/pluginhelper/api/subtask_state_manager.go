@@ -18,20 +18,46 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 )
 
 // SubtaskCommonArgs is a struct that contains the common arguments for a subtask
 type SubtaskCommonArgs struct {
 	plugin.SubTaskContext
-	Params        string // for filtering rows belonging to the scope (jira board, github repo) of the subtask
-	SubtaskConfig string // for determining whether the subtask should run in incremental or full sync mode
+	Table         string // raw table name
+	Params        any    // for filtering rows belonging to the scope (jira board, github repo) of the subtask
+	SubtaskConfig any    // for determining whether the subtask should run in incremental or full sync mode
 	BatchSize     int    // batch size for saving data
+}
+
+func (args *SubtaskCommonArgs) GetRawDataTable() string {
+	return fmt.Sprintf("_raw_%s", args.Table)
+}
+
+func (args *SubtaskCommonArgs) GetRawDataParams() string {
+	if args.Params == nil || reflect.ValueOf(args.Params).IsZero() {
+		panic(errors.Default.New("Params is nil"))
+	}
+	return utils.ToJsonString(args.Params)
+}
+
+func (args *SubtaskCommonArgs) GetSubtaskConfig() string {
+	return utils.ToJsonString(args.SubtaskConfig)
+}
+
+func (args *SubtaskCommonArgs) GetBatchSize() int {
+	if args.BatchSize == 0 {
+		args.BatchSize = 500
+	}
+	return args.BatchSize
 }
 
 // SubtaskStateManager manages the state of a subtask. It is used to determine whether
@@ -56,15 +82,16 @@ func NewSubtaskStateManager(args *SubtaskCommonArgs) (stateManager *SubtaskState
 	if syncPolicy == nil {
 		syncPolicy = &models.SyncPolicy{}
 	}
+	params := args.GetRawDataParams()
 	// load the previous state from the database
 	state := &models.SubtaskState{}
-	err = db.First(state, dal.Where(`plugin = ? AND subtask =? AND params = ?`, plugin, subtask, args.Params))
+	err = db.First(state, dal.Where(`plugin = ? AND subtask =? AND params = ?`, plugin, subtask, params))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
 			state = &models.SubtaskState{
 				Plugin:  plugin,
 				Subtask: subtask,
-				Params:  args.Params,
+				Params:  params,
 			}
 			err = nil
 		} else {
@@ -81,7 +108,7 @@ func NewSubtaskStateManager(args *SubtaskCommonArgs) (stateManager *SubtaskState
 		isIncremental: false,
 		since:         syncPolicy.TimeAfter,
 		until:         &now,
-		config:        args.SubtaskConfig,
+		config:        utils.ToJsonString(args.SubtaskConfig),
 	}
 	// fallback to the previous timeAfter if no new value
 	if stateManager.since == nil {
@@ -94,7 +121,7 @@ func NewSubtaskStateManager(args *SubtaskCommonArgs) (stateManager *SubtaskState
 	// if timeAfter is not set or NOT before the previous vaule, we are in the incremental mode
 	if (syncPolicy.TimeAfter == nil || state.TimeAfter == nil || !syncPolicy.TimeAfter.Before(*state.TimeAfter)) &&
 		// and the previous config is the same as the current config
-		(state.PrevConfig == stateManager.config) {
+		(state.PrevConfig == "" || state.PrevConfig == stateManager.config) {
 		stateManager.isIncremental = true
 		stateManager.since = state.PrevStartedAt
 	}

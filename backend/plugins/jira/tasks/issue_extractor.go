@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -62,13 +61,13 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
-			Params: utils.ToJsonString(JiraApiParams{
+			Table:          RAW_ISSUE_TABLE,
+			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
-			}),
-			SubtaskConfig: utils.ToJsonString(mappings),
+			},
+			SubtaskConfig: mappings,
 		},
-		Table: RAW_ISSUE_TABLE,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			return extractIssues(data, mappings, row)
 		},

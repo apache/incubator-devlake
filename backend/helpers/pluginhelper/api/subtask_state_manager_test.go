@@ -101,7 +101,7 @@ func TestSubtaskStateManager(t *testing.T) {
 		},
 		{
 			name:                      "config no changed",
-			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time2, PrevConfig: "hello"},
+			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time2, PrevConfig: `"hello"`},
 			syncPolicy:                &models.SyncPolicy{TimeAfter: &time1},
 			config:                    "hello",
 			expectedIsIncremental:     true,
@@ -173,6 +173,7 @@ func TestSubtaskStateManager(t *testing.T) {
 			stateManager, err := NewSubtaskStateManager(&SubtaskCommonArgs{
 				SubTaskContext: mockSubtaskCtx,
 				SubtaskConfig:  fmt.Sprintf("%v", tc.config),
+				Params:         "whatever",
 			})
 			assert.Nil(t, err)
 			assert.Equal(t, tc.expectedSince, stateManager.since)

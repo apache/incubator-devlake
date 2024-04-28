@@ -22,7 +22,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -47,12 +46,12 @@ func ExtractIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
-			Params: utils.ToJsonString(JiraApiParams{
+			Table:          RAW_CHANGELOG_TABLE,
+			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
-			}),
+			},
 		},
-		Table: RAW_CHANGELOG_TABLE,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			// process input
 			var input apiv2models.Input
