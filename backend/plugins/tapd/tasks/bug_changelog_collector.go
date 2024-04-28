@@ -66,7 +66,7 @@ func CollectBugChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 var CollectBugChangelogMeta = plugin.SubTaskMeta{
 	Name:             "collectBugChangelogs",
 	EntryPoint:       CollectBugChangelogs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "collect Tapd bugChangelogs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
