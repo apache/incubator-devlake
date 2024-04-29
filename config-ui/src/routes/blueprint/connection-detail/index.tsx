@@ -18,6 +18,7 @@
 
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { DeleteOutlined, FormOutlined } from '@ant-design/icons';
 import { Flex, Table, Popconfirm, Modal, Button } from 'antd';
 
@@ -29,6 +30,8 @@ import { ScopeConfig, DataScopeSelect, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as S from './styled';
+
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
@@ -213,6 +216,11 @@ export const BlueprintConnectionDetailPage = () => {
             ]
       }
     >
+      <Helmet>
+        <title>
+          {pname ? pname : blueprint.name} - {connection.name} - {brandName}
+        </title>
+      </Helmet>
       <S.Top>
         <span>
           To manage the complete data scope and scope config for this Connection, please{' '}

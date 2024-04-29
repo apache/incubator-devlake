@@ -16,8 +16,9 @@
  *
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { Layout as AntdLayout, Menu, Divider } from 'antd';
 
 import { PageLoading, Logo, ExternalLink } from '@/components';
@@ -28,6 +29,8 @@ import { useAppDispatch, useAppSelector } from '@/hooks';
 import { menuItems, menuItemsMatch, headerItems } from './config';
 
 const { Sider, Header, Content, Footer } = AntdLayout;
+
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const Layout = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -67,6 +70,11 @@ export const Layout = () => {
     setSelectedKeys(selectedKeys);
   }, [pathname]);
 
+  const title = useMemo(() => {
+    const curMenuItem = menuItemsMatch[pathname];
+    return curMenuItem?.label ?? '';
+  }, [pathname]);
+
   if (['idle', 'loading'].includes(status)) {
     return <PageLoading />;
   }
@@ -77,6 +85,12 @@ export const Layout = () => {
 
   return (
     <AntdLayout style={{ height: '100vh' }}>
+      <Helmet>
+        <title>
+          {title ? `${title} - ` : ''}
+          {brandName}
+        </title>
+      </Helmet>
       <Sider>
         {import.meta.env.DEVLAKE_TITLE_CUSTOM ? (
           <h2 style={{ margin: '36px 0', textAlign: 'center', color: '#fff' }}>
