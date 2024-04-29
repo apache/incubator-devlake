@@ -45,6 +45,7 @@ type PluginIcon interface {
 }
 
 // PluginSource abstracts data sources
+// TODO: remote this interface since nowhere used
 type PluginSource interface {
 	Connection() dal.Tabler
 	Scope() ToolLayerScope

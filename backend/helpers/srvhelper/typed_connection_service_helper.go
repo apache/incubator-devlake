@@ -18,7 +18,6 @@ limitations under the License.
 package srvhelper
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
@@ -43,18 +42,11 @@ func NewConnectionSrvHelper[
 	S plugin.ToolLayerScope,
 	SC plugin.ToolLayerScopeConfig,
 ](
-	basicRes context.BasicRes,
-	pluginName string,
+	anyConnectionSrv *AnyConnectionSrvHelper,
 ) *ConnectionSrvHelper[C, S, SC] {
 	return &ConnectionSrvHelper[C, S, SC]{
-		AnyConnectionSrvHelper: NewAnyConnectionSrvHelper(
-			basicRes,
-			pluginName,
-			&GenericConnectionModelInfo[C]{},
-			&GenericScopeModelInfo[S]{},
-			&GenericScopeConfigModelInfo[SC]{},
-		),
-		ModelSrvHelper: NewModelSrvHelper[C](basicRes, nil),
+		AnyConnectionSrvHelper: anyConnectionSrv,
+		ModelSrvHelper:         NewModelSrvHelper[C](anyConnectionSrv.basicRes, nil),
 	}
 }
 

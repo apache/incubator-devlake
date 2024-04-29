@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
@@ -54,11 +55,11 @@ func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.Api
 }
 
 func (pa *pluginAPI) TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := pa.dsHelper.ConnApi.GetMergedConnection(input)
+	connection, err := pa.dsHelper.ConnApi.GetMergedConnectionAny(input)
 	if err != nil {
 		return nil, err
 	}
-	conn := connection.Unwrap()
+	conn := connection.(models.DynamicTabler).Unwrap()
 	params := make(map[string]interface{})
 	if data, err := json.Marshal(conn); err != nil {
 		return nil, errors.Convert(err)

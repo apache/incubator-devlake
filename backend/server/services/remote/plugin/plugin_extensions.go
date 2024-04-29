@@ -44,23 +44,25 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	connection, err := p.dsHelper.ConnSrv.FindByPk(connectionId)
+	connection, err := p.dsHelper.ConnSrv.FindByPkAny(connectionId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	scopeDetails, err := p.dsHelper.ScopeSrv.MapScopeDetailsAny(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	db := basicRes.GetDal()
 	var toolScopeConfigPairs = make([]interface{}, len(bpScopes))
-	for i, bpScope := range bpScopes {
-		toolScope, scopeConfig, err := p.getScopeAndConfig(db, connectionId, bpScope.ScopeId)
-		if err != nil {
-			return nil, nil, err
-		}
+	for i, scopeDetail := range scopeDetails {
+		toolScope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		toolScopeConfigPairs[i] = []interface{}{toolScope, scopeConfig}
 	}
 
 	planData := models.PipelineData{}
-	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeConfigPairs, connection.Unwrap()).Get(&planData)
+	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeConfigPairs, connection).Get(&planData)
 	if err != nil {
 		return nil, nil, err
 	}

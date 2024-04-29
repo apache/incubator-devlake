@@ -24,32 +24,30 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
-	remoteModel "github.com/apache/incubator-devlake/server/services/remote/models"
 	"github.com/apache/incubator-devlake/server/services/remote/models/migrationscripts"
 	"github.com/apache/incubator-devlake/server/services/remote/plugin/doc"
 )
 
 type (
 	remotePluginImpl struct {
-		name              string
-		subtaskMetas      []plugin.SubTaskMeta
-		pluginPath        string
-		description       string
-		invoker           bridge.Invoker
-		connectionTabler  coreModels.DynamicTabler
-		scopeTabler       coreModels.DynamicTabler
-		scopeConfigTabler coreModels.DynamicTabler
-		toolModelTablers  []coreModels.DynamicTabler
-		migrationScripts  []plugin.MigrationScript
-		resources         map[string]map[string]plugin.ApiResourceHandler
-		openApiSpec       string
-		dsHelper          *api.DsHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig]
+		name                 string
+		subtaskMetas         []plugin.SubTaskMeta
+		pluginPath           string
+		description          string
+		invoker              bridge.Invoker
+		connectionModelInfo  *models.RemoteConnectionModelInfo
+		scopeModelInfo       *models.RemoteScopeModelInfo
+		scopeConfigModelInfo *models.RemoteScopeConfigModelInfo
+		toolModelInfos       []dal.Tabler
+		migrationScripts     []plugin.MigrationScript
+		resources            map[string]map[string]plugin.ApiResourceHandler
+		openApiSpec          string
+		dsHelper             *api.DsAnyHelper
 	}
 	RemotePluginTaskData struct {
 		DbUrl       string                 `json:"db_url"`
@@ -61,29 +59,33 @@ type (
 )
 
 func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginImpl, errors.Error) {
-	connectionTabler, err := info.ConnectionModelInfo.LoadDynamicTabler(common.Model{})
+	// connectionTabler, err := info.ConnectionModelInfo.LoadDynamicTabler(common.Model{})
+	connectionModelInfo, err := models.NewRemoteConnectionModelInfo[common.Model](info.ConnectionModelInfo)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load Connection type for plugin %s", info.Name))
 	}
-	scopeTabler, err := info.ScopeModelInfo.LoadDynamicTabler(models.ScopeModel{})
+	// scopeTabler, err := info.ScopeModelInfo.LoadDynamicTabler(models.ScopeModel{})
+	scopeModelInfo, err := models.NewRemoteScopeModelInfo[models.ScopeModel](info.ScopeModelInfo)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load Scope type for plugin %s", info.Name))
 	}
-	scopeConfigTabler, err := info.ScopeConfigModelInfo.LoadDynamicTabler(models.ScopeConfigModel{})
+	// scopeConfigTabler, err := info.ScopeConfigModelInfo.LoadDynamicTabler(models.ScopeConfigModel{})
+	scopeConfigModelInfo, err := models.NewRemoteScopeConfigModelInfo[models.ScopeConfigModel](info.ScopeConfigModelInfo)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ScopeConfig type for plugin %s", info.Name))
 	}
 	// put the scope and connection models in the tool list to be consistent with Go plugins
-	toolModelTablers := []coreModels.DynamicTabler{
-		connectionTabler.New(),
-		models.NewDynamicScopeModel(scopeTabler),
+	toolModelInfos := []dal.Tabler{
+		connectionModelInfo,
+		scopeModelInfo,
+		scopeConfigModelInfo,
 	}
 	for _, toolModelInfo := range info.ToolModelInfos {
-		toolModelTabler, err := toolModelInfo.LoadDynamicTabler(models.ToolModel{})
+		mi, err := models.GenerateRemoteModelInfo[models.ToolModel](toolModelInfo)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ToolModel type for plugin %s", info.Name))
+			return nil, err
 		}
-		toolModelTablers = append(toolModelTablers, toolModelTabler.New())
+		toolModelInfos = append(toolModelInfos, mi)
 	}
 	openApiSpec, err := doc.GenerateOpenApiSpec(info)
 	if err != nil {
@@ -95,16 +97,16 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		scripts = append(scripts, &script)
 	}
 	p := remotePluginImpl{
-		name:              info.Name,
-		invoker:           invoker,
-		pluginPath:        info.PluginPath,
-		description:       info.Description,
-		connectionTabler:  connectionTabler,
-		scopeTabler:       scopeTabler,
-		scopeConfigTabler: scopeConfigTabler,
-		toolModelTablers:  toolModelTablers,
-		migrationScripts:  scripts,
-		openApiSpec:       *openApiSpec,
+		name:                 info.Name,
+		invoker:              invoker,
+		pluginPath:           info.PluginPath,
+		description:          info.Description,
+		connectionModelInfo:  connectionModelInfo,
+		scopeModelInfo:       scopeModelInfo,
+		scopeConfigModelInfo: scopeConfigModelInfo,
+		toolModelInfos:       toolModelInfos,
+		migrationScripts:     scripts,
+		openApiSpec:          *openApiSpec,
 	}
 	remoteBridge := bridge.NewBridge(invoker)
 	for _, subtask := range info.SubtaskMetas {
@@ -121,21 +123,19 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 }
 
 func (p *remotePluginImpl) Init(basicRes context.BasicRes) errors.Error {
-	p.dsHelper = api.NewDataSourceHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig](
+	p.dsHelper = api.NewDataSourceAnyHelper(
 		basicRes,
 		p.Name(),
 		[]string{"name"},
-		func(c models.RemoteConnection) models.RemoteConnection {
-			reflect.ValueOf(c.DynamicTabler.Unwrap()).Elem().FieldByName("token").SetString("")
+		func(c any) any {
+			reflect.ValueOf(c).Elem().FieldByName("token").SetString("")
 			return c
 		},
-		nil,
-		nil,
-		p.connectionTabler,
-		p.scopeTabler,
-		p.scopeConfigTabler,
+		p.connectionModelInfo,
+		p.scopeModelInfo,
+		p.scopeConfigModelInfo,
 	)
-	p.resources = GetDefaultAPI(p.invoker, p.connectionTabler, p.scopeConfigTabler, p.scopeTabler, p.dsHelper)
+	p.resources = GetDefaultAPI(p.invoker, p.dsHelper)
 	return nil
 }
 
@@ -144,83 +144,33 @@ func (p *remotePluginImpl) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 func (p *remotePluginImpl) GetTablesInfo() []dal.Tabler {
-	tables := make([]dal.Tabler, 0)
-	for _, toolModelTabler := range p.toolModelTablers {
-		tables = append(tables, toolModelTabler)
-	}
-	return tables
-}
-
-func (p *remotePluginImpl) Connection() dal.Tabler {
-	return p.connectionTabler.New()
-}
-
-func (p *remotePluginImpl) Scope() plugin.ToolLayerScope {
-	return models.NewDynamicScopeModel(p.scopeTabler)
-}
-
-func (p *remotePluginImpl) ScopeConfig() dal.Tabler {
-	return p.scopeConfigTabler.New()
+	return p.toolModelInfos
 }
 
 func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	dbUrl := taskCtx.GetConfig("db_url")
 	connectionId := uint64(options["connectionId"].(float64))
-
-	helper := api.NewConnectionHelper(
-		taskCtx,
-		nil,
-		p.Name(),
-	)
-
-	wrappedConnection := p.connectionTabler.New()
-	err := helper.FirstById(wrappedConnection, connectionId)
+	connection, err := p.dsHelper.ConnSrv.FindByPkAny(connectionId)
 	if err != nil {
-		return nil, errors.Convert(err)
+		return nil, err
 	}
-	connection := wrappedConnection.Unwrap()
 
 	scopeId, ok := options["scopeId"].(string)
 	if !ok {
 		return nil, errors.BadInput.New("missing scopeId")
 	}
-
-	db := taskCtx.GetDal()
-	scope, scopeConfig, err := p.getScopeAndConfig(db, connectionId, scopeId)
+	scopeDetail, err := p.dsHelper.ScopeSrv.GetScopeDetailAny(false, connectionId, scopeId)
 	if err != nil {
 		return nil, err
 	}
 
 	return RemotePluginTaskData{
 		DbUrl:       dbUrl,
-		Scope:       scope,
+		Scope:       scopeDetail.Scope,
 		Connection:  connection,
-		ScopeConfig: scopeConfig,
+		ScopeConfig: scopeDetail.ScopeConfig,
 		Options:     options,
 	}, nil
-}
-
-func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, scopeId string) (interface{}, interface{}, errors.Error) {
-	wrappedScope := p.scopeTabler.New()
-	err := api.CallDB(db.First, wrappedScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
-	if err != nil {
-		return nil, nil, errors.BadInput.New("Invalid scope id")
-	}
-	scope := models.ScopeModel{}
-	err = wrappedScope.To(&scope)
-	if err != nil {
-		return nil, nil, errors.BadInput.Wrap(err, "Invalid scope")
-	}
-	if scope.ScopeConfigId != 0 {
-		wrappedScopeConfig := p.scopeConfigTabler.New()
-		err = api.CallDB(db.First, wrappedScopeConfig, dal.From(p.scopeConfigTabler.TableName()), dal.Where("id = ?", scope.ScopeConfigId))
-		if err != nil {
-			return nil, nil, err
-		}
-		return wrappedScope.Unwrap(), wrappedScopeConfig.Unwrap(), nil
-	} else {
-		return wrappedScope.Unwrap(), nil, nil
-	}
 }
 
 func (p *remotePluginImpl) Description() string {

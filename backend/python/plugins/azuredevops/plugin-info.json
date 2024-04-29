@@ -1,0 +1,1605 @@
+{
+  "name": "azuredevops",
+  "description": "azuredevops plugin",
+  "connection_model_info": {
+    "json_schema": {
+      "title": "AzureDevOpsConnection",
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "primaryKey": true,
+          "type": "integer"
+        },
+        "createdAt": {
+          "title": "Createdat",
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "title": "Updatedat",
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "proxy": {
+          "title": "Proxy",
+          "minLength": 1,
+          "maxLength": 65536,
+          "format": "uri",
+          "type": "string"
+        },
+        "token": {
+          "title": "Token",
+          "type": "string",
+          "writeOnly": true,
+          "format": "password"
+        },
+        "organization": {
+          "title": "Organization",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "token"
+      ]
+    },
+    "table_name": "_tool_azuredevops_azuredevopsconnections"
+  },
+  "scope_model_info": {
+    "json_schema": {
+      "title": "GitRepository",
+      "type": "object",
+      "properties": {
+        "_raw_data_params": {
+          "title": " Raw Data Params",
+          "type": "string"
+        },
+        "_raw_data_table": {
+          "title": " Raw Data Table",
+          "type": "string"
+        },
+        "_raw_data_id": {
+          "title": " Raw Data Id",
+          "type": "string"
+        },
+        "_raw_data_remark": {
+          "title": " Raw Data Remark",
+          "type": "string"
+        },
+        "createdAt": {
+          "title": "Createdat",
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "title": "Updatedat",
+          "type": "string",
+          "format": "date-time"
+        },
+        "connectionId": {
+          "title": "Connectionid",
+          "primaryKey": true,
+          "autoIncrement": false,
+          "type": "integer"
+        },
+        "id": {
+          "title": "Id",
+          "primaryKey": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "scopeConfigId": {
+          "title": "Scopeconfigid",
+          "type": "integer"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "remoteUrl": {
+          "title": "Remoteurl",
+          "type": "string"
+        },
+        "defaultBranch": {
+          "title": "Defaultbranch",
+          "type": "string"
+        },
+        "projectId": {
+          "title": "Projectid",
+          "type": "string"
+        },
+        "orgId": {
+          "title": "Orgid",
+          "type": "string"
+        },
+        "parentRepositoryUrl": {
+          "title": "Parentrepositoryurl",
+          "source": "/parentRepository/url",
+          "type": "string"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "updatedDate": {
+          "title": "Updateddate",
+          "source": "/project/lastUpdateTime",
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "url",
+        "projectId",
+        "orgId",
+        "updatedDate"
+      ]
+    },
+    "table_name": "_tool_azuredevops_gitrepositories"
+  },
+  "scope_config_model_info": {
+    "json_schema": {
+      "title": "GitRepositoryConfig",
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "primaryKey": true,
+          "type": "integer"
+        },
+        "createdAt": {
+          "title": "Createdat",
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "title": "Updatedat",
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "title": "Name",
+          "default": "default",
+          "type": "string"
+        },
+        "entities": {
+          "default": [
+            "CODE",
+            "TICKET",
+            "CODEREVIEW",
+            "CROSS",
+            "CICD",
+            "CODEQUALITY"
+          ],
+          "type": "array",
+          "items": {
+            "title": "DomainType",
+            "description": "An enumeration.",
+            "enum": [
+              "CODE",
+              "TICKET",
+              "CODEREVIEW",
+              "CROSS",
+              "CICD",
+              "CODEQUALITY"
+            ]
+          }
+        },
+        "connectionId": {
+          "title": "Connectionid",
+          "type": "integer"
+        },
+        "refdiff": {
+          "title": "RefDiffOptions",
+          "type": "object",
+          "properties": {
+            "tags_limit": {
+              "title": "Tags Limit",
+              "default": 10,
+              "type": "integer"
+            },
+            "tags_order": {
+              "title": "Tags Order",
+              "default": "reverse semver",
+              "type": "string"
+            },
+            "tags_pattern": {
+              "title": "Tags Pattern",
+              "default": "/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/",
+              "type": "string"
+            }
+          }
+        },
+        "deploymentPattern": {
+          "title": "Deploymentpattern",
+          "type": "string",
+          "format": "regex"
+        },
+        "productionPattern": {
+          "title": "Productionpattern",
+          "type": "string",
+          "format": "regex"
+        }
+      }
+    },
+    "table_name": "_tool_azuredevops_gitrepositoryconfigs"
+  },
+  "tool_model_infos": [
+    {
+      "json_schema": {
+        "title": "GitPullRequest",
+        "type": "object",
+        "properties": {
+          "_raw_data_params": {
+            "title": " Raw Data Params",
+            "type": "string"
+          },
+          "_raw_data_table": {
+            "title": " Raw Data Table",
+            "type": "string"
+          },
+          "_raw_data_id": {
+            "title": " Raw Data Id",
+            "type": "string"
+          },
+          "_raw_data_remark": {
+            "title": " Raw Data Remark",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "connectionId": {
+            "title": "Connectionid",
+            "primaryKey": true,
+            "autoIncrement": false,
+            "type": "integer"
+          },
+          "pullRequestId": {
+            "title": "Pullrequestid",
+            "primaryKey": true,
+            "type": "integer"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "status": {
+            "title": "PRStatus",
+            "description": "An enumeration.",
+            "enum": [
+              "abandoned",
+              "active",
+              "completed"
+            ],
+            "type": "string"
+          },
+          "createdById": {
+            "title": "Createdbyid",
+            "source": "/createdBy/id",
+            "type": "string"
+          },
+          "createdByName": {
+            "title": "Createdbyname",
+            "source": "/createdBy/displayName",
+            "type": "string"
+          },
+          "creationDate": {
+            "title": "Creationdate",
+            "type": "string",
+            "format": "date-time"
+          },
+          "closedDate": {
+            "title": "Closeddate",
+            "type": "string",
+            "format": "date-time"
+          },
+          "sourceCommitSha": {
+            "title": "Sourcecommitsha",
+            "source": "/lastMergeSourceCommit/commitId",
+            "type": "string"
+          },
+          "targetCommitSha": {
+            "title": "Targetcommitsha",
+            "source": "/lastMergeTargetCommit/commitId",
+            "type": "string"
+          },
+          "mergeCommitSha": {
+            "title": "Mergecommitsha",
+            "source": "/lastMergeCommit/commitId",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "source": "/labels/0/name",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "targetRefName": {
+            "title": "Targetrefname",
+            "type": "string"
+          },
+          "sourceRefName": {
+            "title": "Sourcerefname",
+            "type": "string"
+          },
+          "forkRepoId": {
+            "title": "Forkrepoid",
+            "source": "/forkSource/repository/id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pullRequestId",
+          "status",
+          "createdById",
+          "createdByName",
+          "creationDate",
+          "sourceCommitSha",
+          "targetCommitSha"
+        ]
+      },
+      "table_name": "_tool_azuredevops_gitpullrequests"
+    },
+    {
+      "json_schema": {
+        "title": "GitPullRequestCommit",
+        "type": "object",
+        "properties": {
+          "_raw_data_params": {
+            "title": " Raw Data Params",
+            "type": "string"
+          },
+          "_raw_data_table": {
+            "title": " Raw Data Table",
+            "type": "string"
+          },
+          "_raw_data_id": {
+            "title": " Raw Data Id",
+            "type": "string"
+          },
+          "_raw_data_remark": {
+            "title": " Raw Data Remark",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "connectionId": {
+            "title": "Connectionid",
+            "primaryKey": true,
+            "autoIncrement": false,
+            "type": "integer"
+          },
+          "commitId": {
+            "title": "Commitid",
+            "primaryKey": true,
+            "type": "string"
+          },
+          "pullRequestId": {
+            "title": "Pullrequestid",
+            "type": "string"
+          },
+          "authorName": {
+            "title": "Authorname",
+            "source": "/author/name",
+            "type": "string"
+          },
+          "authorEmail": {
+            "title": "Authoremail",
+            "source": "/author/email",
+            "type": "string"
+          },
+          "authorDate": {
+            "title": "Authordate",
+            "source": "/author/date",
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "commitId",
+          "pullRequestId",
+          "authorName",
+          "authorDate"
+        ]
+      },
+      "table_name": "_tool_azuredevops_gitpullrequestcommits"
+    },
+    {
+      "json_schema": {
+        "title": "Build",
+        "type": "object",
+        "properties": {
+          "_raw_data_params": {
+            "title": " Raw Data Params",
+            "type": "string"
+          },
+          "_raw_data_table": {
+            "title": " Raw Data Table",
+            "type": "string"
+          },
+          "_raw_data_id": {
+            "title": " Raw Data Id",
+            "type": "string"
+          },
+          "_raw_data_remark": {
+            "title": " Raw Data Remark",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "connectionId": {
+            "title": "Connectionid",
+            "primaryKey": true,
+            "autoIncrement": false,
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "primaryKey": true,
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "source": "/definition/name",
+            "type": "string"
+          },
+          "queueTime": {
+            "title": "Queuetime",
+            "source": "/queueTime",
+            "type": "string",
+            "format": "date-time"
+          },
+          "startTime": {
+            "title": "Starttime",
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishTime": {
+            "title": "Finishtime",
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "title": "BuildStatus",
+            "description": "An enumeration.",
+            "enum": [
+              "cancelling",
+              "completed",
+              "inProgress",
+              "notStarted",
+              "postponed"
+            ],
+            "type": "string"
+          },
+          "result": {
+            "title": "BuildResult",
+            "description": "An enumeration.",
+            "enum": [
+              "canceled",
+              "failed",
+              "none",
+              "partiallySucceeded",
+              "succeeded"
+            ],
+            "type": "string"
+          },
+          "sourceBranch": {
+            "title": "Sourcebranch",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "title": "Sourceversion",
+            "type": "string"
+          },
+          "displayTitle": {
+            "title": "Displaytitle",
+            "source": "/triggerInfo/ci.message",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "source": "/_links/web/href",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "sourceBranch",
+          "sourceVersion",
+          "displayTitle",
+          "url"
+        ]
+      },
+      "table_name": "_tool_azuredevops_builds"
+    },
+    {
+      "json_schema": {
+        "title": "Job",
+        "type": "object",
+        "properties": {
+          "_raw_data_params": {
+            "title": " Raw Data Params",
+            "type": "string"
+          },
+          "_raw_data_table": {
+            "title": " Raw Data Table",
+            "type": "string"
+          },
+          "_raw_data_id": {
+            "title": " Raw Data Id",
+            "type": "string"
+          },
+          "_raw_data_remark": {
+            "title": " Raw Data Remark",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "connectionId": {
+            "title": "Connectionid",
+            "primaryKey": true,
+            "autoIncrement": false,
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "primaryKey": true,
+            "type": "string"
+          },
+          "buildId": {
+            "title": "Buildid",
+            "primaryKey": true,
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "startTime": {
+            "title": "Starttime",
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishTime": {
+            "title": "Finishtime",
+            "type": "string",
+            "format": "date-time"
+          },
+          "state": {
+            "title": "JobState",
+            "description": "An enumeration.",
+            "enum": [
+              "completed",
+              "inProgress",
+              "pending"
+            ],
+            "type": "string"
+          },
+          "result": {
+            "title": "JobResult",
+            "description": "An enumeration.",
+            "enum": [
+              "abandoned",
+              "canceled",
+              "failed",
+              "skipped",
+              "succeeded",
+              "succeededWithIssues"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "buildId",
+          "name",
+          "state"
+        ]
+      },
+      "table_name": "_tool_azuredevops_jobs"
+    }
+  ],
+  "migration_scripts": [
+    {
+      "operations": [
+        {
+          "type": "create_table",
+          "model_info": {
+            "json_schema": {
+              "title": "AzureDevOpsConnection",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "primaryKey": true,
+                  "type": "integer"
+                },
+                "createdAt": {
+                  "title": "Createdat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "title": "Updatedat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "proxy": {
+                  "title": "Proxy",
+                  "minLength": 1,
+                  "maxLength": 65536,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "token": {
+                  "title": "Token",
+                  "type": "string",
+                  "writeOnly": true,
+                  "format": "password"
+                },
+                "organization": {
+                  "title": "Organization",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "token"
+              ]
+            },
+            "table_name": "_tool_azuredevops_azuredevopsconnections"
+          }
+        },
+        {
+          "type": "create_table",
+          "model_info": {
+            "json_schema": {
+              "title": "AzureDevopsTransformationRule",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "primaryKey": true,
+                  "type": "integer"
+                },
+                "createdAt": {
+                  "title": "Createdat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "title": "Updatedat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "name": {
+                  "title": "Name",
+                  "default": "default",
+                  "type": "string"
+                },
+                "refdiff": {
+                  "title": "RefDiffOptions",
+                  "type": "object",
+                  "properties": {
+                    "tags_limit": {
+                      "title": "Tags Limit",
+                      "default": 10,
+                      "type": "integer"
+                    },
+                    "tags_order": {
+                      "title": "Tags Order",
+                      "default": "reverse semver",
+                      "type": "string"
+                    },
+                    "tags_pattern": {
+                      "title": "Tags Pattern",
+                      "default": "/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/",
+                      "type": "string"
+                    }
+                  }
+                },
+                "deploymentPattern": {
+                  "title": "Deploymentpattern",
+                  "type": "string",
+                  "format": "regex"
+                },
+                "productionPattern": {
+                  "title": "Productionpattern",
+                  "type": "string",
+                  "format": "regex"
+                }
+              }
+            },
+            "table_name": "_tool_azuredevops_azuredevopstransformationrules"
+          }
+        },
+        {
+          "type": "create_table",
+          "model_info": {
+            "json_schema": {
+              "title": "GitRepository",
+              "type": "object",
+              "properties": {
+                "_raw_data_params": {
+                  "title": " Raw Data Params",
+                  "type": "string"
+                },
+                "_raw_data_table": {
+                  "title": " Raw Data Table",
+                  "type": "string"
+                },
+                "_raw_data_id": {
+                  "title": " Raw Data Id",
+                  "type": "string"
+                },
+                "_raw_data_remark": {
+                  "title": " Raw Data Remark",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "title": "Createdat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "title": "Updatedat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "connectionId": {
+                  "title": "Connectionid",
+                  "primaryKey": true,
+                  "autoIncrement": false,
+                  "type": "integer"
+                },
+                "id": {
+                  "title": "Id",
+                  "primaryKey": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "type": "string"
+                },
+                "remoteUrl": {
+                  "title": "Remoteurl",
+                  "type": "string"
+                },
+                "defaultBranch": {
+                  "title": "Defaultbranch",
+                  "type": "string"
+                },
+                "projectId": {
+                  "title": "Projectid",
+                  "type": "string"
+                },
+                "orgId": {
+                  "title": "Orgid",
+                  "type": "string"
+                },
+                "parentRepositoryUrl": {
+                  "title": "Parentrepositoryurl",
+                  "type": "string"
+                },
+                "provider": {
+                  "title": "Provider",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "url",
+                "projectId",
+                "orgId"
+              ]
+            },
+            "table_name": "_tool_azuredevops_gitrepositories"
+          }
+        },
+        {
+          "type": "create_table",
+          "model_info": {
+            "json_schema": {
+              "title": "GitPullRequestCommit",
+              "type": "object",
+              "properties": {
+                "_raw_data_params": {
+                  "title": " Raw Data Params",
+                  "type": "string"
+                },
+                "_raw_data_table": {
+                  "title": " Raw Data Table",
+                  "type": "string"
+                },
+                "_raw_data_id": {
+                  "title": " Raw Data Id",
+                  "type": "string"
+                },
+                "_raw_data_remark": {
+                  "title": " Raw Data Remark",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "title": "Createdat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "title": "Updatedat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "connectionId": {
+                  "title": "Connectionid",
+                  "primaryKey": true,
+                  "autoIncrement": false,
+                  "type": "integer"
+                },
+                "commitId": {
+                  "title": "Commitid",
+                  "primaryKey": true,
+                  "type": "string"
+                },
+                "pullRequestId": {
+                  "title": "Pullrequestid",
+                  "type": "string"
+                },
+                "authorName": {
+                  "title": "Authorname",
+                  "type": "string"
+                },
+                "authorEmail": {
+                  "title": "Authoremail",
+                  "type": "string"
+                },
+                "authorDate": {
+                  "title": "Authordate",
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "commitId",
+                "pullRequestId",
+                "authorName",
+                "authorEmail",
+                "authorDate"
+              ]
+            },
+            "table_name": "_tool_azuredevops_gitpullrequestcommits"
+          }
+        },
+        {
+          "type": "create_table",
+          "model_info": {
+            "json_schema": {
+              "title": "GitPullRequest",
+              "type": "object",
+              "properties": {
+                "_raw_data_params": {
+                  "title": " Raw Data Params",
+                  "type": "string"
+                },
+                "_raw_data_table": {
+                  "title": " Raw Data Table",
+                  "type": "string"
+                },
+                "_raw_data_id": {
+                  "title": " Raw Data Id",
+                  "type": "string"
+                },
+                "_raw_data_remark": {
+                  "title": " Raw Data Remark",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "title": "Createdat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "title": "Updatedat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "connectionId": {
+                  "title": "Connectionid",
+                  "primaryKey": true,
+                  "autoIncrement": false,
+                  "type": "integer"
+                },
+                "pullRequestId": {
+                  "title": "Pullrequestid",
+                  "primaryKey": true,
+                  "type": "integer"
+                },
+                "description": {
+                  "title": "Description",
+                  "type": "string"
+                },
+                "status": {
+                  "title": "PRStatus",
+                  "description": "An enumeration.",
+                  "enum": [
+                    "abandoned",
+                    "active",
+                    "completed"
+                  ],
+                  "type": "string"
+                },
+                "createdById": {
+                  "title": "Createdbyid",
+                  "type": "string"
+                },
+                "createdByName": {
+                  "title": "Createdbyname",
+                  "type": "string"
+                },
+                "creationDate": {
+                  "title": "Creationdate",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "closedDate": {
+                  "title": "Closeddate",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "sourceCommitSha": {
+                  "title": "Sourcecommitsha",
+                  "type": "string"
+                },
+                "targetCommitSha": {
+                  "title": "Targetcommitsha",
+                  "type": "string"
+                },
+                "mergeCommitSha": {
+                  "title": "Mergecommitsha",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "type": "string"
+                },
+                "type": {
+                  "title": "Type",
+                  "type": "string"
+                },
+                "title": {
+                  "title": "Title",
+                  "type": "string"
+                },
+                "targetRefName": {
+                  "title": "Targetrefname",
+                  "type": "string"
+                },
+                "sourceRefName": {
+                  "title": "Sourcerefname",
+                  "type": "string"
+                },
+                "forkRepoId": {
+                  "title": "Forkrepoid",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pullRequestId",
+                "status",
+                "createdById",
+                "createdByName",
+                "creationDate",
+                "sourceCommitSha",
+                "targetCommitSha"
+              ]
+            },
+            "table_name": "_tool_azuredevops_gitpullrequests"
+          }
+        },
+        {
+          "type": "create_table",
+          "model_info": {
+            "json_schema": {
+              "title": "Build",
+              "type": "object",
+              "properties": {
+                "_raw_data_params": {
+                  "title": " Raw Data Params",
+                  "type": "string"
+                },
+                "_raw_data_table": {
+                  "title": " Raw Data Table",
+                  "type": "string"
+                },
+                "_raw_data_id": {
+                  "title": " Raw Data Id",
+                  "type": "string"
+                },
+                "_raw_data_remark": {
+                  "title": " Raw Data Remark",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "title": "Createdat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "title": "Updatedat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "connectionId": {
+                  "title": "Connectionid",
+                  "primaryKey": true,
+                  "autoIncrement": false,
+                  "type": "integer"
+                },
+                "id": {
+                  "title": "Id",
+                  "primaryKey": true,
+                  "autoIncrement": false,
+                  "type": "integer"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "startTime": {
+                  "title": "Starttime",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "finishTime": {
+                  "title": "Finishtime",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "status": {
+                  "title": "BuildStatus",
+                  "description": "An enumeration.",
+                  "enum": [
+                    "cancelling",
+                    "completed",
+                    "inProgress",
+                    "notStarted",
+                    "postponed"
+                  ],
+                  "type": "string"
+                },
+                "result": {
+                  "title": "BuildResult",
+                  "description": "An enumeration.",
+                  "enum": [
+                    "canceled",
+                    "failed",
+                    "none",
+                    "partiallySucceeded",
+                    "succeeded"
+                  ],
+                  "type": "string"
+                },
+                "sourceBranch": {
+                  "title": "Sourcebranch",
+                  "type": "string"
+                },
+                "sourceVersion": {
+                  "title": "Sourceversion",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "status",
+                "sourceBranch",
+                "sourceVersion"
+              ]
+            },
+            "table_name": "_tool_azuredevops_builds"
+          }
+        },
+        {
+          "type": "create_table",
+          "model_info": {
+            "json_schema": {
+              "title": "Job",
+              "type": "object",
+              "properties": {
+                "_raw_data_params": {
+                  "title": " Raw Data Params",
+                  "type": "string"
+                },
+                "_raw_data_table": {
+                  "title": " Raw Data Table",
+                  "type": "string"
+                },
+                "_raw_data_id": {
+                  "title": " Raw Data Id",
+                  "type": "string"
+                },
+                "_raw_data_remark": {
+                  "title": " Raw Data Remark",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "title": "Createdat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "title": "Updatedat",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "connectionId": {
+                  "title": "Connectionid",
+                  "primaryKey": true,
+                  "autoIncrement": false,
+                  "type": "integer"
+                },
+                "id": {
+                  "title": "Id",
+                  "primaryKey": true,
+                  "type": "string"
+                },
+                "buildId": {
+                  "title": "Buildid",
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "startTime": {
+                  "title": "Starttime",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "finishTime": {
+                  "title": "Finishtime",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "state": {
+                  "title": "JobState",
+                  "description": "An enumeration.",
+                  "enum": [
+                    "completed",
+                    "inProgress",
+                    "pending"
+                  ],
+                  "type": "string"
+                },
+                "result": {
+                  "title": "JobResult",
+                  "description": "An enumeration.",
+                  "enum": [
+                    "abandoned",
+                    "canceled",
+                    "failed",
+                    "skipped",
+                    "succeeded",
+                    "succeededWithIssues"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "buildId",
+                "name",
+                "state"
+              ]
+            },
+            "table_name": "_tool_azuredevops_jobs"
+          }
+        }
+      ],
+      "version": 20230501000001,
+      "name": "initialize schemas for Azure Devops"
+    },
+    {
+      "operations": [
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_jobs MODIFY COLUMN build_id VARCHAR(255)",
+          "dialect": "mysql",
+          "ignore_error": false
+        },
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_jobs ALTER COLUMN build_id TYPE VARCHAR(255)",
+          "dialect": "postgres",
+          "ignore_error": false
+        },
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_jobs DROP PRIMARY KEY",
+          "dialect": "mysql",
+          "ignore_error": false
+        },
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_jobs DROP CONSTRAINT _tool_azuredevops_jobs_pkey",
+          "dialect": "postgres",
+          "ignore_error": false
+        },
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_jobs ADD PRIMARY KEY (id, build_id)",
+          "ignore_error": false
+        }
+      ],
+      "version": 20230524181430,
+      "name": "add_build_id_as_job_primary_key"
+    },
+    {
+      "operations": [
+        {
+          "type": "rename_table",
+          "old_name": "_tool_azuredevops_azuredevopstransformationrules",
+          "new_name": "_tool_azuredevops_gitrepositoryconfigs"
+        }
+      ],
+      "version": 20230606165630,
+      "name": "rename_tx_rule_table_to_scope_config"
+    },
+    {
+      "operations": [
+        {
+          "type": "add_column",
+          "table": "_tool_azuredevops_gitrepositoryconfigs",
+          "column": "entities",
+          "column_type": "json"
+        }
+      ],
+      "version": 20230607165630,
+      "name": "add entities column to gitrepositoryconfig table"
+    },
+    {
+      "operations": [
+        {
+          "type": "execute",
+          "sql": "UPDATE _tool_azuredevops_gitrepositories SET _raw_data_table = '_raw_azuredevops_scopes' WHERE 1=1",
+          "ignore_error": false
+        }
+      ],
+      "version": 20230630000001,
+      "name": "populated _raw_data_table column for azuredevops git repos"
+    },
+    {
+      "operations": [
+        {
+          "type": "rename_column",
+          "table": "_tool_azuredevops_jobs",
+          "old_name": "startTime",
+          "new_name": "start_time"
+        },
+        {
+          "type": "rename_column",
+          "table": "_tool_azuredevops_jobs",
+          "old_name": "finishTime",
+          "new_name": "finish_time"
+        }
+      ],
+      "version": 20230802000001,
+      "name": "rename startTime/finishTime to start_time/finish_time"
+    },
+    {
+      "operations": [
+        {
+          "type": "rename_column",
+          "table": "_tool_azuredevops_gitrepositories",
+          "old_name": "transformation_rule_id",
+          "new_name": "scope_config_id"
+        },
+        {
+          "type": "add_column",
+          "table": "_tool_azuredevops_gitrepositories",
+          "column": "provider",
+          "column_type": "varchar(255)"
+        }
+      ],
+      "version": 20230825150421,
+      "name": "add missing migrations from 0.17 to 0.18"
+    },
+    {
+      "operations": [
+        {
+          "type": "add_column",
+          "table": "_tool_azuredevops_gitrepositoryconfigs",
+          "column": "connection_id",
+          "column_type": "bigint"
+        }
+      ],
+      "version": 20231013130200,
+      "name": "add missing field in _tool_azuredevops_gitrepositoryconfigs"
+    },
+    {
+      "operations": [
+        {
+          "type": "add_column",
+          "table": "_tool_azuredevops_gitrepositories",
+          "column": "scope_config_id",
+          "column_type": "bigint"
+        }
+      ],
+      "version": 20231013130201,
+      "name": "add missing field in _tool_azuredevops_gitrepositories"
+    },
+    {
+      "operations": [
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_builds ADD COLUMN queue_time timestamptz",
+          "dialect": "postgres",
+          "ignore_error": false
+        },
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_builds ADD COLUMN queue_time datetime",
+          "dialect": "mysql",
+          "ignore_error": false
+        }
+      ],
+      "version": 20231130163000,
+      "name": "add queue_time field in _tool_azuredevops_builds"
+    },
+    {
+      "operations": [
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_gitrepositories add COLUMN updated_date datetime(3) DEFAULT NULL",
+          "dialect": "mysql",
+          "ignore_error": false
+        },
+        {
+          "type": "execute",
+          "sql": "ALTER TABLE _tool_azuredevops_gitrepositories add COLUMN updated_date TIMESTAMPTZ DEFAULT NULL",
+          "dialect": "postgres",
+          "ignore_error": false
+        }
+      ],
+      "version": 20240223170000,
+      "name": "add updated_date field in _tool_azuredevops_gitrepositories"
+    },
+    {
+      "operations": [
+        {
+          "type": "add_column",
+          "table": "_tool_azuredevops_builds",
+          "column": "display_title",
+          "column_type": "TEXT"
+        },
+        {
+          "type": "add_column",
+          "table": "_tool_azuredevops_builds",
+          "column": "url",
+          "column_type": "TEXT"
+        }
+      ],
+      "version": 20240415163000,
+      "name": "add queue_time field in _tool_azuredevops_builds"
+    }
+  ],
+  "plugin_path": "/home/klesh/Projects/merico/devlake-saas/incubator-devlake/backend/python/plugins/azuredevops/run.sh",
+  "subtask_metas": [
+    {
+      "name": "Collect Gitpullrequests",
+      "entry_point_name": "collect",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Collect azuredevops gitpullrequests",
+      "domain_types": [
+        "CODE"
+      ],
+      "arguments": [
+        "gitpullrequests"
+      ]
+    },
+    {
+      "name": "Extract Gitpullrequests",
+      "entry_point_name": "extract",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Extract azuredevops gitpullrequests",
+      "domain_types": [
+        "CODE"
+      ],
+      "arguments": [
+        "gitpullrequests"
+      ]
+    },
+    {
+      "name": "Convert Gitpullrequests",
+      "entry_point_name": "convert",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Convert azuredevops gitpullrequests",
+      "domain_types": [
+        "CODE"
+      ],
+      "arguments": [
+        "gitpullrequests"
+      ]
+    },
+    {
+      "name": "Collect Gitpullrequestcommits",
+      "entry_point_name": "collect",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Collect azuredevops gitpullrequestcommits",
+      "domain_types": [
+        "CODE"
+      ],
+      "arguments": [
+        "gitpullrequestcommits"
+      ]
+    },
+    {
+      "name": "Extract Gitpullrequestcommits",
+      "entry_point_name": "extract",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Extract azuredevops gitpullrequestcommits",
+      "domain_types": [
+        "CODE"
+      ],
+      "arguments": [
+        "gitpullrequestcommits"
+      ]
+    },
+    {
+      "name": "Convert Gitpullrequestcommits",
+      "entry_point_name": "convert",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Convert azuredevops gitpullrequestcommits",
+      "domain_types": [
+        "CODE"
+      ],
+      "arguments": [
+        "gitpullrequestcommits"
+      ]
+    },
+    {
+      "name": "Collect Builds",
+      "entry_point_name": "collect",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Collect azuredevops builds",
+      "domain_types": [
+        "CICD"
+      ],
+      "arguments": [
+        "builds"
+      ]
+    },
+    {
+      "name": "Extract Builds",
+      "entry_point_name": "extract",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Extract azuredevops builds",
+      "domain_types": [
+        "CICD"
+      ],
+      "arguments": [
+        "builds"
+      ]
+    },
+    {
+      "name": "Convert Builds",
+      "entry_point_name": "convert",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Convert azuredevops builds",
+      "domain_types": [
+        "CICD"
+      ],
+      "arguments": [
+        "builds"
+      ]
+    },
+    {
+      "name": "Collect Jobs",
+      "entry_point_name": "collect",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Collect azuredevops jobs",
+      "domain_types": [
+        "CICD"
+      ],
+      "arguments": [
+        "jobs"
+      ]
+    },
+    {
+      "name": "Extract Jobs",
+      "entry_point_name": "extract",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Extract azuredevops jobs",
+      "domain_types": [
+        "CICD"
+      ],
+      "arguments": [
+        "jobs"
+      ]
+    },
+    {
+      "name": "Convert Jobs",
+      "entry_point_name": "convert",
+      "required": false,
+      "enabled_by_default": false,
+      "description": "Convert azuredevops jobs",
+      "domain_types": [
+        "CICD"
+      ],
+      "arguments": [
+        "jobs"
+      ]
+    }
+  ],
+  "extension": "datasource"
+}

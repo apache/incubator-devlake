@@ -19,29 +19,30 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
 
-// DsScopeConfigApiHelper
-type DsScopeConfigApiHelper struct {
+// DsAnyScopeConfigApiHelper
+type DsAnyScopeConfigApiHelper struct {
 	*AnyModelApiHelper
 	*srvhelper.AnyScopeConfigSrvHelper
 }
 
-func NewDsScopeConfigApiHelper(
+func NewDsAnyScopeConfigApiHelper(
 	basicRes context.BasicRes,
 	srvHelper *srvhelper.AnyScopeConfigSrvHelper,
-) *DsScopeConfigApiHelper {
-	return &DsScopeConfigApiHelper{
+) *DsAnyScopeConfigApiHelper {
+	return &DsAnyScopeConfigApiHelper{
 		AnyModelApiHelper:       NewAnyModelApiHelper(basicRes, srvHelper.AnyModelSrvHelper, []string{"connectionId", "scopeId"}, nil),
 		AnyScopeConfigSrvHelper: srvHelper,
 	}
 }
 
-func (scopeConfigApi *DsScopeConfigApiHelper) GetAll(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (scopeConfigApi *DsAnyScopeConfigApiHelper) GetAll(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
 		return nil, err
@@ -52,7 +53,7 @@ func (scopeConfigApi *DsScopeConfigApiHelper) GetAll(input *plugin.ApiResourceIn
 	}, nil
 }
 
-func (scopeConfigApi *DsScopeConfigApiHelper) Post(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (scopeConfigApi *DsAnyScopeConfigApiHelper) Post(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	// fix connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
@@ -62,7 +63,7 @@ func (scopeConfigApi *DsScopeConfigApiHelper) Post(input *plugin.ApiResourceInpu
 	return scopeConfigApi.AnyModelApiHelper.Post(input)
 }
 
-func (scopeConfigApi *DsScopeConfigApiHelper) Patch(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (scopeConfigApi *DsAnyScopeConfigApiHelper) Patch(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	// fix connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
@@ -72,7 +73,7 @@ func (scopeConfigApi *DsScopeConfigApiHelper) Patch(input *plugin.ApiResourceInp
 	return scopeConfigApi.AnyModelApiHelper.Patch(input)
 }
 
-func (scopeConfigApi *DsScopeConfigApiHelper) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (scopeConfigApi *DsAnyScopeConfigApiHelper) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	scopeConfig, err := scopeConfigApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
@@ -88,4 +89,18 @@ func (scopeConfigApi *DsScopeConfigApiHelper) Delete(input *plugin.ApiResourceIn
 	return &plugin.ApiResourceOutput{
 		Body: scopeConfig,
 	}, nil
+}
+
+type DsScopeConfigApiHelper[SC dal.Tabler] struct {
+	*DsAnyScopeConfigApiHelper
+	*ModelApiHelper[SC]
+}
+
+func NewDsScopeConfigApiHelper[SC dal.Tabler](
+	anyScopeConfigApiHelper *DsAnyScopeConfigApiHelper,
+) *DsScopeConfigApiHelper[SC] {
+	return &DsScopeConfigApiHelper[SC]{
+		DsAnyScopeConfigApiHelper: anyScopeConfigApiHelper,
+		ModelApiHelper:            NewModelApiHelper[SC](anyScopeConfigApiHelper.AnyModelApiHelper),
+	}
 }

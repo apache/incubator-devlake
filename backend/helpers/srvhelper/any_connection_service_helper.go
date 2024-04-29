@@ -43,10 +43,10 @@ type AnyConnectionSrvHelper struct {
 // NewConnectionSrvHelper creates a ConnectionDalHelper for connection management
 func NewAnyConnectionSrvHelper(
 	basicRes context.BasicRes,
-	pluginName string,
 	connModelInfo ConnectionModelInfo,
 	scopeModelInfo ScopeModelInfo,
 	scopeConfigModelInfo ScopeConfigModelInfo,
+	pluginName string,
 ) *AnyConnectionSrvHelper {
 	return &AnyConnectionSrvHelper{
 		AnyModelSrvHelper:    NewAnyModelSrvHelper(basicRes, connModelInfo, nil),

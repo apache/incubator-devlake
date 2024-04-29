@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -41,22 +42,22 @@ type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct
 	Blueprints  []*models.Blueprint `json:"blueprints,omitempty"`
 }
 
-type DsScopeApiHelper struct {
+type DsAnyScopeApiHelper struct {
 	*AnyModelApiHelper
 	*srvhelper.AnyScopeSrvHelper
 }
 
-func NewDsScopeApiHelper(
+func NewDsAnyScopeApiHelper(
 	basicRes context.BasicRes,
 	srvHelper *srvhelper.AnyScopeSrvHelper,
-) *DsScopeApiHelper {
-	return &DsScopeApiHelper{
+) *DsAnyScopeApiHelper {
+	return &DsAnyScopeApiHelper{
 		AnyModelApiHelper: NewAnyModelApiHelper(basicRes, srvHelper.AnyModelSrvHelper, []string{"connectionId", "scopeId"}, nil),
 		AnyScopeSrvHelper: srvHelper,
 	}
 }
 
-func (scopeApi *DsScopeApiHelper) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsAnyScopeApiHelper) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	pagination, err := parsePagination[srvhelper.ScopePagination](input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "failed to decode pathvars into pagination")
@@ -73,7 +74,7 @@ func (scopeApi *DsScopeApiHelper) GetPage(input *plugin.ApiResourceInput) (*plug
 	}, nil
 }
 
-func (scopeApi *DsScopeApiHelper) GetScopeDetail(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsAnyScopeApiHelper) GetScopeDetail(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	pkv, err := scopeApi.ExtractPkValues(input)
 	if err != nil {
 		return nil, err
@@ -87,7 +88,7 @@ func (scopeApi *DsScopeApiHelper) GetScopeDetail(input *plugin.ApiResourceInput)
 	}, nil
 }
 
-func (scopeApi *DsScopeApiHelper) GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsAnyScopeApiHelper) GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	pkv, err := scopeApi.ExtractPkValues(input)
 	if err != nil {
 		return nil, err
@@ -101,7 +102,7 @@ func (scopeApi *DsScopeApiHelper) GetScopeLatestSyncState(input *plugin.ApiResou
 	}, nil
 }
 
-func (scopeApi *DsScopeApiHelper) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsAnyScopeApiHelper) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// fix data[].connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
@@ -130,7 +131,7 @@ func (scopeApi *DsScopeApiHelper) PutMultiple(input *plugin.ApiResourceInput) (*
 	})
 }
 
-func (scopeApi *DsScopeApiHelper) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsAnyScopeApiHelper) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scope, err := scopeApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
@@ -148,4 +149,18 @@ func (scopeApi *DsScopeApiHelper) Delete(input *plugin.ApiResourceInput) (*plugi
 	return &plugin.ApiResourceOutput{
 		Body: scope,
 	}, nil
+}
+
+type DsScopeApiHelper[S dal.Tabler] struct {
+	*DsAnyScopeApiHelper
+	*ModelApiHelper[S]
+}
+
+func NewDsScopeApiHelper[S dal.Tabler](
+	anyScopeApiHelper *DsAnyScopeApiHelper,
+) *DsScopeApiHelper[S] {
+	return &DsScopeApiHelper[S]{
+		DsAnyScopeApiHelper: anyScopeApiHelper,
+		ModelApiHelper:      NewModelApiHelper[S](anyScopeApiHelper.AnyModelApiHelper),
+	}
 }

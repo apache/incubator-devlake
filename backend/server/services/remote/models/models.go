@@ -69,13 +69,6 @@ type ApiParams struct {
 	ScopeId      string
 }
 
-type RemoteConnection any
-
-func (d RemoteConnection) ConnectionId() uint64 {
-	return 0
-	// return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Id").Uint()
-}
-
 type DynamicScopeModel struct {
 	models.DynamicTabler
 }

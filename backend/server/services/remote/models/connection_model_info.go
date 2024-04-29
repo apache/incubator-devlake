@@ -18,16 +18,27 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"reflect"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 )
 
-// RemotePlugin API supported by plugins running in different/remote processes
-type RemotePlugin interface {
-	plugin.PluginApi
-	plugin.PluginTask
-	plugin.PluginMeta
-	plugin.PluginOpenApiSpec
-	plugin.PluginModel
-	plugin.PluginMigration
-	// plugin.PluginSource
+var _ srvhelper.ConnectionModelInfo = (*RemoteConnectionModelInfo)(nil)
+
+type RemoteConnectionModelInfo struct {
+	*RemoteModelInfo
+}
+
+func NewRemoteConnectionModelInfo[ParentType any](di *DynamicModelInfo) (*RemoteConnectionModelInfo, errors.Error) {
+	mi, err := GenerateRemoteModelInfo[ParentType](di)
+	if err != nil {
+		return nil, err
+	}
+	return &RemoteConnectionModelInfo{RemoteModelInfo: mi}, nil
+}
+
+// GetConnectionId implements srvhelper.ConnectionModelInfo.
+func (r *RemoteConnectionModelInfo) GetConnectionId(connection any) uint64 {
+	return reflect.ValueOf(connection).Elem().FieldByName("ID").Uint()
 }

@@ -21,8 +21,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/apache/incubator-devlake/core/models"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
@@ -45,7 +43,7 @@ func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.Ap
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
-	connection, err := pa.dsHelper.ConnApi.FindByPk(input)
+	connection, err := pa.dsHelper.ConnApi.FindByPkAny(input)
 	if err != nil {
 		return nil, err
 	}
@@ -60,9 +58,9 @@ func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.Ap
 	return &plugin.ApiResourceOutput{Body: output, Status: http.StatusOK}, nil
 }
 
-func (pa *pluginAPI) getRemoteScopesIncrementally(connection models.DynamicTabler, groupId string) ([]RemoteScopesTreeNode, errors.Error) {
+func (pa *pluginAPI) getRemoteScopesIncrementally(connection any, groupId string) ([]RemoteScopesTreeNode, errors.Error) {
 	remoteScopes := make([]RemoteScopesTreeNode, 0)
-	stream := pa.invoker.Stream("remote-scopes", bridge.DefaultContext, connection.Unwrap(), groupId)
+	stream := pa.invoker.Stream("remote-scopes", bridge.DefaultContext, connection, groupId)
 	for recv := range stream.Receive() {
 		if recv.Err != nil {
 			return nil, recv.Err

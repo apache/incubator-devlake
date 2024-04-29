@@ -18,34 +18,23 @@ limitations under the License.
 package plugin
 
 import (
-	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
-	remoteModel "github.com/apache/incubator-devlake/server/services/remote/models"
 )
 
 type pluginAPI struct {
-	invoker         bridge.Invoker
-	connType        models.DynamicTabler
-	scopeType       models.DynamicTabler
-	scopeConfigType models.DynamicTabler
-	dsHelper        *api.DsHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig]
+	invoker  bridge.Invoker
+	dsHelper *api.DsAnyHelper
 }
 
 func GetDefaultAPI(
 	invoker bridge.Invoker,
-	connType models.DynamicTabler,
-	scopeConfigType models.DynamicTabler,
-	scopeType models.DynamicTabler,
-	dsHelper *api.DsHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig],
+	dsHelper *api.DsAnyHelper,
 ) map[string]map[string]plugin.ApiResourceHandler {
 	papi := &pluginAPI{
-		invoker:         invoker,
-		connType:        connType,
-		scopeConfigType: scopeConfigType,
-		scopeType:       scopeType,
-		dsHelper:        dsHelper,
+		invoker:  invoker,
+		dsHelper: dsHelper,
 	}
 	resources := map[string]map[string]plugin.ApiResourceHandler{
 		"test": {

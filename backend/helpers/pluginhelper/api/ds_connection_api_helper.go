@@ -35,7 +35,7 @@ type DsAnyConnectionApiHelper struct {
 	*srvhelper.AnyConnectionSrvHelper
 }
 
-func NewAnyDsConnectionApiHelper(
+func NewDsAnyConnectionApiHelper(
 	basicRes context.BasicRes,
 	connSrvHelper *srvhelper.AnyConnectionSrvHelper,
 	sterilizer func(c any) any,
