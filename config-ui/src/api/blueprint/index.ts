@@ -37,8 +37,9 @@ export const update = (id: ID, data: IBlueprint) => request(`/blueprints/${id}`,
 export const pipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
 
 type TriggerQuery = {
-  skipCollectors: boolean;
-  fullSync: boolean;
+  skipCollectors?: boolean;
+  fullSync?: boolean;
 };
 
-export const trigger = (id: ID, data: TriggerQuery) => request(`/blueprints/${id}/trigger`, { method: 'post', data });
+export const trigger = (id: ID, data: TriggerQuery = { skipCollectors: false, fullSync: false }) =>
+  request(`/blueprints/${id}/trigger`, { method: 'post', data });
