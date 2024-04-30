@@ -18,6 +18,7 @@
 
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { Tabs } from 'antd';
 import useUrlState from '@ahooksjs/use-url-state';
 
@@ -30,6 +31,8 @@ import { BlueprintDetail, FromEnum } from '@/routes';
 import { WebhooksPanel } from './webhooks-panel';
 import { SettingsPanel } from './settings-panel';
 import * as S from './styled';
+
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const ProjectDetailPage = () => {
   const [version, setVersion] = useState(1);
@@ -58,6 +61,11 @@ export const ProjectDetailPage = () => {
         { name: data.name, path: PATHS.PROJECT(pname) },
       ]}
     >
+      <Helmet>
+        <title>
+          {data.name} - {brandName}
+        </title>
+      </Helmet>
       <S.Wrapper>
         <Tabs
           items={[

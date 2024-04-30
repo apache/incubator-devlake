@@ -40,7 +40,7 @@ const RAW_CHANGELOG_TABLE = "jira_api_issue_changelogs"
 var CollectIssueChangelogsMeta = plugin.SubTaskMeta{
 	Name:             "collectIssueChangelogs",
 	EntryPoint:       CollectIssueChangelogs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "collect Jira Issue change logs, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }

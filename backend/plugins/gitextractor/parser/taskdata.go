@@ -28,8 +28,12 @@ type GitExtractorTaskData struct {
 	SkipAllSubtasks bool // siliently skip all tasks without raising error
 }
 
+type GitExtractorApiParams struct {
+	RepoId string `json:"repoId" mapstructure:"repoId"`
+}
+
 type GitExtractorOptions struct {
-	RepoId          string `json:"repoId" mapstructure:"repoId"`
+	GitExtractorApiParams
 	Name            string `json:"name" mapstructure:"name"`
 	Url             string `json:"url" mapstructure:"url"`
 	User            string `json:"user" mapstructure:"user"`

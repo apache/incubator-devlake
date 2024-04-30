@@ -33,7 +33,7 @@ type CircleciTestConnResponse struct {
 	shared.ApiBody
 }
 
-func testConnection(ctx context.Context, connection *models.CircleciConnection) (*CircleciTestConnResponse, errors.Error) {
+func testConnection(ctx context.Context, connection *models.CircleciConn) (*CircleciTestConnResponse, errors.Error) {
 	// validate
 	if vld != nil {
 		if err := vld.Struct(connection); err != nil {
@@ -73,7 +73,7 @@ func testConnection(ctx context.Context, connection *models.CircleciConnection) 
 // @Router /plugins/circleci/test [POST]
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// process input
-	connection := &models.CircleciConnection{}
+	connection := &models.CircleciConn{}
 	err := api.Decode(input.Body, connection, vld)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		return nil, err
 	}
 	// test connection
-	result, err := testConnection(context.TODO(), connection)
+	result, err := testConnection(context.TODO(), &connection.CircleciConn)
 	if err != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}

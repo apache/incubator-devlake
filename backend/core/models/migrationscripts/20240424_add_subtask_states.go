@@ -28,14 +28,14 @@ import (
 var _ plugin.MigrationScript = (*addSubtaskStates)(nil)
 
 type subtaskState20240424 struct {
-	CreatedAt          time.Time `json:"createdAt"`
-	UpdatedAt          time.Time `json:"updatedAt"`
-	Plugin             string    `gorm:"primaryKey;type:varchar(50)" json:"plugin"`
-	Subtask            string    `gorm:"primaryKey;type:varchar(50)" json:"subtask"`
-	RawDataTable       string    `gorm:"primaryKey;column:raw_data_table;type:varchar(50)" json:"raw_data_table"`
-	RawDataParams      string    `gorm:"primaryKey;column:raw_data_params;type:varchar(255);index" json:"raw_data_params"`
-	TimeAfter          *time.Time
-	LatestSuccessStart *time.Time
+	Plugin        string     `gorm:"primaryKey;type:varchar(255)" json:"plugin"`
+	Subtask       string     `gorm:"primaryKey;type:varchar(255)" json:"subtask"`
+	Params        string     `gorm:"primaryKey;type:varchar(255);index" json:"params"`
+	PrevConfig    string     `json:"prevConfig"`
+	TimeAfter     *time.Time `json:"timeAfter"`
+	PrevStartedAt *time.Time `json:"prevStartedAt"`
+	CreatedAt     time.Time  `json:"createdAt"`
+	UpdatedAt     time.Time  `json:"updatedAt"`
 }
 
 func (subtaskState20240424) TableName() string {

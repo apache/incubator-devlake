@@ -20,7 +20,6 @@ package api
 import (
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -197,17 +196,10 @@ func searchBitbucketServerRepos(apiClient plugin.ApiClient, params *dsmodels.DsR
 		Start: 0,
 		Limit: 1,
 	})
-	s := params.Search
-	gid, searchName := getSearch(s)
-
-	queryString := fmt.Sprintf("name=%s", searchName)
-	if len(gid) > 0 {
-		queryString = fmt.Sprintf("&projectkey=%s", gid)
-	}
-	query.Set("q", queryString)
+	query.Set("name", params.Search)
 
 	// list repos part
-	res, err := apiClient.Get("rest/api/1.0/repos", query, nil)
+	res, err := apiClient.Get("rest/api/latest/repos", query, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -231,23 +223,6 @@ func searchBitbucketServerRepos(apiClient plugin.ApiClient, params *dsmodels.DsR
 	}
 
 	return children, nil
-}
-
-func getSearch(s string) (string, string) {
-	gid := ""
-	if strings.Contains(s, "/") {
-		parts := strings.Split(s, "/")
-		if len(parts) == 2 {
-			// KEY/repo
-			gid = parts[0]
-			s = strings.Join(parts[1:], "/")
-		} else if len(parts) >= 3 {
-			// KEY/repos/repo
-			gid = parts[0]
-			s = strings.Join(parts[2:], "/")
-		}
-	}
-	return gid, s
 }
 
 func initialQuery(page BitBucketServerRemotePagination) url.Values {

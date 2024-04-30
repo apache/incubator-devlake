@@ -101,7 +101,7 @@ func TestSubtaskStateManager(t *testing.T) {
 		},
 		{
 			name:                      "config no changed",
-			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time2, PrevConfig: "hello"},
+			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time2, PrevConfig: `"hello"`},
 			syncPolicy:                &models.SyncPolicy{TimeAfter: &time1},
 			config:                    "hello",
 			expectedIsIncremental:     true,
@@ -158,7 +158,7 @@ func TestSubtaskStateManager(t *testing.T) {
 				dst := args.Get(0).(*models.SubtaskState)
 				*dst = *tc.state
 			}).Return(nil).Once()
-			mockDal.On("Update", mock.Anything, mock.Anything).Return(nil).Once()
+			mockDal.On("CreateOrUpdate", mock.Anything, mock.Anything).Return(nil).Once()
 			// })
 
 			// mockBasicRes, tc.syncPolicy, "table", "params"
@@ -173,6 +173,7 @@ func TestSubtaskStateManager(t *testing.T) {
 			stateManager, err := NewSubtaskStateManager(&SubtaskCommonArgs{
 				SubTaskContext: mockSubtaskCtx,
 				SubtaskConfig:  fmt.Sprintf("%v", tc.config),
+				Params:         "whatever",
 			})
 			assert.Nil(t, err)
 			assert.Equal(t, tc.expectedSince, stateManager.since)

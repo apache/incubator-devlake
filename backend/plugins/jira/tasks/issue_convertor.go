@@ -20,7 +20,6 @@ package tasks
 import (
 	"net/url"
 	"path/filepath"
-	"reflect"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -41,48 +40,51 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*JiraTaskData)
-
-	jiraIssue := &models.JiraIssue{}
-	// select all issues belongs to the board
-	clauses := []dal.Clause{
-		dal.Select("_tool_jira_issues.*"),
-		dal.From(jiraIssue),
-		dal.Join(`left join _tool_jira_board_issues
-			on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id
-			and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id`),
-		dal.Where(
-			"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
-			data.Options.ConnectionId,
-			data.Options.BoardId,
-		),
-	}
-	cursor, err := db.Cursor(clauses...)
+func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	data := subtaskCtx.GetData().(*JiraTaskData)
+	db := subtaskCtx.GetDal()
+	mappings, err := getTypeMappings(data, db)
 	if err != nil {
 		return err
 	}
-	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
 	boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.BoardId)
 
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.JiraIssue{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
+	converter, err := api.NewStatefulDataConverter[models.JiraIssue](&api.StatefulDataConverterArgs[models.JiraIssue]{
+		SubtaskCommonArgs: &api.SubtaskCommonArgs{
+			SubTaskContext: subtaskCtx,
+			Table:          RAW_ISSUE_TABLE,
 			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			Table: RAW_ISSUE_TABLE,
+			SubtaskConfig: mappings,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			jiraIssue := inputRow.(*models.JiraIssue)
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.Select("_tool_jira_issues.*"),
+				dal.From("_tool_jira_issues"),
+				dal.Join(`left join _tool_jira_board_issues
+					on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id
+					and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id`),
+				dal.Where(
+					"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
+					data.Options.ConnectionId,
+					data.Options.BoardId,
+				),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("_tool_jira_issues.updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(jiraIssue *models.JiraIssue) ([]interface{}, errors.Error) {
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: issueIdGen.Generate(jiraIssue.ConnectionId, jiraIssue.IssueId),
@@ -139,6 +141,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return result, nil
 		},
 	})
+
 	if err != nil {
 		return err
 	}

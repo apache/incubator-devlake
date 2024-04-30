@@ -323,6 +323,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/dev-panel-commits": {
 			"GET": api.GetCommitsURLs,
 		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
+		},
 		"generate-regex": {
 			"POST": api.GenRegex,
 		},

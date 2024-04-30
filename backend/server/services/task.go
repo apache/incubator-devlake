@@ -321,6 +321,9 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	subTasksOuput.Count = totalSubtasksCount
 	completionRateFloat := float64(totalFinishedSubTasksCount) / float64(totalSubtasksCount)
 	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
+	if math.IsNaN(roundedCompletionRate) {
+		roundedCompletionRate = 1
+	}
 	subTasksOuput.CompletionRate = roundedCompletionRate
 
 	subTasksOuput.Status = getTaskStatus(status)

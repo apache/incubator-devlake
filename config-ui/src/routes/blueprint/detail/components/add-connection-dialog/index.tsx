@@ -68,7 +68,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
 
   const options = useMemo(
     () =>
-      [{}].concat(
+      [{ value: '' }].concat(
         connections
           .filter((cs) => (disabled.length ? !disabled.includes(cs.unique) : true))
           .map((cs) => ({
@@ -110,7 +110,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
               optionRender={(option, { index }) => {
                 if (index === 0) {
                   return (
-                    <Button size="small" type="link" icon={<PlusOutlined />} onClick={() => navigate('/connections')}>
+                    <Button size="small" type="link" icon={<PlusOutlined />}>
                       Add New Connection
                     </Button>
                   );
@@ -121,7 +121,12 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
                   </Option>
                 );
               }}
-              onChange={(value) => setSelectedValue(value)}
+              onChange={(value) => {
+                if (!value) {
+                  navigate('/connections');
+                }
+                setSelectedValue(value);
+              }}
             />
           </Block>
           <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>

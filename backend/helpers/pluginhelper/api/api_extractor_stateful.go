@@ -26,62 +26,52 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 )
 
-// ApiExtractorArgs FIXME ...
-type ApiExtractorArgs struct {
-	RawDataSubTaskArgs
-	Params    interface{}
-	Extract   func(row *RawData) ([]interface{}, errors.Error)
-	BatchSize int
+// StatefulApiExtractorArgs is a struct that contains the arguments for a stateful api extractor
+type StatefulApiExtractorArgs struct {
+	*SubtaskCommonArgs
+	Extract func(row *RawData) ([]any, errors.Error)
 }
 
-// ApiExtractor helps you extract Raw Data from api responses to Tool Layer Data
-// It reads rows from specified raw data table, and feed it into `Extract` handler
-// you can return arbitrary tool layer entities in this handler, ApiExtractor would
-// first delete old data by their RawDataOrigin information, and then perform a
-// batch save for you.
-type ApiExtractor struct {
-	*RawDataSubTask
-	args *ApiExtractorArgs
+type StatefulApiExtractor struct {
+	*StatefulApiExtractorArgs
+	*SubtaskStateManager
 }
 
-// NewApiExtractor creates a new ApiExtractor, TODO: replaced with NewStatefulApiExtractor
-func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, errors.Error) {
-	// process args
-	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
+// NewStatefulApiExtractor creates a new StatefulApiExtractor
+func NewStatefulApiExtractor(args *StatefulApiExtractorArgs) (*StatefulApiExtractor, errors.Error) {
+	stateManager, err := NewSubtaskStateManager(args.SubtaskCommonArgs)
 	if err != nil {
 		return nil, err
 	}
-	if args.BatchSize == 0 {
-		args.BatchSize = 500
-	}
-	return &ApiExtractor{
-		RawDataSubTask: rawDataSubTask,
-		args:           &args,
+	return &StatefulApiExtractor{
+		StatefulApiExtractorArgs: args,
+		SubtaskStateManager:      stateManager,
 	}, nil
 }
 
-func setRawDataOrigin(result interface{}, originValue common.RawDataOrigin) bool {
-	originField := reflectField(result, "RawDataOrigin")
-	if originField.IsValid() {
-		originField.Set(reflect.ValueOf(originValue))
-		return true
-	}
-	return false
-}
-
 // Execute sub-task
-func (extractor *ApiExtractor) Execute() errors.Error {
+func (extractor *StatefulApiExtractor) Execute() errors.Error {
 	// load data from database
-	db := extractor.args.Ctx.GetDal()
-	logger := extractor.args.Ctx.GetLogger()
-	if !db.HasTable(extractor.table) {
+	db := extractor.GetDal()
+	logger := extractor.GetLogger()
+	table := extractor.GetRawDataTable()
+	params := extractor.GetRawDataParams()
+	if !db.HasTable(table) {
 		return nil
 	}
 	clauses := []dal.Clause{
-		dal.From(extractor.table),
-		dal.Where("params = ?", extractor.params),
+		dal.From(table),
+		dal.Where("params = ?", params),
 		dal.Orderby("id ASC"),
 	}
+
+	if extractor.IsIncremental() {
+		since := extractor.GetSince()
+		if since != nil {
+			clauses = append(clauses, dal.Where("created_at >= ? ", since))
+		}
+	}
+	clauses = append(clauses, dal.Where("created_at < ? ", extractor.GetUntil()))
 
 	count, err := db.Count(clauses...)
 	if err != nil {
@@ -91,14 +81,15 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error running DB query")
 	}
-	logger.Info("get data from %s where params=%s and got %d", extractor.table, extractor.params, count)
+	logger.Info("get data from %s where params=%s and got %d", table, params, count)
 	defer cursor.Close()
 	// batch save divider
-	divider := NewBatchSaveDivider(extractor.args.Ctx, extractor.args.BatchSize, extractor.table, extractor.params)
+	divider := NewBatchSaveDivider(extractor.SubTaskContext, extractor.GetBatchSize(), table, params)
+	divider.SetIncrementalMode(extractor.IsIncremental())
 
 	// progress
-	extractor.args.Ctx.SetProgress(0, -1)
-	ctx := extractor.args.Ctx.GetContext()
+	extractor.SetProgress(0, -1)
+	ctx := extractor.GetContext()
 	// iterate all rows
 	for cursor.Next() {
 		select {
@@ -112,7 +103,7 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 			return errors.Default.Wrap(err, "error fetching row")
 		}
 
-		results, err := extractor.args.Extract(row)
+		results, err := extractor.Extract(row)
 		if err != nil {
 			return errors.Default.Wrap(err, "error calling plugin Extract implementation")
 		}
@@ -124,9 +115,9 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 			}
 			// set raw data origin field
 			setRawDataOrigin(result, common.RawDataOrigin{
-				RawDataTable:  extractor.table,
+				RawDataTable:  table,
+				RawDataParams: params,
 				RawDataId:     row.ID,
-				RawDataParams: row.Params,
 			})
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
@@ -134,11 +125,16 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 				return errors.Default.Wrap(err, "error adding result to batch")
 			}
 		}
-		extractor.args.Ctx.IncProgress(1)
+		extractor.IncProgress(1)
 	}
 
 	// save the last batches
-	return divider.Close()
+	err = divider.Close()
+	if err != nil {
+		return err
+	}
+	// save the incremantal state
+	return extractor.SubtaskStateManager.Close()
 }
 
-var _ plugin.SubTask = (*ApiExtractor)(nil)
+var _ plugin.SubTask = (*StatefulApiExtractor)(nil)

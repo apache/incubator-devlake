@@ -18,27 +18,30 @@
 
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { DeleteOutlined, FormOutlined } from '@ant-design/icons';
 import { Flex, Table, Popconfirm, Modal, Button } from 'antd';
 
 import API from '@/api';
 import { PageLoading, PageHeader, ExternalLink } from '@/components';
 import { PATHS } from '@/config';
-import { showTips } from '@/features';
-import { useAppDispatch, useRefreshData } from '@/hooks';
-import { DataScopeSelect, getPluginConfig, getPluginScopeId } from '@/plugins';
+import { useRefreshData } from '@/hooks';
+import { ScopeConfig, DataScopeSelect, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as S from './styled';
 
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
+
 export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
   const [open, setOpen] = useState(false);
+  const [operating, setOperating] = useState(false);
 
   const { pname, bid, unique } = useParams() as { pname?: string; bid?: string; unique: string };
   const navigate = useNavigate();
 
-  const dispatch = useAppDispatch();
+  const [modal, contextHolder] = Modal.useModal();
 
   const getBlueprint = async (pname?: string, bid?: string) => {
     if (pname) {
@@ -50,8 +53,6 @@ export const BlueprintConnectionDetailPage = () => {
   };
 
   const [plugin, connectionId] = unique.split('-');
-
-  const pluginConfig = getPluginConfig(plugin);
 
   const { ready, data } = useRefreshData(async () => {
     const [blueprint, connection] = await Promise.all([
@@ -92,16 +93,16 @@ export const BlueprintConnectionDetailPage = () => {
   const handleShowDataScope = () => setOpen(true);
   const handleHideDataScope = () => setOpen(false);
 
-  const handleShowTips = () =>
-    dispatch(
-      showTips({
-        type: 'data-scope-changed',
-        payload: {
-          pname,
-          blueprintId: blueprint.id,
-        },
-      }),
-    );
+  const handleRun = async (data?: { skipCollectors?: boolean; fullSync?: boolean }) => {
+    const [success] = await operator(() => API.blueprint.trigger(blueprint.id, data), {
+      setOperating,
+      hideToast: true,
+    });
+
+    if (success) {
+      navigate(pname ? PATHS.PROJECT(pname, { tab: 'status' }) : PATHS.BLUEPRINT(blueprint.id, 'status'));
+    }
+  };
 
   const handleRemoveConnection = async () => {
     const [success] = await operator(() =>
@@ -114,8 +115,25 @@ export const BlueprintConnectionDetailPage = () => {
     );
 
     if (success) {
-      handleShowTips();
-      navigate(pname ? PATHS.PROJECT(pname, { tab: 'configuration' }) : PATHS.BLUEPRINT(blueprint.id, 'configuration'));
+      modal.success({
+        closable: true,
+        centered: true,
+        width: 500,
+        title: 'Data Scope Changed',
+        content: 'Re-collect the data to get the project metrics updated?',
+        footer: (
+          <div style={{ marginTop: 20, textAlign: 'center' }}>
+            <Button type="primary" loading={operating} onClick={() => handleRun()}>
+              Recollect Data
+            </Button>
+          </div>
+        ),
+        onCancel: () => {
+          navigate(
+            pname ? PATHS.PROJECT(pname, { tab: 'configuration' }) : PATHS.BLUEPRINT(blueprint.id, 'configuration'),
+          );
+        },
+      });
     }
   };
 
@@ -135,15 +153,50 @@ export const BlueprintConnectionDetailPage = () => {
           }),
         }),
       {
-        formatMessage: () => 'Update data scope successful.',
+        hideToast: true,
       },
     );
 
     if (success) {
-      handleShowTips();
       handleHideDataScope();
-      setVersion((v) => v + 1);
+      modal.success({
+        closable: true,
+        centered: true,
+        width: 500,
+        title: 'Data Scope Changed',
+        content: 'Re-collect the data to get the project metrics updated?',
+        footer: (
+          <div style={{ marginTop: 20, textAlign: 'center' }}>
+            <Button type="primary" loading={operating} onClick={() => handleRun()}>
+              Recollect Data
+            </Button>
+          </div>
+        ),
+        onCancel: () => {
+          setVersion(version + 1);
+        },
+      });
     }
+  };
+
+  const handleChangeScopeConfig = () => {
+    modal.success({
+      closable: true,
+      centered: true,
+      width: 550,
+      title: 'Scope Config Saved',
+      content: 'Please re-transform data to apply the updated scope config.',
+      footer: (
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <Button type="primary" loading={operating} onClick={() => handleRun({ skipCollectors: true })}>
+            Re-transform now
+          </Button>
+        </div>
+      ),
+      onCancel: () => {
+        setVersion(version + 1);
+      },
+    });
   };
 
   return (
@@ -163,9 +216,14 @@ export const BlueprintConnectionDetailPage = () => {
             ]
       }
     >
+      <Helmet>
+        <title>
+          {pname ? pname : blueprint.name} - {connection.name} - {brandName}
+        </title>
+      </Helmet>
       <S.Top>
         <span>
-          If you would like to edit the Data Scope or Scope Config of this Connection, please{' '}
+          To manage the complete data scope and scope config for this Connection, please{' '}
           <ExternalLink link={`/connections/${connection.plugin}/${connection.id}`}>
             go to the Connection detail page
           </ExternalLink>
@@ -192,13 +250,6 @@ export const BlueprintConnectionDetailPage = () => {
           <Button type="primary" icon={<FormOutlined />} onClick={handleShowDataScope}>
             Manage Data Scope
           </Button>
-          {pluginConfig.scopeConfig && (
-            <ExternalLink style={{ marginLeft: 8 }} link={PATHS.CONNECTION(connection.plugin, connection.id)}>
-              <Button type="primary" icon={<FormOutlined />}>
-                Edit Scope Config
-              </Button>
-            </ExternalLink>
-          )}
         </Flex>
         <Table
           rowKey="id"
@@ -212,7 +263,16 @@ export const BlueprintConnectionDetailPage = () => {
             {
               title: 'Scope Config',
               key: 'scopeConfig',
-              render: (_, { scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
+              render: (_, { id, scopeConfigId, scopeConfigName }) => (
+                <ScopeConfig
+                  plugin={plugin}
+                  connectionId={connectionId}
+                  scopeId={id}
+                  id={scopeConfigId}
+                  name={scopeConfigName}
+                  onSuccess={handleChangeScopeConfig}
+                />
+              ),
             },
           ]}
           dataSource={scopes}
@@ -228,6 +288,7 @@ export const BlueprintConnectionDetailPage = () => {
           onSubmit={handleChangeDataScope}
         />
       </Modal>
+      {contextHolder}
     </PageHeader>
   );
 };

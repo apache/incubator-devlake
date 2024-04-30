@@ -35,7 +35,7 @@ var _ plugin.SubTaskEntryPoint = ConvertBugRepoCommits
 var ConvertBugRepoCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertBugRepoCommits",
 	EntryPoint:       ConvertBugRepoCommits,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "convert Zentao bug repo commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
