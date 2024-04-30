@@ -86,7 +86,7 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	return dsHelper.ScopeConfigApi.GetAll(input)
 }
 
-// GetProjects return projects details related by scope config
+// GetProjectsByScopeConfig return projects details related by scope config
 // @Summary return all related projects
 // @Description return all related projects
 // @Tags plugins/bitbucket_server
@@ -96,8 +96,8 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket_server/scope-config/{scopeConfigId}/projects [GET]
-func GetProjects(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return dsHelper.ScopeConfigApi.GetProjects(input)
+func GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeConfigApi.GetProjectsByScopeConfig(input)
 }
 
 // DeleteScopeConfig delete a scope config

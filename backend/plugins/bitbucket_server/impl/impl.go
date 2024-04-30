@@ -202,7 +202,7 @@ func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResource
 			"DELETE": api.DeleteScopeConfig,
 		},
 		"scope-config/:scopeConfigId/projects": {
-			"GET": api.GetProjects,
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

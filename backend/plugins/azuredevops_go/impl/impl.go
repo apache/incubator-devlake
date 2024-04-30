@@ -245,7 +245,7 @@ func (p Azuredevops) ApiResources() map[string]map[string]plugin.ApiResourceHand
 			"GET": api.Proxy,
 		},
 		"scope-config/:scopeConfigId/projects": {
-			"GET": api.GetProjects,
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

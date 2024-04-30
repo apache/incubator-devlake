@@ -304,7 +304,7 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"DELETE": api.DeleteScopeConfig,
 		},
 		"scope-config/:scopeConfigId/projects": {
-			"GET": api.GetProjects,
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

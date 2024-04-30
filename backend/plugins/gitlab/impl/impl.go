@@ -272,7 +272,7 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.Proxy,
 		},
 		"scope-config/:scopeConfigId/projects": {
-			"GET": api.GetProjects,
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

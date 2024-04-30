@@ -94,7 +94,7 @@ func GetDefaultAPI(
 			"GET": papi.SearchRemoteScopes,
 		},
 		"scope-config/:id/projects": {
-			"GET": papi.GetProjects,
+			"GET": papi.GetProjectsByScopeConfig,
 		},
 	}
 	papi.createScopeHelper()

@@ -90,7 +90,7 @@ func (pa *pluginAPI) GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.Api
 	return &plugin.ApiResourceOutput{Body: scopeConfig.Unwrap()}, nil
 }
 
-func (pa *pluginAPI) GetProjects(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (pa *pluginAPI) GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	db := basicRes.GetDal()
 	configId, err := strconv.ParseUint(input.Params["id"], 10, 64)
 	if err != nil {

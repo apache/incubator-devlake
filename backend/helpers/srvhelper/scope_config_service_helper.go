@@ -56,7 +56,7 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(conne
 	return scopeConfigs, err
 }
 
-func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjects(pluginName string, scopeConfig *SC) (*models.ProjectScopeOutput, errors.Error) {
+func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(pluginName string, scopeConfig *SC) (*models.ProjectScopeOutput, errors.Error) {
 	ps := &models.ProjectScopeOutput{}
 	projectMap := make(map[string]*models.ProjectScope)
 	// 1. get all scopes that are using the scopeConfigId
