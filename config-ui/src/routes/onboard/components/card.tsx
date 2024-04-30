@@ -49,7 +49,7 @@ export const OnboardCard = ({ style }: Props) => {
 
   const tasksRes = useAutoRefresh(
     async () => {
-      if (!record) {
+      if ((data && data.done) || !record) {
         return;
       }
 
