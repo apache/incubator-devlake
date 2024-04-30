@@ -18,6 +18,7 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { DeleteOutlined, PlusOutlined, LinkOutlined, ClearOutlined } from '@ant-design/icons';
 import { theme, Space, Table, Button, Modal, message } from 'antd';
 
@@ -39,6 +40,8 @@ import { IConnection } from '@/types';
 import { operator } from '@/utils';
 
 import * as S from './styled';
+
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const Connection = () => {
   const [type, setType] = useState<
@@ -241,6 +244,11 @@ export const Connection = () => {
         </Button>
       }
     >
+      <Helmet>
+        <title>
+          {connection.name} - {brandName}
+        </title>
+      </Helmet>
       <Space style={{ display: 'flex' }} direction="vertical" size={36}>
         <div>
           <span style={{ marginRight: 4 }}>Status:</span>
