@@ -715,7 +715,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "${title_value} after service incidents, rollbacks, or any type of production failure happened.\n\n\n# 2023 Benchmarks\n- **Elite**: Less than one hour\n- **High**: Less than one day\n- **Medium**: Between one day and one week\n- **Low**: More than one week\n# 2021 Benchmarks\n- **Elite**: Less than one hour\n- **High**: Less than one day\n- **Medium**: Between one day and one week\n- **Low**: More than one week\n",
+      "description": "# MTTR benchmarks:\ndevlake.apache.org/docs/Metrics/MTTR#how-is-it-calculated\n# FDRT benchmarks:\ndevlake.apache.org/docs/Metrics/FailedDeploymentRecoveryTime#how-is-it-calculated\n",
       "fieldConfig": {
         "defaults": {
           "color": {
