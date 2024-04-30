@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
@@ -53,6 +54,61 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(conne
 		dal.Orderby("id DESC"),
 	)
 	return scopeConfigs, err
+}
+
+func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjects(pluginName string, scopeConfig *SC) (*models.ProjectScopeOutput, errors.Error) {
+	ps := &models.ProjectScopeOutput{}
+	projectMap := make(map[string]*models.ProjectScope)
+	// 1. get all scopes that are using the scopeConfigId
+	var scope []*S
+	err := scopeConfigSrv.db.All(&scope,
+		dal.Where("scope_config_id = ?", (*scopeConfig).ScopeConfigId()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range scope {
+		// 2. get blueprint id by connection id and scope id
+		bpScope := []*models.BlueprintScope{}
+		err = scopeConfigSrv.db.All(&bpScope,
+			dal.Where("plugin_name = ? and connection_id = ? and scope_id = ?", pluginName, (*s).ScopeConnectionId(), (*s).ScopeId()),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, bs := range bpScope {
+			// 3. get project details by blueprint id
+			bp := models.Blueprint{}
+			err = scopeConfigSrv.db.All(&bp,
+				dal.Where("id = ?", bs.BlueprintId),
+			)
+			if err != nil {
+				return nil, err
+			}
+			if project, exists := projectMap[bp.ProjectName]; exists {
+				project.Scopes = append(project.Scopes, struct {
+					ScopeID string `json:"scopeId"`
+				}{ScopeID: bs.ScopeId})
+			} else {
+				projectMap[bp.ProjectName] = &models.ProjectScope{
+					Name: bp.ProjectName,
+					Scopes: []struct {
+						ScopeID string `json:"scopeId"`
+					}{
+						{ScopeID: bs.ScopeId},
+					},
+				}
+			}
+		}
+	}
+	// 4. combine all projects
+	for _, project := range projectMap {
+		ps.Projects = append(ps.Projects, *project)
+	}
+	ps.Count = len(ps.Projects)
+
+	return ps, err
 }
 
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) DeleteScopeConfig(scopeConfig *SC) (refs []*S, err errors.Error) {

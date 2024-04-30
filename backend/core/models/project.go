@@ -85,3 +85,15 @@ type Store struct {
 func (Store) TableName() string {
 	return "_devlake_store"
 }
+
+type ProjectScopeOutput struct {
+	Projects []ProjectScope `json:"projects"`
+	Count    int            `json:"count"`
+}
+
+type ProjectScope struct {
+	Name   string `json:"name"`
+	Scopes []struct {
+		ScopeID string `json:"scopeId"`
+	} `json:"scopes"`
+}

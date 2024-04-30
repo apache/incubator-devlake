@@ -282,6 +282,9 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/proxy/*path": {
 			"GET": api.Proxy,
 		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjects,
+		},
 	}
 }
 

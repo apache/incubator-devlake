@@ -207,6 +207,9 @@ func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjects,
+		},
 	}
 }
 
