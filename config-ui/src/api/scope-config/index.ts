@@ -18,6 +18,8 @@
 
 import { request } from '@/utils';
 
+import { ICheck } from './types';
+
 export const list = (plugin: string, connectionId: ID) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`);
 
@@ -35,3 +37,6 @@ export const update = (plugin: string, connectionId: ID, id: ID, data: any) =>
     method: 'patch',
     data,
   });
+
+export const check = (plugin: string, id: ID): Promise<ICheck> =>
+  request(`/plugins/${plugin}/scope-config/${id}/projects`);
