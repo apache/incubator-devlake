@@ -27,24 +27,11 @@ import (
 	"github.com/apache/incubator-devlake/impls/dalgorm"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/utils"
 	"gorm.io/datatypes"
 )
 
-func LoadTableModel(tableName string, schema utils.JsonObject, parentModel any) (models.DynamicTabler, errors.Error) {
-	var baseType reflect.Type = nil
-	if parentModel != nil {
-		baseType = reflect.TypeOf(parentModel)
-	}
-	structType, err := GenerateStructType(schema, baseType)
-	if err != nil {
-		return nil, err
-	}
-	return models.NewDynamicTabler(tableName, structType), nil
-}
-
-func GenerateStructType(schema utils.JsonObject, baseType reflect.Type) (reflect.Type, errors.Error) {
+func GenerateStructType(schema utils.JsonObject, anonymousFields ...any) (reflect.Type, errors.Error) {
 	var structFields []reflect.StructField
 	props, err := utils.GetProperty[utils.JsonObject](schema, "properties")
 	if err != nil {
@@ -54,17 +41,32 @@ func GenerateStructType(schema utils.JsonObject, baseType reflect.Type) (reflect
 	if err != nil {
 		required = []string{}
 	}
-	if baseType != nil {
+	var anonymousFieldTypes []reflect.Type
+	for _, field := range anonymousFields {
+		if field == nil {
+			panic(errors.Default.New("anonymousField cannot be nil"))
+		}
+		var fieldType reflect.Type
+		if t, ok := field.(reflect.Type); ok {
+			fieldType = t
+		} else {
+			fieldType = reflect.TypeOf(field)
+		}
+		anonymousFieldTypes = append(anonymousFieldTypes, fieldType)
+		name := fieldType.Name()
+		if fieldType.Kind() == reflect.Pointer {
+			name = fieldType.Elem().Name()
+		}
 		anonymousField := reflect.StructField{
-			Name:      baseType.Name(),
-			Type:      baseType,
+			Name:      name,
+			Type:      fieldType,
 			Tag:       reflect.StructTag("mapstructure:\",squash\""),
 			Anonymous: true,
 		}
 		structFields = append(structFields, anonymousField)
 	}
 	for k, v := range props {
-		if baseType != nil && isBaseTypeField(k, baseType) {
+		if anonymousFieldTypes != nil && isBaseTypeField(k, anonymousFieldTypes...) {
 			continue
 		}
 		spec := v.(utils.JsonObject)
@@ -113,17 +115,22 @@ func isRequired(fieldName string, required []string) bool {
 	return false
 }
 
-func isBaseTypeField(fieldName string, baseType reflect.Type) bool {
+func isBaseTypeField(fieldName string, baseTypes ...reflect.Type) bool {
 	fieldName = canonicalFieldName(fieldName)
-	for i := 0; i < baseType.NumField(); i++ {
-		baseField := baseType.Field(i)
-		if baseField.Anonymous {
-			if isBaseTypeField(fieldName, baseField.Type) {
+	for _, baseType := range baseTypes {
+		if baseType.Kind() == reflect.Pointer {
+			baseType = baseType.Elem()
+		}
+		for i := 0; i < baseType.NumField(); i++ {
+			baseField := baseType.Field(i)
+			if baseField.Anonymous {
+				if isBaseTypeField(fieldName, baseField.Type) {
+					return true
+				}
+			}
+			if fieldName == canonicalFieldName(baseField.Name) {
 				return true
 			}
-		}
-		if fieldName == canonicalFieldName(baseField.Name) {
-			return true
 		}
 	}
 	return false

@@ -20,7 +20,6 @@ package models
 import (
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -52,8 +51,24 @@ type DynamicModelInfo struct {
 	TableName  string         `json:"table_name" validate:"required"`
 }
 
-func (d DynamicModelInfo) LoadDynamicTabler(parentModel any) (models.DynamicTabler, errors.Error) {
-	return LoadTableModel(d.TableName, d.JsonSchema, parentModel)
+type DynamicModel struct {
+	modelName string
+	tableName string
+}
+
+func NewDynamicModel(modelName, tableName string) DynamicModel {
+	return DynamicModel{
+		modelName: modelName,
+		tableName: tableName,
+	}
+}
+
+func (di DynamicModel) ModelName() string {
+	return di.modelName
+}
+
+func (di DynamicModel) TableName() string {
+	return di.tableName
 }
 
 type ScopeModel struct {

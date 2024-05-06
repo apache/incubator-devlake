@@ -21,6 +21,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -150,4 +151,28 @@ func TestGetGormTagEncDec(t *testing.T) {
 	}
 	tag := getGormTag(schema, stringType)
 	assert.Equal(t, "gorm:\"type:text;serializer:encdec\"", tag)
+}
+
+func TestGenerateStructType(t *testing.T) {
+	schema := map[string]interface{}{
+		"title": "Test",
+		"type":  "object",
+		"properties": map[string]interface{}{
+			"i": map[string]interface{}{
+				"type": "integer",
+			},
+			"s": map[string]interface{}{
+				"type": "string",
+			},
+		},
+	}
+	typ, err := GenerateStructType(schema, reflect.TypeOf(DynamicModel{}))
+	assert.NoError(t, err)
+	assert.Equal(t, reflect.Struct, typ.Kind())
+	val := reflect.New(typ).Interface()
+	di := NewDynamicModel("TestModel", "testTable")
+	reflect.ValueOf(val).Elem().FieldByName("DynamicModel").Set(reflect.ValueOf(di))
+	// reflect.ValueOf(val).Elem().FieldByName("I").Set(reflect.ValueOf(int64(1)))
+	assert.Equal(t, "testTable", any(di).(dal.Tabler).TableName())
+	assert.Equal(t, "testTable", reflect.ValueOf(val).Elem().FieldByName("DynamicModel").Interface().(dal.Tabler).TableName())
 }

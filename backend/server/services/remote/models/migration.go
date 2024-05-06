@@ -23,8 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
@@ -146,14 +144,14 @@ func (o CreateTableOperation) Execute(basicRes context.BasicRes) errors.Error {
 		basicRes.GetLogger().Warn(nil, "table %s already exists. It won't be created.", o.ModelInfo.TableName)
 		return nil
 	}
-	model, err := o.ModelInfo.LoadDynamicTabler(common.NoPKModel{})
+	mi, err := GenerateRemoteModelInfo[any](o.ModelInfo)
 	if err != nil {
 		return err
 	}
 	// uncomment to debug "modelDump" as needed
-	modelDump := models.DumpInfo(model.New())
-	_ = modelDump
-	err = api.CallDB(db.AutoMigrate, model.New())
+	// modelDump := models.DumpInfo(mi.New())
+	// _ = modelDump
+	err = api.CallDB(db.AutoMigrate, mi.New())
 	if err != nil {
 		return err
 	}
