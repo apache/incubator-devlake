@@ -69,10 +69,13 @@ export const Connection = () => {
     token: { colorPrimary },
   } = theme.useToken();
 
+  const [modal, contextHolder] = Modal.useModal();
+
   const dispatch = useAppDispatch();
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
 
   const navigate = useNavigate();
+
   const { ready, data } = useRefreshData(
     () => API.scope.list(plugin, connectionId, { page, pageSize, blueprints: true }),
     [version, page, pageSize],
@@ -227,9 +230,46 @@ export const Connection = () => {
     }
   };
 
-  const handleScopeConfigChange = () => {
-    // TO-DO: check scope config change will effect the scope config
-    setVersion(version + 1);
+  const handleScopeConfigChange = async (scopeConfigId?: ID) => {
+    if (!scopeConfigId) {
+      return;
+    }
+
+    const [success, res] = await operator(() => API.scopeConfig.check(plugin, scopeConfigId), { hideToast: true });
+
+    if (success) {
+      modal.success({
+        closable: true,
+        centered: true,
+        width: 830,
+        title: 'Scope Config Saved',
+        content: (
+          <>
+            <div style={{ marginBottom: 16 }}>
+              The listed projects are impacted. Please re-transform the data to apply the updated scope config.
+            </div>
+            <ul>
+              {res.projects.map((it: any) => (
+                <li style={{ marginBottom: 10 }}>
+                  <Space>
+                    <span>{it.name}</span>
+                    <Button
+                      size="small"
+                      type="link"
+                      onClick={() => navigate(PATHS.PROJECT(it.name, { tab: 'status' }))}
+                    >
+                      Re-transform Data
+                    </Button>
+                  </Space>
+                </li>
+              ))}
+            </ul>
+          </>
+        ),
+        footer: null,
+        onCancel: () => setVersion(version + 1),
+      });
+    }
   };
 
   return (
@@ -305,11 +345,12 @@ export const Connection = () => {
               title: 'Scope Config',
               key: 'scopeConfig',
               width: 400,
-              render: (_, { id, configId, configName }) => (
+              render: (_, { id, name, configId, configName }) => (
                 <ScopeConfig
                   plugin={plugin}
                   connectionId={connectionId}
                   scopeId={id}
+                  scopeName={name}
                   id={configId}
                   name={configName}
                   onSuccess={handleScopeConfigChange}
@@ -515,6 +556,7 @@ export const Connection = () => {
           )}
         </Modal>
       )}
+      {contextHolder}
     </PageHeader>
   );
 };

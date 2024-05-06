@@ -18,10 +18,11 @@
 
 import { useState } from 'react';
 import { LinkOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Modal } from 'antd';
+import { theme, Button, Modal, Flex, Space } from 'antd';
 import styled from 'styled-components';
 
 import API from '@/api';
+import { Message } from '@/components';
 import { operator } from '@/utils';
 
 import { PluginName } from '../plugin-name';
@@ -34,15 +35,38 @@ interface Props {
   plugin: string;
   connectionId: ID;
   scopeId: ID;
+  scopeName: string;
   id?: ID;
   name?: string;
-  onSuccess?: () => void;
+  onSuccess?: (id?: ID) => void;
 }
 
-export const ScopeConfig = ({ plugin, connectionId, scopeId, id, name, onSuccess }: Props) => {
-  const [type, setType] = useState<'associate' | 'update'>();
+export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name, onSuccess }: Props) => {
+  const [type, setType] = useState<'associate' | 'update' | 'relatedProjects'>();
+  const [relatedProjects, setRelatedProjects] = useState<Array<{ name: string; scopes: string[] }>>([]);
+
+  const {
+    token: { colorPrimary },
+  } = theme.useToken();
 
   const handleHideDialog = () => setType(undefined);
+
+  const handleCheckScopeConfig = async () => {
+    if (!id) return;
+
+    const [success, res] = await operator(() => API.scopeConfig.check(plugin, id), { hideToast: true });
+
+    if (success) {
+      const projects = res.projects.map((it: any) => ({ name: it.name, scopes: [] }));
+
+      if (projects.length !== 1) {
+        setRelatedProjects(projects);
+        setType('relatedProjects');
+      } else {
+        setType('update');
+      }
+    }
+  };
 
   const handleAssociate = async (trId: ID) => {
     const [success] = await operator(
@@ -54,13 +78,13 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, id, name, onSuccess
 
     if (success) {
       handleHideDialog();
-      onSuccess?.();
+      onSuccess?.(id);
     }
   };
 
   const handleUpdate = (trId: ID) => {
     handleHideDialog();
-    onSuccess?.();
+    onSuccess?.(id);
   };
 
   return (
@@ -74,17 +98,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, id, name, onSuccess
           setType('associate');
         }}
       />
-      {id && (
-        <Button
-          size="small"
-          type="link"
-          icon={<EditOutlined />}
-          onClick={() => {
-            // TO-DO: check if the scope config is associated with any scope
-            setType('update');
-          }}
-        />
-      )}
+      {id && <Button size="small" type="link" icon={<EditOutlined />} onClick={handleCheckScopeConfig} />}
       {type === 'associate' && (
         <Modal
           open
@@ -125,6 +139,33 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, id, name, onSuccess
             onCancel={handleHideDialog}
             onSubmit={handleUpdate}
           />
+        </Modal>
+      )}
+      {type === 'relatedProjects' && (
+        <Modal
+          open
+          width={830}
+          centered
+          footer={null}
+          title={`Edit '${name}' for '${scopeName}'`}
+          onCancel={handleHideDialog}
+        >
+          <Message content="The change will apply to all following projects:" />
+          <ul style={{ marginTop: 15, marginLeft: 30 }}>
+            {relatedProjects.map((it) => (
+              <li style={{ color: colorPrimary }}>
+                {it.name}:{it.scopes.join(',')}
+              </li>
+            ))}
+          </ul>
+          <Flex justify="end">
+            <Space>
+              <Button onClick={handleHideDialog}>Cancel</Button>
+              <Button type="primary" onClick={() => setType('update')}>
+                Continue
+              </Button>
+            </Space>
+          </Flex>
         </Modal>
       )}
     </Wrapper>

@@ -263,11 +263,12 @@ export const BlueprintConnectionDetailPage = () => {
             {
               title: 'Scope Config',
               key: 'scopeConfig',
-              render: (_, { id, scopeConfigId, scopeConfigName }) => (
+              render: (_, { id, name, scopeConfigId, scopeConfigName }) => (
                 <ScopeConfig
                   plugin={plugin}
                   connectionId={connectionId}
                   scopeId={id}
+                  scopeName={name}
                   id={scopeConfigId}
                   name={scopeConfigName}
                   onSuccess={handleChangeScopeConfig}
