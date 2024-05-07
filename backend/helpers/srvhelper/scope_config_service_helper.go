@@ -18,8 +18,6 @@ limitations under the License.
 package srvhelper
 
 import (
-	"fmt"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -80,9 +78,6 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 		}
 
 		for _, bs := range bpScope {
-			fmt.Println("-----------", (*s).ScopeConnectionId())
-			fmt.Println("scopeName:", (*s).ScopeName())
-			fmt.Println("scopeId:", (*s).ScopeId())
 			// 3. get project details by blueprint id
 			bp := models.Blueprint{}
 			err = scopeConfigSrv.db.All(&bp,
