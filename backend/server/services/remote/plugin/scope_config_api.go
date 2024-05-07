@@ -128,15 +128,23 @@ func (pa *pluginAPI) GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (*
 			}
 			if project, exists := projectMap[bp.ProjectName]; exists {
 				project.Scopes = append(project.Scopes, struct {
-					ScopeID string `json:"scopeId"`
-				}{ScopeID: bs.ScopeId})
+					ScopeID   string `json:"scopeId"`
+					ScopeName string `json:"scopeName"`
+				}{
+					ScopeID:   bs.ScopeId,
+					ScopeName: scope.ScopeName(),
+				})
 			} else {
 				projectMap[bp.ProjectName] = &coreModels.ProjectScope{
 					Name: bp.ProjectName,
 					Scopes: []struct {
-						ScopeID string `json:"scopeId"`
+						ScopeID   string `json:"scopeId"`
+						ScopeName string `json:"scopeName"`
 					}{
-						{ScopeID: bs.ScopeId},
+						{
+							ScopeID:   bs.ScopeId,
+							ScopeName: scope.ScopeName(),
+						},
 					},
 				}
 			}

@@ -18,6 +18,8 @@ limitations under the License.
 package srvhelper
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -78,6 +80,9 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 		}
 
 		for _, bs := range bpScope {
+			fmt.Println("-----------", (*s).ScopeConnectionId())
+			fmt.Println("scopeName:", (*s).ScopeName())
+			fmt.Println("scopeId:", (*s).ScopeId())
 			// 3. get project details by blueprint id
 			bp := models.Blueprint{}
 			err = scopeConfigSrv.db.All(&bp,
@@ -88,15 +93,23 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 			}
 			if project, exists := projectMap[bp.ProjectName]; exists {
 				project.Scopes = append(project.Scopes, struct {
-					ScopeID string `json:"scopeId"`
-				}{ScopeID: bs.ScopeId})
+					ScopeID   string `json:"scopeId"`
+					ScopeName string `json:"scopeName"`
+				}{
+					ScopeID:   bs.ScopeId,
+					ScopeName: (*s).ScopeName(),
+				})
 			} else {
 				projectMap[bp.ProjectName] = &models.ProjectScope{
 					Name: bp.ProjectName,
 					Scopes: []struct {
-						ScopeID string `json:"scopeId"`
+						ScopeID   string `json:"scopeId"`
+						ScopeName string `json:"scopeName"`
 					}{
-						{ScopeID: bs.ScopeId},
+						{
+							ScopeID:   bs.ScopeId,
+							ScopeName: (*s).ScopeName(),
+						},
 					},
 				}
 			}
