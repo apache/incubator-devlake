@@ -88,15 +88,23 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 			}
 			if project, exists := projectMap[bp.ProjectName]; exists {
 				project.Scopes = append(project.Scopes, struct {
-					ScopeID string `json:"scopeId"`
-				}{ScopeID: bs.ScopeId})
+					ScopeID   string `json:"scopeId"`
+					ScopeName string `json:"scopeName"`
+				}{
+					ScopeID:   bs.ScopeId,
+					ScopeName: (*s).ScopeName(),
+				})
 			} else {
 				projectMap[bp.ProjectName] = &models.ProjectScope{
 					Name: bp.ProjectName,
 					Scopes: []struct {
-						ScopeID string `json:"scopeId"`
+						ScopeID   string `json:"scopeId"`
+						ScopeName string `json:"scopeName"`
 					}{
-						{ScopeID: bs.ScopeId},
+						{
+							ScopeID:   bs.ScopeId,
+							ScopeName: (*s).ScopeName(),
+						},
 					},
 				}
 			}
