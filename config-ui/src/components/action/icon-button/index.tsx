@@ -16,6 +16,20 @@
  *
  */
 
-export * from './copy-text';
-export * from './external-link';
-export * from './icon-button';
+import { forwardRef, Ref } from 'react';
+import type { ButtonProps } from 'antd';
+import { Tooltip, Button } from 'antd';
+
+interface Props extends Pick<ButtonProps, 'type'> {
+  icon: React.ReactNode;
+  helptip: string;
+  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
+}
+
+export const IconButton = forwardRef(function ({ icon, helptip, type, onClick }: Props, ref?: Ref<HTMLElement>) {
+  return (
+    <Tooltip title={helptip}>
+      <Button ref={ref} type={type} icon={icon} onClick={onClick} />
+    </Tooltip>
+  );
+});

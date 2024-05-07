@@ -17,13 +17,13 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Flex, Table, Modal, Radio, Button, Input, Tag } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Block, TextTooltip } from '@/components';
+import { PageHeader, Block, TextTooltip, IconButton } from '@/components';
 import { getCronOptions, cronPresets, getCron, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -41,6 +41,8 @@ export const BlueprintHomePage = () => {
   const [name, setName] = useState('');
   const [mode, setMode] = useState(IBPMode.NORMAL);
   const [saving, setSaving] = useState(false);
+
+  const navigate = useNavigate();
 
   const { ready, data } = useRefreshData(
     () => API.blueprint.list({ type: type.toLocaleUpperCase(), page, pageSize }),
@@ -190,9 +192,12 @@ export const BlueprintHomePage = () => {
               width: 100,
               align: 'center',
               render: (val) => (
-                <Link to={PATHS.BLUEPRINT(val, 'configuration')}>
-                  <Button type="primary" icon={<SettingOutlined />} />
-                </Link>
+                <IconButton
+                  type="primary"
+                  icon={<SettingOutlined />}
+                  helptip="Blueprint Configuration"
+                  onClick={() => navigate(PATHS.BLUEPRINT(val, 'configuration'))}
+                />
               ),
             },
           ]}
