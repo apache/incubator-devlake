@@ -64,7 +64,7 @@ func (p GitExtractor) SubTaskMetas() []plugin.SubTaskMeta {
 func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	log := taskCtx.GetLogger().Nested("gitextractor.PrepareTaskData")
 	var op parser.GitExtractorOptions
-	if err := helper.Decode(options, &op, nil); err != nil {
+	if err := helper.DecodeMapStruct(options, &op, true); err != nil {
 		return nil, err
 	}
 
