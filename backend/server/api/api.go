@@ -77,6 +77,23 @@ func CreateApiServer() *gin.Engine {
 	// Create router
 	router := gin.Default()
 
+	// Enable CORS
+	cfg := basicRes.GetConfigReader()
+	router.Use(cors.New(cors.Config{
+		// Allow all origins
+		AllowOrigins: cfg.GetStringSlice("CORS_ALLOW_ORIGIN"),
+		// Allow common methods
+		AllowMethods: []string{"PUT", "PATCH", "POST", "GET", "OPTIONS"},
+		// Allow common headers
+		AllowHeaders: []string{"Origin", "Content-Type"},
+		// Expose these headers
+		ExposeHeaders: []string{"Content-Length"},
+		// Allow credentials
+		AllowCredentials: false,
+		// Cache for 2 hours
+		MaxAge: 120 * time.Hour,
+	}))
+
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
 	router.GET("/ready", ping.Ready)
@@ -138,23 +155,6 @@ func SetupApiServer(router *gin.Engine) {
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
 		logruslog.Global.Printf("endpoint %v %v %v %v", httpMethod, absolutePath, handlerName, nuHandlers)
 	}
-
-	// Enable CORS
-	router.Use(cors.New(cors.Config{
-		// Allow all origins
-		AllowOrigins: []string{"*"},
-		// Allow common methods
-		AllowMethods: []string{"PUT", "PATCH", "POST", "GET", "OPTIONS"},
-		// Allow common headers
-		AllowHeaders: []string{"Origin", "Content-Type"},
-		// Expose these headers
-		ExposeHeaders: []string{"Content-Length"},
-		// Allow credentials
-		AllowCredentials: true,
-		// Cache for 2 hours
-		MaxAge: 120 * time.Hour,
-	}))
-
 	// Register API endpoints
 	RegisterRouter(router, basicRes)
 }
