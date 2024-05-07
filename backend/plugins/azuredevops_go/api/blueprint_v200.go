@@ -18,8 +18,9 @@ limitations under the License.
 package api
 
 import (
-	"golang.org/x/exp/slices"
 	"net/url"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
@@ -178,10 +179,11 @@ func makePipelinePlanV200(
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"name":   azuredevopsRepo.Name,
-					"repoId": didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connection.ID, azuredevopsRepo.Id),
-					"proxy":  connection.Proxy,
+					"url":            cloneUrl.String(),
+					"name":           azuredevopsRepo.Name,
+					"repoId":         didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connection.ID, azuredevopsRepo.Id),
+					"proxy":          connection.Proxy,
+					"noShallowClone": true,
 				},
 			})
 		}
