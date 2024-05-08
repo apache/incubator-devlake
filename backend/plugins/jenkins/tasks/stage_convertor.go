@@ -155,6 +155,10 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
 				Environment:    data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),
 			}
+			// if the task is not executed, set the result to default, so that it will not be calculated in the dora
+			if jenkinsTask.OriginalStatus == "NOT_EXECUTED" {
+				jenkinsTask.Result = devops.RESULT_DEFAULT
+			}
 			results = append(results, jenkinsTask)
 			return results, nil
 		},
