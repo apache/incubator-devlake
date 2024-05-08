@@ -42,6 +42,7 @@ interface Props {
   connectionId: ID;
   defaultName?: string;
   showWarning?: boolean;
+  forceCreate?: boolean;
   scopeId?: ID;
   scopeConfigId?: ID;
   onCancel: () => void;
@@ -53,6 +54,7 @@ export const ScopeConfigForm = ({
   connectionId,
   defaultName,
   showWarning = false,
+  forceCreate = false,
   scopeId,
   scopeConfigId,
   onCancel,
@@ -81,7 +83,7 @@ export const ScopeConfigForm = ({
     (async () => {
       try {
         const res = await API.scopeConfig.get(plugin, connectionId, scopeConfigId);
-        setName(res.name);
+        setName(forceCreate ? `${res.name}-copy` : res.name);
         setEntities(res.entities ?? []);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
       } catch {}
@@ -99,7 +101,7 @@ export const ScopeConfigForm = ({
   const handleSubmit = async () => {
     const [success, res] = await operator(
       () =>
-        !scopeConfigId
+        !scopeConfigId || forceCreate
           ? API.scopeConfig.create(plugin, connectionId, { name, entities, ...transformation })
           : API.scopeConfig.update(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
       {
