@@ -42,8 +42,10 @@ interface Props {
 }
 
 export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name, onSuccess }: Props) => {
-  const [type, setType] = useState<'associate' | 'update' | 'relatedProjects'>();
-  const [relatedProjects, setRelatedProjects] = useState<Array<{ name: string; scopes: string[] }>>([]);
+  const [type, setType] = useState<'associate' | 'update' | 'relatedProjects' | 'duplicate'>();
+  const [relatedProjects, setRelatedProjects] = useState<
+    Array<{ name: string; scopes: Array<{ scopeId: ID; scopeName: string }> }>
+  >([]);
 
   const {
     token: { colorPrimary },
@@ -57,7 +59,10 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
     const [success, res] = await operator(() => API.scopeConfig.check(plugin, id), { hideToast: true });
 
     if (success) {
-      const projects = res.projects.map((it: any) => ({ name: it.name, scopes: [] }));
+      const projects = res.projects.map((it: any) => ({
+        name: it.name,
+        scopes: it.scopes,
+      }));
 
       if (projects.length !== 1) {
         setRelatedProjects(projects);
@@ -141,6 +146,20 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
           />
         </Modal>
       )}
+      {type === 'duplicate' && (
+        <Modal open width={960} centered footer={null} title="Edit Scope Config" onCancel={handleHideDialog}>
+          <ScopeConfigForm
+            plugin={plugin}
+            connectionId={connectionId}
+            showWarning
+            forceCreate
+            scopeConfigId={id}
+            scopeId={scopeId}
+            onCancel={handleHideDialog}
+            onSubmit={handleAssociate}
+          />
+        </Modal>
+      )}
       {type === 'relatedProjects' && (
         <Modal
           open
@@ -151,10 +170,10 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
           onCancel={handleHideDialog}
         >
           <Message content="The change will apply to all following projects:" />
-          <ul style={{ marginTop: 15, marginLeft: 30 }}>
+          <ul style={{ margin: '15px 0 30px 30px' }}>
             {relatedProjects.map((it) => (
               <li style={{ color: colorPrimary }}>
-                {it.name}:{it.scopes.join(',')}
+                {it.name}: {it.scopes.map((sc) => sc.scopeName).join(',')}
               </li>
             ))}
           </ul>
@@ -163,6 +182,9 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
               <Button onClick={handleHideDialog}>Cancel</Button>
               <Button type="primary" onClick={() => setType('update')}>
                 Continue
+              </Button>
+              <Button type="primary" onClick={() => setType('duplicate')}>
+                Duplicate a scope config for {scopeName}
               </Button>
             </Space>
           </Flex>
