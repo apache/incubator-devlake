@@ -45,6 +45,8 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
     [data, scopeConfigId],
   );
 
+  const defaultName = useMemo(() => `shared-config-<${(data ?? []).length}>`, [data]);
+
   useEffect(() => {
     setTrId(scopeConfigId);
   }, [scopeConfigId]);
@@ -103,6 +105,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         <ScopeConfigForm
           plugin={plugin}
           connectionId={connectionId}
+          defaultName={defaultName}
           onCancel={handleHideDialog}
           onSubmit={handleSubmit}
         />
