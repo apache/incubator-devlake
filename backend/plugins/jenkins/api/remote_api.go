@@ -54,9 +54,8 @@ func listJenkinsRemoteScopes(
 	}
 	getJobsPageCallBack := func(job *models.Job) errors.Error {
 		switch job.Class {
-		case "org.jenkinsci.plugins.workflow.job.WorkflowJob":
 		case "org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject":
-		case "hudson.model.FreeStyleProject":
+		case "hudson.model.FreeStyleProject", "org.jenkinsci.plugins.workflow.job.WorkflowJob":
 			// this is a scope
 			jenkinsJob := job.ToJenkinsJob()
 			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.JenkinsJob]{
