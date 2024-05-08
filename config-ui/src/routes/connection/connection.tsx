@@ -232,12 +232,18 @@ export const Connection = () => {
 
   const handleScopeConfigChange = async (scopeConfigId?: ID) => {
     if (!scopeConfigId) {
+      setVersion(version + 1);
       return;
     }
 
     const [success, res] = await operator(() => API.scopeConfig.check(plugin, scopeConfigId), { hideToast: true });
 
     if (success) {
+      if (!res.projects) {
+        setVersion(version + 1);
+        return;
+      }
+
       modal.success({
         closable: true,
         centered: true,
@@ -250,7 +256,7 @@ export const Connection = () => {
             </div>
             <ul>
               {res.projects.map((it: any) => (
-                <li style={{ marginBottom: 10 }}>
+                <li key={it.name} style={{ marginBottom: 10 }}>
                   <Space>
                     <span>{it.name}</span>
                     <Button
