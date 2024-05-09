@@ -23,7 +23,7 @@ import { Flex, Table, Button, Modal, Input, Checkbox, message } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Block, ExternalLink } from '@/components';
+import { PageHeader, Block, ExternalLink, IconButton } from '@/components';
 import { getCron, cronPresets, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -192,10 +192,11 @@ export const ProjectHomePage = () => {
             width: 100,
             align: 'center',
             render: (name: any) => (
-              <Button
+              <IconButton
                 ref={configRef}
                 type="primary"
                 icon={<SettingOutlined />}
+                helptip="Project Configuration"
                 onClick={() => navigate(PATHS.PROJECT(name, { tab: 'configuration' }))}
               />
             ),

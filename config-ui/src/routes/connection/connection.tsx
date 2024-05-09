@@ -23,7 +23,7 @@ import { DeleteOutlined, PlusOutlined, LinkOutlined, ClearOutlined } from '@ant-
 import { theme, Space, Table, Button, Modal, message } from 'antd';
 
 import API from '@/api';
-import { PageHeader, Message } from '@/components';
+import { PageHeader, Message, IconButton } from '@/components';
 import { PATHS } from '@/config';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { selectConnection, removeConnection } from '@/features';
@@ -371,10 +371,16 @@ export const Connection = () => {
               width: 200,
               render: (id) => (
                 <Space>
-                  <Button type="primary" icon={<ClearOutlined />} onClick={() => handleShowClearDataScopeDialog(id)} />
-                  <Button
+                  <IconButton
+                    type="primary"
+                    icon={<ClearOutlined />}
+                    helptip="Clear Data Scope"
+                    onClick={() => handleShowClearDataScopeDialog(id)}
+                  />
+                  <IconButton
                     type="primary"
                     icon={<DeleteOutlined />}
+                    helptip="Delete Data Scope"
                     onClick={() => handleShowDeleteDataScopeDialog(id)}
                   />
                 </Space>
