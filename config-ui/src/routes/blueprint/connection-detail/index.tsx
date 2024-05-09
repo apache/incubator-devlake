@@ -223,9 +223,9 @@ export const BlueprintConnectionDetailPage = () => {
       </Helmet>
       <S.Top>
         <span>
-          To manage the complete data scope and scope config for this Connection, please{' '}
+          To manage the complete data scope and scope config for this connection, please{' '}
           <ExternalLink link={`/connections/${connection.plugin}/${connection.id}`}>
-            go to the Connection detail page
+            go to the connection detail page
           </ExternalLink>
           .
         </span>
