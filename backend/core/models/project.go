@@ -92,8 +92,9 @@ type ProjectScopeOutput struct {
 }
 
 type ProjectScope struct {
-	Name   string `json:"name"`
-	Scopes []struct {
+	Name        string `json:"name"`
+	BlueprintId uint64 `json:"blueprintId"`
+	Scopes      []struct {
 		ScopeID   string `json:"scopeId"`
 		ScopeName string `json:"scopeName"`
 	} `json:"scopes"`

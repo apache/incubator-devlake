@@ -136,7 +136,8 @@ func (pa *pluginAPI) GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (*
 				})
 			} else {
 				projectMap[bp.ProjectName] = &coreModels.ProjectScope{
-					Name: bp.ProjectName,
+					Name:        bp.ProjectName,
+					BlueprintId: bp.ID,
 					Scopes: []struct {
 						ScopeID   string `json:"scopeId"`
 						ScopeName string `json:"scopeName"`

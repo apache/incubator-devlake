@@ -96,7 +96,8 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 				})
 			} else {
 				projectMap[bp.ProjectName] = &models.ProjectScope{
-					Name: bp.ProjectName,
+					Name:        bp.ProjectName,
+					BlueprintId: bp.ID,
 					Scopes: []struct {
 						ScopeID   string `json:"scopeId"`
 						ScopeName string `json:"scopeName"`
