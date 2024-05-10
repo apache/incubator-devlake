@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -76,10 +77,6 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 	if err := VerifyStruct(projectInput); err != nil {
 		return nil, err
 	}
-	// check blueprint exists
-	if projectInput.Blueprint == nil {
-		return nil, errors.BadInput.New("blueprint is missing")
-	}
 
 	// create transaction to updte multiple tables
 	var err errors.Error
@@ -113,15 +110,35 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 	}
 
 	// create blueprint
-	if projectInput.Blueprint != nil {
-		err = CreateBlueprint(projectInput.Blueprint)
-		if err != nil {
-			return nil, err
-		}
+	blueprint := &models.Blueprint{
+		Name:        project.Name + "-Blueprint",
+		ProjectName: project.Name,
+		Mode:        "NORMAL",
+		Enable:      true,
+		CronConfig:  "0 0 * * *",
+		IsManual:    false,
+		SyncPolicy: models.SyncPolicy{
+			TimeAfter: func() *time.Time {
+				t := time.Now().AddDate(0, -6, 0)
+				t = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+				return &t
+			}(),
+		},
+		Connections: nil,
+	}
+	err = tx.Create(blueprint)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error creating DB blueprint")
 	}
 
 	// all good, commit transaction
 	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	// reload schedule
+	err = reloadBlueprint(blueprint)
 	if err != nil {
 		return nil, err
 	}

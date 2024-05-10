@@ -62,7 +62,6 @@ type ApiInputProject struct {
 	BaseProject `mapstructure:",squash"`
 	Enable      *bool         `json:"enable" mapstructure:"enable"`
 	Metrics     []*BaseMetric `json:"metrics" mapstructure:"metrics"`
-	Blueprint   *Blueprint    `json:"blueprint" mapstructure:"blueprint"`
 }
 
 type ApiOutputProject struct {
