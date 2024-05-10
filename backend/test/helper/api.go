@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 
@@ -100,6 +101,37 @@ func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2C
 		printPayload: true,
 		inlineJson:   false,
 	}, http.MethodPost, fmt.Sprintf("%s/blueprints", d.Endpoint), nil, &blueprint)
+	return blueprint
+}
+
+// PatchBasicBlueprintV2 FIXME
+func (d *DevlakeClient) PatchBasicBlueprintV2(blueprintId uint64, name string, config *BlueprintV2Config) models.Blueprint {
+	blueprint := models.Blueprint{
+		Name:        name,
+		ProjectName: config.ProjectName,
+		Mode:        models.BLUEPRINT_MODE_NORMAL,
+		Plan:        nil,
+		Enable:      true,
+		CronConfig:  "manual",
+		IsManual:    true,
+		SyncPolicy: models.SyncPolicy{
+			SkipOnFail: config.SkipOnFail,
+			TimeAfter: func() *time.Time {
+				t, _ := time.Parse(time.RFC3339, time.Now().AddDate(0, 0, 1).Format(time.RFC3339))
+				return &t
+			}(),
+		},
+		Labels: []string{"test-label"},
+		Connections: []*models.BlueprintConnection{
+			config.Connection,
+		},
+	}
+	d.testCtx.Helper()
+	blueprint = sendHttpRequest[models.Blueprint](d.testCtx, d.timeout, &testContext{
+		client:       d,
+		printPayload: true,
+		inlineJson:   false,
+	}, http.MethodPatch, fmt.Sprintf("%s/blueprints/%d", d.Endpoint, blueprintId), nil, &blueprint)
 	return blueprint
 }
 
