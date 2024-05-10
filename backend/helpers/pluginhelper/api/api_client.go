@@ -25,10 +25,12 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"reflect"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -43,9 +45,13 @@ import (
 
 // ErrIgnoreAndContinue is a error which should be ignored
 var (
-	ErrIgnoreAndContinue                  = errors.Default.New("ignore and continue")
-	ErrEmptyResponse                      = errors.Default.New("empty response")
-	_                    plugin.ApiClient = (*ApiClient)(nil)
+	ErrIgnoreAndContinue                      = errors.Default.New("ignore and continue")
+	ErrEmptyResponse                          = errors.Default.New("empty response")
+	ErrRedirectionNotAllowed                  = errors.BadInput.New("redirection is not allowed")
+	ErrInvalidURL                             = errors.Default.New("Invalid URL")
+	ErrInvalidCIDR                            = errors.Default.New("Invalid CIDR")
+	ErrHostNotAllowed                         = errors.Default.New("Host is not allowed")
+	_                        plugin.ApiClient = (*ApiClient)(nil)
 )
 
 // ApiClient is designed for simple api requests
@@ -103,6 +109,18 @@ func NewApiClient(
 	proxy string,
 	br context.BasicRes,
 ) (*ApiClient, errors.Error) {
+	cfg := br.GetConfigReader()
+	log := br.GetLogger()
+
+	// endpoint blacklist
+	endpointCidrBlacklist := cfg.GetString("ENDPOINT_CIDR_BLACKLIST")
+	if endpointCidrBlacklist != "" {
+		err := checkCidrBlacklist(endpointCidrBlacklist, endpoint, log)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	apiClient := &ApiClient{}
 	apiClient.Setup(
 		endpoint,
@@ -113,7 +131,7 @@ func NewApiClient(
 	apiClient.client.Transport = &http.Transport{}
 
 	// set insecureSkipVerify
-	insecureSkipVerify := br.GetConfigReader().GetBool("IN_SECURE_SKIP_VERIFY")
+	insecureSkipVerify := cfg.GetBool("IN_SECURE_SKIP_VERIFY")
 	if insecureSkipVerify {
 		apiClient.client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
@@ -154,6 +172,14 @@ func NewApiClient(
 		}
 	}
 	apiClient.SetContext(ctx)
+
+	// apply global security settings
+	forbidRedirection := cfg.GetBool("FORBID_REDIRECTION")
+	if forbidRedirection {
+		apiClient.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return ErrRedirectionNotAllowed
+		}
+	}
 
 	return apiClient, nil
 }
@@ -453,4 +479,36 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 		return relativePath[i:]
 	}
 	return relativePath
+}
+
+func checkCidrBlacklist(blacklist, endpoint string, log log.Logger) errors.Error {
+	// only if blacklist is given and the host of the endpoint is an IP address
+	parsedEp, err := url.Parse(endpoint)
+	if err != nil {
+		return ErrInvalidURL
+	}
+	endpointHost := parsedEp.Hostname()
+	if endpointHost == "" {
+		return ErrInvalidURL
+	}
+	endpointIp := net.ParseIP(endpointHost)
+	if endpointIp != nil {
+		// check if the IP is in the blacklist
+		cidrs := strings.Split(blacklist, ",")
+		for _, cidr := range cidrs {
+			// CIDR format : 10.0.0.1/24
+			// check the net.ParseCIDR for details
+			cidr = strings.TrimSpace(cidr)
+			_, ipnet, err := net.ParseCIDR(cidr)
+			if err != nil {
+				// the CIDR is invalid
+				log.Error(err, "Invalid CIDR", "cidr", cidr)
+				return ErrInvalidCIDR
+			}
+			if ipnet.Contains(endpointIp) {
+				return ErrHostNotAllowed
+			}
+		}
+	}
+	return nil
 }
