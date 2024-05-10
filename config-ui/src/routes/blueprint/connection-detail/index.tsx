@@ -20,15 +20,16 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { DeleteOutlined, FormOutlined } from '@ant-design/icons';
-import { Flex, Table, Popconfirm, Modal, Button } from 'antd';
+import { Flex, Popconfirm, Modal, Button } from 'antd';
 
 import API from '@/api';
 import { PageLoading, PageHeader, ExternalLink } from '@/components';
 import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
-import { ScopeConfig, DataScopeSelect, getPluginScopeId } from '@/plugins';
+import { DataScopeSelect } from '@/plugins';
 import { operator } from '@/utils';
 
+import { BlueprintConnectionDetailTable } from './table';
 import * as S from './styled';
 
 const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
@@ -60,13 +61,6 @@ export const BlueprintConnectionDetailPage = () => {
       API.connection.get(plugin, connectionId),
     ]);
 
-    const scopeIds =
-      blueprint.connections
-        .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
-        ?.scopes?.map((sc: any) => sc.scopeId) ?? [];
-
-    const scopes = await Promise.all(scopeIds.map((scopeId) => API.scope.get(plugin, connectionId, scopeId)));
-
     return {
       blueprint,
       connection: {
@@ -75,12 +69,10 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopes.map((sc) => ({
-        id: getPluginScopeId(plugin, sc.scope),
-        name: sc.scope.fullName ?? sc.scope.name,
-        scopeConfigId: sc.scopeConfig?.id,
-        scopeConfigName: sc.scopeConfig?.name,
-      })),
+      scopeIds:
+        blueprint.connections
+          .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
+          ?.scopes?.map((sc: any) => sc.scopeId) ?? [],
     };
   }, [version, pname, bid]);
 
@@ -88,7 +80,7 @@ export const BlueprintConnectionDetailPage = () => {
     return <PageLoading />;
   }
 
-  const { blueprint, connection, scopes } = data;
+  const { blueprint, connection, scopeIds } = data;
 
   const handleShowDataScope = () => setOpen(true);
   const handleHideDataScope = () => setOpen(false);
@@ -179,26 +171,6 @@ export const BlueprintConnectionDetailPage = () => {
     }
   };
 
-  const handleChangeScopeConfig = () => {
-    modal.success({
-      closable: true,
-      centered: true,
-      width: 550,
-      title: 'Scope Config Saved',
-      content: 'Please re-transform data to apply the updated scope config.',
-      footer: (
-        <div style={{ marginTop: 20, textAlign: 'center' }}>
-          <Button type="primary" loading={operating} onClick={() => handleRun({ skipCollectors: true })}>
-            Re-transform now
-          </Button>
-        </div>
-      ),
-      onCancel: () => {
-        setVersion(version + 1);
-      },
-    });
-  };
-
   return (
     <PageHeader
       breadcrumbs={
@@ -251,32 +223,12 @@ export const BlueprintConnectionDetailPage = () => {
             Manage Data Scope
           </Button>
         </Flex>
-        <Table
-          rowKey="id"
-          size="middle"
-          columns={[
-            {
-              title: 'Data Scope',
-              dataIndex: 'name',
-              key: 'name',
-            },
-            {
-              title: 'Scope Config',
-              key: 'scopeConfig',
-              render: (_, { id, name, scopeConfigId, scopeConfigName }) => (
-                <ScopeConfig
-                  plugin={plugin}
-                  connectionId={connectionId}
-                  scopeId={id}
-                  scopeName={name}
-                  id={scopeConfigId}
-                  name={scopeConfigName}
-                  onSuccess={handleChangeScopeConfig}
-                />
-              ),
-            },
-          ]}
-          dataSource={scopes}
+        <BlueprintConnectionDetailTable
+          plugin={plugin}
+          connectionId={connectionId}
+          scopeIds={scopeIds}
+          operating={operating}
+          onRun={handleRun}
         />
       </Flex>
       <Modal open={open} width={820} centered title="Manage Data Scope" footer={null} onCancel={handleHideDataScope}>
@@ -284,7 +236,7 @@ export const BlueprintConnectionDetailPage = () => {
           plugin={connection.plugin}
           connectionId={connection.id}
           showWarning
-          initialScope={scopes}
+          initialScope={scopeIds.map((id) => ({ id }))}
           onCancel={handleHideDataScope}
           onSubmit={handleChangeDataScope}
         />

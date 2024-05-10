@@ -22,7 +22,7 @@ import { theme, Button, Modal, Flex, Space } from 'antd';
 import styled from 'styled-components';
 
 import API from '@/api';
-import { Message } from '@/components';
+import { IconButton, Message } from '@/components';
 import { operator } from '@/utils';
 
 import { PluginName } from '../plugin-name';
@@ -38,7 +38,7 @@ interface Props {
   scopeName: string;
   id?: ID;
   name?: string;
-  onSuccess?: (id?: ID) => void;
+  onSuccess?: (id?: ID, hideToast?: boolean) => void;
 }
 
 export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name, onSuccess }: Props) => {
@@ -83,7 +83,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
 
     if (success) {
       handleHideDialog();
-      onSuccess?.(id);
+      onSuccess?.(id, type === 'duplicate');
     }
   };
 
@@ -95,15 +95,24 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
   return (
     <Wrapper>
       <span>{id ? name : 'N/A'}</span>
-      <Button
+      <IconButton
+        icon={<LinkOutlined />}
+        helptip="Associate Scope Config"
         size="small"
         type="link"
-        icon={<LinkOutlined />}
         onClick={() => {
           setType('associate');
         }}
       />
-      {id && <Button size="small" type="link" icon={<EditOutlined />} onClick={handleCheckScopeConfig} />}
+      {id && (
+        <IconButton
+          icon={<EditOutlined />}
+          helptip=" Edit Scope Config"
+          type="link"
+          size="small"
+          onClick={handleCheckScopeConfig}
+        />
+      )}
       {type === 'associate' && (
         <Modal
           open
@@ -172,7 +181,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
           <Message content="The change will apply to all following projects:" />
           <ul style={{ margin: '15px 0 30px 30px' }}>
             {relatedProjects.map((it) => (
-              <li style={{ color: colorPrimary }}>
+              <li key={it.name} style={{ color: colorPrimary }}>
                 {it.name}: {it.scopes.map((sc) => sc.scopeName).join(',')}
               </li>
             ))}
