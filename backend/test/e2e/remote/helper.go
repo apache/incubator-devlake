@@ -142,10 +142,35 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 	var projects []models.ApiOutputProject
 	for i := 1; i <= count; i++ {
 		projectName := fmt.Sprintf("Test project %d", i)
-		client.CreateProject(&helper.ProjectConfig{
+		connection := &models.BlueprintConnection{
+			PluginName:   "fake",
+			ConnectionId: connection.ID,
+			Scopes: []*models.BlueprintScope{
+				{
+					ScopeId: scope.Id,
+				},
+			},
+		}
+		blueprint := models.Blueprint{
+			Name:        fmt.Sprintf("Test blueprint %d", i),
 			ProjectName: projectName,
-		})
+			Mode:        models.BLUEPRINT_MODE_NORMAL,
+			Plan:        nil,
+			Enable:      true,
+			CronConfig:  "manual",
+			IsManual:    true,
+			SyncPolicy: models.SyncPolicy{
+				SkipOnFail: true,
+			},
+			Labels: []string{"test-label"},
+			Connections: []*models.BlueprintConnection{
+				connection,
+			},
+		}
+
+		bps = append(bps, blueprint)
 		project := client.GetProject(projectName)
+		require.Equal(t, blueprint.Name, project.Blueprint.Name)
 		projects = append(projects, project)
 	}
 	return &BlueprintTestParams{

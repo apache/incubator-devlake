@@ -126,6 +126,9 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		},
 		Connections: nil,
 	}
+	if projectInput.Blueprint != nil {
+		blueprint = projectInput.Blueprint
+	}
 	err = tx.Create(blueprint)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error creating DB blueprint")

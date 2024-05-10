@@ -36,6 +36,7 @@ type (
 		ProjectDescription string
 		EnableDora         bool
 		MetricPlugins      []ProjectPlugin
+		Blueprints         *models.Blueprint
 	}
 
 	ScopeResponse struct {
