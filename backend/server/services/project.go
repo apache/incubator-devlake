@@ -108,6 +108,14 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		}
 	}
 
+	// create blueprint
+	if projectInput.Blueprint != nil {
+		err = CreateBlueprint(projectInput.Blueprint)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// all good, commit transaction
 	err = tx.Commit()
 	if err != nil {
