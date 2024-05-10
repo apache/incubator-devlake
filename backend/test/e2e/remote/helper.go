@@ -167,11 +167,16 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 				connection,
 			},
 		}
-
-		bps = append(bps, blueprint)
+		client.CreateProject(&helper.ProjectConfig{
+			ProjectName: projectName,
+			Blueprints:  &blueprint,
+		})
 		project := client.GetProject(projectName)
 		require.Equal(t, blueprint.Name, project.Blueprint.Name)
 		projects = append(projects, project)
+
+		bp := client.GetBlueprint(project.Blueprint.ID)
+		bps = append(bps, bp)
 	}
 	return &BlueprintTestParams{
 		connection: connection,

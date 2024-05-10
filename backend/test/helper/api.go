@@ -156,8 +156,9 @@ func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputPr
 			Name:        project.ProjectName,
 			Description: project.ProjectDescription,
 		},
-		Enable:  Val(true),
-		Metrics: metrics,
+		Enable:    Val(true),
+		Metrics:   metrics,
+		Blueprint: project.Blueprints,
 	})
 }
 
