@@ -59,12 +59,12 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
     const [success, res] = await operator(() => API.scopeConfig.check(plugin, id), { hideToast: true });
 
     if (success) {
-      const projects = res.projects.map((it: any) => ({
+      const projects = (res.projects ?? []).map((it: any) => ({
         name: it.name,
         scopes: it.scopes,
       }));
 
-      if (projects.length !== 1) {
+      if (projects.length > 0) {
         setRelatedProjects(projects);
         setType('relatedProjects');
       } else {
