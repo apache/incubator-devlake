@@ -76,6 +76,10 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 	if err := VerifyStruct(projectInput); err != nil {
 		return nil, err
 	}
+	// check blueprint exists
+	if projectInput.Blueprint == nil {
+		return nil, errors.BadInput.New("blueprint is missing")
+	}
 
 	// create transaction to updte multiple tables
 	var err errors.Error
