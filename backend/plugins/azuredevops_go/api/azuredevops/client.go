@@ -65,7 +65,7 @@ func (c *Client) GetUserProfile() (Profile, errors.Error) {
 		return Profile{}, errors.Internal.Wrap(err, "failed to read user accounts")
 	}
 
-	if res.StatusCode == 302 || res.StatusCode == 401 {
+	if res.StatusCode == 203 || res.StatusCode == 401 {
 		return Profile{}, errors.Unauthorized.New("failed to read user profile")
 	}
 
@@ -152,6 +152,15 @@ func (c *Client) GetProjects(args GetProjectsArgs) ([]Project, errors.Error) {
 		if err != nil {
 			return nil, err
 		}
+
+		if res.StatusCode == 203 || res.StatusCode == 401 {
+			return nil, errors.Unauthorized.New("failed to read projects")
+		}
+
+		if res.StatusCode != 200 {
+			return nil, errors.Internal.New(fmt.Sprintf("failed to read projects, upstream api call failed with (%v)", res.StatusCode))
+		}
+
 		err = api.UnmarshalResponse(res, &data)
 		if err != nil {
 			return nil, err
