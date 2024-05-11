@@ -38,7 +38,7 @@ interface Props {
   scopeName: string;
   id?: ID;
   name?: string;
-  onSuccess?: (id?: ID, hideToast?: boolean) => void;
+  onSuccess?: (id?: ID) => void;
 }
 
 export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name, onSuccess }: Props) => {
@@ -83,13 +83,13 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
 
     if (success) {
       handleHideDialog();
-      onSuccess?.(id, type === 'duplicate');
+      onSuccess?.(trId);
     }
   };
 
   const handleUpdate = (trId: ID) => {
     handleHideDialog();
-    onSuccess?.(id);
+    onSuccess?.(trId);
   };
 
   return (
