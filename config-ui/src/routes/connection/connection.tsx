@@ -241,7 +241,7 @@ export const Connection = () => {
     }
   };
 
-  const handleScopeConfigChange = async (scopeConfigId?: ID, hideToast?: boolean) => {
+  const handleScopeConfigChange = async (scopeConfigId?: ID) => {
     if (!scopeConfigId) {
       setVersion(version + 1);
       return;
@@ -250,7 +250,7 @@ export const Connection = () => {
     const [success, res] = await operator(() => API.scopeConfig.check(plugin, scopeConfigId), { hideToast: true });
 
     if (success) {
-      if (!res.projects || hideToast) {
+      if (!res.projects) {
         setVersion(version + 1);
         return;
       }
