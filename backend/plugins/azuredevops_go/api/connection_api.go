@@ -73,6 +73,18 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "can't read connection from database")
 	}
+	var updatedConn models.AzuredevopsConn
+	if err := api.Decode(input.Body, &updatedConn, nil); err != nil {
+		return nil, err
+	}
+
+	if updatedConn.Token != "" {
+		connection.Token = updatedConn.Token
+	}
+
+	if updatedConn.Organization != "" {
+		connection.Organization = updatedConn.Organization
+	}
 
 	body, err := testConnection(context.TODO(), *connection)
 	if err != nil {
