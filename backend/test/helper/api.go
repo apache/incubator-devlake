@@ -190,7 +190,7 @@ func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputPr
 		},
 		Enable:    Val(true),
 		Metrics:   metrics,
-		Blueprint: project.Blueprints,
+		Blueprint: project.Blueprint,
 	})
 }
 
