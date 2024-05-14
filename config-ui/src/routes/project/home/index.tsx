@@ -20,18 +20,17 @@ import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Flex, Table, Button, Modal, Input, Checkbox, message } from 'antd';
-import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Block, ExternalLink } from '@/components';
-import { getCron, cronPresets, PATHS } from '@/config';
+import { PageHeader, Block, ExternalLink, IconButton } from '@/components';
+import { getCron, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
 import { OnboardTour } from '@/routes/onboard/components';
 import { DOC_URL } from '@/release';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
-import { IBlueprint, IBPMode } from '@/types';
+import { IBlueprint } from '@/types';
 
 import { validName } from '../utils';
 
@@ -52,7 +51,6 @@ export const ProjectHomePage = () => {
 
   const navigate = useNavigate();
 
-  const presets = useMemo(() => cronPresets.map((preset) => preset.config), []);
   const [dataSource, total] = useMemo(
     () => [
       (data?.projects ?? []).map((it) => {
@@ -85,8 +83,8 @@ export const ProjectHomePage = () => {
     }
 
     const [success] = await operator(
-      async () => {
-        await API.project.create({
+      async () =>
+        API.project.create({
           name,
           description: '',
           metrics: [
@@ -96,19 +94,7 @@ export const ProjectHomePage = () => {
               enable: enableDora,
             },
           ],
-        });
-        return API.blueprint.create({
-          name: `${name}-Blueprint`,
-          projectName: name,
-          mode: IBPMode.NORMAL,
-          enable: true,
-          cronConfig: presets[0],
-          isManual: false,
-          skipOnFail: true,
-          timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
-          connections: [],
-        });
-      },
+        }),
       {
         setOperating: setSaving,
       },
@@ -192,10 +178,11 @@ export const ProjectHomePage = () => {
             width: 100,
             align: 'center',
             render: (name: any) => (
-              <Button
+              <IconButton
                 ref={configRef}
                 type="primary"
                 icon={<SettingOutlined />}
+                helptip="Project Configuration"
                 onClick={() => navigate(PATHS.PROJECT(name, { tab: 'configuration' }))}
               />
             ),

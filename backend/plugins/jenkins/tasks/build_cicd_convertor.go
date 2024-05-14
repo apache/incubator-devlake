@@ -155,6 +155,10 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 					Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, jenkinsBuild.FullName),
 					PipelineId:  buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 				}
+				// if the task is not executed, set the result to default, so that it will not be calculated in the dora
+				if jenkinsTask.OriginalStatus == "NOT_EXECUTED" {
+					jenkinsTask.Result = devops.RESULT_DEFAULT
+				}
 				results = append(results, jenkinsTask)
 
 			}

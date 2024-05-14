@@ -189,6 +189,9 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScopes,
 		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
+		},
 	}
 }
 

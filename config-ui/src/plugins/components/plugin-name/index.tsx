@@ -16,19 +16,44 @@
  *
  */
 
+import { useMemo } from 'react';
+import { theme } from 'antd';
 import styled from 'styled-components';
 
-export const Tips = styled.div`
+import { getPluginConfig } from '@/plugins';
+
+const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  padding: 12px 24px;
-  color: #fff;
-  background-color: #3c5088;
 
-  .content {
-    flex: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .icon {
+    display: inline-flex;
+    margin-right: 8px;
+    width: 24px;
+
+    & > svg {
+      width: 100%;
+      height: 100%;
+    }
   }
 `;
+
+interface Props {
+  plugin: string;
+  name: string;
+}
+
+export const PluginName = ({ plugin, name }: Props) => {
+  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
+
+  const {
+    token: { colorPrimary },
+  } = theme.useToken();
+
+  return (
+    <Wrapper>
+      <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
+      <span>{name}</span>
+    </Wrapper>
+  );
+};

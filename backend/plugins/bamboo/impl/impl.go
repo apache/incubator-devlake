@@ -248,6 +248,9 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
+		},
 	}
 }
 

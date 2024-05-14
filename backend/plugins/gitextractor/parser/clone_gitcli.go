@@ -39,7 +39,7 @@ var ErrNoDataOnIncrementalMode = errors.NotModified.New("No data found since the
 
 type GitcliCloner struct {
 	logger       log.Logger
-	stateManager *api.CollectorStateManager
+	stateManager *api.SubtaskStateManager
 }
 
 func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
@@ -48,40 +48,61 @@ func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
 	}
 }
 
+// CloneRepoConfig is the configuration for the CloneRepo method
+// the subtask should run in Full Sync mode whenever the configuration is changed
+type CloneRepoConfig struct {
+	UseGoGit        *bool
+	SkipCommitStat  *bool
+	SkipCommitFiles *bool
+	NoShallowClone  bool
+}
+
 func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) errors.Error {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
-	// load state
-	stateManager, err := api.NewCollectorStateManager(
-		ctx,
-		ctx.TaskContext().SyncPolicy(),
-		"gitextractor",
-		fmt.Sprintf(
-			`{"RepoId: "%s","SkipCommitStat": %v, "SkipCommitFiles": %v}`,
-			taskData.Options.RepoId,
-			*taskData.Options.SkipCommitStat,
-			*taskData.Options.SkipCommitFiles,
-		),
-	)
-	if err != nil {
-		return err
+	var since *time.Time
+	if !taskData.Options.NoShallowClone {
+		stateManager, err := api.NewSubtaskStateManager(&api.SubtaskCommonArgs{
+			SubTaskContext: ctx,
+			Params:         taskData.Options.GitExtractorApiParams,
+			SubtaskConfig: CloneRepoConfig{
+				UseGoGit:        taskData.Options.UseGoGit,
+				SkipCommitStat:  taskData.Options.SkipCommitStat,
+				SkipCommitFiles: taskData.Options.SkipCommitFiles,
+				NoShallowClone:  taskData.Options.NoShallowClone,
+			},
+		})
+		if err != nil {
+			return err
+		}
+		g.stateManager = stateManager
+		since = stateManager.GetSince()
 	}
-	g.stateManager = stateManager
 
-	cmd, err := g.buildCloneCommand(ctx, localDir, g.stateManager.GetSince())
+	cmd, err := g.buildCloneCommand(ctx, localDir, since)
 	if err != nil {
 		return err
 	}
 	err = g.execCloneCommand(cmd)
 	if err != nil {
 		// it is likely that nothing to collect on incrmental mode
-		if errors.Is(err, ErrShallowInfoProcessing) && stateManager.IsIncremental() {
+		if errors.Is(err, ErrShallowInfoProcessing) && g.stateManager != nil && g.stateManager.IsIncremental() {
 			return ErrNoDataOnIncrementalMode
 		}
 		return err
 	}
+	// deepen the commits by 1 more step to avoid https://github.com/apache/incubator-devlake/issues/7426
+	if since != nil {
+		cmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "fetch", "--deepen=1")
+		if err := cmd.Run(); err != nil {
+			return errors.Default.Wrap(err, "failed to deepen the cloned repo")
+		}
+	}
 
 	// save state
-	return g.stateManager.Close()
+	if g.stateManager != nil {
+		return g.stateManager.Close()
+	}
+	return nil
 }
 
 func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir string, since *time.Time) (*exec.Cmd, errors.Error) {
@@ -92,6 +113,9 @@ func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir str
 	if taskData.ParsedURL.Scheme == "http" || taskData.ParsedURL.Scheme == "https" {
 		if taskData.Options.Proxy != "" {
 			env = append(env, fmt.Sprintf("HTTPS_PROXY=%s", taskData.Options.Proxy))
+		}
+		if taskData.ParsedURL.Scheme == "https" && ctx.GetConfigReader().GetBool("IN_SECURE_SKIP_VERIFY") {
+			args = append(args, "-c http.sslVerify=false")
 		}
 	} else if taskData.ParsedURL.Scheme == "ssh" {
 		var sshCmdArgs []string

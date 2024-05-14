@@ -18,6 +18,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { theme, Layout, Modal } from 'antd';
 
@@ -49,6 +50,8 @@ const steps = [
     title: 'Add data scope',
   },
 ];
+
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 interface Props {
   logo?: React.ReactNode;
@@ -83,7 +86,7 @@ export const Onboard = ({ logo, title }: Props) => {
   const handleClose = () => {
     modal.confirm({
       width: 820,
-      title: 'Are you sure to exit the onboard session?',
+      title: 'Are you sure to exit the onboarding session?',
       content: 'You can get back to this session via the card on top of the Projects page.',
       icon: <ExclamationCircleOutlined />,
       okText: 'Confirm',
@@ -109,6 +112,9 @@ export const Onboard = ({ logo, title }: Props) => {
         setPlugin: setPlugin,
       }}
     >
+      <Helmet>
+        <title>Onboard - {brandName}</title>
+      </Helmet>
       <Layout style={{ minHeight: '100vh' }}>
         <S.Inner>
           {step === 0 ? (

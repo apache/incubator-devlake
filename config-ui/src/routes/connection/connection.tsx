@@ -18,27 +18,30 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { DeleteOutlined, PlusOutlined, NodeIndexOutlined, LinkOutlined, ClearOutlined } from '@ant-design/icons';
+import { Helmet } from 'react-helmet';
+import { DeleteOutlined, PlusOutlined, LinkOutlined, ClearOutlined } from '@ant-design/icons';
 import { theme, Space, Table, Button, Modal, message } from 'antd';
 
 import API from '@/api';
-import { PageHeader, Message } from '@/components';
+import { PageHeader, Message, IconButton } from '@/components';
 import { PATHS } from '@/config';
 import { useAppDispatch, useAppSelector } from '@/hooks';
-import { selectConnection, removeConnection, showTips } from '@/features';
+import { selectConnection, removeConnection } from '@/features';
 import { useRefreshData } from '@/hooks';
 import {
   ConnectionStatus,
   DataScopeRemote,
   getPluginConfig,
   getPluginScopeId,
-  ScopeConfigForm,
+  ScopeConfig,
   ScopeConfigSelect,
 } from '@/plugins';
 import { IConnection } from '@/types';
 import { operator } from '@/utils';
 
 import * as S from './styled';
+
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const Connection = () => {
   const [type, setType] = useState<
@@ -56,7 +59,6 @@ export const Connection = () => {
   const [pageSize, setPageSize] = useState(10);
   const [scopeId, setScopeId] = useState<ID>();
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
-  const [scopeConfigId, setScopeConfigId] = useState<ID>();
   const [conflict, setConflict] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -67,10 +69,13 @@ export const Connection = () => {
     token: { colorPrimary },
   } = theme.useToken();
 
+  const [modal, contextHolder] = Modal.useModal();
+
   const dispatch = useAppDispatch();
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
 
   const navigate = useNavigate();
+
   const { ready, data } = useRefreshData(
     () => API.scope.list(plugin, connectionId, { page, pageSize, blueprints: true }),
     [version, page, pageSize],
@@ -97,7 +102,7 @@ export const Connection = () => {
   const handleHideDialog = () => {
     setType(undefined);
   };
-  
+
   const handleShowDeleteDialog = () => {
     setType('deleteConnection');
   };
@@ -217,9 +222,70 @@ export const Connection = () => {
     );
 
     if (success) {
-      setVersion((v) => v + 1);
-      dispatch(showTips({ type: 'scope-config-changed' }));
       handleHideDialog();
+      setVersion(version + 1);
+      message.success(
+        'Scope Config(s) have been updated. If you would like to re-transform or re-collect the data in the related project(s), please go to the Project page and do so.',
+      );
+    }
+  };
+
+  const handleRun = async (pname: string, blueprintId: ID, data?: { skipCollectors?: boolean; fullSync?: boolean }) => {
+    const [success] = await operator(() => API.blueprint.trigger(blueprintId, data), {
+      setOperating,
+      hideToast: true,
+    });
+
+    if (success) {
+      window.open(PATHS.PROJECT(pname, { tab: 'status' }));
+    }
+  };
+
+  const handleScopeConfigChange = async (scopeConfigId?: ID) => {
+    if (!scopeConfigId) {
+      setVersion(version + 1);
+      return;
+    }
+
+    const [success, res] = await operator(() => API.scopeConfig.check(plugin, scopeConfigId), { hideToast: true });
+
+    if (success) {
+      if (!res.projects) {
+        setVersion(version + 1);
+        return;
+      }
+
+      modal.success({
+        closable: true,
+        centered: true,
+        width: 830,
+        title: 'Scope Config Saved',
+        content: (
+          <>
+            <div style={{ marginBottom: 16 }}>
+              The listed projects are impacted. Please re-transform the data to apply the updated scope config.
+            </div>
+            <ul>
+              {res.projects.map(({ name, blueprintId }: { name: string; blueprintId: ID }) => (
+                <li key={name} style={{ marginBottom: 10 }}>
+                  <Space>
+                    <span>{name}</span>
+                    <Button
+                      size="small"
+                      type="link"
+                      onClick={() => handleRun(name, blueprintId, { skipCollectors: true })}
+                    >
+                      Re-transform Data
+                    </Button>
+                  </Space>
+                </li>
+              ))}
+            </ul>
+          </>
+        ),
+        footer: null,
+        onCancel: () => setVersion(version + 1),
+      });
     }
   };
 
@@ -235,6 +301,11 @@ export const Connection = () => {
         </Button>
       }
     >
+      <Helmet>
+        <title>
+          {connection.name} - {brandName}
+        </title>
+      </Helmet>
       <Space style={{ display: 'flex' }} direction="vertical" size={36}>
         <div>
           <span style={{ marginRight: 4 }}>Status:</span>
@@ -250,7 +321,7 @@ export const Connection = () => {
               style={{ marginLeft: 8 }}
               type="primary"
               disabled={!scopeIds.length}
-              icon={<NodeIndexOutlined />}
+              icon={<LinkOutlined />}
               onClick={() => handleShowScopeConfigSelectDialog(scopeIds)}
             >
               Associate Scope Config
@@ -290,22 +361,17 @@ export const Connection = () => {
             {
               title: 'Scope Config',
               key: 'scopeConfig',
-              align: 'center',
               width: 400,
-              render: (_, { id, configId, configName }) => (
-                <>
-                  <span>{configId ? configName : 'N/A'}</span>
-                  {pluginConfig.scopeConfig && (
-                    <Button
-                      type="link"
-                      icon={<LinkOutlined />}
-                      onClick={() => {
-                        handleShowScopeConfigSelectDialog([id]);
-                        setScopeConfigId(configId);
-                      }}
-                    />
-                  )}
-                </>
+              render: (_, { id, name, configId, configName }) => (
+                <ScopeConfig
+                  plugin={plugin}
+                  connectionId={connectionId}
+                  scopeId={id}
+                  scopeName={name}
+                  id={configId}
+                  name={configName}
+                  onSuccess={handleScopeConfigChange}
+                />
               ),
             },
             {
@@ -316,10 +382,16 @@ export const Connection = () => {
               width: 200,
               render: (id) => (
                 <Space>
-                  <Button type="primary" icon={<ClearOutlined />} onClick={() => handleShowClearDataScopeDialog(id)} />
-                  <Button
+                  <IconButton
+                    type="primary"
+                    icon={<ClearOutlined />}
+                    helptip="Clear Data Scope"
+                    onClick={() => handleShowClearDataScopeDialog(id)}
+                  />
+                  <IconButton
                     type="primary"
                     icon={<DeleteOutlined />}
+                    helptip="Delete Data Scope"
                     onClick={() => handleShowDeleteDataScopeDialog(id)}
                   />
                 </Space>
@@ -332,10 +404,10 @@ export const Connection = () => {
             pageSize,
             total,
             onChange: setPage,
-            onShowSizeChange: (current,size)=> {
+            onShowSizeChange: (_, size) => {
               setPage(1);
               setPageSize(size);
-            }
+            },
           }}
           rowSelection={{
             selectedRowKeys: scopeIds,
@@ -436,24 +508,12 @@ export const Connection = () => {
           }
           onCancel={handleHideDialog}
         >
-          {plugin === 'tapd' ? (
-            <ScopeConfigForm
-              plugin={plugin}
-              connectionId={connectionId}
-              scopeId={scopeIds[0]}
-              scopeConfigId={scopeConfigId}
-              onCancel={handleHideDialog}
-              onSubmit={handleAssociateScopeConfig}
-            />
-          ) : (
-            <ScopeConfigSelect
-              plugin={plugin}
-              connectionId={connectionId}
-              scopeConfigId={scopeConfigId}
-              onCancel={handleHideDialog}
-              onSubmit={handleAssociateScopeConfig}
-            />
-          )}
+          <ScopeConfigSelect
+            plugin={plugin}
+            connectionId={connectionId}
+            onCancel={handleHideDialog}
+            onSubmit={handleAssociateScopeConfig}
+          />
         </Modal>
       )}
       {type === 'deleteConnectionFailed' && (
@@ -519,6 +579,7 @@ export const Connection = () => {
           )}
         </Modal>
       )}
+      {contextHolder}
     </PageHeader>
   );
 };

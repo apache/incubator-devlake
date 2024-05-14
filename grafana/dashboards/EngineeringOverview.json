@@ -2244,7 +2244,7 @@
         "definition": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
         "hide": 0,
         "includeAll": false,
-        "label": "Month",
+        "label": "Selected Month",
         "multi": false,
         "name": "month",
         "options": [],

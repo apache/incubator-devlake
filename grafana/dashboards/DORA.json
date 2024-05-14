@@ -184,7 +184,7 @@
                   {
                     "targetBlank": false,
                     "title": "",
-                    "url": "/d/${__data.fields[\"metric_hidden\"]}?var-project=${project:raw}&from=${__from}&to=${__to}"
+                    "url": "/d/${__data.fields[\"metric_hidden\"]}?${project:queryparam}&from=${__from}&to=${__to}"
                   }
                 ]
               }
@@ -281,6 +281,7 @@
     },
     {
       "datasource": "mysql",
+      "description": "How often an organization deploys code to production or release it to end users\n\n# 2023 Benchmarks\n- **Elite**: >= 7 deployment days per week\n- **High**: >= 1 deployment day per week\n- **Medium**: >= 1 deployment day per month\n- **Low**: < 1 deployment day per month\n# 2021 Benchmarks\n- **Elite**: >= 7 deployment days per week\n- **High**: >= 1 deployment day per month\n- **Medium**: >= 1  deployment day per six months\n- **Low**: < 1 deployment day per six months",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -351,7 +352,7 @@
         {
           "targetBlank": false,
           "title": "link",
-          "url": "/d/Deployment-frequency/dora-drill-down-deployment-frequency?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Deployment-frequency/dora-drill-down-deployment-frequency?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -425,6 +426,7 @@
     },
     {
       "datasource": "mysql",
+      "description": "The median amount of time for a code change to be deployed into production.\n\n\n# 2023 Benchmarks\n- **Elite**: Less than one day\n- **High**: Between one day and one week\n- **Medium**: Between one week and one month\n- **Low**: More than one month\n# 2021 Benchmarks\n- **Elite**: Less than one hour\n- **High**: Less than one week\n- **Medium**: Between one week and six months\n- **Low**: More than six months\n",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -494,7 +496,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Lead-time-for-changes/dora-drill-down-lead-time-for-changes?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Lead-time-for-changes/dora-drill-down-lead-time-for-changes?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -568,6 +570,7 @@
     },
     {
       "datasource": "mysql",
+      "description": "The percentage of changes that were made to a code that then resulted in incidents, rollbacks, or any type of production failure.\n\n# 2023 Benchmarks\n- **Elite**: (0, 5%]\n- **High**: (5%, 10%]\n- **Medium**: (10%, 15%]\n- **Low**: (15%, 100%]\n# 2021 Benchmarks\n- **Elite**: (0, 15%]\n- **High**: (16%, 20%]\n- **Medium**: (21%, 30%]\n- **Low**: (30%, 100%]\n",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -638,7 +641,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Change-failure-rate/dora-drill-down-change-failure-rate?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Change-failure-rate/dora-drill-down-change-failure-rate?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -712,7 +715,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "",
+      "description": "# MTTR benchmarks:\ndevlake.apache.org/docs/Metrics/MTTR#how-is-it-calculated\n# FDRT benchmarks:\ndevlake.apache.org/docs/Metrics/FailedDeploymentRecoveryTime#how-is-it-calculated\n",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -786,11 +789,11 @@
       "links": [
         {
           "title": "Failed Deployment Recovery Time",
-          "url": "/d/Failed-deployment-recovery-time/dora-details-failed-deployment-recovery-time?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Failed-deployment-recovery-time/dora-details-failed-deployment-recovery-time?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         },
         {
           "title": "Median Time to Restore Service",
-          "url": "/d/Time-to-restore-service/dora-details-median-time-to-restore-service?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Time-to-restore-service/dora-details-median-time-to-restore-service?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -917,7 +920,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Deployment-frequency/dora-drill-down-deployment-frequency?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Deployment-frequency/dora-drill-down-deployment-frequency?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -1047,7 +1050,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Lead-time-for-changes/dora-drill-down-lead-time-for-changes?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Lead-time-for-changes/dora-drill-down-lead-time-for-changes?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -1197,7 +1200,7 @@
       "links": [
         {
           "title": "link",
-          "url": "/d/Change-failure-rate/dora-drill-down-change-failure-rate?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Change-failure-rate/dora-drill-down-change-failure-rate?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         }
       ],
       "options": {
@@ -1351,11 +1354,11 @@
       "links": [
         {
           "title": "Failed Deployment Recovery Time",
-          "url": "/d/Failed-deployment-recovery-time/dora-details-failed-deployment-recovery-time?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Failed-deployment-recovery-time/dora-details-failed-deployment-recovery-time?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         },
         {
           "title": "Median Time To Restore Service",
-          "url": "/d/Time-to-restore-service/dora-details-median-time-to-restore-service?orgId=1&var-project=${project:raw}&from=${__from}&to=${__to}"
+          "url": "/d/Time-to-restore-service/dora-details-median-time-to-restore-service?orgId=1&${project:queryparam}&from=${__from}&to=${__to}"
         }
       ],
       "options": {

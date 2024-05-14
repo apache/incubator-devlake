@@ -53,6 +53,17 @@ func (scopeConfigApi *DsAnyScopeConfigApiHelper) GetAll(input *plugin.ApiResourc
 	}, nil
 }
 
+func (scopeConfigApi *DsAnyScopeConfigApiHelper) GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+	scopeConfig, err := scopeConfigApi.FindByPkAny(input)
+	if err != nil {
+		return nil, err
+	}
+	projectDetails := errors.Must1(scopeConfigApi.AnyScopeConfigSrvHelper.GetProjectsByScopeConfig(scopeConfig))
+	return &plugin.ApiResourceOutput{
+		Body: projectDetails,
+	}, nil
+}
+
 func (scopeConfigApi *DsAnyScopeConfigApiHelper) Post(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	// fix connectionId
 	connectionId, err := extractConnectionId(input)

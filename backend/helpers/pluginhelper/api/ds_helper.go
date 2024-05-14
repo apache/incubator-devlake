@@ -58,7 +58,7 @@ func NewDataSourceAnyHelper(
 	var scopeConfigSrv *srvhelper.AnyScopeConfigSrvHelper
 	var scopeConfigApi *DsAnyScopeConfigApiHelper
 	if scopeConfigModelInfo != nil {
-		scopeConfigSrv = srvhelper.NewAnyScopeConfigSrvHelper(basicRes, scopeConfigModelInfo, scopeModelInfo)
+		scopeConfigSrv = srvhelper.NewAnyScopeConfigSrvHelper(basicRes, scopeConfigModelInfo, scopeModelInfo, pluginName)
 		scopeConfigApi = NewDsAnyScopeConfigApiHelper(basicRes, scopeConfigSrv)
 	}
 	return &DsAnyHelper{

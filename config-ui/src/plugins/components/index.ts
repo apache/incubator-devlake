@@ -22,5 +22,7 @@ export * from './connection-select';
 export * from './connection-status';
 export * from './data-scope-remote';
 export * from './data-scope-select';
+export * from './plugin-name';
+export * from './scope-config';
 export * from './scope-config-form';
 export * from './scope-config-select';

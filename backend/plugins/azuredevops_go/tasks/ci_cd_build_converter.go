@@ -38,7 +38,7 @@ var ConvertBuildsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertBuilds,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table azuredevops_builds into  domain layer table cicd_pipelines",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{
 		models.AzuredevopsBuild{}.TableName(),
 	},
@@ -69,7 +69,10 @@ func ConvertBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			build := inputRow.(*models.AzuredevopsBuild)
 			duration := 0.0
-			duration = float64(build.FinishTime.Sub(*build.StartTime).Milliseconds() / 1e3)
+
+			if build.FinishTime != nil {
+				duration = float64(build.FinishTime.Sub(*build.StartTime).Milliseconds() / 1e3)
+			}
 
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{

@@ -58,10 +58,10 @@ func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 	return dsHelper.ScopeApi.Patch(input)
 }
 
-// GetScopes get Gitlab projects
-// @Summary get Gitlab projects
-// @Description get Gitlab projects
-// @Tags plugins/gitlab
+// GetScopes get zentao scopes
+// @Summary get zentao scopes
+// @Description get zentao scopes
+// @Tags plugins/zentao
 // @Param connectionId path int false "connection ID"
 // @Param searchTerm query string false "search term for scope name"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"

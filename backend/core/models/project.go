@@ -62,6 +62,7 @@ type ApiInputProject struct {
 	BaseProject `mapstructure:",squash"`
 	Enable      *bool         `json:"enable" mapstructure:"enable"`
 	Metrics     []*BaseMetric `json:"metrics" mapstructure:"metrics"`
+	Blueprint   *Blueprint    `json:"blueprint" mapstructure:"blueprint"`
 }
 
 type ApiOutputProject struct {
@@ -84,4 +85,18 @@ type Store struct {
 
 func (Store) TableName() string {
 	return "_devlake_store"
+}
+
+type ProjectScopeOutput struct {
+	Projects []ProjectScope `json:"projects"`
+	Count    int            `json:"count"`
+}
+
+type ProjectScope struct {
+	Name        string `json:"name"`
+	BlueprintId uint64 `json:"blueprintId"`
+	Scopes      []struct {
+		ScopeID   string `json:"scopeId"`
+		ScopeName string `json:"scopeName"`
+	} `json:"scopes"`
 }

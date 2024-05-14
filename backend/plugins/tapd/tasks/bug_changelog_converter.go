@@ -148,7 +148,7 @@ func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 var ConvertBugChangelogMeta = plugin.SubTaskMeta{
 	Name:             "convertBugChangelog",
 	EntryPoint:       ConvertBugChangelog,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "convert Tapd bug changelog",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

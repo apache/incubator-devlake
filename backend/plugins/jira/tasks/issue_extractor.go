@@ -47,32 +47,26 @@ type typeMappings struct {
 	standardStatusMappings map[string]models.StatusMappings
 }
 
-func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*JiraTaskData)
-	db := taskCtx.GetDal()
+func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	data := subtaskCtx.GetData().(*JiraTaskData)
+	db := subtaskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
-	logger := taskCtx.GetLogger()
+	logger := subtaskCtx.GetLogger()
 	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
 	mappings, err := getTypeMappings(data, db)
 	if err != nil {
 		return err
 	}
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+		SubtaskCommonArgs: &api.SubtaskCommonArgs{
+			SubTaskContext: subtaskCtx,
+			Table:          RAW_ISSUE_TABLE,
 			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_ISSUE_TABLE,
+			SubtaskConfig: mappings,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			return extractIssues(data, mappings, row)

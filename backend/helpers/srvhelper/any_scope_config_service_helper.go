@@ -23,6 +23,8 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 // NoScopeConfig is a placeholder for plugins that don't have any scope configuration yet
@@ -43,17 +45,20 @@ type AnyScopeConfigSrvHelper struct {
 	ScopeConfigModelInfo
 	ScopeModelInfo
 	*AnyModelSrvHelper
+	pluginName string
 }
 
 func NewAnyScopeConfigSrvHelper(
 	basicRes context.BasicRes,
 	scopeConfigModelInfo ScopeConfigModelInfo,
 	scopeModelInfo ScopeModelInfo,
+	pluginName string,
 ) *AnyScopeConfigSrvHelper {
 	return &AnyScopeConfigSrvHelper{
 		ScopeConfigModelInfo: scopeConfigModelInfo,
 		ScopeModelInfo:       scopeModelInfo,
 		AnyModelSrvHelper:    NewAnyModelSrvHelper(basicRes, scopeConfigModelInfo, nil),
+		pluginName:           pluginName,
 	}
 }
 
@@ -64,6 +69,73 @@ func (scopeConfigSrv *AnyScopeConfigSrvHelper) GetAllByConnectionIdAny(connectio
 		dal.Orderby("id DESC"),
 	)
 	return scopeConfigs, err
+}
+
+func (scopeConfigSrv *AnyScopeConfigSrvHelper) GetProjectsByScopeConfig(scopeConfig any) (*models.ProjectScopeOutput, errors.Error) {
+	ps := &models.ProjectScopeOutput{}
+	projectMap := make(map[string]*models.ProjectScope)
+	// 1. get all scopes that are using the scopeConfigId
+	scopes := scopeConfigSrv.ScopeModelInfo.NewSlice()
+	sc := scopeConfig.(plugin.ToolLayerScopeConfig)
+	err := scopeConfigSrv.db.All(&scopes,
+		dal.Where("scope_config_id = ?", sc.ScopeConfigId()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	slice := reflect.ValueOf(scopes)
+	for i := 0; i < slice.Len(); i++ {
+		// 2. get blueprint id by connection id and scope id
+		bpScope := []*models.BlueprintScope{}
+		s := slice.Index(i).Interface().(plugin.ToolLayerScope)
+		err = scopeConfigSrv.db.All(&bpScope,
+			dal.Where("plugin_name = ? and connection_id = ? and scope_id = ?", scopeConfigSrv.pluginName, s.ScopeConnectionId(), s.ScopeId()),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, bs := range bpScope {
+			// 3. get project details by blueprint id
+			bp := models.Blueprint{}
+			err = scopeConfigSrv.db.All(&bp,
+				dal.Where("id = ?", bs.BlueprintId),
+			)
+			if err != nil {
+				return nil, err
+			}
+			if project, exists := projectMap[bp.ProjectName]; exists {
+				project.Scopes = append(project.Scopes, struct {
+					ScopeID   string `json:"scopeId"`
+					ScopeName string `json:"scopeName"`
+				}{
+					ScopeID:   bs.ScopeId,
+					ScopeName: s.ScopeName(),
+				})
+			} else {
+				projectMap[bp.ProjectName] = &models.ProjectScope{
+					Name:        bp.ProjectName,
+					BlueprintId: bp.ID,
+					Scopes: []struct {
+						ScopeID   string `json:"scopeId"`
+						ScopeName string `json:"scopeName"`
+					}{
+						{
+							ScopeID:   bs.ScopeId,
+							ScopeName: s.ScopeName(),
+						},
+					},
+				}
+			}
+		}
+	}
+	// 4. combine all projects
+	for _, project := range projectMap {
+		ps.Projects = append(ps.Projects, *project)
+	}
+	ps.Count = len(ps.Projects)
+
+	return ps, err
 }
 
 func (scopeConfigSrv *AnyScopeConfigSrvHelper) DeleteScopeConfigAny(scopeConfig any) (refs any, err errors.Error) {

@@ -16,38 +16,25 @@
  *
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { CSSTransition } from 'react-transition-group';
-import { CloseOutlined } from '@ant-design/icons';
-import { Layout as AntdLayout, Menu, Flex, Divider, Tooltip, Button } from 'antd';
+import { Helmet } from 'react-helmet';
+import { Layout as AntdLayout, Menu, Divider } from 'antd';
 
-import API from '@/api';
-import { PageLoading, Logo, ExternalLink, Message } from '@/components';
-import { PATHS } from '@/config';
-import {
-  init,
-  selectError,
-  selectStatus,
-  selectTipsShow,
-  selectTipsType,
-  selectTipsPayload,
-  hideTips,
-} from '@/features';
+import { PageLoading, Logo, ExternalLink } from '@/components';
+import { init, selectError, selectStatus } from '@/features';
 import { OnboardCard } from '@/routes/onboard/components';
 import { useAppDispatch, useAppSelector } from '@/hooks';
-import { operator } from '@/utils';
 
 import { menuItems, menuItemsMatch, headerItems } from './config';
-import * as S from './styled';
-import './tips-transition.css';
 
 const { Sider, Header, Content, Footer } = AntdLayout;
+
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const Layout = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [operating, setOperating] = useState(false);
 
   const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
 
@@ -57,11 +44,6 @@ export const Layout = () => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectStatus);
   const error = useAppSelector(selectError);
-  const tipsShow = useAppSelector(selectTipsShow);
-  const tipsType = useAppSelector(selectTipsType);
-  const tipsPayload = useAppSelector(selectTipsPayload);
-
-  const tipsRef = useRef(null);
 
   useEffect(() => {
     dispatch(init(plugins));
@@ -88,6 +70,11 @@ export const Layout = () => {
     setSelectedKeys(selectedKeys);
   }, [pathname]);
 
+  const title = useMemo(() => {
+    const curMenuItem = menuItemsMatch[pathname];
+    return curMenuItem?.label ?? '';
+  }, [pathname]);
+
   if (['idle', 'loading'].includes(status)) {
     return <PageLoading />;
   }
@@ -96,28 +83,14 @@ export const Layout = () => {
     throw error.message;
   }
 
-  const handleRunBP = async () => {
-    if (!tipsPayload) {
-      return;
-    }
-
-    const { blueprintId, pname } = tipsPayload;
-
-    const [success] = await operator(
-      () => API.blueprint.trigger(tipsPayload.blueprintId, { skipCollectors: false, fullSync: false }),
-      {
-        setOperating,
-        formatMessage: () => 'Trigger blueprint successful.',
-      },
-    );
-
-    if (success) {
-      navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprintId));
-    }
-  };
-
   return (
     <AntdLayout style={{ height: '100vh' }}>
+      <Helmet>
+        <title>
+          {title ? `${title} - ` : ''}
+          {brandName}
+        </title>
+      </Helmet>
       <Sider>
         {import.meta.env.DEVLAKE_TITLE_CUSTOM ? (
           <h2 style={{ margin: '36px 0', textAlign: 'center', color: '#fff' }}>
@@ -173,29 +146,6 @@ export const Layout = () => {
             </Footer>
           )}
         </Content>
-        <CSSTransition in={!!tipsShow} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
-          <S.Tips ref={tipsRef}>
-            <div className="content">
-              {tipsType === 'data-scope-changed' && (
-                <Flex gap="middle">
-                  <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
-                  <Button type="primary" loading={operating} onClick={handleRunBP}>
-                    Recollect Data
-                  </Button>
-                </Flex>
-              )}
-              {tipsType === 'scope-config-changed' && (
-                <Message
-                  content="Scope Config(s) have been updated. If you would like to re-transform or re-collect the data in the related
-              project(s), please go to the Project page and do so."
-                />
-              )}
-            </div>
-            <Tooltip title="Close">
-              <Button shape="circle" ghost icon={<CloseOutlined />} onClick={() => dispatch(hideTips())} />
-            </Tooltip>
-          </S.Tips>
-        </CSSTransition>
       </AntdLayout>
     </AntdLayout>
   );

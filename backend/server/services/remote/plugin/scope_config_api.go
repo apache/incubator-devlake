@@ -34,6 +34,10 @@ func (pa *pluginAPI) GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.Api
 	return pa.dsHelper.ConnApi.GetDetail(input)
 }
 
+func (pa *pluginAPI) GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return pa.dsHelper.ScopeConfigApi.GetProjectsByScopeConfig(input)
+}
+
 func (pa *pluginAPI) ListScopeConfigs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return pa.dsHelper.ScopeConfigApi.GetAll(input)
 }

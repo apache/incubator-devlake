@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/spf13/cast"
 	"reflect"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -35,7 +36,7 @@ var _ plugin.SubTaskEntryPoint = ConvertStoryRepoCommits
 var ConvertStoryRepoCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertStoryRepoCommits",
 	EntryPoint:       ConvertStoryRepoCommits,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "convert Zentao story repo commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

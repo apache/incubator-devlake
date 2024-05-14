@@ -16,23 +16,9 @@
  *
  */
 
-.tips-enter {
-  opacity: 0;
-  transform: scale(0.8);
-}
-
-.tips-enter-active {
-  opacity: 1;
-  transform: translateX(0);
-  transition: opacity 300ms, transform 300ms;
-}
-
-.tips-exit {
-  opacity: 1;
-}
-
-.tips-exit-active {
-  opacity: 0;
-  transform: scale(0.8);
-  transition: opacity 300ms, transform 300ms;
-}
+export type ICheck = {
+  count: number;
+  projects: Array<{
+    name: string;
+  }>;
+};

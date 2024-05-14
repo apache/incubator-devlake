@@ -70,9 +70,11 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return errors.Default.Wrap(err, fmt.Sprintf("error updating record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 			}
+			logger.Info("full sync mode, update jql to %s", record.Jql)
 		}
 		return nil
 	}
+
 	// first run
 	if record.Jql == "" {
 		record.Jql = jql
@@ -80,6 +82,7 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("error updating record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 		}
+		logger.Info("first run, update jql to %s", record.Jql)
 		return nil
 	}
 	// change

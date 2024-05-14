@@ -42,6 +42,7 @@ interface Props {
   connectionId: ID;
   defaultName?: string;
   showWarning?: boolean;
+  forceCreate?: boolean;
   scopeId?: ID;
   scopeConfigId?: ID;
   onCancel: () => void;
@@ -53,6 +54,7 @@ export const ScopeConfigForm = ({
   connectionId,
   defaultName,
   showWarning = false,
+  forceCreate = false,
   scopeId,
   scopeConfigId,
   onCancel,
@@ -81,7 +83,7 @@ export const ScopeConfigForm = ({
     (async () => {
       try {
         const res = await API.scopeConfig.get(plugin, connectionId, scopeConfigId);
-        setName(res.name);
+        setName(forceCreate ? `${res.name}-copy` : res.name);
         setEntities(res.entities ?? []);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
       } catch {}
@@ -99,12 +101,13 @@ export const ScopeConfigForm = ({
   const handleSubmit = async () => {
     const [success, res] = await operator(
       () =>
-        !scopeConfigId
+        !scopeConfigId || forceCreate
           ? API.scopeConfig.create(plugin, connectionId, { name, entities, ...transformation })
           : API.scopeConfig.update(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
       {
         setOperating,
-        formatMessage: () => (!scopeConfigId ? 'Create scope config successful.' : 'Update scope config successful'),
+        hideSuccessToast: !!scopeConfigId,
+        formatMessage: () => 'Create scope config successful.',
       },
     );
 
@@ -135,7 +138,12 @@ export const ScopeConfigForm = ({
               description="Give this Scope Config a unique name so that you can identify it in the future."
               required
             >
-              <Input placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                placeholder="My Scope Config 1"
+                maxLength={40}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </Block>
           </Card>
           <Card>
