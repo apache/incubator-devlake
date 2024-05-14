@@ -32,7 +32,7 @@ export const create = (data: any) =>
 
 export const remove = (id: ID) => request(`/blueprints/${id}`, { method: 'delete' });
 
-export const update = (id: ID, data: IBlueprint) => request(`/blueprints/${id}`, { method: 'patch', data });
+export const update = (id: ID, data: Partial<IBlueprint>) => request(`/blueprints/${id}`, { method: 'patch', data });
 
 export const pipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
 

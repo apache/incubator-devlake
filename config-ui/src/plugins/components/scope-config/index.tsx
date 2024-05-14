@@ -22,7 +22,7 @@ import { theme, Button, Modal, Flex, Space } from 'antd';
 import styled from 'styled-components';
 
 import API from '@/api';
-import { Message } from '@/components';
+import { IconButton, Message } from '@/components';
 import { operator } from '@/utils';
 
 import { PluginName } from '../plugin-name';
@@ -59,12 +59,12 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
     const [success, res] = await operator(() => API.scopeConfig.check(plugin, id), { hideToast: true });
 
     if (success) {
-      const projects = res.projects.map((it: any) => ({
+      const projects = (res.projects ?? []).map((it: any) => ({
         name: it.name,
         scopes: it.scopes,
       }));
 
-      if (projects.length !== 1) {
+      if (projects.length > 0) {
         setRelatedProjects(projects);
         setType('relatedProjects');
       } else {
@@ -83,27 +83,36 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
 
     if (success) {
       handleHideDialog();
-      onSuccess?.(id);
+      onSuccess?.(trId);
     }
   };
 
   const handleUpdate = (trId: ID) => {
     handleHideDialog();
-    onSuccess?.(id);
+    onSuccess?.(trId);
   };
 
   return (
     <Wrapper>
       <span>{id ? name : 'N/A'}</span>
-      <Button
+      <IconButton
+        icon={<LinkOutlined />}
+        helptip="Associate Scope Config"
         size="small"
         type="link"
-        icon={<LinkOutlined />}
         onClick={() => {
           setType('associate');
         }}
       />
-      {id && <Button size="small" type="link" icon={<EditOutlined />} onClick={handleCheckScopeConfig} />}
+      {id && (
+        <IconButton
+          icon={<EditOutlined />}
+          helptip=" Edit Scope Config"
+          type="link"
+          size="small"
+          onClick={handleCheckScopeConfig}
+        />
+      )}
       {type === 'associate' && (
         <Modal
           open
@@ -172,7 +181,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
           <Message content="The change will apply to all following projects:" />
           <ul style={{ margin: '15px 0 30px 30px' }}>
             {relatedProjects.map((it) => (
-              <li style={{ color: colorPrimary }}>
+              <li key={it.name} style={{ color: colorPrimary }}>
                 {it.name}: {it.scopes.map((sc) => sc.scopeName).join(',')}
               </li>
             ))}

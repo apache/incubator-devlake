@@ -230,6 +230,17 @@ export const Connection = () => {
     }
   };
 
+  const handleRun = async (pname: string, blueprintId: ID, data?: { skipCollectors?: boolean; fullSync?: boolean }) => {
+    const [success] = await operator(() => API.blueprint.trigger(blueprintId, data), {
+      setOperating,
+      hideToast: true,
+    });
+
+    if (success) {
+      window.open(PATHS.PROJECT(pname, { tab: 'status' }));
+    }
+  };
+
   const handleScopeConfigChange = async (scopeConfigId?: ID) => {
     if (!scopeConfigId) {
       setVersion(version + 1);
@@ -255,14 +266,14 @@ export const Connection = () => {
               The listed projects are impacted. Please re-transform the data to apply the updated scope config.
             </div>
             <ul>
-              {res.projects.map((it: any) => (
-                <li key={it.name} style={{ marginBottom: 10 }}>
+              {res.projects.map(({ name, blueprintId }: { name: string; blueprintId: ID }) => (
+                <li key={name} style={{ marginBottom: 10 }}>
                   <Space>
-                    <span>{it.name}</span>
+                    <span>{name}</span>
                     <Button
                       size="small"
                       type="link"
-                      onClick={() => navigate(PATHS.PROJECT(it.name, { tab: 'status' }))}
+                      onClick={() => handleRun(name, blueprintId, { skipCollectors: true })}
                     >
                       Re-transform Data
                     </Button>

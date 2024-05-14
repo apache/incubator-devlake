@@ -36,7 +36,7 @@ func main() {
 	// pkPass := cmd.Flags().StringP("privateKeyPassPhrase", "P", "", "passphrase for private key")
 	proxy := cmd.Flags().StringP("proxy", "x", "", "proxy")
 	useGoGit := cmd.Flags().BoolP("useGoGit", "g", false, "use go-git instead of libgit2")
-	skipCommitStat := cmd.Flags().BoolP("skipCommitStat", "S", true, "")
+	skipCommitStat := cmd.Flags().BoolP("skipCommitStat", "S", false, "")
 	skipCommitFiles := cmd.Flags().BoolP("skipCommitFiles", "F", true, "")
 	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	_ = cmd.MarkFlagRequired("url")

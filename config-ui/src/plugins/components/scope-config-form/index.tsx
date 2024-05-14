@@ -106,7 +106,7 @@ export const ScopeConfigForm = ({
           : API.scopeConfig.update(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
       {
         setOperating,
-        hideToast: !!scopeConfigId,
+        hideSuccessToast: !!scopeConfigId,
         formatMessage: () => 'Create scope config successful.',
       },
     );
@@ -138,7 +138,12 @@ export const ScopeConfigForm = ({
               description="Give this Scope Config a unique name so that you can identify it in the future."
               required
             >
-              <Input placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                placeholder="My Scope Config 1"
+                maxLength={40}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </Block>
           </Card>
           <Card>

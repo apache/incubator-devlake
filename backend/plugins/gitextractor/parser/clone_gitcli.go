@@ -90,6 +90,13 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 		}
 		return err
 	}
+	// deepen the commits by 1 more step to avoid https://github.com/apache/incubator-devlake/issues/7426
+	if since != nil {
+		cmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "fetch", "--deepen=1")
+		if err := cmd.Run(); err != nil {
+			return errors.Default.Wrap(err, "failed to deepen the cloned repo")
+		}
+	}
 
 	// save state
 	if g.stateManager != nil {
