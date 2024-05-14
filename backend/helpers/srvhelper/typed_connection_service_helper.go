@@ -30,6 +30,10 @@ func (*GenericConnectionModelInfo[C]) GetConnectionId(connection any) uint64 {
 	return connection.(plugin.ToolLayerConnection).ConnectionId()
 }
 
+func NewConnectionModelInfo[C plugin.ToolLayerConnection]() *GenericConnectionModelInfo[C] {
+	return &GenericConnectionModelInfo[C]{NewGenericModelInfo[C]()}
+}
+
 // ConnectionSrvHelper
 type ConnectionSrvHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
 	*AnyConnectionSrvHelper

@@ -51,7 +51,7 @@ func (info *GenericModelInfo[M]) New() interface{} {
 }
 
 func (info *GenericModelInfo[M]) NewSlice() interface{} {
-	return new([]*M)
+	return make([]*M, 0)
 }
 
 type ModelSrvHelper[M dal.Tabler] struct {

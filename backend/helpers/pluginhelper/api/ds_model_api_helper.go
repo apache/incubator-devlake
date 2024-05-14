@@ -116,7 +116,7 @@ func (modelApi *AnyModelApiHelper) Sanitize(model any) any {
 	if modelApi.sterilizers != nil {
 		for _, sterilizer := range modelApi.sterilizers {
 			sanitizedModel := sterilizer(model)
-			model = &sanitizedModel
+			model = sanitizedModel
 		}
 	}
 	return model
@@ -125,8 +125,10 @@ func (modelApi *AnyModelApiHelper) Sanitize(model any) any {
 func (modelApi *AnyModelApiHelper) BatchSanitize(models any) any {
 	array := reflect.ValueOf(models)
 	for i := 0; i < array.Len(); i++ {
-		model := array.Index(i)
-		model.Set(reflect.ValueOf(modelApi.Sanitize(model.Interface())))
+		elem := array.Index(i)
+		model := elem.Interface()
+		sanitized := modelApi.Sanitize(model)
+		elem.Set(reflect.ValueOf(sanitized))
 	}
 	return models
 }

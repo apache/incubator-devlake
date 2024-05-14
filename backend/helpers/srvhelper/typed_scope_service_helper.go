@@ -43,6 +43,10 @@ func (*GenericScopeModelInfo[S]) GetScopeParams(scope any) any {
 	return scope.(plugin.ToolLayerScope).ScopeScopeConfigId()
 }
 
+func NewScopeModelInfo[S plugin.ToolLayerScope]() *GenericScopeModelInfo[S] {
+	return &GenericScopeModelInfo[S]{NewGenericModelInfo[S]()}
+}
+
 type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
 	Scope       S                   `json:"scope"`
 	ScopeConfig *SC                 `json:"scopeConfig,omitempty"`

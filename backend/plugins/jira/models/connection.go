@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
+
+	"github.com/apache/incubator-devlake/core/utils"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -93,7 +94,7 @@ func (connection *JiraConnection) MergeFromRequest(target *JiraConnection, body 
 	return nil
 }
 
-func (connection JiraConnection) Sanitize() JiraConnection {
+func (connection *JiraConnection) Sanitize() *JiraConnection {
 	connection.JiraConn = connection.JiraConn.Sanitize()
 	return connection
 }

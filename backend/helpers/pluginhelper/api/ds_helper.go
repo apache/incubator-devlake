@@ -95,23 +95,21 @@ func NewDataSourceHelper[
 	basicRes context.BasicRes,
 	pluginName string,
 	scopeSearchColumns []string,
-	connectionSterilizer func(c C) C,
-	scopeSterilizer func(s S) S,
-	scopeConfigSterilizer func(s SC) SC,
+	connectionSterilizer func(c *C) *C,
 ) *DsHelper[C, S, SC] {
-	var connectionModelInfo = &srvhelper.GenericConnectionModelInfo[C]{}
-	var scopeModelInfo = &srvhelper.GenericScopeModelInfo[S]{}
+	var connectionModelInfo = srvhelper.NewConnectionModelInfo[C]()
+	var scopeModelInfo = srvhelper.NewScopeModelInfo[S]()
 	var scopeConfigModelInfo *srvhelper.GenericScopeConfigModelInfo[SC]
 	scType := reflect.TypeOf(new(SC))
 	if scType != noScopeConfig {
-		scopeConfigModelInfo = &srvhelper.GenericScopeConfigModelInfo[SC]{}
+		scopeConfigModelInfo = srvhelper.NewScopeConfigModelInfo[SC]()
 	}
 	anyDsHelper := NewDataSourceAnyHelper(
 		basicRes,
 		pluginName,
 		scopeSearchColumns,
 		func(c any) any {
-			return connectionSterilizer(c.(C))
+			return connectionSterilizer(c.(*C))
 		},
 		connectionModelInfo,
 		scopeModelInfo,

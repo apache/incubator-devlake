@@ -44,11 +44,10 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		br,
 		p.Name(),
 		[]string{"name"},
-		func(c models.JiraConnection) models.JiraConnection {
-			return c.Sanitize()
+		func(c *models.JiraConnection) *models.JiraConnection {
+			santized := c.Sanitize()
+			return santized
 		},
-		nil,
-		nil,
 	)
 	raProxy = api.NewDsRemoteApiProxyHelper[models.JiraConnection](dsHelper.ConnApi.ModelApiHelper)
 	raScopeList = api.NewDsRemoteApiScopeListHelper[models.JiraConnection, models.JiraBoard, JiraRemotePagination](raProxy, listJiraRemoteScopes)

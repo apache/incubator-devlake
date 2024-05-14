@@ -34,6 +34,10 @@ func (*GenericScopeConfigModelInfo[SC]) GetScopeConfigId(scopeConfig any) uint64
 	return scopeConfig.(plugin.ToolLayerScopeConfig).ScopeConfigId()
 }
 
+func NewScopeConfigModelInfo[SC plugin.ToolLayerScopeConfig]() *GenericScopeConfigModelInfo[SC] {
+	return &GenericScopeConfigModelInfo[SC]{NewGenericModelInfo[SC]()}
+}
+
 // ScopeConfigSrvHelper
 type ScopeConfigSrvHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
 	*AnyScopeConfigSrvHelper
