@@ -32,8 +32,8 @@ type release20240514 struct {
 	ConnectionId       uint64    `json:"connection_id" gorm:"primaryKey"`
 	GithubId           int       `json:"github_id"`
 	Id                 string    `json:"id" gorm:"type:varchar(255);primaryKey"`
-	AuthorName         string    `json:"name"`
-	AuthorID           string    `json:"id"`
+	AuthorName         string    `json:"authorName"`
+	AuthorID           string    `json:"authorId"`
 	CreatedAt          time.Time `json:"createdAt"`
 	DatabaseID         int       `json:"databaseId"`
 	Description        string    `json:"description"`
