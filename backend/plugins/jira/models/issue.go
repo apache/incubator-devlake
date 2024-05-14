@@ -64,6 +64,7 @@ type JiraIssue struct {
 	StdStatus                string `gorm:"type:varchar(255)"`
 	Components               string `gorm:"type:varchar(255)"`
 	ChangelogTotal           int
+	WorklogTotal             int
 	common.NoPKModel
 }
 
