@@ -83,6 +83,7 @@ func ConvertRelease(taskCtx plugin.SubTaskContext) errors.Error {
 				IsLatest:     githubRelease.IsLatest,
 				IsPrerelease: githubRelease.IsPrerelease,
 				TagName:      githubRelease.TagName,
+				CommitSha:    githubRelease.CommitSha,
 
 				AuthorID: githubRelease.AuthorID,
 

@@ -49,5 +49,6 @@ func All() []plugin.MigrationScript {
 		new(modifyIssueTypeLength),
 		new(addWorkflowDisplayTitle),
 		new(addReleaseTable),
+		new(addReleaseCommitSha),
 	}
 }
