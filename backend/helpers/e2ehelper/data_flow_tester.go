@@ -227,7 +227,10 @@ func (t *DataFlowTester) Subtask(subtaskMeta plugin.SubTaskMeta, taskData interf
 
 // SubtaskContext creates a subtask context
 func (t *DataFlowTester) SubtaskContext(taskData interface{}) plugin.SubTaskContext {
-	return contextimpl.NewStandaloneSubTaskContext(context.Background(), runner.CreateBasicRes(t.Cfg, t.Log, t.Db), t.Name, taskData, t.Name)
+	syncPolicy := &models.SyncPolicy{
+		FullSync: true,
+	}
+	return contextimpl.NewStandaloneSubTaskContext(context.Background(), runner.CreateBasicRes(t.Cfg, t.Log, t.Db), t.Name, taskData, t.Name, syncPolicy)
 }
 
 func filterColumn(column dal.ColumnMeta, opts TableOptions) bool {

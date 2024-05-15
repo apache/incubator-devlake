@@ -17,7 +17,7 @@
  */
 
 import { useState } from 'react';
-import { Table, Modal, Button } from 'antd';
+import { Table } from 'antd';
 
 import API from '@/api';
 import { useRefreshData } from '@/hooks';
@@ -27,11 +27,9 @@ interface Props {
   plugin: string;
   connectionId: ID;
   scopeIds: ID[];
-  operating: boolean;
-  onRun: (params: { skipCollectors: boolean }) => void;
 }
 
-export const BlueprintConnectionDetailTable = ({ plugin, connectionId, scopeIds, operating, onRun }: Props) => {
+export const BlueprintConnectionDetailTable = ({ plugin, connectionId, scopeIds }: Props) => {
   const [version, setVersion] = useState(1);
 
   const { ready, data } = useRefreshData(async () => {
@@ -44,59 +42,34 @@ export const BlueprintConnectionDetailTable = ({ plugin, connectionId, scopeIds,
     }));
   }, [version]);
 
-  const [modal, contextHolder] = Modal.useModal();
-
-  const handleChangeScopeConfig = () => {
-    modal.success({
-      closable: true,
-      centered: true,
-      width: 550,
-      title: 'Scope Config Saved',
-      content: 'Please re-transform data to apply the updated scope config.',
-      footer: (
-        <div style={{ marginTop: 20, textAlign: 'center' }}>
-          <Button type="primary" loading={operating} onClick={() => onRun({ skipCollectors: true })}>
-            Re-transform now
-          </Button>
-        </div>
-      ),
-      onCancel: () => {
-        setVersion(version + 1);
-      },
-    });
-  };
-
   return (
-    <>
-      <Table
-        loading={!ready}
-        rowKey="id"
-        size="middle"
-        columns={[
-          {
-            title: 'Data Scope',
-            dataIndex: 'name',
-            key: 'name',
-          },
-          {
-            title: 'Scope Config',
-            key: 'scopeConfig',
-            render: (_, { id, name, scopeConfigId, scopeConfigName }) => (
-              <ScopeConfig
-                plugin={plugin}
-                connectionId={connectionId}
-                scopeId={id}
-                scopeName={name}
-                id={scopeConfigId}
-                name={scopeConfigName}
-                onSuccess={handleChangeScopeConfig}
-              />
-            ),
-          },
-        ]}
-        dataSource={data ?? []}
-      />
-      {contextHolder}
-    </>
+    <Table
+      loading={!ready}
+      rowKey="id"
+      size="middle"
+      columns={[
+        {
+          title: 'Data Scope',
+          dataIndex: 'name',
+          key: 'name',
+        },
+        {
+          title: 'Scope Config',
+          key: 'scopeConfig',
+          render: (_, { id, name, scopeConfigId, scopeConfigName }) => (
+            <ScopeConfig
+              plugin={plugin}
+              connectionId={connectionId}
+              scopeId={id}
+              scopeName={name}
+              scopeConfigId={scopeConfigId}
+              scopeConfigName={scopeConfigName}
+              onSuccess={() => setVersion(version + 1)}
+            />
+          ),
+        },
+      ]}
+      dataSource={data ?? []}
+    />
   );
 };
