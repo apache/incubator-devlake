@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
@@ -69,10 +70,13 @@ func NewStandaloneSubTaskContext(
 	name string,
 	data interface{},
 	pluginName string,
+	syncPolicy *models.SyncPolicy,
 ) plugin.SubTaskContext {
+	taskContext := &DefaultTaskContext{defaultExecContext: newDefaultExecContext(ctx, basicRes, pluginName, data, nil)}
+	taskContext.SetSyncPolicy(syncPolicy)
 	return &DefaultSubTaskContext{
 		newDefaultExecContext(ctx, basicRes, name, data, nil),
-		&DefaultTaskContext{defaultExecContext: newDefaultExecContext(ctx, basicRes, pluginName, data, nil)},
+		taskContext,
 		time.Time{},
 	}
 }
