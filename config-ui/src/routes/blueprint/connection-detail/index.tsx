@@ -223,13 +223,7 @@ export const BlueprintConnectionDetailPage = () => {
             Manage Data Scope
           </Button>
         </Flex>
-        <BlueprintConnectionDetailTable
-          plugin={plugin}
-          connectionId={connectionId}
-          scopeIds={scopeIds}
-          operating={operating}
-          onRun={handleRun}
-        />
+        <BlueprintConnectionDetailTable plugin={plugin} connectionId={connectionId} scopeIds={scopeIds} />
       </Flex>
       <Modal open={open} width={820} centered title="Manage Data Scope" footer={null} onCancel={handleHideDataScope}>
         <DataScopeSelect

@@ -23,6 +23,7 @@ import styled from 'styled-components';
 
 import API from '@/api';
 import { IconButton, Message } from '@/components';
+import { PATHS } from '@/config';
 import { operator } from '@/utils';
 
 import { PluginName } from '../plugin-name';
@@ -31,31 +32,42 @@ import { ScopeConfigForm } from '../scope-config-form';
 
 const Wrapper = styled.div``;
 
+type RelatedProjects = Array<{ name: string; blueprintId: ID; scopes: Array<{ scopeName: string }> }>;
+
 interface Props {
   plugin: string;
   connectionId: ID;
   scopeId: ID;
   scopeName: string;
-  id?: ID;
-  name?: string;
-  onSuccess?: (id?: ID) => void;
+  scopeConfigId?: ID;
+  scopeConfigName?: string;
+  projects?: Array<{ name: string; blueprintId: ID }>;
+  onSuccess: (id?: ID) => void;
 }
 
-export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name, onSuccess }: Props) => {
+export const ScopeConfig = ({
+  plugin,
+  connectionId,
+  scopeId,
+  scopeName,
+  scopeConfigId,
+  scopeConfigName,
+  onSuccess,
+}: Props) => {
   const [type, setType] = useState<'associate' | 'update' | 'relatedProjects' | 'duplicate'>();
-  const [relatedProjects, setRelatedProjects] = useState<
-    Array<{ name: string; scopes: Array<{ scopeId: ID; scopeName: string }> }>
-  >([]);
+  const [relatedProjects, setRelatedProjects] = useState<RelatedProjects>([]);
+
+  const [operating, setOperating] = useState(false);
 
   const {
     token: { colorPrimary },
   } = theme.useToken();
 
+  const [modal, contextHolder] = Modal.useModal();
+
   const handleHideDialog = () => setType(undefined);
 
-  const handleCheckScopeConfig = async () => {
-    if (!id) return;
-
+  const handleCheckScopeConfig = async (id: ID) => {
     const [success, res] = await operator(() => API.scopeConfig.check(plugin, id), { hideToast: true });
 
     if (success) {
@@ -64,7 +76,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
         scopes: it.scopes,
       }));
 
-      if (projects.length > 0) {
+      if (projects.length > 1) {
         setRelatedProjects(projects);
         setType('relatedProjects');
       } else {
@@ -73,9 +85,82 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
     }
   };
 
+  const handleRun = async (pname: string, blueprintId: ID, data?: { skipCollectors?: boolean; fullSync?: boolean }) => {
+    const [success] = await operator(() => API.blueprint.trigger(blueprintId, data), {
+      setOperating,
+    });
+
+    if (success) {
+      window.open(PATHS.PROJECT(pname, { tab: 'status' }));
+    }
+  };
+
+  const handleShowProjectsModal = (projects: RelatedProjects) => {
+    if (!projects || !projects.length) {
+      onSuccess();
+    } else if (projects.length === 1) {
+      const [{ name, blueprintId }] = projects;
+      modal.success({
+        closable: true,
+        centered: true,
+        width: 550,
+        title: 'Scope Config Saved',
+        content: 'Please re-transform data to apply the updated scope config.',
+        footer: (
+          <div style={{ marginTop: 20, textAlign: 'center' }}>
+            <Button
+              type="primary"
+              loading={operating}
+              onClick={() => handleRun(name, blueprintId, { skipCollectors: true })}
+            >
+              Re-transform now
+            </Button>
+          </div>
+        ),
+        onCancel: onSuccess,
+      });
+    } else {
+      modal.success({
+        closable: true,
+        centered: true,
+        width: 830,
+        title: 'Scope Config Saved',
+        content: (
+          <>
+            <div style={{ marginBottom: 16 }}>
+              The listed projects are impacted. Please re-transform the data to apply the updated scope config.
+            </div>
+            <ul>
+              {projects.map(({ name, blueprintId }: { name: string; blueprintId: ID }) => (
+                <li key={name} style={{ marginBottom: 10 }}>
+                  <Space>
+                    <span>{name}</span>
+                    <Button
+                      size="small"
+                      type="link"
+                      loading={operating}
+                      onClick={() => handleRun(name, blueprintId, { skipCollectors: true })}
+                    >
+                      Re-transform Data
+                    </Button>
+                  </Space>
+                </li>
+              ))}
+            </ul>
+          </>
+        ),
+        footer: null,
+        onCancel: onSuccess,
+      });
+    }
+  };
+
   const handleAssociate = async (trId: ID) => {
-    const [success] = await operator(
-      () => API.scope.update(plugin, connectionId, scopeId, { scopeConfigId: trId !== 'None' ? +trId : null }),
+    const [success, res] = await operator(
+      async () => {
+        await API.scope.update(plugin, connectionId, scopeId, { scopeConfigId: trId === 'None' ? null : +trId });
+        return API.scope.get(plugin, connectionId, scopeId, { blueprints: true });
+      },
       {
         hideToast: true,
       },
@@ -83,18 +168,35 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
 
     if (success) {
       handleHideDialog();
-      onSuccess?.(trId);
+      handleShowProjectsModal(
+        (res.blueprints ?? []).map((it: any) => ({
+          name: it.projectName,
+          blueprintId: it.id,
+          scopes: [
+            {
+              scopeId,
+              scopeName,
+            },
+          ],
+        })),
+      );
     }
   };
 
-  const handleUpdate = (trId: ID) => {
+  const handleUpdate = async (trId: ID) => {
     handleHideDialog();
-    onSuccess?.(trId);
+
+    const [success, res] = await operator(() => API.scopeConfig.check(plugin, trId), { hideToast: true });
+
+    if (success) {
+      handleShowProjectsModal(res.projects ?? []);
+    }
   };
 
   return (
     <Wrapper>
-      <span>{id ? name : 'N/A'}</span>
+      {contextHolder}
+      <span>{scopeConfigId ? scopeConfigName : 'N/A'}</span>
       <IconButton
         icon={<LinkOutlined />}
         helptip="Associate Scope Config"
@@ -104,13 +206,13 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
           setType('associate');
         }}
       />
-      {id && (
+      {scopeConfigId && (
         <IconButton
           icon={<EditOutlined />}
           helptip=" Edit Scope Config"
           type="link"
           size="small"
-          onClick={handleCheckScopeConfig}
+          onClick={() => handleCheckScopeConfig(scopeConfigId)}
         />
       )}
       {type === 'associate' && (
@@ -126,7 +228,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
             <ScopeConfigForm
               plugin={plugin}
               connectionId={connectionId}
-              scopeConfigId={id}
+              scopeConfigId={scopeConfigId}
               scopeId={scopeId}
               onCancel={handleHideDialog}
               onSubmit={handleAssociate}
@@ -135,7 +237,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
             <ScopeConfigSelect
               plugin={plugin}
               connectionId={connectionId}
-              scopeConfigId={id}
+              scopeConfigId={scopeConfigId}
               onCancel={handleHideDialog}
               onSubmit={handleAssociate}
             />
@@ -148,7 +250,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
             plugin={plugin}
             connectionId={connectionId}
             showWarning
-            scopeConfigId={id}
+            scopeConfigId={scopeConfigId}
             scopeId={scopeId}
             onCancel={handleHideDialog}
             onSubmit={handleUpdate}
@@ -162,7 +264,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
             connectionId={connectionId}
             showWarning
             forceCreate
-            scopeConfigId={id}
+            scopeConfigId={scopeConfigId}
             scopeId={scopeId}
             onCancel={handleHideDialog}
             onSubmit={handleAssociate}
@@ -175,7 +277,7 @@ export const ScopeConfig = ({ plugin, connectionId, scopeId, scopeName, id, name
           width={830}
           centered
           footer={null}
-          title={`Edit '${name}' for '${scopeName}'`}
+          title={`Edit '${scopeConfigName}' for '${scopeName}'`}
           onCancel={handleHideDialog}
         >
           <Message content="The change will apply to all following projects:" />
