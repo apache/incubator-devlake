@@ -54,7 +54,7 @@ type WebhookDeployTaskRequest struct {
 	CommitSha    string     `mapstructure:"commit_sha"`
 	CommitMsg    string     `mapstructure:"commit_msg"`
 	// DeploymentCommits is used for multiple commits in one deployment
-	DeploymentCommits []DeploymentCommit `mapstructure:"deploymentCommits" validate:"omitempty,dive"`
+	DeploymentCommits []DeploymentCommit `mapstructure:"deployment_commits" validate:"omitempty,dive"`
 }
 
 type DeploymentCommit struct {
