@@ -69,21 +69,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/azuredevops/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "can't read connection from database")
-	}
-	var updatedConn models.AzuredevopsConn
-	if err := api.Decode(input.Body, &updatedConn, nil); err != nil {
-		return nil, err
-	}
-
-	if updatedConn.Token != "" {
-		connection.Token = updatedConn.Token
-	}
-
-	if updatedConn.Organization != "" {
-		connection.Organization = updatedConn.Organization
 	}
 
 	body, err := testConnection(context.TODO(), *connection)
