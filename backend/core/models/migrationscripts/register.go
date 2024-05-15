@@ -114,5 +114,6 @@ func All() []plugin.MigrationScript {
 		new(addDisplayTitleAndUrl),
 		new(addSubtaskStates),
 		new(addCicdRelease),
+		new(addCommitShaToCicdRelease),
 	}
 }

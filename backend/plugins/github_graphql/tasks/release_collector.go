@@ -48,22 +48,29 @@ type GraphqlQueryReleaseAuthor struct {
 	ID   string  `graphql:"id"`
 }
 
+type GraphqlQueryReleaseTagCommit struct {
+	ID             string `graphql:"id"`
+	Oid            string `graphql:"oid"`
+	AbbreviatedOid string `graphql:"abbreviatedOid"`
+}
+
 type GraphqlQueryRelease struct {
-	Author          GraphqlQueryReleaseAuthor `graphql:"author"`
-	DatabaseID      int                       `graphql:"databaseId"`
-	Id              string                    `graphql:"id"`
-	CreatedAt       time.Time                 `graphql:"createdAt"`
-	Description     string                    `graphql:"description"`
-	DescriptionHTML string                    `graphql:"descriptionHTML"`
-	IsDraft         bool                      `graphql:"isDraft"`
-	IsLatest        bool                      `graphql:"isLatest"`
-	IsPrerelease    bool                      `graphql:"isPrerelease"`
-	Name            string                    `graphql:"name"`
-	PublishedAt     time.Time                 `graphql:"publishedAt"`
-	ResourcePath    string                    `graphql:"resourcePath"`
-	TagName         string                    `graphql:"tagName"`
-	UpdatedAt       time.Time                 `graphql:"updatedAt"`
-	URL             string                    `graphql:"url"`
+	Author          GraphqlQueryReleaseAuthor    `graphql:"author"`
+	DatabaseID      int                          `graphql:"databaseId"`
+	Id              string                       `graphql:"id"`
+	CreatedAt       time.Time                    `graphql:"createdAt"`
+	Description     string                       `graphql:"description"`
+	DescriptionHTML string                       `graphql:"descriptionHTML"`
+	IsDraft         bool                         `graphql:"isDraft"`
+	IsLatest        bool                         `graphql:"isLatest"`
+	IsPrerelease    bool                         `graphql:"isPrerelease"`
+	Name            string                       `graphql:"name"`
+	PublishedAt     time.Time                    `graphql:"publishedAt"`
+	ResourcePath    string                       `graphql:"resourcePath"`
+	TagName         string                       `graphql:"tagName"`
+	TagCommit       GraphqlQueryReleaseTagCommit `graphql:"tagCommit"`
+	UpdatedAt       time.Time                    `graphql:"updatedAt"`
+	URL             string                       `graphql:"url"`
 }
 
 var CollectReleaseMeta = plugin.SubTaskMeta{

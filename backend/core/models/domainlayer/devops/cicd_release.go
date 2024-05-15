@@ -42,8 +42,8 @@ type CicdRelease struct {
 	RepoId string `gorm:"type:varchar(255)"`
 	//RepoUrl string `gorm:"index;not null"`
 
-	TagName string `json:"tagName"`
-	//CommitSha string `gorm:"primaryKey;type:varchar(255)"`
+	TagName   string `json:"tagName"`
+	CommitSha string `gorm:"uniqueIndex;type:varchar(255)"`
 	//CommitMsg string
 	//RefName   string `gorm:"type:varchar(255)"`
 }

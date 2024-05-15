@@ -97,6 +97,7 @@ func convertGitHubRelease(release *GraphqlQueryRelease, connectionId uint64, git
 		TagName:         release.TagName,
 		UpdatedAt:       release.UpdatedAt,
 		URL:             release.URL,
+		CommitSha:       release.TagCommit.Oid,
 	}
 	if release.Author.Name != nil {
 		ret.AuthorName = *release.Author.Name

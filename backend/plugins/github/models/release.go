@@ -42,6 +42,7 @@ type GithubRelease struct {
 	ResourcePath     string    `json:"resourcePath"`
 	TagName          string    `json:"tagName"`
 	UpdatedAt        time.Time `json:"updatedAt"`
+	CommitSha        string    `json:"commit_sha"`
 	URL              string    `json:"url"`
 }
 
