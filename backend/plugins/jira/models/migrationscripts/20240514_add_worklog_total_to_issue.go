@@ -52,5 +52,5 @@ func (*addWorklogToIssue) Version() uint64 {
 }
 
 func (*addWorklogToIssue) Name() string {
-	return "add worklog to _tool_jira_issues"
+	return "add worklog_total to _tool_jira_issues"
 }
