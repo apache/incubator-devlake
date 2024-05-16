@@ -20,6 +20,8 @@ package api
 import (
 	"crypto/md5"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/log"
 	"net/http"
 	"strings"
 	"time"
@@ -37,7 +39,7 @@ import (
 
 type WebhookDeployTaskRequest struct {
 	DisplayTitle string `mapstructure:"display_title"`
-	PipelineId   string `mapstructure:"pipeline_id"`
+	PipelineId   string `mapstructure:"pipeline_id" validate:"required"`
 	// RepoUrl should be unique string, fill url or other unique data
 	RepoId string `mapstructure:"repo_id"`
 	Result string `mapstructure:"result"`
@@ -55,7 +57,7 @@ type WebhookDeployTaskRequest struct {
 	CommitSha    string     `mapstructure:"commit_sha"`
 	CommitMsg    string     `mapstructure:"commit_msg"`
 	// DeploymentCommits is used for multiple commits in one deployment
-	DeploymentCommits []DeploymentCommit `mapstructure:"deploymentCommits" validate:"omitempty,dive"`
+	DeploymentCommits []DeploymentCommit `mapstructure:"deployment_commits" validate:"omitempty,dive"`
 }
 
 type DeploymentCommit struct {
@@ -67,42 +69,12 @@ type DeploymentCommit struct {
 	CommitMsg    string `mapstructure:"commit_msg"`
 }
 
-// PostDeploymentCicdTask
-// @Summary create deployment by webhook
-// @Description Create deployment pipeline by webhook.<br/>
-// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
-// @Description So we suggest request before task after deployment pipeline finish.
-// @Description Both cicd_pipeline and cicd_task will be created
-// @Tags plugins/webhook
-// @Param body body WebhookDeployTaskRequest true "json body"
-// @Success 200
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 403  {string} errcode.Error "Forbidden"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/webhook/connections/:connectionId/deployments [POST]
-func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.WebhookConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	// get request
-	request := &WebhookDeployTaskRequest{}
-	err = api.DecodeMapStruct(input.Body, request, true)
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
-	}
-	// validate
-	vld = validator.New()
-	err = errors.Convert(vld.Struct(request))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
-	}
-	txHelper := dbhelper.NewTxHelper(basicRes, &err)
-	defer txHelper.End()
-	tx := txHelper.Begin()
+func generateDeploymentCommitId(connectionId uint64, repoUrl string, commitSha string) string {
+	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(repoUrl)))[:16]
+	return fmt.Sprintf("%s:%d:%s:%s", "webhook", connectionId, urlHash16, commitSha)
+}
 
-	pipelineId := request.PipelineId
+func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, request *WebhookDeployTaskRequest, tx dal.Transaction, logger log.Logger) errors.Error {
 	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	if request.CreatedDate == nil {
 		request.CreatedDate = request.StartedDate
@@ -145,19 +117,14 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	// queuedDuration := dateInfo.CalculateQueueDuration()
 	if request.DeploymentCommits == nil {
 		if request.CommitSha == "" || request.RepoUrl == "" {
-			return nil, errors.Convert(fmt.Errorf("commit_sha or repo_url is required"))
-		}
-		urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
-		deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
-		if pipelineId == "" {
-			pipelineId = deploymentCommitId
+			return errors.Convert(fmt.Errorf("commit_sha or repo_url is required"))
 		}
 		// create a deployment_commit record
 		deploymentCommit := &devops.CicdDeploymentCommit{
 			DomainEntity: domainlayer.DomainEntity{
-				Id: deploymentCommitId,
+				Id: generateDeploymentCommitId(connection.ID, request.RepoUrl, request.CommitSha),
 			},
-			CicdDeploymentId: pipelineId,
+			CicdDeploymentId: request.PipelineId,
 			CicdScopeId:      scopeId,
 			Name:             name,
 			DisplayTitle:     request.DisplayTitle,
@@ -176,30 +143,23 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 			CommitSha:           request.CommitSha,
 			CommitMsg:           request.CommitMsg,
 		}
-		err = tx.CreateOrUpdate(deploymentCommit)
-		if err != nil {
+		if err := tx.CreateOrUpdate(deploymentCommit); err != nil {
 			logger.Error(err, "create deployment commit")
-			return nil, err
+			return err
 		}
-
 		// create a deployment record
-		if err = tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
+		if err := tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
 			logger.Error(err, "create deployment")
-			return nil, err
+			return err
 		}
 	} else {
 		for _, commit := range request.DeploymentCommits {
-			urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(commit.RepoUrl)))[:16]
-			deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, commit.CommitSha)
-			if pipelineId == "" {
-				pipelineId = deploymentCommitId
-			}
 			// create a deployment_commit record
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: deploymentCommitId,
+					Id: generateDeploymentCommitId(connection.ID, commit.RepoUrl, commit.CommitSha),
 				},
-				CicdDeploymentId: pipelineId,
+				CicdDeploymentId: request.PipelineId,
 				CicdScopeId:      scopeId,
 				Result:           request.Result,
 				Status:           devops.STATUS_DONE,
@@ -218,19 +178,60 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 				CommitSha:           commit.CommitSha,
 				CommitMsg:           commit.CommitMsg,
 			}
-			err = tx.CreateOrUpdate(deploymentCommit)
-			if err != nil {
+
+			if err := tx.CreateOrUpdate(deploymentCommit); err != nil {
 				logger.Error(err, "create deployment commit")
-				return nil, err
+				return err
 			}
 
 			// create a deployment record
 			deploymentCommit.Name = name
-			if err = tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
+			if err := tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
 				logger.Error(err, "create deployment")
-				return nil, err
+				return err
 			}
 		}
+	}
+	return nil
+}
+
+// PostDeploymentCicdTask
+// @Summary create deployment by webhook
+// @Description Create deployment pipeline by webhook.<br/>
+// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
+// @Description So we suggest request before task after deployment pipeline finish.
+// @Description Both cicd_pipeline and cicd_task will be created
+// @Tags plugins/webhook
+// @Param body body WebhookDeployTaskRequest true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 403  {string} errcode.Error "Forbidden"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/:connectionId/deployments [POST]
+func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	// get request
+	request := &WebhookDeployTaskRequest{}
+	err = api.DecodeMapStruct(input.Body, request, true)
+	if err != nil {
+		return &plugin.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
+	}
+	// validate
+	vld = validator.New()
+	err = errors.Convert(vld.Struct(request))
+	if err != nil {
+		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
+	}
+	txHelper := dbhelper.NewTxHelper(basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
+	if err := CreateDeploymentAndDeploymentCommits(connection, request, tx, logger); err != nil {
+		logger.Error(err, "create deployments")
+		return nil, err
 	}
 
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil

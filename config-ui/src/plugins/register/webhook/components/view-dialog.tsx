@@ -41,7 +41,7 @@ const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
         "title":"a feature from DLK",
         "type":"INCIDENT",
         "original_status":"TODO",
-        "status":"TODO",    
+        "status":"TODO",
         "created_date":"2020-01-01T12:00:00+00:00",
         "updated_date":"2020-01-01T12:00:00+00:00"
      }'`,
@@ -51,7 +51,7 @@ const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
     postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
       apiKey ?? '{API_KEY}'
     }' -d '{
-      "deploymentCommits":[
+      "deployment_commits":[
         {
         "commit_sha":"the sha of deployment commit1",
         "repo_url":"the repo URL of the deployment commit"
