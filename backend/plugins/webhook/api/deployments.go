@@ -36,7 +36,8 @@ import (
 )
 
 type WebhookDeployTaskRequest struct {
-	PipelineId string `mapstructure:"pipeline_id"`
+	DisplayTitle string `mapstructure:"display_title"`
+	PipelineId   string `mapstructure:"pipeline_id"`
 	// RepoUrl should be unique string, fill url or other unique data
 	RepoId string `mapstructure:"repo_id"`
 	Result string `mapstructure:"result"`
@@ -58,11 +59,12 @@ type WebhookDeployTaskRequest struct {
 }
 
 type DeploymentCommit struct {
-	RepoUrl   string `mapstructure:"repo_url" validate:"required"`
-	Name      string `mapstructure:"name"`
-	RefName   string `mapstructure:"ref_name"`
-	CommitSha string `mapstructure:"commit_sha" validate:"required"`
-	CommitMsg string `mapstructure:"commit_msg"`
+	DisplayTitle string `mapstructure:"display_title"`
+	RepoUrl      string `mapstructure:"repo_url" validate:"required"`
+	Name         string `mapstructure:"name"`
+	RefName      string `mapstructure:"ref_name"`
+	CommitSha    string `mapstructure:"commit_sha" validate:"required"`
+	CommitMsg    string `mapstructure:"commit_msg"`
 }
 
 // PostDeploymentCicdTask
@@ -158,6 +160,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 			CicdDeploymentId: pipelineId,
 			CicdScopeId:      scopeId,
 			Name:             name,
+			DisplayTitle:     request.DisplayTitle,
 			Result:           request.Result,
 			Status:           devops.STATUS_DONE,
 			OriginalResult:   request.Result,
@@ -207,6 +210,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 				//QueuedDurationSec: queuedDuration,
 				RepoId:              request.RepoId,
 				Name:                fmt.Sprintf(`deployment for %s`, commit.CommitSha),
+				DisplayTitle:        commit.DisplayTitle,
 				RepoUrl:             commit.RepoUrl,
 				Environment:         request.Environment,
 				OriginalEnvironment: request.Environment,
