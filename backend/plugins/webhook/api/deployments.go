@@ -148,7 +148,7 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 			return err
 		}
 		// create a deployment record
-		if err := tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
+		if err := tx.CreateOrUpdate(deploymentCommit.ToDeploymentWithCustomDisplayTitle(request.DisplayTitle)); err != nil {
 			logger.Error(err, "create deployment")
 			return err
 		}
@@ -186,7 +186,7 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 
 			// create a deployment record
 			deploymentCommit.Name = name
-			if err := tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
+			if err := tx.CreateOrUpdate(deploymentCommit.ToDeploymentWithCustomDisplayTitle(request.DisplayTitle)); err != nil {
 				logger.Error(err, "create deployment")
 				return err
 			}
