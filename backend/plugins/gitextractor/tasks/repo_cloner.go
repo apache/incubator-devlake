@@ -56,11 +56,8 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	repoCloner := parser.NewGitcliCloner(subTaskCtx)
 	err = repoCloner.CloneRepo(subTaskCtx, localDir)
 	if err != nil {
-		if errors.Is(err, parser.ErrNoDataOnIncrementalMode) {
+		if errors.Is(err, parser.ErrNoData) {
 			taskData.SkipAllSubtasks = true
-			return nil
-		}
-		if errors.Is(err, parser.ErrShallowInfoProcessing) {
 			return nil
 		}
 		return err

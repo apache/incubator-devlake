@@ -33,7 +33,7 @@ func TestApiClientBlackList(t *testing.T) {
 		Err       errors.Error
 	}{
 		{
-			Name:    "Internal IP Addresses",
+			Name:    "Blocked Internal IP Addresses",
 			Pattern: "10.0.0.1/16",
 			Endpoints: []string{
 				"https://10.0.0.1",
@@ -44,13 +44,45 @@ func TestApiClientBlackList(t *testing.T) {
 			Err: ErrHostNotAllowed,
 		},
 		{
-			Name:    "Internal IP Addresses",
+			Name:    "Allowed Public IP Addresses",
 			Pattern: "10.0.0.1/16",
 			Endpoints: []string{
 				"http://10.1.0.1",
 				"http://10.1.0.254",
 				"http://10.1.254.1",
 				"http://10.1.254.254",
+			},
+			Err: nil,
+		},
+		{
+			Name:    "Blocked IPv6 loopback",
+			Pattern: "::1/128",
+			Endpoints: []string{
+				"http://[::1]",
+			},
+			Err: ErrHostNotAllowed,
+		},
+		{
+			Name:    "Blocked IPv6 Unique Local Addresses IP Addresses",
+			Pattern: "fc00::/7",
+			Endpoints: []string{
+				"http://[fdf8:f53b:82e4::53]",
+			},
+			Err: ErrHostNotAllowed,
+		},
+		{
+			Name:    "Blocked IPv6 Link-Local IP Addresses",
+			Pattern: "fe80::/10",
+			Endpoints: []string{
+				"http://[fe80::200:5aee:feaa:20a2]",
+			},
+			Err: ErrHostNotAllowed,
+		},
+		{
+			Name:    "Allowed IPv6 Public IP Addresses",
+			Pattern: "fe80::/10",
+			Endpoints: []string{
+				"http://[2001:0002:6c::430]",
 			},
 			Err: nil,
 		},

@@ -80,13 +80,13 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
    "title":"a feature from DLK",
    "type":"INCIDENT",
    "original_status":"TODO",
-   "status":"TODO",    
+   "status":"TODO",
    "created_date":"2020-01-01T12:00:00+00:00",
    "updated_date":"2020-01-01T12:00:00+00:00"
 }'`,
         closeIssuesEndpoint: `curl ${prefix}${res.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
         postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-    "deploymentCommits":[
+    "deployment_commits":[
       {
       "commit_sha":"the sha of deployment commit1",
       "repo_url":"the repo URL of the deployment commit"

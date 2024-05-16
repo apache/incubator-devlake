@@ -113,7 +113,7 @@ func (srv *AnyModelSrvHelper) UpdateAny(model any) errors.Error {
 	err := srv.ValidateModel(model)
 	if err != nil {
 		if srv.db.IsDuplicationError(err) {
-			return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.ModelName()))
+			return errors.Default.New("The name of the current scope config is duplicated. Please modify it before saving.")
 		}
 		return err
 	}
