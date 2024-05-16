@@ -104,6 +104,7 @@ func (p Github) GetTablesInfo() []dal.Tabler {
 		&models.GithubIssueAssignee{},
 		&models.GithubScopeConfig{},
 		&models.GithubDeployment{},
+		&models.GithubRelease{},
 	}
 }
 
