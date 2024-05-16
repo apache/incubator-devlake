@@ -40,7 +40,7 @@ func (*GenericScopeModelInfo[S]) GetScopeConfigId(scope any) uint64 {
 }
 
 func (*GenericScopeModelInfo[S]) GetScopeParams(scope any) any {
-	return scope.(plugin.ToolLayerScope).ScopeScopeConfigId()
+	return scope.(plugin.ToolLayerScope).ScopeParams()
 }
 
 func NewScopeModelInfo[S plugin.ToolLayerScope]() *GenericScopeModelInfo[S] {

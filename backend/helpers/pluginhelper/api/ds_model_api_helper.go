@@ -202,14 +202,19 @@ func (modelApi *AnyModelApiHelper) PutMultipleCb(input *plugin.ApiResourceInput,
 	if err != nil {
 		return nil, err
 	}
-	for i, item := range req.Data {
+	for i, itemDict := range req.Data {
+		item := modelApi.New()
+		err := utils.DecodeMapStruct(itemDict, item, false)
+		if err != nil {
+			return nil, err
+		}
 		if beforeSave != nil {
 			err := beforeSave(item)
 			if err != nil {
 				return nil, err
 			}
 		}
-		err := modelApi.CreateOrUpdateAny(item)
+		err = modelApi.CreateOrUpdateAny(item)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("failed to save item %d", i))
 		}
