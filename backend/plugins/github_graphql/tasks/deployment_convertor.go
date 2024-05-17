@@ -28,11 +28,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	restTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 )
-
-func init() {
-	RegisterSubtaskMeta(&ConvertDeploymentsMeta)
-}
 
 const (
 	RAW_DEPLOYMENT_TABLE = "github_deployment"
@@ -78,13 +75,13 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId: deploymentScopeIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.GithubId),
 				Name:        githubDeployment.CommitOid,
 				Result: devops.GetResult(&devops.ResultRule{
-					Success: []string{StatusSuccess, StatusInactive, StatusActive},
-					Failure: []string{StatusError, StatusFailure},
+					Success: []string{restTasks.StatusSuccess, restTasks.StatusInactive, restTasks.StatusActive},
+					Failure: []string{restTasks.StatusError, restTasks.StatusFailure},
 					Default: devops.RESULT_DEFAULT,
 				}, githubDeployment.State),
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{StatusSuccess, StatusError, StatusFailure, StatusInactive, StatusActive},
-					InProgress: []string{StatusInProgress, StatusQueued, StatusWaiting, StatusPending},
+					Done:       []string{restTasks.StatusSuccess, restTasks.StatusError, restTasks.StatusFailure, restTasks.StatusInactive, restTasks.StatusActive},
+					InProgress: []string{restTasks.StatusInProgress, restTasks.StatusQueued, restTasks.StatusWaiting, restTasks.StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, githubDeployment.State),
 				OriginalStatus:      githubDeployment.State,
