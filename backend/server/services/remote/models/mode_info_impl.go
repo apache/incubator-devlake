@@ -63,7 +63,7 @@ func (r *RemoteModelInfo) New() any {
 
 // NewSlice implements srvhelper.ModelInfo.
 func (r *RemoteModelInfo) NewSlice() any {
-	return reflect.New(reflect.SliceOf(reflect.PointerTo(r.modelType)))
+	return reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(r.modelType)), 0, 0).Interface()
 }
 
 // TableName implements srvhelper.ModelInfo.
