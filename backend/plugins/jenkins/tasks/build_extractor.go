@@ -61,7 +61,7 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 
 			input := &SimpleJob{}
 			err1 := json.Unmarshal(row.Input, input)
-			if err1 == nil && input.Class == WORKFLOW_MULTI_BRANCH_PROJECT {
+			if err1 == nil && input.Class == WORKFLOW_JOB {
 				// For jobs from multi-branch workflow, the job name and path must come from the input,
 				// otherwise it will be set to the multi-branch workflow name and path
 				jobName = input.Name
