@@ -51,6 +51,10 @@ func (cicdDeploymentCommit CicdDeploymentCommit) TableName() string {
 }
 
 func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment {
+	return cicdDeploymentCommit.ToDeploymentWithCustomDisplayTitle(cicdDeploymentCommit.DisplayTitle)
+}
+
+func (cicdDeploymentCommit CicdDeploymentCommit) ToDeploymentWithCustomDisplayTitle(displayTitle string) *CICDDeployment {
 	return &CICDDeployment{
 		DomainEntity: domainlayer.DomainEntity{
 			Id:        cicdDeploymentCommit.CicdDeploymentId,
@@ -72,7 +76,7 @@ func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment 
 		},
 		QueuedDurationSec: cicdDeploymentCommit.QueuedDurationSec,
 		DurationSec:       cicdDeploymentCommit.DurationSec,
-		DisplayTitle:      cicdDeploymentCommit.DisplayTitle,
+		DisplayTitle:      displayTitle,
 		Url:               cicdDeploymentCommit.Url,
 	}
 }

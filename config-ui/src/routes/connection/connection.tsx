@@ -69,8 +69,6 @@ export const Connection = () => {
     token: { colorPrimary },
   } = theme.useToken();
 
-  const [modal, contextHolder] = Modal.useModal();
-
   const dispatch = useAppDispatch();
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
 
@@ -230,65 +228,6 @@ export const Connection = () => {
     }
   };
 
-  const handleRun = async (pname: string, blueprintId: ID, data?: { skipCollectors?: boolean; fullSync?: boolean }) => {
-    const [success] = await operator(() => API.blueprint.trigger(blueprintId, data), {
-      setOperating,
-      hideToast: true,
-    });
-
-    if (success) {
-      window.open(PATHS.PROJECT(pname, { tab: 'status' }));
-    }
-  };
-
-  const handleScopeConfigChange = async (scopeConfigId?: ID) => {
-    if (!scopeConfigId) {
-      setVersion(version + 1);
-      return;
-    }
-
-    const [success, res] = await operator(() => API.scopeConfig.check(plugin, scopeConfigId), { hideToast: true });
-
-    if (success) {
-      if (!res.projects) {
-        setVersion(version + 1);
-        return;
-      }
-
-      modal.success({
-        closable: true,
-        centered: true,
-        width: 830,
-        title: 'Scope Config Saved',
-        content: (
-          <>
-            <div style={{ marginBottom: 16 }}>
-              The listed projects are impacted. Please re-transform the data to apply the updated scope config.
-            </div>
-            <ul>
-              {res.projects.map(({ name, blueprintId }: { name: string; blueprintId: ID }) => (
-                <li key={name} style={{ marginBottom: 10 }}>
-                  <Space>
-                    <span>{name}</span>
-                    <Button
-                      size="small"
-                      type="link"
-                      onClick={() => handleRun(name, blueprintId, { skipCollectors: true })}
-                    >
-                      Re-transform Data
-                    </Button>
-                  </Space>
-                </li>
-              ))}
-            </ul>
-          </>
-        ),
-        footer: null,
-        onCancel: () => setVersion(version + 1),
-      });
-    }
-  };
-
   return (
     <PageHeader
       breadcrumbs={[
@@ -368,9 +307,9 @@ export const Connection = () => {
                   connectionId={connectionId}
                   scopeId={id}
                   scopeName={name}
-                  id={configId}
-                  name={configName}
-                  onSuccess={handleScopeConfigChange}
+                  scopeConfigId={configId}
+                  scopeConfigName={configName}
+                  onSuccess={() => setVersion(version + 1)}
                 />
               ),
             },
@@ -579,7 +518,6 @@ export const Connection = () => {
           )}
         </Modal>
       )}
-      {contextHolder}
     </PageHeader>
   );
 };

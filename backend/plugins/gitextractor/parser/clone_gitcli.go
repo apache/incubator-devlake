@@ -34,8 +34,7 @@ import (
 )
 
 var _ RepoCloner = (*GitcliCloner)(nil)
-var ErrShallowInfoProcessing = errors.BadInput.New("No data found for the selected time range. Please revise the 'Time Range' on your Project/Blueprint/Configuration page or in the API parameter.")
-var ErrNoDataOnIncrementalMode = errors.NotModified.New("No data found since the previous run.")
+var ErrNoData = errors.NotModified.New("No data to be collected")
 
 type GitcliCloner struct {
 	logger       log.Logger
@@ -84,10 +83,6 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	}
 	err = g.execCloneCommand(cmd)
 	if err != nil {
-		// it is likely that nothing to collect on incrmental mode
-		if errors.Is(err, ErrShallowInfoProcessing) && g.stateManager != nil && g.stateManager.IsIncremental() {
-			return ErrNoDataOnIncrementalMode
-		}
 		return err
 	}
 	// deepen the commits by 1 more step to avoid https://github.com/apache/incubator-devlake/issues/7426
@@ -222,7 +217,7 @@ func (g *GitcliCloner) execCloneCommand(cmd *exec.Cmd) errors.Error {
 		g.logger.Error(err, "git exited with error\n%s", combinedOutput.String())
 		if strings.Contains(combinedOutput.String(), "stderr: fatal: error processing shallow info: 4") ||
 			strings.Contains(combinedOutput.String(), "stderr: fatal: the remote end hung up unexpectedly") {
-			return ErrShallowInfoProcessing
+			return ErrNoData
 		}
 		return errors.Default.New("git exit error")
 	}
