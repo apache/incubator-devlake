@@ -46,9 +46,8 @@ type ServiceResponse struct {
 }
 
 func queryPagerdutyRemoteScopes(
-	connection *models.PagerDutyConnection,
 	apiClient plugin.ApiClient,
-	groupId string,
+	_ string,
 	page PagerdutyRemotePagination,
 	search string,
 ) (
@@ -56,11 +55,14 @@ func queryPagerdutyRemoteScopes(
 	nextPage *PagerdutyRemotePagination,
 	err errors.Error,
 ) {
+	if page.Limit == 0 {
+		page.Limit = 50
+	}
 	var res *http.Response
 	res, err = apiClient.Get("/services", url.Values{
 		"offset": {strconv.Itoa(page.Offset)},
 		"limit":  {strconv.Itoa(page.Limit)},
-		"search": {search},
+		"query":  {search},
 	}, nil)
 	if err != nil {
 		return
@@ -85,7 +87,6 @@ func queryPagerdutyRemoteScopes(
 					NoPKModel: common.NoPKModel{
 						CreatedAt: service.CreatedAt,
 					},
-					ConnectionId: connection.ID,
 				},
 			},
 		})
@@ -112,7 +113,7 @@ func listPagerdutyRemoteScopes(
 	*PagerdutyRemotePagination,
 	errors.Error,
 ) {
-	return queryPagerdutyRemoteScopes(connection, apiClient, groupId, page, "")
+	return queryPagerdutyRemoteScopes(apiClient, groupId, page, "")
 }
 
 func searchPagerdutyRemoteScopes(
@@ -122,7 +123,7 @@ func searchPagerdutyRemoteScopes(
 	children []dsmodels.DsRemoteApiScopeListEntry[models.Service],
 	err errors.Error,
 ) {
-	children, _, err = queryPagerdutyRemoteScopes(nil, apiClient, "", PagerdutyRemotePagination{
+	children, _, err = queryPagerdutyRemoteScopes(apiClient, "", PagerdutyRemotePagination{
 		Offset: (params.Page - 1) * params.PageSize,
 		Limit:  params.PageSize,
 	}, params.Search)
