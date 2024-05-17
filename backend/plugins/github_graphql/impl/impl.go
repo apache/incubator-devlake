@@ -131,7 +131,7 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 		// deployment
 		tasks.CollectDeploymentsMeta,
 		tasks.ExtractDeploymentsMeta,
-		githubTasks.ConvertDeploymentsMeta,
+		tasks.ConvertDeploymentsMeta,
 
 		// releases
 		tasks.CollectReleaseMeta,
