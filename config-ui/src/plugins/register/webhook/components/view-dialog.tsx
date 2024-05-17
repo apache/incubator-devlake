@@ -51,14 +51,12 @@ const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
     postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
       apiKey ?? '{API_KEY}'
     }' -d '{
-      "deployment_commits":[
-        {
-        "commit_sha":"the sha of deployment commit1",
-        "repo_url":"the repo URL of the deployment commit"
-        }
-      ],
-      "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
-     }'`,
+      "pipeline_id": "Required. This will be the unique id of the deployment",
+      "repo_url":"e.g. GitHub - apache/incubator-devlake: Apache DevLake is an open-source dev data platform to ingest, ana",
+      "display_title":"optional-custom-deploy-display-title",
+      "commit_sha":"e.g.  015e3d3b480e417aede5a1293bd61de9b0fd051d",
+      "start_time":"Optional, e.g. 2020-01-01T12:00:00+00:00"
+    }'`,
   };
 };
 
