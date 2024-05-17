@@ -69,9 +69,9 @@ type DeploymentCommit struct {
 	CommitMsg    string `mapstructure:"commit_msg"`
 }
 
-func generateDeploymentCommitId(connectionId uint64, repoUrl string, commitSha string) string {
+func GenerateDeploymentCommitId(connectionId uint64, pipelineId string, repoUrl string, commitSha string) string {
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(repoUrl)))[:16]
-	return fmt.Sprintf("%s:%d:%s:%s", "webhook", connectionId, urlHash16, commitSha)
+	return fmt.Sprintf("%s:%d:%s:%s:%s", "webhook", connectionId, pipelineId, urlHash16, commitSha)
 }
 
 func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, request *WebhookDeployTaskRequest, tx dal.Transaction, logger log.Logger) errors.Error {
@@ -122,7 +122,7 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 		// create a deployment_commit record
 		deploymentCommit := &devops.CicdDeploymentCommit{
 			DomainEntity: domainlayer.DomainEntity{
-				Id: generateDeploymentCommitId(connection.ID, request.RepoUrl, request.CommitSha),
+				Id: GenerateDeploymentCommitId(connection.ID, request.PipelineId, request.RepoUrl, request.CommitSha),
 			},
 			CicdDeploymentId: request.PipelineId,
 			CicdScopeId:      scopeId,
@@ -157,7 +157,7 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 			// create a deployment_commit record
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: generateDeploymentCommitId(connection.ID, commit.RepoUrl, commit.CommitSha),
+					Id: GenerateDeploymentCommitId(connection.ID, request.PipelineId, commit.RepoUrl, commit.CommitSha),
 				},
 				CicdDeploymentId: request.PipelineId,
 				CicdScopeId:      scopeId,
