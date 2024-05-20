@@ -21,7 +21,7 @@ import { DOC_URL } from '@/release';
 import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
-import { BaseURL } from './connection-fields';
+import { BaseURL, ConnectionOrganization } from './connection-fields';
 
 export const AzureConfig: IPluginConfig = {
   plugin: 'azuredevops',
@@ -88,13 +88,16 @@ export const AzureGoConfig: IPluginConfig = {
       {
         key: 'token',
         label: 'Personal Access Token',
-        subLabel: (
-          <span>
-            <ExternalLink link={DOC_URL.PLUGIN.AZUREDEVOPS.AUTH_TOKEN}>Learn about how to create a PAT</ExternalLink>{' '}
-            Please select ALL ACCESSIBLE ORGANIZATIONS for the Organization field when you create the PAT.
-          </span>
-        ),
       },
+      ({ initialValues, values, setValues }: any) => (
+        <ConnectionOrganization
+          initialValue={initialValues}
+          label="Personal Access Token Scope"
+          key="ado-organization"
+          value={values.organization}
+          setValue={(value) => setValues({ organization: value })}
+        />
+      ),
       'proxy',
       {
         key: 'rateLimitPerHour',

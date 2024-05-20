@@ -58,10 +58,11 @@ func listAzuredevopsRemoteScopes(
 	err errors.Error,
 ) {
 
+	org := connection.Organization
 	vsc := azuredevops.NewClient(connection, apiClient, "https://app.vssps.visualstudio.com")
 
 	if groupId == "" {
-		return listAzuredevopsProjects(vsc, page)
+		return listAzuredevopsProjects(vsc, page, org)
 	}
 
 	id := strings.Split(groupId, idSeparator)
@@ -76,18 +77,23 @@ func listAzuredevopsRemoteScopes(
 	return children, nextPage, nil
 }
 
-func listAzuredevopsProjects(vsc azuredevops.Client, _ AzuredevopsRemotePagination) (
+func listAzuredevopsProjects(vsc azuredevops.Client, _ AzuredevopsRemotePagination, org string) (
 	children []dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo],
 	nextPage *AzuredevopsRemotePagination,
 	err errors.Error) {
 
-	profile, err := vsc.GetUserProfile()
-	if err != nil {
-		return nil, nil, err
-	}
-	accounts, err := vsc.GetUserAccounts(profile.Id)
-	if err != nil {
-		return nil, nil, err
+	var accounts azuredevops.AccountResponse
+	if org == "" {
+		profile, err := vsc.GetUserProfile()
+		if err != nil {
+			return nil, nil, err
+		}
+		accounts, err = vsc.GetUserAccounts(profile.Id)
+		if err != nil {
+			return nil, nil, err
+		}
+	} else {
+		accounts = append(accounts, azuredevops.Account{AccountName: org})
 	}
 
 	g, _ := errgroup.WithContext(context.Background())
