@@ -117,7 +117,7 @@ func (srv *AnyModelSrvHelper) UpdateAny(model any) errors.Error {
 		}
 		return err
 	}
-	return srv.db.Update(model)
+	return srv.db.Update(model, dal.From(srv.ModelInfo.TableName()))
 }
 
 // CreateOrUpdate validates given model and insert or update it into database if validation passed
@@ -153,7 +153,7 @@ func (srv *AnyModelSrvHelper) FindByPkAny(pk ...interface{}) (any, errors.Error)
 // GetAll returns all models from database
 func (srv *AnyModelSrvHelper) QueryAllAny() (any, errors.Error) {
 	array := srv.NewSlice()
-	return array, srv.db.All(&array)
+	return array, srv.db.All(&array, dal.From(srv.ModelInfo.TableName()))
 }
 
 func (srv *AnyModelSrvHelper) QueryPageAny(pagination *Pagination, query ...dal.Clause) (any, int64, errors.Error) {

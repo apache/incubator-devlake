@@ -18,6 +18,7 @@ limitations under the License.
 package plugin
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 
@@ -128,7 +129,12 @@ func (p *remotePluginImpl) Init(basicRes context.BasicRes) errors.Error {
 		p.Name(),
 		[]string{"name"},
 		func(c any) any {
-			reflect.ValueOf(c).Elem().FieldByName("token").SetString("")
+			b := errors.Must1(json.Marshal(c))
+			fmt.Printf("%s\n", b)
+			tokenField := reflect.ValueOf(c).Elem().FieldByName("Token")
+			if tokenField.IsValid() {
+				tokenField.SetString("")
+			}
 			return c
 		},
 		p.connectionModelInfo,
