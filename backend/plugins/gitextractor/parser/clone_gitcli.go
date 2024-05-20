@@ -87,8 +87,14 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	}
 	// deepen the commits by 1 more step to avoid https://github.com/apache/incubator-devlake/issues/7426
 	if since != nil {
-		cmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "fetch", "--deepen=1")
-		if err := cmd.Run(); err != nil {
+		// fixes error described on https://stackoverflow.com/questions/63878612/git-fatal-error-in-object-unshallow-sha-1
+		// It might be casued by the commit which being deepen has mulitple parent(e.g. a merge commit), not sure.
+		repackCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "repack", "-d")
+		if err := repackCmd.Run(); err != nil {
+			return errors.Default.Wrap(err, "failed to repack the repo")
+		}
+		deepenCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "fetch", "--deepen=1")
+		if err := deepenCmd.Run(); err != nil {
 			return errors.Default.Wrap(err, "failed to deepen the cloned repo")
 		}
 	}
