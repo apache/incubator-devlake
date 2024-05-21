@@ -48,6 +48,9 @@ swag: mock
 build-plugin:
 	scripts/build-plugins.sh
 
+build-plugin-debug:
+	DEVLAKE_DEBUG=1 scripts/build-plugins.sh
+
 build-server: swag
 	VERSION=$(VERSION) scripts/build-server.sh
 
