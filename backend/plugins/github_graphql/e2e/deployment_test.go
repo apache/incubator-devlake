@@ -60,7 +60,7 @@ func TestGithubDeploymentDataFlow(t *testing.T) {
 	// verify convertor
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.FlushTabler(&devops.CICDDeployment{})
-	dataflowTester.Subtask(tasks.ConvertDeploymentsMeta, taskData)
+	dataflowTester.Subtask(githubGraphQLTasks.ConvertDeploymentsMeta, taskData)
 	dataflowTester.VerifyTable(&devops.CicdDeploymentCommit{},
 		"./snapshot_tables/cicd_deployment_commits.csv",
 		[]string{
