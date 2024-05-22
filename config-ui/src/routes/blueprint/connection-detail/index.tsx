@@ -196,7 +196,7 @@ export const BlueprintConnectionDetailPage = () => {
       <S.Top>
         <span>
           To manage the complete data scope and scope config for this connection, please{' '}
-          <ExternalLink link={`/connections/${connection.plugin}/${connection.id}`}>
+          <ExternalLink link={PATHS.CONNECTION(connection.plugin, connection.id)}>
             go to the connection detail page
           </ExternalLink>
           .
