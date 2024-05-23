@@ -28,7 +28,7 @@ var PluginEntry impl.Linker //nolint
 
 // standalone mode for debugging
 func main() {
-	cmd := &cobra.Command{Use: "dora"}
+	cmd := &cobra.Command{Use: "linker"}
 
 	projectName := cmd.Flags().StringP("projectName", "p", "", "project name")
 	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")

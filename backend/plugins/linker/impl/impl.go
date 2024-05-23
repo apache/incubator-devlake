@@ -114,7 +114,8 @@ func (p Linker) MakeMetricPluginPipelinePlanV200(projectName string, options jso
 			{
 				Plugin: "linker",
 				Options: map[string]interface{}{
-					"projectName": projectName,
+					"projectName":     projectName,
+					"prToIssueRegexp": op.PrToIssueRegexp,
 				},
 				Subtasks: []string{
 					"LinkPrToIssue",

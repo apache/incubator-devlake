@@ -25,9 +25,7 @@ import (
 
 type LinkerOptions struct {
 	PrToIssueRegexp string `json:"prToIssueRegexp"`
-
-	ProjectName string `json:"projectName"` // how to get it ?
-	Since       string `json:"since"`       // how to get and use it ?
+	ProjectName     string `json:"projectName"`
 }
 
 type LinkerTaskData struct {
@@ -39,8 +37,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*LinkerOption
 	var op LinkerOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding Linker task options")
+		return nil, errors.Default.Wrap(err, "error decoding linker task options")
 	}
-
 	return &op, nil
 }
