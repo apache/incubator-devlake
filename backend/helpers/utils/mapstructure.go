@@ -19,17 +19,52 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/go-playground/validator/v10"
 
 	"github.com/mitchellh/mapstructure"
 )
+
+var defaultCustomDecoderHooks = []mapstructure.DecodeHookFunc{decodeHookStringFloat64, decodeHookStringToTime, DecodeHook}
+
+func decodeHookStringFloat64(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+	fmt.Printf("%s\n", t.Name())
+	if f.Kind() == reflect.Float64 && t.Kind() == reflect.Struct && t == reflect.TypeOf(common.StringFloat64{}) {
+		return *common.NewStringFloat64FromAny(data), nil
+	}
+	if f.Kind() == reflect.Float64 && t.Kind() == reflect.Ptr && t == reflect.TypeOf(&common.StringFloat64{}) {
+		return common.NewStringFloat64FromAny(data), nil
+	}
+	return data, nil
+}
+
+func decodeHookStringToTime(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+	if f.Kind() == reflect.String {
+		if t.Kind() == reflect.Struct && t == reflect.TypeOf(time.Time{}) {
+			timeData, err := common.ConvertStringToTime(cast.ToString(data))
+			if err != nil {
+				return data, err
+			}
+			return timeData, nil
+		}
+		if t.Kind() == reflect.Ptr && t == reflect.TypeOf(&time.Time{}) {
+			timeData, err := common.ConvertStringToTime(cast.ToString(data))
+			if err != nil {
+				return data, err
+			}
+			return &timeData, nil
+		}
+	}
+	return data, nil
+}
 
 func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
 	if data == nil {
@@ -38,25 +73,12 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 	if t == reflect.TypeOf(json.RawMessage{}) {
 		return json.Marshal(data)
 	}
-	// to support decoding url.Values (query string) to non-array variables
-	if t.Kind() != reflect.Slice && t.Kind() != reflect.Array &&
-		(f.Kind() == reflect.Slice || f.Kind() == reflect.Array) {
-		v := reflect.ValueOf(data)
-		if v.Len() == 1 {
-			data = v.Index(0).Interface()
-			var result interface{}
-			err := DecodeMapStruct(data, &result, true)
-			return result, err
-		}
-	}
-
 	if t != reflect.TypeOf(common.Iso8601Time{}) && t != reflect.TypeOf(time.Time{}) {
 		return data, nil
 	}
 
 	var tt time.Time
 	var err error
-
 	switch f.Kind() {
 	case reflect.String:
 		tt, err = common.ConvertStringToTime(data.(string))
@@ -64,15 +86,25 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 		tt = time.Unix(0, int64(data.(float64))*int64(time.Millisecond))
 	case reflect.Int64:
 		tt = time.Unix(0, data.(int64)*int64(time.Millisecond))
+	case reflect.Struct:
+		if f == reflect.TypeOf(time.Time{}) || f == reflect.TypeOf(common.Iso8601Time{}) {
+			return data, nil
+		}
+	case reflect.Ptr:
+		if f == reflect.TypeOf(&time.Time{}) || f == reflect.TypeOf(&common.Iso8601Time{}) {
+			return data, nil
+		}
 	}
 	if err != nil {
 		return data, nil
 	}
-
-	if t == reflect.TypeOf(common.Iso8601Time{}) {
+	switch t {
+	case reflect.TypeOf(common.Iso8601Time{}):
 		return common.Iso8601Time{Time: tt}, nil
+	case reflect.TypeOf(&common.Iso8601Time{}):
+		return &common.Iso8601Time{Time: tt}, nil
 	}
-	return tt, nil
+	return data, nil
 }
 
 // DecodeMapStruct with time.Time and Iso8601Time support
@@ -80,14 +112,13 @@ func DecodeMapStruct(input interface{}, result interface{}, zeroFields bool) err
 	result = models.UnwrapObject(result)
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		ZeroFields:       zeroFields,
-		DecodeHook:       mapstructure.ComposeDecodeHookFunc(DecodeHook),
+		DecodeHook:       mapstructure.ComposeDecodeHookFunc(defaultCustomDecoderHooks...),
 		Result:           result,
 		WeaklyTypedInput: true,
 	})
 	if err != nil {
 		return errors.Convert(err)
 	}
-
 	if err := decoder.Decode(input); err != nil {
 		return errors.Convert(err)
 	}
