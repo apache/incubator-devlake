@@ -115,5 +115,6 @@ func All() []plugin.MigrationScript {
 		new(addSubtaskStates),
 		new(addCicdRelease),
 		new(addCommitShaToCicdRelease),
+		new(updateIssueKeyType),
 	}
 }
