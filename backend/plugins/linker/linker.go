@@ -15,32 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package main
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"regexp"
+	"github.com/apache/incubator-devlake/core/runner"
+	"github.com/apache/incubator-devlake/plugins/linker/impl"
+	"github.com/spf13/cobra"
 )
 
-type LinkerOptions struct {
-	PrToIssueRegexp string `json:"prToIssueRegexp"`
+// PluginEntry exports for Framework to search and load
+var PluginEntry impl.Linker //nolint
 
-	ProjectName string `json:"projectName"` // how to get it ?
-	Since       string `json:"since"`       // how to get and use it ?
-}
+// standalone mode for debugging
+func main() {
+	cmd := &cobra.Command{Use: "dora"}
 
-type LinkerTaskData struct {
-	Options         *LinkerOptions
-	PrToIssueRegexp *regexp.Regexp
-}
+	projectName := cmd.Flags().StringP("projectName", "p", "", "project name")
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*LinkerOptions, errors.Error) {
-	var op LinkerOptions
-	err := helper.Decode(options, &op, nil)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding Linker task options")
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			"projectName": *projectName,
+		}, *timeAfter)
 	}
-
-	return &op, nil
+	runner.RunCmd(cmd)
 }

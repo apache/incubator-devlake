@@ -21,9 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"reflect"
-	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -42,32 +39,21 @@ var LinkPrToIssueMeta = plugin.SubTaskMeta{
 	ProductTables:    []string{crossdomain.PullRequestIssue{}.TableName()},
 }
 
-func normalizeIssueKey(issueNumberStr string) string {
-	issueNumberStr = strings.ReplaceAll(issueNumberStr, "#", "")
-	issueNumberStr = strings.TrimSpace(issueNumberStr)
-	return issueNumberStr
+func normalizeIssueKey(issueKey string) string {
+	issueKey = strings.ReplaceAll(issueKey, "#", "")
+	issueKey = strings.TrimSpace(issueKey)
+	return issueKey
 }
 
 func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
-
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*LinkerTaskData)
-
-	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx:    taskCtx,
-		Params: data,
-		//Options:Link
-		Table: code.PullRequest{}.TableName(),
+	var clauses = []dal.Clause{
+		dal.From(&code.PullRequest{}),
+		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = pull_requests.base_repo_id)"),
+		dal.Where("pm.project_name = ?", data.Options.ProjectName),
 	}
-
-	//issuePattern := data.Options.ScopeConfig.IssueRegex
-	issuePattern := ""
-	issueRegex, err := errors.Convert01(regexp.Compile(issuePattern))
-	if err != nil {
-		return errors.Default.Wrap(err, "regexp compile failed")
-	}
-
-	cursor, err := db.Cursor(dal.From(&code.PullRequest{}))
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
@@ -81,29 +67,20 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 		Input: cursor,
 		Enrich: func(pullRequest *code.PullRequest) ([]interface{}, errors.Error) {
 
-			issueNumberStr := ""
+			issueKey := ""
 			for _, text := range []string{pullRequest.Title, pullRequest.Description} {
-				issueNumberStr = issueRegex.FindString(text)
-				if issueNumberStr != "" {
+				issueKey = data.PrToIssueRegexp.FindString(text)
+				if issueKey != "" {
 					break
 				}
 			}
-			issueNumberStr = normalizeIssueKey(issueNumberStr)
-			if issueNumberStr == "" {
+			issueKey = normalizeIssueKey(issueKey)
+			if issueKey == "" {
 				return nil, nil
 			}
 
 			issue := &ticket.Issue{}
-
-			db.F
-
-			err = db.All(
-				issue,
-				dal.Where("issue_key = ?",
-					issueNumber),
-				dal.Limit(1),
-			)
-			if err != nil {
+			if err := db.First(issue, dal.Where("issue_key = ?", issueKey)); err != nil {
 				return nil, err
 			}
 
@@ -111,7 +88,7 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 				PullRequestId:  pullRequest.Id,
 				IssueId:        issue.Id,
 				PullRequestKey: pullRequest.PullRequestKey,
-				IssueKey:       issueNumber,
+				IssueKey:       issueKey,
 			}
 
 			return []interface{}{pullRequestIssue}, nil
@@ -122,61 +99,4 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return enricher.Execute()
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(code.PullRequest{}),
-		Input:              cursor,
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			pullRequest := inputRow.(*code.PullRequest)
-
-			//find the issue in the body
-			issueNumberStr := ""
-
-			if issueRegex != nil {
-				issueNumberStr = issueRegex.FindString(pullRequest.Description)
-			}
-			//find the issue in the title
-			if issueNumberStr == "" {
-				issueNumberStr = issueRegex.FindString(pullRequest.Title)
-			}
-
-			if issueNumberStr == "" {
-				return nil, nil
-			}
-
-			issueNumberStr = strings.ReplaceAll(issueNumberStr, "#", "")
-			issueNumberStr = strings.TrimSpace(issueNumberStr)
-
-			issue := &ticket.Issue{}
-
-			//change the issueNumberStr to int, if cannot be changed, just continue
-			issueNumber, numFormatErr := strconv.Atoi(issueNumberStr)
-			if numFormatErr != nil {
-				return nil, nil
-			}
-			err = db.All(
-				issue,
-				dal.Where("issue_key = ?",
-					issueNumber),
-				dal.Limit(1),
-			)
-			if err != nil {
-				return nil, err
-			}
-
-			pullRequestIssue := &crossdomain.PullRequestIssue{
-				PullRequestId:  pullRequest.Id,
-				IssueId:        issue.Id,
-				PullRequestKey: pullRequest.PullRequestKey,
-				IssueKey:       issueNumber,
-			}
-
-			return []interface{}{pullRequestIssue}, nil
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	return converter.Execute()
 }

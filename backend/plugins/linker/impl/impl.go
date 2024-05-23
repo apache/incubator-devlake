@@ -19,6 +19,7 @@ package impl
 
 import (
 	"encoding/json"
+	"regexp"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -80,9 +81,17 @@ func (p Linker) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, err
 	}
-	return &tasks.LinkerTaskData{
+	taskData := &tasks.LinkerTaskData{
 		Options: op,
-	}, nil
+	}
+	if op.PrToIssueRegexp != "" {
+		re, err := regexp.Compile(op.PrToIssueRegexp)
+		if err != nil {
+			return taskData, errors.Convert(err)
+		}
+		taskData.PrToIssueRegexp = re
+	}
+	return taskData, nil
 }
 
 // RootPkgPath information lost when compiled as plugin(.so)
