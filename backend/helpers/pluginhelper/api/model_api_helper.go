@@ -65,7 +65,7 @@ func NewModelApiHelper[M dal.Tabler](
 
 func (self *ModelApiHelper[M]) Post(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	model := new(M)
-	err := utils.DecodeMapStruct(input.Body, model, false)
+	err := DecodeMapStruct(input.Body, model, false)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (self *ModelApiHelper[M]) PatchModel(input *plugin.ApiResourceInput, zeroFi
 			return nil, err
 		}
 	} else {
-		err = utils.DecodeMapStruct(input.Body, model, zeroFields)
+		err = DecodeMapStruct(input.Body, model, zeroFields)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
 		}
@@ -194,7 +194,7 @@ func (self *ModelApiHelper[M]) PutMultipleCb(input *plugin.ApiResourceInput, bef
 	var req struct {
 		Data []*M `json:"data"`
 	}
-	err := utils.DecodeMapStruct(input.Body, &req, false)
+	err := DecodeMapStruct(input.Body, &req, false)
 	if err != nil {
 		return nil, err
 	}
