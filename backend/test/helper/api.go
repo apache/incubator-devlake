@@ -168,14 +168,14 @@ func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputPr
 		}
 		metrics = append(metrics, &models.BaseMetric{
 			PluginName:   p.Name,
-			PluginOption: string(ToJson(p.Options)),
+			PluginOption: ToJson(p.Options),
 			Enable:       true,
 		})
 	}
 	if project.EnableDora && !doraSeen {
 		metrics = append(metrics, &models.BaseMetric{
 			PluginName:   "dora",
-			PluginOption: string(ToJson(nil)),
+			PluginOption: ToJson(nil),
 			Enable:       true,
 		})
 	}
