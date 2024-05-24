@@ -356,7 +356,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPo
 			return nil, err
 		}
 		for _, projectMetric := range projectMetrics {
-			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
+			metrics[projectMetric.PluginName] = projectMetric.PluginOption
 		}
 	}
 	skipCollectors := false

@@ -116,5 +116,6 @@ func All() []plugin.MigrationScript {
 		new(addCicdRelease),
 		new(addCommitShaToCicdRelease),
 		new(updateIssueKeyType),
+		new(updatePluginOptionInProjectMetricSetting),
 	}
 }
