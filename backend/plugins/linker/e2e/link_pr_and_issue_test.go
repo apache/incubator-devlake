@@ -40,9 +40,6 @@ func TestLinkPrToIssue(t *testing.T) {
 	}
 	taskData := &tasks.LinkerTaskData{
 		Options: &tasks.LinkerOptions{
-			// https://docs.gitlab.com/ee/user/project/issues/crosslinking_issues.html
-			// For gitlab issues #xxx, GL-xxxx, projectname#xxx or https://gitlab.com/<username>/<projectname>/-/issues/<xxx>
-			// https://regex101.com/r/RteyFk/1
 			PrToIssueRegexp: regexpStr,
 			ProjectName:     "GitHub1",
 		},
@@ -53,7 +50,6 @@ func TestLinkPrToIssue(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/pull_requests.csv", &code.PullRequest{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/project_mapping.csv", &crossdomain.ProjectMapping{})
 
-	// verify extraction
 	dataflowTester.FlushTabler(&crossdomain.PullRequestIssue{})
 	dataflowTester.Subtask(tasks.LinkPrToIssueMeta, taskData)
 	dataflowTester.VerifyTable(
