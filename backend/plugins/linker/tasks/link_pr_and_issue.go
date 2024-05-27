@@ -69,7 +69,7 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			var issueKeys []string
 			for _, text := range []string{pullRequest.Title, pullRequest.Description} {
 				foundIssueKeys := data.PrToIssueRegexp.FindAllString(text, -1)
-				if foundIssueKeys != nil && len(foundIssueKeys) > 0 {
+				if len(foundIssueKeys) > 0 {
 					for _, issueKey := range foundIssueKeys {
 						issueKey = normalizeIssueKey(issueKey)
 						issueKeys = append(issueKeys, issueKey)
