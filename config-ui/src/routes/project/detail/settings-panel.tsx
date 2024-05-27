@@ -22,7 +22,7 @@ import { WarningOutlined } from '@ant-design/icons';
 import { Flex, Space, Card, Modal, Input, Checkbox, Button, message } from 'antd';
 
 import API from '@/api';
-import { Block } from '@/components';
+import { Block, HelpTooltip } from '@/components';
 import { PATHS } from '@/config';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
@@ -39,6 +39,8 @@ interface Props {
 export const SettingsPanel = ({ project, onRefresh }: Props) => {
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(false);
+  const [associatePrWithIssues, setAssociatePrWithIssues] = useState(false);
+  const [regexPrIssue, setRegexPrIssue] = useState('');
   const [operating, setOperating] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -65,8 +67,15 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           metrics: [
             {
               pluginName: 'dora',
-              pluginOption: '',
+              pluginOption: {},
               enable: enableDora,
+            },
+            {
+              pluginName: 'linker',
+              pluginOption: {
+                prToIssueRegexp: regexPrIssue,
+              },
+              enable: associatePrWithIssues,
             },
           ],
         }),
@@ -107,10 +116,38 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           <Block title="Project Name" description="Edit your project name with letters, numbers, -, _ or /" required>
             <Input style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
           </Block>
-          <Block description="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
-            <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
-              Enable DORA Metrics
-            </Checkbox>
+          <Block
+            title={
+              <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
+                Enable DORA Metrics
+              </Checkbox>
+            }
+            description="DORA metrics are four widely-adopted metrics for measuring software delivery performance."
+          />
+          <Block
+            title={
+              <Checkbox checked={associatePrWithIssues} onChange={(e) => setAssociatePrWithIssues(e.target.checked)}>
+                Associate pull requests with issues
+              </Checkbox>
+            }
+            description={
+              <span>
+                Parse the issue key with the regex from the title and description of the pull requests in this project.
+                <HelpTooltip
+                  content={
+                    <span>
+                      The default regex will parse the issue key from the table.pull_requests where the description
+                      contains "fix/close/.../resolved {'{'}issue_key{'}'}". The relationship between pull requests and
+                      issues will be stored in the table.pull_request_issues
+                    </span>
+                  }
+                />
+              </span>
+            }
+          >
+            {associatePrWithIssues && (
+              <Input style={{ width: 600 }} value={regexPrIssue} onChange={(e) => setRegexPrIssue(e.target.value)} />
+            )}
           </Block>
           <Block>
             <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
