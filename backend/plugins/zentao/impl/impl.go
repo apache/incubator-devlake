@@ -118,9 +118,13 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectDepartmentMeta,
 		tasks.ExtractDepartmentMeta,
 
-		// project
+		//project
 		tasks.CollectExecutionSummaryMeta,
 		tasks.ExtractExecutionSummaryMeta,
+
+		tasks.CollectExecutionSummaryDevMeta,
+		tasks.ExtractExecutionSummaryDevMeta,
+
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,
