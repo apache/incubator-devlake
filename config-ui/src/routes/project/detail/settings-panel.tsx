@@ -38,19 +38,30 @@ interface Props {
 
 export const SettingsPanel = ({ project, onRefresh }: Props) => {
   const [name, setName] = useState('');
-  const [enableDora, setEnableDora] = useState(false);
-  const [associatePrWithIssues, setAssociatePrWithIssues] = useState(false);
-  const [regexPrIssue, setRegexPrIssue] = useState('');
+  const [dora, setDora] = useState({
+    enable: false,
+  });
+  const [linker, setLinker] = useState({
+    enable: false,
+    prToIssueRegexp: '',
+  });
   const [operating, setOperating] = useState(false);
   const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const doraMetrics = project.metrics.find((ms: any) => ms.pluginName === 'dora');
+    const dora = project.metrics.find((ms) => ms.pluginName === 'dora');
+    const linker = project.metrics.find((ms) => ms.pluginName === 'linker');
 
     setName(project.name);
-    setEnableDora(doraMetrics?.enable ?? false);
+    setDora({
+      enable: dora?.enable ?? false,
+    });
+    setLinker({
+      enable: linker?.enable ?? false,
+      prToIssueRegexp: linker?.pluginOption?.prToIssueRegexp ?? '',
+    });
   }, [project]);
 
   const handleUpdate = async () => {
@@ -68,14 +79,14 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
             {
               pluginName: 'dora',
               pluginOption: {},
-              enable: enableDora,
+              enable: dora.enable,
             },
             {
               pluginName: 'linker',
               pluginOption: {
-                prToIssueRegexp: regexPrIssue,
+                prToIssueRegexp: linker.prToIssueRegexp,
               },
-              enable: associatePrWithIssues,
+              enable: linker.enable,
             },
           ],
         }),
@@ -118,7 +129,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           </Block>
           <Block
             title={
-              <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
+              <Checkbox checked={dora.enable} onChange={(e) => setDora({ enable: e.target.checked })}>
                 Enable DORA Metrics
               </Checkbox>
             }
@@ -126,7 +137,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           />
           <Block
             title={
-              <Checkbox checked={associatePrWithIssues} onChange={(e) => setAssociatePrWithIssues(e.target.checked)}>
+              <Checkbox checked={linker.enable} onChange={(e) => setLinker({ ...linker, enable: e.target.checked })}>
                 Associate pull requests with issues
               </Checkbox>
             }
@@ -145,8 +156,11 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
               </span>
             }
           >
-            {associatePrWithIssues && (
-              <Input style={{ width: 600 }} value={regexPrIssue} onChange={(e) => setRegexPrIssue(e.target.value)} />
+            {linker.enable && (
+              <Input
+                value={linker.prToIssueRegexp}
+                onChange={(e) => setLinker({ ...linker, prToIssueRegexp: e.target.value })}
+              />
             )}
           </Block>
           <Block>
