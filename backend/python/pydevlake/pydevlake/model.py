@@ -103,7 +103,7 @@ class RawModel(SQLModel):
     id: int = Field(primary_key=True)
     params: str = b''
     data: bytes
-    url: str = b''
+    url: str = Field(default=b'', sa_column=Column(Text))
     input: bytes = b''
     created_at: datetime = Field(default_factory=datetime.now)
 
