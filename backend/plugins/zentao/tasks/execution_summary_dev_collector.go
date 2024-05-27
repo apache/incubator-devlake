@@ -22,9 +22,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
 const RAW_EXECUTION_SUMMARY_DEV_TABLE = "zentao_api_execution_summary_dev"
@@ -33,6 +35,25 @@ var _ plugin.SubTaskEntryPoint = CollectExecutionSummaryDev
 
 func CollectExecutionSummaryDev(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+	db := taskCtx.GetDal()
+
+	// load stories id from db
+	clauses := []dal.Clause{
+		dal.From(&models.ZentaoExecutionSummary{}),
+		dal.Where(
+			"project = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
+		),
+	}
+	count, err := db.Count(clauses...)
+	if err != nil {
+		return err
+	}
+	// if there are already data in db, skip this task
+	if count > 0 {
+		return nil
+	}
+
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
