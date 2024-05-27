@@ -77,7 +77,6 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 					break
 				}
 			}
-
 			var issues []*ticket.Issue
 			if err := db.All(&issues, dal.Where("issue_key in ?", issueKeys)); err != nil {
 				return nil, err
