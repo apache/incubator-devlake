@@ -60,41 +60,42 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 
 	defer cursor.Close()
 
-	// iterate all rows
 	enricher, err := api.NewDataEnricher(api.DataEnricherArgs[code.PullRequest]{
 		Ctx:   taskCtx,
 		Name:  code.PullRequest{}.TableName(),
 		Input: cursor,
 		Enrich: func(pullRequest *code.PullRequest) ([]interface{}, errors.Error) {
 
-			issueKey := ""
+			var issueKeys []string
 			for _, text := range []string{pullRequest.Title, pullRequest.Description} {
-				issueKey = data.PrToIssueRegexp.FindString(text)
-				if issueKey != "" {
+				foundIssueKeys := data.PrToIssueRegexp.FindAllString(text, -1)
+				if len(foundIssueKeys) > 0 {
+					for _, issueKey := range foundIssueKeys {
+						issueKey = normalizeIssueKey(issueKey)
+						issueKeys = append(issueKeys, issueKey)
+					}
 					break
 				}
 			}
-			issueKey = normalizeIssueKey(issueKey)
-			if issueKey == "" {
-				return nil, nil
-			}
-
-			issue := &ticket.Issue{}
-			if err := db.First(issue, dal.Where("issue_key = ?", issueKey)); err != nil {
-				if db.IsErrorNotFound(err) {
-					return nil, nil
-				}
+			var issues []*ticket.Issue
+			if err := db.All(&issues, dal.Where("issue_key in ?", issueKeys)); err != nil {
 				return nil, err
 			}
-
-			pullRequestIssue := &crossdomain.PullRequestIssue{
-				PullRequestId:  pullRequest.Id,
-				IssueId:        issue.Id,
-				PullRequestKey: pullRequest.PullRequestKey,
-				IssueKey:       issueKey,
+			if len(issues) == 0 {
+				return nil, nil
+			}
+			var result []interface{}
+			for _, issue := range issues {
+				pullRequestIssue := &crossdomain.PullRequestIssue{
+					PullRequestId:  pullRequest.Id,
+					IssueId:        issue.Id,
+					PullRequestKey: pullRequest.PullRequestKey,
+					IssueKey:       issue.IssueKey,
+				}
+				result = append(result, pullRequestIssue)
 			}
 
-			return []interface{}{pullRequestIssue}, nil
+			return result, nil
 		},
 	})
 	if err != nil {
