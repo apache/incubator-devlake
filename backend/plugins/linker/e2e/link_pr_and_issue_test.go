@@ -31,7 +31,7 @@ import (
 
 func TestLinkPrToIssue(t *testing.T) {
 	var plugin impl.Linker
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "issue_linker", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "linker", plugin)
 
 	regexpStr := "#(\\d+)"
 	re, err := regexp.Compile(regexpStr)
