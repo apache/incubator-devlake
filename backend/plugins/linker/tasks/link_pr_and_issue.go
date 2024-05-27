@@ -81,6 +81,9 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 
 			issue := &ticket.Issue{}
 			if err := db.First(issue, dal.Where("issue_key = ?", issueKey)); err != nil {
+				if db.IsErrorNotFound(err) {
+					return nil, nil
+				}
 				return nil, err
 			}
 
