@@ -52,7 +52,7 @@ func clearHistoryData(db dal.Dal, data *LinkerTaskData) errors.Error {
 			SELECT pr.id
 				FROM pull_requests pr
 					LEFT JOIN project_mapping pm
-					ON pm.table = 'cicd_scopes'
+					ON pm.table = 'repos'
 						AND pm.row_id = pr.base_repo_id
 						AND pm.project_name = ?
 	)
@@ -70,7 +70,7 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 
 	var clauses = []dal.Clause{
 		dal.From(&code.PullRequest{}),
-		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = pull_requests.base_repo_id)"),
+		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'repos' AND pm.row_id = pull_requests.base_repo_id)"),
 		dal.Where("pm.project_name = ?", data.Options.ProjectName),
 	}
 	cursor, err := db.Cursor(clauses...)
