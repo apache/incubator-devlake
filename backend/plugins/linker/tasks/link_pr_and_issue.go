@@ -80,6 +80,16 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 
 	defer cursor.Close()
 
+	var projectIssueIds []string
+	if err := db.All(&projectIssueIds,
+		dal.From(ticket.BoardIssue{}),
+		dal.Select("board_issues.issue_id"),
+		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'boards' AND pm.row_id = board_issues.board_id)"),
+		dal.Where("pm.project_name = ?", data.Options.ProjectName),
+	); err != nil {
+		return err
+	}
+
 	enricher, err := api.NewDataEnricher(api.DataEnricherArgs[code.PullRequest]{
 		Ctx:   taskCtx,
 		Name:  code.PullRequest{}.TableName(),
@@ -98,7 +108,13 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 			}
 			var issues []*ticket.Issue
-			if err := db.All(&issues, dal.Where("issue_key in ?", issueKeys)); err != nil {
+
+			var clauses = []dal.Clause{
+				dal.From(&ticket.Issue{}),
+				dal.Where("issues.id in ? AND issues.issue_key in ?", projectIssueIds, issueKeys),
+			}
+
+			if err := db.All(&issues, clauses...); err != nil {
 				return nil, err
 			}
 			if len(issues) == 0 {
