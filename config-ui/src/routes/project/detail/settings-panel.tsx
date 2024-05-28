@@ -31,6 +31,8 @@ import { validName } from '../utils';
 
 import * as S from './styled';
 
+const RegexPrIssueDefaultValue = '(?mi)(Closes)[\\s]*.*(((and )?#\\d+[ ]*)+)';
+
 interface Props {
   project: IProject;
   onRefresh: () => void;
@@ -60,7 +62,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
     });
     setLinker({
       enable: linker?.enable ?? false,
-      prToIssueRegexp: linker?.pluginOption?.prToIssueRegexp ?? '',
+      prToIssueRegexp: linker?.pluginOption?.prToIssueRegexp ?? RegexPrIssueDefaultValue,
     });
   }, [project]);
 
@@ -145,12 +147,23 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
               <span>
                 Parse the issue key with the regex from the title and description of the pull requests in this project.
                 <HelpTooltip
+                  overlayInnerStyle={{ width: 500 }}
                   content={
-                    <span>
-                      The default regex will parse the issue key from the table.pull_requests where the description
-                      contains "fix/close/.../resolved {'{'}issue_key{'}'}". The relationship between pull requests and
-                      issues will be stored in the table.pull_request_issues
-                    </span>
+                    <>
+                      <div>
+                        Example 1 - If your PR title or description contains a Jira issue key in the format 'Closes
+                        [DI-123](www.yourdomain.atlassian.net/browse/di-123)', please use the following regex template:{' '}
+                        {'{'}
+                        (?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and)?https://\S+.atlassian.net/browse/\S+[
+                        ]*)+){'}'}
+                      </div>
+                      <div>
+                        Example 2 - If your PR title or description contains a GitHub issue key in the format 'Resolves
+                        www.github.com/namespace/repo_name/issues/123)', please use the following regex template: {'{'}
+                        (?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and)?https://github.com/%s/issues/\d+[
+                        ]*)+){'}'}
+                      </div>
+                    </>
                   }
                 />
               </span>
@@ -158,6 +171,8 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           >
             {linker.enable && (
               <Input
+                style={{ width: 600 }}
+                placeholder={RegexPrIssueDefaultValue}
                 value={linker.prToIssueRegexp}
                 onChange={(e) => setLinker({ ...linker, prToIssueRegexp: e.target.value })}
               />
