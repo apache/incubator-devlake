@@ -41,7 +41,7 @@ Apache DevLake is used by Engineering Leads, Open Source Software Maintainers an
 ## 🎯 What can be accomplished with Apache DevLake?
 
 1. Your Dev Data lives in many silos and tools. DevLake brings them all together to give you a complete view of your Software Development Life Cycle (SDLC).
-2. From DORA to scrum retros, DevLake implements metrics effortlessly with prebuilt dashboards supporting common frameworks and goals.
+2. From [DORA](https://dora.dev/guides/dora-metrics-four-keys/) to scrum retros, DevLake implements metrics effortlessly with prebuilt dashboards supporting common frameworks and goals.
 3. DevLake fits teams of all shapes and sizes, and can be readily extended to support new data sources, metrics, and dashboards, with a flexible framework for data collection and transformation.
 
 ## 👉 Live Demos
