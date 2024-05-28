@@ -49,6 +49,7 @@ func TestLinkPrToIssue(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/issues.csv", &ticket.Issue{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/pull_requests.csv", &code.PullRequest{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/project_mapping.csv", &crossdomain.ProjectMapping{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/board_issues.csv", &ticket.BoardIssue{})
 
 	dataflowTester.FlushTabler(&crossdomain.PullRequestIssue{})
 	dataflowTester.Subtask(tasks.LinkPrToIssueMeta, taskData)
