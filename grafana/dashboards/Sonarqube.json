@@ -381,7 +381,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(distinct id) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  project_key in (${project_id})\n  and type = 'HOTSPOTS'\n  and severity in (${severity})\n",
+          "rawSql": "SELECT\n  COUNT(distinct id) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  project_key in (${project_id})\n  and type = 'HOTSPOTS'\n  and severity in (${severity}) and status in (\"TO_REVIEW\", \"ACKNOWLEDGED\")\n",
           "refId": "A",
           "select": [
             [
@@ -742,7 +742,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  concat(FLOOR(SUM(debt)/8/60), \" day(s) \", FLOOR((SUM(debt)%480)/60), \" hour(s) \") AS 'Debt'\nFROM cq_issues\nWHERE\n  project_key in (${project_id})\n  and type = 'CODE_SMELL'\n  and severity in (${severity})\n  ",
+          "rawSql": "SELECT\n  concat(FLOOR(SUM(debt)/8/60), \" day(s) \", FLOOR((SUM(debt)%480)/60), \" hour(s) \") AS 'Debt'\nFROM cq_issues\nWHERE\n  project_key in (${project_id})\n  and type = 'CODE_SMELL'\n  and severity in (${severity}) and status = \"OPEN\"\n  ",
           "refId": "A",
           "select": [
             [
@@ -855,7 +855,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n\tCOUNT(distinct id) as 'Code Smells'\nFROM cq_issues\nWHERE\n  project_key in (${project_id})\n  and type = 'CODE_SMELL'\n  and severity in (${severity})",
+          "rawSql": "SELECT\n\tCOUNT(distinct id) as 'Code Smells'\nFROM cq_issues\nWHERE\n  project_key in (${project_id})\n  and type = 'CODE_SMELL'\n  and severity in (${severity}) and status = \"OPEN\"",
           "refId": "A",
           "select": [
             [
