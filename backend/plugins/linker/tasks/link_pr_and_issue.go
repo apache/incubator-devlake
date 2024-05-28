@@ -45,12 +45,32 @@ func normalizeIssueKey(issueKey string) string {
 	return issueKey
 }
 
+func clearHistoryData(db dal.Dal, data *LinkerTaskData) errors.Error {
+	sql := `
+	DELETE FROM pull_request_issues
+		WHERE pull_request_id IN (
+			SELECT pr.id
+				FROM pull_requests pr
+					LEFT JOIN project_mapping pm
+					ON pm.table = 'repos'
+						AND pm.row_id = pr.base_repo_id
+						AND pm.project_name = ?
+	)
+`
+	return db.Exec(sql, data.Options.ProjectName)
+}
+
 func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*LinkerTaskData)
+
+	if err := clearHistoryData(db, data); err != nil {
+		return err
+	}
+
 	var clauses = []dal.Clause{
 		dal.From(&code.PullRequest{}),
-		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = pull_requests.base_repo_id)"),
+		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'repos' AND pm.row_id = pull_requests.base_repo_id)"),
 		dal.Where("pm.project_name = ?", data.Options.ProjectName),
 	}
 	cursor, err := db.Cursor(clauses...)
