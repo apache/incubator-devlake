@@ -94,8 +94,9 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 			return errors.Default.Wrap(err, "failed to repack the repo")
 		}
 		deepenCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "fetch", "--deepen=1")
+		// deepen would fail on a EMPTY repo, ignore the error
 		if err := deepenCmd.Run(); err != nil {
-			return errors.Default.Wrap(err, "failed to deepen the cloned repo")
+			g.logger.Error(err, "failed to deepen the cloned repo")
 		}
 	}
 
