@@ -15,19 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// IssueStatusHistory records issue status history (status original value)
-// end_date of current status is set to now() to avoid false assumption of future status.
-// handled by ConvertIssueStatusHistory task
-type IssueStatusHistory struct {
-	common.NoPKModel
+type NewIssueTable struct {
+}
+
+func (*NewIssueTable) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &IssueStatusHistory20240530{}, &IssueAssigneeHistory20240530{})
+}
+
+func (*NewIssueTable) Version() uint64 {
+	return 20240530144400
+}
+
+func (*NewIssueTable) Name() string {
+	return "add issue_status_history and issue_assignee_history"
+}
+
+type IssueStatusHistory20240530 struct {
+	archived.NoPKModel
 	IssueId           string     `gorm:"primaryKey;type:varchar(255)"`
 	Status            string     `gorm:"type:varchar(100)"`
 	OriginalStatus    string     `gorm:"primaryKey;type:varchar(255)"`
@@ -38,6 +53,18 @@ type IssueStatusHistory struct {
 	StatusTimeMinutes int32      `gorm:"type:integer"`
 }
 
-func (IssueStatusHistory) TableName() string {
+func (IssueStatusHistory20240530) TableName() string {
 	return "issue_status_history"
+}
+
+type IssueAssigneeHistory20240530 struct {
+	archived.NoPKModel
+	IssueId   string    `gorm:"primaryKey;type:varchar(255)"`
+	Assignee  string    `gorm:"primaryKey;type:varchar(255)"`
+	StartDate time.Time `gorm:"primaryKey"`
+	EndDate   *time.Time
+}
+
+func (IssueAssigneeHistory20240530) TableName() string {
+	return "issue_assignee_history"
 }
