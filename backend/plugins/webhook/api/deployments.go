@@ -76,7 +76,7 @@ type WebhookDeploymentCommitReq struct {
 // @Description So we suggest request before task after deployment pipeline finish.
 // @Description Both cicd_pipeline and cicd_task will be created
 // @Tags plugins/webhook
-// @Param body body WebhookDeployTaskRequest true "json body"
+// @Param body body WebhookDeploymentReq true "json body"
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 403  {string} errcode.Error "Forbidden"
