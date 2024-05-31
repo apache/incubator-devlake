@@ -40,6 +40,7 @@ type AssigneeHistory struct {
 
 // AssigneeChangelog is the changelog of issue assignee
 type AssigneeChangelog struct {
+	common.RawDataOrigin
 	IssueId          string
 	FromAssignee     string // split by comma
 	ToAssignee       string // split by comma
@@ -71,7 +72,8 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	cursorForIssuesWithoutChanglog, err := db.RawCursor(`
 	select
 		board_issues.board_id as _raw_data_params,
-		'issue_changelogs' as _raw_data_table,
+		issues._raw_data_table as _raw_data_table,
+		issues._raw_data_id as _raw_data_id,
 		issues.id as issue_id,
 		issues.created_date as start_date,
 		issues.assignee_id as user_id,
@@ -105,6 +107,16 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			row := inputRow.(*AssigneeHistory)
 			err := batchInsertor.Add(&models.IssueAssigneeHistory{
+				NoPKModel: common.NoPKModel{
+					RawDataOrigin: common.RawDataOrigin{
+						RawDataParams: row.RawDataParams,
+						RawDataTable:  row.RawDataTable,
+						RawDataId:     row.RawDataId,
+						RawDataRemark: row.RawDataRemark,
+					},
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
 				IssueId:   row.IssueId,
 				Assignee:  row.UserId,
 				StartDate: row.StartDate,
@@ -128,7 +140,10 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	// convert issues with changelogs of assignee
 	clauses := []dal.Clause{
-		dal.Select("issue_changelogs.issue_id, " +
+		dal.Select("board_issues.board_id as _raw_data_params, " +
+			"issue_changelogs._raw_data_table as _raw_data_table, " +
+			"issue_changelogs._raw_data_id as _raw_data_id, " +
+			"issue_changelogs.issue_id, " +
 			"issue_changelogs.original_from_value as from_assignee, " +
 			"issue_changelogs.original_to_value as to_assignee, " +
 			"issue_changelogs.created_date as log_created_date, " +
@@ -226,6 +241,16 @@ func buildActiveAssigneeHistory(logs []AssigneeChangelog, boardId string) []*mod
 			if assigneeHistory, ok := result[addAssignee]; !ok {
 				result[addAssignee] = []*models.IssueAssigneeHistory{
 					{
+						NoPKModel: common.NoPKModel{
+							CreatedAt: now,
+							UpdatedAt: now,
+							RawDataOrigin: common.RawDataOrigin{
+								RawDataParams: row.RawDataParams,
+								RawDataTable:  row.RawDataTable,
+								RawDataId:     row.RawDataId,
+								RawDataRemark: row.RawDataRemark,
+							},
+						},
 						IssueId:   row.IssueId,
 						Assignee:  addAssignee,
 						StartDate: row.LogCreatedDate,
@@ -236,6 +261,16 @@ func buildActiveAssigneeHistory(logs []AssigneeChangelog, boardId string) []*mod
 				last := len(assigneeHistory) - 1
 				if assigneeHistory[last].EndDate != nil && assigneeHistory[last].EndDate.Before(row.LogCreatedDate) {
 					result[addAssignee] = append(result[addAssignee], &models.IssueAssigneeHistory{
+						NoPKModel: common.NoPKModel{
+							CreatedAt: now,
+							UpdatedAt: now,
+							RawDataOrigin: common.RawDataOrigin{
+								RawDataParams: row.RawDataParams,
+								RawDataTable:  row.RawDataTable,
+								RawDataId:     row.RawDataId,
+								RawDataRemark: row.RawDataRemark,
+							},
+						},
 						IssueId:   row.IssueId,
 						Assignee:  addAssignee,
 						StartDate: row.LogCreatedDate,

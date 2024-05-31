@@ -43,14 +43,14 @@ func (*NewIssueTable) Name() string {
 
 type IssueStatusHistory20240530 struct {
 	archived.NoPKModel
-	IssueId           string     `gorm:"primaryKey;type:varchar(255)"`
-	Status            string     `gorm:"type:varchar(100)"`
-	OriginalStatus    string     `gorm:"primaryKey;type:varchar(255)"`
-	StartDate         time.Time  `gorm:"primaryKey"`
-	EndDate           *time.Time `gorm:"type:timestamp"`
-	IsCurrentStatus   bool       `gorm:"type:boolean"`
-	IsFirstStatus     bool       `gorm:"type:boolean"`
-	StatusTimeMinutes int32      `gorm:"type:integer"`
+	IssueId           string    `gorm:"primaryKey;type:varchar(255)"`
+	Status            string    `gorm:"type:varchar(100)"`
+	OriginalStatus    string    `gorm:"primaryKey;type:varchar(255)"`
+	StartDate         time.Time `gorm:"primaryKey"`
+	EndDate           *time.Time
+	IsCurrentStatus   bool  `gorm:"type:boolean"`
+	IsFirstStatus     bool  `gorm:"type:boolean"`
+	StatusTimeMinutes int32 `gorm:"type:integer"`
 }
 
 func (IssueStatusHistory20240530) TableName() string {

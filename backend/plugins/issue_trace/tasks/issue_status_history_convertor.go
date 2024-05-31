@@ -31,6 +31,7 @@ import (
 )
 
 type IssueStatusWithoutChangeLog struct {
+	common.RawDataOrigin
 	IssueId        string
 	Status         string
 	OriginalStatus string
@@ -75,7 +76,8 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("get issues not appeared in change logs, board %s", boardId)
 	now := time.Now()
 	clauses := []dal.Clause{
-		dal.Select("issues.id AS issue_id, issues.status, issues.original_status, issues.created_date"),
+		dal.Select("issues.id AS issue_id, issues.status, issues.original_status, issues.created_date," +
+			"board_issues.board_id as _raw_data_params, issues._raw_data_table as _raw_data_table, issues._raw_data_id as _raw_data_id"),
 		dal.From("issues"),
 		dal.Join("INNER JOIN board_issues ON board_issues.issue_id = issues.id"),
 		dal.Join("LEFT JOIN issue_changelogs ON issue_changelogs.issue_id=issues.id AND issue_changelogs.field_name='status'"),
@@ -107,8 +109,9 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 			err = batchInserter.Add(&models.IssueStatusHistory{
 				NoPKModel: common.NoPKModel{
 					RawDataOrigin: common.RawDataOrigin{
-						RawDataTable:  rawTableIssueChangelogs,
-						RawDataParams: boardId,
+						RawDataTable:  issue.RawDataTable,
+						RawDataParams: issue.RawDataParams,
+						RawDataId:     issue.RawDataId,
 					},
 				},
 				IssueId:           issue.IssueId,
@@ -137,7 +140,8 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	clauses = []dal.Clause{
 		dal.Select("issue_changelogs.issue_id, issue_changelogs.created_date AS log_created_date, " +
 			"issue_changelogs.to_value, issue_changelogs.original_to_value, issue_changelogs.from_value, " +
-			"issue_changelogs.original_from_value, issues.created_date AS issue_created_date"),
+			"issue_changelogs.original_from_value, issues.created_date AS issue_created_date," +
+			"board_issues.board_id as _raw_data_params, issue_changelogs._raw_data_table as _raw_data_table, issue_changelogs._raw_data_id as _raw_data_id"),
 		dal.From("issue_changelogs"),
 		dal.Join("INNER JOIN issues ON issues.id = issue_changelogs.issue_id"),
 		dal.Join("INNER JOIN board_issues ON board_issues.issue_id = issue_changelogs.issue_id"),
@@ -231,8 +235,9 @@ func buildStatusHistoryRecords(logs []*StatusChangeLogResult, boardId string) []
 		{
 			NoPKModel: common.NoPKModel{
 				RawDataOrigin: common.RawDataOrigin{
-					RawDataTable:  rawTableIssueChangelogs,
-					RawDataParams: boardId,
+					RawDataTable:  firstChangelog.RawDataTable,
+					RawDataParams: firstChangelog.RawDataParams,
+					RawDataId:     firstChangelog.RawDataId,
 				},
 			},
 			IssueId:        firstChangelog.IssueId,
@@ -252,8 +257,9 @@ func buildStatusHistoryRecords(logs []*StatusChangeLogResult, boardId string) []
 		result = append(result, &models.IssueStatusHistory{
 			NoPKModel: common.NoPKModel{
 				RawDataOrigin: common.RawDataOrigin{
-					RawDataTable:  rawTableIssueChangelogs,
-					RawDataParams: boardId,
+					RawDataTable:  row.RawDataTable,
+					RawDataParams: row.RawDataParams,
+					RawDataId:     row.RawDataId,
 				},
 			},
 			IssueId:        row.IssueId,
