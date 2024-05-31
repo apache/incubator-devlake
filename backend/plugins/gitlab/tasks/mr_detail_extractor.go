@@ -107,6 +107,21 @@ func ExtractApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, gitlabReviewer)
 			}
 
+			for _, assignee := range mr.Assignees {
+				gitlabAssignee := &models.GitlabAssignee{
+					ConnectionId:   data.Options.ConnectionId,
+					GitlabId:       assignee.GitlabId,
+					MergeRequestId: mr.GitlabId,
+					ProjectId:      data.Options.ProjectId,
+					Username:       assignee.Username,
+					Name:           assignee.Name,
+					State:          assignee.State,
+					AvatarUrl:      assignee.AvatarUrl,
+					WebUrl:         assignee.WebUrl,
+				}
+				results = append(results, gitlabAssignee)
+			}
+
 			return results, nil
 		},
 	})
