@@ -49,7 +49,7 @@ type WebhookDeploymentReq struct {
 	CreatedDate       *time.Time                   `mapstructure:"createdDate"`
 	// QueuedDate   *time.Time `mapstructure:"queue_time"`
 	StartedDate  *time.Time `mapstructure:"startedDate" validate:"required"`
-	FinishedDate *time.Time `mapstructure:"finishedDate"`
+	FinishedDate *time.Time `mapstructure:"finishedDate" validate:"required"`
 }
 
 type WebhookDeploymentCommitReq struct {
@@ -65,7 +65,7 @@ type WebhookDeploymentCommitReq struct {
 	CreatedDate  *time.Time `mapstructure:"createdDate"`
 	// QueuedDate   *time.Time `mapstructure:"queue_time"`
 	StartedDate  *time.Time `mapstructure:"startedDate" validate:"required"`
-	FinishedDate *time.Time `mapstructure:"finishedDate"`
+	FinishedDate *time.Time `mapstructure:"finishedDate" validate:"required"`
 }
 
 // PostDeployments
