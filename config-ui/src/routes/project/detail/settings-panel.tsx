@@ -18,11 +18,10 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WarningOutlined } from '@ant-design/icons';
 import { Flex, Space, Card, Modal, Input, Checkbox, Button, message } from 'antd';
 
 import API from '@/api';
-import { Block, HelpTooltip } from '@/components';
+import { Block, HelpTooltip, Message } from '@/components';
 import { PATHS } from '@/config';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
@@ -200,11 +199,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
         onOk={handleDelete}
       >
         <S.DialogBody>
-          <WarningOutlined />
-          <span>
-            This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in
-            this Connection.
-          </span>
+          <Message content="This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in this Connection." />
         </S.DialogBody>
       </Modal>
     </Flex>
