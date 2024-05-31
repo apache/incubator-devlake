@@ -41,7 +41,6 @@ import (
 type WebhookDeploymentReq struct {
 	Id           string `mapstructure:"id" validate:"required"`
 	DisplayTitle string `mapstructure:"displayTitle"`
-	PipelineId   string `mapstructure:"pipelineId"`
 	Result       string `mapstructure:"result"`
 	Environment  string `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
 	Name         string `mapstructure:"name"`
