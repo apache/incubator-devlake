@@ -39,18 +39,18 @@ import (
 )
 
 type WebhookDeploymentReq struct {
-	Id           string `mapstructure:"id"`
+	Id           string `mapstructure:"id" validate:"required"`
 	DisplayTitle string `mapstructure:"displayTitle"`
-	PipelineId   string `mapstructure:"pipelineId" validate:"required"`
+	PipelineId   string `mapstructure:"pipelineId"`
 	Result       string `mapstructure:"result"`
 	Environment  string `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
 	Name         string `mapstructure:"name"`
 	// DeploymentCommits is used for multiple commits in one deployment
 	DeploymentCommits []WebhookDeploymentCommitReq `mapstructure:"deploymentCommits" validate:"omitempty,dive"`
-	CreatedDate       *time.Time                   `mapstructure:"createdTime"`
+	CreatedDate       *time.Time                   `mapstructure:"createdDate"`
 	// QueuedDate   *time.Time `mapstructure:"queue_time"`
-	StartedDate  *time.Time `mapstructure:"startedTime" validate:"required"`
-	FinishedDate *time.Time `mapstructure:"endedTime"`
+	StartedDate  *time.Time `mapstructure:"startedDate" validate:"required"`
+	FinishedDate *time.Time `mapstructure:"finishedDate"`
 }
 
 type WebhookDeploymentCommitReq struct {
@@ -63,10 +63,10 @@ type WebhookDeploymentCommitReq struct {
 	CommitMsg    string     `mapstructure:"commitMsg"`
 	Result       string     `mapstructure:"result"`
 	Status       string     `mapstructure:"status"`
-	CreatedDate  *time.Time `mapstructure:"createdTime"`
+	CreatedDate  *time.Time `mapstructure:"createdDate"`
 	// QueuedDate   *time.Time `mapstructure:"queue_time"`
-	StartedDate  *time.Time `mapstructure:"startedTime"`
-	FinishedDate *time.Time `mapstructure:"endedTime"`
+	StartedDate  *time.Time `mapstructure:"startedDate" validate:"required"`
+	FinishedDate *time.Time `mapstructure:"finishedDate"`
 }
 
 // PostDeployments
@@ -121,9 +121,6 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 	}
 	// set default values for optional fields
 	deploymentId := request.Id
-	if deploymentId == "" {
-		deploymentId = request.PipelineId
-	}
 	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	if request.CreatedDate == nil {
 		request.CreatedDate = request.StartedDate
