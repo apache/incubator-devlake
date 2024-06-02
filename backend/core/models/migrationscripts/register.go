@@ -119,5 +119,7 @@ func All() []plugin.MigrationScript {
 		new(updatePluginOptionInProjectMetricSetting),
 		new(modifyCicdDeploymentCommitsRepoUrlLength),
 		new(modifyCicdPipelineCommitsRepoUrlLength),
+		new(addPullRequestIdIndexToPullRequestCommits),
+		new(addPullRequestIdIndexToPullRequestComments),
 	}
 }
