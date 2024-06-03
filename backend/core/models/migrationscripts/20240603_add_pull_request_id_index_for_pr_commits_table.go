@@ -20,21 +20,31 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"net/url"
 )
 
 type addPullRequestIdIndexToPullRequestCommits struct{}
 
-func (u *addPullRequestIdIndexToPullRequestCommits) Up(basicRes context.BasicRes) errors.Error {
-	db := basicRes.GetDal()
-	err := db.Exec("ALTER TABLE pull_request_commits DROP PRIMARY KEY;")
-	if err != nil {
-		return err
+func (*addPullRequestIdIndexToPullRequestCommits) Up(basicRes context.BasicRes) errors.Error {
+	dbUrl := basicRes.GetConfig("DB_URL")
+	if dbUrl == "" {
+		return errors.BadInput.New("DB_URL is required")
 	}
-	err = db.Exec("ALTER TABLE pull_request_commits ADD PRIMARY KEY (pull_request_id, commit_sha);")
-	if err != nil {
-		return err
+	u, err1 := url.Parse(dbUrl)
+	if err1 != nil {
+		return errors.Convert(err1)
 	}
-
+	if u.Scheme == "mysql" {
+		db := basicRes.GetDal()
+		err := db.Exec("ALTER TABLE pull_request_commits DROP PRIMARY KEY;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("ALTER TABLE pull_request_commits ADD PRIMARY KEY (pull_request_id, commit_sha);")
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
