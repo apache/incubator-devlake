@@ -39,5 +39,5 @@ func (*addPrAssigneeAndReviewer) Version() uint64 {
 }
 
 func (*addPrAssigneeAndReviewer) Name() string {
-	return "add pull_request_reviewers and pull_request_assignees table"
+	return "add pull_request_reviewers and pull_request_assignees tables"
 }
