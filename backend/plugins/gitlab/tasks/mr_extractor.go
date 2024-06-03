@@ -62,12 +62,23 @@ type MergeRequestRes struct {
 		Username string `json:"username"`
 	}
 	Reviewers        []Reviewer
+	Assignees        []Assignee
 	FirstCommentTime common.Iso8601Time
 	Labels           []string `json:"labels"`
 }
 
 type Reviewer struct {
-	GitlabId       int `json:"id"`
+	ReviewerIdId   int `json:"id"`
+	MergeRequestId int
+	Name           string
+	Username       string
+	State          string
+	AvatarUrl      string `json:"avatar_url"`
+	WebUrl         string `json:"web_url"`
+}
+
+type Assignee struct {
+	AssigneeId     int `json:"id"`
 	MergeRequestId int
 	Name           string
 	Username       string
@@ -152,7 +163,7 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			for _, reviewer := range mr.Reviewers {
 				gitlabReviewer := &models.GitlabReviewer{
 					ConnectionId:   data.Options.ConnectionId,
-					GitlabId:       reviewer.GitlabId,
+					ReviewerId:     reviewer.ReviewerIdId,
 					MergeRequestId: mr.GitlabId,
 					ProjectId:      data.Options.ProjectId,
 					Username:       reviewer.Username,
@@ -162,6 +173,20 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 					WebUrl:         reviewer.WebUrl,
 				}
 				results = append(results, gitlabReviewer)
+			}
+			for _, assignee := range mr.Assignees {
+				gitlabAssignee := &models.GitlabAssignee{
+					ConnectionId:   data.Options.ConnectionId,
+					AssigneeId:     assignee.AssigneeId,
+					MergeRequestId: mr.GitlabId,
+					ProjectId:      data.Options.ProjectId,
+					Username:       assignee.Username,
+					Name:           assignee.Name,
+					State:          assignee.State,
+					AvatarUrl:      assignee.AvatarUrl,
+					WebUrl:         assignee.WebUrl,
+				}
+				results = append(results, gitlabAssignee)
 			}
 
 			return results, nil

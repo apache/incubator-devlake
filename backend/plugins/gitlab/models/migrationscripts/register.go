@@ -46,5 +46,6 @@ func All() []plugin.MigrationScript {
 		new(modifyDeploymentMessageType),
 		new(addTimeToGitlabPipelineProject),
 		new(modifyDeploymentCommitTitle),
+		new(addGitlabAssignee),
 	}
 }

@@ -21,9 +21,9 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type GitlabReviewer struct {
+type GitlabAssignee struct {
 	ConnectionId   uint64 `gorm:"primaryKey"`
-	ReviewerId     int    `gorm:"primaryKey"`
+	AssigneeId     int    `gorm:"primaryKey"`
 	MergeRequestId int    `gorm:"index"`
 	ProjectId      int    `gorm:"index"`
 	Name           string `gorm:"type:varchar(255)"`
@@ -34,6 +34,6 @@ type GitlabReviewer struct {
 	archived.NoPKModel
 }
 
-func (GitlabReviewer) TableName() string {
-	return "_tool_gitlab_reviewers"
+func (GitlabAssignee) TableName() string {
+	return "_tool_gitlab_assignees"
 }

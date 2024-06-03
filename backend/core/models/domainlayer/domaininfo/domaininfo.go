@@ -39,6 +39,8 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&code.PullRequestComment{},
 		&code.PullRequestCommit{},
 		&code.PullRequestLabel{},
+		&code.PullRequestReviewer{},
+		&code.PullRequestAssignee{},
 		&code.Ref{},
 		&code.CommitsDiff{},
 		&code.RefCommit{},
