@@ -98,6 +98,7 @@ func (p Gitlab) GetTablesInfo() []dal.Tabler {
 		&models.GitlabProject{},
 		&models.GitlabProjectCommit{},
 		&models.GitlabReviewer{},
+		&models.GitlabAssignee{},
 		&models.GitlabTag{},
 		&models.GitlabIssueAssignee{},
 		&models.GitlabScopeConfig{},
