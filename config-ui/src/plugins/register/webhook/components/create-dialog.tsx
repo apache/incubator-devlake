@@ -25,6 +25,8 @@ import { Block, CopyText, ExternalLink } from '@/components';
 import { addWebhook } from '@/features';
 import { operator } from '@/utils';
 
+import { transformURI } from './utils';
+
 import * as S from '../styled';
 
 interface Props {
@@ -75,24 +77,8 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
       setStep(2);
       setRecord({
         id: res.id,
-        postIssuesEndpoint: `curl ${prefix}${res.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-   "issue_key":"DLK-1234",
-   "title":"a feature from DLK",
-   "type":"INCIDENT",
-   "original_status":"TODO",
-   "status":"TODO",
-   "created_date":"2020-01-01T12:00:00+00:00",
-   "updated_date":"2020-01-01T12:00:00+00:00"
-}'`,
-        closeIssuesEndpoint: `curl ${prefix}${res.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
-        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-          "pipeline_id": "Required. This will be the unique id of the deployment",
-          "repo_url":"e.g. GitHub - apache/incubator-devlake: Apache DevLake is an open-source dev data platform to ingest, ana",
-          "display_title":"optional-custom-deploy-display-title",
-          "commit_sha":"e.g.  015e3d3b480e417aede5a1293bd61de9b0fd051d",
-          "start_time":"Optional, e.g. 2020-01-01T12:00:00+00:00"
-        }'`,
         apiKey: res.apiKey,
+        ...transformURI(prefix, res, res.apiKey),
       });
       onSubmitAfter?.(res.id);
     }

@@ -15,25 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type GitlabReviewer struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	ReviewerId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"index"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	archived.NoPKModel
+type addPrAssigneeAndReviewer struct{}
+
+func (u *addPrAssigneeAndReviewer) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.PullRequestAssignee{},
+		&archived.PullRequestReviewer{},
+	)
 }
 
-func (GitlabReviewer) TableName() string {
-	return "_tool_gitlab_reviewers"
+func (*addPrAssigneeAndReviewer) Version() uint64 {
+	return 20250531000041
+}
+
+func (*addPrAssigneeAndReviewer) Name() string {
+	return "add pull_request_reviewers and pull_request_assignees tables"
 }
