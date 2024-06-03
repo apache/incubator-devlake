@@ -17,23 +17,15 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-)
+type PullRequestReviewer struct {
+	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
+	ReviewerId    int    `gorm:"primaryKey"`
+	Name          string `gorm:"type:varchar(255)"`
+	UserName      string `gorm:"type:varchar(255)"`
 
-type GitlabReviewer struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	ReviewerId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"index"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	archived.NoPKModel
+	NoPKModel
 }
 
-func (GitlabReviewer) TableName() string {
-	return "_tool_gitlab_reviewers"
+func (PullRequestReviewer) TableName() string {
+	return "pull_request_reviewers"
 }

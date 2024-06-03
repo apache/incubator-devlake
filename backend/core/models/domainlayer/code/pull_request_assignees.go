@@ -15,25 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package code
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type GitlabReviewer struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	ReviewerId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"index"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	archived.NoPKModel
+type PullRequestAssignee struct {
+	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
+	AssigneeId    int    `gorm:"primaryKey"`
+	Name          string `gorm:"type:varchar(255)"`
+	UserName      string `gorm:"type:varchar(255)"`
+
+	common.NoPKModel
 }
 
-func (GitlabReviewer) TableName() string {
-	return "_tool_gitlab_reviewers"
+func (PullRequestAssignee) TableName() string {
+	return "pull_request_assignees"
 }
