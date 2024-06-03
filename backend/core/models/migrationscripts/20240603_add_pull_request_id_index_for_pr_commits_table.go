@@ -3,21 +3,22 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
 type addPullRequestIdIndexToPullRequestCommits struct{}
 
-type pullRequestCommits20240602 struct {
-	PullRequestId string `gorm:"index"`
-}
-
-func (pullRequestCommits20240602) TableName() string {
-	return "pull_request_commits"
-}
-
 func (u *addPullRequestIdIndexToPullRequestCommits) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes, &pullRequestCommits20240602{})
+	db := basicRes.GetDal()
+	err := db.Exec("ALTER TABLE pull_request_commits DROP PRIMARY KEY;")
+	if err != nil {
+		return err
+	}
+	err = db.Exec("ALTER TABLE pull_request_commits ADD PRIMARY KEY (pull_request_id, commit_sha);")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (*addPullRequestIdIndexToPullRequestCommits) Version() uint64 {
@@ -25,5 +26,5 @@ func (*addPullRequestIdIndexToPullRequestCommits) Version() uint64 {
 }
 
 func (*addPullRequestIdIndexToPullRequestCommits) Name() string {
-	return "add pull_request_id index for pull_request_commits"
+	return "changing pull_request_commits primary key columns order"
 }
