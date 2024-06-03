@@ -27,9 +27,15 @@ import (
 type addGitlabAssignee struct{}
 
 func (*addGitlabAssignee) Up(baseRes context.BasicRes) errors.Error {
-	err := migrationhelper.AutoMigrateTables(
+	err := baseRes.GetDal().DropTables(archived.GitlabAssignee{})
+	if err != nil {
+		return err
+	}
+
+	err = migrationhelper.AutoMigrateTables(
 		baseRes,
 		&archived.GitlabAssignee{},
+		&archived.GitlabReviewer{},
 	)
 	if err != nil {
 		return err

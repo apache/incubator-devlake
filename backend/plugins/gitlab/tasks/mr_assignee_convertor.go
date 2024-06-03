@@ -73,7 +73,7 @@ func ConvertMrAssignees(taskCtx plugin.SubTaskContext) errors.Error {
 			mrAssignee := inputRow.(*models.GitlabAssignee)
 			domainPrAssigne := &code.PullRequestAssignee{
 				PullRequestId: mrIdGen.Generate(data.Options.ConnectionId, mrAssignee.MergeRequestId),
-				AssigneeId:    mrAssignee.GitlabId,
+				AssigneeId:    mrAssignee.AssigneeId,
 				Name:          mrAssignee.Name,
 				UserName:      mrAssignee.Username,
 			}

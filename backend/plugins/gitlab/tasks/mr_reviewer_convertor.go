@@ -73,7 +73,7 @@ func ConvertMrReviewers(taskCtx plugin.SubTaskContext) errors.Error {
 			mrReviewer := inputRow.(*models.GitlabReviewer)
 			domainPrReviewer := &code.PullRequestReviewer{
 				PullRequestId: mrIdGen.Generate(data.Options.ConnectionId, mrReviewer.MergeRequestId),
-				ReviewerId:    mrReviewer.GitlabId,
+				ReviewerId:    mrReviewer.ReviewerId,
 				Name:          mrReviewer.Name,
 				UserName:      mrReviewer.Username,
 			}
