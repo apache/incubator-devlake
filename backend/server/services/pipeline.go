@@ -183,10 +183,11 @@ func GetPipelines(query *PipelineQuery, shouldSanitize bool) ([]*models.Pipeline
 	}
 
 	g := new(errgroup.Group)
-	for _, p := range pipelines {
-		tmpPipeline := p
+	for idx, p := range pipelines {
+		tmpPipeline := *p
+		tmpIdx := idx
 		g.Go(func() error {
-			err = fillPipelineDetail(tmpPipeline)
+			err = fillPipelineDetail(&tmpPipeline)
 			if err != nil {
 				return err
 			}
@@ -195,6 +196,7 @@ func GetPipelines(query *PipelineQuery, shouldSanitize bool) ([]*models.Pipeline
 					return err
 				}
 			}
+			pipelines[tmpIdx] = &tmpPipeline
 			return nil
 		})
 	}
