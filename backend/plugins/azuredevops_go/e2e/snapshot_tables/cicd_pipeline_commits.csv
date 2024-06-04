@@ -1,8 +1,8 @@
 pipeline_id,commit_sha,commit_msg,branch,repo_id,repo_url
-azuredevops_go:AzuredevopsBuild:1:12,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,
-azuredevops_go:AzuredevopsBuild:1:13,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,
-azuredevops_go:AzuredevopsBuild:1:14,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,
-azuredevops_go:AzuredevopsBuild:1:15,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,
-azuredevops_go:AzuredevopsBuild:1:16,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,
-azuredevops_go:AzuredevopsBuild:1:17,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,
-azuredevops_go:AzuredevopsBuild:1:18,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,
+azuredevops_go:AzuredevopsBuild:1:12,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,https://dev.azure.com/devlake/project-1/_git/first-repo
+azuredevops_go:AzuredevopsBuild:1:13,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,https://dev.azure.com/devlake/project-1/_git/first-repo
+azuredevops_go:AzuredevopsBuild:1:14,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,https://dev.azure.com/devlake/project-1/_git/first-repo
+azuredevops_go:AzuredevopsBuild:1:15,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,https://dev.azure.com/devlake/project-1/_git/first-repo
+azuredevops_go:AzuredevopsBuild:1:16,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,https://dev.azure.com/devlake/project-1/_git/first-repo
+azuredevops_go:AzuredevopsBuild:1:17,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,https://dev.azure.com/devlake/project-1/_git/first-repo
+azuredevops_go:AzuredevopsBuild:1:18,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,,refs/heads/main,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,https://dev.azure.com/devlake/project-1/_git/first-repo

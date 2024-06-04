@@ -35,27 +35,27 @@ import (
 
 type WebhookIssueRequest struct {
 	Url                     string     `mapstructure:"url"`
-	IssueKey                string     `mapstructure:"issue_key" validate:"required"`
+	IssueKey                string     `mapstructure:"issueKey" validate:"required"`
 	Title                   string     `mapstructure:"title" validate:"required"`
 	Description             string     `mapstructure:"description"`
-	EpicKey                 string     `mapstructure:"epic_key"`
+	EpicKey                 string     `mapstructure:"epicKey"`
 	Type                    string     `mapstructure:"type"`
 	Status                  string     `mapstructure:"status" validate:"oneof=TODO DONE IN_PROGRESS"`
-	OriginalStatus          string     `mapstructure:"original_status" validate:"required"`
-	StoryPoint              float64    `mapstructure:"story_point"`
-	ResolutionDate          *time.Time `mapstructure:"resolution_date"`
-	CreatedDate             *time.Time `mapstructure:"created_date" validate:"required"`
-	UpdatedDate             *time.Time `mapstructure:"updated_date"`
-	LeadTimeMinutes         uint       `mapstructure:"lead_time_minutes"`
-	ParentIssueKey          string     `mapstructure:"parent_issue_key"`
+	OriginalStatus          string     `mapstructure:"originalStatus" validate:"required"`
+	StoryPoint              float64    `mapstructure:"storyPoint"`
+	ResolutionDate          *time.Time `mapstructure:"resolutionDate"`
+	CreatedDate             *time.Time `mapstructure:"createdDate" validate:"required"`
+	UpdatedDate             *time.Time `mapstructure:"updatedDate"`
+	LeadTimeMinutes         uint       `mapstructure:"leadTimeMinutes"`
+	ParentIssueKey          string     `mapstructure:"parentIssueKey"`
 	Priority                string     `mapstructure:"priority"`
-	OriginalEstimateMinutes int64      `mapstructure:"original_estimate_minutes"`
-	TimeSpentMinutes        int64      `mapstructure:"time_spent_minutes"`
-	TimeRemainingMinutes    int64      `mapstructure:"time_remaining_minutes"`
-	CreatorId               string     `mapstructure:"creator_id"`
-	CreatorName             string     `mapstructure:"creator_name"`
-	AssigneeId              string     `mapstructure:"assignee_id"`
-	AssigneeName            string     `mapstructure:"assignee_name"`
+	OriginalEstimateMinutes int64      `mapstructure:"originalEstimateMinutes"`
+	TimeSpentMinutes        int64      `mapstructure:"timeSpentMinutes"`
+	TimeRemainingMinutes    int64      `mapstructure:"timeRemainingMinutes"`
+	CreatorId               string     `mapstructure:"creatorId"`
+	CreatorName             string     `mapstructure:"creatorName"`
+	AssigneeId              string     `mapstructure:"assigneeId"`
+	AssigneeName            string     `mapstructure:"assigneeName"`
 	Severity                string     `mapstructure:"severity"`
 	Component               string     `mapstructure:"component"`
 	//IconURL               string

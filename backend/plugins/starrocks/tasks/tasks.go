@@ -24,6 +24,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -228,7 +229,11 @@ func createTmpTableInStarrocks(dc *DataConfigParams) (map[string]string, string,
 	if orderBy == "" {
 		orderBy = firstcmName
 	}
-	extra := fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, strings.Join(pks, ", "))
+	replicationNum := os.Getenv("STARROCKS_REPLICAS_NUM")
+	if replicationNum == "" {
+		replicationNum = "1"
+	}
+	extra := fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "%s")`, strings.Join(pks, ", "), replicationNum)
 	if config.Extra != nil {
 		if v, ok := config.Extra[table]; ok {
 			extra = v

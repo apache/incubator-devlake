@@ -18,11 +18,10 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WarningOutlined } from '@ant-design/icons';
 import { Flex, Space, Card, Modal, Input, Checkbox, Button, message } from 'antd';
 
 import API from '@/api';
-import { Block, HelpTooltip } from '@/components';
+import { Block, HelpTooltip, Message } from '@/components';
 import { PATHS } from '@/config';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
@@ -153,15 +152,12 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
                       <div>
                         Example 1 - If your PR title or description contains a Jira issue key in the format 'Closes
                         [DI-123](www.yourdomain.atlassian.net/browse/di-123)', please use the following regex template:{' '}
-                        {'{'}
-                        (?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and)?https://\S+.atlassian.net/browse/\S+[
-                        ]*)+){'}'}
+                        (?mi)Closes[\s]*.*(((and)?https://\S+.atlassian.net/browse/\S+[ ]*)+)
                       </div>
                       <div>
                         Example 2 - If your PR title or description contains a GitHub issue key in the format 'Resolves
-                        www.github.com/namespace/repo_name/issues/123)', please use the following regex template: {'{'}
-                        (?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and)?https://github.com/%s/issues/\d+[
-                        ]*)+){'}'}
+                        www.github.com/namespace/repo_name/issues/123)', please use the following regex template:{' '}
+                        (?mi)Resolves[\s]*.*(((and)?https://github.com/%s/issues/\d+[ ]*)+)
                       </div>
                     </>
                   }
@@ -203,11 +199,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
         onOk={handleDelete}
       >
         <S.DialogBody>
-          <WarningOutlined />
-          <span>
-            This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in
-            this Connection.
-          </span>
+          <Message content="This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in this Connection." />
         </S.DialogBody>
       </Modal>
     </Flex>
