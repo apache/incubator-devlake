@@ -213,6 +213,7 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 	deployment.CreatedDate = createdDate
 	deployment.StartedDate = request.StartedDate
 	deployment.FinishedDate = request.FinishedDate
+	deployment.Result = request.Result
 	if err := tx.CreateOrUpdate(deployment); err != nil {
 		logger.Error(err, "failed to save deployment")
 		return err
