@@ -20,6 +20,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -180,16 +181,25 @@ func GetPipelines(query *PipelineQuery, shouldSanitize bool) ([]*models.Pipeline
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
+
+	g := new(errgroup.Group)
 	for _, p := range pipelines {
-		err = fillPipelineDetail(p)
-		if err != nil {
-			return nil, 0, err
-		}
-		if shouldSanitize {
-			if err := SanitizePipeline(p); err != nil {
-				return nil, 0, errors.Convert(err)
+		tmpPipeline := p
+		g.Go(func() error {
+			err = fillPipelineDetail(tmpPipeline)
+			if err != nil {
+				return err
 			}
-		}
+			if shouldSanitize {
+				if err := SanitizePipeline(p); err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, 0, errors.Convert(err)
 	}
 	return pipelines, i, nil
 }
