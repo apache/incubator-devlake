@@ -192,7 +192,7 @@ func GetPipelines(query *PipelineQuery, shouldSanitize bool) ([]*models.Pipeline
 				return err
 			}
 			if shouldSanitize {
-				if err := SanitizePipeline(p); err != nil {
+				if err := SanitizePipeline(&tmpPipeline); err != nil {
 					return err
 				}
 			}
