@@ -67,13 +67,12 @@ func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors
 		g.Go(func() error {
 			apiOutputProject, err := makeProjectOutput(&tmpProject, true)
 			if err != nil {
-				logger.Error(err, "makeProjectOutput, name: %s", project.Name)
+				logger.Error(err, "makeProjectOutput, name: %s", tmpProject.Name)
 				return errors.Default.Wrap(err, "error making project output")
 			}
 			apiOutProjects[tmpIdx] = apiOutputProject
 			return nil
 		})
-
 	}
 	if err := g.Wait(); err != nil {
 		return nil, 0, errors.Convert(err)
