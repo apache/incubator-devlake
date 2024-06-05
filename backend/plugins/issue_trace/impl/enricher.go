@@ -130,11 +130,6 @@ func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 	return taskData, nil
 }
 
-type BoardId struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           uint64 `gorm:"primaryKey"`
-}
-
 func (p IssueTrace) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/issue_trace"
 }
