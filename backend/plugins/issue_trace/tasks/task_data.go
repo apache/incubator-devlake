@@ -28,7 +28,7 @@ type Options struct {
 
 // TaskData converted parameter
 type TaskData struct {
-	Options Options
-	BoardId string // jira:1:JiraBoard:68
+	Options     Options
+	BoardId     string // jira:1:JiraBoard:68
 	ProjectName string
 }

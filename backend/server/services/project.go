@@ -19,9 +19,8 @@ package services
 
 import (
 	"fmt"
-	"time"
-
 	"golang.org/x/sync/errgroup"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"

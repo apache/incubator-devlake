@@ -97,7 +97,6 @@ func (p IssueTrace) SubTaskMetas() []plugin.SubTaskMeta {
 // `apiClient` is defined in `client.go` under `tasks`
 // `SprintPerformanceEnricherTaskData` is defined in `task_data.go` under `tasks`
 func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	// logger := taskCtx.GetLogger()
 	var op tasks.Options
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
