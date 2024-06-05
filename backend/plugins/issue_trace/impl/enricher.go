@@ -172,7 +172,9 @@ func (p IssueTrace) MakeMetricPluginPipelinePlanV200(projectName string, options
 			{
 				Plugin: "issue_trace",
 				Options: map[string]interface{}{
-					"projectName": projectName,
+					"projectName":  projectName,
+					"connectionId": op.ConnectionId,
+					"boardId":      op.BoardId,
 				},
 				Subtasks: []string{
 					"ConvertIssueStatusHistory",
