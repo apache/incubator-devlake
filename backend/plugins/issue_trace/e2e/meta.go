@@ -21,9 +21,8 @@ import "github.com/apache/incubator-devlake/plugins/issue_trace/tasks"
 
 var TaskData = &tasks.TaskData{
 	Options: tasks.Options{
-		Plugin:       "jira",
-		ConnectionId: 2,
-		ScopeId:      8,
+		Plugin:   "jira",
+		ScopeIds: []string{"1:JiraBoard:68"},
 	},
-	ScopeId: "jira:JiraBoard:2:8",
+	ScopeIds: []string{"1:JiraBoard:68"},
 }

@@ -19,16 +19,14 @@ package tasks
 
 // Options original parameter from bp (or pipeline)
 type Options struct {
-	Plugin       string `json:"plugin"`       // jira
-	ConnectionId uint64 `json:"connectionId"` // 1
-	ScopeId      uint64 `json:"scopeId"`      // 68
-	LakeScopeId  string `json:"lakeScopeId"`  // jira:JiraBoard:1:68
-	ProjectName  string `json:"projectName"`
+	Plugin      string   `json:"plugin"`  // jira
+	ScopeIds    []string `json:"scopeId"` // 68
+	ProjectName string   `json:"projectName"`
 }
 
 // TaskData converted parameter
 type TaskData struct {
 	Options     Options
-	ScopeId     string // jira:1:JiraBoard:68
+	ScopeIds    []string // jira:1:JiraBoard:68
 	ProjectName string
 }

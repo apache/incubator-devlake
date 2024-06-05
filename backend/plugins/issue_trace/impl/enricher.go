@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/api"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/models"
@@ -103,29 +102,26 @@ func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Failed to decode options")
 	}
-	var scopeId string
-	if op.LakeScopeId != "" {
-		scopeId = op.LakeScopeId
-	} else if op.ConnectionId != 0 && op.ScopeId != 0 {
-		socpeIdGen := didgen.NewDomainIdGenerator(&BoardId{})
-		scopeId = socpeIdGen.Generate(op.ConnectionId, op.ScopeId)
-	} else if op.ProjectName != "" {
+	var scopeIds []string
+	if op.ProjectName != "" && op.ScopeIds == nil {
 		db := taskCtx.GetDal()
 		pmClauses := []dal.Clause{
 			dal.From("project_mapping pm"),
 			dal.Where("pm.project_name = ? and pm.table = ?", op.ProjectName, "boards"),
 		}
-		pm := &crossdomain.ProjectMapping{}
-		err := db.First(pm, pmClauses...)
+		pm := []crossdomain.ProjectMapping{}
+		err = db.All(&pm, pmClauses...)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "Failed to get project mapping")
 		}
-		scopeId = pm.RowId
+		for _, p := range pm {
+			scopeIds = append(scopeIds, p.RowId)
+		}
 	}
 
 	var taskData = &tasks.TaskData{
 		Options:     op,
-		ScopeId:     scopeId,
+		ScopeIds:    scopeIds,
 		ProjectName: op.ProjectName,
 	}
 
@@ -172,9 +168,8 @@ func (p IssueTrace) MakeMetricPluginPipelinePlanV200(projectName string, options
 			{
 				Plugin: "issue_trace",
 				Options: map[string]interface{}{
-					"projectName":  projectName,
-					"connectionId": op.ConnectionId,
-					"scopeId":      op.ScopeId,
+					"projectName": projectName,
+					"scopeIds":    op.ScopeIds,
 				},
 				Subtasks: []string{
 					"ConvertIssueStatusHistory",
