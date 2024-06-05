@@ -19,8 +19,8 @@ package tasks
 
 // Options original parameter from bp (or pipeline)
 type Options struct {
-	Plugin      string   `json:"plugin"`  // jira
-	ScopeIds    []string `json:"scopeId"` // 68
+	Plugin      string   `json:"plugin"`   // jira
+	ScopeIds    []string `json:"scopeIds"` // 68
 	ProjectName string   `json:"projectName"`
 }
 
