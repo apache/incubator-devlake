@@ -94,23 +94,6 @@ func makeDataSourcePipelinePlanV200(
 		}
 
 		stage = append(stage, task)
-
-		// add issue_trace stage
-		j := i + 1
-		if j == len(plan) {
-			plan = append(plan, nil)
-		}
-		plan[j] = coreModels.PipelineStage{
-			{
-				Plugin: "issue_trace",
-				Options: map[string]interface{}{
-					"plugin":       "jira",
-					"connectionId": connection.ID,
-					"boardId":      scope.BoardId,
-				},
-			},
-		}
-
 		plan[i] = stage
 	}
 
