@@ -103,7 +103,9 @@ func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 		return nil, errors.Default.Wrap(err, "Failed to decode options")
 	}
 	var scopeIds []string
-	if op.ProjectName != "" && op.ScopeIds == nil {
+	if op.ScopeIds != nil {
+		scopeIds = op.ScopeIds
+	} else {
 		db := taskCtx.GetDal()
 		pmClauses := []dal.Clause{
 			dal.From("project_mapping pm"),
