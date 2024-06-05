@@ -22,7 +22,7 @@ import "github.com/apache/incubator-devlake/plugins/issue_trace/tasks"
 var TaskData = &tasks.TaskData{
 	Options: tasks.Options{
 		Plugin:   "jira",
-		ScopeIds: []string{"1:JiraBoard:68"},
+		ScopeIds: []string{"jira:JiraBoard:2:8"},
 	},
-	ScopeIds: []string{"1:JiraBoard:68"},
+	ScopeIds: []string{"jira:JiraBoard:2:8"},
 }
