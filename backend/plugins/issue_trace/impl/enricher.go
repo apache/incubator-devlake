@@ -103,12 +103,12 @@ func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Failed to decode options")
 	}
-	var boardId string
-	if op.LakeBoardId != "" {
-		boardId = op.LakeBoardId
-	} else if op.ConnectionId != 0 && op.BoardId != 0 {
-		boardIdGen := didgen.NewDomainIdGenerator(&BoardId{})
-		boardId = boardIdGen.Generate(op.ConnectionId, op.BoardId)
+	var scopeId string
+	if op.LakeScopeId != "" {
+		scopeId = op.LakeScopeId
+	} else if op.ConnectionId != 0 && op.ScopeId != 0 {
+		socpeIdGen := didgen.NewDomainIdGenerator(&BoardId{})
+		scopeId = socpeIdGen.Generate(op.ConnectionId, op.ScopeId)
 	} else if op.ProjectName != "" {
 		db := taskCtx.GetDal()
 		pmClauses := []dal.Clause{
@@ -120,12 +120,12 @@ func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "Failed to get project mapping")
 		}
-		boardId = pm.RowId
+		scopeId = pm.RowId
 	}
 
 	var taskData = &tasks.TaskData{
 		Options:     op,
-		BoardId:     boardId,
+		ScopeId:     scopeId,
 		ProjectName: op.ProjectName,
 	}
 
@@ -174,7 +174,7 @@ func (p IssueTrace) MakeMetricPluginPipelinePlanV200(projectName string, options
 				Options: map[string]interface{}{
 					"projectName":  projectName,
 					"connectionId": op.ConnectionId,
-					"boardId":      op.BoardId,
+					"scopeId":      op.ScopeId,
 				},
 				Subtasks: []string{
 					"ConvertIssueStatusHistory",

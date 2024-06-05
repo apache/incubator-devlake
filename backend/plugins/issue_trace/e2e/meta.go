@@ -23,7 +23,7 @@ var TaskData = &tasks.TaskData{
 	Options: tasks.Options{
 		Plugin:       "jira",
 		ConnectionId: 2,
-		BoardId:      8,
+		ScopeId:      8,
 	},
-	BoardId: "jira:JiraBoard:2:8",
+	ScopeId: "jira:JiraBoard:2:8",
 }

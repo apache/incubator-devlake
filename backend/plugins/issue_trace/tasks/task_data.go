@@ -21,14 +21,14 @@ package tasks
 type Options struct {
 	Plugin       string `json:"plugin"`       // jira
 	ConnectionId uint64 `json:"connectionId"` // 1
-	BoardId      uint64 `json:"boardId"`      // 68
-	LakeBoardId  string `json:"lakeBoardId"`  // jira:JiraBoard:1:68
+	ScopeId      uint64 `json:"scopeId"`      // 68
+	LakeScopeId  string `json:"lakeScopeId"`  // jira:JiraBoard:1:68
 	ProjectName  string `json:"projectName"`
 }
 
 // TaskData converted parameter
 type TaskData struct {
 	Options     Options
-	BoardId     string // jira:1:JiraBoard:68
+	ScopeId     string // jira:1:JiraBoard:68
 	ProjectName string
 }
