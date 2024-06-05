@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/api"
@@ -105,9 +106,21 @@ func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 	var boardId string
 	if op.LakeBoardId != "" {
 		boardId = op.LakeBoardId
-	} else {
+	} else if op.ConnectionId != 0 && op.BoardId != 0 {
 		boardIdGen := didgen.NewDomainIdGenerator(&BoardId{})
 		boardId = boardIdGen.Generate(op.ConnectionId, op.BoardId)
+	} else if op.ProjectName != "" {
+		db := taskCtx.GetDal()
+		pmClauses := []dal.Clause{
+			dal.From("project_mapping pm"),
+			dal.Where("pm.project_name = ? and pm.table = ?", op.ProjectName, "boards"),
+		}
+		pm := &crossdomain.ProjectMapping{}
+		err := db.First(pm, pmClauses...)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "Failed to get project mapping")
+		}
+		boardId = pm.RowId
 	}
 
 	var taskData = &tasks.TaskData{
@@ -116,7 +129,6 @@ func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 		ProjectName: op.ProjectName,
 	}
 
-	taskData.Options = op
 	return taskData, nil
 }
 
