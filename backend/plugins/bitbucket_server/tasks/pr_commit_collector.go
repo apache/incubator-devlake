@@ -57,6 +57,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:                 iterator,
 		UrlTemplate:           "rest/api/1.0/projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/commits",
 		ResponseParser:        GetRawMessageFromResponse,
+		AfterResponse:         ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err
