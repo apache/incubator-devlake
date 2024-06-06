@@ -61,7 +61,7 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	scopeIds := options.ScopeIds
 	db := taskCtx.GetDal()
 
-	insertor := helper.NewBatchSaveDivider(taskCtx, utils.BATCH_SIZE, rawTableIssueChangelogs, "")
+	insertor := helper.NewBatchSaveDivider(taskCtx, utils.BATCH_SIZE, "", "")
 	defer insertor.Close()
 	batchInsertor, err := insertor.ForType(reflect.TypeOf(&models.IssueAssigneeHistory{}))
 	if err != nil {
