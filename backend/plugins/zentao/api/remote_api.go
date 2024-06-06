@@ -69,14 +69,15 @@ func listZentaoRemoteScopes(
 	if err != nil {
 		return
 	}
-	// cnvert to dsmodels.DsRemoteApiScopeListEntry
+	// convert to dsmodels.DsRemoteApiScopeListEntry
 	for _, p := range resBody.Values {
+		tmpProject := p
 		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.ZentaoProject]{
 			Type:     api.RAS_ENTRY_TYPE_SCOPE,
-			Id:       fmt.Sprintf("%v", p.Id),
-			Name:     p.Name,
-			FullName: p.Name,
-			Data:     &p,
+			Id:       fmt.Sprintf("%v", tmpProject.Id),
+			Name:     tmpProject.Name,
+			FullName: tmpProject.Name,
+			Data:     &tmpProject,
 		})
 	}
 	// next page
