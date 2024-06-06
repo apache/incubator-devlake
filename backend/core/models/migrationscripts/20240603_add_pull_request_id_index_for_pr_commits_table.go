@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"net/url"
+	"strings"
 )
 
 type addPullRequestIdIndexToPullRequestCommits struct{}
@@ -34,7 +35,8 @@ func (*addPullRequestIdIndexToPullRequestCommits) Up(basicRes context.BasicRes) 
 	if err1 != nil {
 		return errors.Convert(err1)
 	}
-	if u.Scheme == "mysql" {
+	switch strings.ToLower(u.Scheme) {
+	case "mysql":
 		db := basicRes.GetDal()
 		err := db.Exec("ALTER TABLE pull_request_commits DROP PRIMARY KEY;")
 		if err != nil {
@@ -44,8 +46,21 @@ func (*addPullRequestIdIndexToPullRequestCommits) Up(basicRes context.BasicRes) 
 		if err != nil {
 			return err
 		}
+		return nil
+	case "postgresql", "postgres", "pg":
+		db := basicRes.GetDal()
+		err := db.Exec("ALTER TABLE pull_request_commits DROP CONSTRAINT pull_request_commits_pkey;")
+		if err != nil {
+			return err
+		}
+		err = db.Exec("ALTER TABLE pull_request_commits ADD PRIMARY KEY (pull_request_id, commit_sha);")
+		if err != nil {
+			return err
+		}
+		return nil
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (*addPullRequestIdIndexToPullRequestCommits) Version() uint64 {
