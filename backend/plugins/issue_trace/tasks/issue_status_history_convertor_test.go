@@ -44,7 +44,7 @@ func Test_buildStatusHistoryRecords(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := buildStatusHistoryRecords(tt.args.logs, "jira:JiraBoard:1:1"); !reflect.DeepEqual(got, tt.want) {
+			if got := buildStatusHistoryRecords(tt.args.logs); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("buildStatusHistoryRecords() = %v, want %v", got, tt.want)
 			}
 		})

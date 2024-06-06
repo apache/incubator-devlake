@@ -1,7 +1,7 @@
 issue_id,original_status,start_date,status,is_current_status,is_first_status
 jira:JiraIssue:2:10063,Closed,2020-06-19T06:31:18.526+00:00,完成,0,0
-jira:JiraIssue:2:10063,Inbox,2020-06-12T00:13:13.360+00:00,等待,0,1
 jira:JiraIssue:2:10063,In Development,2020-06-12T03:38:39.785+00:00,开发中,0,0
+jira:JiraIssue:2:10063,Inbox,2020-06-12T00:13:13.360+00:00,等待,0,1
 jira:JiraIssue:2:10063,Open,2020-06-12T06:22:49.352+00:00,等待,0,0
 jira:JiraIssue:2:10063,Ready for Dev,2020-06-12T01:45:24.493+00:00,待开发,0,0
 jira:JiraIssue:2:10063,已完成,2021-03-28T08:06:08.715+00:00,完成,1,0
@@ -81,8 +81,8 @@ jira:JiraIssue:2:10079,Resolved,2020-07-22T07:25:29.223+00:00,完成,0,0
 jira:JiraIssue:2:10079,To Do,2020-06-12T00:24:56.048+00:00,等待,0,1
 jira:JiraIssue:2:10079,已完成,2021-03-28T08:05:54.428+00:00,完成,1,0
 jira:JiraIssue:2:10081,Closed,2020-11-10T01:43:08.611+00:00,完成,0,0
-jira:JiraIssue:2:10081,Inbox,2020-06-12T00:28:00.241+00:00,等待,0,1
 jira:JiraIssue:2:10081,In Development,2020-06-12T01:46:26.809+00:00,开发中,0,0
+jira:JiraIssue:2:10081,Inbox,2020-06-12T00:28:00.241+00:00,等待,0,1
 jira:JiraIssue:2:10081,Open,2020-06-12T05:01:20.620+00:00,等待,0,0
 jira:JiraIssue:2:10081,Ready for Dev,2020-06-12T01:46:22.354+00:00,待开发,0,0
 jira:JiraIssue:2:10081,Resolved,2020-06-12T01:46:30.363+00:00,完成,0,0

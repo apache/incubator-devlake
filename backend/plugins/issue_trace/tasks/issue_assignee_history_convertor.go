@@ -58,10 +58,10 @@ var ConvertIssueAssigneeHistoryMeta = plugin.SubTaskMeta{
 func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	options := taskCtx.GetData().(*TaskData)
-	boardId := options.BoardId
+	scopeIds := options.ScopeIds
 	db := taskCtx.GetDal()
 
-	insertor := helper.NewBatchSaveDivider(taskCtx, utils.BATCH_SIZE, rawTableIssueChangelogs, boardId)
+	insertor := helper.NewBatchSaveDivider(taskCtx, utils.BATCH_SIZE, "", "")
 	defer insertor.Close()
 	batchInsertor, err := insertor.ForType(reflect.TypeOf(&models.IssueAssigneeHistory{}))
 	if err != nil {
@@ -86,8 +86,8 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	where
 		issue_changelogs.issue_id is null
 		and assignee_id != ''
-		and board_issues.board_id = ?;
-		`, boardId)
+		and board_issues.board_id in ?;
+		`, scopeIds)
 	if err != nil {
 		logger.Error(err, "Failed to query issue assignee")
 		return err
@@ -95,9 +95,9 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursorForIssuesWithoutChanglog.Close()
 	convertorForIssuesWithoutChangelog, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:    taskCtx,
-			Params: boardId,
-			Table:  "issue_changelogs",
+			Ctx: taskCtx,
+			// Params: scopeId,
+			Table: "issue_changelogs",
 		},
 		InputRowType: reflect.TypeOf(AssigneeHistory{}),
 		Input:        cursorForIssuesWithoutChanglog,
@@ -152,7 +152,7 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From("issue_changelogs"),
 		dal.Join("JOIN board_issues ON issue_changelogs.issue_id = board_issues.issue_id"),
 		dal.Join("JOIN issues ON issue_changelogs.issue_id = issues.id"),
-		dal.Where("field_name = 'assignee' AND board_issues.board_id = ?", boardId),
+		dal.Where("field_name = 'assignee' AND board_issues.board_id in ?", scopeIds),
 		dal.Orderby("issue_changelogs.issue_id ASC, issue_changelogs.created_date ASC"),
 	}
 	cursorForIssueChangelogs, err := db.Cursor(clauses...)
@@ -167,9 +167,9 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 
 	convertorForIssueChangelogs, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:    taskCtx,
-			Params: boardId,
-			Table:  "issue_changelogs",
+			Ctx: taskCtx,
+			// Params: scopeId,
+			Table: "issue_changelogs",
 		},
 		InputRowType: reflect.TypeOf(AssigneeChangelog{}),
 		Input:        cursorForIssueChangelogs,
@@ -180,7 +180,7 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 			row := inputRow.(*AssigneeChangelog)
 			if row.IssueId != currentIssue {
 				if len(currentLogs) > 0 {
-					historyRows := buildActiveAssigneeHistory(currentLogs, boardId)
+					historyRows := buildActiveAssigneeHistory(currentLogs)
 					for _, row := range historyRows {
 						err := batchInsertor.Add(row)
 						if err != nil {
@@ -206,7 +206,7 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	if len(currentLogs) > 0 {
-		historyRows := buildActiveAssigneeHistory(currentLogs, boardId)
+		historyRows := buildActiveAssigneeHistory(currentLogs)
 		for _, row := range historyRows {
 			err := batchInsertor.Add(row)
 			if err != nil {
@@ -218,7 +218,7 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	return nil
 }
 
-func buildActiveAssigneeHistory(logs []AssigneeChangelog, boardId string) []*models.IssueAssigneeHistory {
+func buildActiveAssigneeHistory(logs []AssigneeChangelog) []*models.IssueAssigneeHistory {
 	// prepend changelog if first line has from_assignee
 	firstLine := logs[0]
 	if firstLine.FromAssignee != "" {

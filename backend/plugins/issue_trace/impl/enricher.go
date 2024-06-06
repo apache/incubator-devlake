@@ -18,15 +18,17 @@ limitations under the License.
 package impl
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
+	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/api"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/models"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/issue_trace/services"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/tasks"
 	"github.com/mitchellh/mapstructure"
 )
@@ -38,12 +40,38 @@ var _ interface {
 	plugin.PluginInit
 	plugin.PluginTask
 	plugin.PluginModel
+	plugin.PluginMetric
 	plugin.PluginMigration
 	plugin.PluginApi
+	plugin.MetricPluginBlueprintV200
 } = (*IssueTrace)(nil)
 
 func (p IssueTrace) Name() string {
 	return "issue_trace"
+}
+
+func (p IssueTrace) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{
+		{
+			"model": "issue_changelogs",
+			"requiredFields": map[string]string{
+				"column":        "type",
+				"execptedValue": "Issue",
+			},
+		},
+	}, nil
+}
+
+func (p IssueTrace) IsProjectMetric() bool {
+	return true
+}
+
+func (p IssueTrace) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (p IssueTrace) Settings() interface{} {
+	return nil
 }
 
 func (p IssueTrace) Init(basicRes context.BasicRes) errors.Error {
@@ -69,32 +97,36 @@ func (p IssueTrace) SubTaskMetas() []plugin.SubTaskMeta {
 // `apiClient` is defined in `client.go` under `tasks`
 // `SprintPerformanceEnricherTaskData` is defined in `task_data.go` under `tasks`
 func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	logger := taskCtx.GetLogger()
 	var op tasks.Options
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Failed to decode options")
 	}
-	var boardId string
-	if op.LakeBoardId != "" {
-		boardId = op.LakeBoardId
+	var scopeIds []string
+	if op.ScopeIds != nil {
+		scopeIds = op.ScopeIds
 	} else {
-		boardModel := services.GetTicketBoardModel(op.Plugin)
-		if boardModel == nil {
-			err := errors.BadInput.New("unsupported board type")
-			logger.Error(err, "")
-			return nil, err
+		db := taskCtx.GetDal()
+		pmClauses := []dal.Clause{
+			dal.From("project_mapping pm"),
+			dal.Where("pm.project_name = ? and pm.table = ?", op.ProjectName, "boards"),
 		}
-		boardIdGen := didgen.NewDomainIdGenerator(boardModel)
-		boardId = boardIdGen.Generate(op.ConnectionId, op.BoardId)
+		pm := []crossdomain.ProjectMapping{}
+		err = db.All(&pm, pmClauses...)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "Failed to get project mapping")
+		}
+		for _, p := range pm {
+			scopeIds = append(scopeIds, p.RowId)
+		}
 	}
 
 	var taskData = &tasks.TaskData{
-		Options: op,
-		BoardId: boardId,
+		Options:     op,
+		ScopeIds:    scopeIds,
+		ProjectName: op.ProjectName,
 	}
 
-	taskData.Options = op
 	return taskData, nil
 }
 
@@ -117,4 +149,31 @@ func (p IssueTrace) GetTablesInfo() []dal.Tabler {
 		&models.IssueAssigneeHistory{},
 		&models.IssueStatusHistory{},
 	}
+}
+
+func (p IssueTrace) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (coreModels.PipelinePlan, errors.Error) {
+	op := &tasks.Options{}
+	if options != nil && string(options) != "\"\"" {
+		err := json.Unmarshal(options, op)
+		if err != nil {
+			return nil, errors.Default.WrapRaw(err)
+		}
+	}
+
+	plan := coreModels.PipelinePlan{
+		{
+			{
+				Plugin: "issue_trace",
+				Options: map[string]interface{}{
+					"projectName": projectName,
+					"scopeIds":    op.ScopeIds,
+				},
+				Subtasks: []string{
+					"ConvertIssueStatusHistory",
+					"ConvertIssueAssigneeHistory",
+				},
+			},
+		},
+	}
+	return plan, nil
 }

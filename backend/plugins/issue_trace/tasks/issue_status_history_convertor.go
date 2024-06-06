@@ -49,8 +49,6 @@ type StatusChangeLogResult struct {
 	OriginalToValue   string
 }
 
-var rawTableIssueChangelogs = "issue_changelogs"
-
 var ConvertIssueStatusHistoryMeta = plugin.SubTaskMeta{
 	Name:             "ConvertIssueStatusHistory",
 	EntryPoint:       ConvertIssueStatusHistory,
@@ -61,10 +59,10 @@ var ConvertIssueStatusHistoryMeta = plugin.SubTaskMeta{
 func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	options := taskCtx.GetData().(*TaskData)
-	boardId := options.BoardId
+	scopeIds := options.ScopeIds
 
 	db := taskCtx.GetDal()
-	inserter := helper.NewBatchSaveDivider(taskCtx, utils.BATCH_SIZE, rawTableIssueChangelogs, boardId)
+	inserter := helper.NewBatchSaveDivider(taskCtx, utils.BATCH_SIZE, "", "")
 	defer inserter.Close()
 	batchInserter, err := inserter.ForType(reflect.TypeOf(&models.IssueStatusHistory{}))
 	if err != nil {
@@ -73,7 +71,7 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// handle issues not appeared in change logs (hasn't changed)
-	logger.Info("get issues not appeared in change logs, board %s", boardId)
+	logger.Info("get issues not appeared in change logs, board %s", scopeIds)
 	now := time.Now()
 	clauses := []dal.Clause{
 		dal.Select("issues.id AS issue_id, issues.status, issues.original_status, issues.created_date," +
@@ -81,7 +79,7 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From("issues"),
 		dal.Join("INNER JOIN board_issues ON board_issues.issue_id = issues.id"),
 		dal.Join("LEFT JOIN issue_changelogs ON issue_changelogs.issue_id=issues.id AND issue_changelogs.field_name='status'"),
-		dal.Where("board_issues.board_id = ? AND issue_changelogs.field_name IS NULL", boardId),
+		dal.Where("board_issues.board_id in ? AND issue_changelogs.field_name IS NULL", scopeIds),
 	}
 	statusFromIssueCursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -136,7 +134,7 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// handle issues with changelogs
-	logger.Info("get issue status change log, board %s", boardId)
+	logger.Info("get issue status change log, board %s", scopeIds)
 	clauses = []dal.Clause{
 		dal.Select("issue_changelogs.issue_id, issue_changelogs.created_date AS log_created_date, " +
 			"issue_changelogs.to_value, issue_changelogs.original_to_value, issue_changelogs.from_value, " +
@@ -145,7 +143,7 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From("issue_changelogs"),
 		dal.Join("INNER JOIN issues ON issues.id = issue_changelogs.issue_id"),
 		dal.Join("INNER JOIN board_issues ON board_issues.issue_id = issue_changelogs.issue_id"),
-		dal.Where("board_issues.board_id = ? AND issue_changelogs.field_name = 'status'", boardId),
+		dal.Where("board_issues.board_id in ? AND issue_changelogs.field_name = 'status'", scopeIds),
 		dal.Orderby("issue_changelogs.issue_id ASC, issue_changelogs.created_date ASC"),
 	}
 	statusFromChangelogCursor, err := db.Cursor(clauses...)
@@ -173,7 +171,7 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 			logRow := inputRow.(*StatusChangeLogResult)
 			if logRow.IssueId != currentIssue { // reach new issue section
 				if len(currentLogs) > 0 {
-					historyRows := buildStatusHistoryRecords(currentLogs, boardId)
+					historyRows := buildStatusHistoryRecords(currentLogs)
 					for _, r := range historyRows {
 						if r.EndDate != nil {
 							var seconds int64 = 0
@@ -206,7 +204,7 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	if len(currentLogs) > 0 {
-		historyRows := buildStatusHistoryRecords(currentLogs, boardId)
+		historyRows := buildStatusHistoryRecords(currentLogs)
 		for _, r := range historyRows {
 			if r.EndDate != nil {
 				var seconds int64 = 0
@@ -225,7 +223,7 @@ func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	return nil
 }
 
-func buildStatusHistoryRecords(logs []*StatusChangeLogResult, boardId string) []*models.IssueStatusHistory {
+func buildStatusHistoryRecords(logs []*StatusChangeLogResult) []*models.IssueStatusHistory {
 	if len(logs) == 0 {
 		return make([]*models.IssueStatusHistory, 0)
 	}
