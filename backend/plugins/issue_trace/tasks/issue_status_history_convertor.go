@@ -49,8 +49,6 @@ type StatusChangeLogResult struct {
 	OriginalToValue   string
 }
 
-var rawTableIssueChangelogs = "issue_changelogs"
-
 var ConvertIssueStatusHistoryMeta = plugin.SubTaskMeta{
 	Name:             "ConvertIssueStatusHistory",
 	EntryPoint:       ConvertIssueStatusHistory,
