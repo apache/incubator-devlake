@@ -64,6 +64,7 @@ func ConvertMrAssignees(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	mrIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -73,7 +74,7 @@ func ConvertMrAssignees(taskCtx plugin.SubTaskContext) errors.Error {
 			mrAssignee := inputRow.(*models.GitlabAssignee)
 			domainPrAssigne := &code.PullRequestAssignee{
 				PullRequestId: mrIdGen.Generate(data.Options.ConnectionId, mrAssignee.MergeRequestId),
-				AssigneeId:    mrAssignee.AssigneeId,
+				AssigneeId:    accountIdGen.Generate(data.Options.ConnectionId, mrAssignee.AssigneeId),
 				Name:          mrAssignee.Name,
 				UserName:      mrAssignee.Username,
 			}
