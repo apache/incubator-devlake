@@ -18,22 +18,22 @@ limitations under the License.
 package models
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type GitlabAssignee struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	AssigneeId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"primaryKey"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
+// IssueAssigneeHistory records issue assignee history
+// end_date of current assignee is set to now() to avoid false assumption of future status.
+// handled by ConvertIssueAssigneeHistory and ConvertIssueWithoutAssigneeHistory
+type IssueAssigneeHistory struct {
 	common.NoPKModel
+	IssueId   string    `gorm:"primaryKey;type:varchar(255)"`
+	Assignee  string    `gorm:"primaryKey;type:varchar(255)"`
+	StartDate time.Time `gorm:"primaryKey"`
+	EndDate   *time.Time
 }
 
-func (GitlabAssignee) TableName() string {
-	return "_tool_gitlab_assignees"
+func (IssueAssigneeHistory) TableName() string {
+	return "issue_assignee_history"
 }

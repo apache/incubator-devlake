@@ -15,25 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package e2e
 
-import (
-	"github.com/apache/incubator-devlake/core/models/common"
-)
+import "github.com/apache/incubator-devlake/plugins/issue_trace/tasks"
 
-type GitlabAssignee struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	AssigneeId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"primaryKey"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (GitlabAssignee) TableName() string {
-	return "_tool_gitlab_assignees"
+var TaskData = &tasks.TaskData{
+	Options: tasks.Options{
+		Plugin:   "jira",
+		ScopeIds: []string{"jira:JiraBoard:2:8"},
+	},
+	ScopeIds: []string{"jira:JiraBoard:2:8"},
 }

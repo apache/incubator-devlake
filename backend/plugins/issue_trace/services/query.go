@@ -15,25 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package services
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	jiraModel "github.com/apache/incubator-devlake/plugins/jira/models"
+	tapdModel "github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-type GitlabAssignee struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	AssigneeId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"primaryKey"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (GitlabAssignee) TableName() string {
-	return "_tool_gitlab_assignees"
+func GetTicketBoardModel(plugin string) interface{} {
+	switch plugin {
+	case "jira":
+		return &jiraModel.JiraBoard{}
+	case "tapd":
+		return &tapdModel.TapdWorkspace{}
+	default:
+		return nil
+	}
 }

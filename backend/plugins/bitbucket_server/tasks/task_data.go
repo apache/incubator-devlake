@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
@@ -74,6 +76,16 @@ func ValidateTaskOptions(op *BitbucketServerOptions) errors.Error {
 	// find the needed Bitbucket now
 	if op.ConnectionId == 0 {
 		return errors.BadInput.New("connectionId is invalid")
+	}
+	return nil
+}
+
+func ignoreHTTPStatus404(res *http.Response) errors.Error {
+	if res.StatusCode == http.StatusUnauthorized {
+		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+	}
+	if res.StatusCode == http.StatusNotFound {
+		return api.ErrIgnoreAndContinue
 	}
 	return nil
 }

@@ -15,25 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package utils
 
-import (
-	"github.com/apache/incubator-devlake/core/models/common"
-)
-
-type GitlabAssignee struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	AssigneeId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"primaryKey"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (GitlabAssignee) TableName() string {
-	return "_tool_gitlab_assignees"
-}
+var BATCH_SIZE = 1000

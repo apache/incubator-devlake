@@ -15,25 +15,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"reflect"
+	"testing"
+
+	"github.com/apache/incubator-devlake/plugins/issue_trace/models"
 )
 
-type GitlabAssignee struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	AssigneeId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"primaryKey"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	common.NoPKModel
-}
+func Test_buildStatusHistoryRecords(t *testing.T) {
+	type args struct {
+		logs []*StatusChangeLogResult
+	}
 
-func (GitlabAssignee) TableName() string {
-	return "_tool_gitlab_assignees"
+	tests := []struct {
+		name string
+		args args
+		want []*models.IssueStatusHistory
+	}{
+		{
+			name: "empty",
+			args: args{
+				logs: make([]*StatusChangeLogResult, 0),
+			},
+			want: make([]*models.IssueStatusHistory, 0),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := buildStatusHistoryRecords(tt.args.logs); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("buildStatusHistoryRecords() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

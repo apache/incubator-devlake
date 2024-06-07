@@ -204,11 +204,18 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	}
 
 	httpClient := oauth2.NewClient(oauthContext, src)
-	endpoint, err := errors.Convert01(url.JoinPath(connection.Endpoint, `graphql`))
+	endpoint, err := errors.Convert01(url.Parse(connection.Endpoint))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("malformed connection endpoint supplied: %s", connection.Endpoint))
 	}
-	client := graphql.NewClient(endpoint, httpClient)
+
+	// github.com and github enterprise have different graphql endpoints
+	endpoint.Path = "/graphql" // see https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
+	if endpoint.Hostname() != "api.github.com" {
+		// see https://docs.github.com/en/enterprise-server@3.11/graphql/guides/forming-calls-with-graphql
+		endpoint.Path = "/api/graphql"
+	}
+	client := graphql.NewClient(endpoint.String(), httpClient)
 	graphqlClient, err := helper.CreateAsyncGraphqlClient(taskCtx, client, taskCtx.GetLogger(),
 		func(ctx context.Context, client *graphql.Client, logger log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
 			var query GraphQueryRateLimit

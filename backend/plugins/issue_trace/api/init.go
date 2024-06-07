@@ -15,25 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/go-playground/validator/v10"
 )
 
-type GitlabAssignee struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	AssigneeId     int    `gorm:"primaryKey"`
-	MergeRequestId int    `gorm:"primaryKey"`
-	ProjectId      int    `gorm:"index"`
-	Name           string `gorm:"type:varchar(255)"`
-	Username       string `gorm:"type:varchar(255)"`
-	State          string `gorm:"type:varchar(255)"`
-	AvatarUrl      string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	common.NoPKModel
-}
+var BasicRes context.BasicRes
+var Validator *validator.Validate
 
-func (GitlabAssignee) TableName() string {
-	return "_tool_gitlab_assignees"
+func Init(basicRes context.BasicRes) {
+	BasicRes = basicRes
+	Validator = validator.New()
 }
