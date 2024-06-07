@@ -64,6 +64,7 @@ func ConvertMrReviewers(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	mrIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -73,7 +74,7 @@ func ConvertMrReviewers(taskCtx plugin.SubTaskContext) errors.Error {
 			mrReviewer := inputRow.(*models.GitlabReviewer)
 			domainPrReviewer := &code.PullRequestReviewer{
 				PullRequestId: mrIdGen.Generate(data.Options.ConnectionId, mrReviewer.MergeRequestId),
-				ReviewerId:    mrReviewer.ReviewerId,
+				ReviewerId:    accountIdGen.Generate(data.Options.ConnectionId, mrReviewer.ReviewerId),
 				Name:          mrReviewer.Name,
 				UserName:      mrReviewer.Username,
 			}
