@@ -108,5 +108,6 @@ func All() []plugin.MigrationScript {
 		new(addUrgencyToIssues),
 		new(addSubtabknameToDeployment),
 		new(addPrAssigneeAndReviewer),
+		new(modifyPrAssigneeAndReviewerId),
 	}
 }

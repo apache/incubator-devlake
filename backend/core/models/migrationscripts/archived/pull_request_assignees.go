@@ -19,7 +19,7 @@ package archived
 
 type PullRequestAssignee struct {
 	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
-	AssigneeId    int    `gorm:"primaryKey"`
+	AssigneeId    string `gorm:"primaryKey;type:varchar(255);"`
 	Name          string `gorm:"type:varchar(255)"`
 	UserName      string `gorm:"type:varchar(255)"`
 
