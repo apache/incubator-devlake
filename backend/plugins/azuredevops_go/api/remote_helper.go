@@ -149,10 +149,6 @@ func listAzuredevopsRepos(
 	}
 
 	for _, v := range repos {
-		if v.IsDisabled {
-			continue
-		}
-
 		pID := orgId + idSeparator + projectId
 		repo := models.AzuredevopsRepo{
 			Id:        v.Id,

@@ -77,9 +77,8 @@ func makeScopeV200(
 		}
 		id := didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connectionId, azuredevopsRepo.Id)
 
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
-			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
-			// if we don't need to collect gitex, we need to add repo to scopes here
+		if !azuredevopsRepo.IsDisabled && (utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
+			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE)) {
 			scopeRepo := code.NewRepo(id, azuredevopsRepo.Name)
 			sc = append(sc, scopeRepo)
 		}

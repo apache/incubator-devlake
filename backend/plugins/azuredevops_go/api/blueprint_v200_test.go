@@ -190,12 +190,12 @@ func TestMakeRemoteRepoScopes(t *testing.T) {
 		Name           string
 		Type           string
 		Private        bool
+		Disabled       bool
 		ExpectedScopes []string
 	}{
 		{Name: "Azure DevOps Repository", Type: models.RepositoryTypeADO, Private: false, ExpectedScopes: []string{"*code.Repo", "*ticket.Board", "*devops.CicdScope"}},
-
+		{Name: "Azure DevOps disabled Repository", Type: models.RepositoryTypeADO, Disabled: true, ExpectedScopes: []string{"*ticket.Board", "*devops.CicdScope"}},
 		{Name: "Public GitHub Repository", Type: models.RepositoryTypeGithub, Private: false, ExpectedScopes: []string{"*code.Repo", "*devops.CicdScope"}},
-
 		{Name: "Private GitHub Repository", Type: models.RepositoryTypeGithub, Private: true, ExpectedScopes: []string{"*devops.CicdScope"}},
 	}
 
@@ -212,10 +212,11 @@ func TestMakeRemoteRepoScopes(t *testing.T) {
 							Scope: common.Scope{
 								ConnectionId: connectionID,
 							},
-							Id:        id,
-							Type:      d.Type,
-							Name:      d.Name,
-							IsPrivate: d.Private,
+							Id:         id,
+							Type:       d.Type,
+							Name:       d.Name,
+							IsPrivate:  d.Private,
+							IsDisabled: d.Disabled,
 						},
 						ScopeConfig: &models.AzuredevopsScopeConfig{
 							ScopeConfig: common.ScopeConfig{
