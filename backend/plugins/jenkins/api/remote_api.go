@@ -58,7 +58,7 @@ func listJenkinsRemoteScopes(
 			fallthrough
 		case "org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject":
 			fallthrough
-		case "hudson.model.FreeStyleProject":
+		case "hudson.model.FreeStyleProject", "hudson.maven.MavenModuleSet":
 			// this is a scope
 			jenkinsJob := job.ToJenkinsJob()
 			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.JenkinsJob]{
