@@ -182,7 +182,11 @@ export const Connection = () => {
     );
 
     if (res.status === 'success') {
-      setVersion((v) => v + 1);
+      if (dataSource.length === 1) {
+        setPage(page - 1);
+      } else {
+        setVersion((v) => v + 1);
+      }
       message.success(onlyData ? 'Clear historical data successful.' : 'Delete Data Scope successful.');
       handleHideDialog();
     } else if (res.status === 'conflict') {
