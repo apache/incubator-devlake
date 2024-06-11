@@ -197,7 +197,7 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
                 />
               </Block>
               <Block title="Password" required>
-                <Input
+                <Input.Password
                   style={{ width: 386 }}
                   placeholder={type === 'update' ? '********' : 'Your Password'}
                   value={values.password}
@@ -216,7 +216,7 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
               }
               required
             >
-              <Input
+              <Input.Password
                 style={{ width: 386 }}
                 placeholder={type === 'update' ? '********' : 'Your Password'}
                 value={values.token}
