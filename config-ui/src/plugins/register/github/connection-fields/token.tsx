@@ -155,7 +155,7 @@ export const Token = ({
         tokens.map(({ value, isValid, status, from }, i) => (
           <S.Input key={i}>
             <div className="input">
-              <Input
+              <Input.Password
                 style={{ width: 386 }}
                 placeholder="Token"
                 value={value}
