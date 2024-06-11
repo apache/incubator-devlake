@@ -205,6 +205,10 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		}
 		results = append(results, issueLink)
 	}
+
+	// is subtask
+	issue.Subtask = apiIssue.Fields.Issuetype.Subtask
+
 	return results, nil
 }
 

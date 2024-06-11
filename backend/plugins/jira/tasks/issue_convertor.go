@@ -132,6 +132,9 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			if jiraIssue.ParentId != 0 {
 				issue.ParentIssueId = issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.ParentId)
 			}
+			if jiraIssue.Subtask {
+				issue.Type = ticket.SUBTASK
+			}
 			result = append(result, issue)
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardId,
