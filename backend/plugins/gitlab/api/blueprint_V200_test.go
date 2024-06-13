@@ -156,8 +156,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"connectionId": connectionID,
 					"projectId":    gitlabProjectId,
 					"fullName":     pathWithNamespace,
-					//"scopeConfigId": scopeConfigId,
-					//"scopeConfig":   scopeConfig,
 				},
 			},
 			{
