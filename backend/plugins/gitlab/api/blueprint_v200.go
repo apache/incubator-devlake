@@ -115,12 +115,10 @@ func makePipelinePlanV200(
 		gitlabProject, scopeConfig := scope.Scope, scope.ScopeConfig
 		var stage coreModels.PipelineStage
 		// construct subtasks
-		task, err := helper.MakePipelinePlanTask(pluginName, subtaskMetas, scopeConfig.Entities, GitlabTaskOptions{
-			ConnectionId:  connection.ID,
-			ProjectId:     gitlabProject.GitlabId,
-			FullName:      gitlabProject.PathWithNamespace,
-			ScopeConfigId: scopeConfig.ID,
-			ScopeConfig:   scopeConfig,
+		task, err := helper.MakePipelinePlanTask(pluginName, subtaskMetas, scopeConfig.Entities, map[string]interface{}{
+			"connectionId": connection.ID,
+			"projectId":    gitlabProject.GitlabId,
+			"fullName":     gitlabProject.PathWithNamespace,
 		})
 		if err != nil {
 			return nil, err
