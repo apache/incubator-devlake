@@ -114,26 +114,18 @@ func makePipelinePlanV200(
 	for _, scope := range scopeDetails {
 		gitlabProject, scopeConfig := scope.Scope, scope.ScopeConfig
 		var stage coreModels.PipelineStage
-		var err errors.Error
-		// get repo
-
-		// gitlab main part
-		options := make(map[string]interface{})
-		options["connectionId"] = connection.ID
-		options["projectId"] = gitlabProject.GitlabId
-		options["fullName"] = gitlabProject.PathWithNamespace
-
 		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
+		task, err := helper.MakePipelinePlanTask(pluginName, subtaskMetas, scopeConfig.Entities, GitlabTaskOptions{
+			ConnectionId:  connection.ID,
+			ProjectId:     gitlabProject.GitlabId,
+			FullName:      gitlabProject.PathWithNamespace,
+			ScopeConfigId: scopeConfig.ID,
+			ScopeConfig:   scopeConfig,
+		})
 		if err != nil {
 			return nil, err
 		}
-
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "gitlab",
-			Subtasks: subtasks,
-			Options:  options,
-		})
+		stage = append(stage, task)
 
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) || len(scopeConfig.Entities) == 0 {

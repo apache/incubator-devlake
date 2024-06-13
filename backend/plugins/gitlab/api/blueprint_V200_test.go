@@ -36,7 +36,7 @@ func mockGitlabPlugin(t *testing.T) {
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
 	mockMeta.On("Name").Return("dummy").Maybe()
-	err := plugin.RegisterPlugin("gitlab", mockMeta)
+	err := plugin.RegisterPlugin(pluginName, mockMeta)
 	assert.Equal(t, err, nil)
 }
 
@@ -138,7 +138,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	var expectPlans = coreModels.PipelinePlan{
 		{
 			{
-				Plugin: "gitlab",
+				Plugin: pluginName,
 				Subtasks: []string{
 					tasks.ConvertProjectMeta.Name,
 					tasks.CollectApiIssuesMeta.Name,
