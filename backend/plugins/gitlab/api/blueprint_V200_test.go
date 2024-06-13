@@ -36,7 +36,7 @@ func mockGitlabPlugin(t *testing.T) {
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
 	mockMeta.On("Name").Return("dummy").Maybe()
-	err := plugin.RegisterPlugin("gitlab", mockMeta)
+	err := plugin.RegisterPlugin(pluginName, mockMeta)
 	assert.Equal(t, err, nil)
 }
 
@@ -86,6 +86,18 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const pathWithNamespace string = "nddtf/gitlab-test"
 	const expectDomainScopeId = "gitlab:GitlabProject:1:37"
 
+	scopeConfig := &models.GitlabScopeConfig{
+		ScopeConfig: common.ScopeConfig{
+			Entities: []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD},
+		},
+		PrType: "hey,man,wasup",
+		Refdiff: map[string]interface{}{
+			"tagsPattern": "pattern",
+			"tagsLimit":   10,
+			"tagsOrder":   "reverse semver",
+		},
+	}
+
 	actualPlans, err := makePipelinePlanV200(
 		[]plugin.SubTaskMeta{
 			tasks.ConvertProjectMeta,
@@ -119,17 +131,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					PathWithNamespace: pathWithNamespace,
 					HttpUrlToRepo:     httpUrlToRepo,
 				},
-				ScopeConfig: &models.GitlabScopeConfig{
-					ScopeConfig: common.ScopeConfig{
-						Entities: []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD},
-					},
-					PrType: "hey,man,wasup",
-					Refdiff: map[string]interface{}{
-						"tagsPattern": "pattern",
-						"tagsLimit":   10,
-						"tagsOrder":   "reverse semver",
-					},
-				},
+				ScopeConfig: scopeConfig,
 			},
 		},
 	)
@@ -138,7 +140,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	var expectPlans = coreModels.PipelinePlan{
 		{
 			{
-				Plugin: "gitlab",
+				Plugin: pluginName,
 				Subtasks: []string{
 					tasks.ConvertProjectMeta.Name,
 					tasks.CollectApiIssuesMeta.Name,
