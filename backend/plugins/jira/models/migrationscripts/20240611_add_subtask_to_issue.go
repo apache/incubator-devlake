@@ -18,21 +18,34 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addEndpointAndProxyToConnection),
-		new(addPagerdutyConnectionFields20230123),
-		new(addTransformationRulesToService20230303),
-		new(renameTr2ScopeConfig),
-		new(removeScopeConfig),
-		new(addRawParamTableForScope),
-		new(addIncidentPriority),
-		new(addPagerDutyScopeConfig20231214),
-		new(addPagerDutyScopeConfig20240614),
+type jiraIssue20240611 struct {
+	Subtask bool
+}
+
+func (jiraIssue20240611) TableName() string {
+	return "_tool_jira_issues"
+}
+
+type addSubtaskToIssue struct{}
+
+func (script *addSubtaskToIssue) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.AutoMigrate(&jiraIssue20240611{})
+	if err != nil {
+		return err
 	}
+	// force full issue extraction so issue.worklog_total can be updated
+	return db.Exec("DELETE FROM _devlake_subtask_states WHERE plugin = ? AND subtask = ?", "jira", "extractIssues")
+}
+
+func (*addSubtaskToIssue) Version() uint64 {
+	return 20240514145131
+}
+
+func (*addSubtaskToIssue) Name() string {
+	return "add subtask to _tool_jira_issues"
 }
