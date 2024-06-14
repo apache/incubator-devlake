@@ -416,6 +416,9 @@ func makeProjectOutput(project *models.Project, withLastPipeline bool) (*models.
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Error to get blueprint by project")
 	}
+	if err := SanitizeBlueprint(projectOutput.Blueprint); err != nil {
+		return nil, errors.Convert(err)
+	}
 	if withLastPipeline {
 		if projectOutput.Blueprint == nil {
 			logger.Warn(fmt.Errorf("blueprint is nil"), "want to get latest pipeline, but blueprint is nil")
