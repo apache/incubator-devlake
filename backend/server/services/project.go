@@ -416,8 +416,10 @@ func makeProjectOutput(project *models.Project, withLastPipeline bool) (*models.
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Error to get blueprint by project")
 	}
-	if err := SanitizeBlueprint(projectOutput.Blueprint); err != nil {
-		return nil, errors.Convert(err)
+	if projectOutput.Blueprint != nil {
+		if err := SanitizeBlueprint(projectOutput.Blueprint); err != nil {
+			return nil, errors.Convert(err)
+		}
 	}
 	if withLastPipeline {
 		if projectOutput.Blueprint == nil {
