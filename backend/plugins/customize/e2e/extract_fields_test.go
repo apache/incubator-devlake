@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/customize/tasks"
 )
 
-func TestExtractFieldDataFlow(t *testing.T) {
+func TestExtractFieldDataExplicitFlow1(t *testing.T) {
 	var plugin impl.Customize
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
 
@@ -81,7 +81,133 @@ func TestExtractFieldDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractCustomizedFieldsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		"./snapshot_tables/issues_for_data_extraction.csv",
+		"./snapshot_tables/issues_for_data_extraction_board8.csv",
+		e2ehelper.ColumnWithRawData(
+			"id",
+			"x_test",
+			"x_float",
+			"x_int",
+		),
+	)
+}
+
+func TestExtractFieldDataExplicitFlow2(t *testing.T) {
+	var plugin impl.Customize
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
+
+	taskData := &tasks.TaskData{
+		Options: &tasks.Options{
+			TransformationRules: []tasks.MappingRules{{
+				Table:         "issues",
+				RawDataTable:  "_raw_jira_api_issues",
+				RawDataParams: `{"ConnectionId":1,"BoardId":9}`,
+				Mapping: map[string]string{
+					"x_test":  "fields.created",
+					"x_float": "fields.customfield_10024",
+					"x_int":   "fields.customfield_10146",
+				},
+			}}}}
+
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues.csv", "_raw_jira_api_issues")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})
+	dataflowTester.FlushTabler(&models.CustomizedField{})
+	svc := service.NewService(dataflowTester.Dal)
+	err := svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_test",
+		DisplayName: "test column",
+		DataType:    "varchar(255)",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_float",
+		DisplayName: "test column x_float",
+		DataType:    "float",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_int",
+		DisplayName: "test column x_int",
+		DataType:    "bigint",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// verify extension fields extraction
+	dataflowTester.Subtask(tasks.ExtractCustomizedFieldsMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.Issue{},
+		"./snapshot_tables/issues_for_data_extraction_board9.csv",
+		e2ehelper.ColumnWithRawData(
+			"id",
+			"x_test",
+			"x_float",
+			"x_int",
+		),
+	)
+}
+
+func TestExtractFieldDataWildcardFlow(t *testing.T) {
+	var plugin impl.Customize
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
+
+	taskData := &tasks.TaskData{
+		Options: &tasks.Options{
+			TransformationRules: []tasks.MappingRules{{
+				Table:         "issues",
+				RawDataTable:  "_raw_jira_api_issues",
+				RawDataParams: `{"ConnectionId":1,%}`,
+				Mapping: map[string]string{
+					"x_test":  "fields.created",
+					"x_float": "fields.customfield_10024",
+					"x_int":   "fields.customfield_10146",
+				},
+			}}}}
+
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues.csv", "_raw_jira_api_issues")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})
+	dataflowTester.FlushTabler(&models.CustomizedField{})
+	svc := service.NewService(dataflowTester.Dal)
+	err := svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_test",
+		DisplayName: "test column",
+		DataType:    "varchar(255)",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_float",
+		DisplayName: "test column x_float",
+		DataType:    "float",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_int",
+		DisplayName: "test column x_int",
+		DataType:    "bigint",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// verify extension fields extraction
+	dataflowTester.Subtask(tasks.ExtractCustomizedFieldsMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.Issue{},
+		"./snapshot_tables/issues_for_data_extraction_wildcard.csv",
 		e2ehelper.ColumnWithRawData(
 			"id",
 			"x_test",
