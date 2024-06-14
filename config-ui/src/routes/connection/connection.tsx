@@ -182,7 +182,7 @@ export const Connection = () => {
     );
 
     if (res.status === 'success') {
-      if (dataSource.length === 1) {
+      if (dataSource.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
         setVersion((v) => v + 1);
