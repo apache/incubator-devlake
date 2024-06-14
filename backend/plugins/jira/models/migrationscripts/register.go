@@ -48,5 +48,6 @@ func All() []plugin.MigrationScript {
 		new(addComponents20230412),
 		new(addFilterJQL),
 		new(addWorklogToIssue),
+		new(addSubtaskToIssue),
 	}
 }

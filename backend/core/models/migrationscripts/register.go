@@ -121,5 +121,7 @@ func All() []plugin.MigrationScript {
 		new(modifyCicdPipelineCommitsRepoUrlLength),
 		new(addPrAssigneeAndReviewer),
 		new(modifyPrAssigneeAndReviewerId),
+		new(addPullRequestIdIndexToPullRequestCommits),
+		new(addPullRequestIdIndexToPullRequestComments),
 	}
 }
