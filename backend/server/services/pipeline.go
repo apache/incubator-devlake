@@ -47,10 +47,19 @@ var pluginOptionSanitizers = map[string]func(map[string]interface{}){
 	"gitextractor": func(options map[string]interface{}) {
 		if v, ok := options["url"]; ok {
 			gitUrl := cast.ToString(v)
-			u, _ := url.Parse(gitUrl)
+			u, err := url.Parse(gitUrl)
+			if err != nil {
+				logger.Error(err, "failed to parse git url", gitUrl)
+			}
 			if u != nil && u.User != nil {
 				password, ok := u.User.Password()
 				if ok {
+					escapedUrl, err := url.QueryUnescape(gitUrl)
+					if err != nil {
+						logger.Warn(err, "failed to unescape url %s", gitUrl)
+					} else {
+						gitUrl = escapedUrl
+					}
 					gitUrl = strings.Replace(gitUrl, password, strings.Repeat("*", len(password)), -1)
 					options["url"] = gitUrl
 				}
@@ -148,7 +157,8 @@ func SanitizeBlueprint(blueprint *models.Blueprint) error {
 func SanitizePipeline(pipeline *models.Pipeline) error {
 	for planStageIdx, pipelineStage := range pipeline.Plan {
 		for planTaskIdx := range pipelineStage {
-			pipelineTask, err := SanitizeTask(pipeline.Plan[planStageIdx][planTaskIdx])
+			task := pipeline.Plan[planStageIdx][planTaskIdx]
+			pipelineTask, err := SanitizeTask(task)
 			if err != nil {
 				return err
 			}
