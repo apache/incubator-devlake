@@ -72,7 +72,7 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 		dal.Select(strings.Join(fields, ", ")),
 		dal.From(table),
 		dal.Join(fmt.Sprintf(" LEFT JOIN %s ON %s._raw_data_id = %s.id", rawTable, table, rawTable)),
-		dal.Where("_raw_data_table = ? AND _raw_data_params = ?", rawTable, rawDataParams),
+		dal.Where("_raw_data_table = ? AND _raw_data_params LIKE ?", rawTable, rawDataParams),
 	}
 	rows, err := d.Cursor(clauses...)
 	if err != nil {

@@ -111,11 +111,13 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 					StartedDate:  bitbucketDeployment.StartedOn,
 					FinishedDate: bitbucketDeployment.CompletedOn,
 				},
-				DurationSec: duration,
-				CommitSha:   bitbucketDeployment.CommitSha,
-				RefName:     bitbucketDeployment.RefName,
-				RepoId:      repoId,
-				RepoUrl:     repo.HTMLUrl,
+				DurationSec:  duration,
+				CommitSha:    bitbucketDeployment.CommitSha,
+				RefName:      bitbucketDeployment.RefName,
+				RepoId:       repoId,
+				RepoUrl:      repo.HTMLUrl,
+				DisplayTitle: bitbucketDeployment.Name,
+				Url:          bitbucketDeployment.WebUrl,
 			}
 			if domainDeployCommit.Environment == devops.TEST {
 				// Theoretically, environment cannot be "Test" according to

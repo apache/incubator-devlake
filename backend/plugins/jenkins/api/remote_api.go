@@ -53,16 +53,12 @@ func listJenkinsRemoteScopes(
 		parentId = &groupId
 	}
 	getJobsPageCallBack := func(job *models.Job) errors.Error {
-		if job.Jobs != nil {
-			// this is a group
-			job.Path = groupId
-			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.JenkinsJob]{
-				Type:     api.RAS_ENTRY_TYPE_GROUP,
-				Id:       fmt.Sprintf("%s/job/%s", job.Path, job.Name),
-				Name:     job.Name,
-				ParentId: parentId,
-			})
-		} else {
+		switch job.Class {
+		case "org.jenkinsci.plugins.workflow.job.WorkflowJob":
+			fallthrough
+		case "org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject":
+			fallthrough
+		case "hudson.model.FreeStyleProject":
 			// this is a scope
 			jenkinsJob := job.ToJenkinsJob()
 			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.JenkinsJob]{
@@ -73,7 +69,17 @@ func listJenkinsRemoteScopes(
 				Data:     jenkinsJob,
 				ParentId: parentId,
 			})
+		default:
+			// this is a group
+			job.Path = groupId
+			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.JenkinsJob]{
+				Type:     api.RAS_ENTRY_TYPE_GROUP,
+				Id:       fmt.Sprintf("%s/job/%s", job.Path, job.Name),
+				Name:     job.Name,
+				ParentId: parentId,
+			})
 		}
+
 		return nil
 	}
 	_, err = GetJobsPage(apiClient, groupId, page.Page-1, page.PerPage, getJobsPageCallBack)

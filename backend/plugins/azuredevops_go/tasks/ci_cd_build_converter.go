@@ -38,19 +38,28 @@ var ConvertBuildsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertBuilds,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table azuredevops_builds into  domain layer table cicd_pipelines",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{
 		models.AzuredevopsBuild{}.TableName(),
 	},
+}
+
+type JoinedBuild struct {
+	models.AzuredevopsBuild
+
+	URL string
 }
 
 func ConvertBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawPullRequestTable)
 	clauses := []dal.Clause{
-		dal.Select("*"),
+		dal.Select("_tool_azuredevops_go_builds.*, _tool_azuredevops_go_repos.url"),
 		dal.From(&models.AzuredevopsBuild{}),
-		dal.Where(`repository_id = ? and connection_id = ?`, data.Options.RepositoryId, data.Options.ConnectionId),
+		dal.Join(`left join _tool_azuredevops_go_repos
+			on _tool_azuredevops_go_builds.repository_id = _tool_azuredevops_go_repos.id`),
+		dal.Where(`_tool_azuredevops_go_builds.repository_id = ? and _tool_azuredevops_go_builds.connection_id = ?`,
+			data.Options.RepositoryId, data.Options.ConnectionId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -64,12 +73,15 @@ func ConvertBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.AzuredevopsBuild{}),
+		InputRowType:       reflect.TypeOf(JoinedBuild{}),
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			build := inputRow.(*models.AzuredevopsBuild)
+			build := inputRow.(*JoinedBuild)
 			duration := 0.0
-			duration = float64(build.FinishTime.Sub(*build.StartTime).Milliseconds() / 1e3)
+
+			if build.FinishTime != nil {
+				duration = float64(build.FinishTime.Sub(*build.StartTime).Milliseconds() / 1e3)
+			}
 
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
@@ -97,7 +109,7 @@ func ConvertBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				CommitSha:  build.SourceVersion,
 				Branch:     build.SourceBranch,
 				RepoId:     build.RepositoryId,
-				RepoUrl:    "",
+				RepoUrl:    build.URL,
 			}
 
 			return []interface{}{

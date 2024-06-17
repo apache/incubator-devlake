@@ -26,6 +26,8 @@ type CicdDeploymentCommit struct {
 	CicdScopeId         string `gorm:"index;type:varchar(255)"`
 	CicdDeploymentId    string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
 	Name                string `gorm:"type:varchar(255)"`
+	DisplayTitle        string
+	Url                 string
 	Result              string `gorm:"type:varchar(100)"`
 	Status              string `gorm:"type:varchar(100)"`
 	OriginalStatus      string `gorm:"type:varchar(100)"`
@@ -49,6 +51,10 @@ func (cicdDeploymentCommit CicdDeploymentCommit) TableName() string {
 }
 
 func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment {
+	return cicdDeploymentCommit.ToDeploymentWithCustomDisplayTitle(cicdDeploymentCommit.DisplayTitle)
+}
+
+func (cicdDeploymentCommit CicdDeploymentCommit) ToDeploymentWithCustomDisplayTitle(displayTitle string) *CICDDeployment {
 	return &CICDDeployment{
 		DomainEntity: domainlayer.DomainEntity{
 			Id:        cicdDeploymentCommit.CicdDeploymentId,
@@ -70,5 +76,7 @@ func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment 
 		},
 		QueuedDurationSec: cicdDeploymentCommit.QueuedDurationSec,
 		DurationSec:       cicdDeploymentCommit.DurationSec,
+		DisplayTitle:      displayTitle,
+		Url:               cicdDeploymentCommit.Url,
 	}
 }

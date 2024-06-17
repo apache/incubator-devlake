@@ -75,7 +75,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const DashboardURLMap: Record<string, string> = {
+export const DashboardURLMap: Record<string, string> = {
   github: '/grafana/d/KXWvOFQnz/github?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
   gitlab: '/grafana/d/msSjEq97z/gitlab?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
   bitbucket: '/grafana/d/4LzQHZa4k/bitbucket?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
@@ -134,7 +134,7 @@ export const Step4 = () => {
 
     const collector = {
       plugin: collectorTask.plugin,
-      name: `Collect non-Git entitles in ${collectorTask.options?.fullName ?? 'Unknown'}`,
+      name: `Collect non-Git entities in ${collectorTask.options?.fullName ?? 'Unknown'}`,
       percent: collectorSubtasks.length
         ? Math.floor((collectorSubtasksFinished.length / collectorSubtasks.length) * 100)
         : 0,
@@ -151,7 +151,7 @@ export const Step4 = () => {
 
     const extractor = {
       plugin: extractorTask.plugin,
-      name: `Collect Git entitles in ${extractorTask.options?.fullName ?? 'Unknown'}`,
+      name: `Collect Git entities in ${extractorTask.options?.fullName ?? 'Unknown'}`,
       percent: extractorSubtasks.length
         ? Math.floor((extractorSubtasksFinished.length / extractorSubtasks.length) * 100)
         : 0,

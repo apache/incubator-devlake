@@ -119,7 +119,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	return rawMessages.Values, nil
 }
 
-func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
+func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, apiCollector *helper.StatefulApiCollector) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketServerTaskData)
 	clauses := []dal.Clause{
@@ -131,8 +131,8 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 		),
 	}
 
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("bpr.bitbucket_server_updated_at > ?", *collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("bpr.bitbucket_server_updated_at > ?", *apiCollector.GetSince()))
 	}
 
 	// construct the input iterator

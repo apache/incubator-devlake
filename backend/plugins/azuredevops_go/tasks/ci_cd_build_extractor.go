@@ -72,9 +72,9 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:          buildApi.Definition.Name,
 				SourceBranch:  buildApi.SourceBranch,
 				SourceVersion: buildApi.SourceVersion,
-				QueueTime:     &buildApi.QueueTime,
-				StartTime:     &buildApi.StartTime,
-				FinishTime:    &buildApi.FinishTime,
+				QueueTime:     buildApi.QueueTime,
+				StartTime:     buildApi.StartTime,
+				FinishTime:    buildApi.FinishTime,
 				Tags:          string(tagsB),
 			}
 

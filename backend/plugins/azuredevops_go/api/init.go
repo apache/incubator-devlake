@@ -26,6 +26,7 @@ import (
 )
 
 var vld *validator.Validate
+var basicRes context.BasicRes
 
 var dsHelper *api.DsHelper[models.AzuredevopsConnection, models.AzuredevopsRepo, models.AzuredevopsScopeConfig]
 var raProxy *api.DsRemoteApiProxyHelper[models.AzuredevopsConnection]
@@ -34,6 +35,7 @@ var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.AzuredevopsConnection
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	vld = validator.New()
+	basicRes = br
 	dsHelper = api.NewDataSourceHelper[
 		models.AzuredevopsConnection,
 		models.AzuredevopsRepo,

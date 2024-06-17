@@ -34,11 +34,10 @@ func TestIncidentDataFlow(t *testing.T) {
 	var plugin impl.PagerDuty
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "pagerduty", plugin)
 	options := tasks.PagerDutyOptions{
-		ConnectionId:         1,
-		ServiceId:            "PIKL83L",
-		ServiceName:          "DevService",
-		Tasks:                nil,
-		PagerdutyScopeConfig: nil,
+		ConnectionId: 1,
+		ServiceId:    "PIKL83L",
+		ServiceName:  "DevService",
+		ScopeConfig:  nil,
 	}
 	taskData := &tasks.PagerDutyTaskData{
 		Options: &options,

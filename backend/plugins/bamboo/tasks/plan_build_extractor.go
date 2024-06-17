@@ -31,6 +31,7 @@ var _ plugin.SubTaskEntryPoint = ExtractPlanBuild
 
 func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_BUILD_TABLE)
+	logger := taskCtx.GetLogger()
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -47,6 +48,13 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.PlanName)
 			body.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, body.PlanName)
 
+			var url string
+			homepage, errGetHomePage := getBambooHomePage(body.LinkHref)
+			if errGetHomePage != nil {
+				logger.Warn(errGetHomePage, "get bamboo home")
+			} else {
+				url = homepage + "/browse/" + body.PlanResultKey
+			}
 			results := make([]interface{}, 0)
 			results = append(results, body)
 			// As job build can get more accuracy repo info,
@@ -59,6 +67,8 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 					RepositoryId:   v.RepositoryId,
 					RepositoryName: v.RepositoryName,
 					VcsRevisionKey: v.VcsRevisionKey,
+					DisplayTitle:   body.GenerateCICDPipeLineName(),
+					Url:            url,
 				})
 			}
 

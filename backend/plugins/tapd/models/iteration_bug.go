@@ -24,7 +24,7 @@ import (
 type TapdIterationBug struct {
 	common.NoPKModel
 	ConnectionId   uint64 `gorm:"primaryKey"`
-	IterationId    uint64 `gorm:"primaryKey"`
+	IterationId    int64  `gorm:"primaryKey"`
 	WorkspaceId    uint64 `gorm:"primaryKey"`
 	BugId          uint64 `gorm:"primaryKey"`
 	ResolutionDate *common.CSTTime

@@ -29,7 +29,6 @@ type BitbucketOptions struct {
 	FullName                     string   `json:"fullName" mapstructure:"fullName"`
 	ScopeConfigId                uint64   `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	*models.BitbucketScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
-	api.CollectorOptions         `mapstructure:",squash"`
 }
 
 type BitbucketTaskData struct {

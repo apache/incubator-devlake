@@ -117,6 +117,8 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 					Default:    devops.STATUS_OTHER,
 				}, line.Status),
 				OriginalStatus: line.Status,
+				DisplayTitle:   line.DisplayTitle,
+				Url:            line.URL,
 			}
 			if line.GithubUpdatedAt != nil && line.RunStartedAt != nil {
 				domainPipeline.DurationSec = float64(line.GithubUpdatedAt.Sub(*line.RunStartedAt).Milliseconds() / 1e3)
@@ -125,10 +127,12 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 			domainPipelineCommit := &devops.CiCDPipelineCommit{
 				PipelineId: runIdGen.Generate(
 					data.Options.ConnectionId, line.RepoId, line.ID),
-				CommitSha: line.HeadSha,
-				Branch:    line.HeadBranch,
-				RepoId:    repoIdGen.Generate(data.Options.ConnectionId, repoId),
-				RepoUrl:   repo.HTMLUrl,
+				CommitSha:    line.HeadSha,
+				Branch:       line.HeadBranch,
+				RepoId:       repoIdGen.Generate(data.Options.ConnectionId, repoId),
+				RepoUrl:      repo.HTMLUrl,
+				DisplayTitle: line.DisplayTitle,
+				Url:          line.HTMLURL,
 			}
 
 			return []interface{}{

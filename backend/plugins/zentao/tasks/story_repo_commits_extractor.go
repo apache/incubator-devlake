@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -30,7 +31,7 @@ var _ plugin.SubTaskEntryPoint = ExtractStoryRepoCommits
 var ExtractStoryRepoCommitsMeta = plugin.SubTaskMeta{
 	Name:             "extractStoryRepoCommits",
 	EntryPoint:       ExtractStoryRepoCommits,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "extract Zentao story repo commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

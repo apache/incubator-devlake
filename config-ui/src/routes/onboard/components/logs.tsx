@@ -73,6 +73,28 @@ const Wrapper = styled.div`
   }
 `;
 
+const getStatus = (task: { step: number; name: string; status: string; finishedRecords: number }) => {
+  if (task.status === 'pending') {
+    return 'Pending';
+  }
+
+  if (task.status === 'running' && task.name === 'Clone Git Repo') {
+    return 'N/A';
+  }
+
+  if (task.status === 'success' && task.name === 'Clone Git Repo') {
+    return 'Completed';
+  }
+
+  if (task.status === 'failed' && task.name === 'Clone Git Repo') {
+    return 'Failed';
+  }
+
+  if (['running', 'success', 'failed'].includes(task.status)) {
+    return `Records collected: ${task.finishedRecords}`;
+  }
+};
+
 interface LogsProps {
   style?: React.CSSProperties;
   log: {
@@ -113,11 +135,7 @@ export const Logs = ({ style, log: { plugin, name, percent, tasks } }: LogsProps
             <span className="name">
               Step {task.step} - {task.name}
             </span>
-            {task.status === 'pending' ? (
-              <span className="status">Pending</span>
-            ) : (
-              <span className="status">Records collected: {task.finishedRecords}</span>
-            )}
+            <span className="status">{getStatus(task)}</span>
             {task.status === 'running' && <LoadingOutlined style={{ color: colorPrimary }} />}
             {task.status === 'success' && <CheckCircleOutlined style={{ color: green5 }} />}
             {task.status === 'failed' && <CloseCircleOutlined style={{ color: red5 }} />}

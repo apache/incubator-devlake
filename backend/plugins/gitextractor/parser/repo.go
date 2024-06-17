@@ -19,7 +19,13 @@ package parser
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/core/plugin"
+)
+
+const (
+	BRANCH = "BRANCH"
+	TAG    = "TAG"
 )
 
 type RepoCollector interface {

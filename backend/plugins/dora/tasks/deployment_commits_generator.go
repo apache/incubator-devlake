@@ -158,6 +158,8 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId:      pipelineCommit.CicdScopeId,
 				CicdDeploymentId: pipelineCommit.PipelineId,
 				Name:             pipelineCommit.PipelineName,
+				DisplayTitle:     pipelineCommit.DisplayTitle,
+				Url:              pipelineCommit.Url,
 				Result:           pipelineCommit.Result,
 				OriginalStatus:   pipelineCommit.OriginalStatus,
 				OriginalResult:   pipelineCommit.OriginalResult,

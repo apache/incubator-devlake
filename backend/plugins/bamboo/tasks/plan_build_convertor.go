@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"reflect"
-	"time"
 )
 
 var ConvertPlanBuildsMeta = plugin.SubTaskMeta{
@@ -40,6 +41,7 @@ var ConvertPlanBuildsMeta = plugin.SubTaskMeta{
 
 func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_BUILD_TABLE)
 	cursor, err := db.Cursor(
 		dal.From(&models.BambooPlanBuild{}),
@@ -87,6 +89,13 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Default:    devops.STATUS_OTHER,
 				}, line.LifeCycleState),
 				OriginalStatus: line.LifeCycleState,
+				DisplayTitle:   line.GenerateCICDPipeLineName(),
+			}
+			homepage, err := getBambooHomePage(line.LinkHref)
+			if err != nil {
+				logger.Warn(err, "get bamboo home")
+			} else {
+				domainPlanBuild.Url = homepage + "/browse/" + line.PlanKey
 			}
 
 			domainPlanBuild.Type = line.Type

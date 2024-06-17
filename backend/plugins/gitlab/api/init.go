@@ -25,6 +25,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+const pluginName = "gitlab"
+
 var vld *validator.Validate
 
 var basicRes context.BasicRes

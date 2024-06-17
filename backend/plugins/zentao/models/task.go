@@ -75,7 +75,7 @@ type ZentaoTaskRes struct {
 	V1             string              `json:"v1"`
 	V2             string              `json:"v2"`
 	Vision         string              `json:"vision"`
-	StoryID        int64               `json:"storyID"`
+	StoryID        *common.StringInt64 `json:"storyID"`
 	StoryTitle     string              `json:"storyTitle"`
 	Branch         interface {
 	} `json:"branch"`

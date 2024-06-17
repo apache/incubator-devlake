@@ -17,59 +17,84 @@
  */
 
 import { useState, useContext } from 'react';
-import { Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { ExclamationCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import { Modal, Flex, Button } from 'antd';
 import styled from 'styled-components';
 
 import API from '@/api';
+import { Logo } from '@/components';
+import { PATHS } from '@/config';
 import { operator } from '@/utils';
 
 import { Context } from './context';
 
 const Wrapper = styled.div`
-  margin-top: 100px;
-  text-align: center;
-
-  .welcome {
+  .logo {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 30px 0;
-    font-size: 40px;
+    justify-content: space-between;
+    margin-bottom: 200px;
+  }
 
-    span.line {
-      display: inline-block;
-      width: 242px;
-      height: 1px;
-      background-color: #dbdcdf;
-    }
+  h1 {
+    margin-bottom: 24px;
+    font-size: 64px;
+    font-weight: 400;
 
-    span.content {
-      margin: 0 24px;
+    & > span {
+      color: #e8471c;
     }
   }
 
-  .title {
-    margin: 15px 0;
-    padding: 16px 0;
-    font-size: 60px;
-    font-weight: 600;
-  }
-
-  .subTitle {
+  h4 {
+    margin-bottom: 70px;
     font-size: 16px;
+    font-weight: 400;
   }
 
   .action {
     margin: 0 auto;
-    width: 200px;
-    margin-top: 64px;
+    width: 280px;
   }
 `;
 
-export const Step0 = () => {
+interface Props {
+  logo?: React.ReactNode;
+  title?: React.ReactNode;
+}
+
+export const Step0 = ({ logo = <Logo direction="horizontal" />, title = 'DevLake' }: Props) => {
   const [operating, setOperating] = useState(false);
 
+  const navigate = useNavigate();
+
+  const [modal, contextHolder] = Modal.useModal();
+
   const { step, records, done, projectName, plugin, setStep } = useContext(Context);
+
+  const handleClose = () => {
+    modal.confirm({
+      width: 820,
+      title: 'Are you sure to exit the onboarding session?',
+      content: 'You can get back to this session via the card on top of the Projects page.',
+      icon: <ExclamationCircleOutlined />,
+      okText: 'Confirm',
+      onOk: async () => {
+        const [success] = await operator(
+          () => API.store.set('onboard', { step: 0, records, done, projectName, plugin }),
+          {
+            setOperating,
+            hideToast: true,
+          },
+        );
+
+        if (success) {
+          navigate(PATHS.ROOT());
+        }
+      },
+    });
+  };
 
   const handleSubmit = async () => {
     const [success] = await operator(
@@ -87,20 +112,22 @@ export const Step0 = () => {
 
   return (
     <Wrapper>
-      <div className="welcome">
-        <span className="line" />
-        <span className="content">Welcome</span>
-        <span className="line" />
+      {contextHolder}
+      <div className="logo">
+        {logo}
+        <CloseOutlined style={{ fontSize: 18, color: '#70727F', cursor: 'pointer' }} onClick={handleClose} />
       </div>
-      <div className="title">Connect to your first repository</div>
-      <div className="subTitle">
-        Integrate your first Git tool and observe engineering metrics with just a few clicks.
-      </div>
-      <div className="action">
-        <Button block size="large" type="primary" loading={operating} onClick={handleSubmit}>
-          Start
-        </Button>
-      </div>
+      <Flex vertical justify="center" align="center">
+        <h1>
+          Welcome to <span>{title}</span>
+        </h1>
+        <h4>With just a few clicks, you can integrate your initial DevOps tool and observe engineering metrics.</h4>
+        <div className="action">
+          <Button block size="large" type="primary" loading={operating} onClick={handleSubmit}>
+            Connect to your first repository
+          </Button>
+        </div>
+      </Flex>
     </Wrapper>
   );
 };

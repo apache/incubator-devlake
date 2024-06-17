@@ -104,6 +104,7 @@ func (p Github) GetTablesInfo() []dal.Tabler {
 		&models.GithubIssueAssignee{},
 		&models.GithubScopeConfig{},
 		&models.GithubDeployment{},
+		&models.GithubRelease{},
 	}
 }
 
@@ -219,6 +220,9 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

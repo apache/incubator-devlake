@@ -87,6 +87,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				PipelineId:      gitlabApiPipeline.Id,
 				ProjectId:       data.Options.ProjectId,
 				Ref:             gitlabApiPipeline.Ref,
+				WebUrl:          gitlabApiPipeline.WebUrl,
 				Sha:             gitlabApiPipeline.Sha,
 				GitlabCreatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
 				GitlabUpdatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),

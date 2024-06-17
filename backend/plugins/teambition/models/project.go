@@ -19,10 +19,13 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
+var _ plugin.ToolLayerScope = (*TeambitionProject)(nil)
+
 type TeambitionProject struct {
-	ConnectionId   uint64                         `gorm:"primaryKey;type:BIGINT"`
+	common.Scope
 	Id             string                         `gorm:"primaryKey;type:varchar(100)" json:"id"`
 	Name           string                         `gorm:"type:varchar(255)" json:"name"`
 	Logo           string                         `gorm:"type:varchar(255)" json:"logo"`
@@ -39,8 +42,29 @@ type TeambitionProject struct {
 	StartDate      *common.Iso8601Time            `json:"startDate"`
 	EndDate        *common.Iso8601Time            `json:"endDate"`
 	Customfields   []TeambitionProjectCustomField `gorm:"serializer:json;type:text" json:"customfields"`
+}
 
-	common.NoPKModel
+// ScopeFullName implements plugin.ToolLayerScope.
+func (t TeambitionProject) ScopeFullName() string {
+	return t.Name
+}
+
+// ScopeId implements plugin.ToolLayerScope.
+func (t TeambitionProject) ScopeId() string {
+	return t.Id
+}
+
+// ScopeName implements plugin.ToolLayerScope.
+func (t TeambitionProject) ScopeName() string {
+	return t.Name
+}
+
+// ScopeParams implements plugin.ToolLayerScope.
+func (t TeambitionProject) ScopeParams() interface{} {
+	return &TeambitionApiParams{
+		ConnectionId: t.ConnectionId,
+		ProjectId:    t.Id,
+	}
 }
 
 type TeambitionProjectCustomField struct {
@@ -57,4 +81,10 @@ type TeambitionProjectCustomFieldValue struct {
 
 func (TeambitionProject) TableName() string {
 	return "_tool_teambition_projects"
+}
+
+type TeambitionApiParams struct {
+	ConnectionId   uint64
+	OrganizationId string
+	ProjectId      string
 }

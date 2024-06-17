@@ -18,10 +18,10 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/plugins/trello/models"
+	"github.com/apache/incubator-devlake/plugins/trello/tasks"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
@@ -30,84 +30,79 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 )
 
 func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
-	scope []*coreModels.BlueprintScope,
+	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	scopes, err := makeScopeV200(connectionId, scope)
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	plan := make(coreModels.PipelinePlan, len(scope))
-	plan, err = makePipelinePlanV200(subtaskMetas, plan, scope, connectionId)
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	return plan, scopes, nil
-}
-
-func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]plugin.Scope, errors.Error) {
-	sc := make([]plugin.Scope, 0, len(scopes))
-
-	for _, scope := range scopes {
-		trelloBoard, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
-		// add board to scopes
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			domainBoard := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.TrelloConnection{}).Generate(trelloBoard.ConnectionId, trelloBoard.BoardId),
-				},
-				Name: trelloBoard.Name,
-			}
-			sc = append(sc, domainBoard)
-		}
+	plan, err := makePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	if err != nil {
+		return nil, nil, err
 	}
-
-	return sc, nil
+	scopes, err := makeScopesV200(scopeDetails, connection)
+	return plan, scopes, err
 }
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan coreModels.PipelinePlan,
-	scopes []*coreModels.BlueprintScope,
-	connectionId uint64,
+	scopeDetails []*srvhelper.ScopeDetail[models.TrelloBoard, models.TrelloScopeConfig],
+	connection *models.TrelloConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
-	for i, scope := range scopes {
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
+	for i, scopeDetail := range scopeDetails {
 		stage := plan[i]
 		if stage == nil {
 			stage = coreModels.PipelineStage{}
 		}
 
-		// construct task options for trello
-		options := make(map[string]interface{})
-		options["connectionId"] = connectionId
-		options["scopeId"] = scope.ScopeId
-
-		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		// construct task options for circleci
+		task, err := helper.MakePipelinePlanTask(
+			"trello",
+			subtaskMetas,
+			scopeConfig.Entities,
+			tasks.TrelloOptions{
+				ConnectionId: connection.ID,
+				BoardId:      scope.BoardId,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
-		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
-		if err != nil {
-			return nil, err
-		}
-
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "trello",
-			Subtasks: subtasks,
-			Options:  options,
-		})
-
+		stage = append(stage, task)
 		plan[i] = stage
 	}
+
 	return plan, nil
+}
+
+func makeScopesV200(
+	scopeDetails []*srvhelper.ScopeDetail[models.TrelloBoard, models.TrelloScopeConfig],
+	connection *models.TrelloConnection,
+) ([]plugin.Scope, errors.Error) {
+	scopes := make([]plugin.Scope, 0, len(scopeDetails))
+
+	idgen := didgen.NewDomainIdGenerator(&models.TrelloBoard{})
+	for _, scopeDetail := range scopeDetails {
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		id := idgen.Generate(connection.ID, scope.BoardId)
+
+		// add cicd_scope to scopes
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
+			scopes = append(scopes, devops.NewCicdScope(id, scope.Name))
+		}
+	}
+
+	return scopes, nil
 }

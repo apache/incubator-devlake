@@ -71,9 +71,6 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:            data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
 				Environment:     data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
 			}
-			if err != nil {
-				return nil, err
-			}
 
 			results := make([]interface{}, 0, 1)
 			results = append(results, gitlabPipeline)

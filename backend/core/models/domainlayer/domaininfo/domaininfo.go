@@ -39,6 +39,8 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&code.PullRequestComment{},
 		&code.PullRequestCommit{},
 		&code.PullRequestLabel{},
+		&code.PullRequestReviewer{},
+		&code.PullRequestAssignee{},
 		&code.Ref{},
 		&code.CommitsDiff{},
 		&code.RefCommit{},
@@ -73,6 +75,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&devops.CiCDPipelineCommit{},
 		&devops.CicdScope{},
 		&devops.CICDDeployment{},
+		&devops.CicdRelease{},
 		// didgen no table
 		// ticket
 		&ticket.Board{},

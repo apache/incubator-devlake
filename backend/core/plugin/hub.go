@@ -20,6 +20,7 @@ package plugin
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -27,9 +28,14 @@ import (
 
 // Allowing plugin to know each other
 
-var plugins map[string]PluginMeta
+var (
+	plugins     map[string]PluginMeta
+	pluginMutex sync.RWMutex
+)
 
 func RegisterPlugin(name string, plugin PluginMeta) errors.Error {
+	pluginMutex.Lock()
+	defer pluginMutex.Unlock()
 	if plugins == nil {
 		plugins = make(map[string]PluginMeta)
 	}

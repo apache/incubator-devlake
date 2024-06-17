@@ -17,13 +17,15 @@
  */
 
 import { useState, useMemo } from 'react';
-import { theme, Modal, Select, Space, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { PlusOutlined } from '@ant-design/icons';
+import { Modal, Select, Space, Button } from 'antd';
 import styled from 'styled-components';
 
 import { Block } from '@/components';
 import { selectAllConnections } from '@/features';
 import { useAppSelector } from '@/hooks';
-import { getPluginConfig, DataScopeSelect } from '@/plugins';
+import { PluginName, DataScopeSelect } from '@/plugins';
 import { IConnection } from '@/types';
 
 const Option = styled.div`
@@ -60,21 +62,21 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
   const [step, setStep] = useState(1);
   const [selectedValue, setSelectedValue] = useState<string>();
 
-  const connections = useAppSelector(selectAllConnections);
+  const navigate = useNavigate();
 
-  const {
-    token: { colorPrimary },
-  } = theme.useToken();
+  const connections = useAppSelector(selectAllConnections);
 
   const options = useMemo(
     () =>
-      connections
-        .filter((cs) => (disabled.length ? !disabled.includes(cs.unique) : true))
-        .map((cs) => ({
-          plugin: cs.plugin,
-          label: cs.name,
-          value: cs.unique,
-        })),
+      [{ value: '' }].concat(
+        connections
+          .filter((cs) => (disabled.length ? !disabled.includes(cs.unique) : true))
+          .map((cs) => ({
+            plugin: cs.plugin,
+            label: cs.name,
+            value: cs.unique,
+          })),
+      ),
     [connections, disabled],
   );
 
@@ -98,23 +100,33 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
         <>
           <Block
             title="Data Connections"
-            description="Select from existing Data Connections. If you have not created any Data Connections yet, please create and manage Connections first."
+            description="Select from existing Data Connections or create a new one."
             required
           >
             <Select
               style={{ width: 384 }}
               placeholder="Select..."
               options={options}
-              optionRender={(option) => {
-                const plugin = getPluginConfig(option.data.plugin);
+              optionRender={(option, { index }) => {
+                if (index === 0) {
+                  return (
+                    <Button size="small" type="link" icon={<PlusOutlined />}>
+                      Add New Connection
+                    </Button>
+                  );
+                }
                 return (
                   <Option>
-                    <span className="icon">{plugin.icon({ color: colorPrimary })}</span>
-                    <span className="name">{option.label}</span>
+                    <PluginName plugin={option.data.plugin} name={option.data.label} />
                   </Option>
                 );
               }}
-              onChange={(value) => setSelectedValue(value)}
+              onChange={(value) => {
+                if (!value) {
+                  navigate('/connections');
+                }
+                setSelectedValue(value);
+              }}
             />
           </Block>
           <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>

@@ -49,7 +49,7 @@ var CollectApiPrReviewCommentsMeta = plugin.SubTaskMeta{
 func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -61,7 +61,7 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient: data.ApiClient,
 		PageSize:  100,
 		Header: func(reqData *helper.RequestData) (http.Header, errors.Error) {
@@ -74,8 +74,8 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Name }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if collectorWithState.Since != nil {
-				query.Set("since", collectorWithState.Since.String())
+			if apiCollector.GetSince() != nil {
+				query.Set("since", apiCollector.GetSince().String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -97,5 +97,5 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

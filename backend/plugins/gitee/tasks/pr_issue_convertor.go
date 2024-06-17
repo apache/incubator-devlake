@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
+	"github.com/spf13/cast"
 	"reflect"
 	"strconv"
 )
@@ -66,7 +67,7 @@ func ConvertPullRequestIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			pullRequestIssue := &crossdomain.PullRequestIssue{
 				PullRequestId:  prIdGen.Generate(data.Options.ConnectionId, giteePrIssue.PullRequestId),
 				IssueId:        issueIdGen.Generate(data.Options.ConnectionId, giteePrIssue.IssueId),
-				IssueKey:       issueNum,
+				IssueKey:       cast.ToString(issueNum),
 				PullRequestKey: giteePrIssue.PullRequestNumber,
 			}
 			return []interface{}{

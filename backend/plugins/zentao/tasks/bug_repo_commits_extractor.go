@@ -30,7 +30,7 @@ var _ plugin.SubTaskEntryPoint = ExtractBugRepoCommits
 var ExtractBugRepoCommitsMeta = plugin.SubTaskMeta{
 	Name:             "extractBugRepoCommits",
 	EntryPoint:       ExtractBugRepoCommits,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "extract Zentao bug repo commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

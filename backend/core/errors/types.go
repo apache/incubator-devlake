@@ -34,6 +34,7 @@ var (
 	Forbidden    = register(&Type{httpCode: http.StatusForbidden, meta: "forbidden"})
 	NotFound     = register(&Type{httpCode: http.StatusNotFound, meta: "not-found"})
 	Conflict     = register(&Type{httpCode: http.StatusConflict, meta: "internal"})
+	NotModified  = register(&Type{httpCode: http.StatusNotModified, meta: "not-modified"})
 
 	//500+
 	Internal    = register(&Type{httpCode: http.StatusInternalServerError, meta: "internal"})

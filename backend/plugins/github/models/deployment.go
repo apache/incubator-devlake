@@ -25,9 +25,11 @@ import (
 
 type GithubDeployment struct {
 	common.NoPKModel  `json:"-" mapstructure:"-"`
-	ConnectionId      uint64     `json:"connection_id" gorm:"primaryKey"`
-	GithubId          int        `json:"github_id"`
-	Id                string     `json:"id" gorm:"type:varchar(255);primaryKey"`
+	ConnectionId      uint64 `json:"connection_id" gorm:"primaryKey"`
+	GithubId          int    `json:"github_id"`
+	Id                string `json:"id" gorm:"type:varchar(255);primaryKey"`
+	DisplayTitle      string
+	Url               string
 	DatabaseId        uint       `json:"database_id"`
 	CommitOid         string     `json:"commit_oid" gorm:"type:varchar(255)"`
 	Description       string     `json:"description" gorm:"type:varchar(255)"`

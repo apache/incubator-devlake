@@ -49,11 +49,11 @@ var CollectDeploymentMeta = plugin.SubTaskMeta{
 
 func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	apiCollector, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
@@ -70,11 +70,11 @@ func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			} else {
 				query.Set("order_by", "created_at")
 			}
-			if collectorWithState.Since != nil {
-				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
+			if apiCollector.GetSince() != nil {
+				query.Set("updated_after", apiCollector.GetSince().Format(time.RFC3339))
 			}
-			if collectorWithState.Before != nil {
-				query.Set("updated_before", collectorWithState.Before.Format(time.RFC3339))
+			if apiCollector.GetUntil() != nil {
+				query.Set("updated_before", apiCollector.GetUntil().Format(time.RFC3339))
 			}
 			return query, nil
 		},
@@ -84,5 +84,5 @@ func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

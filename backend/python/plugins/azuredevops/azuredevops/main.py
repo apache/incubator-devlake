@@ -105,7 +105,7 @@ class AzureDevOpsPlugin(Plugin):
             for repo in res.json['repositories']:
                 props = repo['properties']
                 yield GitRepository(
-                    id=repo['id'],
+                    id=f"{org}/{proj}/{provider}/{repo['id']}",
                     name=f'{provider}/{proj}/{repo["name"]}',
                     project_id=proj,
                     org_id=org,
@@ -135,7 +135,7 @@ class AzureDevOpsPlugin(Plugin):
         if DomainType.CODE in scope_config.domain_types and not scope.is_external():
             url = urlparse(scope.remote_url)
             url = url._replace(netloc=f'{url.username}:{connection.token.get_secret_value()}@{url.hostname}')
-            yield gitextractor(url.geturl(), scope.name, scope.domain_id(), connection.proxy)
+            yield gitextractor(url.geturl(), scope.name, scope.domain_id(), connection.proxy, True)
 
     def extra_stages(self, scope_config_pairs: list[tuple[GitRepository, GitRepositoryConfig]], _):
         for scope, config in scope_config_pairs:

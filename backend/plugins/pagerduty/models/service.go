@@ -35,7 +35,7 @@ type Service struct {
 }
 
 func (s Service) ScopeId() string {
-	return s.Name
+	return s.Id
 }
 
 func (s Service) ScopeName() string {

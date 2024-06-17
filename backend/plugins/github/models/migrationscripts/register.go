@@ -47,5 +47,8 @@ func All() []plugin.MigrationScript {
 		new(modifyGithubMilestone),
 		new(addEnvNamePattern),
 		new(modifyIssueTypeLength),
+		new(addWorkflowDisplayTitle),
+		new(addReleaseTable),
+		new(addReleaseCommitSha),
 	}
 }

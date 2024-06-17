@@ -16,13 +16,15 @@
  *
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { theme, Layout, Modal } from 'antd';
 
 import API from '@/api';
 import { PageLoading } from '@/components';
+import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 
 import type { Record } from './context';
@@ -49,7 +51,14 @@ const steps = [
   },
 ];
 
-export const Onboard = () => {
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
+
+interface Props {
+  logo?: React.ReactNode;
+  title?: React.ReactNode;
+}
+
+export const Onboard = ({ logo, title }: Props) => {
   const [step, setStep] = useState(0);
   const [records, setRecords] = useState<Record[]>([]);
   const [projectName, setProjectName] = useState<string>();
@@ -77,11 +86,11 @@ export const Onboard = () => {
   const handleClose = () => {
     modal.confirm({
       width: 820,
-      title: 'Are you sure to exit the onboard session?',
+      title: 'Are you sure to exit the onboarding session?',
       content: 'You can get back to this session via the card on top of the Projects page.',
       icon: <ExclamationCircleOutlined />,
       okText: 'Confirm',
-      onOk: () => navigate('/'),
+      onOk: () => navigate(PATHS.ROOT()),
     });
   };
 
@@ -103,10 +112,13 @@ export const Onboard = () => {
         setPlugin: setPlugin,
       }}
     >
-      <Layout style={{ height: '100vh' }}>
+      <Helmet>
+        <title>Onboard - {brandName}</title>
+      </Helmet>
+      <Layout style={{ minHeight: '100vh' }}>
         <S.Inner>
           {step === 0 ? (
-            <Step0 />
+            <Step0 logo={logo} title={title} />
           ) : (
             <>
               <S.Header>

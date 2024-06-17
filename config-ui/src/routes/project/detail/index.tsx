@@ -18,6 +18,7 @@
 
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { Tabs } from 'antd';
 import useUrlState from '@ahooksjs/use-url-state';
 
@@ -27,11 +28,11 @@ import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { BlueprintDetail, FromEnum } from '@/routes';
 
-import { encodeName } from '../utils';
-
 import { WebhooksPanel } from './webhooks-panel';
 import { SettingsPanel } from './settings-panel';
 import * as S from './styled';
+
+const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const ProjectDetailPage = () => {
   const [version, setVersion] = useState(1);
@@ -39,7 +40,7 @@ export const ProjectDetailPage = () => {
   const { pname } = useParams() as { pname: string };
   const [query, setQuery] = useUrlState({ tabId: 'blueprint' });
 
-  const { ready, data } = useRefreshData(() => API.project.get(encodeName(pname)), [pname, version]);
+  const { ready, data } = useRefreshData(() => API.project.get(pname), [pname, version]);
 
   const handleChangeTabId = (tabId: string) => {
     setQuery({ tabId });
@@ -60,6 +61,11 @@ export const ProjectDetailPage = () => {
         { name: data.name, path: PATHS.PROJECT(pname) },
       ]}
     >
+      <Helmet>
+        <title>
+          {data.name} - {brandName}
+        </title>
+      </Helmet>
       <S.Wrapper>
         <Tabs
           items={[

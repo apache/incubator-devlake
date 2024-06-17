@@ -36,7 +36,7 @@ var _ plugin.SubTaskEntryPoint = CollectStoryBugs
 func CollectStoryBugs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_BUG_TABLE)
 	db := taskCtx.GetDal()
-	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	apiCollector, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -48,8 +48,8 @@ func CollectStoryBugs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(&models.TapdStory{}),
 		dal.Where("_tool_tapd_stories.connection_id = ? and _tool_tapd_stories.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
-	if collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("modified > ?", *apiCollector.GetSince()))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -59,7 +59,7 @@ func CollectStoryBugs(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: "stories/get_related_bugs",
@@ -76,7 +76,7 @@ func CollectStoryBugs(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Error(err, "collect storyBug error")
 		return err
 	}
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
 
 var CollectStoryBugMeta = plugin.SubTaskMeta{

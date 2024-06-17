@@ -40,3 +40,5 @@ func (pagination *Pagination) GetLimit() int {
 func (pagination *Pagination) GetOffset() int {
 	return (pagination.GetPage() - 1) * pagination.GetLimit()
 }
+
+type NoPagintation struct{}

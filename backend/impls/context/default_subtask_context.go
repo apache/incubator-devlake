@@ -19,9 +19,11 @@ package context
 
 import (
 	gocontext "context"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 // DefaultSubTaskContext is default implementation
@@ -67,10 +69,14 @@ func NewStandaloneSubTaskContext(
 	basicRes context.BasicRes,
 	name string,
 	data interface{},
+	pluginName string,
+	syncPolicy *models.SyncPolicy,
 ) plugin.SubTaskContext {
+	taskContext := &DefaultTaskContext{defaultExecContext: newDefaultExecContext(ctx, basicRes, pluginName, data, nil)}
+	taskContext.SetSyncPolicy(syncPolicy)
 	return &DefaultSubTaskContext{
 		newDefaultExecContext(ctx, basicRes, name, data, nil),
-		nil,
+		taskContext,
 		time.Time{},
 	}
 }

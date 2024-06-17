@@ -44,6 +44,7 @@ func TestAzuredevopsBuildDataFlow(t *testing.T) {
 			ProjectId:      "test-project",
 			OrganizationId: "johndoe",
 			RepositoryId:   "0d50ba13-f9ad-49b0-9b21-d29eda50ca33",
+			RepositoryType: models.RepositoryTypeADO,
 			ScopeConfig:    new(models.AzuredevopsScopeConfig),
 		},
 		RegexEnricher: regexEnricher,
@@ -51,6 +52,7 @@ func TestAzuredevopsBuildDataFlow(t *testing.T) {
 
 	dataflowTester.FlushTabler(&models.AzuredevopsBuild{})
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_azuredevops_go_api_builds.csv", "_raw_azuredevops_go_api_builds")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_azuredevops_go_repos.csv", &models.AzuredevopsRepo{})
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 
 	// Omit the datetime columns to avoid test failures caused by the varying precision

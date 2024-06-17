@@ -28,6 +28,7 @@ type BambooPlanBuild struct {
 	ConnectionId             uint64 `gorm:"primaryKey"`
 	PlanBuildKey             string `gorm:"primaryKey"`
 	Expand                   string `json:"expand"`
+	LinkHref                 string `json:"linkHref"`
 	Number                   int    `json:"number"`
 	BuildNumber              int    `json:"buildNumber"`
 	PlanName                 string `json:"planName"`
@@ -79,6 +80,7 @@ func (apiRes *ApiBambooPlanBuild) Convert() *BambooPlanBuild {
 	return &BambooPlanBuild{
 		PlanBuildKey:             apiRes.Key,
 		Expand:                   apiRes.Expand,
+		LinkHref:                 apiRes.Link.Href,
 		Number:                   apiRes.Number,
 		BuildNumber:              apiRes.BuildNumber,
 		PlanName:                 apiRes.PlanName,
@@ -115,7 +117,11 @@ func (apiRes *ApiBambooPlanBuild) Convert() *BambooPlanBuild {
 }
 
 type ApiBambooPlanBuild struct {
-	Expand                   string     `json:"expand"`
+	Expand string `json:"expand"`
+	Link   struct {
+		Href string `json:"href"`
+		Rel  string `json:"rel"`
+	} `json:"link"`
 	PlanName                 string     `json:"planName"`
 	ProjectName              string     `json:"projectName"`
 	BuildResultKey           string     `json:"buildResultKey"`

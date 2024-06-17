@@ -17,7 +17,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { PlusOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { Flex, Table, Button, Modal } from 'antd';
 
 import API from '@/api';
@@ -37,7 +37,6 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
   const [version, setVersion] = useState(1);
   const [trId, setTrId] = useState<ID>();
   const [open, setOpen] = useState(false);
-  const [updatedId, setUpdatedId] = useState<ID>();
 
   const { ready, data } = useRefreshData(() => API.scopeConfig.list(plugin, connectionId), [version]);
 
@@ -45,6 +44,8 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
     () => (data ? (scopeConfigId ? [{ id: 'None', name: 'No Scope Config' }].concat(data) : data) : []),
     [data, scopeConfigId],
   );
+
+  const defaultName = useMemo(() => `shared-config-<${(data ?? []).length}>`, [data]);
 
   useEffect(() => {
     setTrId(scopeConfigId);
@@ -56,12 +57,6 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
 
   const handleHideDialog = () => {
     setOpen(false);
-    setUpdatedId(undefined);
-  };
-
-  const handleUpdate = async (id: ID) => {
-    setUpdatedId(id);
-    handleShowDialog();
   };
 
   const handleSubmit = async (trId: ID) => {
@@ -72,7 +67,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
 
   return (
     <Flex vertical gap="middle">
-      <Flex>
+      <Flex style={{ marginTop: 20 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           Add New Scope Config
         </Button>
@@ -81,17 +76,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         rowKey="id"
         size="small"
         loading={!ready}
-        columns={[
-          { title: 'Name', dataIndex: 'name', key: 'name' },
-          {
-            title: '',
-            dataIndex: 'id',
-            key: 'id',
-            width: 100,
-            render: (id) =>
-              id !== 'None' ? <Button type="link" icon={<EditOutlined />} onClick={() => handleUpdate(id)} /> : null,
-          },
-        ]}
+        columns={[{ title: 'Name', dataIndex: 'name', key: 'name' }]}
         dataSource={dataSource}
         rowSelection={{
           type: 'radio',
@@ -114,15 +99,13 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         width={960}
         centered
         footer={null}
-        title={!updatedId ? 'Add Scope Config' : 'Edit Scope Config'}
+        title="Add Scope Config"
         onCancel={handleHideDialog}
       >
         <ScopeConfigForm
           plugin={plugin}
           connectionId={connectionId}
-          defaultName={`shared-config-<${dataSource.length}>`}
-          showWarning={!!updatedId}
-          scopeConfigId={updatedId}
+          defaultName={defaultName}
           onCancel={handleHideDialog}
           onSubmit={handleSubmit}
         />
