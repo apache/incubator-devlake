@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -58,16 +59,24 @@ func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB project")
 	}
-	var apiOutProjects []*models.ApiOutputProject
-	for _, project := range projects {
-		apiOutputProject, err := makeProjectOutput(project, true)
-		if err != nil {
-			logger.Error(err, "makeProjectOutput, name: %s", project.Name)
-			return nil, 0, errors.Default.Wrap(err, "error making project output")
-		}
-		apiOutProjects = append(apiOutProjects, apiOutputProject)
+	apiOutProjects := make([]*models.ApiOutputProject, len(projects))
+	g := new(errgroup.Group)
+	for idx, project := range projects {
+		tmpProject := *project
+		tmpIdx := idx
+		g.Go(func() error {
+			apiOutputProject, err := makeProjectOutput(&tmpProject, true)
+			if err != nil {
+				logger.Error(err, "makeProjectOutput, name: %s", tmpProject.Name)
+				return errors.Default.Wrap(err, "error making project output")
+			}
+			apiOutProjects[tmpIdx] = apiOutputProject
+			return nil
+		})
 	}
-
+	if err := g.Wait(); err != nil {
+		return nil, 0, errors.Convert(err)
+	}
 	return apiOutProjects, count, nil
 }
 
@@ -406,6 +415,11 @@ func makeProjectOutput(project *models.Project, withLastPipeline bool) (*models.
 	projectOutput.Blueprint, err = GetBlueprintByProjectName(projectOutput.Name)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Error to get blueprint by project")
+	}
+	if projectOutput.Blueprint != nil {
+		if err := SanitizeBlueprint(projectOutput.Blueprint); err != nil {
+			return nil, errors.Convert(err)
+		}
 	}
 	if withLastPipeline {
 		if projectOutput.Blueprint == nil {

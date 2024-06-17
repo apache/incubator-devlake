@@ -51,9 +51,9 @@ type ApiPrResponse struct {
 		Date *common.Iso8601Time `json:"date"`
 	} `json:"merge_commit"`
 	Links *struct {
-		Html struct {
+		Self []struct {
 			Href string `json:"href"`
-		} `json:"html"`
+		} `json:"self"`
 	} `json:"links"`
 	Author *struct {
 		User *ApiUserResponse `json:"user"`
@@ -170,10 +170,12 @@ func convertBitbucketPullRequest(pull *ApiPrResponse, connId uint64, repoId stri
 		State:        pull.State,
 		Title:        pull.Title,
 		Description:  pull.Description,
-		Url:          pull.Links.Html.Href,
 		// Type:               pull.Type,
 		BitbucketServerCreatedAt: time.UnixMilli(pull.BitbucketCreatedAt),
 		BitbucketServerUpdatedAt: time.UnixMilli(pull.BitbucketUpdatedAt),
+	}
+	if pull.Links != nil && len(pull.Links.Self) > 0 {
+		bitbucketPull.Url = pull.Links.Self[0].Href
 	}
 
 	if pull.BaseRef != nil {

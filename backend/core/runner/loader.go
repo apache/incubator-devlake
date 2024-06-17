@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	goplugin "plugin"
 	"strings"
+	"sync"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -49,6 +50,7 @@ func LoadPlugins(basicRes context.BasicRes) errors.Error {
 
 func LoadGoPlugins(basicRes context.BasicRes) errors.Error {
 	pluginsDir := basicRes.GetConfig("PLUGIN_DIR")
+	var wg sync.WaitGroup
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -68,15 +70,21 @@ func LoadGoPlugins(basicRes context.BasicRes) errors.Error {
 			if !ok {
 				return errors.Default.New(fmt.Sprintf("%s PluginEntry must implement PluginMeta interface", pluginName))
 			}
-			err = plugin.RegisterPlugin(pluginName, pluginMeta)
-			if err != nil {
-				return err
-			}
-
-			basicRes.GetLogger().Info(`plugin loaded %s`, pluginName)
+			wg.Add(1)
+			go func(pluginName string, pluginMeta plugin.PluginMeta) {
+				defer func() {
+					wg.Done()
+				}()
+				err = plugin.RegisterPlugin(pluginName, pluginMeta)
+				if err != nil {
+					panic(err)
+				}
+				basicRes.GetLogger().Info(`plugin loaded %s`, pluginName)
+			}(pluginName, pluginMeta)
 		}
 		return nil
 	})
+	wg.Wait()
 	return errors.Convert(walkErr)
 }
 

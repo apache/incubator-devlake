@@ -20,6 +20,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -46,10 +47,19 @@ var pluginOptionSanitizers = map[string]func(map[string]interface{}){
 	"gitextractor": func(options map[string]interface{}) {
 		if v, ok := options["url"]; ok {
 			gitUrl := cast.ToString(v)
-			u, _ := url.Parse(gitUrl)
+			u, err := url.Parse(gitUrl)
+			if err != nil {
+				logger.Error(err, "failed to parse git url", gitUrl)
+			}
 			if u != nil && u.User != nil {
 				password, ok := u.User.Password()
 				if ok {
+					escapedUrl, err := url.QueryUnescape(gitUrl)
+					if err != nil {
+						logger.Warn(err, "failed to unescape url %s", gitUrl)
+					} else {
+						gitUrl = escapedUrl
+					}
 					gitUrl = strings.Replace(gitUrl, password, strings.Repeat("*", len(password)), -1)
 					options["url"] = gitUrl
 				}
@@ -147,7 +157,8 @@ func SanitizeBlueprint(blueprint *models.Blueprint) error {
 func SanitizePipeline(pipeline *models.Pipeline) error {
 	for planStageIdx, pipelineStage := range pipeline.Plan {
 		for planTaskIdx := range pipelineStage {
-			pipelineTask, err := SanitizeTask(pipeline.Plan[planStageIdx][planTaskIdx])
+			task := pipeline.Plan[planStageIdx][planTaskIdx]
+			pipelineTask, err := SanitizeTask(task)
 			if err != nil {
 				return err
 			}
@@ -180,16 +191,27 @@ func GetPipelines(query *PipelineQuery, shouldSanitize bool) ([]*models.Pipeline
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
-	for _, p := range pipelines {
-		err = fillPipelineDetail(p)
-		if err != nil {
-			return nil, 0, err
-		}
-		if shouldSanitize {
-			if err := SanitizePipeline(p); err != nil {
-				return nil, 0, errors.Convert(err)
+
+	g := new(errgroup.Group)
+	for idx, p := range pipelines {
+		tmpPipeline := *p
+		tmpIdx := idx
+		g.Go(func() error {
+			err = fillPipelineDetail(&tmpPipeline)
+			if err != nil {
+				return err
 			}
-		}
+			if shouldSanitize {
+				if err := SanitizePipeline(&tmpPipeline); err != nil {
+					return err
+				}
+			}
+			pipelines[tmpIdx] = &tmpPipeline
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, 0, errors.Convert(err)
 	}
 	return pipelines, i, nil
 }

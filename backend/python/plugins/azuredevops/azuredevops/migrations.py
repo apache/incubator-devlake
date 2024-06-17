@@ -205,3 +205,45 @@ def add_queue_time_field_in_tool_azuredevops_builds(b: MigrationScriptBuilder):
     table = '_tool_azuredevops_builds'
     b.add_column(table, 'display_title', 'TEXT')
     b.add_column(table, 'url', 'TEXT')
+
+@migration(20240521133000, name="Update url column in _tool_azuredevops_builds")
+def add_updated_url_column_length_in_tool_azuredevops_builds(b: MigrationScriptBuilder):
+    table = '_tool_azuredevops_builds'
+    b.execute(f'ALTER TABLE {table} MODIFY COLUMN url TEXT', Dialect.MYSQL)
+    b.execute(f'ALTER TABLE {table} ALTER COLUMN url TYPE TEXT', Dialect.POSTGRESQL)
+
+@migration(20240527113400, name="Update url column in _raw_azuredevops_builds ")
+def add_updated_url_column_length_in_raw_azuredevops_builds(b: MigrationScriptBuilder):
+    table = '_raw_azuredevops_builds'
+    
+    b.execute(f"""
+    CREATE PROCEDURE alter_url_column_if_exists()
+    BEGIN
+        DECLARE table_exists INT DEFAULT 0;
+        SELECT COUNT(*) INTO table_exists
+        FROM information_schema.tables 
+        WHERE table_schema = DATABASE() 
+          AND table_name = '{table}';
+        IF table_exists > 0 THEN
+            ALTER TABLE {table} MODIFY COLUMN url TEXT;
+        ELSE
+            SELECT 'Table {table} does not exist' AS message;
+        END IF;
+    END;
+    """, Dialect.MYSQL)
+    
+    b.execute(f"CALL alter_url_column_if_exists();", Dialect.MYSQL)
+    b.execute(f"DROP PROCEDURE alter_url_column_if_exists;", Dialect.MYSQL)
+    
+    b.execute(f"""
+    DO $$
+    BEGIN
+        IF EXISTS (SELECT FROM information_schema.tables 
+                   WHERE table_schema = 'public' AND table_name = '{table}') THEN
+            ALTER TABLE {table} ALTER COLUMN url TYPE TEXT;
+        ELSE
+            RAISE NOTICE 'Table {table} does not exist';
+        END IF;
+    END $$;
+    """, Dialect.POSTGRESQL)
+

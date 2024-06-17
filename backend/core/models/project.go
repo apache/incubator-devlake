@@ -39,9 +39,9 @@ func (Project) TableName() string {
 }
 
 type BaseMetric struct {
-	PluginName   string `json:"pluginName" mapstructure:"pluginName" gorm:"primaryKey;type:varchar(255)" validate:"required"`
-	PluginOption string `json:"pluginOption" mapstructure:"pluginOption" gorm:"type:text"`
-	Enable       bool   `json:"enable" mapstructure:"enable" gorm:"type:boolean"`
+	PluginName   string          `json:"pluginName" mapstructure:"pluginName" gorm:"primaryKey;type:varchar(255)" validate:"required"`
+	PluginOption json.RawMessage `json:"pluginOption" mapstructure:"pluginOption" gorm:"type:json"`
+	Enable       bool            `json:"enable" mapstructure:"enable" gorm:"type:boolean"`
 }
 
 type BaseProjectMetricSetting struct {

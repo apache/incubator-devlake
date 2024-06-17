@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -115,6 +116,13 @@ func listBitbucketRepos(
 	}, nil)
 	if err != nil {
 		return
+	}
+	if res.StatusCode > 299 {
+		body, e := io.ReadAll(res.Body)
+		if e != nil {
+			return nil, nil, errors.BadInput.Wrap(e, "failed to read response body")
+		}
+		return nil, nil, errors.BadInput.New(string(body))
 	}
 	var resBody models.ReposResponse
 	err = api.UnmarshalResponse(res, &resBody)

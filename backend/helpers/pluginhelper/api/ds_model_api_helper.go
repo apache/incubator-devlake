@@ -66,7 +66,7 @@ func NewAnyModelApiHelper(
 
 func (modelApi *AnyModelApiHelper) Post(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	model := modelApi.New()
-	err := utils.DecodeMapStruct(input.Body, model, false)
+	err := DecodeMapStruct(input.Body, model, false)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (modelApi *AnyModelApiHelper) PatchModel(input *plugin.ApiResourceInput, ze
 			return nil, err
 		}
 	} else {
-		err = utils.DecodeMapStruct(input.Body, model, zeroFields)
+		err = DecodeMapStruct(input.Body, model, zeroFields)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", modelApi.modelName))
 		}
@@ -198,7 +198,7 @@ func (modelApi *AnyModelApiHelper) PutMultipleCb(input *plugin.ApiResourceInput,
 	var req struct {
 		Data []any `json:"data"`
 	}
-	err := utils.DecodeMapStruct(input.Body, &req, false)
+	err := DecodeMapStruct(input.Body, &req, false)
 	if err != nil {
 		return nil, err
 	}

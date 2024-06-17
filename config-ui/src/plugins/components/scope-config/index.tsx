@@ -24,6 +24,7 @@ import styled from 'styled-components';
 import API from '@/api';
 import { IconButton, Message } from '@/components';
 import { PATHS } from '@/config';
+import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
 import { PluginName } from '../plugin-name';
@@ -58,6 +59,8 @@ export const ScopeConfig = ({
   const [relatedProjects, setRelatedProjects] = useState<RelatedProjects>([]);
 
   const [operating, setOperating] = useState(false);
+
+  const pluginConfig = getPluginConfig(plugin);
 
   const {
     token: { colorPrimary },
@@ -197,15 +200,17 @@ export const ScopeConfig = ({
     <Wrapper>
       {contextHolder}
       <span>{scopeConfigId ? scopeConfigName : 'N/A'}</span>
-      <IconButton
-        icon={<LinkOutlined />}
-        helptip="Associate Scope Config"
-        size="small"
-        type="link"
-        onClick={() => {
-          setType('associate');
-        }}
-      />
+      {pluginConfig.scopeConfig && (
+        <IconButton
+          icon={<LinkOutlined />}
+          helptip="Associate Scope Config"
+          size="small"
+          type="link"
+          onClick={() => {
+            setType('associate');
+          }}
+        />
+      )}
       {scopeConfigId && (
         <IconButton
           icon={<EditOutlined />}
