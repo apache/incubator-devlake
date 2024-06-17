@@ -19,6 +19,8 @@ package api
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 	"testing"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -58,7 +60,8 @@ func TestMakeScopes(t *testing.T) {
 					Scope: common.Scope{
 						ConnectionId: connectionID,
 					},
-					Id: azuredevopsRepoId,
+					Id:   azuredevopsRepoId,
+					Type: models.RepositoryTypeADO,
 				},
 				ScopeConfig: &models.AzuredevopsScopeConfig{
 					ScopeConfig: common.ScopeConfig{
@@ -115,6 +118,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					Name:      azureDevOpsProjectName,
 					Url:       httpUrlToRepo,
 					RemoteUrl: httpUrlToRepo,
+					Type:      models.RepositoryTypeADO,
 				},
 				ScopeConfig: &models.AzuredevopsScopeConfig{
 					ScopeConfig: common.ScopeConfig{
@@ -144,10 +148,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.ExtractApiBuildsMeta.Name,
 				},
 				Options: map[string]interface{}{
+					"name":           azureDevOpsProjectName,
 					"connectionId":   connectionID,
 					"projectId":      azureDevOpsProjectName,
 					"repositoryId":   fmt.Sprint(azuredevopsRepoId),
 					"organizationId": azureDevOpsOrgName,
+					"repositoryType": models.RepositoryTypeADO,
+					"externalId":     "",
 				},
 			},
 			{
@@ -174,4 +181,61 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 
 	assert.Equal(t, expectPlans, actualPlans)
+}
+
+func TestMakeRemoteRepoScopes(t *testing.T) {
+	mockAzuredevopsPlugin(t)
+
+	data := []struct {
+		Name           string
+		Type           string
+		Private        bool
+		ExpectedScopes []string
+	}{
+		{Name: "Azure DevOps Repository", Type: models.RepositoryTypeADO, Private: false, ExpectedScopes: []string{"*code.Repo", "*ticket.Board", "*devops.CicdScope"}},
+
+		{Name: "Public GitHub Repository", Type: models.RepositoryTypeGithub, Private: false, ExpectedScopes: []string{"*code.Repo", "*devops.CicdScope"}},
+
+		{Name: "Private GitHub Repository", Type: models.RepositoryTypeGithub, Private: true, ExpectedScopes: []string{"*devops.CicdScope"}},
+	}
+
+	for _, d := range data {
+
+		t.Run(d.Name, func(t *testing.T) {
+			id := strings.ToLower(d.Name)
+			id = strings.ReplaceAll(id, " ", "-")
+			actualScopes, err := makeScopeV200(
+				connectionID,
+				[]*srvhelper.ScopeDetail[models.AzuredevopsRepo, models.AzuredevopsScopeConfig]{
+					{
+						Scope: models.AzuredevopsRepo{
+							Scope: common.Scope{
+								ConnectionId: connectionID,
+							},
+							Id:        id,
+							Type:      d.Type,
+							Name:      d.Name,
+							IsPrivate: d.Private,
+						},
+						ScopeConfig: &models.AzuredevopsScopeConfig{
+							ScopeConfig: common.ScopeConfig{
+								Entities: []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET,
+									plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CODE_REVIEW},
+							},
+						},
+					},
+				},
+			)
+			assert.Nil(t, err)
+			var count int
+
+			for _, s := range actualScopes {
+				xType := reflect.TypeOf(s)
+				assert.Contains(t, d.ExpectedScopes, xType.String())
+				count++
+			}
+			assert.Equal(t, count, len(d.ExpectedScopes))
+		})
+
+	}
 }

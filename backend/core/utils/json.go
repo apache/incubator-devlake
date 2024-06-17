@@ -18,6 +18,7 @@ limitations under the License.
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 
@@ -71,4 +72,12 @@ func Convert[T any](value any) (T, errors.Error) {
 		}
 		return result, nil
 	}
+}
+
+func ToJsonString(x any) string {
+	b, err := json.Marshal(x)
+	if err != nil {
+		panic(err)
+	}
+	return string(b)
 }

@@ -20,6 +20,8 @@ package api
 import (
 	"net/url"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
 
@@ -70,13 +72,15 @@ func makeScopeV200(
 
 	for _, scope := range scopeDetails {
 		azuredevopsRepo, scopeConfig := scope.Scope, scope.ScopeConfig
+		if azuredevopsRepo.Type != models.RepositoryTypeADO {
+			continue
+		}
 		id := didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connectionId, azuredevopsRepo.Id)
 
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
 			// if we don't need to collect gitex, we need to add repo to scopes here
 			scopeRepo := code.NewRepo(id, azuredevopsRepo.Name)
-
 			sc = append(sc, scopeRepo)
 		}
 
@@ -93,6 +97,26 @@ func makeScopeV200(
 		}
 	}
 
+	for _, scope := range scopeDetails {
+		azuredevopsRepo, scopeConfig := scope.Scope, scope.ScopeConfig
+		if azuredevopsRepo.Type == models.RepositoryTypeADO {
+			continue
+		}
+		id := didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connectionId, azuredevopsRepo.Id)
+
+		// Azure DevOps Pipeline can be used with remote repositories such as GitHub and Bitbucket
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
+			scopeCICD := devops.NewCicdScope(id, azuredevopsRepo.Name)
+			sc = append(sc, scopeCICD)
+		}
+
+		// DOMAIN_TYPE_CODE (i.e. gitextractor, rediff) only works if the repository is public
+		if !azuredevopsRepo.IsPrivate && utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
+			scopeRepo := code.NewRepo(id, azuredevopsRepo.Name)
+			sc = append(sc, scopeRepo)
+		}
+	}
+
 	return sc, nil
 }
 
@@ -106,16 +130,32 @@ func makePipelinePlanV200(
 		azuredevopsRepo, scopeConfig := scope.Scope, scope.ScopeConfig
 		var stage coreModels.PipelineStage
 		var err errors.Error
-		// get repo
 
 		options := make(map[string]interface{})
+		options["name"] = azuredevopsRepo.Name // this is solely for the FE to display the repo name of a task
+
 		options["connectionId"] = connection.ID
 		options["organizationId"] = azuredevopsRepo.OrganizationId
 		options["projectId"] = azuredevopsRepo.ProjectId
+		options["externalId"] = azuredevopsRepo.ExternalId
 		options["repositoryId"] = azuredevopsRepo.Id
+		options["repositoryType"] = azuredevopsRepo.Type
 
 		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
+		var entities []string
+		if scope.Scope.Type == models.RepositoryTypeADO {
+			entities = append(entities, scopeConfig.Entities...)
+		} else {
+			if i := slices.Index(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD); i >= 0 {
+				entities = append(entities, scopeConfig.Entities[i])
+			}
+
+			if i := slices.Index(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE); i >= 0 && !scope.Scope.IsPrivate {
+				entities = append(entities, scopeConfig.Entities[i])
+			}
+		}
+
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, entities)
 		if err != nil {
 			return nil, err
 		}
@@ -127,12 +167,15 @@ func makePipelinePlanV200(
 		})
 
 		// collect git data by gitextractor if CODE was requested
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) || len(scopeConfig.Entities) == 0 {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) && !scope.Scope.IsPrivate || len(scopeConfig.Entities) == 0 {
 			cloneUrl, err := errors.Convert01(url.Parse(azuredevopsRepo.RemoteUrl))
 			if err != nil {
 				return nil, err
 			}
-			cloneUrl.User = url.UserPassword("git", connection.Token)
+
+			if scope.Scope.Type == models.RepositoryTypeADO {
+				cloneUrl.User = url.UserPassword("git", connection.Token)
+			}
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{

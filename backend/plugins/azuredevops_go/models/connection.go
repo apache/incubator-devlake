@@ -52,7 +52,7 @@ func (at *AzuredevopsAccessToken) SetupAuthentication(req *http.Request) errors.
 type AzuredevopsConn struct {
 	//api.RestConnection `mapstructure:",squash"`
 	AzuredevopsAccessToken `mapstructure:",squash"`
-	Organization           string
+	Organization           string `json:"organization"`
 	//Endpoint         string `mapstructure:"endpoint" json:"endpoint"`
 	Proxy string `mapstructure:"proxy" json:"proxy"`
 	//RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimitPerHour"`

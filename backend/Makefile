@@ -27,7 +27,7 @@ PYTHON_DIR ?= "./python"
 all: build
 
 go-dep:
-	go install github.com/vektra/mockery/v2@v2.20.0
+	go install github.com/vektra/mockery/v2@2.43.0
 	go install github.com/swaggo/swag/cmd/swag@v1.16.1
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
 
@@ -47,6 +47,9 @@ swag: mock
 
 build-plugin:
 	scripts/build-plugins.sh
+
+build-plugin-debug:
+	DEVLAKE_DEBUG=1 scripts/build-plugins.sh
 
 build-server: swag
 	VERSION=$(VERSION) scripts/build-server.sh

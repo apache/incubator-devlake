@@ -49,7 +49,7 @@ export const OnboardCard = ({ style }: Props) => {
 
   const tasksRes = useAutoRefresh(
     async () => {
-      if (!record) {
+      if ((data && data.done) || !record) {
         return;
       }
 
@@ -89,7 +89,7 @@ export const OnboardCard = ({ style }: Props) => {
     modal.confirm({
       width: 600,
       title: 'Permanently close this entry?',
-      content: 'You will not be able to get back to the onboard session again.',
+      content: 'You will not be able to get back to the onboarding session again.',
       okButtonProps: {
         loading: oeprating,
       },
@@ -122,7 +122,7 @@ export const OnboardCard = ({ style }: Props) => {
           {status === 'partial' && <CheckCircleFilled style={{ color: orange5 }} />}
           {status === 'failed' && <CloseCircleFilled style={{ color: red5 }} />}
           <div style={{ marginLeft: 16 }}>
-            <h4>Onboard Session</h4>
+            <h4>Onboarding Session</h4>
             {['prepare', 'running'].includes(status) && (
               <h5 style={{ fontWeight: 400 }}>
                 You are not far from connecting to your first tool. Continue to finish it.

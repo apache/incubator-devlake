@@ -40,6 +40,7 @@ export const transformConnection = (plugin: string, connection: IConnectionAPI):
     proxy: connection.proxy,
     enableGraphql: connection.enableGraphql,
     rateLimitPerHour: connection.rateLimitPerHour,
+    organization: connection.organization,
   };
 };
 

@@ -82,6 +82,20 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	return dsHelper.ScopeConfigApi.GetAll(input)
 }
 
+// GetProjectsByScopeConfig return projects details related by scope config
+// @Summary return all related projects
+// @Description return all related projects
+// @Tags plugins/zentao
+// @Param id path int true "id"
+// @Param scopeConfigId path int true "scopeConfigId"
+// @Success 200  {object} models.ProjectScopeOutput
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/zentao/scope-config/{scopeConfigId}/projects [GET]
+func GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeConfigApi.GetProjectsByScopeConfig(input)
+}
+
 // DeleteScopeConfig delete a scope config
 // @Summary delete a scope config
 // @Description delete a scope config

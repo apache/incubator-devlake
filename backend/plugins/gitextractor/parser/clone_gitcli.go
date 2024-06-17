@@ -34,12 +34,11 @@ import (
 )
 
 var _ RepoCloner = (*GitcliCloner)(nil)
-var ErrShallowInfoProcessing = errors.BadInput.New("No data found for the selected time range. Please revise the 'Time Range' on your Project/Blueprint/Configuration page or in the API parameter.")
-var ErrNoDataOnIncrementalMode = errors.NotModified.New("No data found since the previous run.")
+var ErrNoData = errors.NotModified.New("No data to be collected")
 
 type GitcliCloner struct {
 	logger       log.Logger
-	stateManager *api.CollectorStateManager
+	stateManager *api.SubtaskStateManager
 }
 
 func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
@@ -48,22 +47,29 @@ func NewGitcliCloner(basicRes context.BasicRes) *GitcliCloner {
 	}
 }
 
+// CloneRepoConfig is the configuration for the CloneRepo method
+// the subtask should run in Full Sync mode whenever the configuration is changed
+type CloneRepoConfig struct {
+	UseGoGit        *bool
+	SkipCommitStat  *bool
+	SkipCommitFiles *bool
+	NoShallowClone  bool
+}
+
 func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) errors.Error {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
 	var since *time.Time
 	if !taskData.Options.NoShallowClone {
-		// load state
-		stateManager, err := api.NewCollectorStateManager(
-			ctx,
-			ctx.TaskContext().SyncPolicy(),
-			"gitextractor",
-			fmt.Sprintf(
-				`{"RepoId: "%s","SkipCommitStat": %v, "SkipCommitFiles": %v}`,
-				taskData.Options.RepoId,
-				*taskData.Options.SkipCommitStat,
-				*taskData.Options.SkipCommitFiles,
-			),
-		)
+		stateManager, err := api.NewSubtaskStateManager(&api.SubtaskCommonArgs{
+			SubTaskContext: ctx,
+			Params:         taskData.Options.GitExtractorApiParams,
+			SubtaskConfig: CloneRepoConfig{
+				UseGoGit:        taskData.Options.UseGoGit,
+				SkipCommitStat:  taskData.Options.SkipCommitStat,
+				SkipCommitFiles: taskData.Options.SkipCommitFiles,
+				NoShallowClone:  taskData.Options.NoShallowClone,
+			},
+		})
 		if err != nil {
 			return err
 		}
@@ -77,11 +83,21 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	}
 	err = g.execCloneCommand(cmd)
 	if err != nil {
-		// it is likely that nothing to collect on incrmental mode
-		if errors.Is(err, ErrShallowInfoProcessing) && g.stateManager != nil && g.stateManager.IsIncremental() {
-			return ErrNoDataOnIncrementalMode
-		}
 		return err
+	}
+	// deepen the commits by 1 more step to avoid https://github.com/apache/incubator-devlake/issues/7426
+	if since != nil {
+		// fixes error described on https://stackoverflow.com/questions/63878612/git-fatal-error-in-object-unshallow-sha-1
+		// It might be casued by the commit which being deepen has mulitple parent(e.g. a merge commit), not sure.
+		repackCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "repack", "-d")
+		if err := repackCmd.Run(); err != nil {
+			return errors.Default.Wrap(err, "failed to repack the repo")
+		}
+		deepenCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "fetch", "--deepen=1")
+		// deepen would fail on a EMPTY repo, ignore the error
+		if err := deepenCmd.Run(); err != nil {
+			g.logger.Error(err, "failed to deepen the cloned repo")
+		}
 	}
 
 	// save state
@@ -99,6 +115,9 @@ func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir str
 	if taskData.ParsedURL.Scheme == "http" || taskData.ParsedURL.Scheme == "https" {
 		if taskData.Options.Proxy != "" {
 			env = append(env, fmt.Sprintf("HTTPS_PROXY=%s", taskData.Options.Proxy))
+		}
+		if taskData.ParsedURL.Scheme == "https" && ctx.GetConfigReader().GetBool("IN_SECURE_SKIP_VERIFY") {
+			args = append(args, "-c http.sslVerify=false")
 		}
 	} else if taskData.ParsedURL.Scheme == "ssh" {
 		var sshCmdArgs []string
@@ -205,7 +224,7 @@ func (g *GitcliCloner) execCloneCommand(cmd *exec.Cmd) errors.Error {
 		g.logger.Error(err, "git exited with error\n%s", combinedOutput.String())
 		if strings.Contains(combinedOutput.String(), "stderr: fatal: error processing shallow info: 4") ||
 			strings.Contains(combinedOutput.String(), "stderr: fatal: the remote end hung up unexpectedly") {
-			return ErrShallowInfoProcessing
+			return ErrNoData
 		}
 		return errors.Default.New("git exit error")
 	}

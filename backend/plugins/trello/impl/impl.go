@@ -175,7 +175,7 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
@@ -188,6 +188,9 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScopes,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

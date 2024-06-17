@@ -189,10 +189,15 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
           {values.authMethod === 'BasicAuth' && (
             <>
               <Block title="Username" required>
-                <Input placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
+                <Input
+                  style={{ width: 386 }}
+                  placeholder="Your Username"
+                  value={values.username}
+                  onChange={handleChangeUsername}
+                />
               </Block>
               <Block title="Password" required>
-                <Input
+                <Input.Password
                   style={{ width: 386 }}
                   placeholder={type === 'update' ? '********' : 'Your Password'}
                   value={values.password}
@@ -211,7 +216,7 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
               }
               required
             >
-              <Input
+              <Input.Password
                 style={{ width: 386 }}
                 placeholder={type === 'update' ? '********' : 'Your Password'}
                 value={values.token}

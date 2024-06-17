@@ -37,6 +37,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/core/utils"
@@ -116,6 +117,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 		// grant all on lake_test.* to 'merico'@'%';
 		panic(err)
 	}
+	errors.Must(db.AutoMigrate(&models.SubtaskState{}))
 	df := &DataFlowTester{
 		Cfg:    cfg,
 		Db:     db,
@@ -215,6 +217,7 @@ func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
 
 // Subtask executes specified subtasks
 func (t *DataFlowTester) Subtask(subtaskMeta plugin.SubTaskMeta, taskData interface{}) {
+	t.FlushTabler(&models.SubtaskState{})
 	subtaskCtx := t.SubtaskContext(taskData)
 	err := subtaskMeta.EntryPoint(subtaskCtx)
 	if err != nil {
@@ -224,7 +227,10 @@ func (t *DataFlowTester) Subtask(subtaskMeta plugin.SubTaskMeta, taskData interf
 
 // SubtaskContext creates a subtask context
 func (t *DataFlowTester) SubtaskContext(taskData interface{}) plugin.SubTaskContext {
-	return contextimpl.NewStandaloneSubTaskContext(context.Background(), runner.CreateBasicRes(t.Cfg, t.Log, t.Db), t.Name, taskData)
+	syncPolicy := &models.SyncPolicy{
+		FullSync: true,
+	}
+	return contextimpl.NewStandaloneSubTaskContext(context.Background(), runner.CreateBasicRes(t.Cfg, t.Log, t.Db), t.Name, taskData, t.Name, syncPolicy)
 }
 
 func filterColumn(column dal.ColumnMeta, opts TableOptions) bool {

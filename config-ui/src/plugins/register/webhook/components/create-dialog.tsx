@@ -25,6 +25,8 @@ import { Block, CopyText, ExternalLink } from '@/components';
 import { addWebhook } from '@/features';
 import { operator } from '@/utils';
 
+import { transformURI } from './utils';
+
 import * as S from '../styled';
 
 interface Props {
@@ -75,26 +77,8 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
       setStep(2);
       setRecord({
         id: res.id,
-        postIssuesEndpoint: `curl ${prefix}${res.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-   "issue_key":"DLK-1234",
-   "title":"a feature from DLK",
-   "type":"INCIDENT",
-   "original_status":"TODO",
-   "status":"TODO",    
-   "created_date":"2020-01-01T12:00:00+00:00",
-   "updated_date":"2020-01-01T12:00:00+00:00"
-}'`,
-        closeIssuesEndpoint: `curl ${prefix}${res.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
-        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-    "deploymentCommits":[
-      {
-      "commit_sha":"the sha of deployment commit1",
-      "repo_url":"the repo URL of the deployment commit"
-      }
-    ],
-    "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
-}'`,
         apiKey: res.apiKey,
+        ...transformURI(prefix, res, res.apiKey),
       });
       onSubmitAfter?.(res.id);
     }

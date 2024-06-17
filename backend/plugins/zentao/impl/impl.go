@@ -118,9 +118,13 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectDepartmentMeta,
 		tasks.ExtractDepartmentMeta,
 
-		// project
+		//project
 		tasks.CollectExecutionSummaryMeta,
 		tasks.ExtractExecutionSummaryMeta,
+
+		tasks.CollectExecutionSummaryDevMeta,
+		tasks.ExtractExecutionSummaryDevMeta,
+
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,
@@ -268,7 +272,7 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
@@ -281,6 +285,9 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/proxy/*path": {
 			"GET": api.Proxy,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

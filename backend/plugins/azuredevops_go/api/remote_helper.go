@@ -18,20 +18,34 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
+	"github.com/apache/incubator-devlake/plugins/azuredevops_go/api/azuredevops"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
-	"net/url"
+	"golang.org/x/exp/slices"
+	"golang.org/x/sync/errgroup"
+	"strconv"
 	"strings"
+	"sync"
 )
 
 const (
-	itemsPerPage = 100
-	idSeparator  = "/"
+	idSeparator    = "/"
+	maxConcurrency = 10
 )
+
+type AzuredevopsRemotePagination struct {
+	Skip int
+	Top  int
+}
+
+// https://learn.microsoft.com/en-us/azure/devops/pipelines/repos/?view=azure-devops
+// https://learn.microsoft.com/en-us/azure/devops/pipelines/repos/multi-repo-checkout?view=azure-devops
+var supportedSourceRepositories = []string{"github", "githubenterprise", "bitbucket", "git"}
 
 func listAzuredevopsRemoteScopes(
 	connection *models.AzuredevopsConnection,
@@ -43,102 +57,111 @@ func listAzuredevopsRemoteScopes(
 	nextPage *AzuredevopsRemotePagination,
 	err errors.Error,
 ) {
-	if page.Top == 0 {
-		page.Top = itemsPerPage
+
+	org := connection.Organization
+	vsc := azuredevops.NewClient(connection, apiClient, "https://app.vssps.visualstudio.com")
+
+	if groupId == "" {
+		return listAzuredevopsProjects(vsc, page, org)
 	}
 
-	if groupId != "" {
-		id := strings.Split(groupId, idSeparator)
-		return listAzuredevopsRepos(apiClient, id[0], id[1])
+	id := strings.Split(groupId, idSeparator)
+
+	if remote, err := listRemoteRepos(vsc, id[0], id[1]); err == nil {
+		children = append(children, remote...)
 	}
-	return listAzuredevopsProjects(connection, apiClient, page)
+
+	if remote, err := listAzuredevopsRepos(vsc, id[0], id[1]); err == nil {
+		children = append(children, remote...)
+	}
+	return children, nextPage, nil
 }
 
-func listAzuredevopsProjects(
-	connection *models.AzuredevopsConnection,
-	apiClient plugin.ApiClient,
-	page AzuredevopsRemotePagination,
-) (
+func listAzuredevopsProjects(vsc azuredevops.Client, _ AzuredevopsRemotePagination, org string) (
 	children []dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo],
 	nextPage *AzuredevopsRemotePagination,
 	err errors.Error) {
 
-	query := url.Values{}
-	query.Set("$top", fmt.Sprint(page.Top))
-	query.Set("$skip", fmt.Sprint(page.Skip))
-	query.Set("api-version", "7.1")
-
-	vsc := newVsClient(connection, "https://app.vssps.visualstudio.com")
-
-	profile, err := vsc.UserProfile()
-	if err != nil {
-		return nil, nil, err
-	}
-	accounts, err := vsc.UserAccounts(profile.Id)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var data struct {
-		Projects []dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsProject] `json:"value"`
-	}
-
-	for _, v := range accounts {
-		res, err := apiClient.Get(fmt.Sprintf("%s/_apis/projects", v.AccountName), query, nil)
+	var accounts azuredevops.AccountResponse
+	if org == "" {
+		profile, err := vsc.GetUserProfile()
 		if err != nil {
 			return nil, nil, err
 		}
-		err = api.UnmarshalResponse(res, &data)
+		accounts, err = vsc.GetUserAccounts(profile.Id)
 		if err != nil {
-			if err != nil {
-				return nil, nil, err
+			return nil, nil, err
+		}
+	} else {
+		accounts = append(accounts, azuredevops.Account{AccountName: org})
+	}
+
+	g, _ := errgroup.WithContext(context.Background())
+	g.SetLimit(maxConcurrency)
+
+	var mu sync.Mutex
+
+	for _, v := range accounts {
+		accountName := v.AccountName
+		g.Go(func() error {
+			args := azuredevops.GetProjectsArgs{
+				OrgId: accountName,
 			}
-		}
+			projects, err := vsc.GetProjects(args)
+			if err != nil {
+				return err
+			}
 
-		for _, vv := range data.Projects {
-			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo]{
-				Id:   v.AccountName + idSeparator + vv.Name,
-				Type: api.RAS_ENTRY_TYPE_GROUP,
-				Name: vv.Name,
-			})
-		}
+			var tmp []dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo]
+			for _, vv := range projects {
+				tmp = append(tmp, dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo]{
+					Id:   accountName + idSeparator + vv.Name,
+					Type: api.RAS_ENTRY_TYPE_GROUP,
+					Name: vv.Name,
+				})
+			}
+			mu.Lock()
+			children = append(children, tmp...)
+			mu.Unlock()
+			return nil
+		})
 	}
 
-	if len(data.Projects) >= itemsPerPage {
-		nextPage = &AzuredevopsRemotePagination{
-			Top:  itemsPerPage,
-			Skip: page.Skip + itemsPerPage,
-		}
-	}
+	err = errors.Convert(g.Wait())
 	return
 }
 
 func listAzuredevopsRepos(
-	apiClient plugin.ApiClient,
+	vsc azuredevops.Client,
 	orgId, projectId string,
 ) (
 	children []dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo],
-	nextPage *AzuredevopsRemotePagination,
 	err errors.Error) {
 
-	query := url.Values{}
-	query.Set("api-version", "7.1")
-
-	var data struct {
-		Repos []AzuredevopsApiRepo `json:"value"`
+	args := azuredevops.GetRepositoriesArgs{
+		OrgId:     orgId,
+		ProjectId: projectId,
 	}
 
-	res, err := apiClient.Get(fmt.Sprintf("%s/%s/_apis/git/repositories", orgId, projectId), query, nil)
+	repos, err := vsc.GetRepositories(args)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	err = api.UnmarshalResponse(res, &data)
-	if err != nil {
-		return nil, nil, err
-	}
-	for _, v := range data.Repos {
+
+	for _, v := range repos {
+		if v.IsDisabled {
+			continue
+		}
+
 		pID := orgId + idSeparator + projectId
-		repo := v.toRepoModel()
+		repo := models.AzuredevopsRepo{
+			Id:        v.Id,
+			Type:      models.RepositoryTypeADO,
+			Name:      v.Name,
+			Url:       v.Url,
+			RemoteUrl: v.RemoteUrl,
+			IsFork:    false,
+		}
 		repo.ProjectId = projectId
 		repo.OrganizationId = orgId
 		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo]{
@@ -147,6 +170,90 @@ func listAzuredevopsRepos(
 			Id:       v.Id,
 			Name:     v.Name,
 			FullName: v.Name,
+			Data:     &repo,
+		})
+	}
+	return
+}
+
+func listRemoteRepos(
+	vsc azuredevops.Client,
+	orgId, projectId string,
+) (
+	children []dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo],
+	err errors.Error) {
+
+	args := azuredevops.GetServiceEndpointsArgs{
+		OrgId:     orgId,
+		ProjectId: projectId,
+	}
+
+	endpoints, err := vsc.GetServiceEndpoints(args)
+	if err != nil {
+		return nil, err
+	}
+
+	var mu sync.Mutex
+	var remoteRepos []azuredevops.RemoteRepository
+
+	g, _ := errgroup.WithContext(context.Background())
+	g.SetLimit(maxConcurrency)
+
+	for _, v := range endpoints {
+		if !slices.Contains(supportedSourceRepositories, v.Type) {
+			continue
+		}
+
+		remoteRepoArgs := azuredevops.GetRemoteRepositoriesArgs{
+			ProjectId:       projectId,
+			OrgId:           orgId,
+			Provider:        v.Type,
+			ServiceEndpoint: v.Id,
+		}
+
+		g.Go(func() error {
+			repos, err := vsc.GetRemoteRepositories(remoteRepoArgs)
+			mu.Lock()
+			remoteRepos = append(remoteRepos, repos...)
+			mu.Unlock()
+			return err
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return nil, errors.Internal.Wrap(err, "failed to call 'GetRemoteRepositories', falling back to empty list")
+	}
+
+	for _, v := range remoteRepos {
+		pID := orgId + idSeparator + projectId
+		isFork, _ := strconv.ParseBool(v.Properties.IsFork)
+		isPrivate, _ := strconv.ParseBool(v.Properties.IsPrivate)
+
+		// IDs must not contain URL reserved characters (e.g., "/"), as this breaks the routing in the scope API.
+		// Accessing /plugins/azuredevops_go/connections/<id>/apache/incubator-devlake results in a 404 error, where
+		// "apache/incubator-devlake" is the repository ID returned by ADOs sourceProviders API.
+		// Therefore, we are creating our own ID, by combining the Service Connection and the External ID
+		remoteId := fmt.Sprintf("%s-%s", v.Properties.ConnectedServiceId, v.Properties.ExternalId)
+
+		repo := models.AzuredevopsRepo{
+			Id:         remoteId,
+			Type:       v.SourceProviderName,
+			Name:       v.SourceProviderName + idSeparator + v.FullName,
+			Url:        v.Properties.ManageUrl,
+			RemoteUrl:  v.Properties.CloneUrl,
+			ExternalId: v.Id,
+			IsFork:     isFork,
+			IsPrivate:  isPrivate,
+		}
+
+		repo.ProjectId = projectId
+		repo.OrganizationId = orgId
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo]{
+			Type:     api.RAS_ENTRY_TYPE_SCOPE,
+			ParentId: &pID,
+			Id:       v.Id,
+			Name:     v.Name,
+			FullName: v.FullName,
 			Data:     &repo,
 		})
 	}

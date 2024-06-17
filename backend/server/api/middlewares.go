@@ -121,6 +121,7 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 		authHeader := c.GetHeader("Authorization")
 		ok := CheckAuthorizationHeader(c, logger, db, apiKeyHelper, authHeader, path)
 		if !ok {
+			c.Abort()
 			return
 		} else {
 			router.HandleContext(c)

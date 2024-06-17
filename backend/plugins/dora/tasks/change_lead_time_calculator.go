@@ -123,17 +123,18 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			// Calculate PR cycle time
-			if projectPrMetric.PrDeployTime != nil {
-				var cycleTime int64
-				if projectPrMetric.PrCodingTime != nil {
-					cycleTime += *projectPrMetric.PrCodingTime
-				}
-				if prDuring != nil {
-					cycleTime += *prDuring
-				}
-				cycleTime += *projectPrMetric.PrDeployTime
-				projectPrMetric.PrCycleTime = &cycleTime
+			var cycleTime int64
+			if projectPrMetric.PrCodingTime != nil {
+				cycleTime += *projectPrMetric.PrCodingTime
 			}
+			if prDuring != nil {
+				cycleTime += *prDuring
+			}
+			if projectPrMetric.PrDeployTime != nil {
+				cycleTime += *projectPrMetric.PrDeployTime
+			}
+			projectPrMetric.PrCycleTime = &cycleTime
+
 			// Return the projectPrMetric
 			return []interface{}{projectPrMetric}, nil
 		},
@@ -211,6 +212,7 @@ func getDeploymentCommit(mergeSha string, projectName string, db dal.Dal) (*devo
 		dal.Join("LEFT JOIN cicd_deployment_commits p ON (dc.prev_success_deployment_commit_id = p.id)"),
 		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)"),
 		dal.Join("INNER JOIN commits_diffs cd ON (cd.new_commit_sha = dc.commit_sha AND cd.old_commit_sha = COALESCE (p.commit_sha, ''))"),
+		dal.Where("dc.prev_success_deployment_commit_id <> ''"),
 		dal.Where("dc.environment = 'PRODUCTION'"), // TODO: remove this when multi-environment is supported
 		dal.Where("pm.project_name = ? AND cd.commit_sha = ? AND dc.RESULT = ?", projectName, mergeSha, devops.RESULT_SUCCESS),
 		dal.Orderby("dc.started_date, dc.id ASC"),

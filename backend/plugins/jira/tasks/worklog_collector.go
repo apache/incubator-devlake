@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -59,32 +60,15 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// filter out issue_ids that needed collection
 	clauses := []dal.Clause{
-		dal.Select("i.issue_id, i.updated AS update_time"),
+		dal.Select("i.issue_id AS issue_id, i.updated AS update_time"),
 		dal.From("_tool_jira_board_issues bi"),
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
-		dal.Join("LEFT JOIN _tool_jira_worklogs wl ON (wl.connection_id = i.connection_id AND wl.issue_id = i.issue_id)"),
-		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
-		dal.Groupby("i.issue_id, i.updated"),
+		dal.Where("bi.connection_id=? and bi.board_id = ? AND i.std_type != ? and i.worklog_total > 20", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 	}
 	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
-		clauses = append(
-			clauses,
-			dal.Having(
-				"i.updated > ? AND (i.updated > max(wl.issue_updated) OR (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0))",
-				apiCollector.GetSince(),
-			),
-		)
-	} else {
-		/*
-			i.updated > max(wl.issue_updated) was deleted because for non-incremental collection,
-			max(wl.issue_updated) will only be one of null, less or equal to i.updated
-			so i.updated > max(wl.issue_updated) is always false.
-			max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0 infers the issue has more than 100 worklogs,
-			because we collected worklogs when collecting issues, and assign worklog.issue_updated if num of worklogs < 100,
-			and max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0 means all worklogs for the issue were not assigned issue_updated
-		*/
-		clauses = append(clauses, dal.Having("max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0"))
+		clauses = append(clauses, dal.Where("i.updated > ?", apiCollector.GetSince()))
 	}
+
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -101,6 +85,12 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate:   "api/2/issue/{{ .Input.IssueId }}/worklog",
 		PageSize:      50,
 		GetTotalPages: GetTotalPagesFromResponse,
+		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
+			// According to the following resources, the worklogs API returns all worklogs without pagination
+			// https://community.atlassian.com/t5/Jira-questions/Worklog-Pagination/qaq-p/117614
+			// https://community.atlassian.com/t5/Jira-questions/Worklog-Pagination-JIRA-REST-API/qaq-p/2173832
+			return nil, nil
+		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Worklogs []json.RawMessage `json:"worklogs"`

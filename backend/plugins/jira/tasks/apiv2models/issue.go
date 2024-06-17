@@ -242,6 +242,9 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	if i.Changelog != nil {
 		result.ChangelogTotal = i.Changelog.Total
 	}
+	if i.Fields.Worklog != nil {
+		result.WorklogTotal = i.Fields.Worklog.Total
+	}
 	if i.Fields.Epic != nil {
 		result.EpicKey = i.Fields.Epic.Key
 	}

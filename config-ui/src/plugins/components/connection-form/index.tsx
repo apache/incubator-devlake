@@ -73,6 +73,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
               proxy: isEqual(connection?.proxy, values.proxy) ? undefined : values.proxy,
               dbUrl: isEqual(connection?.dbUrl, values.dbUrl) ? undefined : values.dbUrl,
               companyId: isEqual(connection?.companyId, values.companyId) ? undefined : values.companyId,
+              organization: isEqual(connection?.organization, values.organization) ? undefined : values.organization,
             })
           : API.connection.testOld(
               plugin,
@@ -89,6 +90,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
                 'tenantType',
                 'dbUrl',
                 'companyId',
+                'organization',
               ]),
             ),
       {

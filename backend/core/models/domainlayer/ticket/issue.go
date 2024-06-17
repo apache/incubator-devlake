@@ -64,6 +64,7 @@ const (
 	REQUIREMENT = "REQUIREMENT"
 	INCIDENT    = "INCIDENT"
 	TASK        = "TASK"
+	SUBTASK     = "SUBTASK"
 
 	// status
 	TODO        = "TODO"

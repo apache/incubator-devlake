@@ -25,42 +25,14 @@ import { selectWebhook, renewWebhookApiKey } from '@/features';
 import { IWebhook } from '@/types';
 import { operator } from '@/utils';
 
+import { transformURI } from './utils';
+
 import * as S from '../styled';
 
 interface Props {
   initialId: ID;
   onCancel: () => void;
 }
-
-const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
-  return {
-    postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }' -d '{
-        "issue_key":"DLK-1234",
-        "title":"a feature from DLK",
-        "type":"INCIDENT",
-        "original_status":"TODO",
-        "status":"TODO",    
-        "created_date":"2020-01-01T12:00:00+00:00",
-        "updated_date":"2020-01-01T12:00:00+00:00"
-     }'`,
-    closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }'`,
-    postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }' -d '{
-      "deploymentCommits":[
-        {
-        "commit_sha":"the sha of deployment commit1",
-        "repo_url":"the repo URL of the deployment commit"
-        }
-      ],
-      "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
-     }'`,
-  };
-};
 
 export const ViewDialog = ({ initialId, onCancel }: Props) => {
   const [open, setOpen] = useState(false);

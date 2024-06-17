@@ -18,9 +18,11 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/azuredevops_go/api/azuredevops"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
@@ -51,17 +53,10 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		},
 		AzuredevopsConn: conn,
 	}
-	vsc := newVsClient(&connection, "https://app.vssps.visualstudio.com/")
-
-	_, err := vsc.UserProfile()
+	body, err := testConnection(context.TODO(), connection)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
-
-	body := AzuredevopsTestConnResponse{}
-	body.Success = true
-	body.Message = "success"
-
 	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
 }
 
@@ -74,21 +69,15 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/azuredevops/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "can't read connection from database")
 	}
 
-	vsc := newVsClient(connection, "https://app.vssps.visualstudio.com/")
-	_, err = vsc.UserProfile()
+	body, err := testConnection(context.TODO(), *connection)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
-
-	body := AzuredevopsTestConnResponse{}
-	body.Success = true
-	body.Message = "success"
-
 	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
 }
 
@@ -153,4 +142,39 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Router /plugins/azuredevops/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return dsHelper.ConnApi.GetDetail(input)
+}
+
+func testConnection(ctx context.Context, connection models.AzuredevopsConnection) (*AzuredevopsTestConnResponse, errors.Error) {
+	// validate
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating connection")
+		}
+	}
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
+	if err != nil {
+		return nil, err
+	}
+
+	vsc := azuredevops.NewClient(&connection, apiClient, "https://app.vssps.visualstudio.com/")
+	org := connection.Organization
+
+	if org == "" {
+		_, err = vsc.GetUserProfile()
+	} else {
+		args := azuredevops.GetProjectsArgs{
+			OrgId: org,
+		}
+		_, err = vsc.GetProjects(args)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	connection = connection.Sanitize()
+	body := AzuredevopsTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+
+	return &body, nil
 }

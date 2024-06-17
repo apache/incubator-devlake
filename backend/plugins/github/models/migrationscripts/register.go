@@ -48,5 +48,7 @@ func All() []plugin.MigrationScript {
 		new(addEnvNamePattern),
 		new(modifyIssueTypeLength),
 		new(addWorkflowDisplayTitle),
+		new(addReleaseTable),
+		new(addReleaseCommitSha),
 	}
 }

@@ -30,10 +30,7 @@ export const checkName = (name: string) => request(`/projects/${encodeName(name)
 export const create = (data: Pick<IProject, 'name' | 'description' | 'metrics'>) =>
   request('/projects', {
     method: 'post',
-    data: {
-      ...data,
-      name: encodeName(data.name),
-    },
+    data,
   });
 
 export const remove = (name: string) =>

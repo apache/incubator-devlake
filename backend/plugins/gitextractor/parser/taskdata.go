@@ -28,17 +28,21 @@ type GitExtractorTaskData struct {
 	SkipAllSubtasks bool // siliently skip all tasks without raising error
 }
 
+type GitExtractorApiParams struct {
+	RepoId string `json:"repoId" mapstructure:"repoId"`
+}
+
 type GitExtractorOptions struct {
-	RepoId          string `json:"repoId" mapstructure:"repoId"`
-	Name            string `json:"name" mapstructure:"name"`
-	Url             string `json:"url" mapstructure:"url"`
-	User            string `json:"user" mapstructure:"user"`
-	Password        string `json:"password" mapstructure:"password"`
-	PrivateKey      string `json:"privateKey" mapstructure:"privateKey"`
-	Passphrase      string `json:"passphrase" mapstructure:"passphrase"`
-	Proxy           string `json:"proxy" mapstructure:"proxy"`
-	UseGoGit        *bool  `json:"useGoGit" mapstructure:"useGoGit"`
-	SkipCommitStat  *bool  `json:"skipCommitStat" mapstructure:"skipCommitStat" comment:"skip all commit stat including added/deleted lines and commit files as well"`
-	SkipCommitFiles *bool  `json:"skipCommitFiles" mapstructure:"skipCommitFiles"`
-	NoShallowClone  bool   `json:"noShallowClone" mapstructure:"noShallowClone"`
+	GitExtractorApiParams `json:",inline" mapstructure:",squash"`
+	Name                  string `json:"name" mapstructure:"name"`
+	Url                   string `json:"url" mapstructure:"url"`
+	User                  string `json:"user" mapstructure:"user"`
+	Password              string `json:"password" mapstructure:"password"`
+	PrivateKey            string `json:"privateKey" mapstructure:"privateKey"`
+	Passphrase            string `json:"passphrase" mapstructure:"passphrase"`
+	Proxy                 string `json:"proxy" mapstructure:"proxy"`
+	UseGoGit              *bool  `json:"useGoGit" mapstructure:"useGoGit"`
+	SkipCommitStat        *bool  `json:"skipCommitStat" mapstructure:"skipCommitStat" comment:"skip all commit stat including added/deleted lines and commit files as well"`
+	SkipCommitFiles       *bool  `json:"skipCommitFiles" mapstructure:"skipCommitFiles"`
+	NoShallowClone        bool   `json:"noShallowClone" mapstructure:"noShallowClone"`
 }

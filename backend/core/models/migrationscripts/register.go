@@ -112,5 +112,16 @@ func All() []plugin.MigrationScript {
 		new(addStore),
 		new(addSubtaskField),
 		new(addDisplayTitleAndUrl),
+		new(addSubtaskStates),
+		new(addCicdRelease),
+		new(addCommitShaToCicdRelease),
+		new(updateIssueKeyType),
+		new(updatePluginOptionInProjectMetricSetting),
+		new(modifyCicdDeploymentCommitsRepoUrlLength),
+		new(modifyCicdPipelineCommitsRepoUrlLength),
+		new(addPrAssigneeAndReviewer),
+		new(modifyPrAssigneeAndReviewerId),
+		new(addPullRequestIdIndexToPullRequestCommits),
+		new(addPullRequestIdIndexToPullRequestComments),
 	}
 }

@@ -103,7 +103,7 @@ func (srv *ModelSrvHelper[M]) Create(model *M) errors.Error {
 	err = srv.db.Create(model)
 	if err != nil {
 		if srv.db.IsDuplicationError(err) {
-			return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.modelName))
+			return errors.Default.New("The name of the current scope config is duplicated. Please modify it before saving.")
 		}
 		return err
 	}
@@ -115,7 +115,7 @@ func (srv *ModelSrvHelper[M]) Update(model *M) errors.Error {
 	err := srv.ValidateModel(model)
 	if err != nil {
 		if srv.db.IsDuplicationError(err) {
-			return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.modelName))
+			return errors.Default.New("The name of the current scope config is duplicated. Please modify it before saving.")
 		}
 		return err
 	}

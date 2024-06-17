@@ -21,9 +21,7 @@ import { Flex, Button } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { cronPresets } from '@/config';
 import { Markdown } from '@/components';
-import { IBPMode } from '@/types';
 import { DataScopeRemote, getPluginScopeId } from '@/plugins';
 import { operator, formatTime } from '@/utils';
 
@@ -43,7 +41,6 @@ export const Step3 = () => {
       .then((text) => setQA(text));
   }, [plugin]);
 
-  const presets = useMemo(() => cronPresets.map((preset) => preset.config), []);
   const connectionId = useMemo(() => {
     const record = records.find((it) => it.plugin === plugin);
     return record?.connectionId ?? null;
@@ -57,30 +54,23 @@ export const Step3 = () => {
     const [success] = await operator(
       async () => {
         // 1. create a new project
-        await API.project.create({
+        const { blueprint } = await API.project.create({
           name: projectName,
           description: '',
           metrics: [
             {
               pluginName: 'dora',
               pluginOption: '',
-              enable: false,
+              enable: true,
             },
           ],
         });
 
-        // 2. add a data scope to the connection
+        // 2. add data scopes to the connection
         await API.scope.batch(plugin, connectionId, { data: scopes.map((it) => it.data) });
 
-        // 3. create a new blueprint
-        const blueprint = await API.blueprint.create({
-          name: `${projectName}-Blueprint`,
-          projectName,
-          mode: IBPMode.NORMAL,
-          enable: true,
-          cronConfig: presets[0],
-          isManual: false,
-          skipOnFail: true,
+        // 3. add data scopes to the blueprint
+        await API.blueprint.update(blueprint.id, {
           timeAfter: formatTime(dayjs().subtract(14, 'day').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
           connections: [
             {

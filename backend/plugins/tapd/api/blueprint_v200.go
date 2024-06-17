@@ -98,7 +98,7 @@ func makeScopesV200(
 
 		// add wrokspace to scopes
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			id := idgen.Generate(connection.ID, tapdWorkspace)
+			id := idgen.Generate(connection.ID, tapdWorkspace.Id)
 			board := ticket.NewBoard(id, tapdWorkspace.Name)
 			board.Type = "scrum"
 			scopes = append(scopes, board)

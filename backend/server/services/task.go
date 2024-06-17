@@ -256,7 +256,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	var count int64
 	var status []string
 	for _, task := range lastTasks {
-		if task.Plugin == "org" {
+		if task.Plugin == "org" || task.Plugin == "refdiff" || task.Plugin == "dora" {
 			continue
 		}
 		subTaskResult := models.SubtasksInfo{
@@ -306,9 +306,9 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 		}
 		subtasksInfo = append(subtasksInfo, subTaskResult)
 
-		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = 1", task.ID)))
+		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = true", task.ID)))
 		totalSubtasksCount += collectSubtasksCount
-		finishedSubTasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = 1 and finished_at is not null", task.ID)))
+		finishedSubTasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = true and finished_at is not null", task.ID)))
 		totalFinishedSubTasksCount += finishedSubTasksCount
 		count++
 
@@ -321,6 +321,9 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	subTasksOuput.Count = totalSubtasksCount
 	completionRateFloat := float64(totalFinishedSubTasksCount) / float64(totalSubtasksCount)
 	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
+	if math.IsNaN(roundedCompletionRate) {
+		roundedCompletionRate = 1
+	}
 	subTasksOuput.CompletionRate = roundedCompletionRate
 
 	subTasksOuput.Status = getTaskStatus(status)
