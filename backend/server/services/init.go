@@ -123,11 +123,12 @@ var statusLock sync.Mutex
 // This might be called concurrently across multiple API requests
 func ExecuteMigration() errors.Error {
 	statusLock.Lock()
-	defer statusLock.Unlock()
 	if serviceStatus == SERVICE_STATUS_MIGRATING {
+		statusLock.Unlock()
 		return errors.BadInput.New("already migrating")
 	}
 	if serviceStatus == SERVICE_STATUS_READY {
+		statusLock.Unlock()
 		return nil
 	}
 	serviceStatus = SERVICE_STATUS_MIGRATING
@@ -146,6 +147,7 @@ func ExecuteMigration() errors.Error {
 	pipelineServiceInit()
 	statusLock.Lock()
 	serviceStatus = SERVICE_STATUS_READY
+	statusLock.Unlock()
 	return nil
 }
 
