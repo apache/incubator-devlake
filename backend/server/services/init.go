@@ -136,6 +136,7 @@ func ExecuteMigration() errors.Error {
 	// apply all pending migration scripts
 	err := migrator.Execute()
 	if err != nil {
+		logger.Error(err, "failed to execute migration")
 		return err
 	}
 
