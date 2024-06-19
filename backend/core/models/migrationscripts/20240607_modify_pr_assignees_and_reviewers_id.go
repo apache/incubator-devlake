@@ -40,7 +40,7 @@ func (u *modifyPrAssigneeAndReviewerId) Up(basicRes context.BasicRes) errors.Err
 }
 
 func (*modifyPrAssigneeAndReviewerId) Version() uint64 {
-	return 20250607000041
+	return 20240607000041
 }
 
 func (*modifyPrAssigneeAndReviewerId) Name() string {
