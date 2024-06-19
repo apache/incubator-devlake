@@ -189,10 +189,10 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           <Block
             title={
               <Checkbox checked={issueTrace.enable} onChange={(e) => setIssueTrace({ enable: e.target.checked })}>
-                Enable Issue Trace
+                Enable issue trace
               </Checkbox>
             }
-            description=""
+            description="Parse the issue status and assignee history from issue changelogs. Currently, only Jira issues are supported."
           />
           <Block>
             <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
