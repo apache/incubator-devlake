@@ -35,7 +35,7 @@ func (u *addPrAssigneeAndReviewer) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addPrAssigneeAndReviewer) Version() uint64 {
-	return 20250531000041
+	return 20240531000041
 }
 
 func (*addPrAssigneeAndReviewer) Name() string {
