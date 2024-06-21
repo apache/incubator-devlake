@@ -66,3 +66,7 @@ p {
   font-size: 12px;
   color: #94959f;
 }
+
+#root {
+  height: 100vh;
+}
