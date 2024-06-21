@@ -28,7 +28,17 @@ type modifyPrAssigneeAndReviewerId struct{}
 
 func (u *modifyPrAssigneeAndReviewerId) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := db.DropTables(&archived.PullRequestAssignee{}, &archived.PullRequestReviewer{})
+	err := db.Exec(`delete from _devlake_migration_history
+			where script_version="20250531000041" and script_name="add pull_request_reviewers and pull_request_assignees tables"`)
+	if err != nil {
+		return err
+	}
+	err = db.Exec(`delete from _devlake_migration_history
+				where script_version="20250607000041" and script_name="modify pull_request_reviewers and pull_request_assignees id columns"`)
+	if err != nil {
+		return err
+	}
+	err = db.DropTables(&archived.PullRequestAssignee{}, &archived.PullRequestReviewer{})
 	if err != nil {
 		return err
 	}
@@ -40,7 +50,7 @@ func (u *modifyPrAssigneeAndReviewerId) Up(basicRes context.BasicRes) errors.Err
 }
 
 func (*modifyPrAssigneeAndReviewerId) Version() uint64 {
-	return 20250607000041
+	return 20240607000041
 }
 
 func (*modifyPrAssigneeAndReviewerId) Name() string {
