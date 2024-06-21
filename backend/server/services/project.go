@@ -227,9 +227,9 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 			return nil, err
 		}
 
-		// ProjectIssueMetric
+		// ProjectIncidentDeploymentRelationship
 		err = tx.UpdateColumn(
-			&crossdomain.ProjectIssueMetric{},
+			&crossdomain.ProjectIncidentDeploymentRelationship{},
 			"project_name", project.Name,
 			dal.Where("project_name = ?", name),
 		)
@@ -338,7 +338,7 @@ func DeleteProject(name string) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project PR metric")
 	}
-	err = tx.Delete(&crossdomain.ProjectIssueMetric{}, dal.Where("project_name = ?", name))
+	err = tx.Delete(&crossdomain.ProjectIncidentDeploymentRelationship{}, dal.Where("project_name = ?", name))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project Issue metric")
 	}
