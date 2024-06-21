@@ -18,13 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	goerrors "errors"
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
@@ -42,24 +36,24 @@ func ConvertPullRequestToIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 // lint:ignore U1000
-func generateIncidentAssigneeFromPullRequest(db dal.Dal, logger log.Logger, pullRequest *code.PullRequest) ([]*ticket.IncidentAssignee, error) {
-	if pullRequest == nil {
-		return nil, goerrors.New("pull request is nil")
-	}
-	var pullRequestAssignees []*code.PullRequestAssignee
-	if err := db.All(&pullRequestAssignees, dal.Where("pull_request_id = ?", pullRequest.Id)); err != nil {
-		logger.Error(err, "Failed to fetch pull request assignees")
-		return nil, err
-	}
-
-	var incidentAssignees []*ticket.IncidentAssignee
-	for _, pullRequestAssignee := range pullRequestAssignees {
-		incidentAssignees = append(incidentAssignees, &ticket.IncidentAssignee{
-			IncidentId:   pullRequestAssignee.PullRequestId,
-			AssigneeId:   pullRequestAssignee.AssigneeId,
-			AssigneeName: pullRequestAssignee.Name,
-			NoPKModel:    common.NewNoPKModel(),
-		})
-	}
-	return incidentAssignees, nil
-}
+//func generateIncidentAssigneeFromPullRequest(db dal.Dal, logger log.Logger, pullRequest *code.PullRequest) ([]*ticket.IncidentAssignee, error) {
+//	if pullRequest == nil {
+//		return nil, goerrors.New("pull request is nil")
+//	}
+//	var pullRequestAssignees []*code.PullRequestAssignee
+//	if err := db.All(&pullRequestAssignees, dal.Where("pull_request_id = ?", pullRequest.Id)); err != nil {
+//		logger.Error(err, "Failed to fetch pull request assignees")
+//		return nil, err
+//	}
+//
+//	var incidentAssignees []*ticket.IncidentAssignee
+//	for _, pullRequestAssignee := range pullRequestAssignees {
+//		incidentAssignees = append(incidentAssignees, &ticket.IncidentAssignee{
+//			IncidentId:   pullRequestAssignee.PullRequestId,
+//			AssigneeId:   pullRequestAssignee.AssigneeId,
+//			AssigneeName: pullRequestAssignee.Name,
+//			NoPKModel:    common.NewNoPKModel(),
+//		})
+//	}
+//	return incidentAssignees, nil
+//}
