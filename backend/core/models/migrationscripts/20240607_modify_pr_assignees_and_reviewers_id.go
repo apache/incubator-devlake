@@ -29,12 +29,12 @@ type modifyPrAssigneeAndReviewerId struct{}
 func (u *modifyPrAssigneeAndReviewerId) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	err := db.Exec(`delete from _devlake_migration_history
-			where script_version="20250531000041" and script_name="add pull_request_reviewers and pull_request_assignees tables"`)
+			where script_version='20250531000041' and script_name='add pull_request_reviewers and pull_request_assignees tables'`)
 	if err != nil {
 		return err
 	}
 	err = db.Exec(`delete from _devlake_migration_history
-				where script_version="20250607000041" and script_name="modify pull_request_reviewers and pull_request_assignees id columns"`)
+				where script_version='20250607000041' and script_name='modify pull_request_reviewers and pull_request_assignees id columns'`)
 	if err != nil {
 		return err
 	}
