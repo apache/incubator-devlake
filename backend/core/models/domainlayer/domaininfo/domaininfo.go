@@ -91,5 +91,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&ticket.IssueAssignee{},
 		&ticket.IssueRelationship{},
 		&ticket.IssueCustomArrayField{},
+		&ticket.Incident{},
+		&ticket.IncidentAssignee{},
 	}
 }

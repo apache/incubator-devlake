@@ -50,7 +50,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 	// Clear previous results from the project
-	err := db.Exec("DELETE FROM ? WHERE project_name = ?", crossdomain.ProjectIncidentDeploymentRelationship{}.TableName(), data.Options.ProjectName)
+	err := db.Exec("DELETE FROM project_incident_deployment_relationships WHERE project_name = ?", data.Options.ProjectName)
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting previous project_incident_deployment_relationships")
 	}
