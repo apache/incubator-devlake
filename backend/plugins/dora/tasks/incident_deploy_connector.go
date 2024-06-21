@@ -44,13 +44,15 @@ type simpleCicdDeploymentCommit struct {
 	FinishedDate *time.Time
 }
 
+// ConnectIncidentToDeployment will generate data to crossdomain.ProjectIncidentDeploymentRelationship.
+// FIXME: it should be generated from Incident.
 func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 	// Clear previous results from the project
-	err := db.Exec("DELETE FROM project_issue_metrics WHERE project_name = ?", data.Options.ProjectName)
+	err := db.Exec("DELETE FROM ? WHERE project_name = ?", crossdomain.ProjectIncidentDeploymentRelationship{}.TableName(), data.Options.ProjectName)
 	if err != nil {
-		return errors.Default.Wrap(err, "error deleting previous project_issue_metrics")
+		return errors.Default.Wrap(err, "error deleting previous project_incident_deployment_relationships")
 	}
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
@@ -80,7 +82,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issue := inputRow.(*ticket.Issue)
-			projectIssueMetric := &crossdomain.ProjectIssueMetric{
+			projectIssueMetric := &crossdomain.ProjectIncidentDeploymentRelationship{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: issue.Id,
 				},
