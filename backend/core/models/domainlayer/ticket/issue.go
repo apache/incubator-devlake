@@ -107,7 +107,7 @@ func GetStatus(rule *StatusRule, input interface{}) string {
 }
 
 func (issue Issue) IsIncident() bool {
-	return issue.Type != INCIDENT
+	return issue.Type == INCIDENT
 }
 
 func (issue Issue) ToIncidentAssignee() (*IncidentAssignee, error) {
