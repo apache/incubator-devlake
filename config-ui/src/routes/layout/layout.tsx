@@ -84,7 +84,7 @@ export const Layout = () => {
   }
 
   return (
-    <AntdLayout style={{ height: '100vh' }}>
+    <AntdLayout style={{ height: '100%', overflow: 'hidden' }}>
       <Helmet>
         <title>
           {title ? `${title} - ` : ''}
