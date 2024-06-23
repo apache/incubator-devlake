@@ -39,7 +39,7 @@ var CollectApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Azure DevOps API.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{models.AzuredevopsPullRequest{}.TableName()},
 	ProductTables:    []string{RawPrCommitTable},
 }

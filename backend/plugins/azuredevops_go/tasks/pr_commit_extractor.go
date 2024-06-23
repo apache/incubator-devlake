@@ -34,7 +34,7 @@ var ExtractApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw pull requests commit data into tool layer table AzuredevopsPullRequestCommit and AzuredevopsRepoCommit",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{RawPrCommitTable},
 	ProductTables: []string{
 		models.AzuredevopsPrCommit{}.TableName(),

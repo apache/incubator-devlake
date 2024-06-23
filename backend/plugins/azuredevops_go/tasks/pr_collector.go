@@ -38,7 +38,7 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequests data from Azure DevOps API, supports timeFilter but not diffSync.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{},
 	ProductTables:    []string{RawPullRequestTable},
 }
