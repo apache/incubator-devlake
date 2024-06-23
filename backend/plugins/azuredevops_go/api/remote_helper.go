@@ -151,12 +151,13 @@ func listAzuredevopsRepos(
 	for _, v := range repos {
 		pID := orgId + idSeparator + projectId
 		repo := models.AzuredevopsRepo{
-			Id:        v.Id,
-			Type:      models.RepositoryTypeADO,
-			Name:      v.Name,
-			Url:       v.Url,
-			RemoteUrl: v.RemoteUrl,
-			IsFork:    false,
+			Id:         v.Id,
+			Type:       models.RepositoryTypeADO,
+			Name:       v.Name,
+			Url:        v.Url,
+			RemoteUrl:  v.RemoteUrl,
+			IsFork:     false,
+			IsDisabled: v.IsDisabled,
 		}
 		repo.ProjectId = projectId
 		repo.OrganizationId = orgId
