@@ -52,7 +52,6 @@ func NewDatabase(basicRes context.BasicRes, repoId string) *Database {
 }
 
 func (d *Database) updateRawDataFields(rawData *common.RawDataOrigin) {
-	print("update raw data", d.table)
 	rawData.RawDataTable = d.table
 	rawData.RawDataParams = d.params
 }
