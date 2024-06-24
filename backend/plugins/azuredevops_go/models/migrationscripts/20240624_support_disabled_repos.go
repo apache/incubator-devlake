@@ -46,7 +46,7 @@ func (*disabledRepos) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*disabledRepos) Version() uint64 {
-	return 20240806100000
+	return 20240624100000
 }
 
 func (*disabledRepos) Name() string {
