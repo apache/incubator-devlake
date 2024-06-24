@@ -18,6 +18,8 @@ limitations under the License.
 package store
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
 )
 
 const BathSize = 100
@@ -87,7 +88,7 @@ func (d *Database) Commits(commit *code.Commit) errors.Error {
 	if err != nil {
 		return err
 	}
-	d.updateRawDataFields(&account.RawDataOrigin)
+	d.updateRawDataFields(&commit.RawDataOrigin)
 	return commitBatch.Add(commit)
 }
 
