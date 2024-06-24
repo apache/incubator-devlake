@@ -205,6 +205,8 @@ func TestMakeRemoteRepoScopes(t *testing.T) {
 	}{
 		{Name: "Azure DevOps Repository w/o Scope Config", Type: models.RepositoryTypeADO, Private: false,
 			Entities: plugin.DOMAIN_TYPES, ExpectedScopes: []string{"*code.Repo", "*ticket.Board", "*devops.CicdScope"}},
+		{Name: "Azure DevOps Repository w/ empty Scope Config", Type: models.RepositoryTypeADO, Private: false,
+			ExpectedScopes: []string{"*code.Repo", "*ticket.Board", "*devops.CicdScope"}},
 		{Name: "Azure DevOps Repository w/ Scope Config", Type: models.RepositoryTypeADO, Private: false,
 			Entities: []string{plugin.DOMAIN_TYPE_CODE}, ExpectedScopes: []string{"*code.Repo"}},
 		{Name: "Azure DevOps disabled Repository w/o Scope Config", Type: models.RepositoryTypeADO, Disabled: true,
@@ -282,11 +284,19 @@ func TestSubtasks(t *testing.T) {
 	}{
 		{Name: "Active Azure DevOps Repository", Type: models.RepositoryTypeADO,
 			Entities: plugin.DOMAIN_TYPES, ValidEntities: plugin.DOMAIN_TYPES},
+		{Name: "Active Azure DevOps Repository with empty scopes", Type: models.RepositoryTypeADO,
+			ValidEntities: plugin.DOMAIN_TYPES},
 		{Name: "Disabled Azure DevOps Repository", Type: models.RepositoryTypeADO, Disabled: true, Entities: plugin.DOMAIN_TYPES,
+			ValidEntities: []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CROSS}},
+		{Name: "Disabled Azure DevOps Repository with empty scopes", Type: models.RepositoryTypeADO, Disabled: true,
 			ValidEntities: []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CROSS}},
 		{Name: "Public GitHub Repository", Type: models.RepositoryTypeGithub, Entities: plugin.DOMAIN_TYPES,
 			ValidEntities: []string{plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE}},
+		{Name: "Public GitHub Repository with empty scopes", Type: models.RepositoryTypeGithub,
+			ValidEntities: []string{plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE}},
 		{Name: "Private GitHub Repository", Type: models.RepositoryTypeGithub, Entities: plugin.DOMAIN_TYPES, Private: true,
+			ValidEntities: []string{plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CROSS}},
+		{Name: "Private GitHub Repository with empty scopes", Type: models.RepositoryTypeGithub, Private: true,
 			ValidEntities: []string{plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CROSS}},
 	}
 

@@ -70,16 +70,17 @@ func makeScopeV200(
 
 	for _, scope := range scopeDetails {
 		repo, scopeConfig := scope.Scope, scope.ScopeConfig
+		entities := scopeConfig.Entities
 
-		if len(scopeConfig.Entities) == 0 {
-			logger.Printf("Precondition failed. Found empty ScopeConfig for Scope: %v. Skipping", repo.Name)
-			continue
+		// We are treating empty entities as 'Selected All' since collecting a scope without any entity is pointless.
+		if len(entities) == 0 {
+			entities = plugin.DOMAIN_TYPES
 		}
 
-		isDomainCode := utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
-			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE)
-		isDomainCICD := utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD)
-		isDomainTicket := utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET)
+		isDomainCode := utils.StringsContains(entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
+			utils.StringsContains(entities, plugin.DOMAIN_TYPE_CODE)
+		isDomainCICD := utils.StringsContains(entities, plugin.DOMAIN_TYPE_CICD)
+		isDomainTicket := utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET)
 
 		id := didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connectionId, repo.Id)
 
@@ -115,12 +116,6 @@ func makePipelinePlanV200(
 	for _, scope := range scopeDetails {
 		repo, scopeConfig := scope.Scope, scope.ScopeConfig
 
-		if len(scopeConfig.Entities) == 0 {
-			logger.Printf("Precondition failed. Found empty ScopeConfig for Scope: %v. Skipping",
-				repo.Name)
-			continue
-		}
-
 		options := make(map[string]interface{})
 		options["name"] = repo.Name // this is solely for the FE to display the repo name of a task
 
@@ -131,8 +126,13 @@ func makePipelinePlanV200(
 		options["repositoryId"] = repo.Id
 		options["repositoryType"] = repo.Type
 
-		// construct subtasks
-		var entities []string
+		// We are treating empty entities as 'Selected All' since collecting a scope without any entity is pointless.
+		entities := scopeConfig.Entities
+		if len(entities) == 0 {
+			entities = plugin.DOMAIN_TYPES
+		}
+
+		var selectedEntities []string
 		var blockedEntities []string
 
 		// We are unable to check out the code or gather pull requests for repositories that are disabled (DevOps)
@@ -152,18 +152,18 @@ func makePipelinePlanV200(
 			}...)
 		}
 
-		for _, v := range scopeConfig.Entities {
+		for _, v := range entities {
 			if !utils.StringsContains(blockedEntities, v) {
-				entities = append(entities, v)
+				selectedEntities = append(selectedEntities, v)
 			}
 		}
 
 		var subtasks []string
 		var err errors.Error
-		if len(entities) > 0 {
-			// if entities is empty MakePipelinePlanSubtasks assumes that we want to
+		if len(selectedEntities) > 0 {
+			// if selectedEntities is empty MakePipelinePlanSubtasks assumes that we want to
 			// enable all entity types
-			subtasks, err = helper.MakePipelinePlanSubtasks(subtaskMetas, entities)
+			subtasks, err = helper.MakePipelinePlanSubtasks(subtaskMetas, selectedEntities)
 		}
 		if err != nil {
 			return nil, err
@@ -181,7 +181,7 @@ func makePipelinePlanV200(
 		}
 
 		// collect git data by gitextractor if CODE was requested
-		if !repo.IsPrivate && !repo.IsDisabled && utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
+		if !repo.IsPrivate && !repo.IsDisabled && utils.StringsContains(entities, plugin.DOMAIN_TYPE_CODE) {
 			cloneUrl, err := errors.Convert01(url.Parse(repo.RemoteUrl))
 			if err != nil {
 				return nil, err
