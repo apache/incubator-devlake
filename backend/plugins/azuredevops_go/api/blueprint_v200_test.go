@@ -221,8 +221,8 @@ func TestMakeRemoteRepoScopes(t *testing.T) {
 			Entities: plugin.DOMAIN_TYPES, ExpectedScopes: []string{"*code.Repo", "*devops.CicdScope", "*ticket.Board"}},
 		{Name: "Private GitHub Repository w/ Scope Config", Type: models.RepositoryTypeGithub, Private: true,
 			Entities: plugin.DOMAIN_TYPES, ExpectedScopes: []string{"*devops.CicdScope", "*ticket.Board"}},
-		{Name: "Private GitHub Repository w/o Scope Config", Type: models.RepositoryTypeGithub, Private: true,
-			ExpectedScopes: []string{}},
+		{Name: "Private GitHub Repository w/ empty Scope Config", Type: models.RepositoryTypeGithub, Private: true,
+			ExpectedScopes: []string{"*devops.CicdScope", "*ticket.Board"}},
 	}
 
 	for _, d := range data {
