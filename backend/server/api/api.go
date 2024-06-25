@@ -66,6 +66,9 @@ func Init() {
 // @host localhost:8080
 // @BasePath /
 func CreateAndRunApiServer() {
+	// Setup and run the server
+	Init()
+	services.InitExecuteMigration()
 	router := CreateApiServer()
 	SetupApiServer(router)
 	RunApiServer(router)

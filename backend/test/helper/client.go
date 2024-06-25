@@ -173,7 +173,6 @@ func ConnectLocalServer(t *testing.T, clientConfig *LocalClientConfig) *DevlakeC
 		cfg.Set("LOGGING_DIR", throwawayDir)
 		go func() {
 			initService.Do(func() {
-				api.Init()
 				api.CreateAndRunApiServer()
 			})
 		}()
