@@ -68,7 +68,7 @@ workflows:
   linter:
     jobs:
       - linter
-  test-and-build:
+  test-build-and-deploy:
     jobs:
       - test
       - build:
