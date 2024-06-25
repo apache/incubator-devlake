@@ -37,7 +37,8 @@ type Database struct {
 	params string
 }
 
-func NewDatabase(basicRes context.BasicRes, repoId string) *Database {
+func NewDatabase(basicRes context.BasicRes, repoId string, incrementalMode bool) *Database {
+
 	database := &Database{
 		table:  "gitextractor",
 		params: repoId,
@@ -48,6 +49,7 @@ func NewDatabase(basicRes context.BasicRes, repoId string) *Database {
 		database.table,
 		database.params,
 	)
+	database.driver.SetIncrementalMode(incrementalMode)
 	return database
 }
 

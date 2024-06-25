@@ -42,7 +42,7 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 		panic("git repo reference not found on context")
 	}
 	op := taskData.Options
-	storage := store.NewDatabase(subTaskCtx, op.RepoId)
+	storage := store.NewDatabase(subTaskCtx, op.RepoId, true)
 	var err errors.Error
 	logger := subTaskCtx.GetLogger()
 
