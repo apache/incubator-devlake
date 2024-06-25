@@ -23,6 +23,7 @@ import (
 )
 
 type Store interface {
+	SetIncrementalMode(bool)
 	RepoCommits(repoCommit *code.RepoCommit) errors.Error
 	Commits(commit *code.Commit) errors.Error
 	Refs(ref *code.Ref) errors.Error

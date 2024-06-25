@@ -56,6 +56,17 @@ type CloneRepoConfig struct {
 	NoShallowClone  bool
 }
 
+func (g *GitcliCloner) IsIncremental() bool {
+	if g != nil && g.stateManager != nil {
+		if g.stateManager.GetSince() != nil {
+			return true
+		}
+		return g.stateManager.IsIncremental()
+	}
+
+	return false
+}
+
 func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) errors.Error {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
 	var since *time.Time
@@ -75,6 +86,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 		}
 		g.stateManager = stateManager
 		since = stateManager.GetSince()
+
 	}
 
 	cmd, err := g.buildCloneCommand(ctx, localDir, since)
