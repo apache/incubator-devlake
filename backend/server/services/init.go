@@ -70,7 +70,7 @@ func InitResources() {
 	if err != nil {
 		panic(err)
 	}
-	logger.Info("migration initialized")
+	logger.Info("migrator has been initialized")
 	migrator.Register(migrationscripts.All(), "Framework")
 }
 
@@ -94,15 +94,18 @@ func Init() {
 
 	// now, load the plugins
 	errors.Must(runner.LoadPlugins(basicRes))
+	logger.Info("all plugins have been loaded")
 
 	// pull migration scripts from plugins to migrator
 	for _, pluginInst := range plugin.AllPlugins() {
 		if migratable, ok := pluginInst.(plugin.PluginMigration); ok {
+			logger.Info("register plugin:%s's migrations scripts", pluginInst.Name())
 			migrator.Register(migratable.MigrationScripts(), pluginInst.Name())
 		}
 	}
 
 	// check if there are pending migration
+	logger.Info("has pending scripts? %v, FORCE_MIGRATION: %s", migrator.HasPendingScripts(), cfg.GetBool("FORCE_MIGRATION"))
 	if migrator.HasPendingScripts() {
 		if cfg.GetBool("FORCE_MIGRATION") {
 			errors.Must(ExecuteMigration())
