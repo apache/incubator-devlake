@@ -42,7 +42,7 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 		panic("git repo reference not found on context")
 	}
 	op := taskData.Options
-	storage := store.NewDatabase(subTaskCtx, op.RepoId, true)
+	storage := store.NewDatabase(subTaskCtx, op.RepoId)
 	var err errors.Error
 	logger := subTaskCtx.GetLogger()
 
@@ -62,7 +62,9 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 		}
 		return err
 	}
-
+	if repoCloner.IsIncremental() {
+		storage.SetIncrementalMode(repoCloner.IsIncremental())
+	}
 	// We have done comparison experiments for git2go and go-git, and the results show that git2go has better performance.
 	var repoCollector parser.RepoCollector
 	if *taskData.Options.UseGoGit {
