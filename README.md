@@ -32,7 +32,7 @@ limitations under the License.
 <br>
 <div align="left">
 
-## 🤔 What is Apache DevLake?
+## 🤔 What is Apache DevLake(incubator)?
 
 [Apache DevLake](https://devlake.apache.org) is an open-source dev data platform that ingests, analyzes, and visualizes the fragmented data from DevOps tools to extract insights for engineering excellence, developer experience, and community growth.
 
