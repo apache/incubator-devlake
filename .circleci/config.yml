@@ -24,7 +24,7 @@ jobs:
       # Replace this with a real test runner invocation
       - run:
           name: Run tests
-          command: echo 'replace me with real linter!' && TRUE
+          command: echo 'replace me with real linter!'
   test:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
