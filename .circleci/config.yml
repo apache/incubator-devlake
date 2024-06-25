@@ -48,12 +48,14 @@ jobs:
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  example:
+  test-and-build:
     jobs:
       - test
       - build:
           requires:
             - test
+  deploy:
+    jobs:
       - deploy:
           requires:
-            - test
+            - build
