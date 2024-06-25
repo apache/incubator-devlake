@@ -98,7 +98,7 @@ func (m *migratorImpl) Execute() errors.Error {
 		scriptId := getScriptId(swc.script.Name(), swc.script.Version())
 		m.logger.Info("applying migration script %s", scriptId)
 		tx := db.Begin()
-		err := db.Create(&MigrationHistory{
+		err := tx.Create(&MigrationHistory{
 			ScriptVersion: swc.script.Version(),
 			ScriptName:    swc.script.Name(),
 			Comment:       swc.comment,
