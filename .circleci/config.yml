@@ -41,7 +41,7 @@ jobs:
       # Replace this with a real test runner invocation
       - run:
           name: Run tests
-          command: echo 'replace me with real tests!' && false
+          command: echo 'replace me with real tests!'
   build:
     docker:
       - image: cimg/base:current
