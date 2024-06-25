@@ -97,17 +97,27 @@ func (m *migratorImpl) Execute() errors.Error {
 	for _, swc := range m.pending {
 		scriptId := getScriptId(swc.script.Name(), swc.script.Version())
 		m.logger.Info("applying migration script %s", scriptId)
-		err := swc.script.Up(m.basicRes)
-		if err != nil {
-			return err
-		}
-		err = db.Create(&MigrationHistory{
+		tx := db.Begin()
+		err := db.Create(&MigrationHistory{
 			ScriptVersion: swc.script.Version(),
 			ScriptName:    swc.script.Name(),
 			Comment:       swc.comment,
 		})
 		if err != nil {
+			if err := tx.Rollback(); err != nil {
+				return err
+			}
 			return errors.Default.Wrap(err, fmt.Sprintf("failed to execute migration script %s", scriptId))
+		}
+
+		if err := swc.script.Up(m.basicRes); err != nil {
+			if err := tx.Rollback(); err != nil {
+				return err
+			}
+			return err
+		}
+		if err := tx.Commit(); err != nil {
+			return err
 		}
 		m.executed[scriptId] = true
 		m.pending = m.pending[1:]

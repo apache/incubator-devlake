@@ -96,7 +96,7 @@ func registerPluginsMigrationScripts() {
 
 func InitExecuteMigration() {
 	// check if there are pending migration
-	logger.Info("has pending scripts? %v, FORCE_MIGRATION: %s", migrator.HasPendingScripts(), cfg.GetBool("FORCE_MIGRATION"))
+	logger.Info("has pending scripts? %v, FORCE_MIGRATION: %v", migrator.HasPendingScripts(), cfg.GetBool("FORCE_MIGRATION"))
 	if migrator.HasPendingScripts() {
 		if cfg.GetBool("FORCE_MIGRATION") {
 			errors.Must(ExecuteMigration())
