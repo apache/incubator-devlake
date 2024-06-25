@@ -133,7 +133,6 @@ func NewCsvStore(dir string) (*CsvStore, errors.Error) {
 }
 
 func (c *CsvStore) SetIncrementalMode(incrementalMode bool) {
-	return
 }
 
 func (c *CsvStore) RepoCommits(repoCommit *code.RepoCommit) errors.Error {
