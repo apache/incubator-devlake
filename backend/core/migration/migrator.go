@@ -81,12 +81,17 @@ func (m *migratorImpl) Register(scripts []plugin.MigrationScript, comment string
 	}
 }
 
+func (m *migratorImpl) Info(stage string) {
+	m.logger.Info("[%s] pending scripts: %d, executed scripts: %d, total: %d", stage, len(m.pending), len(m.executed), len(m.scripts))
+}
+
 // Execute all registered migration script in order and mark them as executed in migration_history table
 func (m *migratorImpl) Execute() errors.Error {
 	// sort the scripts by version
 	sort.Slice(m.pending, func(i, j int) bool {
 		return m.pending[i].script.Version() < m.pending[j].script.Version()
 	})
+	m.Info("Execute")
 	// execute them one by one
 	db := m.basicRes.GetDal()
 	for _, swc := range m.pending {
