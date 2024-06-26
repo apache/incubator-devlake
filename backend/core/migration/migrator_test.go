@@ -46,16 +46,21 @@ func TestHasPendingScripts(t *testing.T) {
 		}
 		return nil
 	}).Once()
-	mockDal.On("Create", &MigrationHistory{
+
+	transaction := new(mockdal.Transaction)
+	transaction.On("Create", &MigrationHistory{
 		ScriptName:    "E",
 		ScriptVersion: 4,
 		Comment:       "UnitTest",
 	}, mock.Anything).Return(nil).Once()
-	mockDal.On("Create", &MigrationHistory{
+	transaction.On("Create", &MigrationHistory{
 		ScriptName:    "D",
 		ScriptVersion: 5,
 		Comment:       "UnitTest",
 	}, mock.Anything).Return(nil).Once()
+	transaction.On("Commit").Return(nil).Times(2)
+
+	mockDal.On("Begin").Return(transaction)
 
 	// migrator initialization
 	basicRes := context.NewDefaultBasicRes(viper.New(), unithelper.DummyLogger(), mockDal)
@@ -76,7 +81,7 @@ func TestHasPendingScripts(t *testing.T) {
 	// we should have pending scripts
 	assert.True(t, migrator.HasPendingScripts())
 
-	// lets try migrating
+	// let's try to migrate
 	assert.Nil(t, migrator.Execute())
 
 	// should not be any pending scripts anymore
@@ -84,4 +89,5 @@ func TestHasPendingScripts(t *testing.T) {
 
 	// make sure all method got called
 	mockDal.AssertExpectations(t)
+	transaction.AssertExpectations(t)
 }
