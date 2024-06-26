@@ -26,6 +26,10 @@ interface ImportMetaEnv {
   readonly DEVLAKE_COLOR_CUSTOM: string;
   readonly DEVLAKE_COPYRIGHT_HIDE: boolean;
   readonly DEVLAKE_PLUGINS: string;
+  readonly DEVLAKE_DASHBOARD_URL_GITHUB: string;
+  readonly DEVLAKE_DASHBOARD_URL_GITLAB: string;
+  readonly DEVLAKE_DASHBOARD_URL_BITBUCKET: string;
+  readonly DEVLAKE_DASHBOARD_URL_AZUREDEVOPS: string;
 }
 
 interface ImportMeta {
