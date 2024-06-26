@@ -125,7 +125,7 @@ export const Layout = () => {
         >
           {headerItems
             .filter((item) =>
-              import.meta.env.DEVLAKE_COPYRIGHT_HIDE ? !['GitHub', 'Slack'].includes(item.label) : true,
+              import.meta.env.DEVLAKE_COPYRIGHT_HIDE ? !['Dashboards', 'GitHub', 'Slack'].includes(item.label) : true,
             )
             .map((item, i, arr) => (
               <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
