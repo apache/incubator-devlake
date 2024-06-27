@@ -64,16 +64,4 @@ jobs:
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
-workflows:
-  linter:
-    jobs:
-      - linter
-  test-build-and-deploy:
-    jobs:
-      - test
-      - build:
-          requires:
-            - test
-      - deploy:
-          requires:
-            - build
+
