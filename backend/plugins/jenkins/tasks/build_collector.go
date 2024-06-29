@@ -89,9 +89,10 @@ func collectSingleJobApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate: fmt.Sprintf("%sjob/%s/api/json", data.Options.JobPath, data.Options.JobName),
 				Query: func(reqData *helper.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
 					query := url.Values{}
+					actionFields := "lastBuiltRevision[SHA1,branch[name]],remoteUrls,mercurialRevisionNumber,causes[*],parameters[name,value]"
 					treeValue := fmt.Sprintf(
-						"allBuilds[timestamp,number,duration,building,estimatedDuration,fullDisplayName,result,actions[lastBuiltRevision[SHA1,branch[name]],remoteUrls,mercurialRevisionNumber,causes[*]],changeSet[kind,revisions[revision]]]{%d,%d}",
-						reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
+						"allBuilds[timestamp,number,duration,building,estimatedDuration,fullDisplayName,result,actions[%s],changeSet[kind,revisions[revision]]]{%d,%d}",
+						actionFields, reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
 					query.Set("tree", treeValue)
 					return query, nil
 				},
