@@ -280,6 +280,8 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 			subTaskResult.Options = taskOption
 		}
 
+		var totalTransform int64
+		var finishedTransform int64
 		subtasks := []*models.Subtask{}
 		err = tx.All(&subtasks, dal.Where("task_id = ?", task.ID))
 		if err != nil {
@@ -302,8 +304,17 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 				IsFailed:        subtask.IsFailed,
 				Message:         subtask.Message,
 			}
+			if !subtask.IsCollector {
+				totalTransform++
+				if subtask.FinishedAt != nil {
+					finishedTransform++
+				}
+			}
+
 			subTaskResult.SubtaskDetails = append(subTaskResult.SubtaskDetails, t)
 		}
+		subTaskResult.TotalTransform = totalTransform
+		subTaskResult.FinishedTransform = finishedTransform
 		subtasksInfo = append(subtasksInfo, subTaskResult)
 
 		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = true", task.ID)))
@@ -318,7 +329,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	subTasksOuput := &models.SubTasksOuput{}
 
 	subTasksOuput.SubtasksInfo = subtasksInfo
-	subTasksOuput.Count = totalSubtasksCount
+	subTasksOuput.Count = totalSubtasksCount + 1 // +1: add transform task
 	completionRateFloat := float64(totalFinishedSubTasksCount) / float64(totalSubtasksCount)
 	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
 	if math.IsNaN(roundedCompletionRate) {
