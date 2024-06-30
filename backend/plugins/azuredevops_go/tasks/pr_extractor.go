@@ -35,7 +35,7 @@ var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table azuredevops_pull_requests",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{RawPullRequestTable},
 	ProductTables: []string{
 		models.AzuredevopsPullRequest{}.TableName(),

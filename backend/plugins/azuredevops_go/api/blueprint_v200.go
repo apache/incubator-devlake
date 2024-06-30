@@ -126,6 +126,11 @@ func makePipelinePlanV200(
 		options["repositoryId"] = repo.Id
 		options["repositoryType"] = repo.Type
 
+		if repo.Type == "" {
+			options["repositoryType"] = models.RepositoryTypeADO
+			logger.Warn(nil, "repository type for repoId: %v not found. falling back to TfsGit", repo.Id)
+		}
+
 		// We are treating empty entities as 'Selected All' since collecting a scope without any entity is pointless.
 		entities := scopeConfig.Entities
 		if len(entities) == 0 {

@@ -39,7 +39,7 @@ var CollectApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Azure DevOps API.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{models.AzuredevopsPullRequest{}.TableName()},
 	ProductTables:    []string{RawPrCommitTable},
 }
@@ -51,6 +51,9 @@ type SimplePr struct {
 func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawPrCommitTable)
 	db := taskCtx.GetDal()
+
+	logger := taskCtx.GetLogger()
+	repoType := data.Options.RepositoryType
 
 	cursor, err := db.Cursor(
 		dal.Select("azuredevops_id"),
@@ -75,7 +78,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Query:                 BuildPaginator(true),
 		ResponseParser:        ParseRawMessageFromValue,
 		GetNextPageCustomData: ExtractContToken,
-		AfterResponse:         change203To401,
+		AfterResponse:         handleClientErrors(repoType, logger),
 	})
 	if err != nil {
 		return err
