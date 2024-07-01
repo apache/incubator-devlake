@@ -26,6 +26,7 @@ import { CircleCIConfig } from './circleci';
 import { GitHubConfig } from './github';
 import { GerritConfig } from './gerrit';
 import { GitLabConfig } from './gitlab';
+import { GrafanaOncallConfig } from './grafanaoncall';
 import { JenkinsConfig } from './jenkins';
 import { JiraConfig } from './jira';
 import { PagerDutyConfig } from './pagerduty';
@@ -45,6 +46,7 @@ export const pluginConfigs: IPluginConfig[] = [
   GerritConfig,
   GitHubConfig,
   GitLabConfig,
+  GrafanaOncallConfig,
   JenkinsConfig,
   JiraConfig,
   PagerDutyConfig,
