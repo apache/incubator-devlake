@@ -36,6 +36,7 @@ type AzuredevopsRepo struct {
 	ExternalId string
 	IsFork     bool
 	IsPrivate  bool
+	IsDisabled bool
 }
 
 func (repo AzuredevopsRepo) ScopeId() string {

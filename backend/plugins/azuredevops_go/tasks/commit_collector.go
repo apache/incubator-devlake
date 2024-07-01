@@ -40,6 +40,8 @@ var CollectCommitsMeta = plugin.SubTaskMeta{
 
 func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawCommitTable)
+	logger := taskCtx.GetLogger()
+	repoType := data.Options.RepositoryType
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -49,7 +51,7 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate:        "{{ .Params.OrganizationId }}/{{ .Params.ProjectId }}/_apis/git/repositories/{{ .Params.RepositoryId }}/commits?api-version=7.1",
 		Query:              BuildPaginator(false),
 		ResponseParser:     ParseRawMessageFromValue,
-		AfterResponse:      change203To401,
+		AfterResponse:      handleClientErrors(repoType, logger),
 	})
 
 	if err != nil {

@@ -42,6 +42,7 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, rawUserTable)
 	logger := taskCtx.GetLogger()
+	repoType := data.Options.RepositoryType
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -52,7 +53,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:              500,
 		GetNextPageCustomData: ExtractContToken,
 		Query:                 BuildPaginator(true),
-		AfterResponse:         change203To401,
+		AfterResponse:         handleClientErrors(repoType, logger),
 		ResponseParser:        ParseRawMessageFromValue,
 	})
 

@@ -37,7 +37,7 @@ var ConvertPrLabelsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertPrLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table azuredevops_go_pull_request_labels into domain layer table pull_request_labels",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{
 		models.AzuredevopsPrLabel{}.TableName(),
 	},

@@ -37,7 +37,7 @@ var ConvertApiPrCommitsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertApiPullRequestsCommits,
 	EnabledByDefault: true,
 	Description:      "Add domain layer PullRequestCommit according to Azure DevOps Pull Request Commit",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{
 		models.AzuredevopsPrCommit{}.TableName(),
 	},

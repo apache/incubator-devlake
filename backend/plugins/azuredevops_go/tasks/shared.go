@@ -21,9 +21,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
 	"net/http"
 	"net/url"
 )
@@ -132,17 +134,29 @@ var cicdTaskStatusRule = &devops.StatusRule{
 	Default:    devops.STATUS_OTHER,
 }
 
-func change203To401(res *http.Response) errors.Error {
-	if res.StatusCode == http.StatusUnauthorized {
-		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
-	}
+func handleClientErrors(repoType string, logger log.Logger) func(res *http.Response) errors.Error {
+	return func(res *http.Response) errors.Error {
 
-	// When the token is invalid, Azure DevOps returns a 302 that resolves to a sign-in page with status 203
-	// We want to change that to a 401 and raise an exception
-	if res.StatusCode == http.StatusNonAuthoritativeInfo {
-		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+		if res.StatusCode == http.StatusUnauthorized {
+			return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+		}
+
+		// When the token is invalid, Azure DevOps returns a 302 that resolves to a sign-in page with status 203
+		// We want to change that to a 401 and raise an exception
+		if res.StatusCode == http.StatusNonAuthoritativeInfo {
+			return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+		}
+
+		// Pull requests, pr labels, and pr commits cannot be read from repositories not hosted on Azure DevOps.
+		// These steps are typically excluded from the blueprint plan for Domain Type Code and Code Review.
+		// We decided not to exclude the steps for Domain Type Cross and thus have to have this check in place.
+		if res.StatusCode == http.StatusNotFound && repoType != models.RepositoryTypeADO {
+			logger.Warn(nil, "Failed to fetch data from %s. Error will be ignored due to repository type %s",
+				res.Request.URL.EscapedPath(), repoType)
+			return api.ErrIgnoreAndContinue
+		}
+		return nil
 	}
-	return nil
 }
 
 func ignoreDeletedBuilds(res *http.Response) errors.Error {
