@@ -15,18 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-)
+type IncidentAssignee struct {
+	IncidentId   string `gorm:"primaryKey;type:varchar(255)"`
+	AssigneeId   string `gorm:"primaryKey;type:varchar(255)"`
+	AssigneeName string `gorm:"type:varchar(255)"`
 
-type ProjectIssueMetric struct {
-	domainlayer.DomainEntity
-	ProjectName  string `gorm:"primaryKey;type:varchar(100)"`
-	DeploymentId string
+	NoPKModel
 }
 
-func (ProjectIssueMetric) TableName() string {
-	return "project_issue_metrics"
+func (IncidentAssignee) TableName() string {
+	return "incident_assignees"
 }

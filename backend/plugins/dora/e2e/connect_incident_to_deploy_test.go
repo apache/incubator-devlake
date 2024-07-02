@@ -45,10 +45,10 @@ func TestConnectIncidentToDeploymentDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})
 
 	// verify converter
-	dataflowTester.FlushTabler(&crossdomain.ProjectIssueMetric{})
+	dataflowTester.FlushTabler(&crossdomain.ProjectIncidentDeploymentRelationship{})
 	dataflowTester.Subtask(tasks.ConnectIncidentToDeploymentMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&crossdomain.ProjectIssueMetric{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/project_issue_metrics.csv",
+	dataflowTester.VerifyTableWithOptions(&crossdomain.ProjectIncidentDeploymentRelationship{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/project_incident_deployment_relationships.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }

@@ -19,6 +19,8 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"net/http"
 	"time"
 
@@ -62,6 +64,24 @@ type WebhookIssueRequest struct {
 	//DeploymentId          string
 }
 
+func saveIncidentRelatedRecordsFromIssue(db dal.Transaction, logger log.Logger, issue *ticket.Issue) error {
+	incident, err := issue.ToIncident()
+	if err != nil {
+		return err
+	}
+	if err := db.CreateOrUpdate(incident); err != nil {
+		return err
+	}
+	assignee, err := issue.ToIncidentAssignee()
+	if err != nil {
+		return err
+	}
+	if err := db.CreateOrUpdate(assignee); err != nil {
+		return err
+	}
+	return nil
+}
+
 // PostIssue
 // @Summary receive a record as defined and save it
 // @Description receive a record as follow and save it, example: {"url":"","issue_key":"DLK-1234","title":"a feature from DLK","description":"","epic_key":"","type":"BUG","status":"TODO","original_status":"created","story_point":0,"resolution_date":null,"created_date":"2020-01-01T12:00:00+00:00","updated_date":null,"lead_time_minutes":0,"parent_issue_key":"DLK-1200","priority":"","original_estimate_minutes":0,"time_spent_minutes":0,"time_remaining_minutes":0,"creator_id":"user1131","creator_name":"Nick name 1","assignee_id":"user1132","assignee_name":"Nick name 2","severity":"","component":""}
@@ -89,7 +109,9 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
 	}
-	db := basicRes.GetDal()
+	txHelper := dbhelper.NewTxHelper(basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
 	domainIssue := &ticket.Issue{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.IssueKey),
@@ -134,7 +156,7 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 	}
 
 	// check if board exists
-	count, err := db.Count(dal.From(&ticket.Board{}), dal.Where("id = ?", domainBoardId))
+	count, err := tx.Count(dal.From(&ticket.Board{}), dal.Where("id = ?", domainBoardId))
 	if err != nil {
 		return nil, err
 	}
@@ -146,21 +168,27 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 				Id: domainBoardId,
 			},
 		}
-		err = db.Create(domainBoard)
+		err = tx.Create(domainBoard)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	// save
-	err = db.CreateOrUpdate(domainIssue)
+	err = tx.CreateOrUpdate(domainIssue)
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.CreateOrUpdate(boardIssue)
+	err = tx.CreateOrUpdate(boardIssue)
 	if err != nil {
 		return nil, err
+	}
+	if domainIssue.IsIncident() {
+		if err := saveIncidentRelatedRecordsFromIssue(tx, logger, domainIssue); err != nil {
+			logger.Error(err, "failed to save incident related records")
+			return nil, errors.Convert(err)
+		}
 	}
 
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
@@ -181,19 +209,40 @@ func CloseIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 		return nil, err
 	}
 
-	db := basicRes.GetDal()
+	txHelper := dbhelper.NewTxHelper(basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
+
+	issueId := fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, input.Params[`issueKey`])
 	domainIssue := &ticket.Issue{}
-	err = db.First(domainIssue, dal.Where("id = ?", fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, input.Params[`issueKey`])))
+	err = tx.First(domainIssue, dal.Where("id = ?", issueId))
 	if err != nil {
 		return nil, errors.NotFound.Wrap(err, `issue not found`)
 	}
 	domainIssue.Status = ticket.DONE
 	domainIssue.OriginalStatus = ``
-
 	// save
-	err = db.Update(domainIssue)
+	err = tx.Update(domainIssue)
 	if err != nil {
 		return nil, err
 	}
+
+	if domainIssue.IsIncident() {
+		domainIncident := &ticket.Incident{}
+		incidentId := issueId
+		err = tx.First(domainIncident, dal.Where("id = ?", incidentId))
+		if err == nil {
+			domainIncident.Status = ticket.DONE
+			domainIncident.OriginalStatus = ``
+			// save
+			err = tx.Update(domainIncident)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			logger.Warn(err, "failed to find incident")
+		}
+	}
+
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }

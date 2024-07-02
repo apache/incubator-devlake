@@ -59,7 +59,7 @@ func GetTablesByDomainLayer(domainLayer string) []string {
 			"board_repos",
 			"issue_commits",
 			"issue_repo_commits",
-			"project_issue_metrics",
+			"project_incident_deployment_relationships",
 			"project_mapping",
 			"project_pr_metrics",
 			"pull_request_issues",

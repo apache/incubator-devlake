@@ -50,8 +50,8 @@ class IssueRepoCommit(NoPKModel, table=True):
     commit_sha: str = Field(primary_key=True)
 
 
-class ProjectIssueMetric(NoPKModel, table=True):
-    __tablename__ = "project_issue_metrics"
+class ProjectIncidentDeploymentRelationship(NoPKModel, table=True):
+    __tablename__ = "project_incident_deployment_relationships"
     project_name: str = Field(primary_key=True)
     deployment_id: str
 

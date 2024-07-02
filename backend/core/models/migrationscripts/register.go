@@ -123,5 +123,7 @@ func All() []plugin.MigrationScript {
 		new(modifyPrAssigneeAndReviewerId),
 		new(addPullRequestIdIndexToPullRequestCommits),
 		new(addPullRequestIdIndexToPullRequestComments),
+		new(initIncidentRelatedTables),
+		new(renameProjectIssueMetrics),
 	}
 }
