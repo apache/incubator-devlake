@@ -20,6 +20,7 @@ package services
 import (
 	"fmt"
 	"golang.org/x/sync/errgroup"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -37,7 +38,7 @@ type ProjectQuery struct {
 
 func (query *ProjectQuery) GetKeyword() string {
 	if query != nil && query.Keyword != nil {
-		return *query.Keyword
+		return strings.ToLower(*query.Keyword)
 	}
 	return ""
 }
@@ -52,7 +53,7 @@ func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors
 		dal.From(&models.Project{}),
 	}
 	if query.Keyword != nil {
-		clauses = append(clauses, dal.Where("name LIKE ?", "%"+query.GetKeyword()+"%"))
+		clauses = append(clauses, dal.Where("LOWER(name) LIKE ?", "%"+query.GetKeyword()+"%"))
 	}
 
 	count, err := db.Count(clauses...)
