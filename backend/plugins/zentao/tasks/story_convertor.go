@@ -117,8 +117,10 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, issueAssignee)
 			}
 
-			if toolEntity.ClosedDate != nil {
-				temp := uint(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
+			closedDate := toolEntity.ClosedDate
+			openedDate := toolEntity.OpenedDate
+			if closedDate != nil && closedDate.ToTime().After(openedDate.ToTime()) {
+				temp := uint(closedDate.ToNullableTime().Sub(openedDate.ToTime()).Minutes())
 				domainEntity.LeadTimeMinutes = &temp
 			}
 
