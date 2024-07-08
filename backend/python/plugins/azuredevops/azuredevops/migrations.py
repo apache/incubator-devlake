@@ -215,14 +215,14 @@ def add_updated_url_column_length_in_tool_azuredevops_builds(b: MigrationScriptB
 @migration(20240527113400, name="Update url column in _raw_azuredevops_builds ")
 def add_updated_url_column_length_in_raw_azuredevops_builds(b: MigrationScriptBuilder):
     table = '_raw_azuredevops_builds'
-    
+
     b.execute(f"""
     CREATE PROCEDURE alter_url_column_if_exists()
     BEGIN
         DECLARE table_exists INT DEFAULT 0;
         SELECT COUNT(*) INTO table_exists
-        FROM information_schema.tables 
-        WHERE table_schema = DATABASE() 
+        FROM information_schema.tables
+        WHERE table_schema = DATABASE()
           AND table_name = '{table}';
         IF table_exists > 0 THEN
             ALTER TABLE {table} MODIFY COLUMN url TEXT;
@@ -231,14 +231,14 @@ def add_updated_url_column_length_in_raw_azuredevops_builds(b: MigrationScriptBu
         END IF;
     END;
     """, Dialect.MYSQL)
-    
+
     b.execute(f"CALL alter_url_column_if_exists();", Dialect.MYSQL)
     b.execute(f"DROP PROCEDURE alter_url_column_if_exists;", Dialect.MYSQL)
-    
+
     b.execute(f"""
     DO $$
     BEGIN
-        IF EXISTS (SELECT FROM information_schema.tables 
+        IF EXISTS (SELECT FROM information_schema.tables
                    WHERE table_schema = 'public' AND table_name = '{table}') THEN
             ALTER TABLE {table} ALTER COLUMN url TYPE TEXT;
         ELSE
@@ -247,3 +247,9 @@ def add_updated_url_column_length_in_raw_azuredevops_builds(b: MigrationScriptBu
     END $$;
     """, Dialect.POSTGRESQL)
 
+
+@migration(20240708182800, name="add labels field in _tool_azuredevops_gitpullrequests")
+def add_labels_field_in_tool_azuredevops_gitpullrequests(b: MigrationScriptBuilder):
+    table = '_tool_azuredevops_gitpullrequests'
+    b.execute(f'ALTER TABLE {table} ADD COLUMN labels json DEFAULT NULL', Dialect.MYSQL)
+    b.execute(f'ALTER TABLE {table} ADD COLUMN labels jsonb', Dialect.POSTGRESQL)
