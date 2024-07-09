@@ -60,7 +60,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&crossdomain.IssueCommit{},
 		&crossdomain.IssueRepoCommit{},
 		&crossdomain.ProjectMapping{},
-		&crossdomain.ProjectIssueMetric{},
+		&crossdomain.ProjectIncidentDeploymentRelationship{},
 		&crossdomain.ProjectPrMetric{},
 		&crossdomain.PullRequestIssue{},
 		&crossdomain.RefsIssuesDiffs{},
@@ -91,5 +91,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&ticket.IssueAssignee{},
 		&ticket.IssueRelationship{},
 		&ticket.IssueCustomArrayField{},
+		&ticket.Incident{},
+		&ticket.IncidentAssignee{},
 	}
 }
