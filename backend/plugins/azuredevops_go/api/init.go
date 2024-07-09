@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
@@ -32,6 +33,7 @@ var dsHelper *api.DsHelper[models.AzuredevopsConnection, models.AzuredevopsRepo,
 var raProxy *api.DsRemoteApiProxyHelper[models.AzuredevopsConnection]
 var raScopeList *api.DsRemoteApiScopeListHelper[models.AzuredevopsConnection, models.AzuredevopsRepo, AzuredevopsRemotePagination]
 var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.AzuredevopsConnection, models.AzuredevopsRepo]
+var logger log.Logger
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	vld = validator.New()
@@ -53,5 +55,5 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	raProxy = api.NewDsRemoteApiProxyHelper[models.AzuredevopsConnection](dsHelper.ConnApi.ModelApiHelper)
 	raScopeList = api.NewDsRemoteApiScopeListHelper[models.AzuredevopsConnection, models.AzuredevopsRepo, AzuredevopsRemotePagination](raProxy, listAzuredevopsRemoteScopes)
 	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper[models.AzuredevopsConnection, models.AzuredevopsRepo](raProxy, nil)
-
+	logger = br.GetLogger()
 }
