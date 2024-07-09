@@ -40,15 +40,17 @@ type JiraIssueChangelogItems struct {
 	common.NoPKModel
 
 	// collected fields
-	ConnectionId uint64 `gorm:"primaryKey"`
-	ChangelogId  uint64 `gorm:"primaryKey"`
-	Field        string `gorm:"primaryKey"`
-	FieldType    string
-	FieldId      string
-	FromValue    string
-	FromString   string
-	ToValue      string
-	ToString     string
+	ConnectionId     uint64 `gorm:"primaryKey"`
+	ChangelogId      uint64 `gorm:"primaryKey"`
+	Field            string `gorm:"primaryKey"`
+	FieldType        string
+	FieldId          string
+	FromValue        string
+	FromString       string
+	ToValue          string
+	ToString         string
+	TmpFromAccountId string
+	TmpToAccountId   string
 }
 
 func (JiraIssueChangelogs) TableName() string {

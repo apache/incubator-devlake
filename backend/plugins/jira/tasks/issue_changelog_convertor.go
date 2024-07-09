@@ -119,15 +119,15 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 				OriginalToValue:   row.ToString,
 				CreatedDate:       row.Created,
 			}
-			if row.Field == "assignee" {
+			switch row.Field {
+			case "assignee":
 				if row.ToValue != "" {
 					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
 				}
 				if row.FromValue != "" {
 					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
 				}
-			}
-			if row.Field == "Sprint" {
+			case "Sprint":
 				changelog.OriginalFromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
 				if err != nil {
 					return nil, err
@@ -136,8 +136,7 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 				if err != nil {
 					return nil, err
 				}
-			}
-			if row.Field == "status" {
+			case "status":
 				if fromStatus, ok := statusMap[row.FromValue]; ok {
 					changelog.OriginalFromValue = fromStatus.Name
 					changelog.FromValue = getStdStatus(fromStatus.StatusCategory)
@@ -146,7 +145,24 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 					changelog.OriginalToValue = toStatus.Name
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
+			default:
+				// process other account-like fields
+				if row.TmpFromAccountId != "" {
+					if row.FromValue != "" {
+						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
+					} else {
+						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.TmpFromAccountId)
+					}
+				}
+				if row.TmpToAccountId != "" {
+					if row.ToValue != "" {
+						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
+					} else {
+						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.TmpToAccountId)
+					}
+				}
 			}
+
 			return []interface{}{changelog}, nil
 
 		},
