@@ -18,6 +18,8 @@ limitations under the License.
 package code
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -57,4 +59,55 @@ type PullRequest struct {
 
 func (PullRequest) TableName() string {
 	return "pull_requests"
+}
+
+func (pr PullRequest) ConvertStatusToIncidentStatus() string {
+	switch pr.Status {
+	case OPEN:
+		return ticket.TODO
+	case CLOSED:
+		return ticket.OTHER
+	case MERGED:
+		return ticket.DONE
+	default:
+		return ticket.OTHER
+	}
+}
+
+func (pr PullRequest) ToIncident() (*ticket.Incident, error) {
+	incident := &ticket.Incident{
+		DomainEntity:            pr.DomainEntity,
+		Url:                     pr.Url,
+		IncidentKey:             fmt.Sprintf("%d", pr.PullRequestKey),
+		Title:                   pr.Title,
+		Description:             pr.Description,
+		Status:                  pr.ConvertStatusToIncidentStatus(),
+		OriginalStatus:          pr.OriginalStatus,
+		ResolutionDate:          pr.MergedDate,
+		CreatedDate:             &pr.CreatedDate,
+		OriginalEstimateMinutes: nil,
+		TimeSpentMinutes:        nil,
+		TimeRemainingMinutes:    nil,
+		CreatorId:               pr.AuthorId,
+		CreatorName:             pr.AuthorName,
+		ParentIncidentId:        pr.ParentPrId,
+		Priority:                "",
+		Severity:                "",
+		Urgency:                 "",
+		Component:               pr.Component,
+		OriginalProject:         "",
+	}
+
+	if pr.MergedDate != nil {
+		incident.UpdatedDate = pr.MergedDate
+	}
+	if incident.UpdatedDate == nil {
+		incident.UpdatedDate = pr.ClosedDate
+	}
+
+	if pr.MergedDate != nil {
+		temp := uint(pr.MergedDate.Sub(pr.CreatedDate).Minutes())
+		incident.LeadTimeMinutes = &temp
+	}
+	return incident, nil
 }

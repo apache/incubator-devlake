@@ -18,9 +18,9 @@ limitations under the License.
 package ticket
 
 import (
-	"time"
-
+	"errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"time"
 )
 
 type Issue struct {
@@ -104,4 +104,51 @@ func GetStatus(rule *StatusRule, input interface{}) string {
 		}
 	}
 	return rule.Default
+}
+
+func (issue Issue) IsIncident() bool {
+	return issue.Type == INCIDENT
+}
+
+func (issue Issue) ToIncidentAssignee() (*IncidentAssignee, error) {
+	if !issue.IsIncident() {
+		return nil, errors.New("issue type is not INCIDENT, cannot generate incident_assignee")
+	}
+	return &IncidentAssignee{
+		IncidentId:   issue.Id,
+		AssigneeId:   issue.AssigneeId,
+		AssigneeName: issue.AssigneeName,
+		NoPKModel:    issue.DomainEntity.NoPKModel,
+	}, nil
+}
+
+func (issue Issue) ToIncident() (*Incident, error) {
+	if !issue.IsIncident() {
+		return nil, errors.New("issue type is not INCIDENT, cannot generate incident")
+	}
+	incident := &Incident{
+		DomainEntity:            issue.DomainEntity,
+		Url:                     issue.Url,
+		IncidentKey:             issue.IssueKey,
+		Title:                   issue.Title,
+		Description:             issue.Description,
+		Status:                  issue.Status,
+		OriginalStatus:          issue.OriginalStatus,
+		ResolutionDate:          issue.ResolutionDate,
+		CreatedDate:             issue.CreatedDate,
+		UpdatedDate:             issue.UpdatedDate,
+		LeadTimeMinutes:         issue.LeadTimeMinutes,
+		OriginalEstimateMinutes: issue.OriginalEstimateMinutes,
+		TimeSpentMinutes:        issue.TimeSpentMinutes,
+		TimeRemainingMinutes:    issue.TimeRemainingMinutes,
+		CreatorId:               issue.CreatorId,
+		CreatorName:             issue.CreatorName,
+		ParentIncidentId:        issue.ParentIssueId,
+		Priority:                issue.Priority,
+		Severity:                issue.Severity,
+		Urgency:                 issue.Urgency,
+		Component:               issue.Component,
+		OriginalProject:         issue.OriginalProject,
+	}
+	return incident, nil
 }
