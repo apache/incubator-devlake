@@ -57,8 +57,10 @@ type SimpleGithubApiPr struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// CollectApiPullRequests collects pull requests.
+// FIXME There may be a related issues: https://github.com/apache/incubator-devlake/issues/7704
 func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	// pull requests are Finalizable, they can't be re-open once closed
+	// pull requests are finalizable, they can't be re-opened once closed
 	data := taskCtx.GetData().(*GithubTaskData)
 	db := taskCtx.GetDal()
 
