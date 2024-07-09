@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 )
 
-// GetProjects returns a paginated list of Projects based on `query`
 func GetStore(storeKey string) (*models.Store, errors.Error) {
 	clauses := []dal.Clause{
 		dal.From(&models.Store{}),
