@@ -52,6 +52,9 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawPrCommitTable)
 	db := taskCtx.GetDal()
 
+	logger := taskCtx.GetLogger()
+	repoType := data.Options.RepositoryType
+
 	cursor, err := db.Cursor(
 		dal.Select("azuredevops_id"),
 		dal.From(models.AzuredevopsPullRequest{}.TableName()),
@@ -75,7 +78,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Query:                 BuildPaginator(true),
 		ResponseParser:        ParseRawMessageFromValue,
 		GetNextPageCustomData: ExtractContToken,
-		AfterResponse:         change203To401,
+		AfterResponse:         handleClientErrors(repoType, logger),
 	})
 	if err != nil {
 		return err
