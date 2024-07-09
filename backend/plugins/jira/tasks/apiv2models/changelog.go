@@ -46,38 +46,54 @@ func (c Changelog) ToToolLayer(connectionId, issueId uint64, issueUpdated *time.
 }
 
 type ChangelogItem struct {
-	Field      string `json:"field"`
-	Fieldtype  string `json:"fieldtype"`
+	Field     string `json:"field"`
+	Fieldtype string `json:"fieldtype"`
+	FieldId   string `json:"fieldId"`
+
 	FromValue  string `json:"from"`
 	FromString string `json:"fromString"`
-	ToValue    string `json:"to"`
-	ToString   string `json:"toString"`
+
+	ToValue  string `json:"to"`
+	ToString string `json:"toString"`
+
+	TmpFromAccountId string `json:"tmpFromAccountId,omitempty"`
+	TmpToAccountId   string `json:"tmpToAccountId,omitempty"`
 }
 
 func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.JiraIssueChangelogItems {
 	item := &models.JiraIssueChangelogItems{
-		ConnectionId: connectionId,
-		ChangelogId:  changelogId,
-		Field:        c.Field,
-		FieldType:    c.Fieldtype,
-		FromValue:    c.FromValue,
-		FromString:   c.FromString,
-		ToValue:      c.ToValue,
-		ToString:     c.ToString,
+		ConnectionId:     connectionId,
+		ChangelogId:      changelogId,
+		Field:            c.Field,
+		FieldType:        c.Fieldtype,
+		FromValue:        c.FromValue,
+		FromString:       c.FromString,
+		ToValue:          c.ToValue,
+		ToString:         c.ToString,
+		TmpFromAccountId: c.TmpFromAccountId,
+		TmpToAccountId:   c.TmpToAccountId,
 	}
 	return item
 }
 
 func (c ChangelogItem) ExtractUser(connectionId uint64) []*models.JiraAccount {
-	if c.Field != "assignee" {
-		return nil
-	}
 	var result []*models.JiraAccount
-	if c.FromValue != "" {
-		result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.FromValue})
+	// if `tmpFromAccountId` or `tmpToAccountId` is not empty, then this change log item stands for changes about accounts.
+	if c.TmpFromAccountId != "" {
+		// User `from` firstly
+		if c.FromValue != "" {
+			result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.FromValue})
+		} else {
+			result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.TmpFromAccountId})
+		}
 	}
-	if c.ToValue != "" {
-		result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.ToValue})
+	if c.TmpToAccountId != "" {
+		// User `to` firstly
+		if c.ToValue != "" {
+			result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.ToValue})
+		} else {
+			result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.TmpToAccountId})
+		}
 	}
 	return result
 }
