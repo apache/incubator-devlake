@@ -31,7 +31,7 @@ type jiraIssueChangelogItems20240709 struct {
 }
 
 func (jiraIssueChangelogItems20240709) TableName() string {
-	return "_tool_jira_issue_changelogs"
+	return "_tool_jira_issue_changelog_items"
 }
 
 type addTmpAccountIdToJiraIssueChangelogItem struct{}
@@ -45,5 +45,5 @@ func (*addTmpAccountIdToJiraIssueChangelogItem) Version() uint64 {
 }
 
 func (*addTmpAccountIdToJiraIssueChangelogItem) Name() string {
-	return "add TmpFromAccountId and TmpToAccountId to _tool_jira_issue_changelogs"
+	return "add TmpFromAccountId and TmpToAccountId to _tool_jira_issue_changelog_items"
 }
