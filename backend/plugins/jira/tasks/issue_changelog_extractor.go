@@ -68,7 +68,7 @@ func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			cl, user := changelog.ToToolLayer(connectionId, input.IssueId, &input.UpdateTime)
 			// this is crucial for incremental update
 			cl.IssueUpdated = &input.UpdateTime
-			// collect changelog / user inforation
+			// collect changelog / user information
 			result = append(result, cl)
 			if user != nil {
 				result = append(result, user)
@@ -76,7 +76,8 @@ func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			// collect changelog_items
 			for _, item := range changelog.Items {
 				result = append(result, item.ToToolLayer(connectionId, changelog.ID))
-				for _, u := range item.ExtractUser(connectionId) {
+				extractedUsersFromChangelogItem := item.ExtractUser(connectionId)
+				for _, u := range extractedUsersFromChangelogItem {
 					if u != nil && u.AccountId != "" {
 						result = append(result, u)
 					}
