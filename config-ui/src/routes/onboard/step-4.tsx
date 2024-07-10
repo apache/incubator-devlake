@@ -76,11 +76,10 @@ const Wrapper = styled.div`
 `;
 
 export const DashboardURLMap: Record<string, string> = {
-  github: '/grafana/d/KXWvOFQnz/github?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
-  gitlab: '/grafana/d/msSjEq97z/gitlab?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
-  bitbucket: '/grafana/d/4LzQHZa4k/bitbucket?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
-  azuredevops:
-    '/grafana/d/ba7e3a95-80ed-4067-a54b-2a82758eb3dd/azure-devops?orgId=1&var-repo_id=All&var-interval=WEEKDAY',
+  github: import.meta.env.DEVLAKE_DASHBOARD_URL_GITHUB,
+  gitlab: import.meta.env.DEVLAKE_DASHBOARD_URL_GITLAB,
+  bitbucket: import.meta.env.DEVLAKE_DASHBOARD_URL_BITBUCKET,
+  azuredevops: import.meta.env.DEVLAKE_DASHBOARD_URL_AZUREDEVOPS,
 };
 
 const getStatus = (data: any) => {

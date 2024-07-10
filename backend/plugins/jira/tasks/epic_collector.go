@@ -78,9 +78,6 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Info("got user's timezone: %v", loc.String())
 	}
 	jql := "ORDER BY created ASC"
-	if apiCollector.GetSince() != nil {
-		jql = "and " + buildJQL(*apiCollector.GetSince(), loc)
-	}
 
 	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,

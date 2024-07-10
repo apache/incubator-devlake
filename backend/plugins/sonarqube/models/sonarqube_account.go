@@ -25,7 +25,7 @@ type SonarqubeAccount struct {
 	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Login        string `json:"login" gorm:"primaryKey"`
-	Name         string `gorm:"type:varchar(100)"`
+	Name         string `gorm:"type:varchar(500)"`
 	Email        string `gorm:"type:varchar(100)"`
 	Active       bool   `json:"active"`
 	Local        bool   `json:"local"`

@@ -92,6 +92,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/github/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	if _, ok := input.Body["enableGraphql"]; !ok {
+		input.Body["enableGraphql"] = true
+	}
 	return dsHelper.ConnApi.Post(input)
 }
 

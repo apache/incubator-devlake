@@ -15,24 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package crossdomain
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-	}
+type ProjectIncidentDeploymentRelationship struct {
+	domainlayer.DomainEntity
+	ProjectName  string `gorm:"primaryKey;type:varchar(100)"`
+	DeploymentId string
+}
+
+func (ProjectIncidentDeploymentRelationship) TableName() string {
+	return "project_incident_deployment_relationships"
 }

@@ -15,24 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package ticket
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import "github.com/apache/incubator-devlake/core/models/common"
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-	}
+type IncidentAssignee struct {
+	IncidentId   string `gorm:"primaryKey;type:varchar(255)"`
+	AssigneeId   string `gorm:"primaryKey;type:varchar(255)"`
+	AssigneeName string `gorm:"type:varchar(255)"`
+
+	common.NoPKModel
+}
+
+func (IncidentAssignee) TableName() string {
+	return "incident_assignees"
 }

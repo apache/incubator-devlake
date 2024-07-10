@@ -15,42 +15,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package services
+package migrationscripts
 
 import (
-	"fmt"
-
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-func GetStore(storeKey string) (*models.Store, errors.Error) {
-	clauses := []dal.Clause{
-		dal.From(&models.Store{}),
-		dal.Where("store_key = ?", storeKey),
-	}
+type disabledRepos struct{}
 
-	kvstore := &models.Store{}
-	err := db.All(&kvstore, clauses...)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error finding %s on _devlake_store table", storeKey))
-	}
-
-	return kvstore, nil
+type SupportDisabledRepos struct {
+	IsDisabled bool
 }
 
-// PutOnboard accepts a project instance and insert it to database
-func PutStore(storeKey string, storeValue *models.Store) (*models.Store, errors.Error) {
-	// verify input
-	if err := VerifyStruct(storeValue); err != nil {
-		return nil, err
-	}
+func (SupportDisabledRepos) TableName() string {
+	return "_tool_azuredevops_go_repos"
+}
 
-	err := db.CreateOrUpdate(storeValue, dal.Where("store_key = ?", storeKey))
+func (*disabledRepos) Up(baseRes context.BasicRes) errors.Error {
+	err := migrationhelper.AutoMigrateTables(baseRes, &SupportDisabledRepos{})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return storeValue, nil
+	return baseRes.GetDal().UpdateColumn(
+		&SupportDisabledRepos{}, "is_disabled", false,
+		dal.Where("is_disabled IS NULL"))
+}
+
+func (*disabledRepos) Version() uint64 {
+	return 20240624100000
+}
+
+func (*disabledRepos) Name() string {
+	return "add [is_disabled] to _tool_azuredevops_go_repos in order to support disabled repositories"
 }

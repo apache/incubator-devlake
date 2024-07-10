@@ -20,6 +20,7 @@ package services
 import (
 	"fmt"
 	"golang.org/x/sync/errgroup"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -32,6 +33,14 @@ import (
 // ProjectQuery used to query projects as the api project input
 type ProjectQuery struct {
 	Pagination
+	Keyword *string `json:"keyword" form:"keyword"`
+}
+
+func (query *ProjectQuery) GetKeyword() string {
+	if query != nil && query.Keyword != nil {
+		return strings.ToLower(*query.Keyword)
+	}
+	return ""
 }
 
 // GetProjects returns a paginated list of Projects based on `query`
@@ -42,6 +51,9 @@ func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors
 	}
 	clauses := []dal.Clause{
 		dal.From(&models.Project{}),
+	}
+	if query.Keyword != nil {
+		clauses = append(clauses, dal.Where("LOWER(name) LIKE ?", "%"+query.GetKeyword()+"%"))
 	}
 
 	count, err := db.Count(clauses...)
@@ -227,9 +239,9 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 			return nil, err
 		}
 
-		// ProjectIssueMetric
+		// ProjectIncidentDeploymentRelationship
 		err = tx.UpdateColumn(
-			&crossdomain.ProjectIssueMetric{},
+			&crossdomain.ProjectIncidentDeploymentRelationship{},
 			"project_name", project.Name,
 			dal.Where("project_name = ?", name),
 		)
@@ -338,7 +350,7 @@ func DeleteProject(name string) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project PR metric")
 	}
-	err = tx.Delete(&crossdomain.ProjectIssueMetric{}, dal.Where("project_name = ?", name))
+	err = tx.Delete(&crossdomain.ProjectIncidentDeploymentRelationship{}, dal.Where("project_name = ?", name))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project Issue metric")
 	}
