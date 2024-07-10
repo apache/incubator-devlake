@@ -81,62 +81,62 @@ func (p GithubGraphql) GetTablesInfo() []dal.Tabler {
 
 func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		// collect millstones
-		githubTasks.CollectMilestonesMeta,
-		githubTasks.ExtractMilestonesMeta,
+		// // collect millstones
+		// githubTasks.CollectMilestonesMeta,
+		// githubTasks.ExtractMilestonesMeta,
 
-		// collect issue & pr, deps on millstone
-		tasks.CollectIssuesMeta,
-		tasks.ExtractIssuesMeta,
+		// // collect issue & pr, deps on millstone
+		// tasks.CollectIssuesMeta,
+		// tasks.ExtractIssuesMeta,
 		tasks.CollectPrsMeta,
 		tasks.ExtractPrsMeta,
 
-		// collect workflow run & job
-		githubTasks.CollectRunsMeta,
-		githubTasks.ExtractRunsMeta,
-		tasks.CollectJobsMeta,
-		tasks.ExtractJobsMeta,
+		// // collect workflow run & job
+		// githubTasks.CollectRunsMeta,
+		// githubTasks.ExtractRunsMeta,
+		// tasks.CollectJobsMeta,
+		// tasks.ExtractJobsMeta,
 
-		// collect others
-		githubTasks.CollectApiCommentsMeta,
-		githubTasks.ExtractApiCommentsMeta,
-		githubTasks.CollectApiEventsMeta,
-		githubTasks.ExtractApiEventsMeta,
-		githubTasks.CollectApiPrReviewCommentsMeta,
-		githubTasks.ExtractApiPrReviewCommentsMeta,
+		// // collect others
+		// githubTasks.CollectApiCommentsMeta,
+		// githubTasks.ExtractApiCommentsMeta,
+		// githubTasks.CollectApiEventsMeta,
+		// githubTasks.ExtractApiEventsMeta,
+		// githubTasks.CollectApiPrReviewCommentsMeta,
+		// githubTasks.ExtractApiPrReviewCommentsMeta,
 
-		// collect account, deps on all before
-		tasks.CollectAccountMeta,
-		tasks.ExtractAccountsMeta,
+		// // collect account, deps on all before
+		// tasks.CollectAccountMeta,
+		// tasks.ExtractAccountsMeta,
 
-		// convert to domain layer
-		githubTasks.ConvertRunsMeta,
-		githubTasks.ConvertJobsMeta,
-		githubTasks.EnrichPullRequestIssuesMeta,
-		githubTasks.ConvertRepoMeta,
-		githubTasks.ConvertIssuesMeta,
-		githubTasks.ConvertCommitsMeta,
-		githubTasks.ConvertIssueLabelsMeta,
-		githubTasks.ConvertPullRequestCommitsMeta,
+		// // convert to domain layer
+		// githubTasks.ConvertRunsMeta,
+		// githubTasks.ConvertJobsMeta,
+		// githubTasks.EnrichPullRequestIssuesMeta,
+		// githubTasks.ConvertRepoMeta,
+		// githubTasks.ConvertIssuesMeta,
+		// githubTasks.ConvertCommitsMeta,
+		// githubTasks.ConvertIssueLabelsMeta,
+		// githubTasks.ConvertPullRequestCommitsMeta,
 		githubTasks.ConvertPullRequestsMeta,
-		githubTasks.ConvertPullRequestReviewsMeta,
-		githubTasks.ConvertPullRequestLabelsMeta,
-		githubTasks.ConvertPullRequestIssuesMeta,
-		githubTasks.ConvertIssueAssigneeMeta,
-		githubTasks.ConvertIssueCommentsMeta,
-		githubTasks.ConvertPullRequestCommentsMeta,
-		githubTasks.ConvertMilestonesMeta,
-		githubTasks.ConvertAccountsMeta,
+		// githubTasks.ConvertPullRequestReviewsMeta,
+		// githubTasks.ConvertPullRequestLabelsMeta,
+		// githubTasks.ConvertPullRequestIssuesMeta,
+		// githubTasks.ConvertIssueAssigneeMeta,
+		// githubTasks.ConvertIssueCommentsMeta,
+		// githubTasks.ConvertPullRequestCommentsMeta,
+		// githubTasks.ConvertMilestonesMeta,
+		// githubTasks.ConvertAccountsMeta,
 
-		// deployment
-		tasks.CollectDeploymentsMeta,
-		tasks.ExtractDeploymentsMeta,
-		tasks.ConvertDeploymentsMeta,
+		// // deployment
+		// tasks.CollectDeploymentsMeta,
+		// tasks.ExtractDeploymentsMeta,
+		// tasks.ConvertDeploymentsMeta,
 
-		// releases
-		tasks.CollectReleaseMeta,
-		tasks.ExtractReleasesMeta,
-		githubTasks.ConvertReleasesMeta,
+		// // releases
+		// tasks.CollectReleaseMeta,
+		// tasks.ExtractReleasesMeta,
+		// githubTasks.ConvertReleasesMeta,
 	}
 }
 

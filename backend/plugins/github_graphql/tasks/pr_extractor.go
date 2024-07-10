@@ -137,9 +137,6 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 						CommitAuthorEmail:  githubCommit.AuthorEmail,
 						CommitAuthoredDate: githubCommit.AuthoredDate,
 					}
-					if err != nil {
-						return nil, err
-					}
 					results = append(results, githubPullRequestCommit)
 					extractGraphqlPreAccount(&results, apiPullRequestCommit.Commit.Author.User, data.Options.GithubId, data.Options.ConnectionId)
 				}
@@ -173,6 +170,8 @@ func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*
 		BaseCommitSha:   pull.BaseRefOid,
 		HeadRef:         pull.HeadRefName,
 		HeadCommitSha:   pull.HeadRefOid,
+		Additions:       pull.Additions,
+		Deletions:       pull.Deletions,
 	}
 	if pull.MergeCommit != nil {
 		githubPull.MergeCommitSha = pull.MergeCommit.Oid

@@ -85,6 +85,8 @@ type GraphqlQueryPr struct {
 		TotalCount graphql.Int
 		Nodes      []GraphqlQueryReview `graphql:"nodes"`
 	} `graphql:"reviews(first: 100)"`
+	Additions int
+	Deletions int
 }
 
 type GraphqlQueryReview struct {

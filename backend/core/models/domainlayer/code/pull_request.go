@@ -19,8 +19,9 @@ package code
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
@@ -55,6 +56,8 @@ type PullRequest struct {
 	BaseRef        string `gorm:"type:varchar(255)"`
 	BaseCommitSha  string `gorm:"type:varchar(40)"`
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
+	Additions      int
+	Deletions      int
 }
 
 func (PullRequest) TableName() string {
