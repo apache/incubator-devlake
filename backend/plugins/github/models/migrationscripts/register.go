@@ -50,5 +50,6 @@ func All() []plugin.MigrationScript {
 		new(addWorkflowDisplayTitle),
 		new(addReleaseTable),
 		new(addReleaseCommitSha),
+		new(addMergedByToPr),
 	}
 }

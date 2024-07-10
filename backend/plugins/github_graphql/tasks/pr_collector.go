@@ -85,6 +85,7 @@ type GraphqlQueryPr struct {
 		TotalCount graphql.Int
 		Nodes      []GraphqlQueryReview `graphql:"nodes"`
 	} `graphql:"reviews(first: 100)"`
+	MergedBy *GraphqlInlineAccountQuery
 }
 
 type GraphqlQueryReview struct {
