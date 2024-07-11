@@ -89,11 +89,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 
 	}
 
-	cmd, err := g.buildCloneCommand(ctx, localDir, since)
-	if err != nil {
-		return err
-	}
-	err = g.execCloneCommand(cmd)
+	err := g.execGitCloneCommand(ctx, localDir, since)
 	if err != nil {
 		return err
 	}
@@ -101,13 +97,11 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	if since != nil {
 		// fixes error described on https://stackoverflow.com/questions/63878612/git-fatal-error-in-object-unshallow-sha-1
 		// It might be casued by the commit which being deepen has mulitple parent(e.g. a merge commit), not sure.
-		repackCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "repack", "-d")
-		if err := repackCmd.Run(); err != nil {
+		if err := g.execGitCommand(ctx, "-C", localDir, "repack", "-d"); err != nil {
 			return errors.Default.Wrap(err, "failed to repack the repo")
 		}
-		deepenCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "fetch", "--deepen=1")
 		// deepen would fail on a EMPTY repo, ignore the error
-		if err := deepenCmd.Run(); err != nil {
+		if err := g.execGitCommand(ctx, "-C", localDir, "fetch", "--deepen=1"); err != nil {
 			g.logger.Error(err, "failed to deepen the cloned repo")
 		}
 	}
@@ -119,9 +113,22 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	return nil
 }
 
-func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir string, since *time.Time) (*exec.Cmd, errors.Error) {
+func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir string, since *time.Time) errors.Error {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
 	args := []string{"clone", taskData.Options.Url, localDir, "--bare", "--progress"}
+	if since != nil {
+		args = append(args, fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339)))
+	}
+	// support time after and diff sync
+	// support skipping blobs collection
+	if *taskData.Options.SkipCommitStat {
+		args = append(args, "--filter=blob:none")
+	}
+	return g.execGitCommand(ctx, args...)
+}
+
+func (g *GitcliCloner) execGitCommand(ctx plugin.SubTaskContext, args ...string) errors.Error {
+	taskData := ctx.GetData().(*GitExtractorTaskData)
 	env := []string{}
 	// support proxy
 	if taskData.ParsedURL.Scheme == "http" || taskData.ParsedURL.Scheme == "https" {
@@ -136,7 +143,7 @@ func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir str
 		if taskData.Options.Proxy != "" {
 			parsedProxyURL, e := url.Parse(taskData.Options.Proxy)
 			if e != nil {
-				return nil, errors.BadInput.Wrap(e, "failed to parse the proxy URL")
+				return errors.BadInput.Wrap(e, "failed to parse the proxy URL")
 			}
 			proxyCommand := "corkscrew"
 			sshCmdArgs = append(sshCmdArgs, "-o", fmt.Sprintf(`ProxyCommand="%s %s %s %%h %%p"`, proxyCommand, parsedProxyURL.Hostname(), parsedProxyURL.Port()))
@@ -146,16 +153,16 @@ func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir str
 			pkFile, err := os.CreateTemp("", "gitext-pk")
 			if err != nil {
 				g.logger.Error(err, "create temp private key file error")
-				return nil, errors.Default.New("failed to handle the private key")
+				return errors.Default.New("failed to handle the private key")
 			}
 			if _, e := pkFile.WriteString(taskData.Options.PrivateKey + "\n"); e != nil {
 				g.logger.Error(err, "write private key file error")
-				return nil, errors.Default.New("failed to write the  private key")
+				return errors.Default.New("failed to write the  private key")
 			}
 			pkFile.Close()
 			if e := os.Chmod(pkFile.Name(), 0600); e != nil {
 				g.logger.Error(err, "chmod private key file error")
-				return nil, errors.Default.New("failed to modify the private key")
+				return errors.Default.New("failed to modify the private key")
 			}
 
 			if taskData.Options.Passphrase != "" {
@@ -169,7 +176,7 @@ func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir str
 				if ppout, pperr := pp.CombinedOutput(); pperr != nil {
 					g.logger.Error(pperr, "change private key passphrase error")
 					g.logger.Info(string(ppout))
-					return nil, errors.Default.New("failed to decrypt the private key")
+					return errors.Default.New("failed to decrypt the private key")
 				}
 			}
 			defer os.Remove(pkFile.Name())
@@ -179,22 +186,13 @@ func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir str
 			env = append(env, fmt.Sprintf("GIT_SSH_COMMAND=ssh %s", strings.Join(sshCmdArgs, " ")))
 		}
 	}
-	// support time after and diff sync
-	if since != nil {
-		args = append(args, fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339)))
-	}
-	// support skipping blobs collection
-	if *taskData.Options.SkipCommitStat {
-		args = append(args, "--filter=blob:none")
-	}
-	// fmt.Printf("args: %v\n", args)
 	g.logger.Debug("git %v", args)
 	cmd := exec.CommandContext(ctx.GetContext(), "git", args...)
 	cmd.Env = env
-	return cmd, nil
+	return g.execCommand(cmd)
 }
 
-func (g *GitcliCloner) execCloneCommand(cmd *exec.Cmd) errors.Error {
+func (g *GitcliCloner) execCommand(cmd *exec.Cmd) errors.Error {
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		g.logger.Error(err, "stdout pipe error")
