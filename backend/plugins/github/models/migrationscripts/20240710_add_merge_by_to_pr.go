@@ -15,25 +15,39 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type GithubReviewer struct {
-	ConnectionId  uint64 `gorm:"primaryKey"`
-	ReviewerId    int    `gorm:"primaryKey"`
-	PullRequestId int    `gorm:"primaryKey"`
-	Name          string `gorm:"type:varchar(255)"`
-	Username      string `gorm:"type:varchar(255)"`
-	State         string `gorm:"type:varchar(255)"`
-	AvatarUrl     string `gorm:"type:varchar(255)"`
-	WebUrl        string `gorm:"type:varchar(255)"`
+var _ plugin.MigrationScript = (*addMergedByToPr)(nil)
 
-	common.NoPKModel
+type pr20240710 struct {
+	MergedByName string `gorm:"type:varchar(100)"`
+	MergedById   int
 }
 
-func (GithubReviewer) TableName() string {
-	return "_tool_github_reviewers"
+func (pr20240710) TableName() string {
+	return "_tool_github_pull_requests"
+}
+
+type addMergedByToPr struct{}
+
+func (*addMergedByToPr) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if err := db.AutoMigrate(&pr20240710{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*addMergedByToPr) Version() uint64 {
+	return 20240710142100
+}
+
+func (*addMergedByToPr) Name() string {
+	return "add merged by to _tool_github_pull_requests"
 }
