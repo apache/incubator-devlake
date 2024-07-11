@@ -119,7 +119,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(distinct i.id)\nfrom\n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in (${project}) and\n  i.priority in (${priority}) and\n  i.type = 'BUG' and\n  date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY;",
+          "rawSql": "select\n  count(distinct i.id)\nfrom\n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in (${project}) and\n  i.priority in (${priority}) and\n  i.type = 'BUG' and\n  date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH;",
           "refId": "A",
           "select": [
             [
