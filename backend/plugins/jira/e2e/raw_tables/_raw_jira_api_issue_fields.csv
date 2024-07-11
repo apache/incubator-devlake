@@ -1,0 +1,4 @@
+
+"id","params","data","url","input","created_at"
+70,"{""ConnectionId"":2,""BoardId"":8}","{""id"":""customfield_10315"",""name"":""cu用户单选"",""custom"":true,""orderable"":true,""navigable"":true,""searchable"":true,""clauseNames"":[""cf[10315]"",""user_single""],""schema"":{""type"":""user"",""custom"":""com.atlassian.jira.plugin.system.customfieldtypes:userpicker"",""customId"":10315}}","http://172.26.129.92:8092/rest/api/2/field","null","2024-07-11 06:49:14.517"
+66,"{""ConnectionId"":2,""BoardId"":8}","{""id"":""customfield_10400"",""name"":""gitBranch"",""custom"":true,""orderable"":true,""navigable"":true,""searchable"":true,""clauseNames"":[""cf[10400]"",""gitBranch""],""schema"":{""type"":""any"",""custom"":""com.xiplink.jira.git.jira_git_plugin:gitbranches"",""customId"":10400}}","http://172.26.129.92:8092/rest/api/2/field","null","2024-07-11 06:49:14.517"
