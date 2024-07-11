@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -112,6 +111,7 @@ type Team struct {
 	Name string `graphql:"name"`
 	Slug string `graphql:"slug"`
 }
+
 type GraphqlQueryReview struct {
 	Body       string
 	Author     *GraphqlInlineAccountQuery
@@ -185,7 +185,6 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 				"owner":      graphql.String(ownerName[0]),
 				"name":       graphql.String(ownerName[1]),
 			}
-			fmt.Println(query)
 			return query, variables, nil
 		},
 		GetPageInfo: func(iQuery interface{}, args *api.GraphqlCollectorArgs) (*api.GraphqlQueryPageInfo, error) {
