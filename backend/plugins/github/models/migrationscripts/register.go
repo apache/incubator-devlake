@@ -51,5 +51,6 @@ func All() []plugin.MigrationScript {
 		new(addReleaseTable),
 		new(addReleaseCommitSha),
 		new(addMergedByToPr),
+		new(restructReviewer),
 	}
 }

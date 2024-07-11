@@ -15,13 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	coreArchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts/archived"
 )
 
-type GithubReviewer struct {
+var _ plugin.MigrationScript = (*restructReviewer)(nil)
+
+type reviewer20240711 struct {
 	ConnectionId  uint64 `gorm:"primaryKey"`
 	ReviewerId    int    `gorm:"primaryKey"`
 	PullRequestId int    `gorm:"primaryKey"`
@@ -30,10 +36,30 @@ type GithubReviewer struct {
 	State         string `gorm:"type:varchar(255)"`
 	AvatarUrl     string `gorm:"type:varchar(255)"`
 	WebUrl        string `gorm:"type:varchar(255)"`
-
-	common.NoPKModel
+	coreArchived.NoPKModel
 }
 
-func (GithubReviewer) TableName() string {
+func (reviewer20240711) TableName() string {
 	return "_tool_github_reviewers"
+}
+
+type restructReviewer struct{}
+
+func (*restructReviewer) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if err := db.DropTables(&archived.GithubReviewer{}); err != nil {
+		return err
+	}
+	if err := db.AutoMigrate(&reviewer20240711{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*restructReviewer) Version() uint64 {
+	return 20240710142104
+}
+
+func (*restructReviewer) Name() string {
+	return "restruct reviewer table"
 }

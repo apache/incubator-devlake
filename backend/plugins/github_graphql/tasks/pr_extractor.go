@@ -121,6 +121,15 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 						results = append(results, githubPrReview)
 					}
 				}
+				for _, apiReviewRequests := range rawL.ReviewRequests.Nodes {
+					githubReviewRequests := &models.GithubReviewer{
+						ConnectionId:  data.Options.ConnectionId,
+						PullRequestId: githubPr.GithubId,
+						ReviewerId:    apiReviewRequests.RequestedReviewer.User.Id,
+						Username:      apiReviewRequests.RequestedReviewer.User.Login,
+					}
+					results = append(results, githubReviewRequests)
+				}
 
 				for _, apiPullRequestCommit := range rawL.Commits.Nodes {
 					githubCommit, err := convertPullRequestCommit(apiPullRequestCommit)

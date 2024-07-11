@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -85,9 +86,32 @@ type GraphqlQueryPr struct {
 		TotalCount graphql.Int
 		Nodes      []GraphqlQueryReview `graphql:"nodes"`
 	} `graphql:"reviews(first: 100)"`
-	MergedBy *GraphqlInlineAccountQuery
+	MergedBy       *GraphqlInlineAccountQuery
+	ReviewRequests struct {
+		Nodes []ReviewRequestNode `graphql:"nodes"`
+	} `graphql:"reviewRequests(first: 10)"`
 }
 
+type ReviewRequestNode struct {
+	RequestedReviewer RequestedReviewer `graphql:"requestedReviewer"`
+}
+
+type RequestedReviewer struct {
+	User User `graphql:"... on User"`
+	Team Team `graphql:"... on Team"`
+}
+
+type User struct {
+	Id    int    `graphql:"databaseId"`
+	Login string `graphql:"login"`
+	Name  string `graphql:"name"`
+}
+
+type Team struct {
+	Id   int    `graphql:"databaseId"`
+	Name string `graphql:"name"`
+	Slug string `graphql:"slug"`
+}
 type GraphqlQueryReview struct {
 	Body       string
 	Author     *GraphqlInlineAccountQuery
@@ -161,6 +185,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 				"owner":      graphql.String(ownerName[0]),
 				"name":       graphql.String(ownerName[1]),
 			}
+			fmt.Println(query)
 			return query, variables, nil
 		},
 		GetPageInfo: func(iQuery interface{}, args *api.GraphqlCollectorArgs) (*api.GraphqlQueryPageInfo, error) {
