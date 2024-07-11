@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 24,
+  "id": 40,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -1038,8 +1038,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "green",
@@ -1170,8 +1169,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1289,8 +1287,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "orange",
@@ -1435,8 +1432,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1543,8 +1539,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "green",
@@ -1678,8 +1673,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1781,8 +1775,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1925,8 +1918,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2161,8 +2153,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2287,9 +2278,13 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "mysql",
         "definition": "select distinct name from projects",
@@ -2320,7 +2315,7 @@
         "multi": false,
         "name": "month",
         "options": [],
-        "query": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
+        "query": "select\n  distinct(concat(date_format(month_timestamp, '%Y-%m') , ':', date_format(month_timestamp, '%Y-%m-%d'))) as month\nfrom\n  calendar_months\nwhere \n  month_timestamp <= curdate()\norder by month desc\nlimit 12",
         "refresh": 1,
         "regex": "/^(?<text>.*):(?<value>.*)$/",
         "skipUrlSync": false,
