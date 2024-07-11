@@ -90,6 +90,7 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraIssueComment{},
 		&models.JiraIssueRelationship{},
 		&models.JiraScopeConfig{},
+		&models.JiraIssueField{},
 	}
 }
 
