@@ -279,6 +279,17 @@ func (r *Libgit2RepoCollector) CollectCommits(subtaskCtx plugin.SubTaskContext) 
 		if commit == nil {
 			return nil
 		}
+		var parent *git.Commit
+		if commit.ParentCount() > 0 {
+			parent = commit.Parent(0)
+			// Skip calculating commit statistics when there are parent commits, but the first one cannot be fetched from the ODB.
+			// This usually happens during a shallow clone for incremental collection. Otherwise, we might end up overwriting
+			// the correct addition/deletion data in the database with an absurdly large addition number.
+			if parent == nil {
+				r.logger.Info("skip commit %s because it has no parent commit", commit.Id().String())
+				return nil
+			}
+		}
 		commitSha := commit.Id().String()
 		r.logger.Debug("process commit: %s", commitSha)
 		c := &code.Commit{
@@ -302,10 +313,6 @@ func (r *Libgit2RepoCollector) CollectCommits(subtaskCtx plugin.SubTaskContext) 
 		err = r.storeParentCommits(commitSha, commit)
 		if err != nil {
 			return err
-		}
-		var parent *git.Commit
-		if commit.ParentCount() > 0 {
-			parent = commit.Parent(0)
 		}
 
 		if !*taskOpts.SkipCommitStat {

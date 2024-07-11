@@ -301,6 +301,20 @@ func (r *GogitRepoCollector) CollectCommits(subtaskCtx plugin.SubTaskContext) (e
 		default:
 		}
 		commitSha := commit.Hash.String()
+
+		if commit.NumParents() != 0 {
+			_, err := commit.Parents().Next()
+			if err != nil {
+				if err == plumbing.ErrObjectNotFound {
+					// Skip calculating commit statistics when there are parent commits, but the first one cannot be fetched from the ODB.
+					// This usually happens during a shallow clone for incremental collection. Otherwise, we might end up overwriting
+					// the correct addition/deletion data in the database with an absurdly large addition number.
+					r.logger.Info("skip commit %s because it has no parent commit", commitSha)
+					return nil
+				}
+				return err
+			}
+		}
 		codeCommit := &code.Commit{
 			Sha:            commitSha,
 			Message:        commit.Message,
