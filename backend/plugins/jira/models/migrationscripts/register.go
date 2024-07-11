@@ -50,5 +50,6 @@ func All() []plugin.MigrationScript {
 		new(addWorklogToIssue),
 		new(addSubtaskToIssue),
 		new(addTmpAccountIdToJiraIssueChangelogItem),
+		new(addIssueFieldTable),
 	}
 }

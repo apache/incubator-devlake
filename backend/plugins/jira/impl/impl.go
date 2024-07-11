@@ -103,6 +103,9 @@ func (p Jira) Name() string {
 
 func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CollectIssueFieldsMeta,
+		tasks.ExtractIssueFieldsMeta,
+
 		tasks.CollectBoardFilterBeginMeta,
 
 		tasks.CollectStatusMeta,
