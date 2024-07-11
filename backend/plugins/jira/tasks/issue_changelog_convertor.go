@@ -54,10 +54,10 @@ type IssueChangelogItemResult struct {
 
 func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
+	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
-	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDal()
 	logger.Info("covert changelog")
 	var allStatus []models.JiraStatus
 	err := db.All(&allStatus, dal.Where("connection_id = ?", connectionId))
@@ -88,6 +88,19 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+
+	var allIssueFields []models.JiraIssueField
+	if err := db.All(&allIssueFields, dal.Where("connection_id = ?", connectionId)); err != nil {
+		return err
+	}
+	issueFieldMap := make(map[string]models.JiraIssueField)
+	for _, v := range allIssueFields {
+		if _, ok := issueFieldMap[v.Name]; ok {
+			logger.Warn(nil, "filed name %s is duplicated", v.Name)
+		}
+		issueFieldMap[v.Name] = v
+	}
+
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	sprintIdGenerator := didgen.NewDomainIdGenerator(&models.JiraSprint{})
 	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssueChangelogItems{})
@@ -122,11 +135,11 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			switch row.Field {
 			case "assignee":
-				if row.ToValue != "" {
-					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
-				}
 				if row.FromValue != "" {
 					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
+				}
+				if row.ToValue != "" {
+					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
 				}
 			case "Sprint":
 				changelog.OriginalFromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
@@ -147,7 +160,7 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
 			default:
-				// process other account-like fields
+				// process other account-like fields, it works on jira9 and jira cloud.
 				if row.TmpFromAccountId != "" {
 					if row.FromValue != "" {
 						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
@@ -160,6 +173,19 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
 					} else {
 						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.TmpToAccountId)
+					}
+				}
+				if row.TmpFromAccountId == "" && row.TmpToAccountId == "" {
+					// it works on jira8
+					// notice: field name is not unique, but we cannot fetch field id here.
+					if v, ok := issueFieldMap[row.Field]; ok && v.SchemaType == "user" {
+						// field type is account
+						if row.FromValue != "" {
+							changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
+						}
+						if row.ToValue != "" {
+							changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
+						}
 					}
 				}
 			}
