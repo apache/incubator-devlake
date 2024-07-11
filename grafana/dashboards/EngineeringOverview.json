@@ -160,7 +160,7 @@
           ]
         }
       ],
-      "title": "Critical Defects Identified [in the Selected Month (filtered)]",
+      "title": "Critical Defects Identified [in $month]",
       "type": "stat"
     },
     {
@@ -222,7 +222,9 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -353,11 +355,12 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  avg(lead_time_minutes/1440) as value\r\nfrom issues i\r\n\tjoin board_issues bi on i.id = bi.issue_id\r\n\tjoin boards b on bi.board_id = b.id\r\n\tjoin project_mapping pm on b.id = pm.row_id\r\nwhere \r\n  pm.project_name in (${project}) and\r\n  i.type in (${type})\r\n  and i.status = 'DONE'\r\n  and $__timeFilter(i.resolution_date)",
+          "rawSql": "select \r\n  avg(lead_time_minutes/1440) as value\r\nfrom issues i\r\n\tjoin board_issues bi on i.id = bi.issue_id\r\n\tjoin boards b on bi.board_id = b.id\r\n\tjoin project_mapping pm on b.id = pm.row_id\r\nwhere \r\n  pm.project_name in (${project}) and\r\n  i.type in (${type})\r\n  and i.status = 'DONE'\r\n  and i.resolution_date between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH;",
           "refId": "A",
           "select": [
             [
@@ -369,6 +372,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ca_analysis",
           "timeColumn": "create_time",
           "timeColumnType": "timestamp",
@@ -381,7 +401,7 @@
           ]
         }
       ],
-      "title": "Mean Issue Lead Time in Days [Issues Resolved in Select Time Range]",
+      "title": "Mean Issue Lead Time in Days [Issues Resolved in $month]",
       "type": "stat"
     },
     {
@@ -453,7 +473,9 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -610,7 +632,7 @@
           ]
         }
       ],
-      "title": "Number of Developers [in the Selected Month]",
+      "title": "Number of Developers [in $month]",
       "type": "stat"
     },
     {
@@ -672,7 +694,9 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -857,7 +881,7 @@
           ]
         }
       ],
-      "title": "On-time Delivery [in the Selected Month]",
+      "title": "On-time Delivery [in $month]",
       "type": "stat"
     },
     {
@@ -934,7 +958,9 @@
       ],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -1106,7 +1132,7 @@
           ]
         }
       ],
-      "title": "PRs merged [in the Selected Month]",
+      "title": "PRs merged [in $month]",
       "type": "stat"
     },
     {
@@ -1176,7 +1202,9 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -1360,7 +1388,7 @@
           ]
         }
       ],
-      "title": "Unlinked PRs % [in the Selected Month]",
+      "title": "Unlinked PRs % [in $month]",
       "type": "stat"
     },
     {
@@ -1436,7 +1464,9 @@
       ],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -1601,7 +1631,7 @@
           ]
         }
       ],
-      "title": "Coding Days % [in the Selected Month]",
+      "title": "Coding Days % [in $month]",
       "type": "stat"
     },
     {
@@ -1670,7 +1700,9 @@
       "id": 29,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -1844,7 +1876,7 @@
           ]
         }
       ],
-      "title": "Mean Time to Merge [in the Selected Month] ",
+      "title": "Mean Time to Merge [in $month]",
       "type": "stat"
     },
     {
@@ -1922,7 +1954,9 @@
       ],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -2090,7 +2124,7 @@
           ]
         }
       ],
-      "title": "Work Done % [in the Selected Month]",
+      "title": "Work Done % [in $month]",
       "type": "piechart"
     },
     {
@@ -2153,7 +2187,9 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -2273,6 +2309,27 @@
       {
         "current": {
           "selected": true,
+          "text": "",
+          "value": ""
+        },
+        "datasource": "mysql",
+        "definition": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Selected Month",
+        "multi": false,
+        "name": "month",
+        "options": [],
+        "query": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
+        "refresh": 1,
+        "regex": "/^(?<text>.*):(?<value>.*)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2316,27 +2373,6 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": "",
-          "value": ""
-        },
-        "datasource": "mysql",
-        "definition": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Selected Month",
-        "multi": false,
-        "name": "month",
-        "options": [],
-        "query": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
-        "refresh": 1,
-        "regex": "/^(?<text>.*):(?<value>.*)$/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
       }
     ]
   },
@@ -2349,6 +2385,6 @@
   "timezone": "",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
-  "version": 12,
+  "version": 15,
   "weekStart": ""
 }
