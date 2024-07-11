@@ -71,9 +71,10 @@ func TestPrReviewDataFlow(t *testing.T) {
 		"./snapshot_tables/_tool_github_reviewers.csv",
 		[]string{
 			"connection_id",
-			"github_id",
+			"reviewer_id",
 			"pull_request_id",
-			"login",
+			"username",
+			"name",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
