@@ -1,7 +1,6 @@
 import os
 from git import Repo
 
-# 设置本地仓库路径
 repo_path = '/path/to/your/local/repo'
 file_path = os.path.join(repo_path, 'test.txt')
 
@@ -18,9 +17,11 @@ repo.index.add([file_path])
 # 提交更改
 repo.index.commit('Add test file with hello, helloworld content')
 
+#我是增加1行注释
 # 推送到远程仓库
 origin = repo.remote(name='origin')
 origin.push()
 
 print('File committed and pushed to GitHub.')
-print('That is all!')
+
+#还删除了两行
