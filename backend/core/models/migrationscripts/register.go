@@ -125,5 +125,6 @@ func All() []plugin.MigrationScript {
 		new(addPullRequestIdIndexToPullRequestComments),
 		new(initIncidentRelatedTables),
 		new(renameProjectIssueMetrics),
+		new(addMergedByToPr),
 	}
 }
