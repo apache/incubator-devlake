@@ -58,6 +58,8 @@ type PullRequest struct {
 	BaseRef        string `gorm:"type:varchar(255)"`
 	BaseCommitSha  string `gorm:"type:varchar(40)"`
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
+	Additions      int
+	Deletions      int
 }
 
 func (PullRequest) TableName() string {

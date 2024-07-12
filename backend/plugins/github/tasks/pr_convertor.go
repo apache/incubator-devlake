@@ -102,6 +102,8 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				BaseCommitSha:  pr.BaseCommitSha,
 				HeadRef:        pr.HeadRef,
 				HeadCommitSha:  pr.HeadCommitSha,
+				Additions:      pr.Additions,
+				Deletions:      pr.Deletions,
 				MergedByName:   pr.MergedByName,
 				MergedById:     accountIdGen.Generate(data.Options.ConnectionId, pr.MergedById),
 			}
