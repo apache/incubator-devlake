@@ -142,6 +142,8 @@ func TestPrDataFlow(t *testing.T) {
 			"base_ref",
 			"base_commit_sha",
 			"head_commit_sha",
+			"additions",
+			"deletions",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
