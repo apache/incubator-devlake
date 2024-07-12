@@ -460,7 +460,7 @@ func formatDbValue(value interface{}, nullable bool) string {
 	return ``
 }
 
-// ColumnWithRawData create an Column string with _raw_data_* appending
+// ColumnWithRawData create a Column string with _raw_data_* appending
 func ColumnWithRawData(column ...string) []string {
 	return append(
 		column,
