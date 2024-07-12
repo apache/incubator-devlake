@@ -179,6 +179,8 @@ func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*
 		BaseCommitSha:   pull.BaseRefOid,
 		HeadRef:         pull.HeadRefName,
 		HeadCommitSha:   pull.HeadRefOid,
+		Additions:       pull.Additions,
+		Deletions:       pull.Deletions,
 	}
 	if pull.MergedBy != nil {
 		githubPull.MergedByName = pull.MergedBy.Login
