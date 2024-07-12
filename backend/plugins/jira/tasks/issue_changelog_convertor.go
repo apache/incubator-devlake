@@ -133,7 +133,7 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate:       row.Created,
 			}
 			switch row.Field {
-			case "assignee":
+			case "assignee", "reporter":
 				if row.FromValue != "" {
 					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
 				}
