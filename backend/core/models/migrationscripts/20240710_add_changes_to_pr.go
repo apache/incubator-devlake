@@ -25,12 +25,12 @@ import (
 
 var _ plugin.MigrationScript = (*addChangesToPr)(nil)
 
-type pr20240710 struct {
+type prChange20240710 struct {
 	Additions int
 	Deletions int
 }
 
-func (pr20240710) TableName() string {
+func (prChange20240710) TableName() string {
 	return "pull_requests"
 }
 
@@ -38,7 +38,7 @@ type addChangesToPr struct{}
 
 func (*addChangesToPr) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	if err := db.AutoMigrate(&pr20240710{}); err != nil {
+	if err := db.AutoMigrate(&prChange20240710{}); err != nil {
 		return err
 	}
 	return nil
