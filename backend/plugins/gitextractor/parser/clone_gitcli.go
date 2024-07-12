@@ -116,6 +116,9 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir string, since *time.Time) errors.Error {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
 	var args []string
+	if *taskData.Options.SkipCommitStat {
+		args = append(args, "--filter=blob:none")
+	}
 	if since != nil {
 		// to fetch newly added commits from ALL branches, we need to the following guide:
 		//    https://stackoverflow.com/questions/23708231/git-shallow-clone-clone-depth-misses-remote-branches
@@ -137,14 +140,12 @@ func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir s
 			return errors.Default.Wrap(err, "failed to write to git config file")
 		}
 		// 3. fetch all new commits from all branches since the given time
-		args = []string{"fetch", "--progress", fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339))}
+		args = append([]string{"fetch", "--progress", fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339))}, args...)
+		return g.execGitCommandIn(ctx, localDir, args...)
 	} else {
-		args = []string{"clone", "--progress", "--bare"}
+		args = append([]string{"clone", taskData.Options.Url, localDir, "--progress", "--bare"}, args...)
+		return g.execGitCommand(ctx, args...)
 	}
-	if *taskData.Options.SkipCommitStat {
-		args = append(args, "--filter=blob:none")
-	}
-	return g.execGitCommand(ctx, args...)
 }
 
 func (g *GitcliCloner) execGitCommand(ctx plugin.SubTaskContext, args ...string) errors.Error {
