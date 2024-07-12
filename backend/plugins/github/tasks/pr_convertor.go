@@ -104,6 +104,8 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				HeadCommitSha:  pr.HeadCommitSha,
 				Additions:      pr.Additions,
 				Deletions:      pr.Deletions,
+				MergedByName:   pr.MergedByName,
+				MergedById:     accountIdGen.Generate(data.Options.ConnectionId, pr.MergedById),
 			}
 			if pr.State == "open" || pr.State == "OPEN" {
 				domainPr.Status = code.OPEN

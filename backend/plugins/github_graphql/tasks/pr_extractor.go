@@ -121,6 +121,15 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 						results = append(results, githubPrReview)
 					}
 				}
+				for _, apiReviewRequests := range rawL.ReviewRequests.Nodes {
+					githubReviewRequests := &models.GithubReviewer{
+						ConnectionId:  data.Options.ConnectionId,
+						PullRequestId: githubPr.GithubId,
+						ReviewerId:    apiReviewRequests.RequestedReviewer.User.Id,
+						Username:      apiReviewRequests.RequestedReviewer.User.Login,
+					}
+					results = append(results, githubReviewRequests)
+				}
 
 				for _, apiPullRequestCommit := range rawL.Commits.Nodes {
 					githubCommit, err := convertPullRequestCommit(apiPullRequestCommit)
@@ -172,6 +181,10 @@ func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*
 		HeadCommitSha:   pull.HeadRefOid,
 		Additions:       pull.Additions,
 		Deletions:       pull.Deletions,
+	}
+	if pull.MergedBy != nil {
+		githubPull.MergedByName = pull.MergedBy.Login
+		githubPull.MergedById = pull.MergedBy.Id
 	}
 	if pull.MergeCommit != nil {
 		githubPull.MergeCommitSha = pull.MergeCommit.Oid

@@ -44,6 +44,8 @@ type PullRequest struct {
 	AuthorName     string `gorm:"type:varchar(100)"`
 	//User		   domainUser.User `gorm:"foreignKey:AuthorId"`
 	AuthorId       string `gorm:"type:varchar(100)"`
+	MergedByName   string `gorm:"type:varchar(100)"`
+	MergedById     string `gorm:"type:varchar(100)"`
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
 	PullRequestKey int
 	CreatedDate    time.Time

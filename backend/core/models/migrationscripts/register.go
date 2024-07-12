@@ -126,5 +126,6 @@ func All() []plugin.MigrationScript {
 		new(initIncidentRelatedTables),
 		new(renameProjectIssueMetrics),
 		new(addChangesToPr),
+		new(addMergedByToPr),
 	}
 }
