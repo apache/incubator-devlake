@@ -47,5 +47,7 @@ func All() []plugin.MigrationScript {
 		new(modifyIssueRelationship),
 		new(addComponents20230412),
 		new(addFilterJQL),
+		new(addTmpAccountIdToJiraIssueChangelogItem),
+		new(addIssueFieldTable),
 	}
 }
