@@ -160,33 +160,13 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
 			default:
-				// process other account-like fields, it works on jira9 and jira cloud.
-				if row.TmpFromAccountId != "" {
-					if row.FromValue != "" {
-						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
-					} else {
-						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.TmpFromAccountId)
-					}
+				fromAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.TmpFromAccountId, row.FromValue, issueFieldMap)
+				if fromAccountId != "" {
+					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, fromAccountId)
 				}
-				if row.TmpToAccountId != "" {
-					if row.ToValue != "" {
-						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
-					} else {
-						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.TmpToAccountId)
-					}
-				}
-				if row.TmpFromAccountId == "" && row.TmpToAccountId == "" {
-					// it works on jira8
-					// notice: field name is not unique, but we cannot fetch field id here.
-					if v, ok := issueFieldMap[row.Field]; ok && v.SchemaType == "user" {
-						// field type is account
-						if row.FromValue != "" {
-							changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
-						}
-						if row.ToValue != "" {
-							changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
-						}
-					}
+				toAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.TmpFromAccountId, row.FromValue, issueFieldMap)
+				if toAccountId != "" {
+					changelog.OriginalToValue = accountIdGen.Generate(connectionId, toAccountId)
 				}
 			}
 
@@ -199,6 +179,25 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
+}
+
+func tryToResolveAccountIdFromAccountLikeField(fieldName string, tmpAccountId string, fromOrToValue string, issueFieldMap map[string]models.JiraIssueField) string {
+	if tmpAccountId != "" {
+		// process other account-like fields, it works on jira9 and jira cloud.
+		if fromOrToValue != "" {
+			return fromOrToValue
+		} else {
+			return tmpAccountId
+		}
+	} else {
+		// it works on jira8
+		// notice: field name is not unique, but we cannot fetch field id here.
+		if v, ok := issueFieldMap[fieldName]; ok && v.SchemaType == "user" {
+			// field type is account
+			return fromOrToValue
+		}
+	}
+	return ""
 }
 
 func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.DomainIdGenerator) (string, errors.Error) {
