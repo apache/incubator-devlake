@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -27,8 +28,12 @@ import (
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 )
 
+var createDbPipelineLock sync.Mutex
+
 // CreateDbPipeline returns a NewPipeline
 func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipeline, err errors.Error) {
+	createDbPipelineLock.Lock()
+	defer createDbPipelineLock.Unlock()
 	pipeline = &models.Pipeline{}
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	defer txHelper.End()
@@ -49,7 +54,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 			dal.From(&models.Pipeline{}),
 			dal.Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, models.PendingTaskStatus),
 		))
-		// some pipeline is ruunning , get the detail and output them.
+		// some pipeline is running, get the detail and output them.
 		if count > 0 {
 			return nil, errors.BadInput.New("there are pending pipelines of current blueprint already")
 		}
