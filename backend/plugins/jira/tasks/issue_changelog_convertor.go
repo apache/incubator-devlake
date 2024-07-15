@@ -164,7 +164,7 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 				if fromAccountId != "" {
 					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, fromAccountId)
 				}
-				toAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.TmpFromAccountId, row.FromValue, issueFieldMap)
+				toAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.TmpToAccountId, row.ToValue, issueFieldMap)
 				if toAccountId != "" {
 					changelog.OriginalToValue = accountIdGen.Generate(connectionId, toAccountId)
 				}
