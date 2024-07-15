@@ -132,7 +132,7 @@ func GeneratePlanJsonV200(
 			}
 		}
 	}
-	plan := SequencializePipelinePlans(
+	plan := SequentializePipelinePlans(
 		planForProjectMapping,
 		ParallelizePipelinePlans(sourcePlans...),
 		ParallelizePipelinePlans(metricPlans...),
