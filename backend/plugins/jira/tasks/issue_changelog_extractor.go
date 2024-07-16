@@ -42,6 +42,10 @@ func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 	connectionId := data.Options.ConnectionId
+	userFieldMap, err := getUserFieldMap(taskCtx.GetDal(), connectionId, taskCtx.GetLogger())
+	if err != nil {
+		return err
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -76,7 +80,7 @@ func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			// collect changelog_items
 			for _, item := range changelog.Items {
 				result = append(result, item.ToToolLayer(connectionId, changelog.ID))
-				extractedUsersFromChangelogItem := item.ExtractUser(connectionId)
+				extractedUsersFromChangelogItem := item.ExtractUser(connectionId, userFieldMap)
 				for _, u := range extractedUsersFromChangelogItem {
 					if u != nil && u.AccountId != "" {
 						result = append(result, u)
