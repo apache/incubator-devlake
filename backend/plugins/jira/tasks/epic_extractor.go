@@ -79,8 +79,12 @@ func getIssueFieldMap(db dal.Dal, connectionId uint64, logger log.Logger) (map[s
 	for _, v := range allIssueFields {
 		if _, ok := issueFieldMap[v.Name]; ok {
 			logger.Warn(nil, "filed name %s is duplicated", v.Name)
+			if v.SchemaType == "user" {
+				issueFieldMap[v.Name] = v
+			}
+		} else {
+			issueFieldMap[v.Name] = v
 		}
-		issueFieldMap[v.Name] = v
 	}
 	return issueFieldMap, nil
 }
