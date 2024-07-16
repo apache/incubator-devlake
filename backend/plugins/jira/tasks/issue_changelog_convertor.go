@@ -89,16 +89,9 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	var allIssueFields []models.JiraIssueField
-	if err := db.All(&allIssueFields, dal.Where("connection_id = ?", connectionId)); err != nil {
+	issueFieldMap, err := getIssueFieldMap(db, connectionId, logger)
+	if err != nil {
 		return err
-	}
-	issueFieldMap := make(map[string]models.JiraIssueField)
-	for _, v := range allIssueFields {
-		if _, ok := issueFieldMap[v.Name]; ok {
-			logger.Warn(nil, "filed name %s is duplicated", v.Name)
-		}
-		issueFieldMap[v.Name] = v
 	}
 
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
@@ -160,16 +153,15 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
 			default:
-				fromAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.TmpFromAccountId, row.FromValue, issueFieldMap)
-				if fromAccountId != "" {
-					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, fromAccountId)
-				}
-				toAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.TmpToAccountId, row.ToValue, issueFieldMap)
-				if toAccountId != "" {
-					changelog.OriginalToValue = accountIdGen.Generate(connectionId, toAccountId)
+				if v, ok := issueFieldMap[row.FieldId]; ok && v.SchemaType == "user" {
+					if row.FromValue != "" {
+						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
+					}
+					if row.ToValue != "" {
+						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
+					}
 				}
 			}
-
 			return []interface{}{changelog}, nil
 		},
 	})
@@ -179,25 +171,6 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
-}
-
-func tryToResolveAccountIdFromAccountLikeField(fieldName string, tmpAccountId string, fromOrToValue string, issueFieldMap map[string]models.JiraIssueField) string {
-	if tmpAccountId != "" {
-		// process other account-like fields, it works on jira9 and jira cloud.
-		if fromOrToValue != "" {
-			return fromOrToValue
-		} else {
-			return tmpAccountId
-		}
-	} else {
-		// it works on jira8
-		// notice: field name is not unique, but we cannot fetch field id here.
-		if v, ok := issueFieldMap[fieldName]; ok && v.SchemaType == "user" {
-			// field type is account
-			return fromOrToValue
-		}
-	}
-	return ""
 }
 
 func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.DomainIdGenerator) (string, errors.Error) {

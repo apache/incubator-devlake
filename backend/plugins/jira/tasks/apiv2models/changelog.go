@@ -76,23 +76,15 @@ func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.Jir
 	return item
 }
 
-func (c ChangelogItem) ExtractUser(connectionId uint64) []*models.JiraAccount {
+func (c ChangelogItem) ExtractUser(connectionId uint64, userFieldMaps map[string]struct{}) []*models.JiraAccount {
 	var result []*models.JiraAccount
-	// if `tmpFromAccountId` or `tmpToAccountId` is not empty, then this change log item stands for changes about accounts.
-	if c.TmpFromAccountId != "" {
-		// User `from` firstly
+	_, ok := userFieldMaps[c.Field]
+	if c.Field == "assignee" || c.Field == "reporter" || ok {
 		if c.FromValue != "" {
 			result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.FromValue})
-		} else {
-			result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.TmpFromAccountId})
 		}
-	}
-	if c.TmpToAccountId != "" {
-		// User `to` firstly
 		if c.ToValue != "" {
 			result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.ToValue})
-		} else {
-			result = append(result, &models.JiraAccount{ConnectionId: connectionId, AccountId: c.TmpToAccountId})
 		}
 	}
 	return result
