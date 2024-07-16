@@ -152,16 +152,15 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
 			default:
-				fromAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.FromValue, issueFieldMap)
-				if fromAccountId != "" {
-					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, fromAccountId)
-				}
-				toAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.ToValue, issueFieldMap)
-				if toAccountId != "" {
-					changelog.OriginalToValue = accountIdGen.Generate(connectionId, toAccountId)
+				if v, ok := issueFieldMap[row.FieldId]; ok && v.SchemaType == "user" {
+					if row.FromValue != "" {
+						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
+					}
+					if row.ToValue != "" {
+						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
+					}
 				}
 			}
-
 			return []interface{}{changelog}, nil
 
 		},
@@ -172,15 +171,6 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
-}
-
-func tryToResolveAccountIdFromAccountLikeField(fieldName string, fromOrToValue string, issueFieldMap map[string]models.JiraIssueField) string {
-	// notice: field name is not unique, but we cannot fetch field id here.
-	if v, ok := issueFieldMap[fieldName]; ok && v.SchemaType == "user" {
-		// field type is account
-		return fromOrToValue
-	}
-	return ""
 }
 
 func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.DomainIdGenerator) (string, errors.Error) {
