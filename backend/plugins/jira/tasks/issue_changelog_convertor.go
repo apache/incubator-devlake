@@ -159,11 +159,11 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
 			default:
-				fromAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.TmpFromAccountId, row.FromValue, issueFieldMap)
+				fromAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.FromValue, issueFieldMap)
 				if fromAccountId != "" {
 					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, fromAccountId)
 				}
-				toAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.TmpToAccountId, row.ToValue, issueFieldMap)
+				toAccountId := tryToResolveAccountIdFromAccountLikeField(row.Field, row.ToValue, issueFieldMap)
 				if toAccountId != "" {
 					changelog.OriginalToValue = accountIdGen.Generate(connectionId, toAccountId)
 				}
@@ -181,21 +181,11 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	return converter.Execute()
 }
 
-func tryToResolveAccountIdFromAccountLikeField(fieldName string, tmpAccountId string, fromOrToValue string, issueFieldMap map[string]models.JiraIssueField) string {
-	if tmpAccountId != "" {
-		// process other account-like fields, it works on jira9 and jira cloud.
-		if fromOrToValue != "" {
-			return fromOrToValue
-		} else {
-			return tmpAccountId
-		}
-	} else {
-		// it works on jira8
-		// notice: field name is not unique, but we cannot fetch field id here.
-		if v, ok := issueFieldMap[fieldName]; ok && v.SchemaType == "user" {
-			// field type is account
-			return fromOrToValue
-		}
+func tryToResolveAccountIdFromAccountLikeField(fieldName string, fromOrToValue string, issueFieldMap map[string]models.JiraIssueField) string {
+	// notice: field name is not unique, but we cannot fetch field id here.
+	if v, ok := issueFieldMap[fieldName]; ok && v.SchemaType == "user" {
+		// field type is account
+		return fromOrToValue
 	}
 	return ""
 }
