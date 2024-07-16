@@ -123,5 +123,7 @@ func All() []plugin.MigrationScript {
 		new(modifyPrAssigneeAndReviewerId),
 		new(addChangesToPr),
 		new(addMergedByToPr),
+		new(addPullRequestIdIndexToPullRequestCommits),
+		new(addPullRequestIdIndexToPullRequestComments),
 	}
 }
