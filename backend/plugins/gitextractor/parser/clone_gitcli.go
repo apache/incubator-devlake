@@ -97,11 +97,11 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	if since != nil {
 		// fixes error described on https://stackoverflow.com/questions/63878612/git-fatal-error-in-object-unshallow-sha-1
 		// It might be casued by the commit which being deepen has mulitple parent(e.g. a merge commit), not sure.
-		if err := g.execGitCommand(ctx, "-C", localDir, "repack", "-d"); err != nil {
+		if err := g.execGitCommandIn(ctx, localDir, "repack", "-d"); err != nil {
 			return errors.Default.Wrap(err, "failed to repack the repo")
 		}
 		// deepen would fail on a EMPTY repo, ignore the error
-		if err := g.execGitCommand(ctx, "-C", localDir, "fetch", "--deepen=1"); err != nil {
+		if err := g.execGitCommandIn(ctx, localDir, "fetch", "--deepen=1"); err != nil {
 			g.logger.Error(err, "failed to deepen the cloned repo")
 		}
 	}
@@ -141,7 +141,10 @@ func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir s
 		}
 		// 3. fetch all new commits from all branches since the given time
 		args = append([]string{"fetch", "--progress", fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339))}, args...)
-		return g.execGitCommandIn(ctx, localDir, args...)
+		if err := g.execGitCommandIn(ctx, localDir, args...); err != nil {
+			g.logger.Warn(err, "shallow fetch failed")
+		}
+		return nil
 	} else {
 		args = append([]string{"clone", taskData.Options.Url, localDir, "--progress", "--bare"}, args...)
 		return g.execGitCommand(ctx, args...)
