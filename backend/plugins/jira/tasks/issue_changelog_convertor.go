@@ -153,7 +153,7 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
 			default:
-				if v, ok := issueFieldMap[row.FieldId]; ok && v.SchemaType == "user" {
+				if v, ok := issueFieldMap[row.Field]; ok && v.SchemaType == "user" {
 					if row.FromValue != "" {
 						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
 					}
