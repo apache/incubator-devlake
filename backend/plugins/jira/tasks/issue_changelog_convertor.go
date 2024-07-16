@@ -68,16 +68,9 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 		statusMap[v.ID] = v
 	}
 
-	var allIssueFields []models.JiraIssueField
-	if err := db.All(&allIssueFields, dal.Where("connection_id = ?", connectionId)); err != nil {
+	issueFieldMap, err := getIssueFieldMap(db, connectionId, logger)
+	if err != nil {
 		return err
-	}
-	issueFieldMap := make(map[string]models.JiraIssueField)
-	for _, v := range allIssueFields {
-		if _, ok := issueFieldMap[v.Name]; ok {
-			logger.Warn(nil, "filed name %s is duplicated", v.Name)
-		}
-		issueFieldMap[v.Name] = v
 	}
 
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})

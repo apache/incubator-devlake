@@ -58,6 +58,10 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	userFieldMap, err := getUserFieldMap(db, connectionId, logger)
+	if err != nil {
+		return err
+	}
 	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
@@ -69,7 +73,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			SubtaskConfig: mappings,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			return extractIssues(data, mappings, row)
+			return extractIssues(data, mappings, row, userFieldMap)
 		},
 	})
 	if err != nil {
@@ -78,7 +82,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData) ([]interface{}, errors.Error) {
+func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
 	var apiIssue apiv2models.Issue
 	err := errors.Convert(json.Unmarshal(row.Data, &apiIssue))
 	if err != nil {
@@ -93,7 +97,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 	if apiIssue.Fields.Created == nil {
 		return results, nil
 	}
-	sprints, issue, comments, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
+	sprints, issue, comments, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId, userFieldMaps)
 	for _, sprintId := range sprints {
 		sprintIssue := &models.JiraSprintIssue{
 			ConnectionId:     data.Options.ConnectionId,
