@@ -300,7 +300,7 @@ func (i *Issue) SetAllFields(raw json.RawMessage) errors.Error {
 	return nil
 }
 
-func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraIssueComment, []*models.JiraWorklog, []*models.JiraIssueChangelogs, []*models.JiraIssueChangelogItems, []*models.JiraAccount) {
+func (i Issue) ExtractEntities(connectionId uint64, userFieldMaps map[string]struct{}) ([]uint64, *models.JiraIssue, []*models.JiraIssueComment, []*models.JiraWorklog, []*models.JiraIssueChangelogs, []*models.JiraIssueChangelogItems, []*models.JiraAccount) {
 	issue := i.toToolLayer(connectionId)
 	var comments []*models.JiraIssueComment
 	var worklogs []*models.JiraWorklog
@@ -341,7 +341,7 @@ func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue
 			}
 			for _, item := range changelog.Items {
 				changelogItems = append(changelogItems, item.ToToolLayer(connectionId, changelog.ID))
-				users = append(users, item.ExtractUser(connectionId)...)
+				users = append(users, item.ExtractUser(connectionId, userFieldMaps)...)
 			}
 		}
 	}
