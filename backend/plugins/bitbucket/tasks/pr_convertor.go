@@ -86,6 +86,10 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				BaseCommitSha:  pr.BaseCommitSha,
 				HeadRef:        pr.HeadRef,
 				HeadCommitSha:  pr.HeadCommitSha,
+				MergedByName:   pr.MergedByName,
+			}
+			if pr.MergedById != "" {
+				domainPr.MergedById = domainUserIdGen.Generate(data.Options.ConnectionId, pr.MergedById)
 			}
 			switch pr.State {
 			case "OPEN":
