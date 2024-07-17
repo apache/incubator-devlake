@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 21,
+  "id": 12,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -234,7 +234,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  priority,\n  count(distinct i.id) as 'Issue Number'\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})\ngroup by 1",
+          "rawSql": "select\n  priority,\n  count(distinct i.id) as 'Issue Number'\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and i.created_date BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})\ngroup by 1",
           "refId": "A",
           "select": [
             [
@@ -311,59 +311,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "url"
-            },
-            "properties": [
-              {
-                "id": "links"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "number"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 343
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "title"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 753
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "url"
-            },
-            "properties": [
-              {
-                "id": "links",
-                "value": [
-                  {
-                    "targetBlank": true,
-                    "title": "URL",
-                    "url": "${__value.raw}"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Issue Number"
             },
             "properties": [
@@ -382,6 +329,28 @@
               {
                 "id": "custom.width",
                 "value": 640
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "",
+                    "url": "${__data.fields.Url}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Url"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
               }
             ]
           }
@@ -418,12 +387,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})",
+          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  i.url as 'Url',\n  i.creator_name as 'Creator'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and i.created_date BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})",
           "refId": "A",
           "select": [
             [
@@ -435,6 +405,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_migration_history",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -515,7 +502,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(distinct i.id)\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})",
+          "rawSql": "select\n  count(distinct i.id)\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and status = 'DONE'\n  and i.resolution_date BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})",
           "refId": "A",
           "select": [
             [
@@ -623,12 +610,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  avg(lead_time_minutes / 1440)\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})",
+          "rawSql": "select\n  avg(lead_time_minutes / 1440)\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and status = 'DONE'\n  and i.resolution_date BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})",
           "refId": "A",
           "select": [
             [
@@ -640,6 +628,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_migration_history",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -705,7 +710,17 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 541
+                "value": 639
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "",
+                    "url": "${__data.fields.Url}"
+                  }
+                ]
               }
             ]
           },
@@ -716,8 +731,8 @@
             },
             "properties": [
               {
-                "id": "custom.width",
-                "value": 414
+                "id": "custom.hidden",
+                "value": true
               }
             ]
           },
@@ -768,12 +783,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  lead_time_minutes/1440 as 'Lead Time in Days',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})",
+          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  lead_time_minutes/1440 as 'Lead Time in Days',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and status = 'DONE'\n  and i.resolution_date BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})",
           "refId": "A",
           "select": [
             [
@@ -785,6 +801,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_migration_history",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -896,7 +929,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  concat('#',i.issue_key, ' ', i.title) as issue_key,\n  lead_time_minutes/1440 as lead_time\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})\norder by lead_time desc\nlimit 10",
+          "rawSql": "select\n  concat('#',i.issue_key, ' ', i.title) as issue_key,\n  lead_time_minutes/1440 as lead_time\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and status = 'DONE'\n  and i.resolution_date BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate()) DAY\n  and b.id in (${board_id})\norder by lead_time desc\nlimit 10",
           "refId": "A",
           "select": [
             [
@@ -1173,18 +1206,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Queue Time"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 150
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Issue Number"
             },
             "properties": [
@@ -1197,24 +1218,22 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Queue Time in Days"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 152
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Title"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 547
+                "value": 641
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "",
+                    "url": "${__data.fields.Url}"
+                  }
+                ]
               }
             ]
           },
@@ -1239,7 +1258,32 @@
             },
             "properties": [
               {
-                "id": "custom.width"
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Priority"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 104
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Severity"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 112
               }
             ]
           }
@@ -1276,12 +1320,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url',\n  priority\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and i.status != 'DONE'\n  and b.id in (${board_id})\n  and priority in (${priority})\norder by 'Queue Time' desc",
+          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  priority as 'Priority',\n  severity as 'Severity',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url'\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and i.status != 'DONE'\n  and b.id in (${board_id})\n  and priority in (${priority})\norder by 'Queue Time' desc",
           "refId": "A",
           "select": [
             [
@@ -1293,6 +1338,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_migration_history",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1493,24 +1555,22 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Queue Time in Days"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 152
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Title"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 547
+                "value": 641
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "",
+                    "url": "${__data.fields.Url}"
+                  }
+                ]
               }
             ]
           },
@@ -1525,6 +1585,42 @@
                 "value": {
                   "type": "color-text"
                 }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Url"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Priority"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 103
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Severity"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 112
               }
             ]
           }
@@ -1561,12 +1657,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url'\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and i.status != 'DONE'\n  and i.assignee_name = ''\n  and b.id in (${board_id})\norder by 'Queue Time' desc",
+          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  priority as 'Priority',\n  severity as 'Severity',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url'\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in (${issue_type})\n  and i.status != 'DONE'\n  and i.assignee_name = ''\n  and b.id in (${board_id})\norder by 'Queue Time' desc",
           "refId": "A",
           "select": [
             [
@@ -1578,6 +1675,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_migration_history",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -2095,7 +2209,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
@@ -2129,6 +2243,6 @@
   "timezone": "",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
-  "version": 3,
+  "version": 5,
   "weekStart": ""
 }
