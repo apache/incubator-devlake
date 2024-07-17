@@ -54,6 +54,7 @@ type IssueChangelogItemResult struct {
 func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	data := subtaskCtx.GetData().(*JiraTaskData)
 	db := subtaskCtx.GetDal()
+	logger := subtaskCtx.GetLogger()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 
@@ -65,6 +66,11 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	statusMap := make(map[string]models.JiraStatus)
 	for _, v := range allStatus {
 		statusMap[v.ID] = v
+	}
+
+	issueFieldMap, err := getIssueFieldMap(db, connectionId, logger)
+	if err != nil {
+		return err
 	}
 
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
@@ -119,15 +125,15 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 				OriginalToValue:   row.ToString,
 				CreatedDate:       row.Created,
 			}
-			if row.Field == "assignee" {
-				if row.ToValue != "" {
-					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
-				}
+			switch row.Field {
+			case "assignee", "reporter":
 				if row.FromValue != "" {
 					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
 				}
-			}
-			if row.Field == "Sprint" {
+				if row.ToValue != "" {
+					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
+				}
+			case "Sprint":
 				changelog.OriginalFromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
 				if err != nil {
 					return nil, err
@@ -136,8 +142,7 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 				if err != nil {
 					return nil, err
 				}
-			}
-			if row.Field == "status" {
+			case "status":
 				if fromStatus, ok := statusMap[row.FromValue]; ok {
 					changelog.OriginalFromValue = fromStatus.Name
 					changelog.FromValue = getStdStatus(fromStatus.StatusCategory)
@@ -145,6 +150,15 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 				if toStatus, ok := statusMap[row.ToValue]; ok {
 					changelog.OriginalToValue = toStatus.Name
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
+				}
+			default:
+				if v, ok := issueFieldMap[row.Field]; ok && v.SchemaType == "user" {
+					if row.FromValue != "" {
+						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
+					}
+					if row.ToValue != "" {
+						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
+					}
 				}
 			}
 			return []interface{}{changelog}, nil
