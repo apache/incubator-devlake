@@ -43,7 +43,7 @@ func (*addCreatedStoppedDateToWorkflow) Up(basicRes context.BasicRes) errors.Err
 }
 
 func (*addCreatedStoppedDateToWorkflow) Version() uint64 {
-	return 20231129211000
+	return 20240717210714
 }
 
 func (*addCreatedStoppedDateToWorkflow) Name() string {
