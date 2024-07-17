@@ -50,7 +50,7 @@ func TestCircleciPipeline(t *testing.T) {
 		e2ehelper.TableOptions{
 			CSVRelPath:   "./snapshot_tables/_tool_circleci_pipelines.csv",
 			IgnoreTypes:  []interface{}{common.NoPKModel{}},
-			IgnoreFields: []string{"started_at", "stopped_at"},
+			IgnoreFields: []string{"stopped_date"},
 		},
 	)
 }
