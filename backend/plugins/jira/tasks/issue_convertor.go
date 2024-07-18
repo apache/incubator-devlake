@@ -85,6 +85,7 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			return db.Cursor(clauses...)
 		},
 		Convert: func(jiraIssue *models.JiraIssue) ([]interface{}, errors.Error) {
+			var result []interface{}
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: issueIdGen.Generate(jiraIssue.ConnectionId, jiraIssue.IssueId),
@@ -116,16 +117,6 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			if jiraIssue.CreatorDisplayName != "" {
 				issue.CreatorName = jiraIssue.CreatorDisplayName
 			}
-			var result []interface{}
-			if jiraIssue.AssigneeAccountId != "" {
-				issue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.AssigneeAccountId)
-				issueAssignee := &ticket.IssueAssignee{
-					IssueId:      issue.Id,
-					AssigneeId:   issue.AssigneeId,
-					AssigneeName: issue.AssigneeName,
-				}
-				result = append(result, issueAssignee)
-			}
 			if jiraIssue.AssigneeDisplayName != "" {
 				issue.AssigneeName = jiraIssue.AssigneeDisplayName
 			}
@@ -136,6 +127,15 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 				issue.Type = ticket.SUBTASK
 			}
 			result = append(result, issue)
+			if jiraIssue.AssigneeAccountId != "" {
+				issue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.AssigneeAccountId)
+				issueAssignee := &ticket.IssueAssignee{
+					IssueId:      issue.Id,
+					AssigneeId:   issue.AssigneeId,
+					AssigneeName: issue.AssigneeName,
+				}
+				result = append(result, issueAssignee)
+			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardId,
 				IssueId: issue.Id,
