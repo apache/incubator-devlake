@@ -108,9 +108,11 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 
 func (p GitExtractor) Close(taskCtx plugin.TaskContext) errors.Error {
 	if taskData, ok := taskCtx.GetData().(*parser.GitExtractorTaskData); ok {
-		if taskData.GitRepo != nil {
-			if err := taskData.GitRepo.Close(taskCtx.GetContext()); err != nil {
-				return errors.Convert(err)
+		if !taskCtx.GetConfigReader().GetBool("GIT_EXTRACTOR_KEEP_REPO") {
+			if taskData.GitRepo != nil {
+				if err := taskData.GitRepo.Close(taskCtx.GetContext()); err != nil {
+					return errors.Convert(err)
+				}
 			}
 		}
 	}
