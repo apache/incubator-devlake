@@ -235,7 +235,22 @@ func (g *GitcliCloner) execCommand(cmd *exec.Cmd) errors.Error {
 			strings.Contains(outputString, "fatal: the remote end hung up unexpectedly") {
 			return ErrNoData
 		}
-		return errors.Default.New(fmt.Sprintf("git cmd %v in %s failed: %s", cmd.Args, cmd.Dir, outputString))
+		return errors.Default.New(fmt.Sprintf("git cmd %v in %s failed: %s", sanitizeArgs(cmd.Args), cmd.Dir, outputString))
 	}
 	return nil
+}
+
+func sanitizeArgs(args []string) []string {
+	var ret []string
+	for _, arg := range args {
+		u, err := url.Parse(arg)
+		if err == nil && u != nil && u.User != nil {
+			password, ok := u.User.Password()
+			if ok {
+				arg = strings.Replace(arg, password, strings.Repeat("*", len(password)), -1)
+			}
+		}
+		ret = append(ret, arg)
+	}
+	return ret
 }
