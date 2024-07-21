@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_PIPELINE_TABLE = "circleci_api_pipelines"
@@ -61,7 +62,7 @@ func CollectPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			if pageToken, ok := reqData.CustomData.(string); ok && pageToken != "" {
-				query.Set("page_token", reqData.CustomData.(string))
+				query.Set("page-token", reqData.CustomData.(string))
 			}
 			return query, nil
 		},
