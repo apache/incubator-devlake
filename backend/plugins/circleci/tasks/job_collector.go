@@ -18,9 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-	"net/http"
-	"net/url"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -64,33 +61,13 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		UrlTemplate:        "/v2/workflow/{{ .Input.Id }}/job",
-		Input:              iterator,
-		GetNextPageCustomData: func(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
-			res := CircleciPageTokenResp[any]{}
-			err := api.UnmarshalResponse(prevPageResponse, &res)
-			if err != nil {
-				return nil, err
-			}
-			if res.NextPageToken == "" {
-				return nil, api.ErrFinishCollect
-			}
-			return res.NextPageToken, nil
-		},
-		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			if pageToken, ok := reqData.CustomData.(string); ok && pageToken != "" {
-				query.Set("page-token", reqData.CustomData.(string))
-			}
-			return query, nil
-		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			data := CircleciPageTokenResp[[]json.RawMessage]{}
-			err := api.UnmarshalResponse(res, &data)
-			return data.Items, err
-		},
+		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
+		ApiClient:             data.ApiClient,
+		UrlTemplate:           "/v2/workflow/{{ .Input.Id }}/job",
+		Input:                 iterator,
+		GetNextPageCustomData: ExtractNextPageToken,
+		Query:                 BuildQueryParamsWithPageToken,
+		ResponseParser:        ParseCircleciPageTokenResp,
 	})
 	if err != nil {
 		logger.Error(err, "collect jobs error")
