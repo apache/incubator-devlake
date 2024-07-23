@@ -93,6 +93,7 @@ func (p Azuredevops) GetTablesInfo() []dal.Tabler {
 		&models.AzuredevopsScopeConfig{},
 		&models.AzuredevopsTimelineRecord{},
 		&models.AzuredevopsUser{},
+		&models.AzuredevopsWorkItem{},
 	}
 }
 

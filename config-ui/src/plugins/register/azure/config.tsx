@@ -117,8 +117,15 @@ export const AzureGoConfig: IPluginConfig = {
     },
   },
   scopeConfig: {
-    entities: ['CODE', 'CODEREVIEW', 'CROSS', 'CICD'],
+    entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
     transformation: {
+      issueTypeRequirement: '(feat|feature|proposal|requirement)',
+      issueTypeBug: '(bug|broken)',
+      issueTypeIncident: '(incident|failure)',
+      issuePriority: '(highest|high|medium|low|p0|p1|p2|p3)',
+      issueComponent: 'component(.*)',
+      issueSeverity: 'severity(.*)',
+      envNamePattern: '(?i)prod(.*)',
       deploymentPattern: '(deploy|push-image)',
       productionPattern: 'prod(.*)',
       refdiff: {

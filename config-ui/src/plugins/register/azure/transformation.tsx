@@ -17,7 +17,7 @@
  */
 
 import { CaretRightOutlined } from '@ant-design/icons';
-import { theme, Collapse, Tag, Input } from 'antd';
+import {theme, Collapse, Tag, Input, Form} from 'antd';
 
 import { ExternalLink, HelpTooltip } from '@/components';
 import { DOC_URL } from '@/release';
@@ -41,7 +41,7 @@ export const AzureTransformation = ({ entities, transformation, setTransformatio
   return (
     <Collapse
       bordered={false}
-      defaultActiveKey={['CICD']}
+      defaultActiveKey={['TICKET', 'CICD']}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev="" />}
       style={{ background: token.colorBgContainer }}
       size="large"
@@ -67,6 +67,126 @@ const renderCollapseItems = ({
   onChangeTransformation: any;
 }) =>
   [
+    {
+      key: 'TICKET',
+      label: 'Issue Tracking',
+      style: panelStyle,
+      children: (
+        <>
+          <p>
+            Tell DevLake what your issue labels mean to view metrics such as{' '}
+            <ExternalLink link={DOC_URL.METRICS.BUG_AGE}>Bug Age</ExternalLink>,{' '}
+            <ExternalLink link={DOC_URL.METRICS.MTTR}>DORA - Median Time to Restore Service</ExternalLink>, etc.
+          </p>
+          <p>
+            DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Set your issues to these three
+            types with issue labels that match the RegEx.
+          </p>
+          <Form.Item label="Requirement">
+            <Input
+              placeholder="(feat|feature|proposal|requirement)"
+              value={transformation.issueTypeRequirement ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueTypeRequirement: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="Bug">
+            <Input
+              placeholder="(bug|broken)"
+              value={transformation.issueTypeBug ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueTypeBug: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span>Incident</span>
+                <Tag style={{ marginLeft: 4 }} color="blue">
+                  DORA
+                </Tag>
+              </>
+            }
+          >
+            <Input
+              placeholder="(incident|failure)"
+              value={transformation.issueTypeIncident ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueTypeIncident: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span style={{ marginRight: 4 }}>Issue Priority</span>
+                <HelpTooltip content="Labels that match the RegEx will be set as the priority of an issue." />
+              </>
+            }
+          >
+            <Input
+              placeholder="(highest|high|medium|low|p0|p1|p2|p3)"
+              value={transformation.issuePriority ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issuePriority: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span style={{ marginRight: 4 }}>Issue Component</span>
+                <HelpTooltip content="Labels that match the RegEx will be set as the component of an issue." />
+              </>
+            }
+          >
+            <Input
+              placeholder="component(.*)"
+              value={transformation.issueComponent ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueComponent: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span style={{ marginRight: 4 }}>Issue Severity</span>
+                <HelpTooltip content="Labels that match the RegEx will be set as the serverity of an issue." />
+              </>
+            }
+          >
+            <Input
+              placeholder="severity(.*)"
+              value={transformation.issueSeverity ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  issueSeverity: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+        </>
+      ),
+    },
     {
       key: 'CICD',
       label: 'CI/CD',
