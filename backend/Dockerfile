@@ -134,7 +134,7 @@ EXPOSE 8080
 
 RUN useradd -ms /bin/bash -d /app devlake -u 1010
 RUN chown -R devlake:devlake /etc/ssl/certs
-USER devlake
+USER 1010
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
