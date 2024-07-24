@@ -104,7 +104,7 @@ export const ScopeConfigForm = ({
           : API.scopeConfig.update(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
       {
         setOperating,
-        formatMessage: () => (!scopeConfigId ? 'Create scope config successful.' : 'Update scope config successful'),
+        hideToast: true,
       },
     );
 
