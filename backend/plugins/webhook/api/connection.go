@@ -44,6 +44,9 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	tx := basicRes.GetDal().Begin()
 	err := connectionHelper.CreateWithTx(tx, connection, input)
 	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
 		return nil, err
 	}
 	logger.Info("connection: %+v", connection)
