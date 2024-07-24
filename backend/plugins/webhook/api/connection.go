@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -46,6 +47,9 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		if err := tx.Rollback(); err != nil {
 			logger.Error(err, "transaction Rollback")
+		}
+		if strings.Contains(err.Error(), "the connection name already exists (400)") {
+			return nil, errors.BadInput.New(fmt.Sprintf("A webhook with name %s already exists.", connection.Name))
 		}
 		return nil, err
 	}
