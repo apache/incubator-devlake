@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type GithubPullRequest struct {
@@ -39,6 +40,7 @@ type GithubPullRequest struct {
 	Comments       int
 	Commits        int
 	ReviewComments int
+	IsDraft        bool
 	Merged         bool
 	MergedAt       *time.Time
 	Body           string
@@ -52,6 +54,8 @@ type GithubPullRequest struct {
 	Url            string `gorm:"type:varchar(255)"`
 	AuthorName     string `gorm:"type:varchar(100)"`
 	AuthorId       int
+	MergedByName   string `gorm:"type:varchar(100)"`
+	MergedById     int
 	common.NoPKModel
 }
 

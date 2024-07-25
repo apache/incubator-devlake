@@ -18,13 +18,9 @@
 
 import { useState, useEffect, useContext } from 'react';
 import { Input, Flex, Button, message } from 'antd';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-import Zoom from 'react-medium-image-zoom';
-import 'react-medium-image-zoom/dist/styles.css';
 
 import API from '@/api';
-import { Block } from '@/components';
+import { Block, Markdown } from '@/components';
 import { ConnectionSelect } from '@/plugins';
 import { validName } from '@/routes/project';
 import { operator } from '@/utils';
@@ -55,6 +51,16 @@ export const Step1 = () => {
       return;
     }
 
+    const [, res] = await operator(() => API.project.checkName(projectName), {
+      setOperating,
+      hideToast: true,
+    });
+
+    if (res.exist) {
+      message.error(`Project name "${projectName}" already exists, please try another name.`);
+      return;
+    }
+
     const [success] = await operator(() => API.store.set('onboard', { step: 2, records, done, projectName, plugin }), {
       setOperating,
       hideToast: true,
@@ -81,7 +87,7 @@ export const Step1 = () => {
               onChange={(e) => setProjectName(e.target.value)}
             />
           </Block>
-          <Block title="Data Connections" description="You can only choose one data connection" required>
+          <Block title="Data Connection" description="You can only choose one data connection" required>
             <ConnectionSelect
               placeholder="Select a Data Connection"
               options={[
@@ -111,19 +117,7 @@ export const Step1 = () => {
             />
           </Block>
         </div>
-        <Markdown
-          className="qa"
-          rehypePlugins={[rehypeRaw]}
-          components={{
-            img: ({ alt, ...props }) => (
-              <Zoom>
-                <img alt={alt} {...props} />
-              </Zoom>
-            ),
-          }}
-        >
-          {QA}
-        </Markdown>
+        <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 64 }} justify="space-between">
         <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>

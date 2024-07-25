@@ -98,6 +98,12 @@ func CollectAccountOrg(taskCtx plugin.SubTaskContext) errors.Error {
 			res.Body.Close()
 			return []json.RawMessage{body}, nil
 		},
+		AfterResponse: func(res *http.Response) errors.Error {
+			if res.StatusCode == http.StatusNotFound {
+				return api.ErrIgnoreAndContinue
+			}
+			return nil
+		},
 	})
 
 	if err != nil {

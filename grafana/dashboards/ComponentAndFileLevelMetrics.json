@@ -892,7 +892,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n    CASE cast(dayofweek(authored_date) AS char) \n    WHEN '1' THEN\n    '1.Monday'\n    WHEN '2' THEN\n    '2.Tuesday'\n    WHEN '3' THEN\n    '3.Wednesday'\n    WHEN '4' THEN\n    '4.Thursday'\n    WHEN '5' THEN\n    '5.Friday'\n    WHEN '6' THEN\n    '6.Saturday'\n    WHEN '7' THEN\n    '7.Sunday'\n    END AS weekday , count(distinct commit_sha) AS commit_nums\nFROM commits\nJOIN repo_commits\nWHERE $__timeFilter(commits.authored_date)\n        AND commits.sha =repo_commits.commit_sha\n        AND repo_commits.repo_id IN (${repo_id})\nGROUP BY  weekday\n",
+          "rawSql": "SELECT\n    CASE cast(dayofweek(authored_date) AS char) \n    WHEN '1' THEN\n    '1.Sunday'\n    WHEN '2' THEN\n    '2.Monday'\n    WHEN '3' THEN\n    '3.Tuesday'\n    WHEN '4' THEN\n    '4.Wednesday'\n    WHEN '5' THEN\n    '5.Thursday'\n    WHEN '6' THEN\n    '6.Friday'\n    WHEN '7' THEN\n    '7.Saturday'\n    END AS weekday , count(distinct commit_sha) AS commit_nums\nFROM commits\nJOIN repo_commits\nWHERE $__timeFilter(commits.authored_date)\n        AND commits.sha =repo_commits.commit_sha\n        AND repo_commits.repo_id IN (${repo_id})\nGROUP BY  weekday\n",
           "refId": "A",
           "select": [
             [
@@ -1005,7 +1005,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n    CASE cast(dayofweek(authored_date) AS char)\n    WHEN '1' THEN\n    '1.Monday'\n    WHEN '2' THEN\n    '2.Tuesday'\n    WHEN '3' THEN\n    '3.Wednesday'\n    WHEN '4' THEN\n    '4.Thursday'\n    WHEN '5' THEN\n    '5.Friday'\n    WHEN '6' THEN\n    '6.Saturday'\n    WHEN '7' THEN\n    '7.Sunday'\n    END AS weekday , sum(additions-deletions) AS changed_nums, sum(additions) AS total_additions, sum(deletions) AS total_deletions\nFROM commits\nJOIN repo_commits\nWHERE commits.sha =repo_commits.commit_sha\n        AND repo_commits.repo_id IN (${repo_id})\n        AND $__timeFilter(commits.authored_date)\nGROUP BY  weekday\nORDER BY  weekday",
+          "rawSql": "SELECT\n    CASE cast(dayofweek(authored_date) AS char)\n    WHEN '1' THEN\n    '1.Sunday'\n    WHEN '2' THEN\n    '2.Monday'\n    WHEN '3' THEN\n    '3.Tuesday'\n    WHEN '4' THEN\n    '4.Wednesday'\n    WHEN '5' THEN\n    '5.Thursday'\n    WHEN '6' THEN\n    '6.Friday'\n    WHEN '7' THEN\n    '7.Saturday'\n    END AS weekday , sum(additions-deletions) AS changed_nums, sum(additions) AS total_additions, sum(deletions) AS total_deletions\nFROM commits\nJOIN repo_commits\nWHERE commits.sha =repo_commits.commit_sha\n        AND repo_commits.repo_id IN (${repo_id})\n        AND $__timeFilter(commits.authored_date)\nGROUP BY  weekday\nORDER BY  weekday",
           "refId": "A",
           "select": [
             [
@@ -1142,7 +1142,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT    CASE cast(dayofweek(commits.committed_date) AS char)\n              WHEN '1' THEN\n                  '1.Monday'\n              WHEN '2' THEN\n                  '2.Tuesday'\n              WHEN '3' THEN\n                  '3.Wednesday'\n              WHEN '4' THEN\n                  '4.Thursday'\n              WHEN '5' THEN\n                  '5.Friday'\n              WHEN '6' THEN\n                  '6.Saturday'\n              WHEN '7' THEN\n                  '7.Sunday'\n              END AS wd,\n          count(*) as lived_lines\nFROM repo_snapshot\n         JOIN commits\n              ON commits.sha=repo_snapshot.commit_sha\nWHERE repo_snapshot.repo_id IN (${repo_id})\n  AND $__timeFilter(commits.committed_date)\nGROUP BY  wd\nORDER BY  wd ;",
+          "rawSql": "SELECT    CASE cast(dayofweek(commits.committed_date) AS char)\n              WHEN '1' THEN\n                  '1.Sunday'\n              WHEN '2' THEN\n                  '2.Monday'\n              WHEN '3' THEN\n                  '3.Tuesday'\n              WHEN '4' THEN\n                  '4.Wednesday'\n              WHEN '5' THEN\n                  '5.Thursday'\n              WHEN '6' THEN\n                  '6.Friday'\n              WHEN '7' THEN\n                  '7.Saturday'\n              END AS wd,\n          count(*) as lived_lines\nFROM repo_snapshot\n         JOIN commits\n              ON commits.sha=repo_snapshot.commit_sha\nWHERE repo_snapshot.repo_id IN (${repo_id})\n  AND $__timeFilter(commits.committed_date)\nGROUP BY  wd\nORDER BY  wd ;",
           "refId": "A",
           "select": [
             [

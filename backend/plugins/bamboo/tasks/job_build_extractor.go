@@ -56,16 +56,6 @@ func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.JobName)
 			results := make([]interface{}, 0)
 			results = append(results, body)
-			for _, v := range res.VcsRevisions.VcsRevision {
-				results = append(results, &models.BambooPlanBuildVcsRevision{
-					ConnectionId:   data.Options.ConnectionId,
-					PlanBuildKey:   body.PlanBuildKey,
-					PlanResultKey:  body.JobResultKey,
-					RepositoryId:   v.RepositoryId,
-					RepositoryName: v.RepositoryName,
-					VcsRevisionKey: v.VcsRevisionKey,
-				})
-			}
 			return results, nil
 		},
 	})

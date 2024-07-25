@@ -46,8 +46,8 @@ type BugChangelogItemResult struct {
 	ChangelogId       uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	ValueBeforeParsed string     `json:"value_before"`
 	ValueAfterParsed  string     `json:"value_after"`
-	IterationIdFrom   uint64
-	IterationIdTo     uint64
+	IterationIdFrom   int64
+	IterationIdTo     int64
 	common.NoPKModel
 }
 
@@ -148,7 +148,7 @@ func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 var ConvertBugChangelogMeta = plugin.SubTaskMeta{
 	Name:             "convertBugChangelog",
 	EntryPoint:       ConvertBugChangelog,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "convert Tapd bug changelog",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

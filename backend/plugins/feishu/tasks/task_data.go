@@ -26,9 +26,8 @@ type FeishuApiParams struct {
 }
 
 type FeishuOptions struct {
-	ConnectionId            uint64  `json:"connectionId"`
-	NumOfDaysToCollect      float64 `json:"numOfDaysToCollect"`
-	helper.CollectorOptions `mapstructure:",squash"`
+	ConnectionId       uint64  `json:"connectionId"`
+	NumOfDaysToCollect float64 `json:"numOfDaysToCollect"`
 }
 
 type FeishuTaskData struct {

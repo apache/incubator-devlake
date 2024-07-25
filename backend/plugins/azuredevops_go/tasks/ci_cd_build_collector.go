@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
 	"net/url"
 	"strconv"
 	"time"
@@ -46,6 +47,13 @@ var CollectBuildsMeta = plugin.SubTaskMeta{
 func CollectBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawBuildTable)
 	repoId := data.Options.RepositoryId
+	repoType := data.Options.RepositoryType
+	logger := taskCtx.GetLogger()
+
+	if repoType != models.RepositoryTypeADO {
+		repoId = data.Options.ExternalId
+	}
+
 	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
@@ -56,7 +64,7 @@ func CollectBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate: "{{ .Params.OrganizationId }}/{{ .Params.ProjectId }}/_apis/build/builds?api-version=7.1",
 				Query: func(reqData *api.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
 					query := url.Values{}
-					query.Set("repositoryType", "tfsgit")
+					query.Set("repositoryType", repoType)
 					query.Set("repositoryId", repoId)
 					query.Set("$top", strconv.Itoa(reqData.Pager.Size))
 					query.Set("queryOrder", "queueTimeDescending")
@@ -73,7 +81,7 @@ func CollectBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					return query, nil
 				},
 				ResponseParser: ParseRawMessageFromValue,
-				AfterResponse:  change203To401,
+				AfterResponse:  handleClientErrors(repoType, logger),
 			},
 			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
 				var build struct {

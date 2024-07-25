@@ -59,7 +59,7 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: JiraApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -78,11 +78,8 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Info("got user's timezone: %v", loc.String())
 	}
 	jql := "ORDER BY created ASC"
-	if collectorWithState.Since != nil {
-		jql = "and " + buildJQL(*collectorWithState.Since, loc)
-	}
 
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: false,
@@ -123,7 +120,7 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
 
 func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (api.Iterator, errors.Error) {

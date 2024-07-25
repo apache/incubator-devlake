@@ -19,6 +19,7 @@
 import styled from 'styled-components';
 
 import LogoImg from '@/images/logo.svg';
+import LogoHorizontalImg from '@/images/logo-horizontal.svg';
 
 const Wrapper = styled.div`
   display: flex;
@@ -27,12 +28,13 @@ const Wrapper = styled.div`
 
 interface Props {
   style?: React.CSSProperties;
+  direction?: 'vertical' | 'horizontal';
 }
 
-export const Logo = ({ style }: Props) => {
+export const Logo = ({ style, direction = 'vertical' }: Props) => {
   return (
     <Wrapper style={style}>
-      <img src={LogoImg} alt="Logo" />
+      <img src={direction === 'horizontal' ? LogoHorizontalImg : LogoImg} alt="Logo" />
     </Wrapper>
   );
 };

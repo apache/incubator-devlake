@@ -17,11 +17,10 @@
  */
 
 import { useState, useContext, useEffect, useMemo } from 'react';
-import { Flex, Button } from 'antd';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
+import { Flex, Button, Tooltip } from 'antd';
 
 import API from '@/api';
+import { Markdown } from '@/components';
 import { getPluginConfig } from '@/plugins';
 import { ConnectionToken } from '@/plugins/components/connection-form/fields/token';
 import { ConnectionUsername } from '@/plugins/components/connection-form/fields/username';
@@ -75,6 +74,8 @@ export const Step2 = () => {
         }),
       {
         setOperating: setTesting,
+        formatMessage: () => 'Connection success.',
+        formatReason: () => 'Connection failed. Please check your token or network.',
       },
     );
 
@@ -96,7 +97,10 @@ export const Step2 = () => {
           ...payload,
         });
 
-        const newRecords = [...records, { plugin, connectionId: connection.id, pipelineId: '', scopeName: '' }];
+        const newRecords = [
+          ...records,
+          { plugin, connectionId: connection.id, blueprintId: '', pipelineId: '', scopeName: '' },
+        ];
 
         setRecords(newRecords);
 
@@ -134,13 +138,24 @@ export const Step2 = () => {
               subLabel={`Create a personal access token in ${config.name}`}
               initialValue=""
               value={payload.token}
-              setValue={(token) => setPayload({ ...payload, token })}
+              setValue={(token) => {
+                setPayload({ ...payload, token });
+                setTestStatus(false);
+              }}
               error=""
               setError={() => {}}
             />
-            <Button style={{ marginTop: 16 }} disabled={!payload.token} loading={testing} onClick={handleTest}>
-              Connect
-            </Button>
+            <Tooltip title="Test Connection">
+              <Button
+                style={{ marginTop: 16 }}
+                type="primary"
+                disabled={!payload.token}
+                loading={testing}
+                onClick={handleTest}
+              >
+                Connect
+              </Button>
+            </Tooltip>
           </div>
         )}
         {['bitbucket'].includes(plugin) && (
@@ -148,7 +163,10 @@ export const Step2 = () => {
             <ConnectionUsername
               initialValue=""
               value={payload.username}
-              setValue={(username) => setPayload({ ...payload, username })}
+              setValue={(username) => {
+                setPayload({ ...payload, username });
+                setTestStatus(false);
+              }}
               error=""
               setError={() => {}}
             />
@@ -157,18 +175,27 @@ export const Step2 = () => {
               label="App Password"
               initialValue=""
               value={payload.password}
-              setValue={(password) => setPayload({ ...payload, password })}
+              setValue={(password) => {
+                setPayload({ ...payload, password });
+                setTestStatus(false);
+              }}
               error=""
               setError={() => {}}
             />
-            <Button disabled={!payload.username || !payload.password} loading={testing} onClick={handleTest}>
-              Connect
-            </Button>
+            <Tooltip title="Test Connection">
+              <Button
+                style={{ marginTop: 16 }}
+                type="primary"
+                disabled={!payload.username || !payload.password}
+                loading={testing}
+                onClick={handleTest}
+              >
+                Connect
+              </Button>
+            </Tooltip>
           </div>
         )}
-        <Markdown className="qa" rehypePlugins={[rehypeRaw]}>
-          {QA}
-        </Markdown>
+        <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 36 }} justify="space-between">
         <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>

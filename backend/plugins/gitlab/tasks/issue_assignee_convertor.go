@@ -29,12 +29,18 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertIssueAssigneeMeta)
+}
+
 var ConvertIssueAssigneeMeta = plugin.SubTaskMeta{
 	Name:             "convert Issue Assignees",
 	EntryPoint:       ConvertIssueAssignee,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table _tool_gitlab_issue_assignees into  domain layer table issue_assignees",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{models.GitlabIssueAssignee{}.TableName()},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiIssuesMeta},
 }
 
 func ConvertIssueAssignee(taskCtx plugin.SubTaskContext) errors.Error {

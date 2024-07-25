@@ -28,6 +28,8 @@ type BambooPlanBuildVcsRevision struct {
 	RepositoryId   int
 	RepositoryName string `json:"repositoryName"`
 	VcsRevisionKey string `gorm:"primaryKey"`
+	DisplayTitle   string `json:"displayTitle"`
+	Url            string `json:"url"`
 	common.NoPKModel
 }
 

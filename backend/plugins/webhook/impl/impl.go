@@ -88,7 +88,7 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"DELETE": api.DeleteConnection,
 		},
 		"connections/:connectionId/deployments": {
-			"POST": api.PostDeploymentCicdTask,
+			"POST": api.PostDeployments,
 		},
 		"connections/:connectionId/issues": {
 			"POST": api.PostIssue,
@@ -97,7 +97,7 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"POST": api.CloseIssue,
 		},
 		":connectionId/deployments": {
-			"POST": api.PostDeploymentCicdTask,
+			"POST": api.PostDeployments,
 		},
 		":connectionId/issues": {
 			"POST": api.PostIssue,

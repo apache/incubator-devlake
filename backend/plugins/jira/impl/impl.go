@@ -90,6 +90,7 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraIssueComment{},
 		&models.JiraIssueRelationship{},
 		&models.JiraScopeConfig{},
+		&models.JiraIssueField{},
 	}
 }
 
@@ -103,6 +104,9 @@ func (p Jira) Name() string {
 
 func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CollectIssueFieldsMeta,
+		tasks.ExtractIssueFieldsMeta,
+
 		tasks.CollectBoardFilterBeginMeta,
 
 		tasks.CollectStatusMeta,
@@ -322,6 +326,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/dev-panel-commits": {
 			"GET": api.GetCommitsURLs,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 		"generate-regex": {
 			"POST": api.GenRegex,

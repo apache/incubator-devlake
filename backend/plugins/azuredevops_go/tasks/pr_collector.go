@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
-	"time"
 )
 
 func init() {
@@ -43,20 +44,16 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 }
 
 func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*AzuredevopsTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawPrCommitTable)
+	logger := taskCtx.GetLogger()
+	repoType := data.Options.RepositoryType
 
-	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Table:   RawPullRequestTable,
-		Options: data.Options,
-	}
-
-	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	apiCollector, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
 
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
@@ -67,19 +64,19 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("$skip", fmt.Sprint(reqData.Pager.Skip))
 			query.Set("$top", fmt.Sprint(reqData.Pager.Size))
 
-			if collectorWithState.Since != nil {
+			if apiCollector.GetSince() != nil {
 				query.Set("searchCriteria.queryTimeRangeType", "created")
-				query.Set("searchCriteria.minTime", collectorWithState.Since.Format(time.RFC3339))
+				query.Set("searchCriteria.minTime", apiCollector.GetSince().Format(time.RFC3339))
 			}
 			return query, nil
 		},
 		ResponseParser: ParseRawMessageFromValue,
-		AfterResponse:  change203To401,
+		AfterResponse:  handleClientErrors(repoType, logger),
 	})
 
 	if err != nil {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

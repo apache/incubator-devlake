@@ -61,7 +61,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -78,10 +78,10 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
 		clauses = append(
 			clauses,
-			dal.Where("github_updated_at > ?", collectorWithState.Since),
+			dal.Where("github_updated_at > ?", apiCollector.GetSince()),
 		)
 	}
 
@@ -95,7 +95,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient: data.ApiClient,
 		PageSize:  100,
 		Input:     iterator,
@@ -141,5 +141,5 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

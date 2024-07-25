@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -45,17 +46,33 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Select("*"),
 		dal.From(&models.JenkinsBuildCommit{}),
 		dal.Join(`left join _tool_jenkins_builds tjb 
-						on _tool_jenkins_build_commits.build_name = tjb.full_name 
-						and _tool_jenkins_build_commits.connection_id = tjb.connection_id`),
-		dal.Where(`_tool_jenkins_build_commits.connection_id = ?
-							and tjb.job_path = ? and tjb.job_name = ?`,
-			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
+				on _tool_jenkins_build_commits.build_name = tjb.full_name 
+				and _tool_jenkins_build_commits.connection_id = tjb.connection_id`),
 	}
+
+	if data.Options.Class == WORKFLOW_MULTI_BRANCH_PROJECT {
+		clauses = append(clauses,
+			dal.Where(`_tool_jenkins_build_commits.connection_id = ? 
+					and tjb.full_name like ?`,
+				data.Options.ConnectionId, fmt.Sprintf("%s%%", data.Options.JobFullName)))
+	} else {
+		clauses = append(clauses,
+			dal.Where(`_tool_jenkins_build_commits.connection_id = ?
+					and tjb.job_path = ? and tjb.job_name = ?`,
+				data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName))
+	}
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
+
+	jenkinsJob := &models.JenkinsJob{}
+	err = db.All(jenkinsJob, dal.Where("connection_id = ? and full_name = ?", data.Options.ConnectionId, data.Options.FullName))
+	if err != nil {
+		return err
+	}
 	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
@@ -72,10 +89,12 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuildCommit := inputRow.(*models.JenkinsBuildCommit)
 			build := &devops.CiCDPipelineCommit{
-				PipelineId: buildIdGen.Generate(jenkinsBuildCommit.ConnectionId, jenkinsBuildCommit.BuildName),
-				CommitSha:  jenkinsBuildCommit.CommitSha,
-				Branch:     jenkinsBuildCommit.Branch,
-				RepoUrl:    jenkinsBuildCommit.RepoUrl,
+				PipelineId:   buildIdGen.Generate(jenkinsBuildCommit.ConnectionId, jenkinsBuildCommit.BuildName),
+				CommitSha:    jenkinsBuildCommit.CommitSha,
+				Branch:       jenkinsBuildCommit.Branch,
+				RepoUrl:      jenkinsBuildCommit.RepoUrl,
+				DisplayTitle: jenkinsBuildCommit.BuildName,
+				Url:          fmt.Sprintf("%s%d", jenkinsJob.Url, jenkinsBuildCommit.Number),
 			}
 			return []interface{}{
 				build,

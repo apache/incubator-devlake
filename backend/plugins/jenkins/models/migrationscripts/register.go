@@ -35,5 +35,6 @@ func All() []plugin.MigrationScript {
 		new(addConnectionIdToTransformationRule),
 		new(renameTr2ScopeConfig),
 		new(addRawParamTableForScope),
+		new(addNumberToJenkinsBuildCommit),
 	}
 }

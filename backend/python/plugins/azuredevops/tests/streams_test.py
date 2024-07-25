@@ -39,7 +39,29 @@ def test_builds_stream(context):
         'tags': [],
         'validationResults': [],
         'plans': [{'planId': 'c672e778-a9e9-444a-b1e0-92f839c061e0'}],
-        'triggerInfo': {},
+        'triggerInfo': {
+            "ci.sourceBranch": "refs/heads/main",
+            "ci.sourceSha": "40e3d9cb9f208f431cf1fb0e33963f5a1405491b",
+            "ci.message": "Add azure-pipelines.yml jobs to Azure Pipelines",
+            "ci.triggerRepository": "eaf116f6-821f-42d7-920e-a867e564302e"
+        },
+        '_links':{                    
+            "self": {
+                "href": "https://dev.azure.com/linweihoumerico-lake/e8af9e7b-d4bf-4afd-9d0a-c9f8dfac1d59/_apis/build/Builds/15"
+            },
+            "web": {
+                "href": "https://dev.azure.com/linweihoumerico-lake/e8af9e7b-d4bf-4afd-9d0a-c9f8dfac1d59/_build/results?buildId=15"
+            },
+            "sourceVersionDisplayUri": {
+                "href": "https://dev.azure.com/linweihoumerico-lake/e8af9e7b-d4bf-4afd-9d0a-c9f8dfac1d59/_apis/build/builds/15/sources"
+            },
+            "timeline": {
+                "href": "https://dev.azure.com/linweihoumerico-lake/e8af9e7b-d4bf-4afd-9d0a-c9f8dfac1d59/_apis/build/builds/15/Timeline"
+            },
+            "badge": {
+                "href": "https://dev.azure.com/linweihoumerico-lake/e8af9e7b-d4bf-4afd-9d0a-c9f8dfac1d59/_apis/build/status/1"
+            }
+        },
         'id': 12,
         'buildNumber': 'azure-job',
         'status': 'completed',
@@ -137,14 +159,18 @@ def test_builds_stream(context):
             duration_sec=31.196409940719604,
             environment=devops.CICDEnvironment.PRODUCTION,
             type=devops.CICDType.DEPLOYMENT,
-            cicd_scope_id=context.scope.domain_id()
+            cicd_scope_id=context.scope.domain_id(),
+            display_title='Add azure-pipelines.yml jobs to Azure Pipelines',
+            url='https://dev.azure.com/linweihoumerico-lake/e8af9e7b-d4bf-4afd-9d0a-c9f8dfac1d59/_build/results?buildId=15'
         ),
         devops.CiCDPipelineCommit(
             pipeline_id='azuredevops:Build:1:12',
             commit_sha='40c59264e73fc5e1a6cab192f1622d26b7bd5c2a',
             branch='refs/heads/main',
             repo_id=context.scope.domain_id(),
-            repo_url='https://github.com/johndoe/test-repo'
+            repo_url='https://github.com/johndoe/test-repo',
+            display_title='Add azure-pipelines.yml jobs to Azure Pipelines',
+            url='https://dev.azure.com/linweihoumerico-lake/e8af9e7b-d4bf-4afd-9d0a-c9f8dfac1d59/_build/results?buildId=15'
         )
     ]
 

@@ -65,7 +65,14 @@ export const StepItem = styled.li<{ $actived: boolean; $activedColor: string }>`
     border: 1px solid rgba(0, 0, 0, 0.25);
     border-radius: 50%;
 
-    ${({ $actived, $activedColor }) => ($actived ? `color: #fff; background-color: ${$activedColor};` : '')}
+    ${({ $actived, $activedColor }) =>
+      $actived
+        ? `
+          color: #fff;
+          background-color: ${$activedColor};
+          border: none;
+          `
+        : ''}
   }
 
   span:last-child {
@@ -105,7 +112,8 @@ export const StepContent = styled.div`
 
   .qa {
     flex: auto;
-    padding: 24px;
+    margin: 12px 0;
+    padding: 0 24px;
     font-size: 14px;
     border-left: 1px solid #f0f0f0;
     overflow-y: auto;
@@ -129,6 +137,7 @@ export const StepContent = styled.div`
     }
 
     li {
+      font-size: 12px;
       line-height: 20px;
     }
 

@@ -61,8 +61,8 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		*/
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if collectorWithState.Since != nil {
-				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
+			if collectorWithState.GetSince() != nil {
+				query.Set("updated_after", collectorWithState.GetSince().Format(time.RFC3339))
 			}
 			query.Set("sort", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

@@ -72,8 +72,8 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	// project api
 	r.GET("/projects/:projectName", project.GetProject)
 	r.GET("/projects/:projectName/check", project.GetProjectCheck)
-	r.PATCH("/projects/*projectName", project.PatchProject)
-	r.DELETE("/projects/*projectName", project.DeleteProject)
+	r.PATCH("/projects/:projectName", project.PatchProject)
+	r.DELETE("/projects/:projectName", project.DeleteProject)
 	r.POST("/projects", project.PostProject)
 	r.GET("/projects", project.GetProjects)
 	// on board api

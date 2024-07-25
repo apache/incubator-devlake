@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type BitbucketPullRequest struct {
@@ -49,6 +50,8 @@ type BitbucketPullRequest struct {
 	Url                string `gorm:"type:varchar(255)"`
 	AuthorName         string `gorm:"type:varchar(255)"`
 	AuthorId           string `gorm:"type:varchar(255)"`
+	MergedByName       string `gorm:"type:varchar(100)"`
+	MergedById         string `gorm:"type:varchar(100)"`
 	common.NoPKModel
 }
 

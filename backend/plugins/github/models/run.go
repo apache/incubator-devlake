@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type GithubRun struct {
@@ -39,6 +40,7 @@ type GithubRun struct {
 	WorkflowID       int        `json:"workflow_id"`
 	CheckSuiteID     int64      `json:"check_suite_id"`
 	CheckSuiteNodeID string     `json:"check_suite_node_id" gorm:"type:varchar(255)"`
+	DisplayTitle     string     `json:"display_title" gorm:"type:text"`
 	URL              string     `json:"url" gorm:"type:varchar(255)"`
 	HTMLURL          string     `json:"html_url" gorm:"type:varchar(255)"`
 	GithubCreatedAt  *time.Time `json:"created_at"`

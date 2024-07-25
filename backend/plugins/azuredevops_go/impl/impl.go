@@ -19,10 +19,11 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/tasks"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
@@ -242,6 +243,9 @@ func (p Azuredevops) ApiResources() map[string]map[string]plugin.ApiResourceHand
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

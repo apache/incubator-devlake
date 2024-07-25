@@ -47,35 +47,33 @@ type typeMappings struct {
 	standardStatusMappings map[string]models.StatusMappings
 }
 
-func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*JiraTaskData)
-	db := taskCtx.GetDal()
+func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	data := subtaskCtx.GetData().(*JiraTaskData)
+	db := subtaskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
-	logger := taskCtx.GetLogger()
+	logger := subtaskCtx.GetLogger()
 	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
 	mappings, err := getTypeMappings(data, db)
 	if err != nil {
 		return err
 	}
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
+	userFieldMap, err := getUserFieldMap(db, connectionId, logger)
+	if err != nil {
+		return err
+	}
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+		SubtaskCommonArgs: &api.SubtaskCommonArgs{
+			SubTaskContext: subtaskCtx,
+			Table:          RAW_ISSUE_TABLE,
 			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_ISSUE_TABLE,
+			SubtaskConfig: mappings,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			return extractIssues(data, mappings, row)
+			return extractIssues(data, mappings, row, userFieldMap)
 		},
 	})
 	if err != nil {
@@ -84,7 +82,7 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData) ([]interface{}, errors.Error) {
+func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
 	var apiIssue apiv2models.Issue
 	err := errors.Convert(json.Unmarshal(row.Data, &apiIssue))
 	if err != nil {
@@ -99,7 +97,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 	if apiIssue.Fields.Created == nil {
 		return results, nil
 	}
-	sprints, issue, comments, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
+	sprints, issue, comments, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId, userFieldMaps)
 	for _, sprintId := range sprints {
 		sprintIssue := &models.JiraSprintIssue{
 			ConnectionId:     data.Options.ConnectionId,
@@ -211,6 +209,10 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		}
 		results = append(results, issueLink)
 	}
+
+	// is subtask
+	issue.Subtask = apiIssue.Fields.Issuetype.Subtask
+
 	return results, nil
 }
 

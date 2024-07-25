@@ -29,9 +29,6 @@ type GenericPipelineTask[T any] struct {
 	Options  T        `json:"options"`
 }
 
-type GenericPipelineStage[T any] []*GenericPipelineTask[T]
-type GenericPipelinePlan[T any] []GenericPipelineStage[T]
-
 // PipelineTask represents a smallest unit of execution inside a PipelinePlan
 type PipelineTask GenericPipelineTask[map[string]interface{}]
 

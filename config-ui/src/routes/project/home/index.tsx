@@ -16,22 +16,20 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import { Flex, Table, Button, Modal, Input, Checkbox, message } from 'antd';
-import dayjs from 'dayjs';
+import { Flex, Table, Button, Modal, Input, message } from 'antd';
 
 import API from '@/api';
-import { PageHeader, Block, ExternalLink } from '@/components';
-import { getCron, cronPresets, PATHS } from '@/config';
+import { PageHeader, Block, IconButton } from '@/components';
+import { getCron, PATHS } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
-import { DOC_URL } from '@/release';
-import { OnboardCard } from '@/routes/onboard/card';
+import { OnboardTour } from '@/routes/onboard/components';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
-import { IBlueprint, IBPMode } from '@/types';
+import { IBlueprint } from '@/types';
 
 import { validName } from '../utils';
 
@@ -41,14 +39,16 @@ export const ProjectHomePage = () => {
   const [pageSize] = useState(20);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const nameRef = useRef(null);
+  const connectionRef = useRef(null);
+  const configRef = useRef(null);
 
   const { ready, data } = useRefreshData(() => API.project.list({ page, pageSize }), [version, page, pageSize]);
 
   const navigate = useNavigate();
 
-  const presets = useMemo(() => cronPresets.map((preset) => preset.config), []);
   const [dataSource, total] = useMemo(
     () => [
       (data?.projects ?? []).map((it) => {
@@ -71,7 +71,6 @@ export const ProjectHomePage = () => {
   const handleHideDialog = () => {
     setOpen(false);
     setName('');
-    setEnableDora(true);
   };
 
   const handleCreate = async () => {
@@ -81,30 +80,23 @@ export const ProjectHomePage = () => {
     }
 
     const [success] = await operator(
-      async () => {
-        await API.project.create({
+      async () =>
+        API.project.create({
           name,
           description: '',
           metrics: [
             {
               pluginName: 'dora',
-              pluginOption: '',
-              enable: enableDora,
+              pluginOption: {},
+              enable: true,
+            },
+            {
+              pluginName: 'issue_trace',
+              pluginOption: {},
+              enable: true,
             },
           ],
-        });
-        return API.blueprint.create({
-          name: `${name}-Blueprint`,
-          projectName: name,
-          mode: IBPMode.NORMAL,
-          enable: true,
-          cronConfig: presets[0],
-          isManual: false,
-          skipOnFail: true,
-          timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
-          connections: [],
-        });
-      },
+        }),
       {
         setOperating: setSaving,
       },
@@ -118,7 +110,6 @@ export const ProjectHomePage = () => {
 
   return (
     <PageHeader breadcrumbs={[{ name: 'Projects', path: PATHS.PROJECTS() }]}>
-      <OnboardCard style={{ marginBottom: 32 }} />
       <Flex style={{ marginBottom: 16 }} justify="flex-end">
         <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           New Project
@@ -134,7 +125,7 @@ export const ProjectHomePage = () => {
             dataIndex: 'name',
             key: 'name',
             render: (name: string) => (
-              <Link to={PATHS.PROJECT(name, { tab: 'configuration' })} style={{ color: '#292b3f' }}>
+              <Link to={PATHS.PROJECT(name, { tab: 'configuration' })} style={{ color: '#292b3f' }} ref={nameRef}>
                 {name}
               </Link>
             ),
@@ -147,7 +138,7 @@ export const ProjectHomePage = () => {
               !val || !val.length ? (
                 'N/A'
               ) : (
-                <ul>
+                <ul ref={connectionRef}>
                   {val.map((it) => (
                     <li key={`${it.pluginName}-${it.connectionId}`}>
                       <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
@@ -189,9 +180,11 @@ export const ProjectHomePage = () => {
             width: 100,
             align: 'center',
             render: (name: any) => (
-              <Button
+              <IconButton
+                ref={configRef}
                 type="primary"
                 icon={<SettingOutlined />}
+                helptip="Project Configuration"
                 onClick={() => navigate(PATHS.PROJECT(name, { tab: 'configuration' }))}
               />
             ),
@@ -230,22 +223,10 @@ export const ProjectHomePage = () => {
             onChange={(e) => setName(e.target.value)}
           />
         </Block>
-        <Block
-          title="Project Settings"
-          description={
-            <>
-              <ExternalLink link={DOC_URL.DORA}>DORA metrics</ExternalLink>
-              <span style={{ marginLeft: 4 }}>
-                are four widely-adopted metrics for measuring software delivery performance.
-              </span>
-            </>
-          }
-        >
-          <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
-            Enable DORA Metrics
-          </Checkbox>
-        </Block>
       </Modal>
+      {ready && dataSource.length === 1 && (
+        <OnboardTour nameRef={nameRef} connectionRef={connectionRef} configRef={configRef} />
+      )}
     </PageHeader>
   );
 };

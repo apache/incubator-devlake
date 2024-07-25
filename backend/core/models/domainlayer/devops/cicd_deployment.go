@@ -25,6 +25,8 @@ type CICDDeployment struct {
 	domainlayer.DomainEntity
 	CicdScopeId         string `gorm:"index;type:varchar(255)"`
 	Name                string `gorm:"type:varchar(255)"`
+	DisplayTitle        string
+	Url                 string
 	Result              string `gorm:"type:varchar(100)"`
 	Status              string `gorm:"type:varchar(100)"`
 	OriginalStatus      string `gorm:"type:varchar(100)"`

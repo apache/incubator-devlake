@@ -114,25 +114,16 @@ func makePipelinePlanV200(
 	for _, scope := range scopeDetails {
 		gitlabProject, scopeConfig := scope.Scope, scope.ScopeConfig
 		var stage coreModels.PipelineStage
-		var err errors.Error
-		// get repo
-
-		// gitlab main part
-		options := make(map[string]interface{})
-		options["connectionId"] = connection.ID
-		options["projectId"] = gitlabProject.GitlabId
-
 		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
+		task, err := helper.MakePipelinePlanTask(pluginName, subtaskMetas, scopeConfig.Entities, map[string]interface{}{
+			"connectionId": connection.ID,
+			"projectId":    gitlabProject.GitlabId,
+			"fullName":     gitlabProject.PathWithNamespace,
+		})
 		if err != nil {
 			return nil, err
 		}
-
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "gitlab",
-			Subtasks: subtasks,
-			Options:  options,
-		})
+		stage = append(stage, task)
 
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) || len(scopeConfig.Entities) == 0 {
@@ -144,10 +135,11 @@ func makePipelinePlanV200(
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"name":   gitlabProject.Name,
-					"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
-					"proxy":  connection.Proxy,
+					"url":      cloneUrl.String(),
+					"name":     gitlabProject.Name,
+					"fullName": gitlabProject.PathWithNamespace,
+					"repoId":   didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
+					"proxy":    connection.Proxy,
 				},
 			})
 		}

@@ -20,15 +20,14 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"strings"
-	"time"
 )
-
-// this struct should be moved to `gitub_api_common.go`
 
 var ExtractApiBuildsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiBuilds",
@@ -56,15 +55,29 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
+			jobName := data.Options.JobName
+			jobPath := data.Options.JobPath
+			fullName := fmt.Sprintf(`%s#%d`, data.Options.JobFullName, body.Number)
+
+			input := &SimpleJob{}
+			err1 := json.Unmarshal(row.Input, input)
+			if err1 == nil && input.Class == WORKFLOW_JOB {
+				// For jobs from multi-branch workflow, the job name and path must come from the input,
+				// otherwise it will be set to the multi-branch workflow name and path
+				jobName = input.Name
+				jobPath = input.Path
+				fullName = fmt.Sprintf(`%s#%d`, input.FullName, body.Number)
+			}
+
 			results := make([]interface{}, 0)
 			strList := strings.Split(body.Class, ".")
 			class := strList[len(strList)-1]
 			build := &models.JenkinsBuild{
 				ConnectionId:      data.Options.ConnectionId,
-				JobName:           data.Options.JobName,
-				JobPath:           data.Options.JobPath,
+				JobName:           jobName,
+				JobPath:           jobPath,
 				Duration:          body.Duration,
-				FullName:          fmt.Sprintf(`%s#%d`, data.Options.JobFullName, body.Number),
+				FullName:          fullName,
 				EstimatedDuration: body.EstimatedDuration,
 				Number:            body.Number,
 				Result:            body.Result,
@@ -75,6 +88,7 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			// we also need to collect the commit info from the build which does not have changeSet
 			// changeSet describes the changes that were made in the build
+			// process hudson.plugins.git.util.BuildData
 			for _, a := range body.Actions {
 				if a.LastBuiltRevision == nil {
 					continue
@@ -99,10 +113,14 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 							CommitSha:    sha,
 							RepoUrl:      url,
 							Branch:       branch,
+							Number:       body.Number,
 						}
 						results = append(results, &buildCommitRemoteUrl)
 					}
 				}
+			}
+			// process hudson.model.CauseAction
+			for _, a := range body.Actions {
 				if len(a.Causes) > 0 {
 					for _, cause := range a.Causes {
 						if cause.UpstreamProject != "" {

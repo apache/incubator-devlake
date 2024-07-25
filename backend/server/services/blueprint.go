@@ -356,7 +356,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPo
 			return nil, err
 		}
 		for _, projectMetric := range projectMetrics {
-			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
+			metrics[projectMetric.PluginName] = projectMetric.PluginOption
 		}
 	}
 	skipCollectors := false
@@ -367,7 +367,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPo
 	if err != nil {
 		return nil, err
 	}
-	return SequencializePipelinePlans(blueprint.BeforePlan, plan, blueprint.AfterPlan), nil
+	return SequentializePipelinePlans(blueprint.BeforePlan, plan, blueprint.AfterPlan), nil
 }
 
 // ParallelizePipelinePlans merges multiple pipelines into one unified plan
@@ -388,9 +388,9 @@ func ParallelizePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan 
 	return merged
 }
 
-// SequencializePipelinePlans merges multiple pipelines into one unified plan
-// by assuming they must be executed in sequencial order
-func SequencializePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan {
+// SequentializePipelinePlans merges multiple pipelines into one unified plan
+// by assuming they must be executed in sequential order
+func SequentializePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan {
 	merged := make(models.PipelinePlan, 0)
 	// iterate all pipelineTasks and try to merge them into `merged`
 	for _, plan := range plans {

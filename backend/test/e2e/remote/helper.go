@@ -145,8 +145,10 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 		client.CreateProject(&helper.ProjectConfig{
 			ProjectName: projectName,
 		})
-		blueprint := client.CreateBasicBlueprintV2(
-			fmt.Sprintf("Test blueprint %d", i),
+		project := client.GetProject(projectName)
+		blueprint := client.PatchBasicBlueprintV2(
+			project.Blueprint.ID,
+			fmt.Sprintf("Test project %d-Blueprint", i),
 			&helper.BlueprintV2Config{
 				Connection: &models.BlueprintConnection{
 					PluginName:   "fake",
@@ -162,7 +164,6 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 			},
 		)
 		bps = append(bps, blueprint)
-		project := client.GetProject(projectName)
 		require.Equal(t, blueprint.Name, project.Blueprint.Name)
 		projects = append(projects, project)
 	}

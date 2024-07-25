@@ -27,6 +27,7 @@ type BambooDeployBuild struct {
 	ConnectionId          uint64     `json:"connection_id" gorm:"primaryKey"`
 	DeployBuildId         uint64     `json:"deploy_build_id" gorm:"primaryKey"`
 	PlanResultKey         string     `json:"planResultKey"`
+	EnvKey                string     `json:"envKey"`
 	DeploymentVersionName string     `json:"deploymentVersionName"`
 	DeploymentState       string     `json:"deploymentState"`
 	LifeCycleState        string     `json:"lifeCycleState"`
@@ -80,6 +81,7 @@ func (api *ApiBambooDeployBuild) Convert(op *BambooOptions, envName string) []*B
 		ApiBambooOperations:   api.Operations,
 		Environment:           envName,
 		PlanBranchName:        api.DeploymentVersion.PlanBranchName,
+		EnvKey:                api.Key.EntityKey.Key,
 	}
 	for _, item := range api.DeploymentVersion.Items {
 		build := tmpl

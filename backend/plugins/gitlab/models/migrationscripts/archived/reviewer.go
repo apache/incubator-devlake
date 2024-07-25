@@ -22,9 +22,8 @@ import (
 )
 
 type GitlabReviewer struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-
-	GitlabId       int    `gorm:"primaryKey"`
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	ReviewerId     int    `gorm:"primaryKey"`
 	MergeRequestId int    `gorm:"index"`
 	ProjectId      int    `gorm:"index"`
 	Name           string `gorm:"type:varchar(255)"`

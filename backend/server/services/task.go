@@ -256,7 +256,7 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	var count int64
 	var status []string
 	for _, task := range lastTasks {
-		if task.Plugin == "org" {
+		if task.Plugin == "org" || task.Plugin == "refdiff" || task.Plugin == "dora" {
 			continue
 		}
 		subTaskResult := models.SubtasksInfo{
@@ -317,9 +317,9 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 		subTaskResult.FinishedTransform = finishedTransform
 		subtasksInfo = append(subtasksInfo, subTaskResult)
 
-		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = 1", task.ID)))
+		collectSubtasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = true", task.ID)))
 		totalSubtasksCount += collectSubtasksCount
-		finishedSubTasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = 1 and finished_at is not null", task.ID)))
+		finishedSubTasksCount := errors.Must1(tx.Count(dal.From("_devlake_subtasks"), dal.Where("task_id = ? and is_collector = true and finished_at is not null", task.ID)))
 		totalFinishedSubTasksCount += finishedSubTasksCount
 		count++
 
@@ -332,6 +332,9 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 	subTasksOuput.Count = totalSubtasksCount + 1 // +1: add transform task
 	completionRateFloat := float64(totalFinishedSubTasksCount) / float64(totalSubtasksCount)
 	roundedCompletionRate := math.Round(completionRateFloat*100) / 100
+	if math.IsNaN(roundedCompletionRate) {
+		roundedCompletionRate = 1
+	}
 	subTasksOuput.CompletionRate = roundedCompletionRate
 
 	subTasksOuput.Status = getTaskStatus(status)
@@ -343,23 +346,23 @@ func GetSubTasksInfo(pipelineId uint64, shouldSanitize bool, tx dal.Dal) (*model
 // filterTasksWithLastStatus returns the latest task for each plugin
 func filterTasksWithLastStatus(tasks []*models.Task) []*models.Task {
 	taskMap := make(map[string]*models.Task)
-	sortedTasks := tasks
 	for _, task := range tasks {
-		if existingTask, ok := taskMap[task.Plugin]; ok {
+		key := fmt.Sprintf("%d-%d-%d", task.PipelineId, task.PipelineRow, task.PipelineCol)
+		if existingTask, ok := taskMap[key]; ok {
 			if task.BeganAt != nil && (existingTask.BeganAt == nil || task.BeganAt.After(*existingTask.BeganAt)) {
-				taskMap[task.Plugin] = task
+				taskMap[key] = task
 			}
 		} else {
-			taskMap[task.Plugin] = task
+			taskMap[key] = task
 		}
 	}
 
 	var filteredTasks []*models.Task
-	for _, task := range taskMap {
-		filteredTasks = append(filteredTasks, task)
-	}
-	for i, task := range sortedTasks {
-		filteredTasks[i] = taskMap[task.Plugin]
+	for _, task := range tasks {
+		key := fmt.Sprintf("%d-%d-%d", task.PipelineId, task.PipelineRow, task.PipelineCol)
+		if filteredTask, ok := taskMap[key]; ok {
+			filteredTasks = append(filteredTasks, filteredTask)
+		}
 	}
 
 	return filteredTasks

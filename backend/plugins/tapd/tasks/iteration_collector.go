@@ -36,12 +36,12 @@ func CollectIterations(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect iterations")
-	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	apiCollector, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
 
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    int(data.Options.PageSize),
 		Concurrency: 3,
@@ -52,8 +52,8 @@ func CollectIterations(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("order", "created asc")
-			if collectorWithState.Since != nil {
-				query.Set("modified", fmt.Sprintf(">%s", collectorWithState.Since.In(data.Options.CstZone).Format("2006-01-02")))
+			if apiCollector.GetSince() != nil {
+				query.Set("modified", fmt.Sprintf(">%s", apiCollector.GetSince().In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},
@@ -69,7 +69,7 @@ func CollectIterations(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Error(err, "collect iteration error")
 		return err
 	}
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
 
 var CollectIterationMeta = plugin.SubTaskMeta{

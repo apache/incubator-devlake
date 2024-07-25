@@ -31,6 +31,7 @@ import (
 const BadRequestBody = "bad request body format"
 
 type TypedApiBody[T any] struct {
+	Code    int      `json:"code"`
 	Success bool     `json:"success"`
 	Message string   `json:"message"`
 	Causes  []string `json:"causes"`
@@ -42,6 +43,28 @@ type ApiBody TypedApiBody[interface{}]
 type ResponsePipelines struct {
 	Count     int64              `json:"count"`
 	Pipelines []*models.Pipeline `json:"pipelines"`
+}
+
+// ApiOutputErrorWithCustomCode writes a JSON error message to the HTTP response body
+func ApiOutputErrorWithCustomCode(c *gin.Context, code int, err error) {
+	if e, ok := err.(errors.Error); ok {
+		logruslog.Global.Error(err, "HTTP %d error", e.GetType().GetHttpCode())
+		messages := e.Messages()
+		c.JSON(e.GetType().GetHttpCode(), &ApiBody{
+			Success: false,
+			Message: e.Error(),
+			Code:    code,
+			Causes:  messages.Causes(),
+		})
+	} else {
+		logruslog.Global.Error(err, "HTTP %d error (native)", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, &ApiBody{
+			Success: false,
+			Code:    code,
+			Message: err.Error(),
+		})
+	}
+	c.Writer.Header().Set("Content-Type", "application/json")
 }
 
 // ApiOutputError writes a JSON error message to the HTTP response body

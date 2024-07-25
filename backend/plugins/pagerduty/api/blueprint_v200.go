@@ -20,12 +20,12 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
 )
@@ -35,85 +35,70 @@ func MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	// get the connection info for url
-	connection := &models.PagerDutyConnection{}
-	err := connectionHelper.FirstById(connection, connectionId)
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopes, err := makeScopesV200(bpScopes, connection)
+	plan, err := makePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	return plan, scopes, nil
+	scopes, err := makeScopesV200(scopeDetails, connection)
+	return plan, scopes, err
 }
 
-func makeDataSourcePipelinePlanV200(
+func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan coreModels.PipelinePlan,
-	bpScopes []*coreModels.BlueprintScope,
+	scopeDetails []*srvhelper.ScopeDetail[models.Service, models.PagerdutyScopeConfig],
 	connection *models.PagerDutyConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
-	for i, bpScope := range bpScopes {
-		// get board and scope config from db
-		service, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
-		// construct task options for pagerduty
-		op := &tasks.PagerDutyOptions{
-			ConnectionId: service.ConnectionId,
-			ServiceId:    service.Id,
-			ServiceName:  service.Name,
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
+	for i, scopeDetail := range scopeDetails {
+		stage := plan[i]
+		if stage == nil {
+			stage = coreModels.PipelineStage{}
 		}
 
-		var options map[string]any
-		options, err = tasks.EncodeTaskOptions(op)
-		if err != nil {
-			return nil, err
-		}
-		var subtasks []string
-		subtasks, err = api.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
-		if err != nil {
-			return nil, err
-		}
-		stage := []*coreModels.PipelineTask{
-			{
-				Plugin:   "pagerduty",
-				Subtasks: subtasks,
-				Options:  options,
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		// construct task options for circleci
+		task, err := api.MakePipelinePlanTask(
+			"pagerduty",
+			subtaskMetas,
+			scopeConfig.Entities,
+			tasks.PagerDutyOptions{
+				ConnectionId: connection.ID,
+				ServiceId:    scope.Id,
 			},
+		)
+		if err != nil {
+			return nil, err
 		}
+		stage = append(stage, task)
 		plan[i] = stage
 	}
+
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.PagerDutyConnection) ([]plugin.Scope, errors.Error) {
-	scopes := make([]plugin.Scope, 0)
-	for _, bpScope := range bpScopes {
-		// get board and scope config from db
-		service, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
-		// add board to scopes
+func makeScopesV200(
+	scopeDetails []*srvhelper.ScopeDetail[models.Service, models.PagerdutyScopeConfig],
+	connection *models.PagerDutyConnection,
+) ([]plugin.Scope, errors.Error) {
+	scopes := make([]plugin.Scope, 0, len(scopeDetails))
+
+	idgen := didgen.NewDomainIdGenerator(&models.Service{})
+	for _, scopeDetail := range scopeDetails {
+		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		id := idgen.Generate(connection.ID, scope.Id)
+
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			scopeTicket := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.Service{}).Generate(connection.ID, service.Id),
-				},
-				Name: service.Name,
-			}
-			scopes = append(scopes, scopeTicket)
+			scopes = append(scopes, devops.NewCicdScope(id, scope.Name))
 		}
 	}
+
 	return scopes, nil
 }

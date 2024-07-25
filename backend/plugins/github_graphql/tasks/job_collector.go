@@ -100,7 +100,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
-	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: githubTasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -118,8 +118,8 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 		dal.Orderby("github_updated_at DESC"),
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *apiCollector.GetSince()))
 	}
 
 	cursor, err := db.Cursor(
@@ -134,7 +134,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
+	err = apiCollector.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		Input:         iterator,
 		InputStep:     20,
 		GraphqlClient: data.GraphqlClient,
@@ -168,5 +168,5 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

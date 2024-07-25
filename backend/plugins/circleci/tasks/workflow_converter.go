@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -56,7 +57,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciWorkflow)
-			createdAt := userTool.CreatedAt.ToTime()
+			createdAt := userTool.CreatedDate.ToTime()
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getPipelineIdGen().Generate(data.Options.ConnectionId, userTool.Id),
@@ -66,7 +67,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  &createdAt,
-					FinishedDate: userTool.StoppedAt.ToNullableTime(),
+					FinishedDate: userTool.StoppedDate.ToNullableTime(),
 				},
 				CicdScopeId: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
 				// reference: https://circleci.com/docs/api/v2/index.html#operation/getWorkflowById
@@ -80,8 +81,9 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
 					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
-				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
-				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
+				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
+				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
+				DisplayTitle: fmt.Sprintf("%s#%d", userTool.Name, userTool.PipelineNumber),
 			}
 			result := make([]interface{}, 0, 2)
 			result = append(result, pipeline)
@@ -91,11 +93,12 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 			if p, err := findPipelineById(db, userTool.PipelineId); err == nil {
 				if p.Vcs.Revision != "" {
 					result = append(result, &devops.CiCDPipelineCommit{
-						PipelineId: pipeline.Id,
-						CommitSha:  p.Vcs.Revision,
-						Branch:     p.Vcs.Branch,
-						RepoId:     p.Vcs.OriginRepositoryUrl,
-						RepoUrl:    p.Vcs.OriginRepositoryUrl,
+						PipelineId:   pipeline.Id,
+						CommitSha:    p.Vcs.Revision,
+						Branch:       p.Vcs.Branch,
+						RepoId:       p.Vcs.OriginRepositoryUrl,
+						RepoUrl:      p.Vcs.OriginRepositoryUrl,
+						DisplayTitle: pipeline.DisplayTitle,
 					})
 				}
 			}

@@ -17,6 +17,7 @@
  */
 
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import type { TooltipProps } from 'antd';
 import { Tooltip } from 'antd';
 
 import styled from 'styled-components';
@@ -30,10 +31,10 @@ interface Props {
   style?: React.CSSProperties;
 }
 
-export const HelpTooltip = ({ content, style }: Props) => {
+export const HelpTooltip = ({ content, style, ...props }: Props & TooltipProps) => {
   return (
     <Wrapper style={style}>
-      <Tooltip title={content} placement="top">
+      <Tooltip title={content} placement="top" {...props}>
         <QuestionCircleOutlined />
       </Tooltip>
     </Wrapper>

@@ -102,11 +102,11 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:   "./snapshot_tables/cicd_deployment_commits.csv",
 		IgnoreTypes:  []interface{}{common.NoPKModel{}},
-		IgnoreFields: []string{},
+		IgnoreFields: []string{"created_date", "queued_date", "started_date", "finished_date"},
 	})
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:   "./snapshot_tables/cicd_deployments.csv",
 		IgnoreTypes:  []interface{}{common.NoPKModel{}},
-		IgnoreFields: []string{},
+		IgnoreFields: []string{"created_date", "queued_date", "started_date", "finished_date"},
 	})
 }

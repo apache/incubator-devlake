@@ -13,19 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
-import re
-from enum import Enum
-from typing import Optional
+from typing import List
 
-from pydantic import SecretStr
-
-from pydevlake import ScopeConfig, Field
-from pydevlake.model import ToolScope, ToolModel, Connection
-from pydevlake.pipeline_tasks import RefDiffOptions
+from sqlmodel import Column, JSON
 
 # needed to be able to run migrations
 from azuredevops.migrations import *
+from pydevlake import ScopeConfig
+from pydevlake.model import ToolScope
 
 
 class AzureDevOpsConnection(Connection):
@@ -75,6 +70,7 @@ class GitPullRequest(ToolModel, table=True):
     target_ref_name: Optional[str]
     source_ref_name: Optional[str]
     fork_repo_id: Optional[str] = Field(source='/forkSource/repository/id')
+    labels: Optional[List[dict]] = Field(sa_column=Column(JSON), source="/labels")
 
 
 class GitPullRequestCommit(ToolModel, table=True):
@@ -115,6 +111,8 @@ class Build(ToolModel, table=True):
     result: Optional[BuildResult]
     source_branch: str
     source_version: str
+    display_title: Optional[str] = Field(source='/triggerInfo/ci.message')
+    url: Optional[str] = Field(source='/_links/web/href')
 
 
 class Job(ToolModel, table=True):

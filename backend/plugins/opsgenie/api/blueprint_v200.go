@@ -35,9 +35,7 @@ func MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	// get the connection info for url
-	connection := &models.OpsgenieConnection{}
-	err := connectionHelper.FirstById(connection, connectionId)
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -45,20 +43,15 @@ func MakeDataSourcePipelinePlanV200(
 	if err != nil {
 		return nil, nil, err
 	}
-
-	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	plan, err := makePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
 	scopes, err := makeScopesV200(scopeDetails, connection)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return plan, scopes, nil
+	return plan, scopes, err
 }
 
-func makeDataSourcePipelinePlanV200(
+func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	scopeDetails []*srvhelper.ScopeDetail[models.Service, models.OpsenieScopeConfig],
 	connection *models.OpsgenieConnection,
@@ -77,7 +70,7 @@ func makeDataSourcePipelinePlanV200(
 			subtaskMetas,
 			scopeConfig.Entities,
 			OpsgenieTaskOptions{
-				ConnectionId: scope.ConnectionId,
+				ConnectionId: connection.ID,
 				ServiceId:    scope.Id,
 				ServiceName:  scope.Name,
 			},
@@ -95,7 +88,8 @@ func makeDataSourcePipelinePlanV200(
 
 func makeScopesV200(
 	scopeDetails []*srvhelper.ScopeDetail[models.Service, models.OpsenieScopeConfig],
-	connection *models.OpsgenieConnection) ([]plugin.Scope, errors.Error) {
+	connection *models.OpsgenieConnection,
+) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, scopeDetail := range scopeDetails {
 		opService, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
@@ -103,7 +97,7 @@ func makeScopesV200(
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.Service{}).Generate(opService.ConnectionId, opService.Id),
+					Id: didgen.NewDomainIdGenerator(&models.Service{}).Generate(connection.ID, opService.Id),
 				},
 				Name: opService.Name,
 			}

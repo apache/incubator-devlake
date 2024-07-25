@@ -106,9 +106,6 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:                data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, bitbucketApiPipeline.Target.RefName),
 				Environment:         data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, bitbucketApiPipeline.Target.RefName),
 			}
-			if err != nil {
-				return nil, err
-			}
 			if bitbucketApiPipeline.State.Result != nil {
 				bitbucketPipeline.Result = bitbucketApiPipeline.State.Result.Name
 			} else if bitbucketApiPipeline.State.Stage != nil {

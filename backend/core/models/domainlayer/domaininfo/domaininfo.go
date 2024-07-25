@@ -39,6 +39,8 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&code.PullRequestComment{},
 		&code.PullRequestCommit{},
 		&code.PullRequestLabel{},
+		&code.PullRequestReviewer{},
+		&code.PullRequestAssignee{},
 		&code.Ref{},
 		&code.CommitsDiff{},
 		&code.RefCommit{},
@@ -58,7 +60,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&crossdomain.IssueCommit{},
 		&crossdomain.IssueRepoCommit{},
 		&crossdomain.ProjectMapping{},
-		&crossdomain.ProjectIssueMetric{},
+		&crossdomain.ProjectIncidentDeploymentRelationship{},
 		&crossdomain.ProjectPrMetric{},
 		&crossdomain.PullRequestIssue{},
 		&crossdomain.RefsIssuesDiffs{},
@@ -73,6 +75,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&devops.CiCDPipelineCommit{},
 		&devops.CicdScope{},
 		&devops.CICDDeployment{},
+		&devops.CicdRelease{},
 		// didgen no table
 		// ticket
 		&ticket.Board{},
@@ -88,5 +91,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&ticket.IssueAssignee{},
 		&ticket.IssueRelationship{},
 		&ticket.IssueCustomArrayField{},
+		&ticket.Incident{},
+		&ticket.IncidentAssignee{},
 	}
 }

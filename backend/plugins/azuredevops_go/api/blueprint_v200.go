@@ -69,26 +69,36 @@ func makeScopeV200(
 	sc := make([]plugin.Scope, 0, 3*len(scopeDetails))
 
 	for _, scope := range scopeDetails {
-		azuredevopsRepo, scopeConfig := scope.Scope, scope.ScopeConfig
-		id := didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connectionId, azuredevopsRepo.Id)
+		repo, scopeConfig := scope.Scope, scope.ScopeConfig
+		entities := scopeConfig.Entities
 
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
-			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
-			// if we don't need to collect gitex, we need to add repo to scopes here
-			scopeRepo := code.NewRepo(id, azuredevopsRepo.Name)
+		// We are treating empty entities as 'Selected All' since collecting a scope without any entity is pointless.
+		if len(entities) == 0 {
+			entities = plugin.DOMAIN_TYPES
+		}
 
+		isDomainCode := utils.StringsContains(entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
+			utils.StringsContains(entities, plugin.DOMAIN_TYPE_CODE)
+		isDomainCICD := utils.StringsContains(entities, plugin.DOMAIN_TYPE_CICD)
+		isDomainTicket := utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET)
+
+		id := didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connectionId, repo.Id)
+
+		// DOMAIN_TYPE_CODE (i.e. gitextractor, rediff) only works if the repository is public and not disabled
+		if isDomainCode && !repo.IsDisabled && !repo.IsPrivate {
+			scopeRepo := code.NewRepo(id, repo.Name)
 			sc = append(sc, scopeRepo)
 		}
 
 		// add cicd_scope to scopes
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
-			scopeCICD := devops.NewCicdScope(id, azuredevopsRepo.Name)
+		if isDomainCICD {
+			scopeCICD := devops.NewCicdScope(id, repo.Name)
 			sc = append(sc, scopeCICD)
 		}
 
 		// add board to scopes
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			scopeTicket := ticket.NewBoard(id, azuredevopsRepo.Name)
+		if isDomainTicket {
+			scopeTicket := ticket.NewBoard(id, repo.Name)
 			sc = append(sc, scopeTicket)
 		}
 	}
@@ -102,44 +112,97 @@ func makePipelinePlanV200(
 	scopeDetails []*srvhelper.ScopeDetail[models.AzuredevopsRepo, models.AzuredevopsScopeConfig],
 ) (coreModels.PipelinePlan, errors.Error) {
 	plans := make(coreModels.PipelinePlan, 0, 3*len(scopeDetails))
+
 	for _, scope := range scopeDetails {
-		azuredevopsRepo, scopeConfig := scope.Scope, scope.ScopeConfig
-		var stage coreModels.PipelineStage
-		var err errors.Error
-		// get repo
+		repo, scopeConfig := scope.Scope, scope.ScopeConfig
 
 		options := make(map[string]interface{})
-		options["connectionId"] = connection.ID
-		options["organizationId"] = azuredevopsRepo.OrganizationId
-		options["projectId"] = azuredevopsRepo.ProjectId
-		options["repositoryId"] = azuredevopsRepo.Id
+		options["name"] = repo.Name // this is solely for the FE to display the repo name of a task
 
-		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
+		options["connectionId"] = connection.ID
+		options["organizationId"] = repo.OrganizationId
+		options["projectId"] = repo.ProjectId
+		options["externalId"] = repo.ExternalId
+		options["repositoryId"] = repo.Id
+		options["repositoryType"] = repo.Type
+
+		if repo.Type == "" {
+			options["repositoryType"] = models.RepositoryTypeADO
+			logger.Warn(nil, "repository type for repoId: %v not found. falling back to TfsGit", repo.Id)
+		}
+
+		// We are treating empty entities as 'Selected All' since collecting a scope without any entity is pointless.
+		entities := scopeConfig.Entities
+		if len(entities) == 0 {
+			entities = plugin.DOMAIN_TYPES
+		}
+
+		var selectedEntities []string
+		var blockedEntities []string
+
+		// We are unable to check out the code or gather pull requests for repositories that are disabled (DevOps)
+		// or private (GitHub)
+		if repo.IsDisabled || repo.IsPrivate {
+			blockedEntities = append(blockedEntities, []string{
+				plugin.DOMAIN_TYPE_CODE,
+				plugin.DOMAIN_TYPE_CODE_REVIEW,
+			}...)
+		}
+
+		// We are unable to gather pull requests from repositories not hosted on DevOps.
+		// However, we can still check out the code if the repository is publicly available
+		if repo.Type != models.RepositoryTypeADO {
+			blockedEntities = append(blockedEntities, []string{
+				plugin.DOMAIN_TYPE_CODE_REVIEW,
+			}...)
+		}
+
+		for _, v := range entities {
+			if !utils.StringsContains(blockedEntities, v) {
+				selectedEntities = append(selectedEntities, v)
+			}
+		}
+
+		var subtasks []string
+		var err errors.Error
+		if len(selectedEntities) > 0 {
+			// if selectedEntities is empty MakePipelinePlanSubtasks assumes that we want to
+			// enable all entity types
+			subtasks, err = helper.MakePipelinePlanSubtasks(subtaskMetas, selectedEntities)
+		}
 		if err != nil {
 			return nil, err
 		}
 
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "azuredevops_go",
-			Subtasks: subtasks,
-			Options:  options,
-		})
+		var stage []*coreModels.PipelineTask
+		if len(subtasks) > 0 {
+			stage = append(stage, &coreModels.PipelineTask{
+				Plugin:   "azuredevops_go",
+				Subtasks: subtasks,
+				Options:  options,
+			})
+		} else {
+			logger.Printf("Skipping azuredevops_go plugin due to empty subtasks. Please check your scope config")
+		}
 
 		// collect git data by gitextractor if CODE was requested
-		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) || len(scopeConfig.Entities) == 0 {
-			cloneUrl, err := errors.Convert01(url.Parse(azuredevopsRepo.RemoteUrl))
+		if !repo.IsPrivate && !repo.IsDisabled && utils.StringsContains(entities, plugin.DOMAIN_TYPE_CODE) {
+			cloneUrl, err := errors.Convert01(url.Parse(repo.RemoteUrl))
 			if err != nil {
 				return nil, err
 			}
-			cloneUrl.User = url.UserPassword("git", connection.Token)
+
+			if repo.Type == models.RepositoryTypeADO {
+				cloneUrl.User = url.UserPassword("git", connection.Token)
+			}
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"name":   azuredevopsRepo.Name,
-					"repoId": didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connection.ID, azuredevopsRepo.Id),
-					"proxy":  connection.Proxy,
+					"url":            cloneUrl.String(),
+					"name":           repo.Name,
+					"repoId":         didgen.NewDomainIdGenerator(&models.AzuredevopsRepo{}).Generate(connection.ID, repo.Id),
+					"proxy":          connection.Proxy,
+					"noShallowClone": true,
 				},
 			})
 		}

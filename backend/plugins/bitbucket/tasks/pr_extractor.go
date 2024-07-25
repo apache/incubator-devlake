@@ -55,7 +55,7 @@ type BitbucketApiPullRequest struct {
 			Href string `json:"href"`
 		} `json:"html"`
 	} `json:"links"`
-	//ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
+	ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
 	Author             *BitbucketAccountResponse `json:"author"`
 	BitbucketCreatedAt time.Time                 `json:"created_on"`
 	BitbucketUpdatedAt time.Time                 `json:"updated_on"`
@@ -154,5 +154,10 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		bitbucketPull.HeadRef = pull.HeadRef.Branch.Name
 		bitbucketPull.HeadCommitSha = pull.HeadRef.Commit.Hash
 	}
+	if pull.ClosedBy != nil {
+		bitbucketPull.MergedByName = pull.ClosedBy.DisplayName
+		bitbucketPull.MergedById = pull.ClosedBy.AccountId
+	}
+
 	return bitbucketPull, nil
 }

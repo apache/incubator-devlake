@@ -19,12 +19,9 @@
 import { useState, useContext, useEffect, useMemo } from 'react';
 import { Flex, Button } from 'antd';
 import dayjs from 'dayjs';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 
 import API from '@/api';
-import { cronPresets } from '@/config';
-import { IBPMode } from '@/types';
+import { Markdown } from '@/components';
 import { DataScopeRemote, getPluginScopeId } from '@/plugins';
 import { operator, formatTime } from '@/utils';
 
@@ -44,7 +41,6 @@ export const Step3 = () => {
       .then((text) => setQA(text));
   }, [plugin]);
 
-  const presets = useMemo(() => cronPresets.map((preset) => preset.config), []);
   const connectionId = useMemo(() => {
     const record = records.find((it) => it.plugin === plugin);
     return record?.connectionId ?? null;
@@ -58,30 +54,23 @@ export const Step3 = () => {
     const [success] = await operator(
       async () => {
         // 1. create a new project
-        await API.project.create({
+        const { blueprint } = await API.project.create({
           name: projectName,
           description: '',
           metrics: [
             {
               pluginName: 'dora',
               pluginOption: '',
-              enable: false,
+              enable: true,
             },
           ],
         });
 
-        // 2. add a data scope to the connection
+        // 2. add data scopes to the connection
         await API.scope.batch(plugin, connectionId, { data: scopes.map((it) => it.data) });
 
-        // 3. create a new blueprint
-        const blueprint = await API.blueprint.create({
-          name: `${projectName}-Blueprint`,
-          projectName,
-          mode: IBPMode.NORMAL,
-          enable: true,
-          cronConfig: presets[0],
-          isManual: false,
-          skipOnFail: true,
+        // 3. add data scopes to the blueprint
+        await API.blueprint.update(blueprint.id, {
           timeAfter: formatTime(dayjs().subtract(14, 'day').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
           connections: [
             {
@@ -105,6 +94,7 @@ export const Step3 = () => {
             ? it
             : {
                 ...it,
+                blueprintId: blueprint.id,
                 pipelineId: pipeline.pipelines[0].id,
                 scopeName: scopes[0]?.fullName ?? scopes[0].name,
               },
@@ -123,7 +113,7 @@ export const Step3 = () => {
       },
       {
         setOperating,
-        hideToast: true,
+        formatMessage: () => 'Congratulations！You have successfully connected to your first repository!',
       },
     );
 
@@ -149,15 +139,13 @@ export const Step3 = () => {
             footer={null}
           />
         </div>
-        <Markdown className="qa" rehypePlugins={[rehypeRaw]}>
-          {QA}
-        </Markdown>
+        <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 36 }} justify="space-between">
         <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>
           Previous Step
         </Button>
-        <Button type="primary" loading={operating} onClick={handleSubmit}>
+        <Button type="primary" loading={operating} disabled={!scopes.length} onClick={handleSubmit}>
           Next Step
         </Button>
       </Flex>

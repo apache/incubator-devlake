@@ -15,21 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-##### Q1. How to create an Azure DevOps token?
+##### Q1. How to generate an Azure DevOps token?
 
 1. Sign in to your organization (https://dev.azure.com/{yourorganization}) and go to the homepage.
 2. Open **User Settings** in the upper-right corner of the top navigation bar and select **Personal access tokens**.
 3. Select **New Token**.
 4. Name your token, select 'All accessible organizations' in the Organization field.
-5. Select the scopes. See Q2.
+5. Select the scopes. See **Q2**.
 6. Select **Create**.
 
-Check [this doc](https://devlake.apache.org/docs/Configuration/AzureDevOps/#token) for more details.
+For detailed instructions, refer to [this doc](https://devlake.apache.org/docs/Configuration/AzureDevOps/#token).
 
-##### Q2. What token scopes should I choose?
+##### Q2. Which scopes should be included in a token?
 
-Please select 'Full access'.
+'Full access' is required to retrieve the Azure DevOps data.
 
-##### Q3. Can I connect to the Azure DevOps server?
+##### Q3. Is connecting to the Azure DevOps Server possible?
 
-No. Azure DevOps server is not supported yet.
+No. Azure DevOps Server is not supported yet.

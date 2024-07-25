@@ -17,6 +17,7 @@
  */
 
 import { LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { theme, Tooltip, Progress } from 'antd';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -26,7 +27,22 @@ const Wrapper = styled.div`
   background: #f6f6f8;
 
   .title {
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    & > span.name {
+      width: 220px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    & > span.progress {
+      margin-left: 12px;
+      flex: auto;
+    }
   }
 
   ul {
@@ -48,8 +64,7 @@ const Wrapper = styled.div`
   }
 
   span.status {
-    flex: 0 0 140px;
-    text-align: right;
+    flex: 0 0 150px;
   }
 
   span.anticon {
@@ -58,12 +73,34 @@ const Wrapper = styled.div`
   }
 `;
 
+const getStatus = (task: { step: number; name: string; status: string; finishedRecords: number }) => {
+  if (task.status === 'pending') {
+    return 'Pending';
+  }
+
+  if (task.status === 'running' && task.name === 'Clone Git Repo') {
+    return 'N/A';
+  }
+
+  if (task.status === 'success' && task.name === 'Clone Git Repo') {
+    return 'Completed';
+  }
+
+  if (task.status === 'failed' && task.name === 'Clone Git Repo') {
+    return 'Failed';
+  }
+
+  if (['running', 'success', 'failed'].includes(task.status)) {
+    return `Records collected: ${task.finishedRecords}`;
+  }
+};
+
 interface LogsProps {
   style?: React.CSSProperties;
   log: {
     plugin: string;
-    scopeName: string;
-    status: string;
+    name: string;
+    percent: number;
     tasks: Array<{
       step: number;
       name: string;
@@ -73,7 +110,11 @@ interface LogsProps {
   };
 }
 
-export const Logs = ({ style, log: { plugin, scopeName, status, tasks } }: LogsProps) => {
+export const Logs = ({ style, log: { plugin, name, percent, tasks } }: LogsProps) => {
+  const {
+    token: { green5, red5, colorPrimary },
+  } = theme.useToken();
+
   if (!plugin) {
     return null;
   }
@@ -81,7 +122,12 @@ export const Logs = ({ style, log: { plugin, scopeName, status, tasks } }: LogsP
   return (
     <Wrapper style={style}>
       <div className="title">
-        {plugin}:{scopeName}
+        <Tooltip title={name}>
+          <span className="name">{name}</span>
+        </Tooltip>
+        <span className="progress">
+          <Progress size="small" percent={percent} showInfo={false} />
+        </span>
       </div>
       <ul>
         {tasks.map((task) => (
@@ -89,14 +135,10 @@ export const Logs = ({ style, log: { plugin, scopeName, status, tasks } }: LogsP
             <span className="name">
               Step {task.step} - {task.name}
             </span>
-            {task.status === 'pending' ? (
-              <span className="status">Pending</span>
-            ) : (
-              <span className="status">Records collected: {task.finishedRecords}</span>
-            )}
-            {task.status === 'running' && <LoadingOutlined />}
-            {task.status === 'success' && <CheckCircleOutlined />}
-            {task.status === 'failed' && <CloseCircleOutlined />}
+            <span className="status">{getStatus(task)}</span>
+            {task.status === 'running' && <LoadingOutlined style={{ color: colorPrimary }} />}
+            {task.status === 'success' && <CheckCircleOutlined style={{ color: green5 }} />}
+            {task.status === 'failed' && <CloseCircleOutlined style={{ color: red5 }} />}
           </li>
         ))}
       </ul>

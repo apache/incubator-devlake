@@ -82,6 +82,8 @@ func ConvertPipelineCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoId: didgen.NewDomainIdGenerator(&models.GitlabProject{}).
 					Generate(gitlabPipelineCommit.ConnectionId, gitlabPipelineCommit.ProjectId),
 				RepoUrl: repo.WebUrl,
+				// DisplayTitle: gitlabPipelineCommit.Ref,
+				Url: gitlabPipelineCommit.WebUrl,
 			}
 
 			return []interface{}{

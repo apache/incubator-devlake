@@ -18,6 +18,4 @@
 
 export const validName = (name: string) => /^(\w|-|\/)+$/.test(name);
 
-export const decodeName = (name: string) => window.decodeURIComponent(name);
-
 export const encodeName = (name: string) => window.encodeURIComponent(name);

@@ -25,6 +25,7 @@ import (
 type TapdConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
+	CompanyId             uint64 `gorm:"type:BIGINT" mapstructure:"companyId,string" json:"companyId,string" validate:"required"`
 }
 
 func (connection TapdConn) Sanitize() TapdConn {

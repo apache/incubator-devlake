@@ -18,14 +18,15 @@ limitations under the License.
 package plugin
 
 import (
-	"github.com/apache/incubator-devlake/server/services/remote/models"
 	"net/http"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/server/services/remote/models"
 )
 
 func (pa *pluginAPI) PostScopeConfigs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -87,6 +88,76 @@ func (pa *pluginAPI) GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.Api
 	}
 
 	return &plugin.ApiResourceOutput{Body: scopeConfig.Unwrap()}, nil
+}
+
+func (pa *pluginAPI) GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	db := basicRes.GetDal()
+	configId, err := strconv.ParseUint(input.Params["id"], 10, 64)
+	if err != nil {
+		return nil, errors.BadInput.New("invalid configId")
+	}
+
+	ps := &coreModels.ProjectScopeOutput{}
+	projectMap := make(map[string]*coreModels.ProjectScope)
+	// 1. get all scopes that are using the scopeConfigId
+	scopes := models.NewDynamicScopeModel(pa.scopeType.NewSlice())
+	err = api.CallDB(db.All, scopes, dal.Where("scope_config_id = ?", configId))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "no scope config with given id")
+	}
+	for _, s := range scopes.UnwrapSlice() {
+		// 2. get blueprint id by connection id and scope id
+		scope := models.NewDynamicScopeModel(pa.scopeType)
+		_ = scope.From(s)
+		// result = append(result, scope)
+		bpScope := []*coreModels.BlueprintScope{}
+		err = db.All(&bpScope,
+			dal.Where("plugin_name = ? and connection_id = ? and scope_id = ?", input.Params["plugin"], scope.ConnectionId(), scope.ScopeId()),
+		)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "no blueprint scope with given id")
+		}
+		for _, bs := range bpScope {
+			// 3. get project details by blueprint id
+			bp := coreModels.Blueprint{}
+			err = db.All(&bp,
+				dal.Where("id = ?", bs.BlueprintId),
+			)
+			if err != nil {
+				return nil, errors.Default.Wrap(err, "no blueprint with given id")
+			}
+			if project, exists := projectMap[bp.ProjectName]; exists {
+				project.Scopes = append(project.Scopes, struct {
+					ScopeID   string `json:"scopeId"`
+					ScopeName string `json:"scopeName"`
+				}{
+					ScopeID:   bs.ScopeId,
+					ScopeName: scope.ScopeName(),
+				})
+			} else {
+				projectMap[bp.ProjectName] = &coreModels.ProjectScope{
+					Name:        bp.ProjectName,
+					BlueprintId: bp.ID,
+					Scopes: []struct {
+						ScopeID   string `json:"scopeId"`
+						ScopeName string `json:"scopeName"`
+					}{
+						{
+							ScopeID:   bs.ScopeId,
+							ScopeName: scope.ScopeName(),
+						},
+					},
+				}
+			}
+		}
+	}
+	// 4. combine all projects
+	for _, project := range projectMap {
+		ps.Projects = append(ps.Projects, *project)
+	}
+	ps.Count = len(ps.Projects)
+
+	return &plugin.ApiResourceOutput{Body: ps}, nil
 }
 
 func (pa *pluginAPI) ListScopeConfigs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
