@@ -88,7 +88,6 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,
-				AuthorId:       accountIdGen.Generate(data.Options.ConnectionId, pr.AuthorId),
 				AuthorName:     pr.AuthorName,
 				Description:    pr.Body,
 				CreatedDate:    pr.GithubCreatedAt,
@@ -114,6 +113,9 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				domainPr.Status = code.MERGED
 			} else {
 				domainPr.Status = code.CLOSED
+			}
+			if pr.AuthorId != 0 {
+				domainPr.AuthorId = accountIdGen.Generate(data.Options.ConnectionId, pr.AuthorId)
 			}
 			return []interface{}{
 				domainPr,
