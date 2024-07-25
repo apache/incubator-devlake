@@ -96,7 +96,6 @@ func (p Dora) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CalculateChangeLeadTimeMeta,
 		tasks.ConnectIncidentToDeploymentMeta,
 		tasks.IssuesToIncidentsMeta,
-		tasks.PullRequestToIncidentsMeta,
 	}
 }
 
@@ -163,7 +162,6 @@ func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.
 					"calculateChangeLeadTime",
 					"ConnectIncidentToDeployment",
 					tasks.IssuesToIncidentsMeta.Name,
-					tasks.PullRequestToIncidentsMeta.Name,
 				},
 			},
 		},
