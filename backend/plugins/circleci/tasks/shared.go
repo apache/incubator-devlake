@@ -18,6 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -90,4 +94,30 @@ func findPipelineById(db dal.Dal, id string) (*models.CircleciPipeline, errors.E
 		return nil, err
 	}
 	return pipeline, nil
+}
+
+func ExtractNextPageToken(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
+	res := CircleciPageTokenResp[any]{}
+	err := api.UnmarshalResponse(prevPageResponse, &res)
+	if err != nil {
+		return nil, err
+	}
+	if res.NextPageToken == "" {
+		return nil, api.ErrFinishCollect
+	}
+	return res.NextPageToken, nil
+}
+
+func BuildQueryParamsWithPageToken(reqData *api.RequestData) (url.Values, errors.Error) {
+	query := url.Values{}
+	if pageToken, ok := reqData.CustomData.(string); ok && pageToken != "" {
+		query.Set("page-token", pageToken)
+	}
+	return query, nil
+}
+
+func ParseCircleciPageTokenResp(res *http.Response) ([]json.RawMessage, errors.Error) {
+	data := CircleciPageTokenResp[[]json.RawMessage]{}
+	err := api.UnmarshalResponse(res, &data)
+	return data.Items, err
 }
