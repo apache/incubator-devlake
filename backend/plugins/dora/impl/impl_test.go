@@ -63,7 +63,6 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 					"calculateChangeLeadTime",
 					"ConnectIncidentToDeployment",
 					tasks.IssuesToIncidentsMeta.Name,
-					tasks.PullRequestToIncidentsMeta.Name,
 				},
 				Options: map[string]interface{}{"projectName": projectName},
 			},
