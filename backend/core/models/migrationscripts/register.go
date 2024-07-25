@@ -125,5 +125,6 @@ func All() []plugin.MigrationScript {
 		new(addMergedByToPr),
 		new(addPullRequestIdIndexToPullRequestCommits),
 		new(addPullRequestIdIndexToPullRequestComments),
+		new(addIsDraftToPr),
 	}
 }
