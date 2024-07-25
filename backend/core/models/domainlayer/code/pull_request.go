@@ -60,6 +60,7 @@ type PullRequest struct {
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
 	Additions      int
 	Deletions      int
+	IsDraft        bool
 }
 
 func (PullRequest) TableName() string {
