@@ -15,35 +15,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type DoraApiParams struct {
-	ProjectName string
+var _ plugin.MigrationScript = (*addIsDraftToPr)(nil)
+
+type pr20240725 struct {
+	IsDraft bool
 }
 
-type DoraOptions struct {
-	Tasks       []string `json:"tasks,omitempty"`
-	Since       string
-	ProjectName string  `json:"projectName"`
-	ScopeId     *string `json:"scopeId,omitempty"`
+func (pr20240725) TableName() string {
+	return "pull_requests"
 }
 
-type DoraTaskData struct {
-	Options                         *DoraOptions
-	DisableIssueToIncidentGenerator bool
-}
+type addIsDraftToPr struct{}
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, errors.Error) {
-	var op DoraOptions
-	err := helper.Decode(options, &op, nil)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding DORA task options")
+func (*addIsDraftToPr) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if err := db.AutoMigrate(&pr20240725{}); err != nil {
+		return err
 	}
+	return nil
+}
 
-	return &op, nil
+func (*addIsDraftToPr) Version() uint64 {
+	return 20240725142101
+}
+
+func (*addIsDraftToPr) Name() string {
+	return "add is_draft to pull_requests"
 }
