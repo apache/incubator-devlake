@@ -52,6 +52,7 @@ type GraphqlQueryPr struct {
 	Number     int
 	State      string
 	Title      string
+	IsDraft    bool
 	Body       string
 	Url        string
 	Labels     struct {
