@@ -22,7 +22,7 @@ import { DOC_URL } from '@/release';
 import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
-import { Token, Graphql, GithubApp, Authentication } from './connection-fields';
+import { Token, GithubApp, Authentication } from './connection-fields';
 
 export const GitHubConfig: IPluginConfig = {
   plugin: 'github',
@@ -34,7 +34,6 @@ export const GitHubConfig: IPluginConfig = {
     initialValues: {
       endpoint: 'https://api.github.com/',
       authMethod: 'AccessToken',
-      enableGraphql: true,
     },
     fields: [
       'name',
@@ -80,14 +79,6 @@ export const GitHubConfig: IPluginConfig = {
           />
         ),
       'proxy',
-      ({ initialValues, values, setValues }: any) => (
-        <Graphql
-          key="graphql"
-          initialValue={initialValues.enableGraphql ?? false}
-          value={values.enableGraphql ?? false}
-          setValue={(value) => setValues({ enableGraphql: value })}
-        />
-      ),
       {
         key: 'rateLimitPerHour',
         subLabel:
