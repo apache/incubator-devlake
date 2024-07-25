@@ -90,7 +90,7 @@ type GraphqlCollector struct {
 	workerErrors []error
 }
 
-// ErrFinishCollect is a error which will finish this collector
+// ErrFinishCollect is an error which will finish this collector
 var ErrFinishCollect = errors.Default.New("finish collect")
 
 // NewGraphqlCollector allocates a new GraphqlCollector with the given args.
@@ -100,10 +100,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.E
 	// process args
 	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error processing raw subtask args")
-	}
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate")
+		return nil, err
 	}
 	if args.GraphqlClient == nil {
 		return nil, errors.Default.New("ApiClient is required")

@@ -53,6 +53,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	// SELECT * FROM _raw_jenkins_api_builds INTO OUTFILE "/tmp/_raw_jenkins_api_builds.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_builds.csv", "_raw_jenkins_api_builds")
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_jenkins_stages.csv", &models.JenkinsStage{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_jenkins_jobs.csv", &models.JenkinsJob{})
 
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -164,6 +165,8 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"repo_url",
 			"branch",
 			"commit_sha",
+			"display_title",
+			"url",
 		),
 	)
 }

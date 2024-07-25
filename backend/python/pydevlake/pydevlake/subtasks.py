@@ -14,19 +14,18 @@
 # limitations under the License.
 
 
-from abc import abstractmethod
 import json
+from abc import abstractmethod
 from datetime import datetime
 from typing import Tuple, Dict, Iterable, Generator
-
 
 import sqlalchemy.sql as sql
 from sqlmodel import Session, select
 
-from pydevlake.model import RawModel, ToolModel, DomainModel, SubtaskRun, raw_data_params
+from pydevlake import logger
 from pydevlake.context import Context
 from pydevlake.message import RemoteProgress
-from pydevlake import logger
+from pydevlake.model import RawModel, ToolModel, DomainModel, SubtaskRun, raw_data_params
 
 
 class Subtask:
@@ -35,7 +34,8 @@ class Subtask:
 
     @property
     def name(self):
-        return f'{self.verb.lower()}{self.stream.plugin_name.capitalize()}{self.stream.name.capitalize()}'
+        #return f'{self.verb.lower()}{self.stream.plugin_name.capitalize()}{self.stream.name.capitalize()}'
+        return f'{self.verb.capitalize()} {self.stream.name.capitalize()}'
 
     @property
     def description(self):
@@ -74,7 +74,7 @@ class Subtask:
                 # Send final progress
                 if progress != last_progress:
                     yield RemoteProgress(
-                        increment=progress-last_progress,
+                        increment=progress - last_progress,
                         current=progress
                     )
             except Exception as e:
@@ -144,9 +144,18 @@ class Collector(Subtask):
 
     def process(self, data: object, session: Session, ctx: Context):
         raw_model_class = self.stream.raw_model(session)
+        url, input_info = "", ""
+        if "x_request_url" in data:
+            url = data["x_request_url"]
+            del data["x_request_url"]
+        if "x_request_input" in data:
+            input_info = data["x_request_input"]
+            del data["x_request_input"]
         raw_model = raw_model_class(
             params=self._params(ctx),
-            data=json.dumps(data).encode('utf8')
+            data=json.dumps(data).encode('utf8'),
+            url=url,
+            input=json.dumps(input_info).encode('utf8'),
         )
         session.add(raw_model)
 
@@ -179,11 +188,13 @@ class Extractor(Subtask):
         tool_model = self.stream.extract(json.loads(raw.data))
         tool_model.set_raw_origin(raw)
         tool_model.connection_id = ctx.connection.id
+        tool_model.set_updated_at()
         session.merge(tool_model)
 
     def delete(self, session, ctx):
         model = self.stream.tool_model
         session.execute(sql.delete(model).where(model.raw_data_params == self._params(ctx)))
+
 
 class Convertor(Subtask):
     @property
@@ -206,9 +217,13 @@ class Convertor(Subtask):
 
     def _save(self, tool_model: ToolModel, domain_model: DomainModel, session: Session, connection_id: int):
         domain_model.set_tool_origin(tool_model)
+        domain_model.set_updated_at()
         if isinstance(domain_model, DomainModel):
             domain_model.id = tool_model.domain_id()
         session.merge(domain_model)
 
     def delete(self, session, ctx):
-        pass
+        domain_models = self.stream.domain_models
+        if domain_models is not None:
+            for domain_model in domain_models:
+                session.execute(sql.delete(domain_model).where(domain_model.raw_data_params == self._params(ctx)))

@@ -33,7 +33,7 @@ func init() {
 }
 
 var ExtractApiPipelineDetailsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPipelineDetails",
+	Name:             "Extract Pipeline Details",
 	EntryPoint:       ExtractApiPipelineDetails,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipeline details data into tool layer table GitlabPipeline",
@@ -70,9 +70,6 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId:    data.Options.ConnectionId,
 				Type:            data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
 				Environment:     data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
-			}
-			if err != nil {
-				return nil, err
 			}
 
 			results := make([]interface{}, 0, 1)

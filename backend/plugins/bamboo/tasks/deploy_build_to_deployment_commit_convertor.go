@@ -19,10 +19,14 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"log"
+	"net/url"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -49,6 +53,7 @@ type deployBuildWithVcsRevision struct {
 	ConnectionId          uint64     `json:"connection_id" gorm:"primaryKey"`
 	DeployBuildId         uint64     `json:"deploy_build_id" gorm:"primaryKey"`
 	PlanResultKey         string     `json:"planResultKey" `
+	EnvKey                string     `json:"envKey"`
 	DeploymentVersionName string     `json:"deploymentVersionName"`
 	DeploymentState       string     `json:"deploymentState"`
 	LifeCycleState        string     `json:"lifeCycleState"`
@@ -136,9 +141,19 @@ func ConvertDeployBuildsToDeploymentCommits(taskCtx plugin.SubTaskContext) error
 					StartedDate:  input.ExecutedDate,
 					FinishedDate: input.FinishedDate,
 				},
-				CommitSha: input.VcsRevisionKey,
-				RefName:   input.PlanBranchName,
-				RepoId:    strconv.Itoa(input.RepositoryId),
+				CommitSha:    input.VcsRevisionKey,
+				RefName:      input.PlanBranchName,
+				RepoId:       strconv.Itoa(input.RepositoryId),
+				DisplayTitle: input.GenerateCICDDeploymentCommitName(),
+			}
+			u, err := url.Parse(data.ApiClient.GetEndpoint())
+			if err != nil {
+				log.Fatal(err)
+			}
+			baseURL := u.Scheme + "://" + u.Host
+			parts := strings.Split(input.EnvKey, "-")
+			if len(parts) > 1 {
+				deploymentCommit.Url = fmt.Sprintf("%s/deploy/viewEnvironment.action?id=%s", baseURL, parts[1])
 			}
 			if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, input.Environment) != "" {
 				deploymentCommit.Environment = devops.PRODUCTION

@@ -73,17 +73,22 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-	return testConnection(context.TODO(), connection)
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // TestExistingConnection test ae connection
 // @Summary test ae connection
 // @Description Test AE Connection
 // @Tags plugins/ae
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/ae/{connectionId}/test [POST]
+// @Router /plugins/ae/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	connection := &models.AeConnection{}
@@ -94,7 +99,11 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if err := api.DecodeMapStruct(input.Body, connection, false); err != nil {
 		return nil, err
 	}
-	return testConnection(context.TODO(), connection.AeConn)
+	result, err := testConnection(context.TODO(), connection.AeConn)
+	if err != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create ae connection

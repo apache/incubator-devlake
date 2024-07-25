@@ -18,11 +18,13 @@
 
 import { IPluginConfig } from '@/types';
 
-import { AzureConfig } from './azure';
+import { AzureConfig, AzureGoConfig } from './azure';
 import { BambooConfig } from './bamboo';
-import { BitBucketConfig } from './bitbucket';
+import { BitbucketConfig } from './bitbucket';
+import { BitbucketServerConfig } from './bitbucket-server';
 import { CircleCIConfig } from './circleci';
 import { GitHubConfig } from './github';
+import { GerritConfig } from './gerrit';
 import { GitLabConfig } from './gitlab';
 import { JenkinsConfig } from './jenkins';
 import { JiraConfig } from './jira';
@@ -35,9 +37,12 @@ import { OpsgenieConfig } from './opsgenie';
 
 export const pluginConfigs: IPluginConfig[] = [
   AzureConfig,
+  AzureGoConfig,
   BambooConfig,
-  BitBucketConfig,
+  BitbucketConfig,
+  BitbucketServerConfig,
   CircleCIConfig,
+  GerritConfig,
   GitHubConfig,
   GitLabConfig,
   JenkinsConfig,

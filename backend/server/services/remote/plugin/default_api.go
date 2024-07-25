@@ -93,6 +93,9 @@ func GetDefaultAPI(
 		"connections/:connectionId/search-remote-scopes": {
 			"GET": papi.SearchRemoteScopes,
 		},
+		"scope-config/:id/projects": {
+			"GET": papi.GetProjectsByScopeConfig,
+		},
 	}
 	papi.createScopeHelper()
 	return resources

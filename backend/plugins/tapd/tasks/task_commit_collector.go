@@ -38,7 +38,7 @@ var _ plugin.SubTaskEntryPoint = CollectTaskCommits
 func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_COMMIT_TABLE)
 	db := taskCtx.GetDal()
-	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	apiCollector, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -49,8 +49,8 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(&models.TapdTask{}),
 		dal.Where("_tool_tapd_tasks.connection_id = ? and _tool_tapd_tasks.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
-	if collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.Since))
+	if apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("modified > ?", *apiCollector.GetSince()))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -60,7 +60,7 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
@@ -85,7 +85,7 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Error(err, "collect issueCommit error")
 		return err
 	}
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
 
 var CollectTaskCommitMeta = plugin.SubTaskMeta{

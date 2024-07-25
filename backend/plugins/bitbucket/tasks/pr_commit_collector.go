@@ -29,7 +29,7 @@ import (
 const RAW_PULL_REQUEST_COMMITS_TABLE = "bitbucket_api_pull_request_commits"
 
 var CollectApiPrCommitsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequestCommits",
+	Name:             "Collect PR Commits",
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Bitbucket api",

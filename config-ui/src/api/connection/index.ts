@@ -42,7 +42,17 @@ export const test = (
   payload?: Partial<
     Pick<
       IConnectionAPI,
-      'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy' | 'dbUrl'
+      | 'endpoint'
+      | 'authMethod'
+      | 'username'
+      | 'password'
+      | 'token'
+      | 'appId'
+      | 'secretKey'
+      | 'proxy'
+      | 'dbUrl'
+      | 'companyId'
+      | 'organization'
     >
   >,
 ): Promise<IConnectionTestResult> =>
@@ -52,6 +62,15 @@ export const testOld = (
   plugin: string,
   payload: Pick<
     IConnectionAPI,
-    'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy' | 'dbUrl'
+    | 'endpoint'
+    | 'authMethod'
+    | 'username'
+    | 'password'
+    | 'token'
+    | 'appId'
+    | 'secretKey'
+    | 'proxy'
+    | 'dbUrl'
+    | 'organization'
   >,
 ): Promise<IConnectionOldTestResult> => request(`/plugins/${plugin}/test`, { method: 'post', data: payload });

@@ -36,11 +36,13 @@ const (
 )
 
 type RunningProgress struct {
-	Type          ProgressType
-	Current       int
-	Total         int
-	SubTaskName   string
-	SubTaskNumber int
+	Type                 ProgressType
+	Current              int
+	Total                int
+	SubTaskName          string
+	SubTaskNumber        int
+	CollectSubtaskNumber int
+	OtherSubtaskNumber   int
 } // nolint
 
 // ExecContext This interface define all resources that needed for task/subtask execution
@@ -104,6 +106,7 @@ type SubTaskMeta struct {
 	Dependencies     []*SubTaskMeta
 	DependencyTables []string
 	ProductTables    []string
+	ForceRunOnResume bool // Should a subtask be ran dispite it was finished before
 }
 
 // PluginTask Implement this interface to let framework run tasks for you

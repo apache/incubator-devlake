@@ -78,7 +78,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 	testConnectionResult, err := testConnection(context.TODO(), conn)
 	if err != nil {
-		return nil, errors.Convert(err)
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
@@ -92,6 +92,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/github/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	if _, ok := input.Body["enableGraphql"]; !ok {
+		input.Body["enableGraphql"] = true
+	}
 	return dsHelper.ConnApi.Post(input)
 }
 
@@ -383,10 +386,11 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 // @Summary test github connection
 // @Description Test github Connection
 // @Tags plugins/github
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} GithubMultiTestConnResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/github/{connectionId}/test [POST]
+// @Router /plugins/github/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
@@ -394,7 +398,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	}
 	testConnectionResult, testConnectionErr := testExistingConnection(context.TODO(), connection.GithubConn)
 	if testConnectionErr != nil {
-		return nil, testConnectionErr
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
 	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }

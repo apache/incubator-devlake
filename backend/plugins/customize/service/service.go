@@ -85,6 +85,8 @@ func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Erro
 	}
 	return result, nil
 }
+
+// checkField checks if the field exist in table
 func (s *Service) checkField(table, field string) (bool, errors.Error) {
 	if table == "" {
 		return false, errors.Default.New("empty table name")
@@ -143,24 +145,44 @@ func (s *Service) DeleteField(table, field string) errors.Error {
 	return s.dal.Delete(&models.CustomizedField{}, dal.Where("tb_name = ? AND column_name = ?", table, field))
 }
 
+// getCustomizedFields returns all the customized fields definitions of the table
 func (s *Service) getCustomizedFields(table string) ([]models.CustomizedField, errors.Error) {
 	var result []models.CustomizedField
 	err := s.dal.All(&result, dal.Where("tb_name = ?", table))
 	return result, err
 }
 
+// ImportIssue import csv file to the table `issues`, and create relations to boards
+// issue could exist in multiple boards, so we should only delete an old records when it doesn't belong to another board
 func (s *Service) ImportIssue(boardId string, file io.ReadCloser) errors.Error {
-	err := s.dal.Delete(&ticket.Issue{}, dal.Where("_raw_data_params = ?", boardId))
+	err := s.dal.Delete(
+		&ticket.Issue{},
+		dal.Where("id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+	)
 	if err != nil {
 		return err
 	}
-	err = s.dal.Delete(&ticket.BoardIssue{}, dal.Where("board_id = ?", boardId))
+
+	err = s.dal.Delete(
+		&ticket.IssueLabel{},
+		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+	)
 	if err != nil {
 		return err
 	}
+
+	err = s.dal.Delete(
+		&ticket.BoardIssue{},
+		dal.Where("board_id = ?", boardId),
+	)
+	if err != nil {
+		return err
+	}
+
 	return s.importCSV(file, boardId, s.issueHandlerFactory(boardId))
 }
 
+// SaveBoard make sure the board exists in table `boards`
 func (s *Service) SaveBoard(boardId, boardName string) errors.Error {
 	return s.dal.CreateOrUpdate(&ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
@@ -171,40 +193,39 @@ func (s *Service) SaveBoard(boardId, boardName string) errors.Error {
 	})
 }
 
-func (s *Service) ImportIssueCommit(rawDataParams string, file io.ReadCloser) errors.Error {
-	err := s.dal.Delete(&crossdomain.IssueCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
+// ImportIssueCommit imports csv file into the table `issue_commits`
+func (s *Service) ImportIssueCommit(boardId string, file io.ReadCloser) errors.Error {
+	err := s.dal.Delete(
+		&crossdomain.IssueCommit{},
+		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+	)
 	if err != nil {
 		return err
 	}
-	return s.importCSV(file, rawDataParams, s.issueCommitHandler)
+	return s.importCSV(file, boardId, s.issueCommitHandler)
 }
 
 // ImportIssueRepoCommit imports data to the table `issue_repo_commits` and `issue_commits`
-func (s *Service) ImportIssueRepoCommit(rawDataParams string, file io.ReadCloser) errors.Error {
-	fields := make(map[string]struct{})
-	// get all fields of the table `issue_repo_commit`
-	columns, err := s.dal.GetColumns(&crossdomain.IssueCommit{}, func(columnMeta dal.ColumnMeta) bool {
-		return true
-	})
-	if err != nil {
-		return err
-	}
-	for _, column := range columns {
-		fields[column.Name()] = struct{}{}
-	}
+func (s *Service) ImportIssueRepoCommit(boardId string, file io.ReadCloser) errors.Error {
 	// delete old records of the table `issue_repo_commit` and `issue_commit`
-	err = s.dal.Delete(&crossdomain.IssueRepoCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
+	err := s.dal.Delete(
+		&crossdomain.IssueRepoCommit{},
+		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+	)
 	if err != nil {
 		return err
 	}
-	err = s.dal.Delete(&crossdomain.IssueCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
+	err = s.dal.Delete(
+		&crossdomain.IssueCommit{},
+		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+	)
 	if err != nil {
 		return err
 	}
-	return s.importCSV(file, rawDataParams, s.issueRepoCommitHandlerFactory(fields))
+	return s.importCSV(file, boardId, s.issueRepoCommitHandler)
 }
 
-// importCSV imports the csv file to the database,
+// importCSV extract records from csv file, and save them to DB using recordHandler
 // the rawDataParams is used to identify the data source,
 // the recordHandler is used to handle the record, it should return an error if the record is invalid
 // the `created_at` and `updated_at` will be set to the current time
@@ -238,6 +259,7 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 	}
 }
 
+// issueHandlerFactory returns a handler that save record into `issues`, `board_issues` and `issue_labels` table
 func (s *Service) issueHandlerFactory(boardId string) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
 		var err errors.Error
@@ -294,25 +316,22 @@ func (s *Service) issueHandlerFactory(boardId string) func(record map[string]int
 	}
 }
 
+// issueCommitHandler save record into `issue_commits` table
 func (s *Service) issueCommitHandler(record map[string]interface{}) errors.Error {
 	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
 }
 
 // issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commits` table
 // ths issueCommitsFields is used to filter the fields that should be inserted into the `issue_commits` table
-func (s *Service) issueRepoCommitHandlerFactory(issueCommitsFields map[string]struct{}) func(record map[string]interface{}) errors.Error {
-	return func(record map[string]interface{}) errors.Error {
-		err := s.dal.CreateWithMap(&crossdomain.IssueRepoCommit{}, record)
-		if err != nil {
-			return err
-		}
-		for head := range record {
-			if _, exists := issueCommitsFields[head]; exists {
-				continue
-			} else {
-				delete(record, head)
-			}
-		}
-		return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
+func (s *Service) issueRepoCommitHandler(record map[string]interface{}) errors.Error {
+	err := s.dal.CreateWithMap(&crossdomain.IssueRepoCommit{}, record)
+	if err != nil {
+		return err
 	}
+	// remove fields that not in table `issue_commits`
+	delete(record, "host")
+	delete(record, "namespace")
+	delete(record, "repo_name")
+	delete(record, "repo_url")
+	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
 }

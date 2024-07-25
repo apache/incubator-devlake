@@ -26,25 +26,21 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
-type ScopeRes struct {
-	models.JenkinsJob
-	api.ScopeResDoc[models.JenkinsScopeConfig]
-}
+type PutScopesReqBody api.PutScopesReqBody[models.JenkinsJob]
+type ScopeDetail api.ScopeDetail[models.JenkinsJob, models.JenkinsScopeConfig]
 
-type ScopeReq api.ScopeReq[models.JenkinsJob]
-
-// PutScope create or update jenkins job
+// PutScopes create or update jenkins job
 // @Summary create or update jenkins job
 // @Description Create or update jenkins job
 // @Tags plugins/jenkins
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param scope body ScopeReq true "json"
-// @Success 200  {object} []models.JenkinsJob
+// @Success 200  {object} PutScopesReqBody
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/scopes [PUT]
-func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
@@ -74,7 +70,7 @@ func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/scopes [GET]
@@ -97,7 +93,7 @@ func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Tags plugins/jenkins
 // @Param connectionId path int false "connection ID"
 // @Param scopeId path string false "job's full name"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/scopes/{scopeId} [GET]

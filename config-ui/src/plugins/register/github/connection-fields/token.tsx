@@ -41,7 +41,7 @@ interface Props {
   initialValue: string;
   value: string;
   error: string;
-  setValue: (value?: string) => void;
+  setValue: (value: string) => void;
   setError: (error?: string) => void;
 }
 
@@ -155,7 +155,7 @@ export const Token = ({
         tokens.map(({ value, isValid, status, from }, i) => (
           <S.Input key={i}>
             <div className="input">
-              <Input
+              <Input.Password
                 style={{ width: 386 }}
                 placeholder="Token"
                 value={value}

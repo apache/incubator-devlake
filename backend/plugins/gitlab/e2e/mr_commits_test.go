@@ -48,6 +48,8 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabMergeRequest{})
 	dataflowTester.FlushTabler(&models.GitlabMrLabel{})
+	dataflowTester.FlushTabler(&models.GitlabAssignee{})
+	dataflowTester.FlushTabler(&models.GitlabReviewer{})
 	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},

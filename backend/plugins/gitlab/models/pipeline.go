@@ -58,6 +58,7 @@ type GitlabPipelineProject struct {
 	PipelineId      int    `gorm:"primaryKey"`
 	ProjectId       int    `gorm:"primaryKey"`
 	Ref             string `gorm:"type:varchar(255)"`
+	WebUrl          string
 	Sha             string `gorm:"type:varchar(255)"`
 	GitlabCreatedAt *time.Time
 	GitlabUpdatedAt *time.Time

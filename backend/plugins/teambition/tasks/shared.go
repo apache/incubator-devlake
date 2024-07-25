@@ -18,20 +18,15 @@ limitations under the License.
 package tasks
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
-	"strings"
 )
-
-type TeambitionApiParams struct {
-	ConnectionId   uint64
-	OrganizationId string
-	ProjectId      string
-}
 
 type TeambitionComRes[T any] struct {
 	NextPageToken string `json:"nextPageToken"`
@@ -96,7 +91,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	filteredData := *data
 	filteredData.Options = &TeambitionOptions{}
 	*filteredData.Options = *data.Options
-	params := TeambitionApiParams{
+	params := models.TeambitionApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		ProjectId:    data.Options.ProjectId,
 	}

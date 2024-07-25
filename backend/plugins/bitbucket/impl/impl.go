@@ -180,7 +180,7 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 }
 
 func (p Bitbucket) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/bitbucket"
+	return "github.com/apache/incubator-devlake/plugins/bitbucket/" // the "/" fixes an issue where records from "bitbucket_server" are counted as "bitbucket" records and vice versa
 }
 
 func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
@@ -233,10 +233,13 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

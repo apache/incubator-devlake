@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"golang.org/x/exp/slices"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -31,6 +32,8 @@ type JenkinsRemotePagination struct {
 	Page    int `json:"page"`
 	PerPage int `json:"per_page"`
 }
+
+var scopesWithJobs = []string{"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"}
 
 func listJenkinsRemoteScopes(
 	connection *models.JenkinsConnection,
@@ -53,8 +56,8 @@ func listJenkinsRemoteScopes(
 		parentId = &groupId
 	}
 	getJobsPageCallBack := func(job *models.Job) errors.Error {
-		if job.Jobs != nil {
-			// this is a group
+		if isGroup(job) {
+			// This is a group
 			job.Path = groupId
 			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.JenkinsJob]{
 				Type:     api.RAS_ENTRY_TYPE_GROUP,
@@ -63,7 +66,7 @@ func listJenkinsRemoteScopes(
 				ParentId: parentId,
 			})
 		} else {
-			// this is a scope
+			// This is a scope
 			jenkinsJob := job.ToJenkinsJob()
 			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.JenkinsJob]{
 				Type:     api.RAS_ENTRY_TYPE_SCOPE,
@@ -74,6 +77,7 @@ func listJenkinsRemoteScopes(
 				ParentId: parentId,
 			})
 		}
+
 		return nil
 	}
 	_, err = GetJobsPage(apiClient, groupId, page.Page-1, page.PerPage, getJobsPageCallBack)
@@ -87,6 +91,10 @@ func listJenkinsRemoteScopes(
 		}
 	}
 	return
+}
+
+func isGroup(job *models.Job) bool {
+	return job.Jobs != nil && !slices.Contains(scopesWithJobs, job.Class)
 }
 
 // RemoteScopes list all available scopes on the remote server

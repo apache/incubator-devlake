@@ -35,7 +35,7 @@ func init() {
 }
 
 var ConvertAccountsMeta = plugin.SubTaskMeta{
-	Name:             "convertAccounts",
+	Name:             "Convert Users",
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_users into  domain layer table accounts",
@@ -73,6 +73,7 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 				FullName:     GitlabAccount.Name,
 				Email:        GitlabAccount.Email,
 				AvatarUrl:    GitlabAccount.AvatarUrl,
+				CreatedDate:  GitlabAccount.CreatedUserAt,
 			}
 
 			return []interface{}{

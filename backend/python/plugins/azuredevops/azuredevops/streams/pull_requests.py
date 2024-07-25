@@ -15,15 +15,16 @@
 
 from typing import Iterable
 
+import pydevlake.domain_layer.code as code
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import GitRepository, GitPullRequest
 from pydevlake import Stream, DomainType, domain_id
-import pydevlake.domain_layer.code as code
 
 
 class GitPullRequests(Stream):
     tool_model = GitPullRequest
     domain_types = [DomainType.CODE]
+    domain_models = [code.PullRequest]
 
     def should_run_on(self, scope: GitRepository) -> bool:
         return not scope.is_external()
@@ -33,12 +34,19 @@ class GitPullRequests(Stream):
         repo: GitRepository = context.scope
         response = api.git_repo_pull_requests(repo.org_id, repo.project_id, repo.id)
         for raw_pr in response:
+            raw_pr["x_request_url"] = response.get_url_with_query_string()
+            raw_pr["x_request_input"] = {
+                "OrgId": repo.org_id,
+                "ProjectId": repo.project_id,
+                "RepoId": repo.id,
+            }
             yield raw_pr, state
 
     def convert(self, pr: GitPullRequest, ctx):
         repo_id = ctx.scope.domain_id()
-        # If the PR is from a fork, we forge a new repo ID for the base repo but it doesn't correspond to a real repo
-        base_repo_id = domain_id(GitRepository, ctx.connection.id, pr.fork_repo_id) if pr.fork_repo_id is not None else repo_id
+        # If the PR is from a fork, we forge a new repo ID for the base repo, but it doesn't correspond to a real repo
+        base_repo_id = domain_id(GitRepository, ctx.connection.id,
+                                 pr.fork_repo_id) if pr.fork_repo_id is not None else repo_id
 
         # Use the same status values as GitHub plugin
         status = None
@@ -56,7 +64,7 @@ class GitPullRequests(Stream):
             original_status=pr.status.value,
             title=pr.title,
             description=pr.description,
-            url=pr.url,
+            url=f"{ctx.scope.url}/pullrequest/{pr.pull_request_id}",
             author_name=pr.created_by_name,
             author_id=pr.created_by_id,
             pull_request_key=pr.pull_request_id,
@@ -64,10 +72,17 @@ class GitPullRequests(Stream):
             merged_date=pr.closed_date,
             closed_date=pr.closed_date,
             type=pr.type,
-            component="", # not supported
+            component="",  # not supported
             merge_commit_sha=pr.merge_commit_sha,
             head_ref=pr.source_ref_name,
             base_ref=pr.target_ref_name,
             head_commit_sha=pr.source_commit_sha,
             base_commit_sha=pr.target_commit_sha
         )
+        if pr.labels is not None:
+            for label_dict in pr.labels:
+                if "name" in label_dict:
+                    yield code.PullRequestLabels(
+                        pull_request_id=pr.pull_request_id,
+                        label_name=label_dict["name"],
+                    )

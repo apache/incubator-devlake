@@ -1,0 +1,44 @@
+id,base_repo_id,head_repo_id,status,title,description,url,author_name,author_id,parent_pr_id,pull_request_key,created_date,merged_date,closed_date,type,component,merge_commit_sha,head_ref,base_ref,base_commit_sha,head_commit_sha,original_status,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+bitbucket_server:BitbucketServerPullRequest:3:TP/repos/first-repo:1,bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo,bitbucket_server:BitbucketServerRepo:3:first-repo,MERGED,Feat/user system,"* feat: login-page
+* feat: register page",http://localhost:7990/projects/TP/repos/first-repo/pull-requests/1,full Name,bitbucket_server:BitbucketServerUser:3:2,,1,2023-12-18T08:26:20.707+00:00,2023-12-18T08:27:03.491+00:00,2023-12-18T08:27:03.491+00:00,,,,feat/user-system,develop,9d3e8c35660a92606468aea25cd974e8ae776002,7bc78c9044ccbc36bbe9af435905f26fea56a87c,MERGED,"{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}",_raw_bitbucket_server_api_pull_requests,5,
+bitbucket_server:BitbucketServerPullRequest:3:TP/repos/first-repo:2,bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo,bitbucket_server:BitbucketServerRepo:3:first-repo,CLOSED,Feat/loading screen,"* feat: loading screen
+* feat: error screen",http://localhost:7990/projects/TP/repos/first-repo/pull-requests/2,full Name,bitbucket_server:BitbucketServerUser:3:2,,2,2023-12-18T08:29:57.305+00:00,,2023-12-18T08:30:09.207+00:00,,,,feat/loading-screen,develop,6ea43f12ac53f53cbb54b0ae15a2fc26d45b5a62,3fc042b494b75032c29ae39d7f1059f52584e690,DECLINED,"{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}",_raw_bitbucket_server_api_pull_requests,4,
+bitbucket_server:BitbucketServerPullRequest:3:TP/repos/first-repo:3,bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo,bitbucket_server:BitbucketServerRepo:3:first-repo,MERGED,Feat/user system backend,"* feat: controller, repo, db connection
+* feat: password hashing",http://localhost:7990/projects/TP/repos/first-repo/pull-requests/3,full Name,bitbucket_server:BitbucketServerUser:3:2,,3,2023-12-18T08:30:26.427+00:00,2023-12-18T08:31:33.087+00:00,2023-12-18T08:31:33.087+00:00,,,,feat/user-system-backend,develop,6ea43f12ac53f53cbb54b0ae15a2fc26d45b5a62,3312945e63b00ed5b2a1d908d20da0f9008ffd77,MERGED,"{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}",_raw_bitbucket_server_api_pull_requests,3,
+bitbucket_server:BitbucketServerPullRequest:3:TP/repos/first-repo:4,bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo,bitbucket_server:BitbucketServerRepo:3:first-repo,MERGED,Feat/loading screen,"* feat: loading screen
+* feat: error screen
+* fix: error screen compatibility",http://localhost:7990/projects/TP/repos/first-repo/pull-requests/4,full Name,bitbucket_server:BitbucketServerUser:3:2,,4,2023-12-18T08:32:46.753+00:00,2023-12-18T08:32:55.341+00:00,2023-12-18T08:32:55.341+00:00,,,,feat/loading-screen,develop,bfebdee820699c83654c12feb8d1a02933d03594,ce3d52ba4cacb367e3de4366c19650e3e5a52609,MERGED,"{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}",_raw_bitbucket_server_api_pull_requests,2,
+bitbucket_server:BitbucketServerPullRequest:3:TP/repos/first-repo:5,bitbucket_server:BitbucketServerRepo:3:TP/repos/first-repo,bitbucket_server:BitbucketServerRepo:3:first-repo,OPEN,Develop,"* feat: main-page
+* feat: login-page
+* feat: register page
+* Pull request #1: Feat/user system
+
+    Merge in TP/first-repo from feat/user-system to develop
+
+    * commit '7bc78c9044ccbc36bbe9af435905f26fea56a87c':
+      feat: register page
+      feat: login-page
+
+* feat: controller, repo, db connection
+* feat: password hashing
+* feat: loading screen
+* feat: error screen
+* fix: security hole
+* Pull request #3: Feat/user system backend
+
+    Merge in TP/first-repo from feat/user-system-backend to develop
+
+    * commit '3312945e63b00ed5b2a1d908d20da0f9008ffd77':
+      fix: security hole
+      feat: password hashing
+      feat: controller, repo, db connection
+
+* fix: error screen compatibility
+* Pull request #4: Feat/loading screen
+
+    Merge in TP/first-repo from feat/loading-screen to develop
+
+    * commit 'ce3d52ba4cacb367e3de4366c19650e3e5a52609':
+      fix: error screen compatibility
+      feat: error screen
+      feat: loading screen",http://localhost:7990/projects/TP/repos/first-repo/pull-requests/5,full Name,bitbucket_server:BitbucketServerUser:3:2,,5,2023-12-18T08:33:11.916+00:00,,,,,,develop,main,4fd115a90a039a93ff2ca18356744d3b2f5e36c6,deea34e71c04cd85941cc94c31be7aac937ed619,OPEN,"{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}",_raw_bitbucket_server_api_pull_requests,1,

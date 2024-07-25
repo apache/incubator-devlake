@@ -71,7 +71,7 @@ type GraphqlQueryIssue struct {
 }
 
 var CollectIssuesMeta = plugin.SubTaskMeta{
-	Name:             "CollectIssues",
+	Name:             "Collect Issues",
 	EntryPoint:       CollectIssues,
 	EnabledByDefault: true,
 	Description:      "Collect Issue data from GithubGraphql api, supports both timeFilter and diffSync.",
@@ -82,7 +82,7 @@ var _ plugin.SubTaskEntryPoint = CollectIssues
 
 func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
-	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: githubTasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -94,7 +94,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
+	err = apiCollector.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      10,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
@@ -119,7 +119,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryIssueWrapper)
 			issues := query.Repository.IssueList.Issues
 			for _, rawL := range issues {
-				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
+				if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(rawL.UpdatedAt) {
 					return nil, helper.ErrFinishCollect
 				}
 			}
@@ -130,5 +130,5 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

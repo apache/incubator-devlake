@@ -84,7 +84,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 		// construct task options for Jira
 		task, err := helper.MakePipelinePlanTask(
-			"bamboo",
+			"bitbucket",
 			subtaskMetas,
 			scopeConfig.Entities,
 			tasks.BitbucketOptions{
@@ -125,10 +125,11 @@ func makeDataSourcePipelinePlanV200(
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"name":   bitbucketRepo.BitbucketId,
-					"repoId": didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, bitbucketRepo.BitbucketId),
-					"proxy":  connection.Proxy,
+					"url":      cloneUrl.String(),
+					"name":     bitbucketRepo.BitbucketId,
+					"fullName": bitbucketRepo.BitbucketId,
+					"repoId":   didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, bitbucketRepo.BitbucketId),
+					"proxy":    connection.Proxy,
 				},
 			})
 

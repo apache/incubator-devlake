@@ -84,7 +84,7 @@ func (BlueprintScope) TableName() string {
 
 type SyncPolicy struct {
 	SkipOnFail     bool       `json:"skipOnFail"`
-	FullSync       bool       `json:"fullSync"`
 	SkipCollectors bool       `json:"skipCollectors"`
+	FullSync       bool       `json:"fullSync"`
 	TimeAfter      *time.Time `json:"timeAfter"`
 }

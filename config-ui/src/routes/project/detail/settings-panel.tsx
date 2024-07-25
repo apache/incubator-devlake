@@ -18,18 +18,19 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WarningOutlined } from '@ant-design/icons';
 import { Flex, Space, Card, Modal, Input, Checkbox, Button, message } from 'antd';
 
 import API from '@/api';
-import { Block } from '@/components';
+import { Block, HelpTooltip, Message } from '@/components';
 import { PATHS } from '@/config';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
-import { validName, encodeName } from '../utils';
+import { validName } from '../utils';
 
 import * as S from './styled';
+
+const RegexPrIssueDefaultValue = '(?mi)(Closes)[\\s]*.*(((and )?#\\d+[ ]*)+)';
 
 interface Props {
   project: IProject;
@@ -38,17 +39,37 @@ interface Props {
 
 export const SettingsPanel = ({ project, onRefresh }: Props) => {
   const [name, setName] = useState('');
-  const [enableDora, setEnableDora] = useState(false);
+  const [dora, setDora] = useState({
+    enable: false,
+  });
+  const [linker, setLinker] = useState({
+    enable: false,
+    prToIssueRegexp: '',
+  });
+  const [issueTrace, setIssueTrace] = useState({
+    enable: false,
+  });
   const [operating, setOperating] = useState(false);
   const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const doraMetrics = project.metrics.find((ms: any) => ms.pluginName === 'dora');
+    const dora = project.metrics.find((ms) => ms.pluginName === 'dora');
+    const linker = project.metrics.find((ms) => ms.pluginName === 'linker');
+    const issueTrace = project.metrics.find((ms) => ms.pluginName === 'issue_trace');
 
     setName(project.name);
-    setEnableDora(doraMetrics?.enable ?? false);
+    setDora({
+      enable: dora?.enable ?? false,
+    });
+    setLinker({
+      enable: linker?.enable ?? false,
+      prToIssueRegexp: linker?.pluginOption?.prToIssueRegexp ?? RegexPrIssueDefaultValue,
+    });
+    setIssueTrace({
+      enable: issueTrace?.enable ?? false,
+    });
   }, [project]);
 
   const handleUpdate = async () => {
@@ -59,14 +80,26 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     const [success] = await operator(
       () =>
-        API.project.update(encodeName(project.name), {
+        API.project.update(project.name, {
           name,
           description: '',
           metrics: [
             {
               pluginName: 'dora',
-              pluginOption: '',
-              enable: enableDora,
+              pluginOption: {},
+              enable: dora.enable,
+            },
+            {
+              pluginName: 'linker',
+              pluginOption: {
+                prToIssueRegexp: linker.prToIssueRegexp,
+              },
+              enable: linker.enable,
+            },
+            {
+              pluginName: 'issue_trace',
+              pluginOption: {},
+              enable: issueTrace.enable,
             },
           ],
         }),
@@ -77,7 +110,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     if (success) {
       onRefresh();
-      navigate(PATHS.PROJECT(name, 'settings'));
+      navigate(PATHS.PROJECT(name, { tabId: 'settings' }));
     }
   };
 
@@ -107,11 +140,60 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
           <Block title="Project Name" description="Edit your project name with letters, numbers, -, _ or /" required>
             <Input style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
           </Block>
-          <Block description="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
-            <Checkbox checked={enableDora} onChange={(e) => setEnableDora(e.target.checked)}>
-              Enable DORA Metrics
-            </Checkbox>
+          <Block
+            title={
+              <Checkbox checked={dora.enable} onChange={(e) => setDora({ enable: e.target.checked })}>
+                Enable DORA Metrics
+              </Checkbox>
+            }
+            description="DORA metrics are four widely-adopted metrics for measuring software delivery performance."
+          />
+          <Block
+            title={
+              <Checkbox checked={linker.enable} onChange={(e) => setLinker({ ...linker, enable: e.target.checked })}>
+                Associate pull requests with issues
+              </Checkbox>
+            }
+            description={
+              <span>
+                Parse the issue key with the regex from the title and description of the pull requests in this project.
+                <HelpTooltip
+                  overlayInnerStyle={{ width: 500 }}
+                  content={
+                    <>
+                      <div>
+                        Example 1 - If your PR title or description contains a Jira issue key in the format 'Closes
+                        [DI-123](www.yourdomain.atlassian.net/browse/di-123)', please use the following regex template:{' '}
+                        (?mi)Closes[\s]*.*(((and)?https://\S+.atlassian.net/browse/\S+[ ]*)+)
+                      </div>
+                      <div>
+                        Example 2 - If your PR title or description contains a GitHub issue key in the format 'Resolves
+                        www.github.com/namespace/repo_name/issues/123)', please use the following regex template:{' '}
+                        (?mi)Resolves[\s]*.*(((and)?https://github.com/%s/issues/\d+[ ]*)+)
+                      </div>
+                    </>
+                  }
+                />
+              </span>
+            }
+          >
+            {linker.enable && (
+              <Input
+                style={{ width: 600 }}
+                placeholder={RegexPrIssueDefaultValue}
+                value={linker.prToIssueRegexp}
+                onChange={(e) => setLinker({ ...linker, prToIssueRegexp: e.target.value })}
+              />
+            )}
           </Block>
+          <Block
+            title={
+              <Checkbox checked={issueTrace.enable} onChange={(e) => setIssueTrace({ enable: e.target.checked })}>
+                Enable issue trace
+              </Checkbox>
+            }
+            description="Parse the issue status and assignee history from issue changelogs. Currently, only Jira issues are supported."
+          />
           <Block>
             <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
               Save
@@ -137,11 +219,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
         onOk={handleDelete}
       >
         <S.DialogBody>
-          <WarningOutlined />
-          <span>
-            This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in
-            this Connection.
-          </span>
+          <Message content="This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in this Connection." />
         </S.DialogBody>
       </Modal>
     </Flex>

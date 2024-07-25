@@ -34,7 +34,7 @@ func init() {
 const RAW_TRIGGER_JOB_TABLE = "gitlab_api_trigger_job"
 
 var CollectApiTriggerJobsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiTriggerJobs",
+	Name:             "Collect Trigger Jobs",
 	EntryPoint:       CollectApiTriggerJobs,
 	EnabledByDefault: false,
 	Description:      "Collect job data from gitlab api, supports both timeFilter and diffSync.",
@@ -44,7 +44,7 @@ var CollectApiTriggerJobsMeta = plugin.SubTaskMeta{
 
 func CollectApiTriggerJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TRIGGER_JOB_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	apiCollector, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -52,17 +52,15 @@ func CollectApiTriggerJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	iterator, err := GetAllPipelinesIterator(taskCtx, collectorWithState)
+	iterator, err := GetAllPipelinesIterator(taskCtx, apiCollector)
 	if err != nil {
 		return err
 	}
-	incremental := collectorWithState.IsIncremental
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:       data.ApiClient,
 		MinTickInterval: &tickInterval,
 		PageSize:        100,
-		Incremental:     incremental,
 		Input:           iterator,
 		UrlTemplate:     "projects/{{ .Params.ProjectId }}/pipelines/{{ .Input.GitlabId }}/bridges",
 		ResponseParser:  GetRawMessageFromResponse,
@@ -73,10 +71,10 @@ func CollectApiTriggerJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
 
-func GetAllPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
+func GetAllPipelinesIterator(taskCtx plugin.SubTaskContext, apiCollector *helper.StatefulApiCollector) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	clauses := []dal.Clause{
@@ -89,12 +87,12 @@ func GetAllPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 	}
 
 	if db.HasTable("_raw_gitlab_api_trigger_job") {
-		clauses = append(clauses, dal.Where("and gp.gitlab_id not in (select json_extract(tj.input, '$.GitlabId') as gitlab_id from _raw_gitlab_api_trigger_job tj)"))
+		clauses = append(clauses, dal.Where("gp.gitlab_id not in (select json_extract(tj.input, '$.GitlabId') as gitlab_id from _raw_gitlab_api_trigger_job tj)"))
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", apiCollector.GetSince()))
 	}
-	// construct the input iterator
+  
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return nil, err

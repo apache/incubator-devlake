@@ -31,13 +31,14 @@ import (
 // BatchSaveDivider creates and caches BatchSave, this is helpful when dealing with massive amount of data records
 // with arbitrary types.
 type BatchSaveDivider struct {
-	basicRes  context.BasicRes
-	log       log.Logger
-	db        dal.Dal
-	batches   map[reflect.Type]*BatchSave
-	batchSize int
-	table     string
-	params    string
+	basicRes        context.BasicRes
+	log             log.Logger
+	db              dal.Dal
+	batches         map[reflect.Type]*BatchSave
+	batchSize       int
+	table           string
+	params          string
+	incrementalMode bool
 }
 
 // NewBatchSaveDivider create a new BatchInsertDivider instance
@@ -54,6 +55,10 @@ func NewBatchSaveDivider(basicRes context.BasicRes, batchSize int, table string,
 	}
 }
 
+func (d *BatchSaveDivider) SetIncrementalMode(incrementalMode bool) {
+	d.incrementalMode = incrementalMode
+}
+
 // ForType returns a `BatchSave` instance for specific type
 func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, errors.Error) {
 	// get the cache for the specific type
@@ -65,8 +70,6 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, errors.Err
 		if err != nil {
 			return nil, err
 		}
-		d.batches[rowType] = batch
-		// delete outdated records if rowType was not PartialUpdate
 		rowElemType := rowType.Elem()
 		d.log.Debug("missing BatchSave for type %s", rowElemType.Name())
 		row := reflect.New(rowElemType).Interface()
@@ -75,15 +78,18 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, errors.Err
 		if !hasField || field.Type != reflect.TypeOf(common.RawDataOrigin{}) {
 			return nil, errors.Default.New(fmt.Sprintf("type %s must have RawDataOrigin embeded", rowElemType.Name()))
 		}
-		// all good, delete outdated records before we insertion
-		d.log.Debug("deleting outdate records for %s", rowElemType.Name())
-		if d.table != "" && d.params != "" {
-			err = d.db.Delete(
-				row,
-				dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.table, d.params),
-			)
-			if err != nil {
-				return nil, err
+		d.batches[rowType] = batch
+		if !d.incrementalMode {
+			// all good, delete outdated records before we insertion
+			d.log.Debug("deleting outdate records for %s", rowElemType.Name())
+			if d.table != "" && d.params != "" {
+				err = d.db.Delete(
+					row,
+					dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.table, d.params),
+				)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}

@@ -30,7 +30,7 @@ import (
 )
 
 var ExtractApiPrCommitsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPullRequestCommits",
+	Name:             "Extract PR Commits",
 	EntryPoint:       ExtractApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestCommits data into tool layer table bitbucket_commits",

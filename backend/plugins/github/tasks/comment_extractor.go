@@ -34,7 +34,7 @@ func init() {
 }
 
 var ExtractApiCommentsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiComments",
+	Name:             "Extract Comments",
 	EntryPoint:       ExtractApiComments,
 	EnabledByDefault: true,
 	Description: "Extract raw comment data  into tool layer table github_pull_request_comments" +

@@ -31,7 +31,7 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractPipelineSteps
 
 var ExtractPipelineStepsMeta = plugin.SubTaskMeta{
-	Name:             "ExtractPipelineSteps",
+	Name:             "Extract Pipeline Steps",
 	EntryPoint:       ExtractPipelineSteps,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table bitbucket_pipeline_steps",

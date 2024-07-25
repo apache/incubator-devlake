@@ -44,6 +44,7 @@ class CICDEnvironment(Enum):
     PRODUCTION = "PRODUCTION"
     STAGING = "STAGING"
     TESTING = "TESTING"
+    EMPTY = ""
 
 
 class CICDPipeline(DomainModel, table=True):
@@ -66,7 +67,10 @@ class CICDPipeline(DomainModel, table=True):
     queued_duration_sec: Optional[float]
 
     type: Optional[CICDType]
-    environment: Optional[str]
+    environment: Optional[CICDEnvironment]
+
+    display_title: Optional[str]
+    url: Optional[str]
 
 
 class CiCDPipelineCommit(NoPKModel, table=True):
@@ -76,6 +80,8 @@ class CiCDPipelineCommit(NoPKModel, table=True):
     branch: str
     repo_id: str
     repo_url: str
+    display_title: Optional[str]
+    url: Optional[str]
 
 
 class CicdScope(DomainScope):

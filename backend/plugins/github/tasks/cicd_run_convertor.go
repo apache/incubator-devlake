@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
-	"time"
 )
 
 func init() {
@@ -35,7 +36,7 @@ func init() {
 }
 
 var ConvertRunsMeta = plugin.SubTaskMeta{
-	Name:             "convertRuns",
+	Name:             "Convert Workflow Runs",
 	EntryPoint:       ConvertRuns,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_runs into  domain layer table cicd_pipeline",
@@ -116,6 +117,8 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 					Default:    devops.STATUS_OTHER,
 				}, line.Status),
 				OriginalStatus: line.Status,
+				DisplayTitle:   line.DisplayTitle,
+				Url:            line.URL,
 			}
 			if line.GithubUpdatedAt != nil && line.RunStartedAt != nil {
 				domainPipeline.DurationSec = float64(line.GithubUpdatedAt.Sub(*line.RunStartedAt).Milliseconds() / 1e3)
@@ -124,10 +127,12 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 			domainPipelineCommit := &devops.CiCDPipelineCommit{
 				PipelineId: runIdGen.Generate(
 					data.Options.ConnectionId, line.RepoId, line.ID),
-				CommitSha: line.HeadSha,
-				Branch:    line.HeadBranch,
-				RepoId:    repoIdGen.Generate(data.Options.ConnectionId, repoId),
-				RepoUrl:   repo.HTMLUrl,
+				CommitSha:    line.HeadSha,
+				Branch:       line.HeadBranch,
+				RepoId:       repoIdGen.Generate(data.Options.ConnectionId, repoId),
+				RepoUrl:      repo.HTMLUrl,
+				DisplayTitle: line.DisplayTitle,
+				Url:          line.HTMLURL,
 			}
 
 			return []interface{}{

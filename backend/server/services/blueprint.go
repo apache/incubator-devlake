@@ -68,22 +68,8 @@ func (bj BlueprintJob) Run() {
 
 // CreateBlueprint accepts a Blueprint instance and insert it to database
 func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
-	err := validateBlueprintAndMakePlan(blueprint)
-	if err != nil {
-		return err
-	}
-	err = bpManager.SaveDbBlueprint(blueprint)
-	if err != nil {
-		return err
-	}
-	if err := SanitizeBlueprint(blueprint); err != nil {
-		return errors.Convert(err)
-	}
-	err = ReloadBlueprints(cronManager)
-	if err != nil {
-		return errors.Internal.Wrap(err, "error reloading blueprints")
-	}
-	return nil
+	_, err := saveBlueprint(blueprint)
+	return err
 }
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
@@ -204,9 +190,9 @@ func saveBlueprint(blueprint *models.Blueprint) (*models.Blueprint, errors.Error
 	}
 
 	// reload schedule
-	err = ReloadBlueprints(cronManager)
+	err = reloadBlueprint(blueprint)
 	if err != nil {
-		return nil, errors.Internal.Wrap(err, "error reloading blueprints")
+		return nil, err
 	}
 	// done
 	return blueprint, nil
@@ -260,14 +246,10 @@ func DeleteBlueprint(id uint64) errors.Error {
 }
 
 var blueprintReloadLock sync.Mutex
+var bpCronIdMap map[uint64]cron.EntryID
 
-// ReloadBlueprints FIXME ...
-func ReloadBlueprints(c *cron.Cron) (err errors.Error) {
-	// preventing concurrent reloads. It would be better to use Table Lock , however, it requires massive refactor
-	// like the `bpManager` must accept transaction. Use mutex as a temporary fix.
-	blueprintReloadLock.Lock()
-	defer blueprintReloadLock.Unlock()
-
+// ReloadBlueprints reloades cronjobs based on blueprints
+func ReloadBlueprints() (err errors.Error) {
 	enable := true
 	isManual := false
 	blueprints, _, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
@@ -277,24 +259,43 @@ func ReloadBlueprints(c *cron.Cron) (err errors.Error) {
 	if err != nil {
 		return err
 	}
-	for _, e := range c.Entries() {
-		c.Remove(e.ID)
+	for _, e := range cronManager.Entries() {
+		cronManager.Remove(e.ID)
 	}
-	c.Stop()
+	cronManager.Stop()
+	bpCronIdMap = make(map[uint64]cron.EntryID, len(blueprints))
 	for _, blueprint := range blueprints {
-		blueprintLog.Info("Add blueprint id:[%d] cronConfg[%s] to cron job", blueprint.ID, blueprint.CronConfig)
-		blueprintJob := &BlueprintJob{
-			Blueprint: blueprint,
+		err := reloadBlueprint(blueprint)
+		if err != nil {
+			return err
 		}
-		if _, err := c.AddJob(blueprint.CronConfig, blueprintJob); err != nil {
+	}
+	cronManager.Start()
+	logger.Info("total %d blueprints were scheduled", len(blueprints))
+	return nil
+}
+
+func reloadBlueprint(blueprint *models.Blueprint) errors.Error {
+	// preventing concurrent reloads. It would be better to use Table Lock , however, it requires massive refactor
+	// like the `bpManager` must accept transaction. Use mutex as a temporary fix.
+	blueprintReloadLock.Lock()
+	defer blueprintReloadLock.Unlock()
+
+	cronId, scheduled := bpCronIdMap[blueprint.ID]
+	if scheduled {
+		cronManager.Remove(cronId)
+		delete(bpCronIdMap, blueprint.ID)
+		logger.Info("removed blueprint %d from cronjobs, cron id: %v", blueprint.ID, cronId)
+	}
+	if blueprint.Enable && !blueprint.IsManual {
+		if cronId, err := cronManager.AddJob(blueprint.CronConfig, &BlueprintJob{blueprint}); err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return errors.Default.Wrap(err, "created cron job failed")
+		} else {
+			bpCronIdMap[blueprint.ID] = cronId
+			logger.Info("added blueprint %d to cronjobs, cron id: %v, cron config: %s", blueprint.ID, cronId, blueprint.CronConfig)
 		}
 	}
-	if len(blueprints) > 0 {
-		c.Start()
-	}
-	logger.Info("total %d blueprints were scheduled", len(blueprints))
 	return nil
 }
 
@@ -319,21 +320,21 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.S
 	newPipeline.SyncPolicy = blueprint.SyncPolicy
 
 	// if the plan is empty, we should not create the pipeline
-	var shouldCreatePipeline bool
-	for _, stage := range plan {
-		for _, task := range stage {
-			switch task.Plugin {
-			case "org", "refdiff", "dora":
-			default:
-				if !plan.IsEmpty() {
-					shouldCreatePipeline = true
-				}
-			}
-		}
-	}
-	if !shouldCreatePipeline {
-		return nil, ErrEmptyPlan
-	}
+	// var shouldCreatePipeline bool
+	// for _, stage := range plan {
+	// 	for _, task := range stage {
+	// 		switch task.Plugin {
+	// 		case "org", "refdiff", "dora":
+	// 		default:
+	// 			if !plan.IsEmpty() {
+	// 				shouldCreatePipeline = true
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// if !shouldCreatePipeline {
+	// 	return nil, ErrEmptyPlan
+	// }
 	pipeline, err := CreatePipeline(&newPipeline, false)
 	// Return all created tasks to the User
 	if err != nil {
@@ -355,7 +356,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPo
 			return nil, err
 		}
 		for _, projectMetric := range projectMetrics {
-			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
+			metrics[projectMetric.PluginName] = projectMetric.PluginOption
 		}
 	}
 	skipCollectors := false
@@ -366,7 +367,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPo
 	if err != nil {
 		return nil, err
 	}
-	return SequencializePipelinePlans(blueprint.BeforePlan, plan, blueprint.AfterPlan), nil
+	return SequentializePipelinePlans(blueprint.BeforePlan, plan, blueprint.AfterPlan), nil
 }
 
 // ParallelizePipelinePlans merges multiple pipelines into one unified plan
@@ -387,9 +388,9 @@ func ParallelizePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan 
 	return merged
 }
 
-// SequencializePipelinePlans merges multiple pipelines into one unified plan
-// by assuming they must be executed in sequencial order
-func SequencializePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan {
+// SequentializePipelinePlans merges multiple pipelines into one unified plan
+// by assuming they must be executed in sequential order
+func SequentializePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan {
 	merged := make(models.PipelinePlan, 0)
 	// iterate all pipelineTasks and try to merge them into `merged`
 	for _, plan := range plans {

@@ -1,0 +1,2 @@
+connection_id,bitbucket_id,name,email_address,active,slug,type,account_status,display_name,html_url,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+3,2,usr123,temp@example.com,1,usr123,NORMAL,,full Name,http://localhost:7990/users/usr123,"{""ConnectionId"":3,""FullName"":""TP/repos/first-repo""}",_raw_bitbucket_server_api_pull_requests,5,

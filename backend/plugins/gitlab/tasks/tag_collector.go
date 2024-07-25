@@ -30,7 +30,7 @@ func init() {
 const RAW_TAG_TABLE = "gitlab_api_tag"
 
 var CollectTagMeta = plugin.SubTaskMeta{
-	Name:             "collectApiTag",
+	Name:             "Collect Tags",
 	EntryPoint:       CollectApiTag,
 	EnabledByDefault: false,
 	Description:      "Collect tag data from gitlab api, does not support either timeFilter or diffSync.",

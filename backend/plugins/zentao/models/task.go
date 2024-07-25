@@ -75,7 +75,7 @@ type ZentaoTaskRes struct {
 	V1             string              `json:"v1"`
 	V2             string              `json:"v2"`
 	Vision         string              `json:"vision"`
-	StoryID        int64               `json:"storyID"`
+	StoryID        *common.StringInt64 `json:"storyID"`
 	StoryTitle     string              `json:"storyTitle"`
 	Branch         interface {
 	} `json:"branch"`
@@ -83,12 +83,12 @@ type ZentaoTaskRes struct {
 	} `json:"latestStoryVersion"`
 	StoryStatus interface {
 	} `json:"storyStatus"`
-	AssignedToRealName string           `json:"assignedToRealName"`
-	PriOrder           string           `json:"priOrder"`
-	Children           []*ZentaoTaskRes `json:"children"`
-	Delay              int              `json:"delay"`
-	NeedConfirm        bool             `json:"needConfirm"`
-	Progress           float64          `json:"progress"`
+	AssignedToRealName string                `json:"assignedToRealName"`
+	PriOrder           *common.StringFloat64 `json:"priOrder"`
+	Children           []*ZentaoTaskRes      `json:"children"`
+	Delay              int                   `json:"delay"`
+	NeedConfirm        bool                  `json:"needConfirm"`
+	Progress           float64               `json:"progress"`
 }
 
 func (zentaoTaskRes ZentaoTaskRes) ToJsonRawMessage() (json.RawMessage, error) {

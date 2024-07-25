@@ -38,7 +38,7 @@ func init() {
 const RAW_JOB_TABLE = "github_api_jobs"
 
 var CollectJobsMeta = plugin.SubTaskMeta{
-	Name:             "collectJobs",
+	Name:             "Collect Job Runs",
 	EntryPoint:       CollectJobs,
 	EnabledByDefault: true,
 	Description:      "Collect Jobs data from Github action api, supports both timeFilter and diffSync.",
@@ -52,7 +52,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	// state manager
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -73,8 +73,8 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			data.Options.GithubId, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", apiCollector.GetSince()))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -85,7 +85,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	// collect jobs
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
@@ -118,7 +118,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
 
 type SimpleGithubRun struct {

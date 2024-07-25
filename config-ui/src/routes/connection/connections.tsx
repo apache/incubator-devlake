@@ -90,6 +90,7 @@ export const Connections = () => {
           const connectionCount = connections.filter((cs) => cs.plugin === plugin).length;
           return (
             <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
+              {pluginConfig.isBeta && <span className="beta">Beta</span>}
               <span className="logo">{pluginConfig.icon({ color: colorPrimary })}</span>
               <span className="name">{pluginConfig.name}</span>
               <span className="count">
@@ -110,6 +111,7 @@ export const Connections = () => {
           const connectionCount = connections.filter((cs) => cs.plugin === plugin).length;
           return (
             <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
+              {pluginConfig.isBeta && <span className="beta">Beta</span>}
               <span className="logo">{pluginConfig.icon({ color: colorPrimary })}</span>
               <span className="name">{pluginConfig.name}</span>
               <span className="count">

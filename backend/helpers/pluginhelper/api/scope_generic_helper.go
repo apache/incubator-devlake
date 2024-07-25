@@ -60,7 +60,6 @@ type (
 		Blueprints  []*models.Blueprint `mapstructure:"blueprints,omitempty" json:"blueprints"`
 	}
 	// Alias, for swagger purposes
-	ScopeRefDoc                                            = serviceHelper.BlueprintProjectPairs
 	ScopeRes[Scope plugin.ToolLayerScope, ScopeConfig any] struct {
 		Scope       Scope               `mapstructure:"scope,omitempty" json:"scope,omitempty"`
 		ScopeConfig *ScopeConfig        `mapstructure:"scopeConfig,omitempty" json:"scopeConfig,omitempty"`
@@ -208,7 +207,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) UpdateScope(input *pl
 	if err != nil {
 		return nil, err
 	}
-	err = DecodeMapStruct(input.Body, scope, false)
+	err = DecodeMapStruct(input.Body, scope, true)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "patch scope error")
 	}

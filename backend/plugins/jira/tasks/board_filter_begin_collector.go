@@ -70,9 +70,11 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return errors.Default.Wrap(err, fmt.Sprintf("error updating record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 			}
+			logger.Info("full sync mode, update jql to %s", record.Jql)
 		}
 		return nil
 	}
+
 	// first run
 	if record.Jql == "" {
 		record.Jql = jql
@@ -80,11 +82,12 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("error updating record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 		}
+		logger.Info("first run, update jql to %s", record.Jql)
 		return nil
 	}
 	// change
 	if record.Jql != jql {
-		return errors.Default.New(fmt.Sprintf("board filter jql has changed for connection_id:%d board_id:%d, please use fullSync mode!!!", data.Options.ConnectionId, data.Options.BoardId))
+		return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
 	}
 	// no change
 	return nil

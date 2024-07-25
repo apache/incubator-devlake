@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -62,6 +63,7 @@ var ConvertStagesMeta = plugin.SubTaskMeta{
 func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
+
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
@@ -70,8 +72,16 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_stages tjs"),
 		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_name"),
-		dal.Where("tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? ",
-			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
+	}
+
+	if data.Options.Class == WORKFLOW_MULTI_BRANCH_PROJECT {
+		clauses = append(clauses,
+			dal.Where(`tjb.connection_id = ? and tjb.full_name like ?`,
+				data.Options.ConnectionId, fmt.Sprintf("%s%%", data.Options.JobFullName)))
+	} else {
+		clauses = append(clauses,
+			dal.Where("tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? ",
+				data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName))
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -144,6 +154,10 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				CicdScopeId:    jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
 				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
 				Environment:    data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),
+			}
+			// if the task is not executed, set the result to default, so that it will not be calculated in the dora
+			if jenkinsTask.OriginalStatus == "NOT_EXECUTED" {
+				jenkinsTask.Result = devops.RESULT_DEFAULT
 			}
 			results = append(results, jenkinsTask)
 			return results, nil

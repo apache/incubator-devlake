@@ -69,7 +69,7 @@ func ConvertStoryCommit(taskCtx plugin.SubTaskContext) errors.Error {
 					IssueId:   issueIdGen.Generate(data.Options.ConnectionId, toolL.StoryId),
 					RepoUrl:   repoUrl,
 					CommitSha: toolL.CommitId,
-					Host:      u.Host,
+					Host:      u.Hostname(),
 					Namespace: getRepoNamespaceFromUrlPath(u.Path),
 					RepoName:  getRepoNameFromUrlPath(u.Path),
 				}

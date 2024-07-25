@@ -108,8 +108,10 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 			if toolEntity.AssignedToId != 0 {
 				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
 			}
-			if toolEntity.ClosedDate != nil {
-				temp := uint(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
+			closedDate := toolEntity.ClosedDate
+			openedDate := toolEntity.OpenedDate
+			if closedDate != nil && closedDate.ToTime().After(openedDate.ToTime()) {
+				temp := uint(closedDate.ToNullableTime().Sub(openedDate.ToTime()).Minutes())
 				domainEntity.LeadTimeMinutes = &temp
 			}
 			var results []interface{}

@@ -61,7 +61,7 @@ type ApiPipeline struct {
 }
 
 var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPipelines",
+	Name:             "Extract Pipelines",
 	EntryPoint:       ExtractApiPipelines,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
@@ -87,6 +87,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				PipelineId:      gitlabApiPipeline.Id,
 				ProjectId:       data.Options.ProjectId,
 				Ref:             gitlabApiPipeline.Ref,
+				WebUrl:          gitlabApiPipeline.WebUrl,
 				Sha:             gitlabApiPipeline.Sha,
 				GitlabCreatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
 				GitlabUpdatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),

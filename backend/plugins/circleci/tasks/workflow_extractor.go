@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -48,9 +49,9 @@ func ExtractWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 			toolL := userRes
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.ProjectSlug = data.Options.ProjectSlug
-			if userRes.CreatedAt != nil && userRes.StoppedAt != nil {
-				startTime := userRes.CreatedAt.ToTime()
-				endTime := userRes.StoppedAt.ToTime()
+			if userRes.CreatedDate != nil && userRes.StoppedDate != nil {
+				startTime := userRes.CreatedDate.ToTime()
+				endTime := userRes.StoppedDate.ToTime()
 				toolL.DurationSec = float64(endTime.Sub(startTime).Milliseconds() / 1e3)
 			}
 			return []interface{}{

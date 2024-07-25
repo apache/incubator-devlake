@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -32,7 +31,7 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractPrs
 
 var ExtractPrsMeta = plugin.SubTaskMeta{
-	Name:             "extractPrs",
+	Name:             "Extract Pull Requests",
 	EntryPoint:       ExtractPrs,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
@@ -53,7 +52,6 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}
 	if config != nil && len(config.PrComponent) > 0 {
-		fmt.Println("config.PrComponent1", config.PrComponent)
 		labelComponentRegex, err = errors.Convert01(regexp.Compile(config.PrComponent))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
@@ -123,6 +121,15 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 						results = append(results, githubPrReview)
 					}
 				}
+				for _, apiReviewRequests := range rawL.ReviewRequests.Nodes {
+					githubReviewRequests := &models.GithubReviewer{
+						ConnectionId:  data.Options.ConnectionId,
+						PullRequestId: githubPr.GithubId,
+						ReviewerId:    apiReviewRequests.RequestedReviewer.User.Id,
+						Username:      apiReviewRequests.RequestedReviewer.User.Login,
+					}
+					results = append(results, githubReviewRequests)
+				}
 
 				for _, apiPullRequestCommit := range rawL.Commits.Nodes {
 					githubCommit, err := convertPullRequestCommit(apiPullRequestCommit)
@@ -138,9 +145,6 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 						CommitAuthorName:   githubCommit.AuthorName,
 						CommitAuthorEmail:  githubCommit.AuthorEmail,
 						CommitAuthoredDate: githubCommit.AuthoredDate,
-					}
-					if err != nil {
-						return nil, err
 					}
 					results = append(results, githubPullRequestCommit)
 					extractGraphqlPreAccount(&results, apiPullRequestCommit.Commit.Author.User, data.Options.GithubId, data.Options.ConnectionId)
@@ -175,6 +179,13 @@ func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*
 		BaseCommitSha:   pull.BaseRefOid,
 		HeadRef:         pull.HeadRefName,
 		HeadCommitSha:   pull.HeadRefOid,
+		Additions:       pull.Additions,
+		Deletions:       pull.Deletions,
+		IsDraft:         pull.IsDraft,
+	}
+	if pull.MergedBy != nil {
+		githubPull.MergedByName = pull.MergedBy.Login
+		githubPull.MergedById = pull.MergedBy.Id
 	}
 	if pull.MergeCommit != nil {
 		githubPull.MergeCommitSha = pull.MergeCommit.Oid

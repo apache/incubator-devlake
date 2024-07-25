@@ -82,6 +82,13 @@ func querySonarqubeProjects(
 		})
 	}
 
+	if resBody.Paging.Total > resBody.Paging.PageIndex*resBody.Paging.PageSize {
+		nextPage = &SonarqubeRemotePagination{
+			Page:     resBody.Paging.PageIndex + 1,
+			PageSize: resBody.Paging.PageSize,
+		}
+	}
+
 	return
 }
 

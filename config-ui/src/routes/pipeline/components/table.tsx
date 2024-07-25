@@ -18,13 +18,13 @@
 
 import { useState } from 'react';
 import { CodeOutlined, FileZipOutlined, RightOutlined } from '@ant-design/icons';
-import { Table, Space, Button, Modal } from 'antd';
+import { Table, Space, Modal } from 'antd';
 import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
 
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Inspector } from '@/components';
+import { IconButton, Inspector } from '@/components';
 import { IPipeline } from '@/types';
 import { formatTime } from '@/utils';
 
@@ -115,9 +115,9 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
             align: 'center',
             render: (id: ID, row) => (
               <Space>
-                <Button icon={<CodeOutlined />} onClick={() => handleShowJSON(row)} />
-                <Button icon={<FileZipOutlined />} onClick={() => handleDownloadLog(id)} />
-                <Button icon={<RightOutlined />} onClick={() => handleShowDetails(id)} />
+                <IconButton icon={<CodeOutlined />} helptip="Configuration" onClick={() => handleShowJSON(row)} />
+                <IconButton icon={<FileZipOutlined />} helptip="Download Logs" onClick={() => handleDownloadLog(id)} />
+                <IconButton icon={<RightOutlined />} helptip="Detail" onClick={() => handleShowDetails(id)} />
               </Space>
             ),
           },

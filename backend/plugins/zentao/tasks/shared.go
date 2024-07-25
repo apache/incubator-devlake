@@ -154,7 +154,7 @@ func parseRepoUrl(repoUrl string) (string, string, string, error) {
 		return "", "", "", err
 	}
 
-	host := parsedUrl.Host
+	host := parsedUrl.Hostname()
 	host = strings.TrimPrefix(host, "www.")
 	pathParts := strings.Split(parsedUrl.Path, "/")
 	if len(pathParts) < 3 {

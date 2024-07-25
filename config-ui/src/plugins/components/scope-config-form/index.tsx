@@ -29,18 +29,20 @@ import { JiraTransformation } from '@/plugins/register/jira';
 import { GitLabTransformation } from '@/plugins/register/gitlab';
 import { JenkinsTransformation } from '@/plugins/register/jenkins';
 import { BitbucketTransformation } from '@/plugins/register/bitbucket';
+import { BitbucketServerTransformation } from '@/plugins/register/bitbucket-server';
 import { AzureTransformation } from '@/plugins/register/azure';
 import { TapdTransformation } from '@/plugins/register/tapd';
 import { BambooTransformation } from '@/plugins/register/bamboo';
+import { CircleCITransformation } from '@/plugins/register/circleci';
+import { DOC_URL } from '@/release';
 import { operator } from '@/utils';
-
-import { TIPS_MAP } from './misc';
 
 interface Props {
   plugin: string;
   connectionId: ID;
   defaultName?: string;
   showWarning?: boolean;
+  forceCreate?: boolean;
   scopeId?: ID;
   scopeConfigId?: ID;
   onCancel: () => void;
@@ -52,6 +54,7 @@ export const ScopeConfigForm = ({
   connectionId,
   defaultName,
   showWarning = false,
+  forceCreate = false,
   scopeId,
   scopeConfigId,
   onCancel,
@@ -80,7 +83,7 @@ export const ScopeConfigForm = ({
     (async () => {
       try {
         const res = await API.scopeConfig.get(plugin, connectionId, scopeConfigId);
-        setName(res.name);
+        setName(forceCreate ? `${res.name}-copy` : res.name);
         setEntities(res.entities ?? []);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
       } catch {}
@@ -98,12 +101,12 @@ export const ScopeConfigForm = ({
   const handleSubmit = async () => {
     const [success, res] = await operator(
       () =>
-        !scopeConfigId
+        !scopeConfigId || forceCreate
           ? API.scopeConfig.create(plugin, connectionId, { name, entities, ...transformation })
           : API.scopeConfig.update(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
       {
         setOperating,
-        formatMessage: () => (!scopeConfigId ? 'Create scope config successful.' : 'Update scope config successful'),
+        hideToast: true,
       },
     );
 
@@ -114,16 +117,18 @@ export const ScopeConfigForm = ({
 
   return (
     <Flex vertical gap="middle">
-      {TIPS_MAP[plugin] && (
-        <Alert
-          message={
-            <>
-              To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
-              <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
-            </>
-          }
-        />
-      )}
+      <Alert
+        message={
+          <>
+            To learn about how {config.name} transformation is used in DevLake,
+            {/* @ts-ignore */}
+            <ExternalLink link={DOC_URL.PLUGIN[config.plugin.toLocaleUpperCase()].TRANSFORMATION}>
+              check out this doc
+            </ExternalLink>
+            .
+          </>
+        }
+      />
       {step === 1 && (
         <>
           <Card>
@@ -132,7 +137,12 @@ export const ScopeConfigForm = ({
               description="Give this Scope Config a unique name so that you can identify it in the future."
               required
             >
-              <Input placeholder="My Scope Config 1" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                placeholder="My Scope Config 1"
+                maxLength={40}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </Block>
           </Card>
           <Card>
@@ -191,6 +201,14 @@ export const ScopeConfigForm = ({
                 />
               )}
 
+              {plugin === 'azuredevops_go' && (
+                <AzureTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
+
               {plugin === 'bamboo' && (
                 <BambooTransformation
                   entities={entities}
@@ -201,6 +219,22 @@ export const ScopeConfigForm = ({
 
               {plugin === 'bitbucket' && (
                 <BitbucketTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
+
+              {plugin === 'bitbucket_server' && (
+                <BitbucketServerTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
+
+              {plugin === 'circleci' && (
+                <CircleCITransformation
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}

@@ -35,7 +35,7 @@ func init() {
 const RAW_COMMIT_TABLE = "github_api_commits"
 
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiCommits",
+	Name:             "Collect Commits",
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: false,
 	Description:      "Collect commits data from Github api, supports both timeFilter and diffSync.",
@@ -46,7 +46,7 @@ var CollectApiCommitsMeta = plugin.SubTaskMeta{
 
 func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
-	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -58,7 +58,7 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient: data.ApiClient,
 		PageSize:  100,
 		/*
@@ -77,8 +77,8 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if collectorWithState.Since != nil {
-				query.Set("since", collectorWithState.Since.String())
+			if apiCollector.GetSince() != nil {
+				query.Set("since", apiCollector.GetSince().String())
 			}
 			query.Set("direction", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -117,5 +117,5 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

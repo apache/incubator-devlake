@@ -37,8 +37,10 @@ export const list = (
     data,
   });
 
-export const get = (plugin: string, connectionId: ID, scopeId: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);
+export const get = (plugin: string, connectionId: ID, scopeId: ID, payload?: { blueprints: boolean }) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`, {
+    data: payload,
+  });
 
 export const remove = (plugin: string, connectionId: ID, scopeId: ID, onlyData: boolean) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}?delete_data_only=${onlyData}`, {

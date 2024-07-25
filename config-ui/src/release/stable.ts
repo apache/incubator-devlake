@@ -30,6 +30,13 @@ const URLS = {
       TRANSFORMATION:
         'https://devlake.apache.org/docs/Configuration/AzureDevOps#step-3---adding-transformation-rules-optional',
     },
+    AZUREDEVOPS_GO: {
+      BASIS: 'https://devlake.apache.org/docs/Configuration/AzureDevOps',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/AzureDevOps/#custom-rate-limit-optional',
+      AUTH_TOKEN: 'https://devlake.apache.org/docs/Configuration/AzureDevOps#auth-tokens',
+      TRANSFORMATION:
+        'https://devlake.apache.org/docs/Configuration/AzureDevOps#step-3---adding-transformation-rules-optional',
+    },
     BAMBOO: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/Bamboo',
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/Bamboo/#custom-rate-limit-optional',
@@ -42,8 +49,15 @@ const URLS = {
       TRANSFORMATION:
         'https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional',
     },
+    BITBUCKET_SERVER: {
+      BASIS: 'https://devlake.apache.org/docs/Configuration/BitBucket-Server',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/BitBucket-Server#fixed-rate-limit-optional',
+      TRANSFORMATION:
+        'https://devlake.apache.org/docs/Configuration/BitBucket-Server#step-3---adding-transformation-rules-optional',
+    },
     CIRCLECI: {
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/CircleCI#fixed-rate-limit-optional',
+      TRANSFORMATION: 'https://devlake.apache.org/docs/Configuration/CircleCI#step-13---adding-scope-config-optional',
     },
     GITHUB: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/GitHub',
@@ -72,6 +86,11 @@ const URLS = {
       PERSONAL_ACCESS_TOKEN: 'https://devlake.apache.org/docs/Configuration/Jira#personal-access-token',
       TRANSFORMATION:
         'https://devlake.apache.org/docs/Configuration/Jira#step-3---adding-transformation-rules-optional',
+    },
+    OPSGENIE: {
+      BASIS: 'https://devlake.apache.org/docs/Configuration/Opsgenie',
+      AUTH_TOKEN: 'https://devlake.apache.org/docs/Configuration/Opsgenie#step-11---authentication',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/Opsgenie#fixed-rate-limit-optional',
     },
     PAGERDUTY: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/PagerDuty',

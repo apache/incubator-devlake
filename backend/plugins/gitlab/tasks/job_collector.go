@@ -42,7 +42,7 @@ type SimpleGitlabApiJob struct {
 }
 
 var CollectApiJobsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiJobs",
+	Name:             "Collect Job Runs",
 	EntryPoint:       CollectApiJobs,
 	EnabledByDefault: true,
 	Description:      "Collect job data from gitlab api, supports both timeFilter and diffSync.",

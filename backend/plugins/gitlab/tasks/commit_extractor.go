@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -30,7 +31,7 @@ func init() {
 }
 
 var ExtractApiCommitsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiCommits",
+	Name:             "Extract Commits",
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: false,
 	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabAccount and GitlabProjectCommit",

@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/server/api/apikeys"
+	"github.com/apache/incubator-devlake/server/api/store"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
@@ -47,6 +48,7 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.GET("/pipelines/:pipelineId", pipelines.Get)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.GetTaskByPipeline)
+	r.GET("/pipelines/:pipelineId/subtasks", task.GetSubtaskByPipeline)
 	r.POST("/pipelines/:pipelineId/rerun", pipelines.PostRerun)
 	r.GET("/pipelines/:pipelineId/logging.tar.gz", pipelines.DownloadLogs)
 
@@ -68,11 +70,15 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.GET("/plugins", plugininfo.GetPluginMetas)
 
 	// project api
-	r.GET("/projects/*projectName", project.GetProject)
-	r.PATCH("/projects/*projectName", project.PatchProject)
-	r.DELETE("/projects/*projectName", project.DeleteProject)
+	r.GET("/projects/:projectName", project.GetProject)
+	r.GET("/projects/:projectName/check", project.GetProjectCheck)
+	r.PATCH("/projects/:projectName", project.PatchProject)
+	r.DELETE("/projects/:projectName", project.DeleteProject)
 	r.POST("/projects", project.PostProject)
 	r.GET("/projects", project.GetProjects)
+	// on board api
+	r.GET("/store/:storeKey", store.GetStore)
+	r.PUT("/store/:storeKey", store.PutStore)
 
 	// api keys api
 	r.GET("/api-keys", apikeys.GetApiKeys)

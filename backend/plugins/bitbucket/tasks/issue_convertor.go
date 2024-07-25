@@ -32,7 +32,7 @@ import (
 )
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
-	Name:             "convertIssues",
+	Name:             "Convert Issues",
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table bitbucket_issues into  domain layer table issues",

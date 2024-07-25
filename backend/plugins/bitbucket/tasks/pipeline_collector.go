@@ -26,7 +26,7 @@ import (
 const RAW_PIPELINE_TABLE = "bitbucket_api_pipelines"
 
 var CollectApiPipelinesMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPipelines",
+	Name:             "Collect Pipelines",
 	EntryPoint:       CollectApiPipelines,
 	EnabledByDefault: true,
 	Description:      "Collect pipeline data from bitbucket api",

@@ -1,0 +1,25 @@
+## Warning. Indentation should be done using tabs. Indentation with spaces will not be recognized correctly!
+
+
+-- request --
+test-token 200 bc538feb-9fdd-6cf8-80e1-7c56950d0289
+invalid-token 401 noop
+unauthorized-token 401 noop
+
+-- response --
+Basic OnRlc3QtdG9rZW4=
+	StatusCode: 200
+	Body: { "displayName": "John Doe",  "publicAlias": "bc538feb-9fdd-6cf8-80e1-7c56950d0289", "emailAddress": "john.doe@example.com", "coreRevision": 123, "timeStamp": "2024-01-01T12:00:00.0000000+00:00", "id": "bc538feb-9fdd-6cf8-80e1-7c56950d0289", "revision": 123 }
+	Content-Type: application/json; charset=utf-8; api-version=7.1
+
+Basic OmludmFsaWQtdG9rZW4=
+	StatusCode: 203
+	Body: <html><head><title>Azure DevOps Services | Sign In</title></head><body>
+	Content-Type: text/html; charset=utf-8
+	Location: https://app.vssps.visualstudio.com/_signin
+
+Basic OnVuYXV0aG9yaXplZC10b2tlbg==
+	StatusCode: 401
+	Body: <html><head><title>Object moved</title></head><body>
+	Content-Type: text/html; charset=utf-8
+	Location: https://app.vssps.visualstudio.com/_signin

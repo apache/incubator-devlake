@@ -23,5 +23,6 @@ export * from './db-migrate';
 export * from './error';
 export * from './layout';
 export * from './not-found';
+export * from './onboard';
 export * from './pipeline';
 export * from './project';

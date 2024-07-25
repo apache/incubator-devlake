@@ -25,15 +25,29 @@ export const PATHS = {
   CONNECTIONS: () => `${PATH_PREFIX}/connections`,
   CONNECTION: (plugin: string, connectionId: ID) => `${PATH_PREFIX}/connections/${plugin}/${connectionId}`,
   PROJECTS: () => `${PATH_PREFIX}/projects`,
-  PROJECT: (pname: string, tab?: 'configuration' | 'status' | 'settings') =>
-    `${PATH_PREFIX}/projects/${encodeName(pname)}${tab ? `?tab=${tab}` : ''}`,
+  PROJECT: (
+    pname: string,
+    { tab, tabId }: { tab?: 'configuration' | 'status'; tabId?: 'blueprint' | 'webhook' | 'settings' } = {},
+  ) => {
+    let params = '';
+
+    if (tab && tabId) {
+      params = `?tab=${tab}&tabId=${tabId}`;
+    } else if (tab) {
+      params = `?tab=${tab}`;
+    } else if (tabId) {
+      params = `?tabId=${tabId}`;
+    }
+
+    return `${PATH_PREFIX}/projects/${encodeName(pname)}${params}`;
+  },
   PROJECT_CONNECTION: (pname: string, plugin: string, connectionId: ID) =>
     `${PATH_PREFIX}/projects/${encodeName(pname)}/${plugin}-${connectionId}`,
   BLUEPRINTS: () => `${PATH_PREFIX}/advanced/blueprints`,
   BLUEPRINT: (bid: ID, tab?: 'configuration' | 'status') =>
     `${PATH_PREFIX}/advanced/blueprints/${bid}${tab ? `?tab=${tab}` : ''}`,
   BLUEPRINT_CONNECTION: (bid: ID, plugin: string, connectionId: ID) =>
-    `/advanced/blueprints/${bid}/${plugin}-${connectionId}`,
+    `${PATH_PREFIX}/advanced/blueprints/${bid}/${plugin}-${connectionId}`,
   PIPELINES: () => `${PATH_PREFIX}/advanced/pipelines`,
   APIKEYS: () => `${PATH_PREFIX}/keys`,
 };

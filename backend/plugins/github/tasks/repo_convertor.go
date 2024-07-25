@@ -54,7 +54,7 @@ type GithubApiRepo struct {
 }
 
 var ConvertRepoMeta = plugin.SubTaskMeta{
-	Name:             "convertRepo",
+	Name:             "Convert Repos",
 	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_repos into domain layer table repos and boards",

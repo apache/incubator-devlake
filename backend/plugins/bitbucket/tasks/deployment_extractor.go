@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"time"
 )
 
 type bitbucketApiDeploymentsResponse struct {
@@ -76,7 +77,7 @@ type bitbucketApiDeploymentsResponse struct {
 }
 
 var ExtractApiDeploymentsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiDeployments",
+	Name:             "Extract Deployments",
 	EntryPoint:       ExtractApiDeployments,
 	EnabledByDefault: true,
 	Description:      "Extract raw deployments data into tool layer table BitbucketDeployment",

@@ -24,6 +24,7 @@ import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import API from '@/api';
+import { PATHS } from '@/config';
 import { Loading, Block, ExternalLink, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
@@ -59,7 +60,10 @@ export const DataScopeSelect = ({
   }, []);
 
   const getDataScope = async (page: number) => {
-    setLoading(true);
+    if (page === 1) {
+      setLoading(true);
+    }
+
     const res = await API.scope.list(plugin, connectionId, { page, pageSize });
     setItems((items) => [
       ...items,
@@ -179,7 +183,7 @@ export const DataScopeSelect = ({
         </Flex>
       ) : (
         <Flex>
-          <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
+          <ExternalLink link={PATHS.CONNECTION(plugin, connectionId)}>
             <Button type="primary" icon={<PlusOutlined />}>
               Add Data Scope
             </Button>

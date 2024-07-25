@@ -18,7 +18,10 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
+	goerrors "errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -90,8 +93,14 @@ func listGithubUserOrgs(
 	if err != nil {
 		return nil, nil, err
 	}
+	if orgsBody.StatusCode != http.StatusOK {
+		err := errors.Convert(tryToResolveErrorMessage(orgsBody))
+		return nil, nil, err
+	}
 	var orgs []org
-	errors.Must(api.UnmarshalResponse(orgsBody, &orgs))
+	if err := api.UnmarshalResponse(orgsBody, &orgs); err != nil {
+		return nil, nil, err
+	}
 	for _, o := range orgs {
 		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
 			Type:     api.RAS_ENTRY_TYPE_GROUP,
@@ -108,6 +117,29 @@ func listGithubUserOrgs(
 		}
 	}
 	return children, nextPage, nil
+}
+
+func tryToResolveErrorMessage(resp *http.Response) error {
+	if resp == nil {
+		return goerrors.New("nil response")
+	}
+	type Response struct {
+		Message          string `json:"message"`
+		DocumentationURL string `json:"documentation_url"`
+	}
+	resBody, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+	if len(resBody) == 0 {
+		return goerrors.New("empty response")
+	}
+	var respStruct Response
+	if err := json.Unmarshal(resBody, &respStruct); err != nil {
+		return err
+	}
+	return fmt.Errorf("response status code: %d, message: %s", resp.StatusCode, respStruct.Message)
 }
 
 func listGithubOrgRepos(

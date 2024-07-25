@@ -4,7 +4,6 @@
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
 # the License.  You may obtain a copy of the License at
-
 #     http://www.apache.org/licenses/LICENSE-2.0
 
 # Unless required by applicable law or agreed to in writing, software
@@ -27,6 +26,7 @@ from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
 from pydevlake.api import APIException
+from pydevlake.extractor import autoextract
 
 
 _SUPPORTED_EXTERNAL_SOURCE_PROVIDERS = ['github', 'githubenterprise', 'bitbucket', 'git']
@@ -50,13 +50,14 @@ class AzureDevOpsPlugin(Plugin):
         yield Repo(
             name=git_repo.name,
             url=git_repo.url,
-            forked_from=git_repo.parent_repository_url
+            forked_from=git_repo.parent_repository_url,
+            # updated_date=git_repo.updated_date,
         )
-
         yield CicdScope(
             name=git_repo.name,
             description=git_repo.name,
-            url=git_repo.url
+            url=git_repo.url,
+            # updatedDate=git_repo.updated_date,
         )
 
     def remote_scope_groups(self, connection) -> list[RemoteScopeGroup]:
@@ -88,7 +89,7 @@ class AzureDevOpsPlugin(Plugin):
             url = urlparse(raw_repo['remoteUrl'])
             url = url._replace(netloc=url.hostname)
             raw_repo['url'] = url.geturl()
-            repo = GitRepository(**raw_repo)
+            repo = autoextract(raw_repo, GitRepository)
             if not repo.default_branch:
                 continue
             if "parentRepository" in raw_repo:
@@ -104,7 +105,7 @@ class AzureDevOpsPlugin(Plugin):
             for repo in res.json['repositories']:
                 props = repo['properties']
                 yield GitRepository(
-                    id=repo['id'],
+                    id=f"{org}/{proj}/{provider}/{repo['id']}",
                     name=f'{provider}/{proj}/{repo["name"]}',
                     project_id=proj,
                     org_id=org,
@@ -119,7 +120,7 @@ class AzureDevOpsPlugin(Plugin):
         hint = None
         try:
             if connection.organization is None:
-                hint = "You may need to edit your token to set organization to 'All accessible organizations"
+                hint = "You may need to edit your token to set organization to 'All accessible organizations'"
                 res = api.my_profile()
             else:
                 hint = "Organization name may be incorrect or your token may not have access to the organization."
@@ -134,11 +135,11 @@ class AzureDevOpsPlugin(Plugin):
         if DomainType.CODE in scope_config.domain_types and not scope.is_external():
             url = urlparse(scope.remote_url)
             url = url._replace(netloc=f'{url.username}:{connection.token.get_secret_value()}@{url.hostname}')
-            yield gitextractor(url.geturl(), scope.name, scope.domain_id(), connection.proxy)
+            yield gitextractor(url.geturl(), scope.name, scope.domain_id(), connection.proxy, True)
 
     def extra_stages(self, scope_config_pairs: list[tuple[GitRepository, GitRepositoryConfig]], _):
         for scope, config in scope_config_pairs:
-            if DomainType.CODE in config.domain_types and not scope.is_external():
+            if DomainType.CODE in config.domain_types and not scope.is_external() and scope.scope_config_id != 0:
                 yield [refdiff(scope.id, config.refdiff)]
 
 

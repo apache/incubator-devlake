@@ -141,7 +141,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 
 var rawTableAutoMigrateLock sync.Mutex
 
-func (collector *ApiCollector) ensureRawTable(table string) errors.Error {
+func (collector *ApiCollector) ensureRawTable() errors.Error {
 	db := collector.args.Ctx.GetDal()
 	rawTableAutoMigrateLock.Lock()
 	defer rawTableAutoMigrateLock.Unlock()
@@ -155,7 +155,7 @@ func (collector *ApiCollector) Execute() errors.Error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
-	err := collector.ensureRawTable(collector.table)
+	err := collector.ensureRawTable()
 	if err != nil {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
@@ -434,7 +434,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	logger := collector.args.Ctx.GetLogger()
 	logger.Debug("fetchAsync <<< enqueueing for %s %v", apiUrl, apiQuery)
 	responseHandler := func(res *http.Response) errors.Error {
-		defer logger.Debug("fetchAsync >>> done for %s %v %v", apiUrl, apiQuery, collector.args.RequestBody)
+		defer logger.Debug("fetchAsync >>> done for %s %v", apiUrl, apiQuery)
 		logger := collector.args.Ctx.GetLogger()
 		// read body to buffer
 		body, err := io.ReadAll(res.Body)

@@ -24,7 +24,7 @@ import (
 type TapdIterationTask struct {
 	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
-	IterationId  uint64 `gorm:"primaryKey"`
+	IterationId  int64  `gorm:"primaryKey"`
 	WorkspaceId  uint64 `gorm:"primaryKey"`
 
 	TaskId          uint64 `gorm:"primaryKey"`

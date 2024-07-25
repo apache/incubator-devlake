@@ -52,6 +52,7 @@ type GraphqlQueryPr struct {
 	Number     int
 	State      string
 	Title      string
+	IsDraft    bool
 	Body       string
 	Url        string
 	Labels     struct {
@@ -85,6 +86,33 @@ type GraphqlQueryPr struct {
 		TotalCount graphql.Int
 		Nodes      []GraphqlQueryReview `graphql:"nodes"`
 	} `graphql:"reviews(first: 100)"`
+	Additions      int
+	Deletions      int
+	MergedBy       *GraphqlInlineAccountQuery
+	ReviewRequests struct {
+		Nodes []ReviewRequestNode `graphql:"nodes"`
+	} `graphql:"reviewRequests(first: 10)"`
+}
+
+type ReviewRequestNode struct {
+	RequestedReviewer RequestedReviewer `graphql:"requestedReviewer"`
+}
+
+type RequestedReviewer struct {
+	User User `graphql:"... on User"`
+	Team Team `graphql:"... on Team"`
+}
+
+type User struct {
+	Id    int    `graphql:"databaseId"`
+	Login string `graphql:"login"`
+	Name  string `graphql:"name"`
+}
+
+type Team struct {
+	Id   int    `graphql:"databaseId"`
+	Name string `graphql:"name"`
+	Slug string `graphql:"slug"`
 }
 
 type GraphqlQueryReview struct {
@@ -118,7 +146,7 @@ type GraphqlQueryCommit struct {
 }
 
 var CollectPrsMeta = plugin.SubTaskMeta{
-	Name:             "CollectPrs",
+	Name:             "Collect Pull Requests",
 	EntryPoint:       CollectPrs,
 	EnabledByDefault: true,
 	Description:      "Collect Pr data from GithubGraphql api, supports both timeFilter and diffSync.",
@@ -130,7 +158,7 @@ var _ plugin.SubTaskEntryPoint = CollectPrs
 func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*tasks.GithubTaskData)
 	var err errors.Error
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: tasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -142,7 +170,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitGraphQLCollector(api.GraphqlCollectorArgs{
+	err = apiCollector.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      10,
 		/*
@@ -170,7 +198,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryPrWrapper)
 			prs := query.Repository.PullRequests.Prs
 			for _, rawL := range prs {
-				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.CreatedAt) {
+				if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(rawL.CreatedAt) {
 					return nil, api.ErrFinishCollect
 				}
 			}
@@ -181,5 +209,5 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

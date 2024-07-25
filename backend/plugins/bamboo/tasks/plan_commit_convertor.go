@@ -60,8 +60,10 @@ func ConvertPlanVcs(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*models.BambooPlanBuildVcsRevision)
 			domainPlanVcs := &devops.CiCDPipelineCommit{
-				PipelineId: planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
-				CommitSha:  line.VcsRevisionKey,
+				PipelineId:   planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
+				CommitSha:    line.VcsRevisionKey,
+				DisplayTitle: line.DisplayTitle,
+				Url:          line.Url,
 			}
 			domainPlanVcs.RepoId = repoMap[line.RepositoryId]
 			fakeRepoUrl, err := generateFakeRepoUrl(data.ApiClient.GetEndpoint(), line.RepositoryId)

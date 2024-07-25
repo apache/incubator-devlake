@@ -81,7 +81,7 @@ func TestGitlabPipelineDetailDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
-	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertDetailPipelineMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertPipelineCommitMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",

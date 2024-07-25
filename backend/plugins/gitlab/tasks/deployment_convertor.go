@@ -19,6 +19,9 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,8 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/spf13/cast"
-	"reflect"
-	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -39,7 +40,7 @@ func init() {
 }
 
 var ConvertDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "ConvertDeployment",
+	Name:             "Convert Deployments",
 	EntryPoint:       ConvertDeployment,
 	EnabledByDefault: true,
 	Description:      "Convert gitlab deployment from tool layer to domain layer",
@@ -124,6 +125,8 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				RefName:           gitlabDeployment.Ref,
 				RepoId:            projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				RepoUrl:           repo.WebUrl,
+				DisplayTitle:      gitlabDeployment.DeployableCommitTitle,
+				Url:               repo.WebUrl + "/environments",
 			}
 			if data.RegexEnricher != nil {
 				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {

@@ -22,8 +22,10 @@ import (
 
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	ae "github.com/apache/incubator-devlake/plugins/ae/impl"
+	azuredevops "github.com/apache/incubator-devlake/plugins/azuredevops_go/impl"
 	bamboo "github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	bitbucket "github.com/apache/incubator-devlake/plugins/bitbucket/impl"
+	bitbucket_server "github.com/apache/incubator-devlake/plugins/bitbucket_server/impl"
 	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
 	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
@@ -35,8 +37,10 @@ import (
 	githubGraphql "github.com/apache/incubator-devlake/plugins/github_graphql/impl"
 	gitlab "github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	icla "github.com/apache/incubator-devlake/plugins/icla/impl"
+	issueTrace "github.com/apache/incubator-devlake/plugins/issue_trace/impl"
 	jenkins "github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	jira "github.com/apache/incubator-devlake/plugins/jira/impl"
+	linker "github.com/apache/incubator-devlake/plugins/linker/impl"
 	opsgenie "github.com/apache/incubator-devlake/plugins/opsgenie/impl"
 	org "github.com/apache/incubator-devlake/plugins/org/impl"
 	pagerduty "github.com/apache/incubator-devlake/plugins/pagerduty/impl"
@@ -57,8 +61,10 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 		ValidatePluginCount: true,
 	})
 	checker.FeedIn("ae/models", ae.AE{}.GetTablesInfo)
+	checker.FeedIn("azuredevops_go/models", azuredevops.Azuredevops{}.GetTablesInfo)
 	checker.FeedIn("bamboo/models", bamboo.Bamboo{}.GetTablesInfo)
 	checker.FeedIn("bitbucket/models", bitbucket.Bitbucket{}.GetTablesInfo)
+	checker.FeedIn("bitbucket_server/models", bitbucket_server.BitbucketServer{}.GetTablesInfo)
 	checker.FeedIn("customize/models", customize.Customize{}.GetTablesInfo)
 	checker.FeedIn("dbt", dbt.Dbt{}.GetTablesInfo)
 	checker.FeedIn("dora/models", dora.Dora{}.GetTablesInfo)
@@ -84,6 +90,8 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("zentao/models", zentao.Zentao{}.GetTablesInfo)
 	checker.FeedIn("circleci/models", circleci.Circleci{}.GetTablesInfo)
 	checker.FeedIn("opsgenie/models", opsgenie.Opsgenie{}.GetTablesInfo)
+	checker.FeedIn("linker/models", linker.Linker{}.GetTablesInfo)
+	checker.FeedIn("issue_trace/models", issueTrace.IssueTrace{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)

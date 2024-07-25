@@ -31,7 +31,7 @@ import (
 )
 
 var ConvertIssueCommentsMeta = plugin.SubTaskMeta{
-	Name:             "convertIssueComments",
+	Name:             "Convert Issue Comments",
 	EntryPoint:       ConvertIssueComments,
 	EnabledByDefault: true,
 	Description:      "ConvertIssueComments data from Bitbucket api",
