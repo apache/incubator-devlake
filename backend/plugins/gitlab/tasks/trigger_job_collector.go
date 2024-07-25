@@ -92,7 +92,7 @@ func GetAllPipelinesIterator(taskCtx plugin.SubTaskContext, apiCollector *helper
 	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
 		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", apiCollector.GetSince()))
 	}
-	
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return nil, err
