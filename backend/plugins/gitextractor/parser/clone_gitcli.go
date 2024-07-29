@@ -124,13 +124,11 @@ func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir s
 		//    https://stackoverflow.com/questions/23708231/git-shallow-clone-clone-depth-misses-remote-branches
 
 		// 1. clone the repo with depth 1
-		if err := g.execGitCommand(ctx, "clone", taskData.Options.Url, localDir, "--depth=1", "--bare"); err != nil {
+		cloneArgs := append([]string{"clone", taskData.Options.Url, localDir, "--depth=1", "--bare"}, args...)
+		if err := g.execGitCommand(ctx, cloneArgs...); err != nil {
 			return err
 		}
-		// 2. set remote for all branches
-		// if err := g.execGitCommandIn(ctx, localDir, "remote", "set-branches", "origin", "'*'"); err != nil {
-		// return err
-		// } // someshow it fails siliently on my local machine, don't know why
+		// 2. configure to fetch all branches from the remote server so we can collect new commits from them
 		gitConfig, err := os.OpenFile(path.Join(localDir, "config"), os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to open git config file")
@@ -139,14 +137,20 @@ func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir s
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to write to git config file")
 		}
-		// 3. fetch all new commits from all branches since the given time
-		args = append([]string{"fetch", "--progress", fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339))}, args...)
+		// 3. fetch all branches with depth=1 so the next step would collect less commits
+		// (I don't know why, but it reduced total number of commits from 18k to 7k on https://gitlab.com/gitlab-org/gitlab-foss.git with the same parameters)
+		fetchBranchesArgs := append([]string{"fetch", "--depth=1", "origin"}, args...)
+		if err := g.execGitCommandIn(ctx, localDir, fetchBranchesArgs...); err != nil {
+			return errors.Default.Wrap(err, "failed to fetch all branches from the remote server")
+		}
+		// 4. fetch all new commits from all branches since the given time
+		args = append([]string{"fetch", fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339))}, args...)
 		if err := g.execGitCommandIn(ctx, localDir, args...); err != nil {
 			g.logger.Warn(err, "shallow fetch failed")
 		}
 		return nil
 	} else {
-		args = append([]string{"clone", taskData.Options.Url, localDir, "--progress", "--bare"}, args...)
+		args = append([]string{"clone", taskData.Options.Url, localDir, "--bare"}, args...)
 		return g.execGitCommand(ctx, args...)
 	}
 }
