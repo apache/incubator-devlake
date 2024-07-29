@@ -15,35 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type DoraApiParams struct {
-	ProjectName string
+type initIncidentRelatedTables struct{}
+
+func (u *initIncidentRelatedTables) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.IncidentAssignee{},
+		&archived.Incident{},
+	)
 }
 
-type DoraOptions struct {
-	Tasks       []string `json:"tasks,omitempty"`
-	Since       string
-	ProjectName string  `json:"projectName"`
-	ScopeId     *string `json:"scopeId,omitempty"`
+func (*initIncidentRelatedTables) Version() uint64 {
+	return 20240621152500
 }
 
-type DoraTaskData struct {
-	Options                         *DoraOptions
-	DisableIssueToIncidentGenerator bool
-}
-
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, errors.Error) {
-	var op DoraOptions
-	err := helper.Decode(options, &op, nil)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding DORA task options")
-	}
-
-	return &op, nil
+func (*initIncidentRelatedTables) Name() string {
+	return "init tables: incidents and incident_assignees"
 }

@@ -15,35 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package ticket
 
-import (
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-)
+import "github.com/apache/incubator-devlake/core/models/common"
 
-type DoraApiParams struct {
-	ProjectName string
+type IncidentAssignee struct {
+	IncidentId   string `gorm:"primaryKey;type:varchar(255)"`
+	AssigneeId   string `gorm:"primaryKey;type:varchar(255)"`
+	AssigneeName string `gorm:"type:varchar(255)"`
+
+	common.NoPKModel
 }
 
-type DoraOptions struct {
-	Tasks       []string `json:"tasks,omitempty"`
-	Since       string
-	ProjectName string  `json:"projectName"`
-	ScopeId     *string `json:"scopeId,omitempty"`
-}
-
-type DoraTaskData struct {
-	Options                         *DoraOptions
-	DisableIssueToIncidentGenerator bool
-}
-
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, errors.Error) {
-	var op DoraOptions
-	err := helper.Decode(options, &op, nil)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding DORA task options")
-	}
-
-	return &op, nil
+func (IncidentAssignee) TableName() string {
+	return "incident_assignees"
 }

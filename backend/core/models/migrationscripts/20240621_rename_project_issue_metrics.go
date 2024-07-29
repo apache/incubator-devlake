@@ -15,35 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type DoraApiParams struct {
-	ProjectName string
+type renameProjectIssueMetrics struct{}
+
+func (u *renameProjectIssueMetrics) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	return db.RenameTable(archived.ProjectIssueMetric{}.TableName(), "project_incident_deployment_relationships")
 }
 
-type DoraOptions struct {
-	Tasks       []string `json:"tasks,omitempty"`
-	Since       string
-	ProjectName string  `json:"projectName"`
-	ScopeId     *string `json:"scopeId,omitempty"`
+func (*renameProjectIssueMetrics) Version() uint64 {
+	return 20240621162000
 }
 
-type DoraTaskData struct {
-	Options                         *DoraOptions
-	DisableIssueToIncidentGenerator bool
-}
-
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, errors.Error) {
-	var op DoraOptions
-	err := helper.Decode(options, &op, nil)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding DORA task options")
-	}
-
-	return &op, nil
+func (*renameProjectIssueMetrics) Name() string {
+	return "rename project_issue_metrics to project_incident_deployment_relationships"
 }
