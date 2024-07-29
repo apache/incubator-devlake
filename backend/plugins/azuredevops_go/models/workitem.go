@@ -14,13 +14,17 @@ type AzuredevopsWorkItem struct {
 	Title        string
 	Type         string
 	State        string
-	CreatedDate  time.Time
-	ResolvedDate time.Time
-	ChangedDate  time.Time
+	CreatedDate  *time.Time
+	ResolvedDate *time.Time
+	ChangedDate  *time.Time
 	CreatorName  string
 	CreatorId    string
 	AssigneeName string
 	Area         string
+	Url          string
+	Severity     string
+	Priority     string
+	StoryPoint   float64
 }
 
 func (AzuredevopsWorkItem) TableName() string {
@@ -42,10 +46,16 @@ type AzuredevopsApiWorkItem struct {
 		SystemChangedDate  *common.Iso8601Time `json:"System.ChangedDate"`
 		SystemTitle        string              `json:"System.Title"`
 		SystemDescription  string              `json:"System.Description"`
-		SystemAssignedTo   string              `json:"System.AssignedTo"`
-		SystemCreatedBy    struct {
+		SystemAssignedTo   struct {
 			DisplayName string `json:"displayName"`
 			Id          string `json:"id"`
-		}
+		} `json:"System.AssignedTo"`
+		MicrosoftVSTSSchedulingEffort float64 `json:"Microsoft\.VSTS\.Scheduling\.Effort"`
+		MicrosoftVSTSCommonPriority   string  `json:"Microsoft\.VSTS\.Common\.Priority"`
+		MicrosoftVSTSCommonSeverity   string  `json:"Microsoft\.VSTS\.Common\.Severity"`
+		SystemCreatedBy               struct {
+			DisplayName string `json:"displayName"`
+			Id          string `json:"id"`
+		} `json:"System.CreatedBy"`
 	} `json:"fields"`
 }

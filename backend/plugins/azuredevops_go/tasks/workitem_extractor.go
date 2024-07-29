@@ -33,7 +33,7 @@ func init() {
 var ExtractApiWorkItemsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiWorkItems",
 	EntryPoint:       ExtractApiWorkItems,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Description:      "Extract raw work items data into tool layer table",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{RawWorkitemsTable},
@@ -46,6 +46,8 @@ func ExtractApiWorkItems(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		//// TODO: This task is running more than once and this method is missing the concurrency argument, it should be implemented as the collector.
+		//Concurrency:        1,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			results := make([]interface{}, 0, 2)
 
@@ -62,11 +64,20 @@ func ExtractApiWorkItems(taskCtx plugin.SubTaskContext) errors.Error {
 				Title:        apiWorkItem.Fields.SystemTitle,
 				Type:         apiWorkItem.Fields.SystemWorkItemType,
 				State:        apiWorkItem.Fields.SystemState,
-				CreatedDate:  *common.Iso8601TimeToTime(apiWorkItem.Fields.SystemCreatedDate),
-				ChangedDate:  *common.Iso8601TimeToTime(apiWorkItem.Fields.SystemChangedDate),
+				CreatedDate:  common.Iso8601TimeToTime(apiWorkItem.Fields.SystemCreatedDate),
+				ChangedDate:  common.Iso8601TimeToTime(apiWorkItem.Fields.SystemChangedDate),
 				CreatorId:    apiWorkItem.Fields.SystemCreatedBy.Id,
 				CreatorName:  apiWorkItem.Fields.SystemCreatedBy.DisplayName,
-				AssigneeName: apiWorkItem.Fields.SystemAssignedTo,
+				AssigneeName: apiWorkItem.Fields.SystemAssignedTo.DisplayName,
+				Area:         apiWorkItem.Fields.SystemAreaPath,
+				Url:          apiWorkItem.Url,
+				Severity:     apiWorkItem.Fields.MicrosoftVSTSCommonSeverity,
+				Priority:     apiWorkItem.Fields.MicrosoftVSTSCommonPriority,
+				StoryPoint:   apiWorkItem.Fields.MicrosoftVSTSSchedulingEffort,
+			}
+
+			if apiWorkItem.Fields.SystemState == "Resolved" || apiWorkItem.Fields.SystemState == "Closed" {
+				repoWorkItem.ResolvedDate = common.Iso8601TimeToTime(apiWorkItem.Fields.SystemChangedDate)
 			}
 
 			results = append(results, repoWorkItem)

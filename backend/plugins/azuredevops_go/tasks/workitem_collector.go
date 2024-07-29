@@ -34,7 +34,7 @@ func init() {
 const RawWorkitemsTable = "azuredevops_go_api_workitems"
 
 var CollectWorkitemsMeta = plugin.SubTaskMeta{
-	Name:             "collectWorkitems",
+	Name:             "collectApiWorkitems",
 	EntryPoint:       CollectApiWorkitems,
 	EnabledByDefault: true,
 	Description:      "Collect work items data from Azure DevOps API",
@@ -52,6 +52,7 @@ func CollectApiWorkitems(taskCtx plugin.SubTaskContext) errors.Error {
 	queryCollector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
+		Concurrency:        1,
 		PageSize:           100,
 		Incremental:        false,
 		Method:             http.MethodPost,
@@ -79,38 +80,38 @@ func CollectApiWorkitems(taskCtx plugin.SubTaskContext) errors.Error {
 
 	var currentWorkItems, emptyWorkItems []string
 
-	for key, value := range rawWorkItems.Array() {
+	rawWorkItems.ForEach(func(key, value gjson.Result) bool {
 		currentWorkItems = append(currentWorkItems, value.String())
-		if len(currentWorkItems) == 15 || key == len(rawWorkItems.Array())-1 {
-			logger.Info("Currently processed items: %d", key+1)
 
-			resultsCollector, err := api.NewApiCollector(api.ApiCollectorArgs{
+		if len(currentWorkItems) == 9 || key.Int() == int64(len(rawWorkItems.Array())-1) {
+			logger.Info("Currently processed items: %d", key.Int()+1)
+			logger.Debug("Current work items in list: #%s", currentWorkItems)
+			thisRequestBody := func(reqData *api.RequestData) map[string]interface{} {
+				return map[string]interface{}{
+					"ids":    currentWorkItems,
+					"fields": []string{"System.Id", "System.Title", "System.TeamProject", "System.Description", "System.Reason", "System.AreaPath", "System.WorkItemType", "System.State", "System.CreatedDate", "System.ChangedDate", "System.CreatedBy", "System.AssignedTo", "Microsoft.VSTS.Scheduling.Effort", "Microsoft.VSTS.Common.Priority", "Microsoft.VSTS.Common.Severity"},
+				}
+			}
+			resultsCollector, _ := api.NewApiCollector(api.ApiCollectorArgs{
 				RawDataSubTaskArgs: *rawDataSubTaskArgs,
 				ApiClient:          data.ApiClient,
-				PageSize:           15,
-				Incremental:        false,
+				Concurrency:        1,
+				Incremental:        true,
 				Method:             http.MethodPost,
 				UrlTemplate:        "{{ .Params.OrganizationId }}/{{ .Params.ProjectId }}/_apis/wit/workitemsbatch?api-version=7.1",
 				Query:              BuildPaginator(true),
-				RequestBody: func(reqData *api.RequestData) map[string]interface{} {
-					return map[string]interface{}{
-						"ids":    currentWorkItems,
-						"fields": []string{"System.Id", "System.Title", "System.TeamProject", "System.Description", "System.Reason", "System.AreaPath", "System.WorkItemType", "System.State", "System.CreatedDate", "System.ChangedDate", "System.CreatedBy", "System.AssignedTo"},
-					}
-				},
-				ResponseParser: ParseRawMessageFromValue,
-				AfterResponse:  handleClientErrors(repoType, logger),
+				RequestBody:        thisRequestBody,
+				ResponseParser:     ParseRawMessageFromValue,
+				AfterResponse:      handleClientErrors(repoType, logger),
 			})
 
-			err = resultsCollector.Execute()
+			resultsCollector.Execute()
 
 			currentWorkItems = emptyWorkItems
-
-			if err != nil {
-				return err
-			}
 		}
-	}
+
+		return true
+	})
 
 	if err != nil {
 		return err

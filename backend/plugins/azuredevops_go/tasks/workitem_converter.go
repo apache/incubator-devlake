@@ -34,7 +34,7 @@ func init() {
 var ConvertWortItemsMeta = plugin.SubTaskMeta{
 	Name:             "convertApiWorkItems",
 	EntryPoint:       ConvertApiWorkItems,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Description:      "Update domain layer ticket according to Azure DevOps Work Item",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{
@@ -45,17 +45,6 @@ var ConvertWortItemsMeta = plugin.SubTaskMeta{
 func ConvertApiWorkItems(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawWorkitemsTable)
 	db := taskCtx.GetDal()
-
-	//// select all work items belongs to the repository
-	//clauses := []dal.Clause{
-	//	dal.Select("aw.*"),
-	//	dal.From("_tool_azuredevops_go_workitem aw"),
-	//	dal.Join(`left join _tool_azuredevops_go_repo_work_items arw on (
-	//		arw.work_item_id = aw.id
-	//	)`),
-	//	dal.Where("arw.repository_id = ? and arw.connection_id = ? ",
-	//		data.Options.RepositoryId, data.Options.ConnectionId),
-	//}
 
 	clauses := []dal.Clause{
 		dal.Select("*"),
@@ -68,28 +57,31 @@ func ConvertApiWorkItems(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	//domainIdGenerator := didgen.NewDomainIdGenerator(&models.AzuredevopsWorkItem{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.AzuredevopsWorkItem{}),
 		Input:              cursor,
+		BatchSize:          10000,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			azureDevOpsWorkItem := inputRow.(*models.AzuredevopsWorkItem)
 
 			workItem := &ticket.Issue{}
-			//ConnectionId uint64 `gorm:"primaryKey"`
-			//	//AzuredevopsId int    `gorm:"primaryKey"`
-			//	WorkItemID   int `gorm:"primaryKey"`
 
+			workItem.Component = azureDevOpsWorkItem.Area
 			workItem.Title = azureDevOpsWorkItem.Title
 			workItem.Type = azureDevOpsWorkItem.Type
 			workItem.Status = azureDevOpsWorkItem.State
-			workItem.CreatedDate = &azureDevOpsWorkItem.CreatedDate
-			workItem.UpdatedDate = &azureDevOpsWorkItem.ChangedDate
+			workItem.CreatedDate = azureDevOpsWorkItem.CreatedDate
+			workItem.UpdatedDate = azureDevOpsWorkItem.ChangedDate
+			workItem.ResolutionDate = azureDevOpsWorkItem.ResolvedDate
 			workItem.CreatorName = azureDevOpsWorkItem.CreatorName
 			workItem.CreatorId = azureDevOpsWorkItem.CreatorId
 			workItem.AssigneeName = azureDevOpsWorkItem.AssigneeName
 			workItem.Status = azureDevOpsWorkItem.State
+			workItem.Url = azureDevOpsWorkItem.Url
+			workItem.StoryPoint = &azureDevOpsWorkItem.StoryPoint
+			workItem.Severity = azureDevOpsWorkItem.Severity
+			workItem.Priority = azureDevOpsWorkItem.Priority
 
 			return []interface{}{
 				workItem,

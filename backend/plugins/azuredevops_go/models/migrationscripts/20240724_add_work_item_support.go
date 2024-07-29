@@ -34,12 +34,17 @@ type createWorkItemAzuredevopsRepo struct {
 	Title        string `gorm:"type:varchar(255)"`
 	Type         string `gorm:"type:varchar(255)"`
 	State        string `gorm:"type:varchar(255)"`
-	CreatedDate  time.Time
-	ResolvedDate time.Time
-	ChangedDate  time.Time
+	CreatedDate  *time.Time
+	ResolvedDate *time.Time
+	ChangedDate  *time.Time
 	CreatorName  string `gorm:"type:varchar(255)"`
 	CreatorId    string `gorm:"type:varchar(255)"`
 	AssigneeName string `gorm:"type:varchar(255)"`
+	Area         string `gorm:"type:varchar(255)"`
+	Url          string `gorm:"type:varchar(255)"`
+	Severity     string `gorm:"type:varchar(255)"`
+	Priority     string `gorm:"type:varchar(255)"`
+	StoryPoint   float64
 }
 
 func (createWorkItemAzuredevopsRepo) TableName() string {
