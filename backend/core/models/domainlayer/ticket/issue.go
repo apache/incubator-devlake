@@ -18,7 +18,6 @@ limitations under the License.
 package ticket
 
 import (
-	"errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
 )
@@ -111,9 +110,6 @@ func (issue Issue) IsIncident() bool {
 }
 
 func (issue Issue) ToIncidentAssignee() (*IncidentAssignee, error) {
-	if !issue.IsIncident() {
-		return nil, errors.New("issue type is not INCIDENT, cannot generate incident_assignee")
-	}
 	return &IncidentAssignee{
 		IncidentId:   issue.Id,
 		AssigneeId:   issue.AssigneeId,
@@ -123,9 +119,6 @@ func (issue Issue) ToIncidentAssignee() (*IncidentAssignee, error) {
 }
 
 func (issue Issue) ToIncident() (*Incident, error) {
-	if !issue.IsIncident() {
-		return nil, errors.New("issue type is not INCIDENT, cannot generate incident")
-	}
 	incident := &Incident{
 		DomainEntity:            issue.DomainEntity,
 		Url:                     issue.Url,
