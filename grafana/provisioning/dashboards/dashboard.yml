@@ -33,7 +33,7 @@ providers:
   # <int> how often Grafana will scan for changed dashboards
   updateIntervalSeconds: 5
   # <bool> allow updating provisioned dashboards from the UI
-  allowUiUpdates: true
+  allowUiUpdates: false
   options:
     # <string, required> path to dashboard files on disk. Required
     path: /etc/grafana/dashboards
