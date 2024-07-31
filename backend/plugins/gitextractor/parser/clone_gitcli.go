@@ -18,11 +18,11 @@ limitations under the License.
 package parser
 
 import (
-	"bufio"
 	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 	"time"
 
@@ -89,11 +89,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 
 	}
 
-	cmd, err := g.buildCloneCommand(ctx, localDir, since)
-	if err != nil {
-		return err
-	}
-	err = g.execCloneCommand(cmd)
+	err := g.execGitCloneCommand(ctx, localDir, since)
 	if err != nil {
 		return err
 	}
@@ -101,13 +97,11 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	if since != nil {
 		// fixes error described on https://stackoverflow.com/questions/63878612/git-fatal-error-in-object-unshallow-sha-1
 		// It might be casued by the commit which being deepen has mulitple parent(e.g. a merge commit), not sure.
-		repackCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "repack", "-d")
-		if err := repackCmd.Run(); err != nil {
+		if err := g.execGitCommandIn(ctx, localDir, "repack", "-d"); err != nil {
 			return errors.Default.Wrap(err, "failed to repack the repo")
 		}
-		deepenCmd := exec.CommandContext(ctx.GetContext(), "git", "-C", localDir, "fetch", "--deepen=1")
 		// deepen would fail on a EMPTY repo, ignore the error
-		if err := deepenCmd.Run(); err != nil {
+		if err := g.execGitCommandIn(ctx, localDir, "fetch", "--deepen=1"); err != nil {
 			g.logger.Error(err, "failed to deepen the cloned repo")
 		}
 	}
@@ -119,126 +113,144 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	return nil
 }
 
-func (g *GitcliCloner) buildCloneCommand(ctx plugin.SubTaskContext, localDir string, since *time.Time) (*exec.Cmd, errors.Error) {
+func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir string, since *time.Time) errors.Error {
 	taskData := ctx.GetData().(*GitExtractorTaskData)
-	args := []string{"clone", taskData.Options.Url, localDir, "--bare", "--progress"}
-	env := []string{}
-	// support proxy
-	if taskData.ParsedURL.Scheme == "http" || taskData.ParsedURL.Scheme == "https" {
-		if taskData.Options.Proxy != "" {
-			env = append(env, fmt.Sprintf("HTTPS_PROXY=%s", taskData.Options.Proxy))
-		}
-		if taskData.ParsedURL.Scheme == "https" && ctx.GetConfigReader().GetBool("IN_SECURE_SKIP_VERIFY") {
-			args = append(args, "-c http.sslVerify=false")
-		}
-	} else if taskData.ParsedURL.Scheme == "ssh" {
-		var sshCmdArgs []string
-		if taskData.Options.Proxy != "" {
-			parsedProxyURL, e := url.Parse(taskData.Options.Proxy)
-			if e != nil {
-				return nil, errors.BadInput.Wrap(e, "failed to parse the proxy URL")
-			}
-			proxyCommand := "corkscrew"
-			sshCmdArgs = append(sshCmdArgs, "-o", fmt.Sprintf(`ProxyCommand="%s %s %s %%h %%p"`, proxyCommand, parsedProxyURL.Hostname(), parsedProxyURL.Port()))
-		}
-		// support private key
-		if taskData.Options.PrivateKey != "" {
-			pkFile, err := os.CreateTemp("", "gitext-pk")
-			if err != nil {
-				g.logger.Error(err, "create temp private key file error")
-				return nil, errors.Default.New("failed to handle the private key")
-			}
-			if _, e := pkFile.WriteString(taskData.Options.PrivateKey + "\n"); e != nil {
-				g.logger.Error(err, "write private key file error")
-				return nil, errors.Default.New("failed to write the  private key")
-			}
-			pkFile.Close()
-			if e := os.Chmod(pkFile.Name(), 0600); e != nil {
-				g.logger.Error(err, "chmod private key file error")
-				return nil, errors.Default.New("failed to modify the private key")
-			}
-
-			if taskData.Options.Passphrase != "" {
-				pp := exec.CommandContext(
-					ctx.GetContext(),
-					"ssh-keygen", "-p",
-					"-P", taskData.Options.Passphrase,
-					"-N", "",
-					"-f", pkFile.Name(),
-				)
-				if ppout, pperr := pp.CombinedOutput(); pperr != nil {
-					g.logger.Error(pperr, "change private key passphrase error")
-					g.logger.Info(string(ppout))
-					return nil, errors.Default.New("failed to decrypt the private key")
-				}
-			}
-			defer os.Remove(pkFile.Name())
-			sshCmdArgs = append(sshCmdArgs, fmt.Sprintf("-i %s -o StrictHostKeyChecking=no", pkFile.Name()))
-		}
-		if len(sshCmdArgs) > 0 {
-			env = append(env, fmt.Sprintf("GIT_SSH_COMMAND=ssh %s", strings.Join(sshCmdArgs, " ")))
-		}
-	}
-	// support time after and diff sync
-	if since != nil {
-		args = append(args, fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339)))
-	}
-	// support skipping blobs collection
+	var args []string
 	if *taskData.Options.SkipCommitStat {
 		args = append(args, "--filter=blob:none")
 	}
-	// fmt.Printf("args: %v\n", args)
+	if since != nil {
+		// to fetch newly added commits from ALL branches, we need to the following guide:
+		//    https://stackoverflow.com/questions/23708231/git-shallow-clone-clone-depth-misses-remote-branches
+
+		// 1. clone the repo with depth 1
+		cloneArgs := append([]string{"clone", taskData.Options.Url, localDir, "--depth=1", "--bare"}, args...)
+		if err := g.execGitCommand(ctx, cloneArgs...); err != nil {
+			return err
+		}
+		// 2. configure to fetch all branches from the remote server so we can collect new commits from them
+		gitConfig, err := os.OpenFile(path.Join(localDir, "config"), os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			return errors.Default.Wrap(err, "failed to open git config file")
+		}
+		_, err = gitConfig.WriteString("\tfetch = +refs/heads/*:refs/remotes/origin/*\n")
+		if err != nil {
+			return errors.Default.Wrap(err, "failed to write to git config file")
+		}
+		// 3. fetch all branches with depth=1 so the next step would collect less commits
+		// (I don't know why, but it reduced total number of commits from 18k to 7k on https://gitlab.com/gitlab-org/gitlab-foss.git with the same parameters)
+		fetchBranchesArgs := append([]string{"fetch", "--depth=1", "origin"}, args...)
+		if err := g.execGitCommandIn(ctx, localDir, fetchBranchesArgs...); err != nil {
+			return errors.Default.Wrap(err, "failed to fetch all branches from the remote server")
+		}
+		// 4. fetch all new commits from all branches since the given time
+		args = append([]string{"fetch", fmt.Sprintf("--shallow-since=%s", since.Format(time.RFC3339))}, args...)
+		if err := g.execGitCommandIn(ctx, localDir, args...); err != nil {
+			g.logger.Warn(err, "shallow fetch failed")
+		}
+		return nil
+	} else {
+		args = append([]string{"clone", taskData.Options.Url, localDir, "--bare"}, args...)
+		return g.execGitCommand(ctx, args...)
+	}
+}
+
+func (g *GitcliCloner) execGitCommand(ctx plugin.SubTaskContext, args ...string) errors.Error {
+	return g.execGitCommandIn(ctx, "", args...)
+}
+
+func (g *GitcliCloner) execGitCommandIn(ctx plugin.SubTaskContext, workingDir string, args ...string) errors.Error {
+	taskData := ctx.GetData().(*GitExtractorTaskData)
+	env := []string{}
+	if args[0] == "clone" || args[0] == "fetch" {
+		// support proxy
+		if taskData.ParsedURL.Scheme == "http" || taskData.ParsedURL.Scheme == "https" {
+			if taskData.Options.Proxy != "" {
+				env = append(env, fmt.Sprintf("HTTPS_PROXY=%s", taskData.Options.Proxy))
+			}
+			if taskData.ParsedURL.Scheme == "https" && ctx.GetConfigReader().GetBool("IN_SECURE_SKIP_VERIFY") {
+				args = append(args, "-c http.sslVerify=false")
+			}
+		} else if taskData.ParsedURL.Scheme == "ssh" {
+			var sshCmdArgs []string
+			if taskData.Options.Proxy != "" {
+				parsedProxyURL, e := url.Parse(taskData.Options.Proxy)
+				if e != nil {
+					return errors.BadInput.Wrap(e, "failed to parse the proxy URL")
+				}
+				proxyCommand := "corkscrew"
+				sshCmdArgs = append(sshCmdArgs, "-o", fmt.Sprintf(`ProxyCommand="%s %s %s %%h %%p"`, proxyCommand, parsedProxyURL.Hostname(), parsedProxyURL.Port()))
+			}
+			// support private key
+			if taskData.Options.PrivateKey != "" {
+				pkFile, err := os.CreateTemp("", "gitext-pk")
+				if err != nil {
+					g.logger.Error(err, "create temp private key file error")
+					return errors.Default.New("failed to handle the private key")
+				}
+				if _, e := pkFile.WriteString(taskData.Options.PrivateKey + "\n"); e != nil {
+					g.logger.Error(err, "write private key file error")
+					return errors.Default.New("failed to write the  private key")
+				}
+				pkFile.Close()
+				if e := os.Chmod(pkFile.Name(), 0600); e != nil {
+					g.logger.Error(err, "chmod private key file error")
+					return errors.Default.New("failed to modify the private key")
+				}
+
+				if taskData.Options.Passphrase != "" {
+					pp := exec.CommandContext(
+						ctx.GetContext(),
+						"ssh-keygen", "-p",
+						"-P", taskData.Options.Passphrase,
+						"-N", "",
+						"-f", pkFile.Name(),
+					)
+					if ppout, pperr := pp.CombinedOutput(); pperr != nil {
+						g.logger.Error(pperr, "change private key passphrase error")
+						g.logger.Info(string(ppout))
+						return errors.Default.New("failed to decrypt the private key")
+					}
+				}
+				defer os.Remove(pkFile.Name())
+				sshCmdArgs = append(sshCmdArgs, fmt.Sprintf("-i %s -o StrictHostKeyChecking=no", pkFile.Name()))
+			}
+			if len(sshCmdArgs) > 0 {
+				env = append(env, fmt.Sprintf("GIT_SSH_COMMAND=ssh %s", strings.Join(sshCmdArgs, " ")))
+			}
+		}
+	}
 	g.logger.Debug("git %v", args)
 	cmd := exec.CommandContext(ctx.GetContext(), "git", args...)
 	cmd.Env = env
-	return cmd, nil
+	cmd.Dir = workingDir
+	return g.execCommand(cmd)
 }
 
-func (g *GitcliCloner) execCloneCommand(cmd *exec.Cmd) errors.Error {
-	stdout, err := cmd.StdoutPipe()
+func (g *GitcliCloner) execCommand(cmd *exec.Cmd) errors.Error {
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		g.logger.Error(err, "stdout pipe error")
-		return errors.Default.New("stdout pipe error")
-	}
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		g.logger.Error(err, "stderr pipe error")
-		return errors.Default.New("stderr pipe error")
-	}
-	combinedOutput := new(strings.Builder)
-	stdoutScanner := bufio.NewScanner(stdout)
-	stdoutScanner.Split(bufio.ScanLines)
-	stderrScanner := bufio.NewScanner(stderr)
-	stderrScanner.Split(bufio.ScanLines)
-	done := make(chan bool)
-	go func() {
-		for stdoutScanner.Scan() {
-			// TODO: extract progress?
-			combinedOutput.WriteString(fmt.Sprintf("stdout: %s\n", stdoutScanner.Text()))
-		}
-		done <- true
-	}()
-	go func() {
-		// TODO: extract progress?
-		for stderrScanner.Scan() {
-			combinedOutput.WriteString(fmt.Sprintf("stderr: %s\n", stderrScanner.Text()))
-		}
-		done <- true
-	}()
-	if e := cmd.Start(); e != nil {
-		g.logger.Error(e, "failed to start\n%s", combinedOutput.String())
-		return errors.Default.New("failed to start")
-	}
-	<-done
-	<-done
-	err = cmd.Wait()
-	if err != nil {
-		g.logger.Error(err, "git exited with error\n%s", combinedOutput.String())
-		if strings.Contains(combinedOutput.String(), "stderr: fatal: error processing shallow info: 4") ||
-			strings.Contains(combinedOutput.String(), "stderr: fatal: the remote end hung up unexpectedly") {
+		outputString := string(output)
+		if strings.Contains(outputString, "fatal: error processing shallow info: 4") ||
+			strings.Contains(outputString, "fatal: the remote end hung up unexpectedly") {
 			return ErrNoData
 		}
-		return errors.Default.New("git exit error")
+		return errors.Default.New(fmt.Sprintf("git cmd %v in %s failed: %s", sanitizeArgs(cmd.Args), cmd.Dir, outputString))
 	}
 	return nil
+}
+
+func sanitizeArgs(args []string) []string {
+	var ret []string
+	for _, arg := range args {
+		u, err := url.Parse(arg)
+		if err == nil && u != nil && u.User != nil {
+			password, ok := u.User.Password()
+			if ok {
+				arg = strings.Replace(arg, password, strings.Repeat("*", len(password)), -1)
+			}
+		}
+		ret = append(ret, arg)
+	}
+	return ret
 }

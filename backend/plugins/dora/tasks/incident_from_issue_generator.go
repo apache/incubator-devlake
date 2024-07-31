@@ -40,6 +40,9 @@ var IssuesToIncidentsMeta = plugin.SubTaskMeta{
 func ConvertIssuesToIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
+	if data.DisableIssueToIncidentGenerator {
+		return nil
+	}
 	// clear previous incidents and incident_assignees from the project
 	deleteIncidentsSql := `
 		DELETE

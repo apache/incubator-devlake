@@ -108,8 +108,8 @@ func ExtractApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			if apiPullRequestReview.User != nil {
-				githubReviewer.GithubId = apiPullRequestReview.User.Id
-				githubReviewer.Login = apiPullRequestReview.User.Login
+				githubReviewer.ReviewerId = apiPullRequestReview.User.Id
+				githubReviewer.Username = apiPullRequestReview.User.Login
 
 				githubPrReview.AuthorUserId = apiPullRequestReview.User.Id
 				githubPrReview.AuthorUsername = apiPullRequestReview.User.Login

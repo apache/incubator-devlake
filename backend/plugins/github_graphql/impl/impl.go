@@ -125,6 +125,7 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 		githubTasks.ConvertIssueAssigneeMeta,
 		githubTasks.ConvertIssueCommentsMeta,
 		githubTasks.ConvertPullRequestCommentsMeta,
+		githubTasks.ConvertReviewsMeta,
 		githubTasks.ConvertMilestonesMeta,
 		githubTasks.ConvertAccountsMeta,
 

@@ -34,7 +34,8 @@ type DoraOptions struct {
 }
 
 type DoraTaskData struct {
-	Options *DoraOptions
+	Options                         *DoraOptions
+	DisableIssueToIncidentGenerator bool
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, errors.Error) {
