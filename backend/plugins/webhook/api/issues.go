@@ -64,8 +64,8 @@ type WebhookIssueRequest struct {
 	//DeploymentId          string
 }
 
-func saveIncidentRelatedRecordsFromIssue(db dal.Transaction, logger log.Logger, issue *ticket.Issue) error {
-	incident, err := issue.ToIncident()
+func saveIncidentRelatedRecordsFromIssue(db dal.Transaction, logger log.Logger, issueBoarId string, issue *ticket.Issue) error {
+	incident, err := issue.ToIncident(issueBoarId)
 	if err != nil {
 		return err
 	}
@@ -185,7 +185,7 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 		return nil, err
 	}
 	if domainIssue.IsIncident() {
-		if err := saveIncidentRelatedRecordsFromIssue(tx, logger, domainIssue); err != nil {
+		if err := saveIncidentRelatedRecordsFromIssue(tx, logger, domainBoardId, domainIssue); err != nil {
 			logger.Error(err, "failed to save incident related records")
 			return nil, errors.Convert(err)
 		}
