@@ -129,5 +129,6 @@ func All() []plugin.MigrationScript {
 		new(addMergedByToPr),
 		new(addIsDraftToPr),
 		new(addTableScopeIdToIncident),
+		new(addDateFieldsToProjectPrMetric),
 	}
 }

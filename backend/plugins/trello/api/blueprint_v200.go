@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/plugins/trello/models"
 	"github.com/apache/incubator-devlake/plugins/trello/tasks"
@@ -98,9 +98,9 @@ func makeScopesV200(
 		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		id := idgen.Generate(connection.ID, scope.BoardId)
 
-		// add cicd_scope to scopes
+		// add boards to scopes
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			scopes = append(scopes, devops.NewCicdScope(id, scope.Name))
+			scopes = append(scopes, ticket.NewBoard(id, scope.Name))
 		}
 	}
 
