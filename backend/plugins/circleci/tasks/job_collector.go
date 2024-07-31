@@ -68,6 +68,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		GetNextPageCustomData: ExtractNextPageToken,
 		Query:                 BuildQueryParamsWithPageToken,
 		ResponseParser:        ParseCircleciPageTokenResp,
+		AfterResponse:         ignoreDeletedBuilds, // Ignore the 404 response if a job has been deleted
 	})
 	if err != nil {
 		logger.Error(err, "collect jobs error")
