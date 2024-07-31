@@ -118,7 +118,7 @@ func (issue Issue) ToIncidentAssignee() (*IncidentAssignee, error) {
 	}, nil
 }
 
-func (issue Issue) ToIncident() (*Incident, error) {
+func (issue Issue) ToIncident(boardId string) (*Incident, error) {
 	incident := &Incident{
 		DomainEntity:            issue.DomainEntity,
 		Url:                     issue.Url,
@@ -142,6 +142,8 @@ func (issue Issue) ToIncident() (*Incident, error) {
 		Urgency:                 issue.Urgency,
 		Component:               issue.Component,
 		OriginalProject:         issue.OriginalProject,
+		ScopeId:                 boardId,
+		Table:                   "boards",
 	}
 	return incident, nil
 }
