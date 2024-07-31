@@ -45,7 +45,6 @@ type simpleCicdDeploymentCommit struct {
 }
 
 // ConnectIncidentToDeployment will generate data to crossdomain.ProjectIncidentDeploymentRelationship.
-// FIXME: it should be generated from Incident.
 func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
