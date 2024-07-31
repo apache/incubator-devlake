@@ -56,13 +56,9 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
-		dal.From(`issues i`),
-		dal.Join(`left join board_issues bi on bi.issue_id = i.id`),
-		dal.Join(`left join project_mapping pm on pm.row_id = bi.board_id`),
-		dal.Where(
-			"i.type = ? and pm.project_name = ? and pm.table = ?",
-			"INCIDENT", data.Options.ProjectName, "boards",
-		),
+		dal.From(`incidents i`),
+		dal.Join(`left join project_mapping pm on pm.row_id = i.scope_id and pm.table = i.table`),
+		dal.Where("pm.project_name = ?", data.Options.ProjectName),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -76,15 +72,15 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			Params: DoraApiParams{
 				ProjectName: data.Options.ProjectName,
 			},
-			Table: "issues",
+			Table: "incidents",
 		},
-		InputRowType: reflect.TypeOf(ticket.Issue{}),
+		InputRowType: reflect.TypeOf(ticket.Incident{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			issue := inputRow.(*ticket.Issue)
+			incident := inputRow.(*ticket.Incident)
 			projectIssueMetric := &crossdomain.ProjectIncidentDeploymentRelationship{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: issue.Id,
+					Id: incident.Id,
 				},
 				ProjectName: data.Options.ProjectName,
 			}
@@ -100,7 +96,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 						and cicd_deployment_commits.environment = ?
 						and pm.table = ?
 						and pm.project_name = ?`,
-					issue.CreatedDate, devops.RESULT_SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
+					incident.CreatedDate, devops.RESULT_SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
 				),
 				dal.Orderby("finished_date DESC"),
 				dal.Limit(1),
