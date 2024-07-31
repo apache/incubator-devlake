@@ -15,26 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package migrationscripts
 
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type ProjectPrMetric struct {
-	domainlayer.DomainEntity
-	ProjectName        string `gorm:"primaryKey;type:varchar(100)"`
-	FirstCommitSha     string
-	PrCodingTime       *int64
-	FirstReviewId      string
-	PrPickupTime       *int64
-	PrReviewTime       *int64
-	DeploymentCommitId string
-	PrDeployTime       *int64
-	PrCycleTime        *int64
+var _ plugin.MigrationScript = (*addDateFieldsToProjectPrMetric)(nil)
 
+type projectPrMetric20240731 struct {
 	FirstCommitAuthoredDate *time.Time
 	FirstCommentDate        *time.Time
 	PrCreatedDate           *time.Time
@@ -42,6 +35,24 @@ type ProjectPrMetric struct {
 	PrDeployedDate          *time.Time
 }
 
-func (ProjectPrMetric) TableName() string {
+func (projectPrMetric20240731) TableName() string {
 	return "project_pr_metrics"
+}
+
+type addDateFieldsToProjectPrMetric struct{}
+
+func (*addDateFieldsToProjectPrMetric) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if err := db.AutoMigrate(&projectPrMetric20240731{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*addDateFieldsToProjectPrMetric) Version() uint64 {
+	return 20240731154944
+}
+
+func (*addDateFieldsToProjectPrMetric) Name() string {
+	return "add date fields to project_pr_metrics according to #7775"
 }

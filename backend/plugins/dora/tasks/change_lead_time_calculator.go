@@ -93,6 +93,7 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			if firstCommit != nil {
 				projectPrMetric.PrCodingTime = computeTimeSpan(&firstCommit.CommitAuthoredDate, &pr.CreatedDate)
 				projectPrMetric.FirstCommitSha = firstCommit.CommitSha
+				projectPrMetric.FirstCommitAuthoredDate = &firstCommit.CommitAuthoredDate
 			}
 
 			// Get the first review for the PR
@@ -106,7 +107,11 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 				projectPrMetric.PrPickupTime = computeTimeSpan(&pr.CreatedDate, &firstReview.CreatedDate)
 				projectPrMetric.PrReviewTime = computeTimeSpan(&firstReview.CreatedDate, pr.MergedDate)
 				projectPrMetric.FirstReviewId = firstReview.Id
+				projectPrMetric.FirstCommentDate = &firstReview.CreatedDate
 			}
+
+			projectPrMetric.PrCreatedDate = &pr.CreatedDate
+			projectPrMetric.PrMergedDate = pr.MergedDate
 
 			// Get the deployment for the PR
 			deployment, err := getDeploymentCommit(pr.MergeCommitSha, data.Options.ProjectName, db)
@@ -118,6 +123,7 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			if deployment != nil && deployment.FinishedDate != nil {
 				projectPrMetric.PrDeployTime = computeTimeSpan(pr.MergedDate, deployment.FinishedDate)
 				projectPrMetric.DeploymentCommitId = deployment.Id
+				projectPrMetric.PrDeployedDate = deployment.FinishedDate
 			} else {
 				logger.Debug("deploy time of pr %v is nil\n", pr.PullRequestKey)
 			}
