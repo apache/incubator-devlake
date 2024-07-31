@@ -128,5 +128,6 @@ func All() []plugin.MigrationScript {
 		new(addChangesToPr),
 		new(addMergedByToPr),
 		new(addIsDraftToPr),
+		new(addDateFieldsToProjectPrMetric),
 	}
 }
