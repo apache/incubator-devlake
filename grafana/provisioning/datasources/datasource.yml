@@ -27,3 +27,5 @@ datasources:
     secureJsonData:
       password: $MYSQL_PASSWORD
     editable: false
+    jsonData:
+      serverTimezone: "Europe/Berlin"
