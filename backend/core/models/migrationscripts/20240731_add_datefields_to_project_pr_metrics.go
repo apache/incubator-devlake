@@ -29,8 +29,8 @@ var _ plugin.MigrationScript = (*addDateFieldsToProjectPrMetric)(nil)
 
 type projectPrMetric20240731 struct {
 	FirstCommitAuthoredDate *time.Time
-	FirstCommentDate        *time.Time
 	PrCreatedDate           *time.Time
+	FirstCommentDate        *time.Time
 	PrMergedDate            *time.Time
 	PrDeployedDate          *time.Time
 }
