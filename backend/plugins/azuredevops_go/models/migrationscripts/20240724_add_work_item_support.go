@@ -30,7 +30,7 @@ type createWorkItemTable struct{}
 type createWorkItemAzuredevopsRepo struct {
 	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
-	WorkItemID   int    `gorm:"primaryKey"`
+	WorkItemID   string `gorm:"primaryKey"`
 	Title        string `gorm:"type:varchar(255)"`
 	Type         string `gorm:"type:varchar(255)"`
 	State        string `gorm:"type:varchar(255)"`

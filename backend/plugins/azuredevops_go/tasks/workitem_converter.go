@@ -22,9 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
-	"reflect"
 )
 
 func init() {
@@ -43,55 +41,49 @@ var ConvertWortItemsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertApiWorkItems(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawWorkitemsTable)
+	_, data := CreateRawDataSubTaskArgs(taskCtx, RawWorkitemsTable)
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 
-	clauses := []dal.Clause{
-		dal.Select("*"),
-		dal.From(models.AzuredevopsWorkItem{}),
-		dal.Where("connection_id = ?", data.Options.ConnectionId)}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.AzuredevopsWorkItem{}),
-		Input:              cursor,
-		BatchSize:          10000,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			azureDevOpsWorkItem := inputRow.(*models.AzuredevopsWorkItem)
-
-			workItem := &ticket.Issue{}
-
-			workItem.Component = azureDevOpsWorkItem.Area
-			workItem.Title = azureDevOpsWorkItem.Title
-			workItem.Type = azureDevOpsWorkItem.Type
-			workItem.Status = azureDevOpsWorkItem.State
-			workItem.CreatedDate = azureDevOpsWorkItem.CreatedDate
-			workItem.UpdatedDate = azureDevOpsWorkItem.ChangedDate
-			workItem.ResolutionDate = azureDevOpsWorkItem.ResolvedDate
-			workItem.CreatorName = azureDevOpsWorkItem.CreatorName
-			workItem.CreatorId = azureDevOpsWorkItem.CreatorId
-			workItem.AssigneeName = azureDevOpsWorkItem.AssigneeName
-			workItem.Status = azureDevOpsWorkItem.State
-			workItem.Url = azureDevOpsWorkItem.Url
-			workItem.StoryPoint = &azureDevOpsWorkItem.StoryPoint
-			workItem.Severity = azureDevOpsWorkItem.Severity
-			workItem.Priority = azureDevOpsWorkItem.Priority
-
-			return []interface{}{
-				workItem,
-			}, nil
-		},
-	})
-
+	var existingWorkItem models.AzuredevopsWorkItem
+	var existingWorkItems []models.AzuredevopsWorkItem
+	err := db.All(&existingWorkItems, dal.Where("connection_id = ?", data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
 
-	return converter.Execute()
+	logger.Debug("Total number of work items: #%s", len(existingWorkItems))
+
+	for _, existingWorkItem = range existingWorkItems {
+		finalIssue := &ticket.Issue{}
+
+		finalIssue.Id = existingWorkItem.WorkItemID
+		finalIssue.Component = existingWorkItem.Area
+		finalIssue.Title = existingWorkItem.Title
+		finalIssue.Type = existingWorkItem.Type
+		finalIssue.Status = existingWorkItem.State
+		finalIssue.CreatedDate = existingWorkItem.CreatedDate
+		finalIssue.UpdatedDate = existingWorkItem.ChangedDate
+		finalIssue.CreatorName = existingWorkItem.CreatorName
+		finalIssue.CreatorId = existingWorkItem.CreatorId
+		finalIssue.AssigneeName = existingWorkItem.AssigneeName
+		finalIssue.Status = existingWorkItem.State
+		finalIssue.Url = existingWorkItem.Url
+		finalIssue.StoryPoint = &existingWorkItem.StoryPoint
+		finalIssue.Severity = existingWorkItem.Severity
+		finalIssue.Priority = existingWorkItem.Priority
+
+		if existingWorkItem.ResolvedDate != nil {
+			finalIssue.ResolutionDate = existingWorkItem.ResolvedDate
+			temp := uint(existingWorkItem.ResolvedDate.Sub(*existingWorkItem.CreatedDate).Minutes())
+			finalIssue.LeadTimeMinutes = &temp
+		}
+
+		err := db.CreateOrUpdate(finalIssue, dal.Where("connection_id = ? AND id = ?", data.Options.ConnectionId, finalIssue.Id))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
+	"strconv"
 )
 
 func init() {
@@ -60,7 +61,7 @@ func ExtractApiWorkItems(taskCtx plugin.SubTaskContext) errors.Error {
 			// create project/commits relationship
 			repoWorkItem := &models.AzuredevopsWorkItem{
 				ConnectionId: data.Options.ConnectionId,
-				WorkItemID:   apiWorkItem.Id,
+				WorkItemID:   strconv.Itoa(apiWorkItem.Id),
 				Title:        apiWorkItem.Fields.SystemTitle,
 				Type:         apiWorkItem.Fields.SystemWorkItemType,
 				State:        apiWorkItem.Fields.SystemState,

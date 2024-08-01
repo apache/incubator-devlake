@@ -95,9 +95,9 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursorForIssuesWithoutChanglog.Close()
 	convertorForIssuesWithoutChangelog, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			// Params: scopeId,
-			Table: "issue_changelogs",
+			Ctx:    taskCtx,
+			Params: scopeIds,
+			Table:  "issue_changelogs",
 		},
 		InputRowType: reflect.TypeOf(AssigneeHistory{}),
 		Input:        cursorForIssuesWithoutChanglog,
@@ -167,9 +167,9 @@ func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {
 
 	convertorForIssueChangelogs, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			// Params: scopeId,
-			Table: "issue_changelogs",
+			Ctx:    taskCtx,
+			Params: scopeIds,
+			Table:  "issue_changelogs",
 		},
 		InputRowType: reflect.TypeOf(AssigneeChangelog{}),
 		Input:        cursorForIssueChangelogs,
