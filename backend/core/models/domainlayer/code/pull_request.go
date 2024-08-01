@@ -103,6 +103,8 @@ func (pr PullRequest) ToIncident() (*ticket.Incident, error) {
 		OriginalProject:         "",
 		ScopeId:                 pr.BaseRepoId,
 		Table:                   "repos",
+		AssigneeId:              pr.AuthorId,
+		AssigneeName:            pr.AuthorName,
 	}
 
 	if pr.MergedDate != nil {
