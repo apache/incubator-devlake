@@ -144,15 +144,7 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 			domainIssue.LeadTimeMinutes = &temp
 		}
 	}
-	//nolint:SA9003
-	if *domainIssue.TimeRemainingMinutes == 0 {
-		// FIXME we have no idea about how to calculate it.
-	}
-	//nolint:SA9003
-	if *domainIssue.TimeSpentMinutes == 0 {
-		// FIXME we have no idea about how to calculate it.
-	}
-
+	// FIXME we have no idea about how to calculate domainIssue.TimeRemainingMinutes and domainIssue.TimeSpentMinutes.
 	if request.CreatorId != "" {
 		domainIssue.CreatorId = fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.CreatorId)
 	}
