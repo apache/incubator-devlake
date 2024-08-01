@@ -26,8 +26,8 @@ import (
 var _ plugin.MigrationScript = (*addAssigneeToIncident)(nil)
 
 type incident20240801 struct {
-	Table   string `gorm:"index:idx_table_scope_id;type:varchar(255)"`
-	ScopeId string `gorm:"index:idx_table_scope_id;type:varchar(255)"`
+	AssigneeId   string `gorm:"type:varchar(255)"`
+	AssigneeName string `gorm:"type:varchar(255)"`
 }
 
 func (incident20240801) TableName() string {
