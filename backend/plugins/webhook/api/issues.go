@@ -144,9 +144,11 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 			domainIssue.LeadTimeMinutes = &temp
 		}
 	}
+	//nolint:SA9003
 	if *domainIssue.TimeRemainingMinutes == 0 {
 		// FIXME we have no idea about how to calculate it.
 	}
+	//nolint:SA9003
 	if *domainIssue.TimeSpentMinutes == 0 {
 		// FIXME we have no idea about how to calculate it.
 	}
