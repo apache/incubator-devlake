@@ -1,0 +1,8 @@
+id,created_date,updated_date,table,scope_id
+github:GithubIssue:1:1367714738,2022-11-13 23:37:21,2022-11-15 22:37:21,repos,repo1
+github:GithubIssue:1:1370816458,2022-11-13 01:07:21,2022-11-14 00:07:21,repos,repo1
+github:GithubIssue:1:1371320153,2022-11-02 08:21:09,2022-11-04 07:21:09,repos,repo1
+github:GithubIssue:1:1372381019,2022-11-28 01:46:47,2022-11-29 00:46:47,repos,repo2
+github:GithubIssue:1:1372644519,2022-11-16 21:34:01,2022-11-19 20:34:01,repos,repo2
+github:GithubIssue:1:1373792477,2022-09-15 01:56:06,2022-09-15 02:13:18,repos,repo3
+github:GithubIssue:1:1373792478,2022-09-15 01:56:16,2022-09-15 02:13:18,boards,board1
