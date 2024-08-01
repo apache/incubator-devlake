@@ -138,6 +138,19 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 		Severity:                request.Severity,
 		Component:               request.Component,
 	}
+	if *domainIssue.LeadTimeMinutes == 0 {
+		if domainIssue.ResolutionDate != nil && domainIssue.CreatedDate != nil {
+			temp := uint(domainIssue.ResolutionDate.Sub(*domainIssue.CreatedDate).Minutes())
+			domainIssue.LeadTimeMinutes = &temp
+		}
+	}
+	if *domainIssue.TimeRemainingMinutes == 0 {
+		// FIXME we have no idea about how to calculate it.
+	}
+	if *domainIssue.TimeSpentMinutes == 0 {
+		// FIXME we have no idea about how to calculate it.
+	}
+
 	if request.CreatorId != "" {
 		domainIssue.CreatorId = fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.CreatorId)
 	}
