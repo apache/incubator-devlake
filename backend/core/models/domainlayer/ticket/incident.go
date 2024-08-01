@@ -50,6 +50,8 @@ type Incident struct {
 	OriginalProject         string `gorm:"type:varchar(255)"`
 	Table                   string `gorm:"index:idx_table_scope_id;type:varchar(255)"`
 	ScopeId                 string `gorm:"index:idx_table_scope_id;type:varchar(255)"`
+	AssigneeId              string `gorm:"type:varchar(255)"`
+	AssigneeName            string `gorm:"type:varchar(255)"`
 }
 
 func (Incident) TableName() string {

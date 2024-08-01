@@ -144,6 +144,8 @@ func (issue Issue) ToIncident(boardId string) (*Incident, error) {
 		OriginalProject:         issue.OriginalProject,
 		ScopeId:                 boardId,
 		Table:                   "boards",
+		AssigneeId:              issue.AssigneeId,
+		AssigneeName:            issue.AssigneeName,
 	}
 	return incident, nil
 }
