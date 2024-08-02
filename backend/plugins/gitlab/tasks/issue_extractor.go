@@ -122,11 +122,11 @@ type IssuesResponse struct {
 	Component        string
 	Priority         string
 	Links            struct {
-		Self       string `json:"url"`
+		Self       string `json:"self"`
 		Notes      string
 		AwardEmoji string
 		Project    string
-	}
+	} `json:"_links"`
 	TaskCompletionStatus struct {
 		Count          int
 		CompletedCount int
