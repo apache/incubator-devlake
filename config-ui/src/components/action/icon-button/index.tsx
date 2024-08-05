@@ -20,7 +20,11 @@ import { forwardRef, Ref } from 'react';
 import type { ButtonProps } from 'antd';
 import { Tooltip, Button } from 'antd';
 
-interface Props extends Pick<ButtonProps, 'icon' | 'type' | 'size' | 'onClick'> {
+interface Props
+  extends Pick<
+    ButtonProps,
+    'type' | 'icon' | 'size' | 'disabled' | 'loading' | 'ghost' | 'danger' | 'block' | 'onClick'
+  > {
   helptip: string;
 }
 
