@@ -35,6 +35,12 @@ type TypeMapping struct {
 	StatusMappings StatusMappings `json:"statusMappings"`
 }
 
+type MashalableStatusMapping struct {
+	StandardStatus string `json:"StandardStatus"`
+}
+
+type MashalableStatusMappings map[string]MashalableStatusMapping
+
 type CommitUrlPattern struct {
 	Pattern string `json:"pattern"`
 	Regex   string `json:"regex"`

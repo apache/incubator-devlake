@@ -47,6 +47,12 @@ type typeMappings struct {
 	standardStatusMappings map[string]models.StatusMappings
 }
 
+type MashalableTypeMappings struct {
+	TypeIdMappings         map[string]string
+	StdTypeMappings        map[string]string
+	StandardStatusMappings map[string]models.MashalableStatusMappings
+}
+
 func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	data := subtaskCtx.GetData().(*JiraTaskData)
 	db := subtaskCtx.GetDal()
@@ -82,7 +88,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
+func extractIssues(data *JiraTaskData, mappings *MashalableTypeMappings, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
 	var apiIssue apiv2models.Issue
 	err := errors.Convert(json.Unmarshal(row.Data, &apiIssue))
 	if err != nil {
@@ -129,13 +135,13 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData,
 	}
 
 	// code in next line will set issue.Type to issueType.Name
-	issue.Type = mappings.typeIdMappings[issue.Type]
-	issue.StdType = mappings.stdTypeMappings[issue.Type]
+	issue.Type = mappings.TypeIdMappings[issue.Type]
+	issue.StdType = mappings.StdTypeMappings[issue.Type]
 	if issue.StdType == "" {
 		issue.StdType = strings.ToUpper(issue.Type)
 	}
 	issue.StdStatus = getStdStatus(issue.StatusKey)
-	if value, ok := mappings.standardStatusMappings[issue.Type][issue.StatusKey]; ok {
+	if value, ok := mappings.StandardStatusMappings[issue.Type][issue.StatusKey]; ok {
 		issue.StdStatus = value.StandardStatus
 	}
 	// issue commments
@@ -216,7 +222,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData,
 	return results, nil
 }
 
-func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Error) {
+func getTypeMappings(data *JiraTaskData, db dal.Dal) (*MashalableTypeMappings, errors.Error) {
 	typeIdMapping := make(map[string]string)
 	issueTypes := make([]models.JiraIssueType, 0)
 	clauses := []dal.Clause{
@@ -238,9 +244,30 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Erro
 			standardStatusMappings[userType] = stdType.StatusMappings
 		}
 	}
-	return &typeMappings{
+	typeMappings := &typeMappings{
 		typeIdMappings:         typeIdMapping,
 		stdTypeMappings:        stdTypeMappings,
 		standardStatusMappings: standardStatusMappings,
-	}, nil
+	}
+	return convertTypeMappings(typeMappings), nil
+}
+
+func convertTypeMappings(typeMappings *typeMappings) *MashalableTypeMappings {
+	if typeMappings == nil {
+		return nil
+	}
+	ret := &MashalableTypeMappings{
+		TypeIdMappings:  typeMappings.typeIdMappings,
+		StdTypeMappings: typeMappings.stdTypeMappings,
+	}
+	ret.StandardStatusMappings = make(map[string]models.MashalableStatusMappings)
+	for k, statusMappings := range typeMappings.standardStatusMappings {
+		ret.StandardStatusMappings[k] = make(map[string]models.MashalableStatusMapping)
+		for kk, statusMapping := range statusMappings {
+			ret.StandardStatusMappings[k][kk] = models.MashalableStatusMapping{
+				StandardStatus: statusMapping.StandardStatus,
+			}
+		}
+	}
+	return ret
 }
