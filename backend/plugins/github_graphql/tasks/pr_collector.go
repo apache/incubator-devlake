@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -170,6 +171,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	since := apiCollector.GetSince()
 	err = apiCollector.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      10,
@@ -194,15 +196,16 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryPrWrapper)
 			return query.Repository.PullRequests.PageInfo, nil
 		},
-		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
-			query := iQuery.(*GraphqlQueryPrWrapper)
+		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
+			query := queryWrapper.(*GraphqlQueryPrWrapper)
 			prs := query.Repository.PullRequests.Prs
 			for _, rawL := range prs {
-				if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(rawL.CreatedAt) {
-					return nil, api.ErrFinishCollect
+				if since != nil && since.After(rawL.UpdatedAt) {
+					return messages, api.ErrFinishCollect
 				}
+				messages = append(messages, errors.Must1(json.Marshal(rawL)))
 			}
-			return nil, nil
+			return
 		},
 	})
 	if err != nil {

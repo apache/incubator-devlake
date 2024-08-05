@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -115,15 +116,16 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryIssueWrapper)
 			return query.Repository.IssueList.PageInfo, nil
 		},
-		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
-			query := iQuery.(*GraphqlQueryIssueWrapper)
+		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
+			query := queryWrapper.(*GraphqlQueryIssueWrapper)
 			issues := query.Repository.IssueList.Issues
 			for _, rawL := range issues {
 				if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(rawL.UpdatedAt) {
-					return nil, helper.ErrFinishCollect
+					return messages, helper.ErrFinishCollect
 				}
+				messages = append(messages, errors.Must1(json.Marshal(rawL)))
 			}
-			return nil, nil
+			return
 		},
 	})
 	if err != nil {
