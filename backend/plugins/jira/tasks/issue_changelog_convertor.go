@@ -68,16 +68,9 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 		statusMap[v.ID] = v
 	}
 
-	var allIssueFields []models.JiraIssueField
-	if err := db.All(&allIssueFields, dal.Where("connection_id = ?", connectionId)); err != nil {
+	issueFieldMap, err := getIssueFieldMap(db, connectionId, logger)
+	if err != nil {
 		return err
-	}
-	issueFieldMap := make(map[string]models.JiraIssueField)
-	for _, v := range allIssueFields {
-		if _, ok := issueFieldMap[v.Name]; ok {
-			logger.Warn(nil, "filed name %s is duplicated", v.Name)
-		}
-		issueFieldMap[v.Name] = v
 	}
 
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
@@ -159,36 +152,15 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
 			default:
-				// process other account-like fields, it works on jira9 and jira cloud.
-				if row.TmpFromAccountId != "" {
+				if v, ok := issueFieldMap[row.Field]; ok && v.SchemaType == "user" {
 					if row.FromValue != "" {
 						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
-					} else {
-						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.TmpFromAccountId)
 					}
-				}
-				if row.TmpToAccountId != "" {
 					if row.ToValue != "" {
 						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
-					} else {
-						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.TmpToAccountId)
-					}
-				}
-				if row.TmpFromAccountId == "" && row.TmpToAccountId == "" {
-					// it works on jira8
-					// notice: field name is not unique, but we cannot fetch field id here.
-					if v, ok := issueFieldMap[row.Field]; ok && v.SchemaType == "user" {
-						// field type is account
-						if row.FromValue != "" {
-							changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
-						}
-						if row.ToValue != "" {
-							changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
-						}
 					}
 				}
 			}
-
 			return []interface{}{changelog}, nil
 
 		},

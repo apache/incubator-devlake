@@ -40,6 +40,7 @@ type GithubPullRequest struct {
 	Comments       int
 	Commits        int
 	ReviewComments int
+	IsDraft        bool
 	Merged         bool
 	MergedAt       *time.Time
 	Body           string

@@ -42,9 +42,9 @@ var ExtractIssuesMeta = plugin.SubTaskMeta{
 }
 
 type typeMappings struct {
-	typeIdMappings         map[string]string
-	stdTypeMappings        map[string]string
-	standardStatusMappings map[string]models.StatusMappings
+	TypeIdMappings         map[string]string
+	StdTypeMappings        map[string]string
+	StandardStatusMappings map[string]models.StatusMappings
 }
 
 func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
@@ -55,6 +55,10 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	logger := subtaskCtx.GetLogger()
 	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
 	mappings, err := getTypeMappings(data, db)
+	if err != nil {
+		return err
+	}
+	userFieldMap, err := getUserFieldMap(db, connectionId, logger)
 	if err != nil {
 		return err
 	}
@@ -69,7 +73,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			SubtaskConfig: mappings,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			return extractIssues(data, mappings, row)
+			return extractIssues(data, mappings, row, userFieldMap)
 		},
 	})
 	if err != nil {
@@ -78,7 +82,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData) ([]interface{}, errors.Error) {
+func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
 	var apiIssue apiv2models.Issue
 	err := errors.Convert(json.Unmarshal(row.Data, &apiIssue))
 	if err != nil {
@@ -93,7 +97,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 	if apiIssue.Fields.Created == nil {
 		return results, nil
 	}
-	sprints, issue, comments, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
+	sprints, issue, comments, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId, userFieldMaps)
 	for _, sprintId := range sprints {
 		sprintIssue := &models.JiraSprintIssue{
 			ConnectionId:     data.Options.ConnectionId,
@@ -125,13 +129,13 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 	}
 
 	// code in next line will set issue.Type to issueType.Name
-	issue.Type = mappings.typeIdMappings[issue.Type]
-	issue.StdType = mappings.stdTypeMappings[issue.Type]
+	issue.Type = mappings.TypeIdMappings[issue.Type]
+	issue.StdType = mappings.StdTypeMappings[issue.Type]
 	if issue.StdType == "" {
 		issue.StdType = strings.ToUpper(issue.Type)
 	}
 	issue.StdStatus = getStdStatus(issue.StatusKey)
-	if value, ok := mappings.standardStatusMappings[issue.Type][issue.StatusKey]; ok {
+	if value, ok := mappings.StandardStatusMappings[issue.Type][issue.StatusKey]; ok {
 		issue.StdStatus = value.StandardStatus
 	}
 	// issue commments
@@ -235,8 +239,8 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Erro
 		}
 	}
 	return &typeMappings{
-		typeIdMappings:         typeIdMapping,
-		stdTypeMappings:        stdTypeMappings,
-		standardStatusMappings: standardStatusMappings,
+		TypeIdMappings:         typeIdMapping,
+		StdTypeMappings:        stdTypeMappings,
+		StandardStatusMappings: standardStatusMappings,
 	}, nil
 }

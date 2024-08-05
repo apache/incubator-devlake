@@ -46,5 +46,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*CircleciOpti
 	if op.ConnectionId == 0 {
 		return nil, errors.Default.New("connectionId is invalid")
 	}
+	if op.PageSize == 0 {
+		op.PageSize = 20 // CircleCI API default page size
+	}
 	return &op, nil
 }

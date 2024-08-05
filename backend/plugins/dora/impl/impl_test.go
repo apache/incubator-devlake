@@ -61,9 +61,8 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 				Plugin: "dora",
 				Subtasks: []string{
 					"calculateChangeLeadTime",
-					"ConnectIncidentToDeployment",
 					tasks.IssuesToIncidentsMeta.Name,
-					tasks.PullRequestToIncidentsMeta.Name,
+					"ConnectIncidentToDeployment",
 				},
 				Options: map[string]interface{}{"projectName": projectName},
 			},

@@ -18,6 +18,8 @@ limitations under the License.
 package crossdomain
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
@@ -32,6 +34,12 @@ type ProjectPrMetric struct {
 	DeploymentCommitId string
 	PrDeployTime       *int64
 	PrCycleTime        *int64
+
+	FirstCommitAuthoredDate *time.Time
+	FirstCommentDate        *time.Time
+	PrCreatedDate           *time.Time
+	PrMergedDate            *time.Time
+	PrDeployedDate          *time.Time
 }
 
 func (ProjectPrMetric) TableName() string {

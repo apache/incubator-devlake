@@ -37,9 +37,17 @@ var IssuesToIncidentsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
+type issueWithBoardId struct {
+	ticket.Issue
+	BoardId string
+}
+
 func ConvertIssuesToIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
+	if data.DisableIssueToIncidentGenerator {
+		return nil
+	}
 	// clear previous incidents and incident_assignees from the project
 	deleteIncidentsSql := `
 		DELETE
@@ -75,7 +83,7 @@ func ConvertIssuesToIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
-		dal.Select("i.*"),
+		dal.Select("i.*, bi.board_id as board_id"),
 		dal.From(`issues i`),
 		dal.Join(`left join board_issues bi on bi.issue_id = i.id`),
 		dal.Join(`left join project_mapping pm on pm.row_id = bi.board_id`),
@@ -98,15 +106,15 @@ func ConvertIssuesToIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 			},
 			Table: ticket.Issue{}.TableName(),
 		},
-		InputRowType: reflect.TypeOf(ticket.Issue{}),
+		InputRowType: reflect.TypeOf(issueWithBoardId{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			issue := inputRow.(*ticket.Issue)
-			incident, err := issue.ToIncident()
+			issueWithBoardId := inputRow.(*issueWithBoardId)
+			incident, err := issueWithBoardId.ToIncident(issueWithBoardId.BoardId)
 			if err != nil {
 				return nil, errors.Convert(err)
 			}
-			incidentAssignees, err := generateIncidentAssigneeFromIssue(db, taskCtx.GetLogger(), issue)
+			incidentAssignees, err := generateIncidentAssigneeFromIssue(db, taskCtx.GetLogger(), &issueWithBoardId.Issue)
 			if err != nil {
 				return nil, errors.Convert(err)
 			}

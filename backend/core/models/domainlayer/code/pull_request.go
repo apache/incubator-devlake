@@ -60,6 +60,7 @@ type PullRequest struct {
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
 	Additions      int
 	Deletions      int
+	IsDraft        bool
 }
 
 func (PullRequest) TableName() string {
@@ -101,6 +102,10 @@ func (pr PullRequest) ToIncident() (*ticket.Incident, error) {
 		Urgency:                 "",
 		Component:               pr.Component,
 		OriginalProject:         "",
+		ScopeId:                 pr.BaseRepoId,
+		Table:                   "repos",
+		AssigneeId:              pr.AuthorId,
+		AssigneeName:            pr.AuthorName,
 	}
 
 	if pr.MergedDate != nil {

@@ -58,6 +58,7 @@ var CollectRunsMeta = plugin.SubTaskMeta{
 
 func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	log := taskCtx.GetLogger()
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -100,6 +101,8 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 								return nil, errors.Convert(err)
 							}
 							filteredRuns = append(filteredRuns, json.RawMessage(runJSON))
+						} else {
+							log.Info("Skipping run{id: %d, number: %d} with status %s", run.ID, run.RunNumber, run.Status)
 						}
 					}
 					return filteredRuns, nil

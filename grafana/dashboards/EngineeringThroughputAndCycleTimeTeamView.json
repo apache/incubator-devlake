@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 34,
+  "id": 9,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -34,7 +34,6 @@
         "y": 0
       },
       "id": 142,
-      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -44,7 +43,7 @@
         "content": "- Use Cases: This dashboard shows the engineering throughput and and cycle time, which helps to identify productivity and bottlenecks of the development process.\n- Data Source Required: GitHub and Jira([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required to tell DevLake what the story_points field is). You also need to do [team configuration](https://devlake.apache.org/docs/Configuration/TeamConfiguration) to use this dashboard.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -94,6 +93,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Pull Request Count",
@@ -107,6 +107,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -194,6 +195,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -262,6 +264,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Pull Request Count",
@@ -275,6 +278,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -362,6 +366,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -412,6 +417,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Pull Request Count",
@@ -425,6 +431,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -512,6 +519,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -562,6 +570,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Pull Request Count",
@@ -575,6 +584,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -662,6 +672,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -737,6 +748,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Issue Count",
@@ -750,6 +762,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -838,6 +851,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -905,6 +919,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Issue Count",
@@ -918,6 +933,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1006,6 +1022,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -1099,6 +1116,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Issue Count",
@@ -1112,6 +1130,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1200,6 +1219,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -1267,6 +1287,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Issue Count",
@@ -1280,6 +1301,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1368,6 +1390,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -1449,7 +1472,7 @@
           "refId": "A"
         }
       ],
-      "title": "4. PR Review Depth and PR Size",
+      "title": "4. PR Review Depth and PR Merged Size",
       "type": "row"
     },
     {
@@ -1462,6 +1485,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Pull Request Count",
@@ -1475,6 +1499,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -1562,6 +1587,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -1630,6 +1656,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Pull Request Count",
@@ -1643,6 +1670,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -1730,6 +1758,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -1744,7 +1773,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    distinct pr.id,\n    pr.url,\n    pr.created_date,\n    pr.merged_date,\n    pr.author_id,\n    pr.merge_commit_sha,\n    c.additions + c.deletions as loc,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n   left join commits c on pr.merge_commit_sha = c.sha\n    join user_accounts ua on pr.author_id = ua.account_id\n    join users u on ua.user_id = u.id\n    join team_users tu on u.id = tu.user_id\n    join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n    and pr.status = 'MERGED'\n  ORDER BY 1\n)\n\nselect\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  sum(case when team_id in (${team1}) then loc else null end)/(select count(distinct user_id) from team_users where team_id in (${team1})) as \"Team1: PR Size\",\n  sum(case when team_id in (${team2}) then loc else null end)/(select count(distinct user_id) from team_users where team_id in (${team2})) as \"Team2: PR Size\",\n  sum(loc)/(select count(*) FROM users) as \"Org: PR Size\"\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    distinct pr.id,\n    pr.url,\n    pr.created_date,\n    pr.merged_date,\n    pr.author_id,\n    pr.merge_commit_sha,\n    c.additions + c.deletions as loc,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n   left join commits c on pr.merge_commit_sha = c.sha\n    join user_accounts ua on pr.author_id = ua.account_id\n    join users u on ua.user_id = u.id\n    join team_users tu on u.id = tu.user_id\n    join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n    and pr.status = 'MERGED'\n  ORDER BY 1\n)\n\nselect\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  sum(case when team_id in (${team1}) then loc else null end)/(select count(distinct user_id) from team_users where team_id in (${team1})) as \"Team1: PR Size\",\n  sum(case when team_id in (${team2}) then loc else null end)/(select count(distinct user_id) from team_users where team_id in (${team2})) as \"Team2: PR Size\",\n  sum(loc)/(select count(*) FROM users) as \"Org: PR Merged Size\"\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1785,7 +1814,7 @@
           ]
         }
       ],
-      "title": " Average PR Size by Team",
+      "title": " Average PR Merged Size by Team",
       "type": "timeseries"
     },
     {
@@ -1823,6 +1852,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Bug Count",
@@ -1836,6 +1866,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1924,6 +1955,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1991,6 +2023,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Bug Count",
@@ -2004,6 +2037,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -2092,6 +2126,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -2186,6 +2221,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -2199,6 +2235,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -2283,6 +2320,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -2291,12 +2329,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no cycle_time to make sure cycle_time equals the sum of the four metrics below\n\t\tcoalesce(prm.pr_cycle_time/60,0) as cycle_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then cycle_time end) as 'Team1: Avg Cycle Time(h)',\n  avg(case when team_id in (${team2}) then cycle_time end) as 'Team2: Avg Cycle Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no cycle_time to make sure cycle_time equals the sum of the four metrics below\n\t\tcoalesce(prm.pr_cycle_time/60,0) as cycle_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then cycle_time end) as 'Team1: Avg Cycle Time(h)',\n  avg(case when team_id in (${team2}) then cycle_time end) as 'Team2: Avg Cycle Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -2308,6 +2347,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -2333,6 +2389,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -2346,6 +2403,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -2367,8 +2425,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2430,6 +2487,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -2438,12 +2496,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no coding_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_coding_time/60,0) as coding_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then coding_time end) as 'Team1: Avg Coding Time(h)',\n  avg(case when team_id in (${team2}) then coding_time end) as 'Team2: Avg Coding Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no coding_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_coding_time/60,0) as coding_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then coding_time end) as 'Team1: Avg Coding Time(h)',\n  avg(case when team_id in (${team2}) then coding_time end) as 'Team2: Avg Coding Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -2455,6 +2514,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -2480,6 +2556,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -2493,6 +2570,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -2514,8 +2592,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2577,6 +2654,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -2585,12 +2663,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no pickup_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_pickup_time/60,0) as pickup_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then pickup_time end) as 'Team1: Avg Pickup Time(h)',\n  avg(case when team_id in (${team2}) then pickup_time end) as 'Team2: Avg Pickup Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no pickup_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_pickup_time/60,0) as pickup_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then pickup_time end) as 'Team1: Avg Pickup Time(h)',\n  avg(case when team_id in (${team2}) then pickup_time end) as 'Team2: Avg Pickup Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -2602,6 +2681,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -2627,6 +2723,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -2640,6 +2737,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -2661,8 +2759,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2724,6 +2821,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -2732,12 +2830,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no review_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_review_time/60,0) as review_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then review_time end) as 'Team1: Avg Review Time(h)',\n  avg(case when team_id in (${team2}) then review_time end) as 'Team2: Avg Review Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no review_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_review_time/60,0) as review_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then review_time end) as 'Team1: Avg Review Time(h)',\n  avg(case when team_id in (${team2}) then review_time end) as 'Team2: Avg Review Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -2749,6 +2848,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -2774,6 +2890,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -2787,6 +2904,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -2808,8 +2926,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2871,6 +2988,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -2879,12 +2997,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no deploy_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_deploy_time/60,0) as deploy_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then deploy_time end) as 'Team1: Avg Deploy Time(h)',\n  avg(case when team_id in (${team2}) then deploy_time end) as 'Team2: Avg Deploy Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no deploy_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_deploy_time/60,0) as deploy_time,\n\t\tpr.author_id,\n    u.id as user_id,\n    u.name as user_name,\n    t.id as team_id,\n    t.name as team\n  FROM pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n\t\tleft join project_pr_metrics prm on pr.id = prm.id\n    left join user_accounts ua on pr.author_id = ua.account_id\n    left join users u on ua.user_id = u.id\n    left join team_users tu on u.id = tu.user_id\n    left join teams t on tu.team_id = t.id\n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3,4,5,6,7,8\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(case when team_id in (${team1}) then deploy_time end) as 'Team1: Avg Deploy Time(h)',\n  avg(case when team_id in (${team2}) then deploy_time end) as 'Team2: Avg Deploy Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -2896,6 +3015,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -2947,6 +3083,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -2960,6 +3097,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -2981,8 +3119,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -3044,6 +3181,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -3123,7 +3261,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -3138,8 +3276,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
     "Engineering Leads Dashboard"
   ],
@@ -3169,9 +3306,10 @@
       {
         "allValue": "",
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "管理",
-          "value": "zentao:ZentaoDepartment:1:5"
+          "text": "None",
+          "value": ""
         },
         "datasource": "mysql",
         "definition": "select concat(name, '--', id) as text from teams",
@@ -3191,9 +3329,10 @@
       {
         "allValue": "",
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "管理",
-          "value": "zentao:ZentaoDepartment:1:5"
+          "text": "None",
+          "value": ""
         },
         "datasource": "mysql",
         "definition": "select concat(name, '--', id) as text from teams",
@@ -3275,6 +3414,6 @@
   "timezone": "",
   "title": "Engineering Throughput and Cycle Time - Team View",
   "uid": "nJ1ijje7k",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

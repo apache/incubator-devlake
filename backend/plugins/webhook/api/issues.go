@@ -64,8 +64,8 @@ type WebhookIssueRequest struct {
 	//DeploymentId          string
 }
 
-func saveIncidentRelatedRecordsFromIssue(db dal.Transaction, logger log.Logger, issue *ticket.Issue) error {
-	incident, err := issue.ToIncident()
+func saveIncidentRelatedRecordsFromIssue(db dal.Transaction, logger log.Logger, issueBoarId string, issue *ticket.Issue) error {
+	incident, err := issue.ToIncident(issueBoarId)
 	if err != nil {
 		return err
 	}
@@ -138,6 +138,13 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 		Severity:                request.Severity,
 		Component:               request.Component,
 	}
+	if *domainIssue.LeadTimeMinutes == 0 {
+		if domainIssue.ResolutionDate != nil && domainIssue.CreatedDate != nil {
+			temp := uint(domainIssue.ResolutionDate.Sub(*domainIssue.CreatedDate).Minutes())
+			domainIssue.LeadTimeMinutes = &temp
+		}
+	}
+	// FIXME we have no idea about how to calculate domainIssue.TimeRemainingMinutes and domainIssue.TimeSpentMinutes.
 	if request.CreatorId != "" {
 		domainIssue.CreatorId = fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.CreatorId)
 	}
@@ -185,7 +192,7 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 		return nil, err
 	}
 	if domainIssue.IsIncident() {
-		if err := saveIncidentRelatedRecordsFromIssue(tx, logger, domainIssue); err != nil {
+		if err := saveIncidentRelatedRecordsFromIssue(tx, logger, domainBoardId, domainIssue); err != nil {
 			logger.Error(err, "failed to save incident related records")
 			return nil, errors.Convert(err)
 		}

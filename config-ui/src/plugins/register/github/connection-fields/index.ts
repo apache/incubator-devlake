@@ -17,6 +17,5 @@
  */
 
 export * from './token';
-export * from './graphql';
 export * from './githubapp';
 export * from './authentication';

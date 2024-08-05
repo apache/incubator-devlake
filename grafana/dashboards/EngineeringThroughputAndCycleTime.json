@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 7,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -34,7 +33,6 @@
         "y": 0
       },
       "id": 111,
-      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -44,7 +42,7 @@
         "content": "- Use Cases: This dashboard shows the engineering throughput and and cycle time, which helps to identify productivity and bottlenecks of the development process.\n- Data Source Required: GitHub and Jira([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required to tell DevLake what the story_points field is)",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -94,6 +92,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Pull Request Count",
@@ -107,6 +106,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -194,6 +194,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -243,6 +244,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Issue Count",
@@ -256,6 +258,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -344,6 +347,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -392,6 +396,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Story Points",
@@ -405,6 +410,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -462,6 +468,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -530,6 +537,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "PR Review Depth",
@@ -543,6 +551,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -599,6 +608,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -649,6 +659,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Bug Count",
@@ -662,6 +673,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -719,6 +731,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -769,9 +782,10 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "PR Size",
+            "axisLabel": "PR Merged Size",
             "axisPlacement": "auto",
             "barAlignment": 1,
             "drawStyle": "line",
@@ -782,6 +796,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -838,6 +853,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "none"
         }
@@ -852,7 +868,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _pr_commits_data as(\n  SELECT\n    DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n    pr.id as pr_id,\n    pr.merge_commit_sha,\n    sum(c.additions)+sum(c.deletions) as loc\n  FROM \n    pull_requests pr\n left join commits c on pr.merge_commit_sha = c.sha\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n and pr.status = 'MERGED'\n    group by 1,2,3\n)\n\nSELECT \n  time,\n  sum(loc)/count(distinct pr_id) as 'PR Size'\nFROM _pr_commits_data\nGROUP BY 1",
+          "rawSql": "with _pr_commits_data as(\n  SELECT\n    DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n    pr.id as pr_id,\n    pr.merge_commit_sha,\n    sum(c.additions)+sum(c.deletions) as loc\n  FROM \n    pull_requests pr\n left join commits c on pr.merge_commit_sha = c.sha\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in (${project})\n and pr.status = 'MERGED'\n    group by 1,2,3\n)\n\nSELECT \n  time,\n  sum(loc)/count(distinct pr_id) as 'PR Merged Size'\nFROM _pr_commits_data\nGROUP BY 1",
           "refId": "A",
           "select": [
             [
@@ -893,7 +909,7 @@
           ]
         }
       ],
-      "title": "PR Size",
+      "title": "PR Merged Size",
       "type": "timeseries"
     },
     {
@@ -906,6 +922,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -919,6 +936,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -972,6 +990,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1048,6 +1067,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1061,6 +1081,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1082,8 +1103,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1114,6 +1134,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1128,7 +1149,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no cycle_time to make sure cycle_time equals the sum of the four metrics below\n\t\tcoalesce(prm.pr_cycle_time/60,0) as cycle_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL - $interval(date(pr_issued_date))+1 DAY) as time,\n  avg(cycle_time) as 'PR Cycle Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no cycle_time to make sure cycle_time equals the sum of the four metrics below\n\t\tcoalesce(prm.pr_cycle_time/60,0) as cycle_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL - $interval(date(pr_merged_date))+1 DAY) as time,\n  avg(cycle_time) as 'PR Cycle Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1169,7 +1190,7 @@
           ]
         }
       ],
-      "title": "PR Cycle Time",
+      "title": "PR Cycle Time [Merged PRs]",
       "type": "timeseries"
     },
     {
@@ -1182,6 +1203,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1195,6 +1217,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1216,8 +1239,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1248,6 +1270,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1262,7 +1285,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no coding_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_coding_time/60,0) as coding_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(coding_time) as 'Coding Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no coding_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_coding_time/60,0) as coding_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(coding_time) as 'Coding Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1303,7 +1326,7 @@
           ]
         }
       ],
-      "title": "PR Coding Time",
+      "title": "PR Coding Time [Merged PRs]",
       "type": "timeseries"
     },
     {
@@ -1316,6 +1339,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1329,6 +1353,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1350,8 +1375,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1413,6 +1437,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1421,12 +1446,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no pickup_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_pickup_time/60,0) as pickup_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(pickup_time) as 'Pickup Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no pickup_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_pickup_time/60,0) as pickup_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(pickup_time) as 'Pickup Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1438,6 +1464,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1463,6 +1506,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1476,6 +1520,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1497,8 +1542,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1560,6 +1604,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1568,12 +1613,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no review_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_review_time/60,0) as review_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(review_time) as 'Review Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no review_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_review_time/60,0) as review_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(review_time) as 'Review Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1585,6 +1631,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1597,7 +1660,7 @@
           ]
         }
       ],
-      "title": "PR Review Time",
+      "title": "PR Review Time [Merged PRs]",
       "type": "timeseries"
     },
     {
@@ -1610,6 +1673,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1623,6 +1687,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 12,
@@ -1644,8 +1709,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1707,6 +1771,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1715,12 +1780,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n    -- convert null to 0 if a PR has no deploy_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_deploy_time/60,0) as deploy_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(deploy_time) as 'PR Deploy Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.merged_date as pr_merged_date,\n    -- convert null to 0 if a PR has no deploy_time to make sure cycle_time equals the sum of the four sub-metrics\n\t\tcoalesce(prm.pr_deploy_time/60,0) as deploy_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  WHERE\n    $__timeFilter(pr.merged_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_merged_date), INTERVAL -$interval(date(pr_merged_date))+1 DAY) as time,\n  avg(deploy_time) as 'PR Deploy Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1732,6 +1798,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1744,7 +1827,7 @@
           ]
         }
       ],
-      "title": "PR Deploy Time",
+      "title": "PR Deploy Time [Merged PRs]",
       "type": "timeseries"
     },
     {
@@ -1768,7 +1851,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -1783,8 +1866,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
     "Engineering Leads Dashboard",
     "Highlights"
@@ -1840,7 +1922,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "Month",
           "value": "DAYOFMONTH"
         },

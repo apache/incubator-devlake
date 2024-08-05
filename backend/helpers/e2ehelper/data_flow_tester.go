@@ -319,6 +319,13 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	}
 	allFields := append(pkColumnNames, targetFields...)
 	allFields = utils.StringsUniq(allFields)
+	for i, field := range allFields {
+		if t.Dal.Dialect() == "mysql" {
+			allFields[i] = fmt.Sprintf("`%s`", field)
+		} else {
+			allFields[i] = fmt.Sprintf(`"%s"`, field)
+		}
+	}
 	dbCursor, err := t.Dal.Cursor(
 		dal.Select(strings.Join(allFields, `,`)),
 		dal.From(dst.TableName()),
