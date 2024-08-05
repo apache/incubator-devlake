@@ -42,15 +42,9 @@ var ExtractIssuesMeta = plugin.SubTaskMeta{
 }
 
 type typeMappings struct {
-	typeIdMappings         map[string]string
-	stdTypeMappings        map[string]string
-	standardStatusMappings map[string]models.StatusMappings
-}
-
-type MashalableTypeMappings struct {
 	TypeIdMappings         map[string]string
 	StdTypeMappings        map[string]string
-	StandardStatusMappings map[string]models.MashalableStatusMappings
+	StandardStatusMappings map[string]models.StatusMappings
 }
 
 func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
@@ -88,7 +82,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func extractIssues(data *JiraTaskData, mappings *MashalableTypeMappings, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
+func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
 	var apiIssue apiv2models.Issue
 	err := errors.Convert(json.Unmarshal(row.Data, &apiIssue))
 	if err != nil {
@@ -222,7 +216,7 @@ func extractIssues(data *JiraTaskData, mappings *MashalableTypeMappings, row *ap
 	return results, nil
 }
 
-func getTypeMappings(data *JiraTaskData, db dal.Dal) (*MashalableTypeMappings, errors.Error) {
+func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Error) {
 	typeIdMapping := make(map[string]string)
 	issueTypes := make([]models.JiraIssueType, 0)
 	clauses := []dal.Clause{
@@ -244,28 +238,9 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*MashalableTypeMappings, e
 			standardStatusMappings[userType] = stdType.StatusMappings
 		}
 	}
-	typeMappings := &typeMappings{
-		typeIdMappings:         typeIdMapping,
-		stdTypeMappings:        stdTypeMappings,
-		standardStatusMappings: standardStatusMappings,
-	}
-	return convertTypeMappings(typeMappings), nil
-}
-
-func convertTypeMappings(typeMappings *typeMappings) *MashalableTypeMappings {
-	if typeMappings == nil {
-		return nil
-	}
-	ret := &MashalableTypeMappings{
-		TypeIdMappings:  typeMappings.typeIdMappings,
-		StdTypeMappings: typeMappings.stdTypeMappings,
-	}
-	ret.StandardStatusMappings = make(map[string]models.MashalableStatusMappings)
-	for k, statusMappings := range typeMappings.standardStatusMappings {
-		ret.StandardStatusMappings[k] = make(map[string]models.MashalableStatusMapping)
-		for kk, statusMapping := range statusMappings {
-			ret.StandardStatusMappings[k][kk] = models.MashalableStatusMapping(statusMapping)
-		}
-	}
-	return ret
+	return &typeMappings{
+		TypeIdMappings:         typeIdMapping,
+		StdTypeMappings:        stdTypeMappings,
+		StandardStatusMappings: standardStatusMappings,
+	}, nil
 }
