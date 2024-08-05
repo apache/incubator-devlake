@@ -250,7 +250,7 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		Priority:        issue.Priority,
 		Title:           issue.Title,
 		Body:            issue.Description,
-		Url:             issue.Links.Self,
+		Url:             issue.WebUrl,
 		ClosedAt:        common.Iso8601TimeToTime(issue.GitlabClosedAt),
 		GitlabCreatedAt: issue.GitlabCreatedAt.ToTime(),
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
