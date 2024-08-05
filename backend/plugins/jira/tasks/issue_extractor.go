@@ -264,9 +264,7 @@ func convertTypeMappings(typeMappings *typeMappings) *MashalableTypeMappings {
 	for k, statusMappings := range typeMappings.standardStatusMappings {
 		ret.StandardStatusMappings[k] = make(map[string]models.MashalableStatusMapping)
 		for kk, statusMapping := range statusMappings {
-			ret.StandardStatusMappings[k][kk] = models.MashalableStatusMapping{
-				StandardStatus: statusMapping.StandardStatus,
-			}
+			ret.StandardStatusMappings[k][kk] = models.MashalableStatusMapping(statusMapping)
 		}
 	}
 	return ret
