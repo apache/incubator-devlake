@@ -127,7 +127,7 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
           <Input
             style={{ width: 386 }}
             placeholder="myorganizationame"
-            value={values.username}
+            value={values.organization}
             onChange={handleChangeOrganization} />
         </Block>
       )}
