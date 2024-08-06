@@ -16,9 +16,9 @@
  *
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Tabs } from 'antd';
-import useUrlState from '@ahooksjs/use-url-state';
 
 import API from '@/api';
 import { PageLoading } from '@/components';
@@ -37,8 +37,13 @@ interface Props {
 
 export const BlueprintDetail = ({ id, from }: Props) => {
   const [version, setVersion] = useState(1);
+  const [activeKey, setActiveKey] = useState('status');
 
-  const [query, setQuery] = useUrlState({ tab: 'status' });
+  const { state } = useLocation();
+
+  useEffect(() => {
+    setActiveKey(state?.activeKey ?? 'status');
+  }, [state]);
 
   const { ready, data } = useRefreshData(async () => {
     const [bpRes, pipelineRes] = await Promise.all([API.blueprint.get(id), API.blueprint.pipelines(id)]);
@@ -49,8 +54,8 @@ export const BlueprintDetail = ({ id, from }: Props) => {
     setVersion((v) => v + 1);
   };
 
-  const handleChangeTab = (tab: string) => {
-    setQuery({ tab });
+  const handleChangeActiveKey = (activeKey: string) => {
+    setActiveKey(activeKey);
   };
 
   if (!ready || !data) {
@@ -79,13 +84,13 @@ export const BlueprintDetail = ({ id, from }: Props) => {
                 from={from}
                 blueprint={blueprint}
                 onRefresh={handlRefresh}
-                onChangeTab={handleChangeTab}
+                onChangeTab={handleChangeActiveKey}
               />
             ),
           },
         ]}
-        activeKey={query.tab}
-        onChange={(tab) => setQuery({ tab })}
+        activeKey={activeKey}
+        onChange={handleChangeActiveKey}
       />
     </S.Wrapper>
   );
