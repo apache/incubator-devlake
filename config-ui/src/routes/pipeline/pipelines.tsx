@@ -28,7 +28,7 @@ export const Pipelines = () => {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
 
-  const { ready, data } = useRefreshData(() => API.pipeline.list());
+  const { ready, data } = useRefreshData(() => API.pipeline.list({ page, pageSize }), [page, pageSize]);
 
   const [dataSource, total] = useMemo(() => [(data?.pipelines ?? []).map((it) => it), data?.count ?? 0], [data]);
 
@@ -47,9 +47,6 @@ export const Pipelines = () => {
           page,
           pageSize,
           onChange: setPage,
-        }}
-        noData={{
-          text: 'Add new projects to see engineering metrics based on projects.',
         }}
       />
     </PageHeader>
