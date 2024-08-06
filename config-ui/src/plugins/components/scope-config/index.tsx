@@ -94,7 +94,7 @@ export const ScopeConfig = ({
     });
 
     if (success) {
-      window.open(PATHS.PROJECT(pname, { tab: 'status' }));
+      window.open(PATHS.PROJECT(pname));
     }
   };
 

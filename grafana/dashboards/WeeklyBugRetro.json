@@ -2161,7 +2161,8 @@
   "refresh": "",
   "schemaVersion": 39,
   "tags": [
-    "Engineering Leads Dashboard"
+    "Engineering Leads Dashboard",
+    "Highlights"
   ],
   "templating": {
     "list": [

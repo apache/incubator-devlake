@@ -21,7 +21,8 @@ import { request } from '@/utils';
 
 import { SubTasksRes } from './types';
 
-export const list = (): Promise<{ count: number; pipelines: IPipeline[] }> => request('/pipelines');
+export const list = (params: Pagination): Promise<{ count: number; pipelines: IPipeline[] }> =>
+  request('/pipelines', { data: params });
 
 export const get = (id: ID) => request(`/pipelines/${id}`);
 
