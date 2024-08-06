@@ -110,7 +110,11 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     if (success) {
       onRefresh();
-      navigate(PATHS.PROJECT(name, { tabId: 'settings' }));
+      navigate(PATHS.PROJECT(name), {
+        state: {
+          tabId: 'settings',
+        },
+      });
     }
   };
 
