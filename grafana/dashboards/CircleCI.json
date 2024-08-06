@@ -1226,7 +1226,8 @@
   "refresh": "",
   "schemaVersion": 39,
   "tags": [
-    "Data Source Dashboard"
+    "Data Source Dashboard",
+    "Stable Data Sources"
   ],
   "templating": {
     "list": [
