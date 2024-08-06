@@ -1250,7 +1250,8 @@
   "schemaVersion": 38,
   "style": "dark",
   "tags": [
-    "Data Source Dashboard"
+    "Data Source Dashboard",
+    "Stable Data Sources"
   ],
   "templating": {
     "list": [
