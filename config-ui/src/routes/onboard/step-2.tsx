@@ -17,10 +17,12 @@
  */
 
 import { useState, useContext, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Flex, Button, Tooltip } from 'antd';
 
 import API from '@/api';
 import { Markdown } from '@/components';
+import { PATHS } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { ConnectionToken } from '@/plugins/components/connection-form/fields/token';
 import { ConnectionUsername } from '@/plugins/components/connection-form/fields/username';
@@ -135,7 +137,12 @@ export const Step2 = () => {
             <ConnectionToken
               type="create"
               label="Personal Access Token"
-              subLabel={`Create a personal access token in ${config.name}`}
+              subLabel={
+                <p>
+                  Create a personal access token in GitHub. For self-managed {config.name}, please skip the onboarding
+                  and configure via <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
+                </p>
+              }
               initialValue=""
               value={payload.token}
               setValue={(token) => {
