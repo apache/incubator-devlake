@@ -16,11 +16,10 @@
  *
  */
 
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Tabs } from 'antd';
-import useUrlState from '@ahooksjs/use-url-state';
 
 import API from '@/api';
 import { PageHeader, PageLoading } from '@/components';
@@ -36,14 +35,19 @@ const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const ProjectDetailPage = () => {
   const [version, setVersion] = useState(1);
+  const [tabId, setTabId] = useState('blueprint');
 
   const { pname } = useParams() as { pname: string };
-  const [query, setQuery] = useUrlState({ tabId: 'blueprint' });
+  const { state } = useLocation();
+
+  useEffect(() => {
+    setTabId(state?.tabId ?? 'blueprint');
+  }, [state]);
 
   const { ready, data } = useRefreshData(() => API.project.get(pname), [pname, version]);
 
   const handleChangeTabId = (tabId: string) => {
-    setQuery({ tabId });
+    setTabId(tabId);
   };
 
   const handleRefresh = () => {
@@ -85,7 +89,7 @@ export const ProjectDetailPage = () => {
               children: <SettingsPanel project={data} onRefresh={handleRefresh} />,
             },
           ]}
-          activeKey={query.tabId}
+          activeKey={tabId}
           onChange={handleChangeTabId}
         />
       </S.Wrapper>
