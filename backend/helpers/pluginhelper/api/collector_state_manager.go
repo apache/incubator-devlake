@@ -84,7 +84,7 @@ func NewCollectorStateManager(basicRes context.BasicRes, syncPolicy *models.Sync
 		return
 	}
 
-	// if timeAfter is not set or NOT before the previous vaule, we are in the incremental mode
+	// if timeAfter is not set or NOT before the previous value, we are in the incremental mode
 	if syncPolicy.TimeAfter == nil || state.TimeAfter == nil || !syncPolicy.TimeAfter.Before(*state.TimeAfter) {
 		stateManager.isIncremental = true
 		stateManager.since = state.LatestSuccessStart

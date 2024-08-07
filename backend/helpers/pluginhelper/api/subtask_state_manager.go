@@ -118,7 +118,7 @@ func NewSubtaskStateManager(args *SubtaskCommonArgs) (stateManager *SubtaskState
 	if syncPolicy.FullSync || state.PrevStartedAt == nil {
 		return
 	}
-	// if timeAfter is not set or NOT before the previous vaule, we are in the incremental mode
+	// if timeAfter is not set or NOT before the previous value, we are in the incremental mode
 	if (syncPolicy.TimeAfter == nil || state.TimeAfter == nil || !syncPolicy.TimeAfter.Before(*state.TimeAfter)) &&
 		// and the previous config is the same as the current config
 		(state.PrevConfig == "" || state.PrevConfig == stateManager.config) {
