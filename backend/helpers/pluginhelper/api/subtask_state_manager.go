@@ -145,7 +145,7 @@ func calculateStateManagerMode(syncPolicy *models.SyncPolicy, preState *models.S
 		return false, syncPolicy.TimeAfter
 	}
 	// There is a sync policy and sync policy is earlier than latest successful pipeline's timeAfter
-	if syncPolicy.TimeAfter != nil && preState.TimeAfter != nil || syncPolicy.TimeAfter.Before(*preState.TimeAfter) {
+	if syncPolicy.TimeAfter != nil && preState.TimeAfter != nil && syncPolicy.TimeAfter.Before(*preState.TimeAfter) {
 		return false, syncPolicy.TimeAfter
 	}
 
