@@ -57,10 +57,19 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("delete previous project_incident_deployment_relationships")
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
+		dal.Select(`i.*`),
 		dal.From(`incidents i`),
 		dal.Join(`left join project_mapping pm on pm.row_id = i.scope_id and pm.table = i.table`),
 		dal.Where("pm.project_name = ?", data.Options.ProjectName),
 	}
+
+	count, err := db.Count(clauses...)
+	if err != nil {
+		logger.Error(err, "count incidents")
+	} else {
+		logger.Info("incident count is %d", count)
+	}
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error(err, "db.cursor error")
