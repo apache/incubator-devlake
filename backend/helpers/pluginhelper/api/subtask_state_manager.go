@@ -89,7 +89,7 @@ func NewSubtaskStateManager(args *SubtaskCommonArgs) (stateManager *SubtaskState
 		return
 	}
 
-	isIncremental, since := calculateStateManagerMode(syncPolicy, preState, utils.ToJsonString(args.SubtaskConfig))
+	isIncremental, since := calculateStateManagerIncrementalMode(syncPolicy, preState, utils.ToJsonString(args.SubtaskConfig))
 
 	now := time.Now()
 	stateManager = &SubtaskStateManager{
@@ -126,7 +126,8 @@ func loadPreviousState(db dal.Dal, plugin, subtask, params string) (*models.Subt
 	return preState, nil
 }
 
-func calculateStateManagerMode(syncPolicy *models.SyncPolicy, preState *models.SubtaskState, newSubtaskConfig string) (bool, *time.Time) {
+// calculateStateManagerIncrementalMode tries to calculate whether state manager should run in incremental mode and returns the state manager's 'since' time.
+func calculateStateManagerIncrementalMode(syncPolicy *models.SyncPolicy, preState *models.SubtaskState, newSubtaskConfig string) (bool, *time.Time) {
 	if preState == nil || syncPolicy == nil {
 		panic("preState or syncPolicy is nil")
 	}
