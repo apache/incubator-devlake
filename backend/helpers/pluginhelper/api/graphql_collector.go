@@ -138,14 +138,8 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error running auto-migrate")
 	}
-
-	isIncremental := collector.args.Incremental
-	syncPolicy := collector.args.Ctx.TaskContext().SyncPolicy()
-	if syncPolicy != nil && syncPolicy.FullSync {
-		isIncremental = false
-	}
 	// flush data if not incremental collection
-	if !isIncremental {
+	if !collector.args.Incremental {
 		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting data from collector")
