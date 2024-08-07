@@ -181,6 +181,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	// collect new PRs since the previous run
 	since := apiCollector.GetSince()
 	err = apiCollector.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
@@ -222,6 +223,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	// refetch(refresh) for existing PRs in the database that are still OPEN
 	db := taskCtx.GetDal()
 	cursor, err := db.Cursor(
 		dal.From(models.GithubPullRequest{}.TableName()),
@@ -234,7 +236,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	prUpdated := make(map[int]time.Time)
+	prUpdatedAt := make(map[int]time.Time)
 	err = apiCollector.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		Input:         iterator,
@@ -253,7 +255,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 				outputPrs = append(outputPrs, map[string]interface{}{
 					`number`: graphql.Int(inputPr.Number),
 				})
-				prUpdated[inputPr.Number] = inputPr.GithubUpdatedAt
+				prUpdatedAt[inputPr.Number] = inputPr.GithubUpdatedAt
 			}
 			variables := map[string]interface{}{
 				"pullRequest": outputPrs,
@@ -266,7 +268,7 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 			query := queryWrapper.(*GraphqlQueryPrDetailWrapper)
 			prs := query.Repository.PullRequests
 			for _, rawL := range prs {
-				if rawL.UpdatedAt.After(prUpdated[rawL.Number]) {
+				if rawL.UpdatedAt.After(prUpdatedAt[rawL.Number]) {
 					messages = append(messages, errors.Must1(json.Marshal(rawL)))
 				}
 			}
