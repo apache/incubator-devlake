@@ -96,7 +96,7 @@ func (g *GitcliCloner) CloneRepo(ctx plugin.SubTaskContext, localDir string) err
 	// deepen the commits by 1 more step to avoid https://github.com/apache/incubator-devlake/issues/7426
 	if since != nil {
 		// fixes error described on https://stackoverflow.com/questions/63878612/git-fatal-error-in-object-unshallow-sha-1
-		// It might be casued by the commit which being deepen has mulitple parent(e.g. a merge commit), not sure.
+		// It might be caused by the commit which being deepen has multiple parent(e.g. a merge commit), not sure.
 		if err := g.execGitCommandIn(ctx, localDir, "repack", "-d"); err != nil {
 			return errors.Default.Wrap(err, "failed to repack the repo")
 		}
@@ -128,7 +128,7 @@ func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir s
 		if err := g.execGitCommand(ctx, cloneArgs...); err != nil {
 			return err
 		}
-		// 2. configure to fetch all branches from the remote server so we can collect new commits from them
+		// 2. configure to fetch all branches from the remote server, so we can collect new commits from them
 		gitConfig, err := os.OpenFile(path.Join(localDir, "config"), os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to open git config file")
@@ -137,7 +137,7 @@ func (g *GitcliCloner) execGitCloneCommand(ctx plugin.SubTaskContext, localDir s
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to write to git config file")
 		}
-		// 3. fetch all branches with depth=1 so the next step would collect less commits
+		// 3. fetch all branches with depth=1 so the next step would collect fewer commits
 		// (I don't know why, but it reduced total number of commits from 18k to 7k on https://gitlab.com/gitlab-org/gitlab-foss.git with the same parameters)
 		fetchBranchesArgs := append([]string{"fetch", "--depth=1", "origin"}, args...)
 		if err := g.execGitCommandIn(ctx, localDir, fetchBranchesArgs...); err != nil {
@@ -169,7 +169,7 @@ func (g *GitcliCloner) execGitCommandIn(ctx plugin.SubTaskContext, workingDir st
 				env = append(env, fmt.Sprintf("HTTPS_PROXY=%s", taskData.Options.Proxy))
 			}
 			if taskData.ParsedURL.Scheme == "https" && ctx.GetConfigReader().GetBool("IN_SECURE_SKIP_VERIFY") {
-				args = append(args, "-c http.sslVerify=false")
+				args = append([]string{"-c http.sslVerify=false"}, args...)
 			}
 		} else if taskData.ParsedURL.Scheme == "ssh" {
 			var sshCmdArgs []string

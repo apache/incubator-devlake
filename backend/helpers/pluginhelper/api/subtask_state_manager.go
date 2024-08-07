@@ -123,6 +123,7 @@ func loadPreviousState(db dal.Dal, plugin, subtask, params string) (*models.Subt
 			return nil, errors.Default.Wrap(err, "failed to load the previous subtask state")
 		}
 	}
+
 	return preState, nil
 }
 
