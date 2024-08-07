@@ -160,15 +160,16 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
 			query := queryWrapper.(*GraphqlQueryCheckRunWrapper)
 			for _, node := range query.Node {
-				checkRun := node.CheckSuite.CheckRuns.Nodes[0]
-				updatedAt := checkRun.StartedAt
-				if checkRun.CompletedAt != nil {
-					updatedAt = checkRun.CompletedAt
+				for _, checkRun := range node.CheckSuite.CheckRuns.Nodes {
+					updatedAt := checkRun.StartedAt
+					if checkRun.CompletedAt != nil {
+						updatedAt = checkRun.CompletedAt
+					}
+					if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(*updatedAt) {
+						return messages, helper.ErrFinishCollect
+					}
+					messages = append(messages, errors.Must1(json.Marshal(node)))
 				}
-				if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(*updatedAt) {
-					return messages, helper.ErrFinishCollect
-				}
-				messages = append(messages, errors.Must1(json.Marshal(node)))
 			}
 			return
 		},
