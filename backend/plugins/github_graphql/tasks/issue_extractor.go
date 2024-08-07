@@ -63,38 +63,35 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_ISSUES_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			apiIssue := &GraphqlQueryIssueWrapper{}
-			err := errors.Convert(json.Unmarshal(row.Data, apiIssue))
+			issue := &GraphqlQueryIssue{}
+			err := errors.Convert(json.Unmarshal(row.Data, issue))
 			if err != nil {
 				return nil, err
 			}
-			issues := apiIssue.Repository.IssueList.Issues
 			results := make([]interface{}, 0, 1)
-			for _, issue := range issues {
-				githubIssue, err := convertGithubIssue(milestoneMap, issue, data.Options.ConnectionId, data.Options.GithubId)
-				if err != nil {
-					return nil, err
+			githubIssue, err := convertGithubIssue(milestoneMap, issue, data.Options.ConnectionId, data.Options.GithubId)
+			if err != nil {
+				return nil, err
+			}
+			githubLabels, err := convertGithubLabels(issueRegexes, issue, githubIssue)
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, githubLabels...)
+			results = append(results, githubIssue)
+			if len(issue.AssigneeList.Assignees) > 0 {
+				extractGraphqlPreAccount(&results, &issue.AssigneeList.Assignees[0], data.Options.GithubId, data.Options.ConnectionId)
+			}
+			extractGraphqlPreAccount(&results, issue.Author, data.Options.GithubId, data.Options.ConnectionId)
+			for _, assignee := range issue.AssigneeList.Assignees {
+				issueAssignee := &models.GithubIssueAssignee{
+					ConnectionId: githubIssue.ConnectionId,
+					IssueId:      githubIssue.GithubId,
+					RepoId:       githubIssue.RepoId,
+					AssigneeId:   assignee.Id,
+					AssigneeName: assignee.Login,
 				}
-				githubLabels, err := convertGithubLabels(issueRegexes, issue, githubIssue)
-				if err != nil {
-					return nil, err
-				}
-				results = append(results, githubLabels...)
-				results = append(results, githubIssue)
-				if len(issue.AssigneeList.Assignees) > 0 {
-					extractGraphqlPreAccount(&results, &issue.AssigneeList.Assignees[0], data.Options.GithubId, data.Options.ConnectionId)
-				}
-				extractGraphqlPreAccount(&results, issue.Author, data.Options.GithubId, data.Options.ConnectionId)
-				for _, assignee := range issue.AssigneeList.Assignees {
-					issueAssignee := &models.GithubIssueAssignee{
-						ConnectionId: githubIssue.ConnectionId,
-						IssueId:      githubIssue.GithubId,
-						RepoId:       githubIssue.RepoId,
-						AssigneeId:   assignee.Id,
-						AssigneeName: assignee.Login,
-					}
-					results = append(results, issueAssignee)
-				}
+				results = append(results, issueAssignee)
 			}
 			return results, nil
 		},
@@ -129,7 +126,7 @@ func getMilestoneMap(db dal.Dal, repoId int, connectionId uint64) (map[int]int, 
 	return milestoneMap, nil
 }
 
-func convertGithubIssue(milestoneMap map[int]int, issue GraphqlQueryIssue, connectionId uint64, repositoryId int) (*models.GithubIssue, errors.Error) {
+func convertGithubIssue(milestoneMap map[int]int, issue *GraphqlQueryIssue, connectionId uint64, repositoryId int) (*models.GithubIssue, errors.Error) {
 	githubIssue := &models.GithubIssue{
 		ConnectionId:    connectionId,
 		GithubId:        issue.DatabaseId,
@@ -163,7 +160,7 @@ func convertGithubIssue(milestoneMap map[int]int, issue GraphqlQueryIssue, conne
 	return githubIssue, nil
 }
 
-func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQueryIssue, githubIssue *models.GithubIssue) ([]interface{}, errors.Error) {
+func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue *GraphqlQueryIssue, githubIssue *models.GithubIssue) ([]interface{}, errors.Error) {
 	var results []interface{}
 	var joinedLabels []string
 	for _, label := range issue.Labels.Nodes {
