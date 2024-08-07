@@ -48,11 +48,13 @@ type simpleCicdDeploymentCommit struct {
 func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
+	logger := taskCtx.GetLogger()
 	// Clear previous results from the project
 	err := db.Exec("DELETE FROM project_incident_deployment_relationships WHERE project_name = ?", data.Options.ProjectName)
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting previous project_incident_deployment_relationships")
 	}
+	logger.Info("delete previous project_incident_deployment_relationships")
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
 		dal.From(`incidents i`),
@@ -61,10 +63,11 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
+		logger.Error(err, "db.cursor error")
 		return err
 	}
 	defer cursor.Close()
-
+	logger.Info("start enricher")
 	enricher, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -83,7 +86,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				ProjectName: data.Options.ProjectName,
 			}
-
+			logger.Info("get incident: %+v", incident.Id)
 			cicdDeploymentCommit := &devops.CicdDeploymentCommit{}
 			cicdDeploymentCommitClauses := []dal.Clause{
 				dal.Select("cicd_deployment_commits.cicd_deployment_id as id, cicd_deployment_commits.finished_date as finished_date"),
@@ -105,8 +108,10 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			err = db.All(scdc, cicdDeploymentCommitClauses...)
 			if err != nil {
 				if db.IsErrorNotFound(err) {
+					logger.Warn(err, "deployment commit not found")
 					return nil, nil
 				} else {
+					logger.Error(err, "get all deployment commits")
 					return nil, err
 				}
 			}
@@ -114,6 +119,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				projectIssueMetric.DeploymentId = scdc.Id
 				return []interface{}{projectIssueMetric}, nil
 			}
+			logger.Info("scdc.id is empty, incident will be ignored: %+v", incident.Id)
 			return nil, nil
 		},
 	})
