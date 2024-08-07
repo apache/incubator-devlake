@@ -73,7 +73,7 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 		return nil, errors.BadInput.Wrap(err, "failed to parse git url")
 	}
 
-	// append user name to the git url
+	// append username to the git url
 	if op.User != "" {
 		parsedURL.User = url.UserPassword(op.User, op.Password)
 		op.Url = parsedURL.String()
