@@ -57,22 +57,21 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("delete previous project_incident_deployment_relationships")
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
-		dal.Select(`i.*`),
 		dal.From(`incidents i`),
 		dal.Join(`left join project_mapping pm on pm.row_id = i.scope_id and pm.table = i.table`),
 		dal.Where("pm.project_name = ?", data.Options.ProjectName),
 	}
 
-	count, err := db.Count(
-		dal.From(`incidents i`),
-		dal.Join(`left join project_mapping pm on pm.row_id = i.scope_id and pm.table = i.table`),
-		dal.Where("pm.project_name = ?", data.Options.ProjectName),
-	)
-	if err != nil {
-		logger.Error(err, "count incidents")
-	} else {
-		logger.Info("incident count is %d", count)
-	}
+	//count, err := db.Count(
+	//	dal.From(`incidents i`),
+	//	dal.Join(`left join project_mapping pm on pm.row_id = i.scope_id and pm.table = i.table`),
+	//	dal.Where("pm.project_name = ?", data.Options.ProjectName),
+	//)
+	//if err != nil {
+	//	logger.Error(err, "count incidents")
+	//} else {
+	//	logger.Info("incident count is %d", count)
+	//}
 
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -99,7 +98,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				ProjectName: data.Options.ProjectName,
 			}
-			logger.Info("get incident: %+v", incident.Id)
+			logger.Debug("get incident: %+v", incident.Id)
 			cicdDeploymentCommit := &devops.CicdDeploymentCommit{}
 			cicdDeploymentCommitClauses := []dal.Clause{
 				dal.Select("cicd_deployment_commits.cicd_deployment_id as id, cicd_deployment_commits.finished_date as finished_date"),
@@ -132,7 +131,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				projectIssueMetric.DeploymentId = scdc.Id
 				return []interface{}{projectIssueMetric}, nil
 			}
-			logger.Info("scdc.id is empty, incident will be ignored: %+v", incident.Id)
+			logger.Debug("scdc.id is empty, incident will be ignored: %+v", incident.Id)
 			return nil, nil
 		},
 	})
