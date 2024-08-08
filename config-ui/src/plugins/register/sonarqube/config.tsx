@@ -20,6 +20,7 @@ import { DOC_URL } from '@/release';
 import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
+import { Auth } from './connection-fields';
 
 export const SonarQubeConfig: IPluginConfig = {
   plugin: 'sonarqube',
@@ -30,10 +31,17 @@ export const SonarQubeConfig: IPluginConfig = {
     docLink: DOC_URL.PLUGIN.SONARQUBE.BASIS,
     fields: [
       'name',
-      {
-        key: 'endpoint',
-        subLabel: 'Provide the SonarQube instance API endpoint. E.g. http://<host>:<port>/api/',
-      },
+      ({ type, initialValues, values, errors, setValues, setErrors }: any) => (
+        <Auth
+          key="auth"
+          type={type}
+          initialValues={initialValues}
+          values={values}
+          errors={errors}
+          setValues={setValues}
+          setErrors={setErrors}
+        />
+      ),
       'token',
       'proxy',
       {

@@ -20,8 +20,9 @@ package models
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
+
+	"github.com/apache/incubator-devlake/core/utils"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -49,6 +50,7 @@ func (sat SonarqubeAccessToken) GetEncodedToken() string {
 type SonarqubeConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	SonarqubeAccessToken  `mapstructure:",squash"`
+	Organization          string `json:"organization"`
 }
 
 func (connection SonarqubeConn) Sanitize() SonarqubeConn {
