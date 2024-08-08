@@ -90,9 +90,9 @@ def assert_stream_run(stream: Stream, connection: Connection, scope: ToolScope, 
     Test that a stream can run all 3 steps without error.
     """
     ctx = make_context(connection, scope, scope_config)
-    stream.collector.run(ctx)
-    stream.extractor.run(ctx)
-    stream.convertor.run(ctx)
+    list(stream.collector.run(ctx))
+    list(stream.extractor.run(ctx))
+    list(stream.convertor.run(ctx))
 
 
 def assert_valid_name(plugin: Plugin):
