@@ -1467,7 +1467,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Work Logs",
   "uid": "d449042e-22f0-4357-b8b7-22083f47618d",
   "version": 1,

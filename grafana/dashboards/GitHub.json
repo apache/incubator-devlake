@@ -3650,7 +3650,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "GitHub",
   "uid": "KXWvOFQnz",
   "version": 25,

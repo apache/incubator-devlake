@@ -1522,7 +1522,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "DORA",
   "uid": "qNo8_0M4z",
   "version": 8,

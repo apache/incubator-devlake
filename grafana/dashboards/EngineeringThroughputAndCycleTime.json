@@ -1956,7 +1956,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Engineering Throughput and Cycle Time",
   "uid": "Jaaimc67k",
   "version": 1,

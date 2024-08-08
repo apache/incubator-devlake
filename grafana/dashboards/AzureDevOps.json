@@ -2327,7 +2327,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Azure DevOps",
   "uid": "ba7e3a95-80ed-4067-a54b-2a82758eb3dd",
   "version": 5,

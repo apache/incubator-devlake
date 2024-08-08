@@ -922,7 +922,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Contributor Experience",
   "uid": "bwsP5Nz4z",
   "version": 2,
