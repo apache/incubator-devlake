@@ -308,7 +308,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Demo-Detailed Bug Info",
   "uid": "s48Lzn5nz",
   "version": 8

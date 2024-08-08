@@ -246,7 +246,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Demo-Is this month more productive than last?",
   "uid": "ddREk75nk",
   "version": 3

@@ -184,7 +184,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Demo-Homepage",
   "uid": "0Rjxknc7z",
   "version": 2

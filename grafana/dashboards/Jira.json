@@ -1240,7 +1240,7 @@
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Jira",
   "uid": "F5vqBQl7z",
   "version": 2,

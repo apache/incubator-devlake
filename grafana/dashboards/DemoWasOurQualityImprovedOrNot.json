@@ -213,7 +213,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Demo-Was our quality improved or not?",
   "uid": "G4DEk75nz",
   "version": 4

@@ -3880,7 +3880,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "DORA Validation",
   "uid": "KGkUnV-Vz",
   "version": 3,

@@ -2327,7 +2327,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Bitbucket",
   "uid": "4LzQHZa4k",
   "version": 5,
