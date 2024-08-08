@@ -2439,7 +2439,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Weekly Community Retro",
   "uid": "VTr6Y_q7z",
   "version": 2,

@@ -2241,7 +2241,7 @@
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
   "version": 5,

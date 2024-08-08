@@ -3411,7 +3411,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Engineering Throughput and Cycle Time - Team View",
   "uid": "nJ1ijje7k",
   "version": 1,

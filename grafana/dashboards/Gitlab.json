@@ -2319,7 +2319,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "GitLab",
   "uid": "msSjEq97z",
   "version": 27,

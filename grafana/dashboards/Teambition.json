@@ -1187,7 +1187,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Teambition",
   "uid": "hi-908hVk",
   "version": 2,

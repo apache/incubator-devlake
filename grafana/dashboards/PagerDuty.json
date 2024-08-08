@@ -1287,7 +1287,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "PagerDuty",
   "uid": "abb26d07-3268-4bdf-b871-6e39b37b9e00",
   "version": 2,

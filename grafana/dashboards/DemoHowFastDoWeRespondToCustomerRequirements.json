@@ -216,7 +216,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Demo-How fast do we respond to customer requirements?",
   "uid": "SupYz7c7z",
   "version": 4

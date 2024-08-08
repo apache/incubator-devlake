@@ -457,7 +457,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "DORA Details - Time to Restore Service",
   "uid": "Time-to-restore-service",
   "version": 3,

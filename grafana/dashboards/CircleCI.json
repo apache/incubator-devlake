@@ -1264,7 +1264,7 @@
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "CircleCI",
   "uid": "CircleCI",
   "version": 3,
