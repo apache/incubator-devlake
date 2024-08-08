@@ -250,7 +250,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Demo-Commit Count by Author",
   "uid": "F0iYknc7z",
   "version": 3

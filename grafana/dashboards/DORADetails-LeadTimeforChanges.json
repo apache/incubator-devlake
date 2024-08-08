@@ -944,7 +944,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "DORA Details - Lead Time for Changes",
   "uid": "Lead-time-for-changes",
   "version": 6,

@@ -1313,7 +1313,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "SonarQube",
   "uid": "WA0qbuJ4k",
   "version": 2,

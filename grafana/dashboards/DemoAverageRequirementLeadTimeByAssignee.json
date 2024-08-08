@@ -243,7 +243,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Demo-Average Requirement Lead Time By Assignee",
   "uid": "q27fk7cnk",
   "version": 6

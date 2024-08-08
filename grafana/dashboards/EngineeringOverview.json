@@ -2378,7 +2378,7 @@
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
   "version": 15,

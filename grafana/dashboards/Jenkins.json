@@ -1194,7 +1194,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Jenkins",
   "uid": "W8AiDFQnk",
   "version": 2,

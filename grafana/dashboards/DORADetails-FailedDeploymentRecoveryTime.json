@@ -470,7 +470,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "DORA Details - Failed Deployment Recovery Time",
   "uid": "Failed-deployment-recovery-time",
   "version": 3,

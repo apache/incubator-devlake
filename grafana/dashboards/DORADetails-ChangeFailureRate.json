@@ -750,7 +750,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "DORA Details - Change Failure Rate",
   "uid": "Change-failure-rate",
   "version": 3,

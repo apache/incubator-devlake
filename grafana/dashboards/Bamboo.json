@@ -1211,7 +1211,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Bamboo",
   "uid": "a90e58d9-7acc-4858-aa77-f606d11a7d4a",
   "version": 2,

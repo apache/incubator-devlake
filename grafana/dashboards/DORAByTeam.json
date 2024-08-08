@@ -1244,7 +1244,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "DORA (by Team)",
   "uid": "66YkL8y4z",
   "version": 4,
