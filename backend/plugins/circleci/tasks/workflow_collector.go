@@ -68,6 +68,7 @@ func CollectWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		GetNextPageCustomData: ExtractNextPageToken,
 		Query:                 BuildQueryParamsWithPageToken,
 		ResponseParser:        ParseCircleciPageTokenResp,
+		AfterResponse:         ignoreDeletedBuilds, // Ignore the 404 response if a workflow has been deleted
 	})
 	if err != nil {
 		logger.Error(err, "collect workflows error")
