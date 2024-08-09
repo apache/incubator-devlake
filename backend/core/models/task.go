@@ -117,20 +117,22 @@ type SubtaskDetails struct {
 }
 
 type SubtasksInfo struct {
-	ID             uint64            `json:"id"`
-	PipelineID     uint64            `json:"pipelineId"`
-	CreatedAt      time.Time         `json:"createdAt"`
-	UpdatedAt      time.Time         `json:"updatedAt"`
-	BeganAt        *time.Time        `json:"beganAt"`
-	FinishedAt     *time.Time        `json:"finishedAt"`
-	Plugin         string            `json:"plugin"`
-	Options        any               `json:"options"`
-	Status         string            `json:"status"`
-	FailedSubTask  string            `json:"failedSubTask"`
-	Message        string            `json:"message"`
-	ErrorName      string            `json:"errorName"`
-	SpentSeconds   int               `json:"spentSeconds"`
-	SubtaskDetails []*SubtaskDetails `json:"subtaskDetails"`
+	ID                uint64            `json:"id"`
+	PipelineID        uint64            `json:"pipelineId"`
+	CreatedAt         time.Time         `json:"createdAt"`
+	UpdatedAt         time.Time         `json:"updatedAt"`
+	BeganAt           *time.Time        `json:"beganAt"`
+	FinishedAt        *time.Time        `json:"finishedAt"`
+	Plugin            string            `json:"plugin"`
+	Options           any               `json:"options"`
+	Status            string            `json:"status"`
+	FailedSubTask     string            `json:"failedSubTask"`
+	Message           string            `json:"message"`
+	ErrorName         string            `json:"errorName"`
+	SpentSeconds      int               `json:"spentSeconds"`
+	SubtaskDetails    []*SubtaskDetails `json:"subtaskDetails"`
+	TotalTransform    int64             `json:"totalTransform"`
+	FinishedTransform int64             `json:"finishedTransform"`
 }
 
 type SubTasksOuput struct {
