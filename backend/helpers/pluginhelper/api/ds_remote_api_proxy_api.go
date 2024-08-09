@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -32,8 +33,9 @@ import (
 // DsRemoteApiProxyHelper is a helper to proxy api request to remote servers
 type DsRemoteApiProxyHelper[C plugin.ToolLayerApiConnection] struct {
 	*ModelApiHelper[C]
-	logger          log.Logger
-	httpClientCache map[string]*ApiClient
+	logger               log.Logger
+	httpClientCache      map[string]*ApiClient
+	httpClientCacheMutex *sync.RWMutex
 }
 
 // NewDsRemoteApiProxyHelper creates a new DsRemoteApiProxyHelper
@@ -43,9 +45,10 @@ func NewDsRemoteApiProxyHelper[
 	modelApiHelper *ModelApiHelper[C],
 ) *DsRemoteApiProxyHelper[C] {
 	return &DsRemoteApiProxyHelper[C]{
-		ModelApiHelper:  modelApiHelper,
-		logger:          modelApiHelper.basicRes.GetLogger().Nested("remote_api_helper"),
-		httpClientCache: make(map[string]*ApiClient),
+		ModelApiHelper:       modelApiHelper,
+		logger:               modelApiHelper.basicRes.GetLogger().Nested("remote_api_helper"),
+		httpClientCache:      make(map[string]*ApiClient),
+		httpClientCacheMutex: &sync.RWMutex{},
 	}
 }
 
@@ -68,9 +71,14 @@ func (rap *DsRemoteApiProxyHelper[C]) getApiClient(connection *C) (*ApiClient, e
 		key = cacheableConn.GetHash()
 	}
 	// try to reuse api client
-	if key != "" && rap.httpClientCache[key] != nil {
-		rap.logger.Info("Reused api client")
-		return rap.httpClientCache[key], nil
+	if key != "" {
+		rap.httpClientCacheMutex.RLock()
+		client, ok := rap.httpClientCache[key]
+		rap.httpClientCacheMutex.RUnlock()
+		if ok {
+			rap.logger.Info("Reused api client")
+			return client, nil
+		}
 	}
 	// create new client if cache missed
 	client, err := NewApiClientFromConnection(gocontext.TODO(), rap.basicRes, c.(plugin.ApiConnection))
@@ -79,7 +87,9 @@ func (rap *DsRemoteApiProxyHelper[C]) getApiClient(connection *C) (*ApiClient, e
 	}
 	// cache the client if key is not empty
 	if key != "" {
+		rap.httpClientCacheMutex.Lock()
 		rap.httpClientCache[key] = client
+		rap.httpClientCacheMutex.Unlock()
 	} else {
 		rap.logger.Info("No api client reuse")
 	}
