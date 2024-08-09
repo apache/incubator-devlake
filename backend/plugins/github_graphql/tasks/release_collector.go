@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -97,6 +98,7 @@ func CollectRelease(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	since := apiCollector.GetSince()
 	err = apiCollector.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
@@ -119,15 +121,16 @@ func CollectRelease(taskCtx plugin.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryReleaseWrapper)
 			return query.Repository.Releases.PageInfo, nil
 		},
-		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
-			query := iQuery.(*GraphqlQueryReleaseWrapper)
-			deployments := query.Repository.Releases.Releases
-			for _, rawL := range deployments {
-				if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(rawL.UpdatedAt) {
-					return nil, helper.ErrFinishCollect
+		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
+			query := queryWrapper.(*GraphqlQueryReleaseWrapper)
+			releases := query.Repository.Releases.Releases
+			for _, rawL := range releases {
+				if since != nil && since.After(rawL.UpdatedAt) {
+					return messages, helper.ErrFinishCollect
 				}
+				messages = append(messages, errors.Must1(json.Marshal(rawL)))
 			}
-			return nil, nil
+			return
 		},
 	})
 	if err != nil {

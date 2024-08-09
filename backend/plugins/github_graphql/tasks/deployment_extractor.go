@@ -51,21 +51,18 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_DEPLOYMENT,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			apiDeployment := &GraphqlQueryDeploymentWrapper{}
-			err := errors.Convert(json.Unmarshal(row.Data, apiDeployment))
+			deployment := &GraphqlQueryDeploymentDeployment{}
+			err := errors.Convert(json.Unmarshal(row.Data, deployment))
 			if err != nil {
 				return nil, err
 			}
 
-			deployments := apiDeployment.Repository.Deployments.Deployments
 			var results []interface{}
-			for _, deployment := range deployments {
-				githubDeployment, err := convertGithubDeployment(deployment, data.Options.ConnectionId, data.Options.GithubId)
-				if err != nil {
-					return nil, errors.Convert(err)
-				}
-				results = append(results, githubDeployment)
+			githubDeployment, err := convertGithubDeployment(deployment, data.Options.ConnectionId, data.Options.GithubId)
+			if err != nil {
+				return nil, errors.Convert(err)
 			}
+			results = append(results, githubDeployment)
 
 			return results, nil
 		},
@@ -76,7 +73,7 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func convertGithubDeployment(deployment GraphqlQueryDeploymentDeployment, connectionId uint64, githubId int) (*githubModels.GithubDeployment, error) {
+func convertGithubDeployment(deployment *GraphqlQueryDeploymentDeployment, connectionId uint64, githubId int) (*githubModels.GithubDeployment, errors.Error) {
 	ret := &githubModels.GithubDeployment{
 		ConnectionId:      connectionId,
 		GithubId:          githubId,

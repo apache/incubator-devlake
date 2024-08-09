@@ -49,20 +49,17 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_ACCOUNTS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			apiAccount := &GraphqlQueryAccountWrapper{}
-			err := errors.Convert(json.Unmarshal(row.Data, apiAccount))
+			account := &GraphqlQueryAccount{}
+			err := errors.Convert(json.Unmarshal(row.Data, account))
 			if err != nil {
 				return nil, err
 			}
-			accounts := apiAccount.Users
 			var result []interface{}
-			for _, account := range accounts {
-				relatedUsers, err := convertAccount(account, data.Options.ConnectionId)
-				if err != nil {
-					return nil, err
-				}
-				result = append(result, relatedUsers...)
+			relatedUsers, err := convertAccount(account, data.Options.ConnectionId)
+			if err != nil {
+				return nil, err
 			}
+			result = append(result, relatedUsers...)
 			return result, nil
 		},
 	})
@@ -74,7 +71,7 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func convertAccount(res GraphqlQueryAccount, connId uint64) ([]interface{}, errors.Error) {
+func convertAccount(res *GraphqlQueryAccount, connId uint64) ([]interface{}, errors.Error) {
 	results := make([]interface{}, 0, len(res.Organizations.Nodes)+1)
 	githubAccount := &models.GithubAccount{
 		ConnectionId: connId,

@@ -36,6 +36,7 @@ import (
 	githubImpl "github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/incubator-devlake/plugins/github_graphql/model/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
 	"github.com/merico-dev/graphql"
 	"golang.org/x/oauth2"
@@ -49,6 +50,7 @@ var _ interface {
 	plugin.PluginModel
 	plugin.PluginSource
 	plugin.CloseablePluginTask
+	plugin.PluginMigration
 } = (*GithubGraphql)(nil)
 
 type GithubGraphql struct{}
@@ -278,4 +280,8 @@ func (p GithubGraphql) Close(taskCtx plugin.TaskContext) errors.Error {
 	data.ApiClient.Release()
 	data.GraphqlClient.Release()
 	return nil
+}
+
+func (p GithubGraphql) MigrationScripts() []plugin.MigrationScript {
+	return migrationscripts.All()
 }

@@ -50,7 +50,7 @@ type BatchSave struct {
 // NewBatchSave creates a new BatchSave instance
 func NewBatchSave(basicRes context.BasicRes, slotType reflect.Type, size int, tableName ...string) (*BatchSave, errors.Error) {
 	if slotType.Kind() != reflect.Ptr {
-		return nil, errors.Default.New("slotType must be a pointer")
+		panic(errors.Default.New("slotType must be a pointer"))
 	}
 	db := basicRes.GetDal()
 	primaryKey := db.GetPrimaryKeyFields(slotType)

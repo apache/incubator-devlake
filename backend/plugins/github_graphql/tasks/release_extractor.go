@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -49,21 +50,18 @@ func ExtractReleases(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_RELEASE_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			apiDeployment := &GraphqlQueryReleaseWrapper{}
-			err := errors.Convert(json.Unmarshal(row.Data, apiDeployment))
+			release := &GraphqlQueryRelease{}
+			err := errors.Convert(json.Unmarshal(row.Data, release))
 			if err != nil {
 				return nil, err
 			}
 
-			releases := apiDeployment.Repository.Releases.Releases
 			var results []interface{}
-			for _, release := range releases {
-				githubRelease, err := convertGitHubRelease(release, data.Options.ConnectionId, data.Options.GithubId)
-				if err != nil {
-					return nil, errors.Convert(err)
-				}
-				results = append(results, githubRelease)
+			githubRelease, err := convertGitHubRelease(release, data.Options.ConnectionId, data.Options.GithubId)
+			if err != nil {
+				return nil, errors.Convert(err)
 			}
+			results = append(results, githubRelease)
 
 			return results, nil
 		},
