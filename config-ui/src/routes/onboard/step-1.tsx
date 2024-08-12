@@ -17,10 +17,12 @@
  */
 
 import { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { Input, Flex, Button, message } from 'antd';
 
 import API from '@/api';
 import { Block, Markdown } from '@/components';
+import { PATHS } from '@/config';
 import { ConnectionSelect } from '@/plugins';
 import { validName } from '@/routes/project';
 import { operator } from '@/utils';
@@ -87,7 +89,16 @@ export const Step1 = () => {
               onChange={(e) => setProjectName(e.target.value)}
             />
           </Block>
-          <Block title="Data Connection" description="You can only choose one data connection" required>
+          <Block
+            title="Data Connection"
+            description={
+              <p>
+                For self-managed GitLab/GitHub/Bitbucket, please skip the onboarding and configure via{' '}
+                <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
+              </p>
+            }
+            required
+          >
             <ConnectionSelect
               placeholder="Select a Data Connection"
               options={[

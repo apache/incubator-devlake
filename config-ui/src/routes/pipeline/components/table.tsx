@@ -41,14 +41,9 @@ interface Props {
     pageSize: number;
     onChange: (page: number) => void;
   };
-  noData?: {
-    text?: React.ReactNode;
-    btnText?: string;
-    onCreate?: () => void;
-  };
 }
 
-export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
+export const PipelineTable = ({ loading, dataSource, pagination }: Props) => {
   const [JSON, setJSON] = useState<any>(null);
   const [id, setId] = useState<ID | null>(null);
 
@@ -72,6 +67,7 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
       <Table
         rowKey="id"
         size="middle"
+        loading={loading}
         columns={[
           {
             title: 'ID',

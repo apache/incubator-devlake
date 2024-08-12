@@ -1528,7 +1528,7 @@
     "to": "2025-06-16T21:00:42.390Z"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Opsgenie",
   "uid": "b4556439-f173-4411-93d4-65f261726d24",
   "version": 1,

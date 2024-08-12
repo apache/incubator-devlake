@@ -2261,7 +2261,8 @@
   "schemaVersion": 38,
   "style": "dark",
   "tags": [
-    "Data Source Dashboard"
+    "Data Source Dashboard",
+    "Stable Data Sources"
   ],
   "templating": {
     "list": [
@@ -2326,7 +2327,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Bitbucket",
   "uid": "4LzQHZa4k",
   "version": 5,

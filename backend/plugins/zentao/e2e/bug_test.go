@@ -66,6 +66,7 @@ func TestZentaoBugDataFlow(t *testing.T) {
 	// verify conversion
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
 	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{

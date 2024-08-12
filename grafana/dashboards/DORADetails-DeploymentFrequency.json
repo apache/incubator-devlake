@@ -1324,7 +1324,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "DORA Details - Deployment Frequency",
   "uid": "Deployment-frequency",
   "version": 8,

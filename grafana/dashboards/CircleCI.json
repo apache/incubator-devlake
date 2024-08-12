@@ -1226,7 +1226,8 @@
   "refresh": "",
   "schemaVersion": 39,
   "tags": [
-    "Data Source Dashboard"
+    "Data Source Dashboard",
+    "Stable Data Sources"
   ],
   "templating": {
     "list": [
@@ -1263,7 +1264,7 @@
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "CircleCI",
   "uid": "CircleCI",
   "version": 3,

@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 40,
+  "id": 20,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -43,7 +43,7 @@
         "content": "- Use Cases: This dashboard shows the work logs of a team or a developer\n- Data Sources Required to show all data: \n   - One of the Git tools, e.g. [GitHub](https://devlake.apache.org/docs/Configuration/GitHub), [GitLab](https://devlake.apache.org/docs/Configuration/GitLab), [Bitbucket](https://devlake.apache.org/docs/Configuration/BitBucket) or [Azure DevOps](https://devlake.apache.org/docs/Configuration/AzureDevOps)\n   - One of the issue tracking tools, e.g. [Jira](https://devlake.apache.org/docs/Configuration/Jira)\n   - You also need to complete the [team configuration](https://devlake.apache.org/docs/Configuration/TeamConfiguration) to use this dashboard",
         "mode": "markdown"
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -209,7 +209,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -352,7 +352,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -780,7 +780,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -853,7 +853,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -926,7 +926,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -999,7 +999,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1194,7 +1194,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -1219,17 +1220,18 @@
           "fields": "",
           "values": true
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_commits as (\n  SELECT distinct DATE_FORMAT(authored_date, '%d/%m/%Y') as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name, c.additions, c.deletions, c.sha\n  FROM commits c\n  join _accounts a on c.author_id = a.account_id\n  where $__timeFilter(authored_date)\n),\n\n_pr_commits_data as(\n  SELECT\n    pr.id as pr_id,\n    pr.merge_commit_sha,\n    sum(c.additions)+sum(c.deletions) as loc\n  FROM \n    pull_requests pr\n    left join _commits c on pr.merge_commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.status = 'MERGED'\n    group by 1,2\n)\n\nSELECT \n  avg(loc) as 'PR Size'\nFROM _pr_commits_data\n",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_commits as (\n  SELECT distinct DATE_FORMAT(authored_date, '%d/%m/%Y') as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name, c.additions, c.deletions, c.sha\n  FROM commits c\n  join _accounts a on c.author_id = a.account_id\n  where $__timeFilter(authored_date)\n),\n\n_pr_commits_data as(\n  SELECT\n    pr.id as pr_id,\n    pr.merge_commit_sha,\n    sum(c.additions)+sum(c.deletions) as loc\n  FROM \n    pull_requests pr\n    left join _commits c on pr.merge_commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.status = 'MERGED'\n    group by 1,2\n)\n\nSELECT \n  avg(loc) as 'PR Merged Size'\nFROM _pr_commits_data\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1250,7 +1252,7 @@
           }
         }
       ],
-      "title": "Average PR size",
+      "title": "Average PR merged size",
       "type": "stat"
     },
     {
@@ -1265,7 +1267,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -1290,10 +1293,11 @@
           "fields": "",
           "values": true
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1337,7 +1341,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -1362,10 +1367,11 @@
           "fields": "",
           "values": true
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.6",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1401,15 +1407,17 @@
   "schemaVersion": 39,
   "tags": [
     "Developer",
-    "Highlights"
+    "Highlights",
+    "New"
   ],
   "templating": {
     "list": [
       {
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "red",
-          "value": "1"
+          "text": "None",
+          "value": ""
         },
         "datasource": "mysql",
         "definition": "select concat(name, '--', id) from teams",
@@ -1438,6 +1446,7 @@
         },
         "datasource": "mysql",
         "definition": "select concat(users.name, '--', users.id) from users left join team_users on users.id = team_users.user_id where team_users.team_id in ($team)",
+        "error": {},
         "hide": 0,
         "includeAll": true,
         "label": "User",
@@ -1458,9 +1467,9 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Work Logs",
   "uid": "d449042e-22f0-4357-b8b7-22083f47618d",
-  "version": 6,
+  "version": 1,
   "weekStart": ""
 }

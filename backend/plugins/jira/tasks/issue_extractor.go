@@ -42,9 +42,9 @@ var ExtractIssuesMeta = plugin.SubTaskMeta{
 }
 
 type typeMappings struct {
-	typeIdMappings         map[string]string
-	stdTypeMappings        map[string]string
-	standardStatusMappings map[string]models.StatusMappings
+	TypeIdMappings         map[string]string
+	StdTypeMappings        map[string]string
+	StandardStatusMappings map[string]models.StatusMappings
 }
 
 func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
@@ -129,13 +129,13 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData,
 	}
 
 	// code in next line will set issue.Type to issueType.Name
-	issue.Type = mappings.typeIdMappings[issue.Type]
-	issue.StdType = mappings.stdTypeMappings[issue.Type]
+	issue.Type = mappings.TypeIdMappings[issue.Type]
+	issue.StdType = mappings.StdTypeMappings[issue.Type]
 	if issue.StdType == "" {
 		issue.StdType = strings.ToUpper(issue.Type)
 	}
 	issue.StdStatus = getStdStatus(issue.StatusKey)
-	if value, ok := mappings.standardStatusMappings[issue.Type][issue.StatusKey]; ok {
+	if value, ok := mappings.StandardStatusMappings[issue.Type][issue.StatusKey]; ok {
 		issue.StdStatus = value.StandardStatus
 	}
 	// issue commments
@@ -239,8 +239,8 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Erro
 		}
 	}
 	return &typeMappings{
-		typeIdMappings:         typeIdMapping,
-		stdTypeMappings:        stdTypeMappings,
-		standardStatusMappings: standardStatusMappings,
+		TypeIdMappings:         typeIdMapping,
+		StdTypeMappings:        stdTypeMappings,
+		StandardStatusMappings: standardStatusMappings,
 	}, nil
 }

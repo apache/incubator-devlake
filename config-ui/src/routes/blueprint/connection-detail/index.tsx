@@ -92,7 +92,11 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
-      navigate(pname ? PATHS.PROJECT(pname, { tab: 'status' }) : PATHS.BLUEPRINT(blueprint.id, 'status'));
+      navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprint.id), {
+        state: {
+          activeKey: 'status',
+        },
+      });
     }
   };
 
@@ -121,9 +125,11 @@ export const BlueprintConnectionDetailPage = () => {
           </div>
         ),
         onCancel: () => {
-          navigate(
-            pname ? PATHS.PROJECT(pname, { tab: 'configuration' }) : PATHS.BLUEPRINT(blueprint.id, 'configuration'),
-          );
+          navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprint.id), {
+            state: {
+              tab: 'configuration',
+            },
+          });
         },
       });
     }

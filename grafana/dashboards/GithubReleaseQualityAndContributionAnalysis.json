@@ -2705,7 +2705,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "GitHub_Release_Quality_and_Contribution_Analysis",
   "uid": "2xuOaQUnk4",
   "version": 3

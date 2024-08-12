@@ -23,8 +23,8 @@ import { Block } from '@/components';
 
 interface Props {
   type: 'create' | 'update';
-  label?: string;
-  subLabel?: string;
+  label?: React.ReactNode;
+  subLabel?: React.ReactNode;
   initialValue: string;
   value: string;
   error: string;

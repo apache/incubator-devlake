@@ -125,7 +125,12 @@ export const ProjectHomePage = () => {
             dataIndex: 'name',
             key: 'name',
             render: (name: string) => (
-              <Link to={PATHS.PROJECT(name, { tab: 'configuration' })} style={{ color: '#292b3f' }} ref={nameRef}>
+              <Link
+                to={PATHS.PROJECT(name)}
+                state={{ activeKey: 'configuration' }}
+                style={{ color: '#292b3f' }}
+                ref={nameRef}
+              >
                 {name}
               </Link>
             ),
@@ -185,7 +190,11 @@ export const ProjectHomePage = () => {
                 type="primary"
                 icon={<SettingOutlined />}
                 helptip="Project Configuration"
-                onClick={() => navigate(PATHS.PROJECT(name, { tab: 'configuration' }))}
+                onClick={() =>
+                  navigate(PATHS.PROJECT(name), {
+                    state: { activeKey: 'configuration' },
+                  })
+                }
               />
             ),
           },

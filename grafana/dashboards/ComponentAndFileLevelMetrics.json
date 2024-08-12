@@ -1330,7 +1330,7 @@
       "1d"
     ]
   },
-  "timezone": "",
+  "timezone": "utc",
   "title": "Component and File-level Metrics",
   "uid": "KxUh7IG4z",
   "version": 2,

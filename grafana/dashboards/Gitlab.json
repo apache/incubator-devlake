@@ -2254,7 +2254,8 @@
   "schemaVersion": 38,
   "style": "dark",
   "tags": [
-    "Data Source Dashboard"
+    "Data Source Dashboard",
+    "Stable Data Sources"
   ],
   "templating": {
     "list": [
@@ -2318,7 +2319,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "GitLab",
   "uid": "msSjEq97z",
   "version": 27,

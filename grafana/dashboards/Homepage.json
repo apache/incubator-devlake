@@ -302,7 +302,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Homepage",
   "uid": "lCO8w-pVk",
   "version": 4,

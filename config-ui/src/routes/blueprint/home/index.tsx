@@ -121,7 +121,7 @@ export const BlueprintHomePage = () => {
               title: 'Blueprint Name',
               key: 'name',
               render: (_, { id, name }) => (
-                <Link to={PATHS.BLUEPRINT(id, 'configuration')} style={{ color: '#292b3f' }}>
+                <Link to={PATHS.BLUEPRINT(id)} state={{ activeKey: 'configuration' }} style={{ color: '#292b3f' }}>
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
               ),
@@ -196,7 +196,13 @@ export const BlueprintHomePage = () => {
                   type="primary"
                   icon={<SettingOutlined />}
                   helptip="Blueprint Configuration"
-                  onClick={() => navigate(PATHS.BLUEPRINT(val, 'configuration'))}
+                  onClick={() =>
+                    navigate(PATHS.BLUEPRINT(val), {
+                      state: {
+                        activeKey: 'configuration',
+                      },
+                    })
+                  }
                 />
               ),
             },
