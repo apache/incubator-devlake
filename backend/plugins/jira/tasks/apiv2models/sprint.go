@@ -18,8 +18,9 @@ limitations under the License.
 package apiv2models
 
 import (
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type Sprint struct {
@@ -36,12 +37,12 @@ type Sprint struct {
 
 func (s Sprint) ToToolLayer(connectionId uint64) *models.JiraSprint {
 	sprint := &models.JiraSprint{
-		ConnectionId:  connectionId,
-		SprintId:      s.ID,
-		Self:          s.Self,
-		State:         s.State,
-		Name:          s.Name,
-		StartDate:     s.StartDate,
+		ConnectionId: connectionId,
+		SprintId:     s.ID,
+		Self:         s.Self,
+		State:        s.State,
+		Name:         s.Name,
+		// StartDate:     s.StartDate,
 		EndDate:       s.EndDate,
 		CompleteDate:  s.CompleteDate,
 		OriginBoardID: s.OriginBoardID,
