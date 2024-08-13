@@ -82,9 +82,13 @@ func (BlueprintScope) TableName() string {
 	return "_devlake_blueprint_scopes"
 }
 
+type TriggerSyncPolicy struct {
+	SkipCollectors bool `json:"skipCollectors"`
+	FullSync       bool `json:"fullSync"`
+}
+
 type SyncPolicy struct {
-	SkipOnFail     bool       `json:"skipOnFail"`
-	SkipCollectors bool       `json:"skipCollectors"`
-	FullSync       bool       `json:"fullSync"`
-	TimeAfter      *time.Time `json:"timeAfter"`
+	SkipOnFail bool       `json:"skipOnFail"`
+	TimeAfter  *time.Time `json:"timeAfter"`
+	TriggerSyncPolicy
 }
