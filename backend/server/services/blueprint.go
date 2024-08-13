@@ -400,7 +400,7 @@ func SequentializePipelinePlans(plans ...models.PipelinePlan) models.PipelinePla
 }
 
 // TriggerBlueprint triggers blueprint immediately
-func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy, shouldSanitize bool) (*models.Pipeline, errors.Error) {
+func TriggerBlueprint(id uint64, triggerSyncPolicy *models.TriggerSyncPolicy, shouldSanitize bool) (*models.Pipeline, errors.Error) {
 	// load record from db
 	blueprint, err := GetBlueprint(id, false)
 	if err != nil {
@@ -410,9 +410,13 @@ func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy, shouldSanitize b
 	if !blueprint.Enable {
 		return nil, errors.BadInput.New("blueprint is not enabled")
 	}
-	blueprint.SkipCollectors = syncPolicy.SkipCollectors
-	blueprint.FullSync = syncPolicy.FullSync
-	pipeline, err := createPipelineByBlueprint(blueprint, syncPolicy)
+	blueprint.SkipCollectors = triggerSyncPolicy.SkipCollectors
+	blueprint.FullSync = triggerSyncPolicy.FullSync
+	pipeline, err := createPipelineByBlueprint(blueprint, &models.SyncPolicy{
+		SkipOnFail:        false,
+		TimeAfter:         nil,
+		TriggerSyncPolicy: *triggerSyncPolicy,
+	})
 	if err != nil {
 		return nil, err
 	}
