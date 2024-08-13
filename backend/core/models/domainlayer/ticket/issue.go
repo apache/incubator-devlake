@@ -18,8 +18,9 @@ limitations under the License.
 package ticket
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type Issue struct {
@@ -52,6 +53,7 @@ type Issue struct {
 	Urgency                 string `gorm:"type:varchar(255)"`
 	Component               string `gorm:"type:varchar(255)"`
 	OriginalProject         string `gorm:"type:varchar(255)"`
+	IsSubtask               bool
 }
 
 func (Issue) TableName() string {

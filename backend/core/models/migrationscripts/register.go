@@ -131,5 +131,6 @@ func All() []plugin.MigrationScript {
 		new(addDateFieldsToProjectPrMetric),
 		new(addTableScopeIdToIncident),
 		new(addAssigneeToIncident),
+		new(addIsSubtaskToIssue),
 	}
 }
