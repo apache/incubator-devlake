@@ -111,7 +111,7 @@ func TestSubtaskStateManager(t *testing.T) {
 		{
 			name:                      "Full sync - with timeAfter",
 			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time1},
-			syncPolicy:                &models.SyncPolicy{FullSync: true},
+			syncPolicy:                &models.SyncPolicy{TriggerSyncPolicy: models.TriggerSyncPolicy{FullSync: true}},
 			expectedIsIncremental:     false,
 			expectedSince:             &time1,
 			expectedNewStateTimeAfter: &time1,
@@ -119,7 +119,7 @@ func TestSubtaskStateManager(t *testing.T) {
 		{
 			name:                      "Full sync - with newer timeAfter",
 			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time1},
-			syncPolicy:                &models.SyncPolicy{TimeAfter: &time2, FullSync: true},
+			syncPolicy:                &models.SyncPolicy{TimeAfter: &time2, TriggerSyncPolicy: models.TriggerSyncPolicy{FullSync: true}},
 			expectedIsIncremental:     false,
 			expectedSince:             &time2,
 			expectedNewStateTimeAfter: &time2,
@@ -127,7 +127,7 @@ func TestSubtaskStateManager(t *testing.T) {
 		{
 			name:                      "Full sync - with older timeAfter",
 			state:                     &models.SubtaskState{TimeAfter: &time1, PrevStartedAt: &time1},
-			syncPolicy:                &models.SyncPolicy{TimeAfter: &time0, FullSync: true},
+			syncPolicy:                &models.SyncPolicy{TimeAfter: &time0, TriggerSyncPolicy: models.TriggerSyncPolicy{FullSync: true}},
 			expectedIsIncremental:     false,
 			expectedSince:             &time0,
 			expectedNewStateTimeAfter: &time0,
@@ -135,7 +135,7 @@ func TestSubtaskStateManager(t *testing.T) {
 		{
 			name:                      "Full sync - without timeAfter",
 			state:                     &models.SubtaskState{TimeAfter: nil, PrevStartedAt: &time1},
-			syncPolicy:                &models.SyncPolicy{FullSync: true},
+			syncPolicy:                &models.SyncPolicy{TriggerSyncPolicy: models.TriggerSyncPolicy{FullSync: true}},
 			expectedIsIncremental:     false,
 			expectedSince:             nil,
 			expectedNewStateTimeAfter: nil,
