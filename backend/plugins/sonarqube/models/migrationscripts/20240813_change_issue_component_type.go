@@ -17,23 +17,24 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-	}
+var _ plugin.MigrationScript = (*changeIssueComponentType)(nil)
+
+type changeIssueComponentType struct{}
+
+func (script *changeIssueComponentType) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().ModifyColumnType("_tool_sonarqube_issues", "components", "text")
+}
+
+func (*changeIssueComponentType) Version() uint64 {
+	return 20240813153541
+}
+
+func (*changeIssueComponentType) Name() string {
+	return "change _tool_sonarqube_issues.components type to text"
 }
