@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -38,6 +39,11 @@ var ExtractSprintsMeta = plugin.SubTaskMeta{
 
 func ExtractSprints(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
+	isServer := false
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+		isServer = true
+	}
+
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -58,7 +64,7 @@ func ExtractSprints(taskCtx plugin.SubTaskContext) errors.Error {
 				BoardId:      data.Options.BoardId,
 				SprintId:     sprint.ID,
 			}
-			return []interface{}{sprint.ToToolLayer(data.Options.ConnectionId), &boardSprint}, nil
+			return []interface{}{sprint.ToToolLayer(data.Options.ConnectionId, isServer), &boardSprint}, nil
 		},
 	})
 
