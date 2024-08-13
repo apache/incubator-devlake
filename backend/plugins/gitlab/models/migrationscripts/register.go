@@ -50,5 +50,6 @@ func All() []plugin.MigrationScript {
 		new(addWebUrlToGitlabPipelineProject),
 		new(addGitlabAssignee),
 		new(addGitlabAssigneeAndReviewerPrimaryKey),
+		new(changeIssueComponentType),
 	}
 }
