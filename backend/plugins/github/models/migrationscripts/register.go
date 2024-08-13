@@ -53,5 +53,6 @@ func All() []plugin.MigrationScript {
 		new(addMergedByToPr),
 		new(restructReviewer),
 		new(addIsDraftToPr),
+		new(changeIssueComponentType),
 	}
 }
