@@ -58,12 +58,12 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeProject := inputRow.(*sonarqubeModels.SonarqubeProject)
 			domainProject := &codequality.CqProject{
-				DomainEntity:     domainlayer.DomainEntity{Id: projectIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.ProjectKey)},
-				Name:             sonarqubeProject.Name,
-				Qualifier:        sonarqubeProject.Qualifier,
-				Visibility:       sonarqubeProject.Visibility,
-				LastAnalysisDate: sonarqubeProject.LastAnalysisDate,
-				CommitSha:        sonarqubeProject.Revision,
+				DomainEntityExtended: domainlayer.DomainEntityExtended{Id: projectIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.ProjectKey)},
+				Name:                 sonarqubeProject.Name,
+				Qualifier:            sonarqubeProject.Qualifier,
+				Visibility:           sonarqubeProject.Visibility,
+				LastAnalysisDate:     sonarqubeProject.LastAnalysisDate,
+				CommitSha:            sonarqubeProject.Revision,
 			}
 			return []interface{}{
 				domainProject,

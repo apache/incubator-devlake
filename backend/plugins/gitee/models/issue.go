@@ -44,7 +44,7 @@ type GiteeIssue struct {
 	GiteeCreatedAt  time.Time
 	GiteeUpdatedAt  time.Time `gorm:"index"`
 	Severity        string    `gorm:"type:varchar(255)"`
-	Component       string    `gorm:"type:varchar(255)"`
+	Component       string    `gorm:"type:text"`
 	common.NoPKModel
 }
 

@@ -18,29 +18,23 @@ limitations under the License.
 package migrationscripts
 
 import (
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables20220803),
-		new(addPipeline20220914),
-		new(addPrCommits20221008),
-		new(addDeployment20221013),
-		new(addRepoIdAndCommitShaField20221014),
-		new(addScope20230206),
-		new(addPipelineStep20230215),
-		new(addConnectionIdToTransformationRule),
-		new(addTypeEnvToPipelineAndStep),
-		new(addRepoIdField20230411),
-		new(addRepoIdToPr),
-		new(addBitbucketCommitAuthorInfo),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addBuildNumberToPipelines),
-		new(reCreatBitBucketPipelineSteps),
-		new(addMergedByToPr),
-		new(changeIssueComponentType),
-	}
+var _ plugin.MigrationScript = (*changeIssueComponentType)(nil)
+
+type changeIssueComponentType struct{}
+
+func (script *changeIssueComponentType) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().ModifyColumnType("_tool_github_issues", "components", "text")
+}
+
+func (*changeIssueComponentType) Version() uint64 {
+	return 20240813154633
+}
+
+func (*changeIssueComponentType) Name() string {
+	return "change _tool_github_issues.components type to text"
 }
