@@ -379,12 +379,12 @@ func (d *Dalgorm) ModifyColumnType(table, columnName, columnType string) errors.
 	defer func() {
 		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
 	}()
-	sql := "ALTER TABLE ? MODIFY COLUMN ? %s"
+	query := "ALTER TABLE ? MODIFY COLUMN ? %s"
 	if d.db.Dialector.Name() == "postgres" {
-		sql = "ALTER TABLE ? ALTER COLUMN ? TYPE %s"
+		query = "ALTER TABLE ? ALTER COLUMN ? TYPE %s"
 	}
 	return d.Exec(
-		fmt.Sprintf(sql, columnType),
+		fmt.Sprintf(query, columnType),
 		clause.Table{Name: table},
 		clause.Column{Name: columnName},
 	)
