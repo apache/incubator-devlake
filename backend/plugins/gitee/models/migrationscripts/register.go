@@ -27,5 +27,6 @@ func All() []plugin.MigrationScript {
 		new(addInitTables),
 		new(addGiteeCommitAuthorInfo),
 		new(addScopeConfigIdToRepo),
+		new(changeIssueComponentType),
 	}
 }

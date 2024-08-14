@@ -26,7 +26,7 @@ import (
 var _ plugin.Scope = (*CqProject)(nil)
 
 type CqProject struct {
-	domainlayer.DomainEntity
+	domainlayer.DomainEntityExtended
 	Name             string `gorm:"type:varchar(255)"`
 	Qualifier        string `gorm:"type:varchar(255)"`
 	Visibility       string `gorm:"type:varchar(64)"`
