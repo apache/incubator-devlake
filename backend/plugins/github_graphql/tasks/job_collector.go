@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"reflect"
 	"time"
 
@@ -156,13 +157,23 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return query, variables, nil
 		},
-		ResponseParserWithDataErrors: func(iQuery interface{}, variables map[string]interface{}, dataErrors []graphql.DataError) ([]interface{}, error) {
-			for _, dataError := range dataErrors {
-				// log and ignore
-				taskCtx.GetLogger().Warn(dataError, `query check run get error but ignore`)
+		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
+			query := queryWrapper.(*GraphqlQueryCheckRunWrapper)
+			for _, node := range query.Node {
+				for _, checkRun := range node.CheckSuite.CheckRuns.Nodes {
+					updatedAt := checkRun.StartedAt
+					if checkRun.CompletedAt != nil {
+						updatedAt = checkRun.CompletedAt
+					}
+					if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(*updatedAt) {
+						return messages, helper.ErrFinishCollect
+					}
+					messages = append(messages, errors.Must1(json.Marshal(node)))
+				}
 			}
-			return nil, nil
+			return
 		},
+		IgnoreQueryErrors: true,
 	})
 	if err != nil {
 		return err

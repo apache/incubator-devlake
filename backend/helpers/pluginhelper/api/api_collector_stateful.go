@@ -70,7 +70,19 @@ func (m *StatefulApiCollector) InitCollector(args ApiCollectorArgs) errors.Error
 // InitGraphQLCollector appends a new GraphQL collector to the list
 func (m *StatefulApiCollector) InitGraphQLCollector(args GraphqlCollectorArgs) errors.Error {
 	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
-	args.Incremental = m.CollectorStateManager.IsIncremental()
+	// highest priority: caller may hardcode the incremental flag.
+	//   e.g. github graphql pr_collector need to refetch OPENing PRs existing in the database
+	if !args.Incremental {
+		// medium priority: force incremental flag to false when full sync is enabled
+		syncPolicy := args.Ctx.TaskContext().SyncPolicy()
+		if syncPolicy != nil && syncPolicy.FullSync {
+			args.Incremental = false
+		} else {
+			// lowest priority: use the incremental flag from the state manager
+			args.Incremental = m.CollectorStateManager.IsIncremental()
+		}
+	}
+
 	graphqlCollector, err := NewGraphqlCollector(args)
 	if err != nil {
 		return err
