@@ -121,3 +121,12 @@ func ParseCircleciPageTokenResp(res *http.Response) ([]json.RawMessage, errors.E
 	err := api.UnmarshalResponse(res, &data)
 	return data.Items, err
 }
+
+func ignoreDeletedBuilds(res *http.Response) errors.Error {
+	// CircleCI API will return a 404 response for a workflow/job that has been deleted
+	// due to their data retention policy. We should ignore these errors.
+	if res.StatusCode == http.StatusNotFound {
+		return api.ErrIgnoreAndContinue
+	}
+	return nil
+}
