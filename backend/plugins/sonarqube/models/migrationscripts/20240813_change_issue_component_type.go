@@ -28,7 +28,9 @@ var _ plugin.MigrationScript = (*changeIssueComponentType)(nil)
 type changeIssueComponentType struct{}
 
 func (script *changeIssueComponentType) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().ModifyColumnType("_tool_sonarqube_issues", "components", "text")
+	db := basicRes.GetDal()
+	errors.Must(db.DropIndex("_tool_sonarqube_issues", "component"))
+	return db.ModifyColumnType("_tool_sonarqube_issues", "component", "text")
 }
 
 func (*changeIssueComponentType) Version() uint64 {
@@ -36,5 +38,5 @@ func (*changeIssueComponentType) Version() uint64 {
 }
 
 func (*changeIssueComponentType) Name() string {
-	return "change _tool_sonarqube_issues.components type to text"
+	return "change _tool_sonarqube_issues.component type to text"
 }
