@@ -169,8 +169,10 @@ type Dal interface {
 	RenameColumn(table, oldColumnName, newColumnName string) errors.Error
 	// ModifyColumnType modifies column type
 	ModifyColumnType(table, columnName, columnType string) errors.Error
-	// DropIndexes drops all specified tables
+	// DropIndexes drops indexes by their name
 	DropIndexes(table string, indexes ...string) errors.Error
+	// DropIndex drops the index of specified column names
+	DropIndex(table string, columnNames ...string) errors.Error
 	// Dialect returns the dialect of current database
 	Dialect() string
 	// Session creates a new manual session for special scenarios
