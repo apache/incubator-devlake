@@ -461,6 +461,12 @@ func (d *Dalgorm) DropIndexes(table string, indexNames ...string) errors.Error {
 	return nil
 }
 
+// DropIndexes drops the index of specified columns
+func (d *Dalgorm) DropIndex(table string, columnNames ...string) errors.Error {
+	indexName := fmt.Sprintf("idx_%s_%s", table, strings.Join(columnNames, "_"))
+	return d.DropIndexes(table, indexName)
+}
+
 // Dialect returns the dialect of the database
 func (d *Dalgorm) Dialect() string {
 	return d.db.Dialector.Name()

@@ -28,7 +28,7 @@ var _ plugin.MigrationScript = (*changeIssueComponentType)(nil)
 type changeIssueComponentType struct{}
 
 func (script *changeIssueComponentType) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().ModifyColumnType("_tool_bitbucket_issues", "components", "text")
+	return basicRes.GetDal().ModifyColumnType("_tool_bitbucket_issues", "component", "text")
 }
 
 func (*changeIssueComponentType) Version() uint64 {
@@ -36,5 +36,5 @@ func (*changeIssueComponentType) Version() uint64 {
 }
 
 func (*changeIssueComponentType) Name() string {
-	return "change _tool_bitbucket_issues.components type to text"
+	return "change _tool_bitbucket_issues.component type to text"
 }
