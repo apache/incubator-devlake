@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -41,6 +42,7 @@ var CollectPipelinesMeta = plugin.SubTaskMeta{
 func CollectPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 	logger := taskCtx.GetLogger()
+	timeAfter := rawDataSubTaskArgs.Ctx.TaskContext().SyncPolicy().TimeAfter
 	logger.Info("collect pipelines")
 	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
