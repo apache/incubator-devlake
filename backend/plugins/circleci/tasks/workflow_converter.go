@@ -60,7 +60,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 			createdAt := userTool.CreatedDate.ToTime()
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: getPipelineIdGen().Generate(data.Options.ConnectionId, userTool.Id),
+					Id: getWorkflowIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
 				Name:        userTool.Name,
 				DurationSec: userTool.DurationSec,
