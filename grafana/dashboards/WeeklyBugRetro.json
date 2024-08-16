@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 12,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -40,7 +39,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "- Use Cases: This dashboard can be used to track bugs with metrics such as [Bug Age](https://devlake.apache.org/docs/Metrics/BugAge).\n- Data Source Required: GitHub ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional) required) or Jira ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required). Transformation is the configuration for you to tell DevLake what is a bug.",
+        "content": "- Use Cases: This dashboard can be used to track bugs with metrics such as [Bug Age](https://devlake.apache.org/docs/Metrics/BugAge).\n- Data Source Required: GitHub ([Scope Config](https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional) required) or Jira ([Scope Config](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required). Scope config is the settings to define which issues are bugs.",
         "mode": "markdown"
       },
       "pluginVersion": "11.0.0",
@@ -56,6 +55,448 @@
       ],
       "title": "Dashboard Introduction",
       "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 32,
+      "panels": [],
+      "title": "Overall Bug Count",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 46,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.71,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with bugs as (  \n  select \n    DATE_ADD(date(i.created_date), INTERVAL -WEEKDAY(date(i.created_date)) DAY) as time,\n    count(distinct i.id) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and $__timeFilter(i.created_date)\n    and b.id in (${board_id})\n  group by time\n  order by time desc\n),\n\ncalendar_date as(\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) >= ($__timeTo()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n)\n\n\nselect \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +7 DAY),'%m/%d')) as week,\n  case when bug_count is not null then bug_count else 0 end as 'Weekly New Bugs'\nfrom calendar_weeks cw left join bugs b on cw.start_of_week = b.time\norder by cw.start_of_week asc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "script_version"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_migration_history",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Weekly New Bugs [Selected Time Range]",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 46,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 20,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.71,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with bugs as (\n  select \n    DATE_ADD(date(i.resolution_date), INTERVAL -WEEKDAY(date(i.resolution_date)) DAY) as time,\n    count(distinct i.id) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and status = 'DONE'\n    and $__timeFilter(i.resolution_date)\n    and b.id in (${board_id})\n  group by time\n  order by time desc\n),\n\ncalendar_date as(\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) >= ($__timeTo()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n)\n\nselect \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +7 DAY),'%m/%d')) as week,\n  case when bug_count is not null then bug_count else 0 end as 'Weekly Closed Bugs'\nfrom calendar_weeks cw left join bugs b on cw.start_of_week = b.time\norder by cw.start_of_week asc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "script_version"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_migration_history",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Weekly Closed Bugs [Selected Time Range]",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 46,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 21,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Bug Count per 1k Lines of Code",
+          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.71,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with calendar_date as(\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) >= ($__timeTo()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n),\n\ncreated_bugs as (  \n  select \n    DATE_ADD(date(i.created_date), INTERVAL -WEEKDAY(date(i.created_date)) DAY) as time,\n    count(distinct i.id) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and $__timeFilter(i.created_date)\n    and b.id in (${board_id})\n  group by time\n  order by time desc\n),\n\nresolved_bugs as (\n  select \n    DATE_ADD(date(i.resolution_date), INTERVAL -WEEKDAY(date(i.resolution_date)) DAY) as time,\n    count(distinct i.id) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and status = 'DONE'\n    and $__timeFilter(i.resolution_date)\n    and b.id in (${board_id})\n  group by time\n  order by time desc\n),\n\nweekly_new_bug as(\n  select\n    cw.start_of_week as week,\n    case when bug_count is not null then bug_count else 0 end as weekly_new_bug\n  from calendar_weeks cw left join created_bugs cb on cw.start_of_week = cb.time\n),\n\nweekly_closed_bug as(\n  select\n    cw.start_of_week as week,\n    case when bug_count is not null then bug_count else 0 end as weekly_closed_bug\n  from calendar_weeks cw left join resolved_bugs cb on cw.start_of_week = cb.time\n),\n\nweekly_updates as(\n  SELECT t1.week, weekly_new_bug, weekly_closed_bug FROM weekly_new_bug t1\n  LEFT JOIN weekly_closed_bug t2 ON t1.week = t2.week\n  UNION\n  SELECT t1.week, weekly_new_bug, weekly_closed_bug FROM weekly_new_bug t1\n  RIGHT JOIN weekly_closed_bug t2 ON t1.week = t2.week\n),\n\n\noriginal_open_bugs as (\n  SELECT \n    count(distinct i.id) as original_open_bug_count\n  FROM\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and i.created_date < $__timeFrom()\n    and (i.status != 'DONE' or $__timeFilter(i.resolution_date))\n    and b.id in (${board_id})\n),\n\nweekly_updated_without_null as(\n  SELECT \n    week, \n    COALESCE(weekly_new_bug,0) as weekly_new_bug, \n    COALESCE(weekly_closed_bug,0) as weekly_closed_bug,\n    original_open_bug_count\n  from weekly_updates, original_open_bugs\n  where week is not null\n),\n\nweekly_delta as(\n  SELECT \n    *,\n    (weekly_new_bug - weekly_closed_bug) as weekly_delta\n  from weekly_updated_without_null\n  order by week asc\n),\n\nfinal_data as(\n  SELECT \n    *,\n    concat(date_format(week,'%m/%d'), ' - ', date_format(DATE_ADD(week, INTERVAL +7 DAY),'%m/%d')) as _week,\n    sum(weekly_delta) over(order by week asc) as weekly_accumulated\n  from weekly_delta\n)\n\nSELECT \n  _week,\n  (original_open_bug_count + weekly_accumulated) as \"Total No. of Outstanding Bugs By the End of Week\" from final_data",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "script_version"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_migration_history",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Total Outstanding Bug Count by Week [Selected Time Range]",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 33
+      },
+      "id": 33,
+      "panels": [],
+      "title": "Detailed Bug Info",
+      "type": "row"
     },
     {
       "datasource": "mysql",
@@ -85,7 +526,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 3
+        "y": 34
       },
       "id": 6,
       "links": [
@@ -163,7 +604,7 @@
           ]
         }
       ],
-      "title": "Previous Week New Bug Count",
+      "title": "Last Week's New Bug Count",
       "type": "stat"
     },
     {
@@ -188,7 +629,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 3
+        "y": 34
       },
       "id": 26,
       "links": [
@@ -275,7 +716,7 @@
           ]
         }
       ],
-      "title": "Previous Week New Bug Count by Priority",
+      "title": "Last Week's New Bug Count by Priority",
       "type": "piechart"
     },
     {
@@ -360,7 +801,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 3
+        "y": 34
       },
       "id": 4,
       "links": [
@@ -465,7 +906,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 11
+        "y": 42
       },
       "id": 8,
       "links": [
@@ -579,7 +1020,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 11
+        "y": 42
       },
       "id": 24,
       "links": [
@@ -756,7 +1197,7 @@
         "h": 16,
         "w": 12,
         "x": 12,
-        "y": 11
+        "y": 42
       },
       "id": 10,
       "links": [
@@ -884,7 +1325,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 19
+        "y": 50
       },
       "id": 23,
       "links": [
@@ -1001,7 +1442,7 @@
         "h": 9,
         "w": 6,
         "x": 0,
-        "y": 27
+        "y": 58
       },
       "id": 16,
       "links": [
@@ -1110,7 +1551,7 @@
         "h": 9,
         "w": 6,
         "x": 6,
-        "y": 27
+        "y": 58
       },
       "id": 25,
       "links": [
@@ -1293,7 +1734,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 27
+        "y": 58
       },
       "id": 14,
       "links": [
@@ -1420,7 +1861,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 67
       },
       "id": 18,
       "links": [
@@ -1630,7 +2071,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 36
+        "y": 67
       },
       "id": 31,
       "links": [
@@ -1708,422 +2149,6 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 46,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 45
-      },
-      "id": 2,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Bug Count per 1k Lines of Code",
-          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
-        }
-      ],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.71,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
-        "tooltip": {
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 45,
-        "xTickLabelSpacing": 0
-      },
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "with bugs as (  \n  select \n    DATE_ADD(date(i.created_date), INTERVAL -WEEKDAY(date(i.created_date)) DAY) as time,\n    count(distinct i.id) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and $__timeFilter(i.created_date)\n    and b.id in (${board_id})\n  group by time\n  order by time desc\n),\n\ncalendar_date as(\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) >= ($__timeTo()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n)\n\n\nselect \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +7 DAY),'%m/%d')) as week,\n  case when bug_count is not null then bug_count else 0 end as 'Weekly New Bugs'\nfrom calendar_weeks cw left join bugs b on cw.start_of_week = b.time\norder by cw.start_of_week asc\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "script_version"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "_devlake_migration_history",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Weekly New Bugs [Selected Time Range]",
-      "type": "barchart"
-    },
-    {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 46,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 54
-      },
-      "id": 20,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Bug Count per 1k Lines of Code",
-          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
-        }
-      ],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.71,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
-        "tooltip": {
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 45,
-        "xTickLabelSpacing": 0
-      },
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "with bugs as (\n  select \n    DATE_ADD(date(i.resolution_date), INTERVAL -WEEKDAY(date(i.resolution_date)) DAY) as time,\n    count(distinct i.id) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and status = 'DONE'\n    and $__timeFilter(i.resolution_date)\n    and b.id in (${board_id})\n  group by time\n  order by time desc\n),\n\ncalendar_date as(\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) >= ($__timeTo()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n)\n\nselect \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +7 DAY),'%m/%d')) as week,\n  case when bug_count is not null then bug_count else 0 end as 'Weekly Closed Bugs'\nfrom calendar_weeks cw left join bugs b on cw.start_of_week = b.time\norder by cw.start_of_week asc",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "script_version"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "_devlake_migration_history",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Weekly Closed Bugs [Selected Time Range]",
-      "type": "barchart"
-    },
-    {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 46,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 64
-      },
-      "id": 21,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Bug Count per 1k Lines of Code",
-          "url": "https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode"
-        }
-      ],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.71,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
-        "tooltip": {
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 45,
-        "xTickLabelSpacing": 0
-      },
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "with calendar_date as(\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) >= ($__timeTo()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n),\n\ncreated_bugs as (  \n  select \n    DATE_ADD(date(i.created_date), INTERVAL -WEEKDAY(date(i.created_date)) DAY) as time,\n    count(distinct i.id) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and $__timeFilter(i.created_date)\n    and b.id in (${board_id})\n  group by time\n  order by time desc\n),\n\nresolved_bugs as (\n  select \n    DATE_ADD(date(i.resolution_date), INTERVAL -WEEKDAY(date(i.resolution_date)) DAY) as time,\n    count(distinct i.id) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and status = 'DONE'\n    and $__timeFilter(i.resolution_date)\n    and b.id in (${board_id})\n  group by time\n  order by time desc\n),\n\nweekly_new_bug as(\n  select\n    cw.start_of_week as week,\n    case when bug_count is not null then bug_count else 0 end as weekly_new_bug\n  from calendar_weeks cw left join created_bugs cb on cw.start_of_week = cb.time\n),\n\nweekly_closed_bug as(\n  select\n    cw.start_of_week as week,\n    case when bug_count is not null then bug_count else 0 end as weekly_closed_bug\n  from calendar_weeks cw left join resolved_bugs cb on cw.start_of_week = cb.time\n),\n\nweekly_updates as(\n  SELECT t1.week, weekly_new_bug, weekly_closed_bug FROM weekly_new_bug t1\n  LEFT JOIN weekly_closed_bug t2 ON t1.week = t2.week\n  UNION\n  SELECT t1.week, weekly_new_bug, weekly_closed_bug FROM weekly_new_bug t1\n  RIGHT JOIN weekly_closed_bug t2 ON t1.week = t2.week\n),\n\n\noriginal_open_bugs as (\n  SELECT \n    count(distinct i.id) as original_open_bug_count\n  FROM\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in (${issue_type})\n    and i.created_date < $__timeFrom()\n    and (i.status != 'DONE' or $__timeFilter(i.resolution_date))\n    and b.id in (${board_id})\n),\n\nweekly_updated_without_null as(\n  SELECT \n    week, \n    COALESCE(weekly_new_bug,0) as weekly_new_bug, \n    COALESCE(weekly_closed_bug,0) as weekly_closed_bug,\n    original_open_bug_count\n  from weekly_updates, original_open_bugs\n  where week is not null\n),\n\nweekly_delta as(\n  SELECT \n    *,\n    (weekly_new_bug - weekly_closed_bug) as weekly_delta\n  from weekly_updated_without_null\n  order by week asc\n),\n\nfinal_data as(\n  SELECT \n    *,\n    concat(date_format(week,'%m/%d'), ' - ', date_format(DATE_ADD(week, INTERVAL +7 DAY),'%m/%d')) as _week,\n    sum(weekly_delta) over(order by week asc) as weekly_accumulated\n  from weekly_delta\n)\n\nSELECT \n  _week,\n  (original_open_bug_count + weekly_accumulated) as \"Total No. of Outstanding Bugs By the End of Week\" from final_data",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "script_version"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "_devlake_migration_history",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Total Outstanding Bug Count by Week [Selected Time Range]",
-      "type": "barchart"
-    },
-    {
       "datasource": {
         "type": "datasource",
         "uid": "grafana"
@@ -2132,7 +2157,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 74
+        "y": 76
       },
       "id": 30,
       "options": {
@@ -2168,7 +2193,7 @@
     "list": [
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -2210,7 +2235,7 @@
       },
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2239,7 +2264,6 @@
     "from": "now-6M",
     "to": "now"
   },
-  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
   "title": "Weekly Bug Retro",
