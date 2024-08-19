@@ -66,6 +66,7 @@ func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.Jir
 		ChangelogId:      changelogId,
 		Field:            c.Field,
 		FieldType:        c.Fieldtype,
+		FieldId:          c.FieldId,
 		FromValue:        c.FromValue,
 		FromString:       c.FromString,
 		ToValue:          c.ToValue,
