@@ -22,46 +22,34 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"strings"
-	"time"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/utils"
+	"io"
+	"net/http"
+	"strings"
 )
 
-// NotificationService FIXME ...
-type NotificationService struct {
+// DefaultPipelineNotificationService FIXME ...
+type DefaultPipelineNotificationService struct {
 	EndPoint string
 	Secret   string
 }
 
-// NewNotificationService FIXME ...
-func NewNotificationService(endpoint, secret string) *NotificationService {
-	return &NotificationService{
+// NewDefaultPipelineNotificationService creates a new DefaultPipelineNotificationService
+func NewDefaultPipelineNotificationService(endpoint, secret string) *DefaultPipelineNotificationService {
+	return &DefaultPipelineNotificationService{
 		EndPoint: endpoint,
 		Secret:   secret,
 	}
 }
 
-// PipelineNotification FIXME ...
-type PipelineNotification struct {
-	PipelineID uint64
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	BeganAt    *time.Time
-	FinishedAt *time.Time
-	Status     string
-}
-
 // PipelineStatusChanged FIXME ...
-func (n *NotificationService) PipelineStatusChanged(params PipelineNotification) errors.Error {
+func (n *DefaultPipelineNotificationService) PipelineStatusChanged(params PipelineNotificationParam) errors.Error {
 	return n.sendNotification(models.NotificationPipelineStatusChanged, params)
 }
 
-func (n *NotificationService) sendNotification(notificationType models.NotificationType, data interface{}) errors.Error {
+func (n *DefaultPipelineNotificationService) sendNotification(notificationType models.NotificationType, data interface{}) errors.Error {
 	var dataJson, err = json.Marshal(data)
 	if err != nil {
 		return errors.Convert(err)
@@ -99,7 +87,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 	return db.Update(notification)
 }
 
-func (n *NotificationService) signature(input, nouce string) string {
+func (n *DefaultPipelineNotificationService) signature(input, nouce string) string {
 	sum := sha256.Sum256([]byte(input + n.Secret + nouce))
 	return hex.EncodeToString(sum[:])
 }
