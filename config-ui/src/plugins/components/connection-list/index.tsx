@@ -18,15 +18,17 @@
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EyeOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { theme, Table, Button, Modal } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { theme, Table, Button, Modal, message } from 'antd';
 import styled from 'styled-components';
 
-import { selectConnections } from '@/features/connections';
+import { selectConnections, removeConnection } from '@/features/connections';
+import { Message } from '@/components';
 import { PATHS } from '@/config';
-import { useAppSelector } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { getPluginConfig, ConnectionStatus, ConnectionForm } from '@/plugins';
 import { WebHookConnection } from '@/plugins/register/webhook';
+import { operator } from '@/utils';
 
 const ModalTitle = styled.div`
   display: flex;
@@ -50,8 +52,11 @@ interface Props {
 }
 
 export const ConnectionList = ({ plugin, onCreate }: Props) => {
-  const [open, setOpen] = useState(false);
+  const [modalType, setModalType] = useState<'update' | 'delete' | 'deleteFailed'>();
   const [connectionId, setConnectionId] = useState<ID>();
+  const [operating, setOperating] = useState(false);
+  const [conflict, setConflict] = useState<string[]>([]);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
 
@@ -59,23 +64,58 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
     token: { colorPrimary },
   } = theme.useToken();
 
+  const dispatch = useAppDispatch();
   const connections = useAppSelector((state) => selectConnections(state, plugin));
 
   const navigate = useNavigate();
 
-  if (plugin === 'webhook') {
-    return <WebHookConnection />;
-  }
-
-  const handleShowForm = (id: ID) => {
-    setOpen(true);
+  const handleShowModal = (type: 'update' | 'delete', id: ID) => {
+    setModalType(type);
     setConnectionId(id);
   };
 
-  const hanldeHideForm = () => {
-    setOpen(false);
+  const hanldeHideModal = () => {
+    setModalType(undefined);
     setConnectionId(undefined);
   };
+
+  const handleDelete = async () => {
+    const [, res] = await operator(
+      async () => {
+        try {
+          await dispatch(removeConnection({ plugin, connectionId })).unwrap();
+          return { status: 'success' };
+        } catch (err: any) {
+          const { status, data, message } = err;
+          return {
+            status: status === 409 ? 'conflict' : 'error',
+            conflict: data ? [...data.projects, ...data.blueprints] : [],
+            message,
+          };
+        }
+      },
+      {
+        setOperating,
+        hideToast: true,
+      },
+    );
+
+    if (res.status === 'success') {
+      message.success('Delete Connection Successful.');
+      hanldeHideModal();
+    } else if (res.status === 'conflict') {
+      setModalType('deleteFailed');
+      setConflict(res.conflict);
+      setErrorMsg(res.message);
+    } else {
+      message.error('Operation failed.');
+      hanldeHideModal();
+    }
+  };
+
+  if (plugin === 'webhook') {
+    return <WebHookConnection />;
+  }
 
   return (
     <>
@@ -97,14 +137,17 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
           {
             title: '',
             key: 'link',
-            width: 200,
+            width: 300,
             render: (_, { plugin, id }) => (
               <>
                 <Button type="link" icon={<EyeOutlined />} onClick={() => navigate(PATHS.CONNECTION(plugin, id))}>
                   Details
                 </Button>
-                <Button type="link" icon={<EditOutlined />} onClick={() => handleShowForm(id)}>
+                <Button type="link" icon={<EditOutlined />} onClick={() => handleShowModal('update', id)}>
                   Edit
+                </Button>
+                <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleShowModal('delete', id)}>
+                  Delete
                 </Button>
               </>
             ),
@@ -116,22 +159,76 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
       <Button style={{ marginTop: 16 }} type="primary" icon={<PlusOutlined />} onClick={onCreate}>
         Create a New Connection
       </Button>
-      <Modal
-        destroyOnClose
-        open={open}
-        width={820}
-        centered
-        title={
-          <ModalTitle>
-            <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
-            <span className="name">Manage Connections: {pluginConfig.name}</span>
-          </ModalTitle>
-        }
-        footer={null}
-        onCancel={hanldeHideForm}
-      >
-        <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={hanldeHideForm} />
-      </Modal>
+      {modalType === 'update' && (
+        <Modal
+          destroyOnClose
+          open
+          width={820}
+          centered
+          title={
+            <ModalTitle>
+              <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
+              <span className="name">Manage Connections: {pluginConfig.name}</span>
+            </ModalTitle>
+          }
+          footer={null}
+          onCancel={hanldeHideModal}
+        >
+          <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={hanldeHideModal} />
+        </Modal>
+      )}
+      {modalType === 'delete' && (
+        <Modal
+          open
+          width={820}
+          centered
+          title="Would you like to delete this Data Connection?"
+          okText="Confirm"
+          okButtonProps={{
+            loading: operating,
+          }}
+          onCancel={hanldeHideModal}
+          onOk={handleDelete}
+        >
+          <Message
+            content=" This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected
+              in this Connection."
+          />
+        </Modal>
+      )}
+      {modalType === 'deleteFailed' && (
+        <Modal
+          open
+          width={820}
+          centered
+          style={{ width: 820 }}
+          title="This Data Connection can not be deleted."
+          cancelButtonProps={{
+            style: {
+              display: 'none',
+            },
+          }}
+          onCancel={hanldeHideModal}
+          onOk={hanldeHideModal}
+        >
+          {!conflict.length ? (
+            <Message content={errorMsg} />
+          ) : (
+            <>
+              <Message
+                content={`This Data Connection can not be deleted because it has been used in the following projects/blueprints:`}
+              />
+              <ul style={{ paddingLeft: 36 }}>
+                {conflict.map((it) => (
+                  <li key={it} style={{ color: colorPrimary }}>
+                    {it}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </Modal>
+      )}
     </>
   );
 };

@@ -17,7 +17,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { DeleteOutlined, PlusOutlined, LinkOutlined, ClearOutlined } from '@ant-design/icons';
 import { theme, Space, Table, Button, Modal, message } from 'antd';
@@ -25,8 +25,8 @@ import { theme, Space, Table, Button, Modal, message } from 'antd';
 import API from '@/api';
 import { PageHeader, Message, IconButton } from '@/components';
 import { PATHS } from '@/config';
-import { useAppDispatch, useAppSelector } from '@/hooks';
-import { selectConnection, removeConnection } from '@/features';
+import { useAppSelector } from '@/hooks';
+import { selectConnection } from '@/features';
 import { useRefreshData } from '@/hooks';
 import {
   ConnectionStatus,
@@ -45,13 +45,7 @@ const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
 export const Connection = () => {
   const [type, setType] = useState<
-    | 'deleteConnection'
-    | 'createDataScope'
-    | 'clearDataScope'
-    | 'deleteDataScope'
-    | 'associateScopeConfig'
-    | 'deleteConnectionFailed'
-    | 'deleteDataScopeFailed'
+    'createDataScope' | 'clearDataScope' | 'deleteDataScope' | 'associateScopeConfig' | 'deleteDataScopeFailed'
   >();
   const [operating, setOperating] = useState(false);
   const [version, setVersion] = useState(1);
@@ -69,10 +63,7 @@ export const Connection = () => {
     token: { colorPrimary },
   } = theme.useToken();
 
-  const dispatch = useAppDispatch();
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
-
-  const navigate = useNavigate();
 
   const { ready, data } = useRefreshData(
     () => API.scope.list(plugin, connectionId, { page, pageSize, blueprints: true }),
@@ -99,44 +90,6 @@ export const Connection = () => {
 
   const handleHideDialog = () => {
     setType(undefined);
-  };
-
-  const handleShowDeleteDialog = () => {
-    setType('deleteConnection');
-  };
-
-  const handleDelete = async () => {
-    const [, res] = await operator(
-      async () => {
-        try {
-          await dispatch(removeConnection({ plugin, connectionId })).unwrap();
-          return { status: 'success' };
-        } catch (err: any) {
-          const { status, data, message } = err;
-          return {
-            status: status === 409 ? 'conflict' : 'error',
-            conflict: data ? [...data.projects, ...data.blueprints] : [],
-            message,
-          };
-        }
-      },
-      {
-        setOperating,
-        hideToast: true,
-      },
-    );
-
-    if (res.status === 'success') {
-      message.success('Delete Connection Successful.');
-      navigate(PATHS.CONNECTIONS());
-    } else if (res.status === 'conflict') {
-      setType('deleteConnectionFailed');
-      setConflict(res.conflict);
-      setErrorMsg(res.message);
-    } else {
-      message.error('Operation failed.');
-      handleHideDialog();
-    }
   };
 
   const handleShowCreateDataScopeDialog = () => {
@@ -238,11 +191,6 @@ export const Connection = () => {
         { name: 'Connections', path: PATHS.CONNECTIONS() },
         { name, path: '' },
       ]}
-      extra={
-        <Button type="primary" danger icon={<DeleteOutlined />} onClick={handleShowDeleteDialog}>
-          Delete Connection
-        </Button>
-      }
     >
       <Helmet>
         <title>
@@ -358,25 +306,6 @@ export const Connection = () => {
           }}
         />
       </Space>
-      {type === 'deleteConnection' && (
-        <Modal
-          open
-          width={820}
-          centered
-          title="Would you like to delete this Data Connection?"
-          okText="Confirm"
-          okButtonProps={{
-            loading: operating,
-          }}
-          onCancel={handleHideDialog}
-          onOk={handleDelete}
-        >
-          <Message
-            content=" This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected
-              in this Connection."
-          />
-        </Modal>
-      )}
       {type === 'createDataScope' && (
         <Modal
           getContainer={false}
@@ -457,39 +386,6 @@ export const Connection = () => {
             onCancel={handleHideDialog}
             onSubmit={handleAssociateScopeConfig}
           />
-        </Modal>
-      )}
-      {type === 'deleteConnectionFailed' && (
-        <Modal
-          open
-          width={820}
-          centered
-          style={{ width: 820 }}
-          title="This Data Connection can not be deleted."
-          cancelButtonProps={{
-            style: {
-              display: 'none',
-            },
-          }}
-          onCancel={handleHideDialog}
-          onOk={handleHideDialog}
-        >
-          {!conflict.length ? (
-            <Message content={errorMsg} />
-          ) : (
-            <>
-              <Message
-                content={`This Data Connection can not be deleted because it has been used in the following projects/blueprints:`}
-              />
-              <ul style={{ paddingLeft: 36 }}>
-                {conflict.map((it) => (
-                  <li key={it} style={{ color: colorPrimary }}>
-                    {it}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
         </Modal>
       )}
       {type === 'deleteDataScopeFailed' && (
