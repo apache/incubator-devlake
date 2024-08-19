@@ -42,5 +42,8 @@ func GetPipelineNotificationService() PipelineNotificationService {
 	if customPipelineNotificationService != nil {
 		return customPipelineNotificationService
 	}
-	return defaultNotificationService
+	if defaultNotificationService != nil {
+		return defaultNotificationService
+	}
+	return nil
 }
