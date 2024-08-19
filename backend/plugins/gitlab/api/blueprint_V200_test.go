@@ -183,3 +183,65 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	assert.Equal(t, expectPlans, actualPlans)
 }
+
+func Test_makePipelinePlanV200_with_empty_scope_config(t *testing.T) {
+
+	mockGitlabPlugin(t)
+
+	type args struct {
+		subtaskMetas []plugin.SubTaskMeta
+		connection   *models.GitlabConnection
+		scopeDetails []*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig]
+	}
+
+	tests := []struct {
+		name                      string
+		args                      args
+		makeSureGitExtractorExist bool
+		wantError                 bool
+	}{
+		{
+			name: "without-empty-scope-config",
+			args: args{
+				subtaskMetas: []plugin.SubTaskMeta{},
+				scopeDetails: []*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig]{
+					&srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig]{
+						Scope:       models.GitlabProject{},
+						ScopeConfig: &models.GitlabScopeConfig{},
+					},
+				},
+				connection: &models.GitlabConnection{
+					BaseConnection: api.BaseConnection{
+						Model: common.Model{
+							ID: 1,
+						},
+					},
+					GitlabConn: models.GitlabConn{},
+				},
+			},
+			makeSureGitExtractorExist: true,
+			wantError:                 false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := makePipelinePlanV200(tt.args.subtaskMetas, tt.args.connection, tt.args.scopeDetails)
+			if tt.wantError {
+				assert.Equalf(t, nil, got1, "makePipelinePlanV200 want error(%v, %v, %v)", tt.args.subtaskMetas, tt.args.scopeDetails, tt.args.connection)
+			}
+			if tt.makeSureGitExtractorExist {
+				var existGitExtractor bool
+				for _, g := range got {
+					for _, v := range g {
+						if v.Plugin == "gitextractor" {
+							existGitExtractor = true
+						}
+					}
+				}
+				if !existGitExtractor {
+					t.Fatal("gitextractor not found")
+				}
+			}
+		})
+	}
+}
