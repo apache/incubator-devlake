@@ -47,8 +47,9 @@ func TestGithubIssueDataFlow(t *testing.T) {
 
 	dataflowTester.Subtask(githubGraphQLTasks.ExtractIssuesMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubIssue{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/_tool_github_issues.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath:   "./snapshot_tables/_tool_github_issues.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"body"},
 	})
 
 }

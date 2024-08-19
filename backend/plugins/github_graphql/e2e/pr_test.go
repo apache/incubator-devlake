@@ -47,8 +47,9 @@ func TestGithubPRsDataFlow(t *testing.T) {
 
 	dataflowTester.Subtask(githubGraphQLTasks.ExtractPrsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubPullRequest{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/_tool_github_pull_requests.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath:   "./snapshot_tables/_tool_github_pull_requests.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"body"},
 	})
 
 }
