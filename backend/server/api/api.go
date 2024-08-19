@@ -59,6 +59,15 @@ func Init() {
 	basicRes = services.GetBasicRes()
 }
 
+func InjectCustomService(pipelineNotifier services.PipelineNotificationService) errors.Error {
+	if pipelineNotifier != nil {
+		if err := services.InjectCustomService(pipelineNotifier); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // @title  DevLake Swagger API
 // @version 0.1
 // @description  <h2>This is the main page of devlake api</h2>

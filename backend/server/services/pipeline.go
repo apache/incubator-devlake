@@ -41,7 +41,7 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
-var notificationService *NotificationService
+var defaultNotificationService *DefaultPipelineNotificationService
 var globalPipelineLog = logruslog.Global.Nested("pipeline service")
 var pluginOptionSanitizers = map[string]func(map[string]interface{}){
 	"gitextractor": func(options map[string]interface{}) {
@@ -85,7 +85,7 @@ func pipelineServiceInit() {
 	var notificationEndpoint = cfg.GetString("NOTIFICATION_ENDPOINT")
 	var notificationSecret = cfg.GetString("NOTIFICATION_SECRET")
 	if strings.TrimSpace(notificationEndpoint) != "" {
-		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
+		defaultNotificationService = NewDefaultPipelineNotificationService(notificationEndpoint, notificationSecret)
 	}
 
 	// standalone mode: reset pipeline status
@@ -226,8 +226,10 @@ func GetPipeline(pipelineId uint64, shouldSanitize bool) (*models.Pipeline, erro
 	if err != nil {
 		return nil, err
 	}
-	if err := SanitizePipeline(dbPipeline); err != nil {
-		return nil, errors.Convert(err)
+	if shouldSanitize {
+		if err := SanitizePipeline(dbPipeline); err != nil {
+			return nil, errors.Convert(err)
+		}
 	}
 	return dbPipeline, nil
 }
@@ -352,9 +354,26 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 	}
 }
 
+func getProjectName(pipeline *models.Pipeline) (string, errors.Error) {
+	if pipeline == nil {
+		return "", errors.Default.New("pipeline is nil")
+	}
+	blueprintId := pipeline.BlueprintId
+	dbBlueprint := &models.Blueprint{}
+	err := db.First(dbBlueprint, dal.Where("id = ?", blueprintId))
+	if err != nil {
+		if db.IsErrorNotFound(err) {
+			return "", errors.NotFound.New(fmt.Sprintf("blueprint(id: %d) not found", blueprintId))
+		}
+		return "", errors.Internal.Wrap(err, "error getting the blueprint from database")
+	}
+	return dbBlueprint.ProjectName, nil
+}
+
 // NotifyExternal FIXME ...
 func NotifyExternal(pipelineId uint64) errors.Error {
-	if notificationService == nil {
+	notification := GetPipelineNotificationService()
+	if notification == nil {
 		return nil
 	}
 	// send notification to an external web endpoint
@@ -362,13 +381,18 @@ func NotifyExternal(pipelineId uint64) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = notificationService.PipelineStatusChanged(PipelineNotification{
-		PipelineID: pipeline.ID,
-		CreatedAt:  pipeline.CreatedAt,
-		UpdatedAt:  pipeline.UpdatedAt,
-		BeganAt:    pipeline.BeganAt,
-		FinishedAt: pipeline.FinishedAt,
-		Status:     pipeline.Status,
+	projectName, err := getProjectName(pipeline)
+	if err != nil {
+		return err
+	}
+	err = notification.PipelineStatusChanged(PipelineNotificationParam{
+		ProjectName: projectName,
+		PipelineID:  pipeline.ID,
+		CreatedAt:   pipeline.CreatedAt,
+		UpdatedAt:   pipeline.UpdatedAt,
+		BeganAt:     pipeline.BeganAt,
+		FinishedAt:  pipeline.FinishedAt,
+		Status:      pipeline.Status,
 	})
 	if err != nil {
 		globalPipelineLog.Error(err, "failed to send notification: %v", err)
