@@ -125,6 +125,14 @@ func Init() {
 	registerPluginsMigrationScripts()
 }
 
+func InjectCustomService(pipelineNotifier PipelineNotificationService) errors.Error {
+	if pipelineNotifier == nil {
+		return errors.Default.New("pipeline notifier is nil")
+	}
+	customPipelineNotificationService = pipelineNotifier
+	return nil
+}
+
 var statusLock sync.Mutex
 
 // ExecuteMigration executes all pending migration scripts and initialize services module
