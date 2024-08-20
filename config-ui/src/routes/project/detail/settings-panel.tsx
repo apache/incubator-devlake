@@ -18,15 +18,13 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Flex, Space, Card, Modal, Input, Checkbox, Button, message } from 'antd';
+import { Flex, Space, Card, Modal, Input, Checkbox, Button } from 'antd';
 
 import API from '@/api';
 import { Block, HelpTooltip, Message } from '@/components';
 import { PATHS } from '@/config';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
-
-import { validName } from '../utils';
 
 import * as S from './styled';
 
@@ -73,11 +71,6 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   }, [project]);
 
   const handleUpdate = async () => {
-    if (!validName(name)) {
-      message.error('Please enter alphanumeric or underscore');
-      return;
-    }
-
     const [success] = await operator(
       () =>
         API.project.update(project.name, {
