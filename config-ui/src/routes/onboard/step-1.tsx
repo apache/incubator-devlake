@@ -24,7 +24,6 @@ import API from '@/api';
 import { Block, Markdown } from '@/components';
 import { PATHS } from '@/config';
 import { ConnectionSelect } from '@/plugins';
-import { validName } from '@/routes/project';
 import { operator } from '@/utils';
 
 import { Context } from './context';
@@ -43,13 +42,7 @@ export const Step1 = () => {
   }, [plugin]);
 
   const handleSubmit = async () => {
-    if (!projectName || !validName(projectName)) {
-      message.error('Please enter alphanumeric or underscore');
-      return;
-    }
-
-    if (!plugin) {
-      message.error('Please select a plugin');
+    if (!projectName || !plugin) {
       return;
     }
 
