@@ -35,11 +35,12 @@ type pipelineRunner struct {
 }
 
 func (p *pipelineRunner) runPipelineStandalone() errors.Error {
+	ctx := context.WithValue(context.Background(), "pipeline_id", p.pipeline.ID)
 	return runner.RunPipeline(
 		basicRes.ReplaceLogger(p.logger),
 		p.pipeline.ID,
 		func(taskIds []uint64) errors.Error {
-			return RunTasksStandalone(p.logger, taskIds)
+			return RunTasksStandalone(ctx, p.logger, taskIds)
 		},
 	)
 }

@@ -96,13 +96,13 @@ func init() {
 	runningTasks.tasks = make(map[uint64]*RunningTaskData)
 }
 
-func runTaskStandalone(parentLog log.Logger, taskId uint64) errors.Error {
+func runTaskStandalone(ctx context.Context, parentLog log.Logger, taskId uint64) errors.Error {
 	// deferring cleaning up
 	defer func() {
 		_, _ = runningTasks.Remove(taskId)
 	}()
 	// for task cancelling
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	err := runningTasks.Add(taskId, cancel)
 	if err != nil {
 		return err

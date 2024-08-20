@@ -175,21 +175,21 @@ func CancelTask(taskId uint64) errors.Error {
 }
 
 // RunTasksStandalone run tasks in parallel
-func RunTasksStandalone(parentLogger log.Logger, taskIds []uint64) errors.Error {
+func RunTasksStandalone(ctx context.Context, parentLogger log.Logger, taskIds []uint64) errors.Error {
 	if len(taskIds) == 0 {
 		return nil
 	}
 	results := make(chan error)
 	for _, taskId := range taskIds {
-		go func(id uint64) {
+		go func(ctx context.Context, id uint64) {
 			taskLog.Info("run task #%d in background ", id)
 			var err errors.Error
-			taskErr := runTaskStandalone(parentLogger, id)
+			taskErr := runTaskStandalone(ctx, parentLogger, id)
 			if taskErr != nil {
 				err = errors.Default.Wrap(taskErr, fmt.Sprintf("Error running task %d.", id))
 			}
 			results <- err
-		}(taskId)
+		}(ctx, taskId)
 	}
 	errs := make([]error, 0)
 	var err error
