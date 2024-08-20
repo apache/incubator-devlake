@@ -32,6 +32,38 @@ type StatefulApiExtractorArgs struct {
 	Extract func(row *RawData) ([]any, errors.Error)
 }
 
+// StatefulApiExtractor is a struct that manages the stateful API extraction process.
+// It facilitates extracting data from a single _raw_data table and saving it into multiple Tool Layer tables.
+// By default, the extractor operates in Incremental Mode, processing only new records added to the raw table since the previous run.
+// This approach reduces the amount of data to process, significantly decreasing the execution time.
+// The extractor automatically detects if the configuration has changed since the last run. If a change is detected,
+// it will automatically switch to Full-Sync mode.
+//
+// Example:
+//
+//	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+//	  SubtaskCommonArgs: &api.SubtaskCommonArgs{
+//	    SubTaskContext: subtaskCtx,
+//	    Table:          RAW_ISSUE_TABLE,
+//	    Params: JiraApiParams{
+//	      ConnectionId: data.Options.ConnectionId,
+//	      BoardId:      data.Options.BoardId,
+//	    },
+//	    SubtaskConfig: config,  // The helper stores this configuration in the state and compares it with the previous one
+//	                            // to determine the operating mode (Incremental/FullSync).
+//	                            // Ensure that the configuration is serializable and contains only public fields.
+//	                            // It is also recommended that the configuration includes only the necessary fields used by the extractor.
+//	..},
+//	  Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+//	    return extractIssues(data, config, row, userFieldMap)
+//	  },
+//	})
+//
+//	if err != nil {
+//	  return err
+//	}
+//
+// return extractor.Execute()
 type StatefulApiExtractor struct {
 	*StatefulApiExtractorArgs
 	*SubtaskStateManager
