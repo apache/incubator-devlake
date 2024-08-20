@@ -19,7 +19,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import { Flex, Table, Button, Modal, Input, message } from 'antd';
+import { Flex, Table, Button, Modal, Input } from 'antd';
 
 import API from '@/api';
 import { PageHeader, Block, IconButton } from '@/components';
@@ -30,8 +30,6 @@ import { OnboardTour } from '@/routes/onboard/components';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
 import { IBlueprint } from '@/types';
-
-import { validName } from '../utils';
 
 export const ProjectHomePage = () => {
   const [version, setVersion] = useState(1);
@@ -74,11 +72,6 @@ export const ProjectHomePage = () => {
   };
 
   const handleCreate = async () => {
-    if (!validName(name)) {
-      message.error('Please enter alphanumeric or underscore');
-      return;
-    }
-
     const [success] = await operator(
       async () =>
         API.project.create({
