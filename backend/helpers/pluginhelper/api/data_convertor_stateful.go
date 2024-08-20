@@ -32,6 +32,61 @@ type StatefulDataConverterArgs[InputType any] struct {
 	BatchSize int
 }
 
+// StatefulDataConverter is a struct that manages the stateful data conversion process.
+// It facilitates converting data from a database cursor and saving it into arbitrary tables.
+// The converter determines the operating mode (Incremental/FullSync) based on the stored state and configuration.
+// It then calls the provided `Input` function to obtain the `dal.Rows` (the database cursor) and processes each
+// record individually through the `Convert` function, saving the results to the database.
+//
+// For Incremental mode to work properly, it is crucial to check `stateManager.IsIncremental()` and utilize
+// `stateManager.GetSince()` to build your query in the `Input` function, ensuring that only the necessary
+// records are fetched.
+//
+// The converter automatically detects if the configuration has changed since the last run. If a change is detected,
+// it will automatically switch to Full-Sync mode.
+//
+// Example:
+//
+// converter, err := api.NewStatefulDataConverter[models.JiraIssue](&api.StatefulDataConverterArgs[models.JiraIssue]{
+// 	SubtaskCommonArgs: &api.SubtaskCommonArgs{
+// 		SubTaskContext: subtaskCtx,
+// 		Table:          RAW_ISSUE_TABLE,
+// 		Params: JiraApiParams{
+// 			ConnectionId: data.Options.ConnectionId,
+// 			BoardId:      data.Options.BoardId,
+// 		},
+// 		SubtaskConfig: mappings,
+// 	},
+// 	Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+// 		clauses := []dal.Clause{
+// 			dal.Select("_tool_jira_issues.*"),
+// 			dal.From("_tool_jira_issues"),
+// 			dal.Join(`left join _tool_jira_board_issues
+// 				on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id
+// 				and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id`),
+// 			dal.Where(
+// 				"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
+// 				data.Options.ConnectionId,
+// 				data.Options.BoardId,
+// 			),
+// 		}
+// 		if stateManager.IsIncremental() { // IMPORTANT: to filter records for Incremental Mode
+// 			since := stateManager.GetSince()
+// 			if since != nil {
+// 				clauses = append(clauses, dal.Where("_tool_jira_issues.updated_at >= ? ", since))
+// 			}
+// 		}
+// 		return db.Cursor(clauses...)
+// 	},
+// 	Convert: func(jiraIssue *models.JiraIssue) ([]interface{}, errors.Error) {
+// 	},
+// })
+
+// if err != nil {
+// 	return err
+// }
+
+// return converter.Execute()
 type StatefulDataConverter[InputType any] struct {
 	*StatefulDataConverterArgs[InputType]
 	*SubtaskStateManager
