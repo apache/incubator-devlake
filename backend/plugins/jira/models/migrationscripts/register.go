@@ -52,5 +52,6 @@ func All() []plugin.MigrationScript {
 		new(addTmpAccountIdToJiraIssueChangelogItem),
 		new(addIssueFieldTable),
 		new(changeIssueComponentType),
+		new(flushJiraIssues),
 	}
 }
