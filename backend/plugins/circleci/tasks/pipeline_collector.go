@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -44,35 +45,44 @@ func CollectPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	timeAfter := rawDataSubTaskArgs.Ctx.TaskContext().SyncPolicy().TimeAfter
 	logger.Info("collect pipelines")
-	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
-		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
-		ApiClient:             data.ApiClient,
-		UrlTemplate:           "/v2/project/{{ .Params.ProjectSlug }}/pipeline",
-		PageSize:              int(data.Options.PageSize),
-		GetNextPageCustomData: ExtractNextPageToken,
-		Query:                 BuildQueryParamsWithPageToken,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			data := CircleciPageTokenResp[[]json.RawMessage]{}
-			err := api.UnmarshalResponse(res, &data)
+	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
+			PageSize:              int(data.Options.PageSize),
+			GetNextPageCustomData: ExtractNextPageToken,
+			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
+				UrlTemplate: "/v2/project/{{ .Params.ProjectSlug }}/pipeline",
+				Query: func(reqData *api.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
+					query := url.Values{}
+					if pageToken, ok := reqData.CustomData.(string); ok && pageToken != "" {
+						query.Set("page-token", pageToken)
+					}
+					return query, nil
+				},
+				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+					data := CircleciPageTokenResp[[]json.RawMessage]{}
+					err := api.UnmarshalResponse(res, &data)
 
-			if err != nil {
-				return nil, err
-			}
-			filteredItems := []json.RawMessage{}
-			for _, item := range data.Items {
-				var pipeline struct {
-					CreatedAt time.Time `json:"created_at"`
-				}
-				if err := json.Unmarshal(item, &pipeline); err != nil {
-					return nil, errors.Default.Wrap(err, "failed to unmarshal pipeline item")
-				}
-				if pipeline.CreatedAt.Before(*timeAfter) {
-					return filteredItems, api.ErrFinishCollect
-				}
-				filteredItems = append(filteredItems, item)
+					if err != nil {
+						return nil, err
+					}
+					filteredItems := []json.RawMessage{}
+					for _, item := range data.Items {
+						pipelineCreatedAt, err := extractCreatedAt(item)
 
-			}
-			return filteredItems, nil
+						if err != nil {
+							return nil, err
+						}
+						if pipelineCreatedAt.Before(*timeAfter) {
+							return filteredItems, api.ErrFinishCollect
+						}
+						filteredItems = append(filteredItems, item)
+					}
+					return filteredItems, nil
+				},
+			},
+			GetCreated: extractCreatedAt,
 		},
 	})
 	if err != nil {
