@@ -50,10 +50,10 @@ const URLS = {
         'https://devlake.apache.org/docs/v1.0/Configuration/BitBucket#step-3---adding-transformation-rules-optional',
     },
     BITBUCKET_SERVER: {
-      BASIS: 'https://devlake.apache.org/docs/v1.0/Configuration/BitBucket-Server',
-      RATE_LIMIT: 'https://devlake.apache.org/docs/v1.0/Configuration/BitBucket-Server#fixed-rate-limit-optional',
+      BASIS: 'https://devlake.apache.org/docs/v1.0/Configuration/BitBucketServer',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/v1.0/Configuration/BitBucketServer#fixed-rate-limit-optional',
       TRANSFORMATION:
-        'https://devlake.apache.org/docs/v1.0/Configuration/BitBucket-Server#step-3---adding-transformation-rules-optional',
+        'https://devlake.apache.org/docs/v1.0/Configuration/BitBucketServer#step-3---adding-transformation-rules-optional',
     },
     CIRCLECI: {
       RATE_LIMIT: 'https://devlake.apache.org/docs/v1.0/Configuration/CircleCI#fixed-rate-limit-optional',
