@@ -169,7 +169,7 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 
 			// time filter or diff sync
 			if createdAfter != nil && args.CollectNewRecordsByList.GetCreated != nil {
-				// if the first record of the page was created before createdAfter, return emtpy set and stop
+				// if the first record of the page was created before createdAfter, return empty set and stop
 				firstCreated, err := args.CollectNewRecordsByList.GetCreated(items[0])
 				if err != nil {
 					return nil, err
@@ -177,13 +177,26 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 				if firstCreated.Before(*createdAfter) {
 					return nil, ErrFinishCollect
 				}
-				// if the last record was created before createdAfter, return records and stop
+
+				// If last record was created before CreatedAfter, check each record individually
 				lastCreated, err := args.CollectNewRecordsByList.GetCreated(items[len(items)-1])
 				if err != nil {
 					return nil, err
 				}
 				if lastCreated.Before(*createdAfter) {
-					return items, ErrFinishCollect
+					var validItems []json.RawMessage
+					// Only collect items that were created after the last successful collection to prevent duplicates
+					for _, item := range items {
+						itemCreatedAt, err := args.CollectNewRecordsByList.GetCreated(item)
+						if err != nil {
+							return nil, err
+						}
+						if itemCreatedAt.Before(*createdAfter) {
+							// Once we reach an item that was created before the last successful collection, stop & return
+							return validItems, ErrFinishCollect
+						}
+						validItems = append(validItems, item)
+					}
 				}
 			}
 			return items, err
