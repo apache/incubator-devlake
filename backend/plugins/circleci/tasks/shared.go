@@ -49,7 +49,7 @@ func getProjectIdGen() *didgen.DomainIdGenerator {
 	return projectIdGen
 }
 
-func getPipelineIdGen() *didgen.DomainIdGenerator {
+func getWorkflowIdGen() *didgen.DomainIdGenerator {
 	if pipelineIdGen == nil {
 		pipelineIdGen = didgen.NewDomainIdGenerator(&models.CircleciWorkflow{})
 	}
