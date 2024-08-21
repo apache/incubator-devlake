@@ -54,5 +54,6 @@ func All() []plugin.MigrationScript {
 		new(restructReviewer),
 		new(addIsDraftToPr),
 		new(changeIssueComponentType),
+		new(addIndexToGithubJobs),
 	}
 }
