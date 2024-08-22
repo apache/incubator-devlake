@@ -139,10 +139,19 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	createdAfter := manager.CollectorStateManager.GetSince()
 	isIncremental := manager.CollectorStateManager.IsIncremental()
 
+	var inputIterator Iterator
+	if args.CollectNewRecordsByList.BuildInputIterator != nil {
+		inputIterator, err = args.CollectNewRecordsByList.BuildInputIterator(isIncremental, createdAfter)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// step 1: create a collector to collect newly added records
 	err = manager.InitCollector(ApiCollectorArgs{
 		ApiClient: args.ApiClient,
 		// common
+		Input:       inputIterator,
 		Incremental: isIncremental,
 		UrlTemplate: args.CollectNewRecordsByList.UrlTemplate,
 		Query: func(reqData *RequestData) (url.Values, errors.Error) {
@@ -280,6 +289,7 @@ type FinalizableApiCollectorListArgs struct {
 	Concurrency           int                                                                                         // required for Undetermined Strategy, number of concurrent requests
 	GetNextPageCustomData func(prevReqData *RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) // required for Sequential Strategy, to extract the next page cursor from the given response
 	GetTotalPages         func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)                        // required for Determined Strategy, to extract the total number of pages from the given response
+	BuildInputIterator    func(isIncremental bool, createdAfter *time.Time) (Iterator, errors.Error)                  // optional, create an iterator for collecting data based on previous records, leave it as `nil` if not needed
 }
 
 // FinalizableApiCollectorDetailArgs is the arguments for the detail collector
