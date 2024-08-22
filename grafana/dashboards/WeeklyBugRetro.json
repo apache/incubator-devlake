@@ -2215,8 +2215,8 @@
       {
         "current": {
           "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "text": "BUG",
+          "value": "BUG"
         },
         "datasource": "mysql",
         "definition": "select distinct type from issues",
