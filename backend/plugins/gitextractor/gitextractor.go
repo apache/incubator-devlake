@@ -38,6 +38,7 @@ func main() {
 	useGoGit := cmd.Flags().BoolP("useGoGit", "g", false, "use go-git instead of libgit2")
 	skipCommitStat := cmd.Flags().BoolP("skipCommitStat", "S", false, "")
 	skipCommitFiles := cmd.Flags().BoolP("skipCommitFiles", "F", true, "")
+	noShallowClone := cmd.Flags().BoolP("noShallowClone", "A", false, "")
 	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	_ = cmd.MarkFlagRequired("url")
 	_ = cmd.MarkFlagRequired("repoId")
@@ -54,6 +55,7 @@ func main() {
 			"useGoGit":        *useGoGit,
 			"skipCommitStat":  skipCommitStat,
 			"skipCommitFiles": skipCommitFiles,
+			"noShallowClone":  noShallowClone,
 		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
