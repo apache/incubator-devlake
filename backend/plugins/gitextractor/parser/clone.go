@@ -19,9 +19,9 @@ package parser
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 type RepoCloner interface {
-	CloneRepo(ctx plugin.SubTaskContext, localDir string) errors.Error
+	CloneRepo() errors.Error
+	CloseRepo() errors.Error
 }

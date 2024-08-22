@@ -53,8 +53,11 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// clone repo
-	repoCloner := parser.NewGitcliCloner(subTaskCtx)
-	err = repoCloner.CloneRepo(subTaskCtx, localDir)
+	repoCloner, err := parser.NewGitcliCloner(subTaskCtx, localDir)
+	if err != nil {
+		return err
+	}
+	err = repoCloner.CloneRepo()
 	if err != nil {
 		if errors.Is(err, parser.ErrNoData) {
 			taskData.SkipAllSubtasks = true
@@ -79,6 +82,7 @@ func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	// inject clean up callback to remove the cloned dir
 	cleanup := func() {
 		_ = os.RemoveAll(localDir)
+		_ = repoCloner.CloseRepo()
 	}
 	if e := repoCollector.SetCleanUp(cleanup); e != nil {
 		return errors.Convert(e)
