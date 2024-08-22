@@ -69,6 +69,10 @@ type CircleciPageTokenResp[T any] struct {
 	NextPageToken string `json:"next_page_token"`
 }
 
+type SimpleEntity struct {
+	Id string
+}
+
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *CircleciTaskData) {
 	data := taskCtx.GetData().(*CircleciTaskData)
 	filteredData := *data
