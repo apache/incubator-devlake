@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -87,7 +88,20 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	// change
 	if record.Jql != jql {
-		return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
+		cfg := taskCtx.GetConfigReader()
+		flag := cfg.GetBool("JIRA_JQL_AUTO_FULL_REFRESH")
+		if flag {
+			logger.Info("connection_id:%d board_id:%d filter jql has changed, And the previous jql is %s, now jql is %s, run it in fullSync mode", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql)
+			// set full sync
+			taskCtx.TaskContext().SetSyncPolicy(&coreModels.SyncPolicy{TriggerSyncPolicy: coreModels.TriggerSyncPolicy{FullSync: true}})
+			record.Jql = jql
+			err = db.Update(&record, dal.Where("connection_id = ? AND board_id = ? ", data.Options.ConnectionId, data.Options.BoardId))
+			if err != nil {
+				return errors.Default.Wrap(err, fmt.Sprintf("error updating record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
+			}
+		} else {
+			return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
+		}
 	}
 	// no change
 	return nil
