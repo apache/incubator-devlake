@@ -324,7 +324,9 @@ func RunPluginSubTasks(
 			logger.Info("subtask %s already finished previously", subtaskMeta.Name)
 		} else {
 			logger.Info("executing subtask %s", subtaskMeta.Name)
+			start := time.Now()
 			err = runSubtask(basicRes, subtaskCtx, task.ID, subtaskNumber, subtaskMeta.EntryPoint)
+			logger.Info("subtask %s finished in %s", subtaskMeta.Name, time.Since(start).Milliseconds())
 			if err != nil {
 				err = errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
 				logger.Error(err, "")
