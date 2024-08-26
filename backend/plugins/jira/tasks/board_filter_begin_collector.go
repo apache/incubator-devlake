@@ -89,7 +89,7 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 	// change
 	if record.Jql != jql {
 		cfg := taskCtx.GetConfigReader()
-		flag := cfg.GetBool("JIRA_JQL_CHANGE_DETECTION")
+		flag := cfg.GetBool("JIRA_JQL_AUTO_FULL_REFRESH")
 		if flag {
 			logger.Info("connection_id:%d board_id:%d filter jql has changed, And the previous jql is %s, now jql is %s, run it in fullSync mode", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql)
 			// set full sync
