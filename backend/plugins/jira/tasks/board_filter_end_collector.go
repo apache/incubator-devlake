@@ -64,7 +64,11 @@ func CollectBoardFilterEnd(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("get board filter jql:%s", record.Jql)
 
 	if record.Jql != jql {
-		return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
+		cfg := taskCtx.GetConfigReader()
+		flag := cfg.GetBool("JIRA_JQL_AUTO_FULL_REFRESH")
+		if !flag {
+			return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
+		}
 	}
 
 	return nil
