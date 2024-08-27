@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 26,
+  "id": 44,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -34,7 +34,6 @@
         "y": 0
       },
       "id": 63,
-      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -44,7 +43,7 @@
         "content": "This dashboard is designed to validate the [DORA dashboard](/grafana/d/qNo8_0M4z/dora?orgId=1).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -105,7 +104,7 @@
         "content": "- See the definition and calculation logic of [Deployment Frequency](https://devlake.apache.org/docs/Metrics/DeploymentFrequency)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n- Transformation Required: Define `deployments` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -177,7 +176,6 @@
         "y": 6
       },
       "id": 16,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -191,7 +189,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -280,7 +278,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "text",
                 "value": null
               }
             ]
@@ -295,7 +293,6 @@
         "y": 6
       },
       "id": 15,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -308,10 +305,12 @@
           "fields": "/^Deployment Frequency$/",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -321,7 +320,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_production_deployment_days as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(DATE(cdc.finished_date)) as day\n\tFROM cicd_deployment_commits cdc\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n\tWHERE\n\t\tpm.project_name in (${project})\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_days_weekly_deploy as(\n-- calculate the number of deployment days every week\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as weeks_deployed,\n\t\t\tCOUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_days_monthly_deploy as(\n-- calculate the number of deployment days every month\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as months_deployed,\n\t\t  COUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_days_six_months_deploy AS (\n  SELECT\n    month,\n    SUM(days_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS days_deployed_per_six_months,\n    COUNT(months_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS months_deployed_count,\n    ROW_NUMBER() OVER (\n      PARTITION BY DATE_FORMAT(month, '%Y-%m') DIV 6\n      ORDER BY month DESC\n    ) AS rn\n  FROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_week_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_weekly_deploy\n),\n\n_median_number_of_deployment_days_per_week as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_week\n\tFROM _median_number_of_deployment_days_per_week_ranks\n\tWHERE ranks <= 0.5\n),\n\n_median_number_of_deployment_days_per_month_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_month as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_month\n\tFROM _median_number_of_deployment_days_per_month_ranks\n\tWHERE ranks <= 0.5\n),\n\n_days_per_six_months_deploy_by_filter AS (\nSELECT\n  month,\n  days_deployed_per_six_months,\n  months_deployed_count\nFROM _days_six_months_deploy\nWHERE rn%6 = 1\n),\n\n\n_median_number_of_deployment_days_per_six_months_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed_per_six_months) as ranks\n\tFROM _days_per_six_months_deploy_by_filter\n),\n\n_median_number_of_deployment_days_per_six_months as(\n\tSELECT min(days_deployed_per_six_months) as median_number_of_deployment_days_per_six_months, min(months_deployed_count) as is_collected\n\tFROM _median_number_of_deployment_days_per_six_months_ranks\n\tWHERE ranks >= 0.5\n)\n\nSELECT \n  CASE\n    WHEN ('$dora_report') = '2023' THEN\n\t\t\tCASE  \n\t\t\t\tWHEN median_number_of_deployment_days_per_week >= 7 THEN 'On-demand(elite)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_week >= 1 THEN 'Between once per day and once per week(high)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_month >= 1 THEN 'Between once per week and once per month(medium)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_month < 1 and is_collected is not null THEN 'Fewer than once per month(low)'\n\t\t\t\tELSE \"N/A. Please check if you have collected deployments.\" END\n\t \tWHEN ('$dora_report') = '2021' THEN\n\t\t\tCASE  \n\t\t\t\tWHEN median_number_of_deployment_days_per_week >= 7 THEN 'On-demand(elite)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_month >= 1 THEN 'Between once per day and once per month(high)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_six_months >= 1 THEN 'Between once per month and once every 6 months(medium)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_six_months < 1 and is_collected is not null THEN 'Fewer than once per six months(low)'\n\t\t\t\tELSE \"N/A. Please check if you have collected deployments.\" END\n\t\tELSE 'Invalid dora report'\n\tEND AS 'Deployment Frequency'\nFROM _median_number_of_deployment_days_per_week, _median_number_of_deployment_days_per_month, _median_number_of_deployment_days_per_six_months\n",
+          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_production_deployment_days as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(DATE(cdc.finished_date)) as day\n\tFROM cicd_deployment_commits cdc\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n\tWHERE\n\t\tpm.project_name in (${project})\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_days_weekly_deploy as(\n-- calculate the number of deployment days every week\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as weeks_deployed,\n\t\t\tCOUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_days_monthly_deploy as(\n-- calculate the number of deployment days every month\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as months_deployed,\n\t\t  COUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_days_six_months_deploy AS (\n  SELECT\n    month,\n    SUM(days_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS days_deployed_per_six_months,\n    COUNT(months_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS months_deployed_count,\n    ROW_NUMBER() OVER (\n      PARTITION BY DATE_FORMAT(month, '%Y-%m') DIV 6\n      ORDER BY month DESC\n    ) AS rn\n  FROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_week_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_weekly_deploy\n),\n\n_median_number_of_deployment_days_per_week as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_week\n\tFROM _median_number_of_deployment_days_per_week_ranks\n\tWHERE ranks <= 0.5\n),\n\n_median_number_of_deployment_days_per_month_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_month as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_month\n\tFROM _median_number_of_deployment_days_per_month_ranks\n\tWHERE ranks <= 0.5\n),\n\n_days_per_six_months_deploy_by_filter AS (\nSELECT\n  month,\n  days_deployed_per_six_months,\n  months_deployed_count\nFROM _days_six_months_deploy\nWHERE rn%6 = 1\n),\n\n\n_median_number_of_deployment_days_per_six_months_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed_per_six_months) as ranks\n\tFROM _days_per_six_months_deploy_by_filter\n),\n\n_median_number_of_deployment_days_per_six_months as(\n\tSELECT min(days_deployed_per_six_months) as median_number_of_deployment_days_per_six_months, min(months_deployed_count) as is_collected\n\tFROM _median_number_of_deployment_days_per_six_months_ranks\n\tWHERE ranks >= 0.5\n)\n\nSELECT \n  CASE\n    WHEN ('$dora_report') = '2023' THEN\n\t\t\tCASE  \n\t\t\t\tWHEN median_number_of_deployment_days_per_week >= 5 THEN 'On-demand(elite)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_week >= 1 THEN 'Between once per day and once per week(high)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_month >= 1 THEN 'Between once per week and once per month(medium)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_month < 1 and is_collected is not null THEN 'Fewer than once per month(low)'\n\t\t\t\tELSE \"N/A. Please check if you have collected deployments.\" END\n\t \tWHEN ('$dora_report') = '2021' THEN\n\t\t\tCASE  \n\t\t\t\tWHEN median_number_of_deployment_days_per_week >= 5 THEN 'On-demand(elite)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_month >= 1 THEN 'Between once per day and once per month(high)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_six_months >= 1 THEN 'Between once per month and once every 6 months(medium)'\n\t\t\t\tWHEN median_number_of_deployment_days_per_six_months < 1 and is_collected is not null THEN 'Fewer than once per six months(low)'\n\t\t\t\tELSE \"N/A. Please check if you have collected deployments.\" END\n\t\tELSE 'Invalid dora report'\n\tEND AS 'Deployment Frequency'\nFROM _median_number_of_deployment_days_per_week, _median_number_of_deployment_days_per_month, _median_number_of_deployment_days_per_six_months\n",
           "refId": "A",
           "select": [
             [
@@ -424,7 +423,6 @@
         "y": 11
       },
       "id": 29,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -438,7 +436,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -482,6 +480,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -526,7 +525,6 @@
         "y": 15
       },
       "id": 34,
-      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -543,6 +541,7 @@
         "stacking": "none",
         "text": {},
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -669,7 +668,6 @@
         "y": 16
       },
       "id": 49,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -683,7 +681,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -787,7 +785,6 @@
         "y": 21
       },
       "id": 11,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -801,7 +798,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -905,7 +902,6 @@
         "y": 21
       },
       "id": 50,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -919,7 +915,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1002,7 +998,7 @@
         "content": "- See the definition and calculation logic of [Median Lead Time for Changes](https://devlake.apache.org/docs/Metrics/LeadTimeForChanges)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n- Transformation Required: Define `deployments` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- Validatation Steps below:\n  - Step 1 - check the data integrity of PRs in table `pull_requests`\n  - Step 2 - check the data integrity of deployment_commit in table `cicd_deployment_commits`\n  - Step 3 - check if a deployment_commit is associated with the correct PR in table `project_pr_metrics`\n  - Step 4 - check if metrics like PR Coding/Pickup/Review/Deploy/cycle time are correct in table `project_pr_metrics`\n  - Step 5 - check if the median lead time for changes in each month is correct",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -1037,8 +1033,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1052,7 +1047,6 @@
         "y": 34
       },
       "id": 18,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1065,7 +1059,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1154,8 +1148,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "text"
               }
             ]
           }
@@ -1169,7 +1162,6 @@
         "y": 34
       },
       "id": 40,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1182,10 +1174,12 @@
           "fields": "/^median_change_lead_time$/",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1271,8 +1265,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               }
             ]
           }
@@ -1308,8 +1301,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red",
-                      "value": null
+                      "color": "red"
                     },
                     {
                       "color": "green",
@@ -1344,7 +1336,6 @@
         "y": 39
       },
       "id": 53,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1357,7 +1348,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1402,6 +1393,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Hours",
@@ -1427,8 +1419,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1442,7 +1433,6 @@
         "y": 40
       },
       "id": 38,
-      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.7,
@@ -1459,6 +1449,7 @@
         "stacking": "none",
         "text": {},
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -1544,8 +1535,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1559,8 +1549,9 @@
         "y": 42
       },
       "id": 12,
-      "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -1571,9 +1562,10 @@
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
+        "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1683,8 +1675,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1698,7 +1689,6 @@
         "y": 46
       },
       "id": 68,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1712,7 +1702,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1780,8 +1770,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               }
             ]
           }
@@ -1809,8 +1798,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red",
-                      "value": null
+                      "color": "red"
                     },
                     {
                       "color": "green",
@@ -1859,7 +1847,6 @@
         "y": 47
       },
       "id": 51,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1872,7 +1859,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1944,8 +1931,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1959,7 +1945,6 @@
         "y": 50
       },
       "id": 69,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1973,7 +1958,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2021,8 +2006,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2040,8 +2024,9 @@
         "y": 54
       },
       "id": 52,
-      "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -2052,9 +2037,10 @@
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
+        "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2132,8 +2118,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2147,8 +2132,9 @@
         "y": 54
       },
       "id": 54,
-      "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -2159,9 +2145,10 @@
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
+        "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2239,8 +2226,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2254,8 +2240,9 @@
         "y": 58
       },
       "id": 55,
-      "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -2266,9 +2253,10 @@
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
+        "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2346,8 +2334,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2361,8 +2348,9 @@
         "y": 58
       },
       "id": 56,
-      "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -2373,9 +2361,10 @@
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
+        "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2453,8 +2442,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2468,8 +2456,9 @@
         "y": 62
       },
       "id": 57,
-      "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -2480,9 +2469,10 @@
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
+        "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2538,8 +2528,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2607,7 +2596,6 @@
         "y": 66
       },
       "id": 70,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2620,7 +2608,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2703,7 +2691,7 @@
         "content": "- See the definition and calculation logic of [${title_value}](https://devlake.apache.org/docs/Metrics/MTTR)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -2737,7 +2725,7 @@
         "content": "- See the definition and calculation logic of [Change Failure Rate](https://devlake.apache.org/docs/Metrics/CFR)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -2785,8 +2773,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2800,7 +2787,6 @@
         "y": 83
       },
       "id": 31,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2814,7 +2800,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2903,12 +2889,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
+                "color": "text"
               }
             ]
           }
@@ -2922,7 +2903,6 @@
         "y": 83
       },
       "id": 42,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -2935,10 +2915,12 @@
           "fields": "/.*/",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -2948,7 +2930,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "--  ***** 2023 report ***** --\n--  Metric 4: Failed deployment recovery time\nwith _deployments as (\n  SELECT\n    cdc.cicd_deployment_id as deployment_id,\n    max(cdc.finished_date) as deployment_finished_date\n  FROM\n    cicd_deployment_commits cdc\n    JOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id\n    and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n    and cdc.result = 'SUCCESS'\n    and cdc.environment = 'PRODUCTION'\n  GROUP BY\n    1\n  HAVING\n    $__timeFilter(max(cdc.finished_date))\n),\n_incidents_for_deployments as (\n  SELECT\n    i.id as incident_id,\n    i.created_date as incident_create_date,\n    i.resolution_date as incident_resolution_date,\n    fd.deployment_id as caused_by_deployment,\n    fd.deployment_finished_date,\n    date_format(fd.deployment_finished_date, '%y/%m') as deployment_finished_month\n  FROM\n    incidents i\n    left join project_incident_deployment_relationships pim on i.id = pim.id\n    join _deployments fd on pim.deployment_id = fd.deployment_id\n  WHERE\n    $__timeFilter(i.resolution_date)\n),\n_recovery_time_ranks as (\n  SELECT\n    *,\n    percent_rank() over(\n      order by\n        TIMESTAMPDIFF(\n          MINUTE,\n          deployment_finished_date,\n          incident_resolution_date\n        )\n    ) as ranks\n  FROM\n    _incidents_for_deployments\n),\n_median_recovery_time as (\n  SELECT\n    max(\n      TIMESTAMPDIFF(\n        MINUTE,\n        deployment_finished_date,\n        incident_resolution_date\n      )\n    ) as median_recovery_time\n  FROM\n    _recovery_time_ranks\n  WHERE\n    ranks <= 0.5\n),\n_metric_recovery_time_2023_report as(\n  SELECT\n    CASE\n      WHEN ('$dora_report') = '2023' THEN CASE\n        WHEN median_recovery_time < 60 THEN \"Less than one hour(elite)\"\n        WHEN median_recovery_time < 24 * 60 THEN \"Less than one day(high)\"\n        WHEN median_recovery_time < 7 * 24 * 60 THEN \"Between one day and one week(medium)\"\n        WHEN median_recovery_time >= 7 * 24 * 60 THEN \"More than one week(low)\"\n        ELSE \"N/A. Please check if you have collected incidents.\"\n      END\n    END AS median_recovery_time\n  FROM\n    _median_recovery_time\n),\n--  ***** 2021 report ***** --\n-- Metric 4: Median time to restore service \n_incidents as (\n  -- get the incidents created within the selected time period in the top-right corner\n  SELECT\n    distinct i.id,\n    cast(lead_time_minutes as signed) as lead_time_minutes\n  FROM\n    incidents i\n    join project_mapping pm on i.scope_id = pm.row_id\n    and pm.`table` = i.`table`\n  WHERE\n    pm.project_name in (${project})\n    and $__timeFilter(i.created_date)\n),\n_median_mttr_ranks as(\n  SELECT\n    *,\n    percent_rank() over(\n      order by\n        lead_time_minutes\n    ) as ranks\n  FROM\n    _incidents\n),\n_median_mttr as(\n  SELECT\n    max(lead_time_minutes) as median_time_to_resolve\n  FROM\n    _median_mttr_ranks\n  WHERE\n    ranks <= 0.5\n),\n_metric_mttr_2021_report as(\n  SELECT\n    CASE\n      WHEN ('$dora_report') = '2021' THEN CASE\n        WHEN median_time_to_resolve < 60 THEN \"Less than one hour(elite)\"\n        WHEN median_time_to_resolve < 24 * 60 THEN \"Less than one day(high)\"\n        WHEN median_time_to_resolve < 7 * 24 * 60 THEN \"Between one day and one week(medium)\"\n        WHEN median_time_to_resolve >= 7 * 24 * 60 THEN \"More than one week(low)\"\n        ELSE \"N/A. Please check if you have collected incidents.\"\n      END\n    END AS median_time_to_resolve\n  FROM\n    _median_mttr\n)\nSELECT\n  median_recovery_time AS median_time_in_hour\nFROM\n  _metric_recovery_time_2023_report\nWHERE\n  ('$dora_report') = '2023'\nUNION\nSELECT\n  median_time_to_resolve AS median_time_to_resolve\nFROM\n  _metric_mttr_2021_report\nWHERE\n  ('$dora_report') = '2021'",
+          "rawSql": "--  ***** 2023 report ***** --\n--  Metric 4: Failed deployment recovery time\nwith _deployments as (\n  SELECT\n    cdc.cicd_deployment_id as deployment_id,\n    max(cdc.finished_date) as deployment_finished_date\n  FROM\n    cicd_deployment_commits cdc\n    JOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id\n    and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n    and cdc.result = 'SUCCESS'\n    and cdc.environment = 'PRODUCTION'\n  GROUP BY\n    1\n  HAVING\n    $__timeFilter(max(cdc.finished_date))\n),\n_incidents_for_deployments as (\n  SELECT\n    i.id as incident_id,\n    i.created_date as incident_create_date,\n    i.resolution_date as incident_resolution_date,\n    fd.deployment_id as caused_by_deployment,\n    fd.deployment_finished_date,\n    date_format(fd.deployment_finished_date, '%y/%m') as deployment_finished_month\n  FROM\n    incidents i\n    left join project_incident_deployment_relationships pim on i.id = pim.id\n    join _deployments fd on pim.deployment_id = fd.deployment_id\n  WHERE\n    $__timeFilter(i.resolution_date)\n),\n_recovery_time_ranks as (\n  SELECT\n    *,\n    percent_rank() over(\n      order by\n        TIMESTAMPDIFF(\n          MINUTE,\n          deployment_finished_date,\n          incident_resolution_date\n        )\n    ) as ranks\n  FROM\n    _incidents_for_deployments\n),\n_median_recovery_time as (\n  SELECT\n    max(\n      TIMESTAMPDIFF(\n        MINUTE,\n        deployment_finished_date,\n        incident_resolution_date\n      )\n    ) as median_recovery_time\n  FROM\n    _recovery_time_ranks\n  WHERE\n    ranks <= 0.5\n),\n\n_is_collected_data as(\n  SELECT\n    CASE\n      WHEN EXISTS(select COUNT(d.deployment_id) from _deployments) = 0 AND EXISTS(select COUNT(i.incident_id) FROM incidents) = 0 THEN 'No deployments and incidents'\n      WHEN EXISTS(select COUNT(d.deployment_id) from _deployments) = 0 THEN 'No Deployments'\n      WHEN EXISTS(select COUNT(i.incident_id) FROM incidents) = 0 THEN 'No Incidents'\n      Else 'No incidents are mapped to deployments'\n    END AS is_collected\n  FROM\n    _deployments d, _incidents_for_deployments i\n),\n\n_metric_recovery_time_2023_report as(\n  SELECT\n    CASE\n      WHEN ('$dora_report') = '2023' THEN CASE\n        WHEN is_collected = \"No deployments and incidents\" THEN \"N/A. Please check if you have collected deployments and incidents.\"\n        WHEN is_collected = \"No Deployments\" THEN \"N/A. Please check if you have collected deployments.\"\n        WHEN is_collected = \"No Incidents\" THEN \"N/A. Please check if you have collected incidents.\"\n        WHEN median_recovery_time < 60 THEN CONCAT(round(median_recovery_time / 60, 1), \"(elite)\")\n        WHEN median_recovery_time < 24 * 60 THEN CONCAT(round(median_recovery_time / 60, 1), \"(high)\")\n        WHEN median_recovery_time < 7 * 24 * 60 THEN CONCAT(round(median_recovery_time / 60, 1), \"(medium)\")\n        WHEN median_recovery_time >= 7 * 24 * 60 THEN CONCAT(round(median_recovery_time / 60, 1), \"(low)\")\n        ELSE \"No data\"\n      END\n    END AS median_recovery_time\n  FROM\n    _median_recovery_time,\n    _is_collected_data\n),\n--  ***** 2021 report ***** --\n-- Metric 4: Median time to restore service \n_incidents as (\n  -- get the incidents created within the selected time period in the top-right corner\n  SELECT\n    distinct i.id,\n    cast(lead_time_minutes as signed) as lead_time_minutes\n  FROM\n    incidents i\n    join project_mapping pm on i.scope_id = pm.row_id\n    and pm.`table` = i.`table`\n  WHERE\n    pm.project_name in (${project})\n    and $__timeFilter(i.created_date)\n),\n_median_mttr_ranks as(\n  SELECT\n    *,\n    percent_rank() over(\n      order by\n        lead_time_minutes\n    ) as ranks\n  FROM\n    _incidents\n),\n_median_mttr as(\n  SELECT\n    max(lead_time_minutes) as median_time_to_resolve\n  FROM\n    _median_mttr_ranks\n  WHERE\n    ranks <= 0.5\n),\n_metric_mttr_2021_report as(\n  SELECT\n    CASE\n      WHEN ('$dora_report') = '2021' THEN CASE\n        WHEN median_time_to_resolve < 60 THEN \"Less than one hour(elite)\"\n        WHEN median_time_to_resolve < 24 * 60 THEN \"Less than one day(high)\"\n        WHEN median_time_to_resolve < 7 * 24 * 60 THEN \"Between one day and one week(medium)\"\n        WHEN median_time_to_resolve >= 7 * 24 * 60 THEN \"More than one week(low)\"\n        ELSE \"N/A. Please check if you have collected incidents.\"\n      END\n    END AS median_time_to_resolve\n  FROM\n    _median_mttr\n)\nSELECT\n  median_recovery_time AS median_time_in_hour\nFROM\n  _metric_recovery_time_2023_report\nWHERE\n  ('$dora_report') = '2023'\nUNION\nSELECT\n  median_time_to_resolve AS median_time_to_resolve\nFROM\n  _metric_mttr_2021_report\nWHERE\n  ('$dora_report') = '2021'",
           "refId": "A",
           "select": [
             [
@@ -3027,8 +3009,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -3042,7 +3023,6 @@
         "y": 89
       },
       "id": 14,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -3056,7 +3036,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -3104,7 +3084,6 @@
         "y": 93
       },
       "id": 61,
-      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -3114,7 +3093,7 @@
         "content": "<img src = 'https://devlake.apache.org/assets/images/cfr-definition-94d92cc75f857f183443ad5390d31d65.png' />\n\nIn this case:\n\n- Deployment-1 maps to Incident-1\n- Deployment-3 maps to Incident-2 and Incident-3\n- Deployment-2,4,5 doesn't map to any Incident",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -3137,6 +3116,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Hours",
@@ -3162,8 +3142,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3198,7 +3177,6 @@
         "y": 93
       },
       "id": 46,
-      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -3215,6 +3193,7 @@
         "stacking": "none",
         "text": {},
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -3328,8 +3307,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "text"
               }
             ]
           }
@@ -3343,7 +3321,6 @@
         "y": 103
       },
       "id": 44,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -3356,10 +3333,12 @@
           "fields": "/.*/",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -3449,8 +3428,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -3464,7 +3442,6 @@
         "y": 108
       },
       "id": 58,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -3478,7 +3455,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -3550,8 +3527,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -3565,7 +3541,6 @@
         "y": 108
       },
       "id": 59,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -3579,7 +3554,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -3642,6 +3617,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -3669,8 +3645,7 @@
             "mode": "percentage",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -3701,7 +3676,6 @@
         "y": 111
       },
       "id": 48,
-      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
@@ -3720,6 +3694,7 @@
           "valueSize": 12
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -3782,8 +3757,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
     "Engineering Leads Dashboard"
   ],
@@ -3813,8 +3787,8 @@
       {
         "current": {
           "selected": false,
-          "text": "https://github.com/apache/incubator-devlake/pull/5913",
-          "value": "github:GithubPullRequest:1:1480194863"
+          "text": "",
+          "value": ""
         },
         "datasource": "mysql",
         "definition": "select concat(Url, '--', id) from pull_requests",
@@ -3833,7 +3807,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "2023",
           "value": "2023"
         },
@@ -3879,6 +3853,7 @@
     "from": "now-6M",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
   "title": "DORA Validation",
