@@ -178,16 +178,16 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 
 			// time filter or diff sync
 			if createdAfter != nil && args.CollectNewRecordsByList.GetCreated != nil {
-				// if the first record of the page was created before createdAfter, return empty set and stop
+				// if the first record of the page was created before createdAfter and not a zero value, return empty set and stop
 				firstCreated, err := args.CollectNewRecordsByList.GetCreated(items[0])
 				if err != nil {
 					return nil, err
 				}
-				if firstCreated.Before(*createdAfter) {
+				if firstCreated.Before(*createdAfter) && !firstCreated.IsZero() {
 					return nil, ErrFinishCollect
 				}
 
-				// If last record was created before CreatedAfter, check each record individually
+				// If last record was created before CreatedAfter, including a zero value, check each record individually
 				lastCreated, err := args.CollectNewRecordsByList.GetCreated(items[len(items)-1])
 				if err != nil {
 					return nil, err
@@ -200,6 +200,13 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 						if err != nil {
 							return nil, err
 						}
+
+						if itemCreatedAt.IsZero() {
+							// If zero then timestamp is null on the response - accept as valid for downstream processing
+							validItems = append(validItems, item)
+							continue
+						}
+
 						if itemCreatedAt.Before(*createdAfter) {
 							// Once we reach an item that was created before the last successful collection, stop & return
 							return validItems, ErrFinishCollect
@@ -289,7 +296,7 @@ type FinalizableApiCollectorListArgs struct {
 	Concurrency           int                                                                                         // required for Undetermined Strategy, number of concurrent requests
 	GetNextPageCustomData func(prevReqData *RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) // required for Sequential Strategy, to extract the next page cursor from the given response
 	GetTotalPages         func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)                        // required for Determined Strategy, to extract the total number of pages from the given response
-	BuildInputIterator    func(isIncremental bool, createdAfter *time.Time) (Iterator, errors.Error)                  // optional, create an iterator for collecting data based on previous records, leave it as `nil` if not needed
+	BuildInputIterator    func(isIncremental bool, createdAfter *time.Time) (Iterator, errors.Error)
 }
 
 // FinalizableApiCollectorDetailArgs is the arguments for the detail collector
