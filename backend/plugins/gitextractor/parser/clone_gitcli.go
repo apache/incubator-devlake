@@ -325,7 +325,7 @@ func (g *GitcliCloner) execCommand(cmd *exec.Cmd) errors.Error {
 	return nil
 }
 func generateErrMsg(output []byte, err error) string {
-	errMsg := string(output)
+	errMsg := strings.TrimSpace(string(output))
 	if errMsg == "" {
 		errMsg = err.Error()
 	}
