@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 7,
+  "id": 42,
   "links": [
     {
       "asDropdown": false,
@@ -56,7 +56,7 @@
         "content": "This dashboard shows the details about [deployment frequency](https://devlake.apache.org/docs/Metrics/DeploymentFrequency) in DORA.",
         "mode": "markdown"
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -247,7 +247,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -365,7 +365,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -486,6 +486,7 @@
         "showValue": "auto",
         "stacking": "none",
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -614,6 +615,7 @@
         "showValue": "auto",
         "stacking": "none",
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -743,6 +745,7 @@
         "showValue": "auto",
         "stacking": "none",
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -821,10 +824,10 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "# 2023 Benchmarks\n- Elite: >= 7 days per week\n- High: >= 1 day per week\n- Medium: >= 1 day per month\n- Low: < 1 day per month\n# 2021 Benchmarks\n- Elite: >= 7 days per week\n- High: >= 1 day per month\n- Medium: >= 1 day per six months\n- Low: < 1 day per six months",
+        "content": "# 2023 Benchmarks\n- Elite: >= 5 days per week\n- High: >= 1 day per week\n- Medium: >= 1 day per month\n- Low: < 1 day per month\n# 2021 Benchmarks\n- Elite: >= 5 days per week\n- High: >= 1 day per month\n- Medium: >= 1 day per six months\n- Low: < 1 day per six months",
         "mode": "markdown"
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "title": "DORA Report",
       "type": "text"
     },
@@ -912,7 +915,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1050,7 +1053,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1188,7 +1191,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -1243,7 +1246,6 @@
       "type": "stat"
     }
   ],
-  "refresh": "",
   "schemaVersion": 39,
   "tags": [
     "DORA"
@@ -1323,6 +1325,7 @@
     "from": "now-6M",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
   "title": "DORA Details - Deployment Frequency",

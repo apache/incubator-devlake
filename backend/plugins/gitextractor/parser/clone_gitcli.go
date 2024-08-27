@@ -258,7 +258,7 @@ func (g *GitcliCloner) doubleClone() errors.Error {
 		return err
 	}
 	g.localDir = backup
-	// step 2: perform shallow clone aginst the intermediary dir
+	// step 2: perform shallow clone against the intermediary dir
 	backup = g.remoteUrl
 	g.remoteUrl = fmt.Sprintf("file://%s", intermediaryDir) // the file:// prefix is required for shallow clone to work
 	if err := g.shallowClone(); err != nil {
@@ -274,8 +274,28 @@ func (g *GitcliCloner) gitClone(args ...string) errors.Error {
 }
 
 func (g *GitcliCloner) gitFetch(args ...string) errors.Error {
+	empty, err := g.repoIsEmpty(args...)
+	if err != nil {
+		g.logger.Error(err, "repo is empty")
+		return err
+	}
+	if empty {
+		g.logger.Info("repo is empty, doesn't need to fetch")
+		return nil
+	}
 	args = append(args, g.syncArgs...)
 	return g.git(g.syncEnvs, g.localDir, "fetch", args...)
+}
+
+func (g *GitcliCloner) repoIsEmpty(args ...string) (bool, errors.Error) {
+	// try to run command: git log
+	// if repo is empty, it will return an error
+	err := g.git(g.syncEnvs, g.localDir, "log")
+	if err != nil {
+		g.logger.Warn(err, "git log failed")
+		return true, nil
+	}
+	return false, nil
 }
 
 func (g *GitcliCloner) gitCmd(gitcmd string, args ...string) errors.Error {
@@ -294,14 +314,25 @@ func (g *GitcliCloner) git(env []string, dir string, gitcmd string, args ...stri
 func (g *GitcliCloner) execCommand(cmd *exec.Cmd) errors.Error {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		g.logger.Debug("err: %v, output: %s", err, string(output))
 		outputString := string(output)
 		if strings.Contains(outputString, "fatal: error processing shallow info: 4") ||
 			strings.Contains(outputString, "fatal: the remote end hung up unexpectedly") {
 			return ErrNoData
 		}
-		return errors.Default.New(fmt.Sprintf("git cmd %v in %s failed: %s", sanitizeArgs(cmd.Args), cmd.Dir, outputString))
+		return errors.Default.New(fmt.Sprintf("git cmd %v in %s failed: %s", sanitizeArgs(cmd.Args), cmd.Dir, generateErrMsg(output, err)))
 	}
 	return nil
+}
+func generateErrMsg(output []byte, err error) string {
+	errMsg := strings.TrimSpace(string(output))
+	if errMsg == "" {
+		errMsg = err.Error()
+	}
+	if errMsg == "" {
+		errMsg = "unknown error"
+	}
+	return errMsg
 }
 
 func sanitizeArgs(args []string) []string {
