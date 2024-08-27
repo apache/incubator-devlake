@@ -20,6 +20,7 @@ package runner
 import (
 	gocontext "context"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"strings"
 	"time"
 
@@ -292,6 +293,7 @@ func RunPluginSubTasks(
 	taskCtx.SetProgress(0, steps)
 	subtaskNumber := 0
 	for _, subtaskMeta := range subtaskMetas {
+		subtaskNumber++
 		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
 		if err != nil {
 			// sth went wrong
@@ -302,7 +304,6 @@ func RunPluginSubTasks(
 			continue
 		}
 		// run subtask
-		subtaskNumber++
 		if progress != nil {
 			progress <- plugin.RunningProgress{
 				Type:          plugin.SetCurrentSubTask,
@@ -310,23 +311,23 @@ func RunPluginSubTasks(
 				SubTaskNumber: subtaskNumber,
 			}
 		}
-		subtaskFinsied := false
+		subtaskFinished := false
 		if !subtaskMeta.ForceRunOnResume {
 			if task.ID > 0 {
 				sfc := errors.Must1(basicRes.GetDal().Count(
 					dal.From(&models.Subtask{}), dal.Where("task_id = ? AND name = ? AND finished_at IS NOT NULL", task.ID, subtaskMeta.Name),
 				),
 				)
-				subtaskFinsied = sfc > 0
+				subtaskFinished = sfc > 0
 			}
 		}
-		if subtaskFinsied {
+		if subtaskFinished {
 			logger.Info("subtask %s already finished previously", subtaskMeta.Name)
 		} else {
 			logger.Info("executing subtask %s", subtaskMeta.Name)
 			start := time.Now()
 			err = runSubtask(basicRes, subtaskCtx, task.ID, subtaskNumber, subtaskMeta.EntryPoint)
-			logger.Info("subtask %s finished in %s", subtaskMeta.Name, time.Since(start).Milliseconds())
+			logger.Info("subtask %s finished in %d ms", subtaskMeta.Name, time.Since(start).Milliseconds())
 			if err != nil {
 				err = errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
 				logger.Error(err, "")
@@ -348,8 +349,9 @@ func RunPluginSubTasks(
 
 // UpdateProgressDetail FIXME ...
 func UpdateProgressDetail(basicRes context.BasicRes, taskId uint64, progressDetail *models.TaskProgressDetail, p *plugin.RunningProgress) {
-	task := &models.Task{}
-	task.ID = taskId
+	task := &models.Task{
+		Model: common.Model{ID: taskId},
+	}
 	subtask := &models.Subtask{}
 	switch p.Type {
 	case plugin.TaskSetProgress:
@@ -367,17 +369,19 @@ func UpdateProgressDetail(basicRes context.BasicRes, taskId uint64, progressDeta
 		progressDetail.TotalRecords = p.Total
 	case plugin.SubTaskIncProgress:
 		progressDetail.FinishedRecords = p.Current
+		// update subtask progress
+		where := dal.Where("task_id = ? and name = ?", taskId, progressDetail.SubTaskName)
+		err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
+			{ColumnName: "finished_records", Value: progressDetail.FinishedRecords},
+		}, where)
+		if err != nil {
+			basicRes.GetLogger().Error(err, "failed to update _devlake_subtasks progress")
+		}
 	case plugin.SetCurrentSubTask:
 		progressDetail.SubTaskName = p.SubTaskName
 		progressDetail.SubTaskNumber = p.SubTaskNumber
-	}
-	// update subtask progress
-	where := dal.Where("task_id = ? and name = ?", taskId, progressDetail.SubTaskName)
-	err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
-		{ColumnName: "finished_records", Value: progressDetail.FinishedRecords},
-	}, where)
-	if err != nil {
-		basicRes.GetLogger().Error(err, "failed to update _devlake_subtasks progress")
+	default:
+		return
 	}
 }
 

@@ -109,7 +109,8 @@ func runTaskStandalone(parentLog log.Logger, taskId uint64) errors.Error {
 	}
 	// now , create a progress update channel and kick off
 	progress := make(chan plugin.RunningProgress, 100)
-	go updateTaskProgress(taskId, progress)
+	doneSignal := make(chan struct{})
+	go updateTaskProgress(doneSignal, taskId, progress)
 	err = runner.RunTask(
 		ctx,
 		basicRes.ReplaceLogger(parentLog),
@@ -117,6 +118,8 @@ func runTaskStandalone(parentLog log.Logger, taskId uint64) errors.Error {
 		taskId,
 	)
 	close(progress)
+	// wait all progresses are handled
+	<-doneSignal
 	return err
 }
 
@@ -127,15 +130,21 @@ func getRunningTaskById(taskId uint64) *RunningTaskData {
 	return runningTasks.tasks[taskId]
 }
 
-func updateTaskProgress(taskId uint64, progress chan plugin.RunningProgress) {
+func updateTaskProgress(done chan struct{}, taskId uint64, progress chan plugin.RunningProgress) {
 	data := getRunningTaskById(taskId)
 	if data == nil {
 		return
 	}
 	progressDetail := data.ProgressDetail
-	for p := range progress {
-		runningTasks.mu.Lock()
-		runner.UpdateProgressDetail(basicRes, taskId, progressDetail, &p)
-		runningTasks.mu.Unlock()
+	for {
+		p, hasMore := <-progress
+		if hasMore {
+			runningTasks.mu.Lock()
+			runner.UpdateProgressDetail(basicRes, taskId, progressDetail, &p)
+			runningTasks.mu.Unlock()
+		} else {
+			done <- struct{}{}
+			break
+		}
 	}
 }
