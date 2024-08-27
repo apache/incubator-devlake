@@ -293,7 +293,6 @@ func RunPluginSubTasks(
 	taskCtx.SetProgress(0, steps)
 	subtaskNumber := 0
 	for _, subtaskMeta := range subtaskMetas {
-		subtaskNumber++
 		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
 		if err != nil {
 			// sth went wrong
@@ -303,6 +302,7 @@ func RunPluginSubTasks(
 			// subtask was disabled
 			continue
 		}
+		subtaskNumber++
 		// run subtask
 		if progress != nil {
 			progress <- plugin.RunningProgress{
