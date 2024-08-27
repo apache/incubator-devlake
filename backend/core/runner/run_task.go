@@ -293,12 +293,12 @@ func RunPluginSubTasks(
 	taskCtx.SetProgress(0, steps)
 	subtaskNumber := 0
 	for _, subtaskMeta := range subtaskMetas {
-		subtaskNumber++
 		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
 		if err != nil {
 			// sth went wrong
 			return errors.Default.Wrap(err, fmt.Sprintf("error getting context subtask %s", subtaskMeta.Name))
 		}
+		subtaskNumber++
 		if subtaskCtx == nil {
 			// subtask was disabled
 			continue
