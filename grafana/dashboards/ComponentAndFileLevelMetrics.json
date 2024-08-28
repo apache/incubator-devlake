@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 18,
+  "id": 40,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -35,508 +35,6 @@
         "x": 0,
         "y": 0
       },
-      "id": 14,
-      "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "grafana"
-          },
-          "refId": "A"
-        }
-      ],
-      "title": "file dimension",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Mixed --"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 1
-      },
-      "id": 12,
-      "links": [],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.78,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "horizontal",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {},
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT file_path,\n    count(distinct author_name) AS cnt\nFROM commits\nJOIN commit_files\nJOIN repo_commits rc\n    ON commit_files.commit_sha = rc.commit_sha\n        AND commit_files.commit_sha = commits.sha\nWHERE repo_id IN (${repo_id})\n       AND $__timeFilter(commits.authored_date)\n       AND file_path REGEXP '(${selected_path:regex})'\nGROUP BY  file_path\nORDER BY  cnt DESC limit 10;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "_raw_data_id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "issue_commits",
-          "timeColumn": "id",
-          "timeColumnType": "bigint",
-          "where": []
-        }
-      ],
-      "title": "files with maximum number of authors",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Mixed --"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 1
-      },
-      "id": 2,
-      "links": [],
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "9.5.15",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT file_path,\n       COUNT(DISTINCT author_name) AS author_count,\n       MAX(rst) AS file_total_size,\n       MAX(rst) / COUNT(DISTINCT author_name) AS rate\nFROM commits\nJOIN (\n  SELECT file_path,\n         commit_files.commit_sha,\n         SUM(additions - deletions) AS rst\n  FROM commit_files\n  JOIN repo_commits rc ON commit_files.commit_sha = rc.commit_sha\n  WHERE repo_id IN (${repo_id})\n  GROUP BY file_path, commit_files.commit_sha\n) a ON a.commit_sha = commits.sha\nGROUP BY file_path\nHAVING author_count > 0\nORDER BY rate DESC\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "_devlake_blueprints",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "largest files with lowest number of authors",
-      "type": "table"
-    },
-    {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 9
-      },
-      "id": 10,
-      "links": [],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.8,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "horizontal",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {},
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT file_path,\n        count(distinct sha) AS modified_num\nFROM commits\nJOIN commit_files\nJOIN repo_commits rc\n    ON commit_files.commit_sha = rc.commit_sha\n        AND sha=commit_files.commit_sha\n        AND $__timeFilter(commits.authored_date)\nWHERE repo_id IN (${repo_id}) and file_path REGEXP  '(${selected_path:regex})'\nAND $__timeFilter(commits.authored_date)\nGROUP BY  file_path\nORDER BY  modified_num desc\nLIMIT 15;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "_devlake_blueprints",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "files with most modifications",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Mixed --"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 9
-      },
-      "id": 8,
-      "links": [],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.79,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "horizontal",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {},
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT file_path,\n        count(distinct sha) AS cnt\nFROM commits\nJOIN commit_files\nJOIN repo_commits rc\n    ON commit_files.commit_sha = rc.commit_sha\n        AND sha=commit_files.commit_sha\nWHERE repo_id IN (${repo_id})\n  AND $__timeFilter(commits.authored_date)\nGROUP BY  file_path\nORDER BY  cnt desc\nLIMIT 10;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "_devlake_blueprints",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "[total]files with most modifications",
-      "type": "barchart"
-    },
-    {
-      "collapsed": false,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 17
-      },
       "id": 6,
       "panels": [],
       "targets": [
@@ -548,7 +46,7 @@
           "refId": "A"
         }
       ],
-      "title": "author dimension",
+      "title": "Author dimension",
       "type": "row"
     },
     {
@@ -562,6 +60,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -603,13 +102,12 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 1
       },
       "id": 16,
-      "links": [],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.79,
+        "barWidth": 0.5,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
@@ -623,6 +121,7 @@
         "stacking": "none",
         "text": {},
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -676,6 +175,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -717,13 +217,12 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 1
       },
       "id": 4,
-      "links": [],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.55,
+        "barWidth": 0.5,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
@@ -737,6 +236,7 @@
         "stacking": "none",
         "text": {},
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -790,7 +290,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 9
       },
       "id": 20,
       "panels": [],
@@ -803,7 +303,7 @@
           "refId": "A"
         }
       ],
-      "title": "time perspective",
+      "title": "Time dimension",
       "type": "row"
     },
     {
@@ -817,6 +317,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -842,7 +343,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -857,13 +359,12 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 27
+        "y": 10
       },
       "id": 22,
-      "links": [],
       "options": {
         "barRadius": 0,
-        "barWidth": 0.97,
+        "barWidth": 0.5,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
@@ -877,6 +378,7 @@
         "stacking": "none",
         "text": {},
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -887,12 +389,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n    CASE cast(dayofweek(authored_date) AS char) \n    WHEN '1' THEN\n    '1.Monday'\n    WHEN '2' THEN\n    '2.Tuesday'\n    WHEN '3' THEN\n    '3.Wednesday'\n    WHEN '4' THEN\n    '4.Thursday'\n    WHEN '5' THEN\n    '5.Friday'\n    WHEN '6' THEN\n    '6.Saturday'\n    WHEN '7' THEN\n    '7.Sunday'\n    END AS weekday , count(distinct commit_sha) AS commit_nums\nFROM commits\nJOIN repo_commits\nWHERE $__timeFilter(commits.authored_date)\n        AND commits.sha =repo_commits.commit_sha\n        AND repo_commits.repo_id IN (${repo_id})\nGROUP BY  weekday\n",
+          "rawSql": "SELECT\n    CASE cast(dayofweek(authored_date) AS char) \n    WHEN '2' THEN '1.Monday'\n    WHEN '3' THEN '2.Tuesday'\n    WHEN '4' THEN '3.Wednesday'\n    WHEN '5' THEN '4.Thursday'\n    WHEN '6' THEN '5.Friday'\n    WHEN '7' THEN '6.Saturday'\n    WHEN '1' THEN '7.Sunday'\n    END AS weekday , count(distinct commit_sha) AS commit_nums\nFROM commits\nJOIN repo_commits\nWHERE $__timeFilter(commits.authored_date)\n        AND commits.sha =repo_commits.commit_sha\n        AND repo_commits.repo_id IN (${repo_id})\nGROUP BY  weekday\n",
           "refId": "A",
           "select": [
             [
@@ -904,6 +407,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -930,6 +450,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -955,7 +476,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -970,10 +492,9 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 27
+        "y": 10
       },
       "id": 24,
-      "links": [],
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
@@ -990,6 +511,7 @@
         "stacking": "none",
         "text": {},
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -1000,12 +522,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n    CASE cast(dayofweek(authored_date) AS char)\n    WHEN '1' THEN\n    '1.Monday'\n    WHEN '2' THEN\n    '2.Tuesday'\n    WHEN '3' THEN\n    '3.Wednesday'\n    WHEN '4' THEN\n    '4.Thursday'\n    WHEN '5' THEN\n    '5.Friday'\n    WHEN '6' THEN\n    '6.Saturday'\n    WHEN '7' THEN\n    '7.Sunday'\n    END AS weekday , sum(additions-deletions) AS changed_nums, sum(additions) AS total_additions, sum(deletions) AS total_deletions\nFROM commits\nJOIN repo_commits\nWHERE commits.sha =repo_commits.commit_sha\n        AND repo_commits.repo_id IN (${repo_id})\n        AND $__timeFilter(commits.authored_date)\nGROUP BY  weekday\nORDER BY  weekday",
+          "rawSql": "SELECT\n    CASE cast(dayofweek(authored_date) AS char)\n    WHEN '2' THEN '1.Monday'\n    WHEN '3' THEN '2.Tuesday'\n    WHEN '4' THEN '3.Wednesday'\n    WHEN '5' THEN '4.Thursday'\n    WHEN '6' THEN '5.Friday'\n    WHEN '7' THEN '6.Saturday'\n    WHEN '1' THEN '7.Sunday'\n    END AS weekday , sum(additions-deletions) AS changed_nums, sum(additions) AS total_additions, sum(deletions) AS total_deletions\nFROM commits\nJOIN repo_commits\nWHERE commits.sha =repo_commits.commit_sha\n        AND repo_commits.repo_id IN (${repo_id})\n        AND $__timeFilter(commits.authored_date)\nGROUP BY  weekday\nORDER BY  weekday",
           "refId": "A",
           "select": [
             [
@@ -1017,6 +540,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1042,9 +582,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 18
       },
-      "id": 26,
+      "id": 14,
       "panels": [],
       "targets": [
         {
@@ -1055,18 +595,22 @@
           "refId": "A"
         }
       ],
-      "title": "lineage dimension",
+      "title": "File dimension",
       "type": "row"
     },
     {
-      "datasource": "mysql",
-      "description": "",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1092,7 +636,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1107,26 +652,26 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 19
       },
-      "id": 28,
-      "links": [],
+      "id": 12,
       "options": {
         "barRadius": 0,
-        "barWidth": 0.97,
+        "barWidth": 0.5,
         "fullHighlight": false,
-        "groupWidth": 0.7,
+        "groupWidth": 0.5,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
-        "orientation": "auto",
+        "orientation": "horizontal",
         "showValue": "auto",
         "stacking": "none",
         "text": {},
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -1137,40 +682,55 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
-          "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT    CASE cast(dayofweek(commits.committed_date) AS char)\n              WHEN '1' THEN\n                  '1.Monday'\n              WHEN '2' THEN\n                  '2.Tuesday'\n              WHEN '3' THEN\n                  '3.Wednesday'\n              WHEN '4' THEN\n                  '4.Thursday'\n              WHEN '5' THEN\n                  '5.Friday'\n              WHEN '6' THEN\n                  '6.Saturday'\n              WHEN '7' THEN\n                  '7.Sunday'\n              END AS wd,\n          count(*) as lived_lines\nFROM repo_snapshot\n         JOIN commits\n              ON commits.sha=repo_snapshot.commit_sha\nWHERE repo_snapshot.repo_id IN (${repo_id})\n  AND $__timeFilter(commits.committed_date)\nGROUP BY  wd\nORDER BY  wd ;",
+          "rawSql": "SELECT \n    file_path,\n    count(distinct c.author_name) AS cnt\nFROM commits c\n    JOIN commit_files cf on cf.commit_sha = c.sha\n    JOIN repo_commits rc ON cf.commit_sha = rc.commit_sha\nWHERE \n    repo_id IN (${repo_id})\n    AND $__timeFilter(c.authored_date)\n    AND CONVERT(file_path USING utf8mb4) REGEXP '${selected_path:raw}'\nGROUP BY file_path\nORDER BY cnt DESC \nlimit 10;",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "id"
+                  "_raw_data_id"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "_devlake_blueprints",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "issue_commits",
+          "timeColumn": "id",
+          "timeColumnType": "bigint",
+          "where": []
         }
       ],
-      "title": "In which day the code has highest chance to stay in repository.",
+      "title": "Files with maximum number of authors",
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1188,7 +748,535 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT file_path,\n       COUNT(DISTINCT author_name) AS author_count,\n       MAX(rst) AS lines_of_code,\n       MAX(rst) / COUNT(DISTINCT author_name) AS rate\nFROM commits\nJOIN (\n  SELECT file_path,\n         commit_files.commit_sha,\n         SUM(additions - deletions) AS rst\n  FROM commit_files\n  JOIN repo_commits rc ON commit_files.commit_sha = rc.commit_sha\n  WHERE \n    repo_id IN (${repo_id})\n    AND CONVERT(file_path USING utf8mb4) REGEXP '${selected_path:raw}'\n  GROUP BY file_path, commit_files.commit_sha\n) a ON a.commit_sha = commits.sha\nGROUP BY file_path\nHAVING author_count > 0\nORDER BY rate DESC\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "[Selected Files] Largest files with lowest number of authors",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "id": 10,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {},
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    file_path,\n    count(distinct sha) AS modified_num\nFROM commits c\n    JOIN commit_files cf on cf.commit_sha = c.sha\n    JOIN repo_commits rc ON cf.commit_sha = rc.commit_sha\nWHERE \n    repo_id IN (${repo_id})\n    AND $__timeFilter(c.authored_date)\n    AND CONVERT(file_path USING utf8mb4) REGEXP '${selected_path:raw}'\nGROUP BY file_path\nORDER BY modified_num desc\nLIMIT 10;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Files with most modifications",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "id": 8,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {},
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    file_path,\n    count(distinct sha) AS cnt\nFROM commits c \n    JOIN commit_files cf on cf.commit_sha = c.sha \n    JOIN repo_commits rc ON cf.commit_sha = rc.commit_sha\nWHERE \n    repo_id IN (${repo_id}) \n    AND $__timeFilter(c.authored_date)\nGROUP BY file_path\nORDER BY cnt desc\nLIMIT 10;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "[All Files] Files with most modifications",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "id": 26,
+      "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "Lineage dimension",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "id": 28,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.5,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {},
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT    \n    CASE cast(dayofweek(commits.committed_date) AS char)\n        WHEN '2' THEN '1.Monday'\n        WHEN '3' THEN '2.Tuesday'\n        WHEN '4' THEN '3.Wednesday'\n        WHEN '5' THEN '4.Thursday'\n        WHEN '6' THEN '5.Friday'\n        WHEN '7' THEN '6.Saturday'\n        WHEN '1' THEN '7.Sunday'\n        END AS wd,\n    count(*) as lived_lines\nFROM repo_snapshot\n    JOIN commits\n    ON commits.sha=repo_snapshot.commit_sha\nWHERE \n    repo_snapshot.repo_id IN (${repo_id})\n    AND $__timeFilter(commits.committed_date)\nGROUP BY  wd\nORDER BY  wd ;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "In which day the code has highest chance to stay in repository.",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1206,7 +1294,6 @@
         "y": 36
       },
       "id": 30,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1219,10 +1306,11 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1240,6 +1328,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1257,8 +1362,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
     "Engineering Leads Dashboard"
   ],
@@ -1292,8 +1396,8 @@
       {
         "current": {
           "selected": false,
-          "text": "",
-          "value": ""
+          "text": ".*",
+          "value": ".*"
         },
         "description": "input file path",
         "hide": 0,
@@ -1301,21 +1405,22 @@
         "name": "selected_path",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "",
             "value": ""
           }
         ],
-        "query": "",
+        "query": ".*",
         "skipUrlSync": false,
         "type": "textbox"
       }
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-5y",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {
     "refresh_intervals": [
       "5s",
