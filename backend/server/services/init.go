@@ -141,7 +141,7 @@ func ExecuteMigration() errors.Error {
 	statusLock.Lock()
 	if serviceStatus == SERVICE_STATUS_MIGRATING {
 		statusLock.Unlock()
-		return errors.BadInput.New("already migrating")
+		return errors.BadInput.New("There is a migration in progress.")
 	}
 	if serviceStatus == SERVICE_STATUS_READY {
 		statusLock.Unlock()
