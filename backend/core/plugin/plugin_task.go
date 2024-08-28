@@ -19,6 +19,7 @@ package plugin
 
 import (
 	"context"
+	"strings"
 
 	corecontext "github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -33,6 +34,13 @@ const (
 	SubTaskSetProgress
 	SubTaskIncProgress
 	SetCurrentSubTask
+)
+
+const (
+	TaskTypeCollector = "collector"
+	TaskTypeExtractor = "extractor"
+	TaskTypeConvertor = "convertor"
+	TaskTypeEnricher  = "enricher"
 )
 
 type RunningProgress struct {
@@ -106,7 +114,13 @@ type SubTaskMeta struct {
 	Dependencies     []*SubTaskMeta
 	DependencyTables []string
 	ProductTables    []string
-	ForceRunOnResume bool // Should a subtask be ran dispite it was finished before
+	ForceRunOnResume bool // Should a subtask be run despite it was finished before
+
+	TaskType string
+}
+
+func (subtaskMeta SubTaskMeta) IsCollector() bool {
+	return strings.Contains(strings.ToLower(subtaskMeta.Name), "collect") || subtaskMeta.TaskType == TaskTypeCollector
 }
 
 // PluginTask Implement this interface to let framework run tasks for you
@@ -121,4 +135,17 @@ type PluginTask interface {
 type CloseablePluginTask interface {
 	PluginTask
 	Close(taskCtx TaskContext) errors.Error
+}
+
+type ParallelTask interface {
+	PluginTask
+	GetOrchestratedTask() (*OrchestratedTask, errors.Error)
+}
+
+type SequentialTasks []SubTaskMeta
+
+type OrchestratedTask struct {
+	InitTasks  []SequentialTasks // will be executed in parallel
+	CommonTask []SequentialTasks // will be executed in parallel after all InitTasks are finished
+	EndTasks   []SequentialTasks // will be executed in parallel after all CommonTask are finished
 }
