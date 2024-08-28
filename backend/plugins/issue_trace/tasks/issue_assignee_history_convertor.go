@@ -53,6 +53,7 @@ var ConvertIssueAssigneeHistoryMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertIssueAssigneeHistory,
 	EnabledByDefault: true,
 	Description:      "Convert changelogs to issue assignee history",
+	ForceRunOnResume: true,
 }
 
 func ConvertIssueAssigneeHistory(taskCtx plugin.SubTaskContext) errors.Error {

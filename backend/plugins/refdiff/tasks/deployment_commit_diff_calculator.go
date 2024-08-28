@@ -37,6 +37,7 @@ var CalculateDeploymentCommitsDiffMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Calculate commits diff between deployments in the specified project",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	ForceRunOnResume: true,
 }
 
 func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
