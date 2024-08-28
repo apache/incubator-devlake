@@ -19,8 +19,11 @@ package runner
 
 import (
 	gocontext "context"
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/spf13/cast"
+	"golang.org/x/sync/errgroup"
 	"strings"
 	"time"
 
@@ -157,9 +160,23 @@ func RunPluginTask(
 	if err != nil {
 		return errors.Default.WrapRaw(err)
 	}
+
+	now := time.Now()
+	if pluginTask, ok := pluginMeta.(plugin.ParallelTask); ok {
+		//return RunPluginSubTasksParallel(ctx, basicRes, task, pluginTask, progress, syncPolicy)
+		RunPluginSubTasksParallel(ctx, basicRes, task, pluginTask, progress, syncPolicy)
+		fmt.Printf("PluginParallelTask plugin: %s, cost: %d ms\n", task.Plugin, time.Since(now).Milliseconds())
+	}
+
 	pluginTask, ok := pluginMeta.(plugin.PluginTask)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("plugin %s doesn't support PluginTask interface", task.Plugin))
+	}
+	if task.Plugin == "dora" {
+		now := time.Now()
+		err := RunPluginSubTasks(ctx, basicRes, task, pluginTask, progress, syncPolicy)
+		fmt.Printf("RunPluginSubTasks plugin: %s, cost: %d ms\n", task.Plugin, time.Since(now).Milliseconds())
+		return err
 	}
 	return RunPluginSubTasks(
 		ctx,
@@ -169,6 +186,242 @@ func RunPluginTask(
 		progress,
 		syncPolicy,
 	)
+}
+
+func recordSubTaskSequence(basicRes context.BasicRes, taskID uint64, taskCtx plugin.TaskContext, subtaskMetas []plugin.SubTaskMeta) errors.Error {
+	// record subtasks sequence to DB
+	collectSubtaskNumber := 0
+	otherSubtaskNumber := 0
+	isCollector := false
+	var subtasks []models.Subtask
+	for _, subtaskMeta := range subtaskMetas {
+		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("error getting context subtask %s", subtaskMeta.Name))
+		}
+		if subtaskCtx == nil {
+			continue
+		}
+		if subtaskMeta.IsCollector() || strings.Contains(strings.ToLower(subtaskMeta.Name), "clone git repo") {
+			collectSubtaskNumber++
+			isCollector = true
+		} else {
+			otherSubtaskNumber++
+			isCollector = false
+		}
+		s := models.Subtask{
+			Name:        subtaskCtx.GetName(),
+			TaskID:      taskID,
+			IsCollector: isCollector,
+		}
+		if isCollector {
+			s.Sequence = collectSubtaskNumber
+		} else {
+			s.Sequence = otherSubtaskNumber
+		}
+		subtasks = append(subtasks, s)
+	}
+	if err := basicRes.GetDal().CreateOrUpdate(subtasks); err != nil {
+		basicRes.GetLogger().Error(err, "error writing subtask list to DB")
+	}
+	return nil
+}
+
+func getRunnableSubtaskMetas(taskCtx plugin.TaskContext, subtaskMetas []plugin.SubTaskMeta) ([]plugin.SubTaskMeta, []plugin.SubTaskContext, errors.Error) {
+	var ret []plugin.SubTaskMeta
+	var subtaskCtxs []plugin.SubTaskContext
+	for _, subtaskMeta := range subtaskMetas {
+		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
+		if err != nil {
+			return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("error getting context subtask %s", subtaskMeta.Name))
+		}
+		if subtaskCtx == nil { // subtask was disabled
+			continue
+		}
+		ret = append(ret, subtaskMeta)
+		subtaskCtxs = append(subtaskCtxs, subtaskCtx)
+	}
+	return ret, subtaskCtxs, nil
+}
+
+func RunPluginSubTasksParallel(
+	ctx gocontext.Context,
+	basicRes context.BasicRes,
+	task *models.Task,
+	pluginTask plugin.ParallelTask,
+	progress chan plugin.RunningProgress,
+	syncPolicy *models.SyncPolicy,
+) errors.Error {
+	fmt.Println("task.Subtask", task.Subtasks)
+	taskID := task.ID
+	subTaskFlag, err := getSubtaskFlagMap(pluginTask, syncPolicy, task.Subtasks)
+	if err != nil {
+		return err
+	}
+	tasks, err := pluginTask.GetOrchestratedTask()
+	if err != nil {
+		return err
+	}
+
+	taskCtx := contextimpl.NewDefaultTaskContext(ctx, basicRes, task.Plugin, subTaskFlag, progress)
+	if closeablePlugin, ok := pluginTask.(plugin.CloseablePluginTask); ok {
+		defer closeablePlugin.Close(taskCtx)
+	}
+	taskCtx.SetSyncPolicy(syncPolicy)
+
+	taskData, err := pluginTask.PrepareTaskData(taskCtx, task.Options)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", task.Plugin))
+	}
+	taskCtx.SetData(taskData)
+
+	if err := recordSubTaskSequence(basicRes, task.ID, taskCtx, pluginTask.SubTaskMetas()); err != nil {
+		return err
+	}
+
+	steps := getStepsFromSubtasksFlag(subTaskFlag)
+	taskCtx.SetProgress(0, steps)
+
+	subtaskNumber := 0
+
+	g := new(errgroup.Group)
+	for _, parallelTasks := range [][][]plugin.SubTaskMeta{tasks.InitTasks, tasks.CommonTask, tasks.EndTasks} {
+		for _, commonSubTasks := range parallelTasks {
+			subTasks, subTaskCtxs, err := getRunnableSubtaskMetas(taskCtx, commonSubTasks)
+			g.Go(func() error {
+				defer func() {
+					if panicErr := recover(); err != nil {
+						basicRes.GetLogger().Error(goerror.New(cast.ToString(panicErr)), "panic in run common task")
+					}
+				}()
+				if err := runSequenceSubTasks(basicRes, taskCtx, taskID, subtaskNumber, progress, subTasks, subTaskCtxs); err != nil {
+					basicRes.GetLogger().Error(err, "runSequenceSubTasks: %s", subTasks)
+					return err
+				}
+				return nil
+			})
+
+			subtaskNumber += len(subTasks)
+		}
+	}
+	if err := g.Wait(); err != nil {
+		return errors.Convert(err)
+	}
+
+	return nil
+}
+
+func runSequenceSubTasks(basicRes context.BasicRes, taskCtx plugin.TaskContext, taskID uint64, subtaskNumber int, progress chan plugin.RunningProgress, sequenceSubTasks []plugin.SubTaskMeta, sequenceSubTaskCtxs []plugin.SubTaskContext) errors.Error {
+	for idx, subtaskMeta := range sequenceSubTasks {
+		subtaskNumber++
+		setProgress(progress, subtaskMeta.Name, subtaskNumber)
+		if err := runTaskWithPreCheck(basicRes, sequenceSubTaskCtxs[idx], taskID, subtaskNumber, subtaskMeta); err != nil {
+			basicRes.GetLogger().Error(err, fmt.Sprintf("error runTaskWithPreCheck: %s", subtaskMeta.Name))
+			return err
+		}
+		taskCtx.IncProgress(1)
+	}
+	return nil
+}
+
+func setProgress(progress chan plugin.RunningProgress, name string, number int) {
+	if progress != nil {
+		progress <- plugin.RunningProgress{
+			Type:          plugin.SetCurrentSubTask,
+			SubTaskName:   name,
+			SubTaskNumber: number,
+		}
+	}
+}
+
+func runTaskWithPreCheck(basicRes context.BasicRes, subtaskCtx plugin.SubTaskContext, taskID uint64, subtaskNumber int, subtaskMeta plugin.SubTaskMeta) errors.Error {
+	logger := basicRes.GetLogger()
+	subtaskFinished := false
+	if !subtaskMeta.ForceRunOnResume {
+		if taskID > 0 {
+			sfc := errors.Must1(basicRes.GetDal().Count(
+				dal.From(&models.Subtask{}), dal.Where("task_id = ? AND name = ? AND finished_at IS NOT NULL", taskID, subtaskMeta.Name),
+			),
+			)
+			subtaskFinished = sfc > 0
+		}
+	}
+	if subtaskFinished {
+		logger.Info("subtask %s already finished previously", subtaskMeta.Name)
+	} else {
+		logger.Info("executing subtask %s", subtaskMeta.Name)
+		start := time.Now()
+		err := runSubtask(basicRes, subtaskCtx, taskID, subtaskNumber, subtaskMeta.EntryPoint)
+		logger.Info("subtask %s finished in %d ms", subtaskMeta.Name, time.Since(start).Milliseconds())
+		if err != nil {
+			err = errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
+			logger.Error(err, "")
+			where := dal.Where("task_id = ? and name = ?", taskID, subtaskCtx.GetName())
+			if err := basicRes.GetDal().UpdateColumns(models.Subtask{}, []dal.DalSet{
+				{ColumnName: "is_failed", Value: 1},
+				{ColumnName: "message", Value: err.Error()},
+			}, where); err != nil {
+				basicRes.GetLogger().Error(err, "error writing subtask %v status to DB", subtaskCtx.GetName())
+			}
+			return err
+		}
+	}
+	return nil
+}
+
+func getSubtaskFlagMap(pluginTask plugin.PluginTask, syncPolicy *models.SyncPolicy, specifiedTasks []string) (map[string]bool, errors.Error) {
+	// find out all possible subtasks this plugin can offer
+	subtaskMetas := pluginTask.SubTaskMetas()
+	subtasksFlag := make(map[string]bool)
+	for _, subtaskMeta := range subtaskMetas {
+		subtasksFlag[subtaskMeta.Name] = subtaskMeta.EnabledByDefault
+	}
+	/* subtasksFlag example
+	subtasksFlag := map[string]bool{
+		"collectProject": true,
+		"convertCommits": true,
+		...
+	}
+	*/
+
+	// user specifies what subtasks to run
+	if len(specifiedTasks) > 0 {
+		// first, disable all subtasks
+		for task := range subtasksFlag {
+			subtasksFlag[task] = false
+		}
+	}
+	// second, check specified subtasks is valid and enable them if so
+	for _, task := range specifiedTasks {
+		if _, ok := subtasksFlag[task]; ok {
+			subtasksFlag[task] = true
+		} else {
+			return nil, errors.Default.New(fmt.Sprintf("subtask %s does not exist", task))
+		}
+	}
+
+	// 1. make sure `Collect` subtasks skip if `SkipCollectors` is true
+	// 2. make sure `Required` subtasks are always enabled
+	for _, subtaskMeta := range subtaskMetas {
+		if syncPolicy != nil && syncPolicy.SkipCollectors && subtaskMeta.IsCollector() {
+			subtasksFlag[subtaskMeta.Name] = false
+		}
+		if subtaskMeta.Required {
+			subtasksFlag[subtaskMeta.Name] = true
+		}
+	}
+	return subtasksFlag, nil
+}
+
+func getStepsFromSubtasksFlag(subtasksFlag map[string]bool) int {
+	// calculate total step(number of task to run)
+	steps := 0
+	for _, enabled := range subtasksFlag {
+		if enabled {
+			steps++
+		}
+	}
+	return steps
 }
 
 // RunPluginSubTasks FIXME ...
@@ -293,7 +546,6 @@ func RunPluginSubTasks(
 	taskCtx.SetProgress(0, steps)
 	subtaskNumber := 0
 	for _, subtaskMeta := range subtaskMetas {
-		subtaskNumber++
 		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
 		if err != nil {
 			// sth went wrong
@@ -303,6 +555,7 @@ func RunPluginSubTasks(
 			// subtask was disabled
 			continue
 		}
+		subtaskNumber++
 		// run subtask
 		if progress != nil {
 			progress <- plugin.RunningProgress{
