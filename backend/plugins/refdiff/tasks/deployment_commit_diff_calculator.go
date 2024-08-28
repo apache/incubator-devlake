@@ -20,6 +20,7 @@ package tasks
 import (
 	"context"
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -39,6 +40,8 @@ var CalculateDeploymentCommitsDiffMeta = plugin.SubTaskMeta{
 }
 
 func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
+	time.Sleep(time.Millisecond * 49700)
+	return nil
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	db := taskCtx.GetDal()
 	ctx := taskCtx.GetContext()

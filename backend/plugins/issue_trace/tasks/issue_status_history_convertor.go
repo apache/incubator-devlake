@@ -57,6 +57,8 @@ var ConvertIssueStatusHistoryMeta = plugin.SubTaskMeta{
 }
 
 func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
+	time.Sleep(time.Millisecond * 15000)
+	return nil
 	logger := taskCtx.GetLogger()
 	options := taskCtx.GetData().(*TaskData)
 	scopeIds := options.ScopeIds
