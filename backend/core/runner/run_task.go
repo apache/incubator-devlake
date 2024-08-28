@@ -161,31 +161,36 @@ func RunPluginTask(
 		return errors.Default.WrapRaw(err)
 	}
 
-	now := time.Now()
-	if pluginTask, ok := pluginMeta.(plugin.ParallelTask); ok {
-		//return RunPluginSubTasksParallel(ctx, basicRes, task, pluginTask, progress, syncPolicy)
-		RunPluginSubTasksParallel(ctx, basicRes, task, pluginTask, progress, syncPolicy)
-		fmt.Printf("PluginParallelTask plugin: %s, cost: %d ms\n", task.Plugin, time.Since(now).Milliseconds())
-	}
+	pluginName := task.Plugin
+	if pluginName == "dora" || pluginName == "refdiff" || pluginName == "resource_allocation" || pluginName == "issue_trace" {
 
-	pluginTask, ok := pluginMeta.(plugin.PluginTask)
-	if !ok {
-		return errors.Default.New(fmt.Sprintf("plugin %s doesn't support PluginTask interface", task.Plugin))
-	}
-	if task.Plugin == "dora" {
 		now := time.Now()
-		err := RunPluginSubTasks(ctx, basicRes, task, pluginTask, progress, syncPolicy)
-		fmt.Printf("RunPluginSubTasks plugin: %s, cost: %d ms\n", task.Plugin, time.Since(now).Milliseconds())
-		return err
+		if pluginTask, ok := pluginMeta.(plugin.ParallelTask); ok {
+			//return RunPluginSubTasksParallel(ctx, basicRes, task, pluginTask, progress, syncPolicy)
+			RunPluginSubTasksParallel(ctx, basicRes, task, pluginTask, progress, syncPolicy)
+			fmt.Printf("PluginParallelTask plugin: %s, cost: %d ms\n", task.Plugin, time.Since(now).Milliseconds())
+		}
+
+		pluginTask, ok := pluginMeta.(plugin.PluginTask)
+		if !ok {
+			return errors.Default.New(fmt.Sprintf("plugin %s doesn't support PluginTask interface", task.Plugin))
+		}
+		if task.Plugin == "dora" {
+			now := time.Now()
+			err := RunPluginSubTasks(ctx, basicRes, task, pluginTask, progress, syncPolicy)
+			fmt.Printf("RunPluginSubTasks plugin: %s, cost: %d ms\n", task.Plugin, time.Since(now).Milliseconds())
+			return err
+		}
+		return RunPluginSubTasks(
+			ctx,
+			basicRes,
+			task,
+			pluginTask,
+			progress,
+			syncPolicy,
+		)
 	}
-	return RunPluginSubTasks(
-		ctx,
-		basicRes,
-		task,
-		pluginTask,
-		progress,
-		syncPolicy,
-	)
+	return nil
 }
 
 func recordSubTaskSequence(basicRes context.BasicRes, taskID uint64, taskCtx plugin.TaskContext, subtaskMetas []plugin.SubTaskMeta) errors.Error {
