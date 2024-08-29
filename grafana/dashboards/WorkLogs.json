@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 47,
+  "id": 39,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -705,7 +705,6 @@
           "values": true
         },
         "tooltip": {
-          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -753,8 +752,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -825,8 +823,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -862,7 +859,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name, u.email\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_commits as (\n  SELECT distinct DATE_FORMAT(authored_date, '%d/%m/%Y') as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name, c.additions, c.deletions\n  FROM commits c\n  join _accounts a on c.author_id = a.email\n  where $__timeFilter(authored_date)\n)\n\nSELECT sum(additions + deletions) FROM _commits\n",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_commits as (\n  SELECT distinct DATE_FORMAT(authored_date, '%d/%m/%Y') as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name, c.additions, c.deletions\n  FROM commits c\n  join _accounts a on c.author_id = a.account_id\n  where $__timeFilter(authored_date)\n)\n\nSELECT sum(additions + deletions) FROM _commits\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -898,8 +895,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -971,8 +967,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1067,8 +1062,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1111,7 +1105,6 @@
           "valueSize": 12
         },
         "tooltip": {
-          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -1197,8 +1190,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1234,7 +1226,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name, u.email\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_commits as (\n  SELECT distinct DATE_FORMAT(authored_date, '%d/%m/%Y') as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name, c.additions, c.deletions, c.sha\n  FROM commits c\n  join _accounts a on c.author_id = a.email\n  where $__timeFilter(authored_date)\n),\n\n_pr_commits_data as(\n  SELECT\n    pr.id as pr_id,\n    pr.merge_commit_sha,\n    sum(c.additions)+sum(c.deletions) as loc\n  FROM \n    pull_requests pr\n    left join _commits c on pr.merge_commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.status = 'MERGED'\n    group by 1,2\n)\n\nSELECT \n  avg(loc) as 'PR Merged Size'\nFROM _pr_commits_data\n",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n\n_commits as (\n  SELECT distinct DATE_FORMAT(authored_date, '%d/%m/%Y') as Date, authored_date as Time, 'Finish a commit' as Activity, concat(message, ' #', sha) as Details, a.name as Name, c.additions, c.deletions, c.sha\n  FROM commits c\n  join _accounts a on c.author_id = a.account_id\n  where $__timeFilter(authored_date)\n),\n\n_pr_commits_data as(\n  SELECT\n    pr.id as pr_id,\n    pr.merge_commit_sha,\n    sum(c.additions)+sum(c.deletions) as loc\n  FROM \n    pull_requests pr\n    left join _commits c on pr.merge_commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.status = 'MERGED'\n    group by 1,2\n)\n\nSELECT \n  avg(loc) as 'PR Merged Size'\nFROM _pr_commits_data\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1270,8 +1262,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1344,8 +1335,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1467,10 +1457,11 @@
     "from": "now-6M",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
   "title": "Work Logs",
   "uid": "d449042e-22f0-4357-b8b7-22083f47618d",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
