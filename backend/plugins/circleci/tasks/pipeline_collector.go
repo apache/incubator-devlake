@@ -20,8 +20,6 @@ package tasks
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -53,13 +51,7 @@ func CollectPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			GetNextPageCustomData: ExtractNextPageToken,
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
 				UrlTemplate: "/v2/project/{{ .Params.ProjectSlug }}/pipeline",
-				Query: func(reqData *api.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
-					query := url.Values{}
-					if pageToken, ok := reqData.CustomData.(string); ok && pageToken != "" {
-						query.Set("page-token", pageToken)
-					}
-					return query, nil
-				},
+				Query:       BuildQueryParamsWithPageToken,
 				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 					data := CircleciPageTokenResp[[]json.RawMessage]{}
 					err := api.UnmarshalResponse(res, &data)

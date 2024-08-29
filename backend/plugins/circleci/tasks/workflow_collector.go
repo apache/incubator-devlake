@@ -20,7 +20,6 @@ package tasks
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
 	"reflect"
 	"time"
 
@@ -70,17 +69,11 @@ func CollectWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				if err != nil {
 					return nil, err
 				}
-				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleEntity{}))
+				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.CircleciPipeline{}))
 			},
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: "/v2/pipeline/{{ .Input.Id }}/workflow",
-				Query: func(reqData *api.RequestData, _ *time.Time) (url.Values, errors.Error) {
-					query := url.Values{}
-					if pageToken, ok := reqData.CustomData.(string); ok && pageToken != "" {
-						query.Set("page-token", pageToken)
-					}
-					return query, nil
-				},
+				UrlTemplate:    "/v2/pipeline/{{ .Input.Id }}/workflow",
+				Query:          BuildQueryParamsWithPageToken,
 				ResponseParser: ParseCircleciPageTokenResp,
 				AfterResponse:  ignoreDeletedBuilds, // Ignore the 404 response if a workflow has been deleted
 			},
@@ -109,7 +102,7 @@ func CollectWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				if err != nil {
 					return nil, err
 				}
-				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleEntity{}))
+				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.CircleciWorkflow{}))
 			},
 		},
 	})
