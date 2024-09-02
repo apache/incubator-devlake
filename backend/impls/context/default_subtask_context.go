@@ -46,7 +46,7 @@ func (c *DefaultSubTaskContext) IncProgress(quantity int) {
 	c.defaultExecContext.IncProgress(plugin.SubTaskIncProgress, quantity)
 	if c.LastProgressTime.IsZero() || c.LastProgressTime.Add(3*time.Second).Before(time.Now()) || c.current%1000 == 0 {
 		c.LastProgressTime = time.Now()
-		c.BasicRes.GetLogger().Info("finished records: %d", c.current)
+		c.BasicRes.GetLogger().Info("finished records: %d(not exactly)", c.current)
 	} else {
 		c.BasicRes.GetLogger().Debug("finished records: %d", c.current)
 	}

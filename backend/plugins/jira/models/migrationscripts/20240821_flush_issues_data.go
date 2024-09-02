@@ -15,13 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package parser
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type RepoCloner interface {
-	CloneRepo() errors.Error
-	CloseRepo() errors.Error
+var _ plugin.MigrationScript = (*flushJiraIssues)(nil)
+
+type flushJiraIssues struct{}
+
+func (*flushJiraIssues) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	return db.Delete("_devlake_subtask_states", dal.Where("plugin = ? and subtask = ?", "jira", "convertIssues"))
+}
+
+func (*flushJiraIssues) Version() uint64 {
+	return 20240821141954
+}
+
+func (*flushJiraIssues) Name() string {
+	return "flush jira convertIssues data from devlake_subtask_states table"
 }

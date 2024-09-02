@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 17,
+  "id": 45,
   "links": [
     {
       "asDropdown": false,
@@ -47,7 +47,6 @@
         "y": 0
       },
       "id": 63,
-      "links": [],
       "options": {
         "code": {
           "language": "plaintext",
@@ -57,7 +56,7 @@
         "content": "This dashboard shows the details about [Failed Deployment Recovery Time\n](https://devlake.apache.org/docs/Metrics/MTTR) in DORA.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -98,7 +97,6 @@
         "y": 2
       },
       "id": 87,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -111,9 +109,11 @@
           "fields": "/.*/",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -121,7 +121,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "--  ***** 2023 report ***** --\n--  Metric 4: Failed deployment recovery time\nwith _deployments as (\n  SELECT\n    cdc.cicd_deployment_id as deployment_id,\n    max(cdc.finished_date) as deployment_finished_date\n  FROM\n    cicd_deployment_commits cdc\n    JOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id\n    and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n    and cdc.result = 'SUCCESS'\n    and cdc.environment = 'PRODUCTION'\n  GROUP BY\n    1\n  HAVING\n    $__timeFilter(max(cdc.finished_date))\n),\n_incidents_for_deployments as (\n  SELECT\n    i.id as incident_id,\n    i.created_date as incident_create_date,\n    i.resolution_date as incident_resolution_date,\n    fd.deployment_id as caused_by_deployment,\n    fd.deployment_finished_date,\n    date_format(fd.deployment_finished_date, '%y/%m') as deployment_finished_month\n  FROM\n    incidents i\n    left join project_incident_deployment_relationships pim on i.id = pim.id\n    join _deployments fd on pim.deployment_id = fd.deployment_id\n  WHERE\n    $__timeFilter(i.resolution_date)\n),\n_recovery_time_ranks as (\n  SELECT\n    *,\n    percent_rank() over(\n      order by\n        TIMESTAMPDIFF(\n          MINUTE,\n          deployment_finished_date,\n          incident_resolution_date\n        )\n    ) as ranks\n  FROM\n    _incidents_for_deployments\n),\n_median_recovery_time as (\n  SELECT\n    max(\n      TIMESTAMPDIFF(\n        MINUTE,\n        deployment_finished_date,\n        incident_resolution_date\n      )\n    ) as median_recovery_time\n  FROM\n    _recovery_time_ranks\n  WHERE\n    ranks <= 0.5\n),\n--  ***** 2021 report ***** --\n-- Metric 4: Median time to restore service \n_incidents as (\n  -- get the incidents created within the selected time period in the top-right corner\n  SELECT\n    distinct i.id,\n    cast(lead_time_minutes as signed) as lead_time_minutes\n  FROM\n    incidents i\n    join project_mapping pm on i.scope_id = pm.row_id\n    and i.`table` = pm.`table`\n    and pm.`table` = 'boards'\n  WHERE\n    pm.project_name in (${project})\n    and $__timeFilter(i.created_date)\n),\n_median_mttr_ranks as(\n  SELECT\n    *,\n    percent_rank() over(\n      order by\n        lead_time_minutes\n    ) as ranks\n  FROM\n    _incidents\n),\n_median_mttr as(\n  SELECT\n    max(lead_time_minutes) as median_time_to_resolve\n  FROM\n    _median_mttr_ranks\n  WHERE\n    ranks <= 0.5\n)\nSELECT\n  median_recovery_time / 60 AS median_recovery_time_in_hours\nFROM\n  _median_recovery_time",
+          "rawSql": "--  ***** 2023 report ***** --\n--  Metric 4: Failed deployment recovery time\nwith _deployments as (\n  SELECT\n    cdc.cicd_deployment_id as deployment_id,\n    max(cdc.finished_date) as deployment_finished_date\n  FROM\n    cicd_deployment_commits cdc\n    JOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id\n    and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n    and cdc.result = 'SUCCESS'\n    and cdc.environment = 'PRODUCTION'\n  GROUP BY\n    1\n  HAVING\n    $__timeFilter(max(cdc.finished_date))\n),\n_incidents_for_deployments as (\n  SELECT\n    i.id as incident_id,\n    i.created_date as incident_create_date,\n    i.resolution_date as incident_resolution_date,\n    fd.deployment_id as caused_by_deployment,\n    fd.deployment_finished_date,\n    date_format(fd.deployment_finished_date, '%y/%m') as deployment_finished_month\n  FROM\n    incidents i\n    left join project_incident_deployment_relationships pim on i.id = pim.id\n    join _deployments fd on pim.deployment_id = fd.deployment_id\n  WHERE\n    $__timeFilter(i.resolution_date)\n),\n_recovery_time_ranks as (\n  SELECT\n    *,\n    percent_rank() over(\n      order by\n        TIMESTAMPDIFF(\n          MINUTE,\n          deployment_finished_date,\n          incident_resolution_date\n        )\n    ) as ranks\n  FROM\n    _incidents_for_deployments\n),\n_median_recovery_time as (\n  SELECT\n    max(\n      TIMESTAMPDIFF(\n        MINUTE,\n        deployment_finished_date,\n        incident_resolution_date\n      )\n    ) as median_recovery_time\n  FROM\n    _recovery_time_ranks\n  WHERE\n    ranks <= 0.5\n),\n\n_is_collected_data as(\n  SELECT\n    CASE\n      WHEN EXISTS(select COUNT(d.deployment_id) from _deployments) = 0 AND EXISTS(select COUNT(i.incident_id) FROM incidents) = 0 THEN 'No deployments and incidents'\n      WHEN EXISTS(select COUNT(d.deployment_id) from _deployments) = 0 THEN 'No Deployments'\n      WHEN EXISTS(select COUNT(i.incident_id) FROM incidents) = 0 THEN 'No Incidents'\n      Else 'No incidents are mapped to deployments'\n    END AS is_collected\n  FROM\n    _deployments d, _incidents_for_deployments i\n)\n\nSELECT\n  CASE\n    WHEN is_collected = \"No deployments and incidents\" THEN \"N/A. Please check if you have collected deployments and incidents.\"\n    WHEN is_collected = \"No Deployments\" THEN \"N/A. Please check if you have collected deployments.\"\n    WHEN is_collected = \"No Incidents\" THEN \"N/A. Please check if you have collected incidents.\"\n    WHEN median_recovery_time is not null then median_recovery_time/60 \n    ELSE \"No data\"\n  END AS median_recovery_time_in_hours\nFROM\n  _median_recovery_time,\n  _is_collected_data",
           "refId": "D",
           "sql": {
             "columns": [
@@ -283,7 +283,6 @@
         "y": 2
       },
       "id": 80,
-      "links": [],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -305,7 +304,7 @@
           }
         ]
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -386,7 +385,6 @@
         "y": 12
       },
       "id": 88,
-      "links": [],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -399,9 +397,11 @@
           "fields": "/.*/",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
@@ -435,8 +435,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
     "DORA"
   ],
@@ -469,6 +468,7 @@
     "from": "now-6M",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
   "title": "DORA Details - Failed Deployment Recovery Time",
