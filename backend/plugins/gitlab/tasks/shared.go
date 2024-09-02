@@ -155,10 +155,10 @@ func GetQuery(reqData *helper.RequestData) (url.Values, errors.Error) {
 	return query, nil
 }
 
-func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *GitlabTaskData) {
-	data := taskCtx.GetData().(*GitlabTaskData)
+func CreateRawDataSubTaskArgs(subtaskCtx plugin.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *GitlabTaskData) {
+	data := subtaskCtx.GetData().(*GitlabTaskData)
 	rawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
+		Ctx: subtaskCtx,
 		Params: models.GitlabApiParams{
 			ProjectId:    data.Options.ProjectId,
 			ConnectionId: data.Options.ConnectionId,
@@ -166,6 +166,19 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*hel
 		Table: Table,
 	}
 	return rawDataSubTaskArgs, data
+}
+
+func CreateSubtaskCommonArgs(subtaskCtx plugin.SubTaskContext, table string) (*helper.SubtaskCommonArgs, *GitlabTaskData) {
+	data := subtaskCtx.GetData().(*GitlabTaskData)
+	args := &helper.SubtaskCommonArgs{
+		SubTaskContext: subtaskCtx,
+		Table:          table,
+		Params: models.GitlabApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			ProjectId:    data.Options.ProjectId,
+		},
+	}
+	return args, data
 }
 
 func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, apiCollector *helper.StatefulApiCollector) (*helper.DalCursorIterator, errors.Error) {

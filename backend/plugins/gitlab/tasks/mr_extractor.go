@@ -96,8 +96,8 @@ var ExtractApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&CollectApiMergeRequestsMeta},
 }
 
-func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
+func ExtractApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_TABLE)
 	config := data.Options.ScopeConfig
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
@@ -118,10 +118,14 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+	subtaskCommonArgs.SubtaskConfig = map[string]any{
+		"prType":      prType,
+		"prComponent": prComponent,
+	}
 
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			mr := &MergeRequestRes{}
 			s := string(row.Data)
 			err := errors.Convert(json.Unmarshal(row.Data, mr))
@@ -142,7 +146,7 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 			}
 
-			results := make([]interface{}, 0, len(mr.Reviewers)+1)
+			results := make([]interface{}, 0, len(mr.Reviewers)+len(mr.Labels)+1)
 			gitlabMergeRequest.ConnectionId = data.Options.ConnectionId
 			results = append(results, gitlabMergeRequest)
 			for _, label := range mr.Labels {
@@ -188,17 +192,13 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				results = append(results, gitlabAssignee)
 			}
-
 			return results, nil
 		},
 	})
-
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-
 	return extractor.Execute()
-
 }
 
 func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, errors.Error) {

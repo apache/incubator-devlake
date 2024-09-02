@@ -91,6 +91,11 @@ func (es *EncDecSerializer) Value(ctx context.Context, field *schema.Field, dst 
 		}
 		target = string(b)
 	}
+	if field.GORMDataType == "string" {
+		println("field.GORMDataType == string", field.Size)
+		gormTag, ok := field.Tag.Lookup("gorm")
+		println(ok, gormTag)
+	}
 	return plugin.Encrypt(es.encryptionSecret, target)
 }
 
