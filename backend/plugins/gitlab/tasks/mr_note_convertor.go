@@ -18,15 +18,13 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -36,44 +34,39 @@ func init() {
 
 var ConvertMrCommentMeta = plugin.SubTaskMeta{
 	Name:             "Convert MR Comments",
-	EntryPoint:       ConvertMergeRequestComment,
+	EntryPoint:       ConvertMergeRequestNote,
 	EnabledByDefault: true,
 	Description:      "Add domain layer Comment according to GitlabMrComment",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
-func ConvertMergeRequestComment(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_NOTES_TABLE)
-	db := taskCtx.GetDal()
-	clauses := []dal.Clause{
-		dal.From(&models.GitlabMrComment{}),
-		dal.Join(`left join _tool_gitlab_merge_requests on
-			_tool_gitlab_merge_requests.gitlab_id =
-			_tool_gitlab_mr_comments.merge_request_id`),
-		dal.Where(`_tool_gitlab_merge_requests.project_id = ?
-			and _tool_gitlab_mr_comments.connection_id = ?`,
-			data.Options.ProjectId, data.Options.ConnectionId),
-	}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
+func ConvertMergeRequestNote(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_NOTES_TABLE)
+	db := subtaskCtx.GetDal()
 
 	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.GitlabMrComment{})
 	prIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabMrComment{}),
-		Input:              cursor,
-
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabComments := inputRow.(*models.GitlabMrComment)
-
+	converter, err := api.NewStatefulDataConverter[models.GitlabMrComment](&api.StatefulDataConverterArgs[models.GitlabMrComment]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.Select("c.*"),
+				dal.From("_tool_gitlab_mr_comments c"),
+				dal.Join(`LEFT JOIN _tool_gitlab_merge_requests mr ON mr.gitlab_id = c.merge_request_id`),
+				dal.Where(`mr.project_id = ?  and mr.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("c.updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(gitlabComments *models.GitlabMrComment) ([]interface{}, errors.Error) {
 			domainComment := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: domainIdGeneratorComment.Generate(data.Options.ConnectionId, gitlabComments.GitlabId),

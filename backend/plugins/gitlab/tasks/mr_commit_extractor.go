@@ -40,11 +40,11 @@ var ExtractApiMrCommitsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&CollectApiMrCommitsMeta},
 }
 
-func ExtractApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
+func ExtractApiMergeRequestsCommits(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			// create gitlab commit
 			gitlabApiCommit := &GitlabApiCommit{}

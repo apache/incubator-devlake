@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -28,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -45,34 +45,30 @@ var ConvertJobMeta = plugin.SubTaskMeta{
 }
 
 func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_JOB_TABLE)
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*GitlabTaskData)
 	regexEnricher := data.RegexEnricher
-
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabJob{}),
-		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
+	subtaskCommonArgs.SubtaskConfig = regexEnricher.PlainMap()
 
 	jobIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabJob{})
 	projectIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
 	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(gitlabModels.GitlabJob{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: gitlabModels.GitlabApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_JOB_TABLE,
+	converter, err := api.NewStatefulDataConverter[models.GitlabJob](&api.StatefulDataConverterArgs[models.GitlabJob]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(gitlabModels.GitlabJob{}),
+				dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabJob := inputRow.(*gitlabModels.GitlabJob)
-
+		Convert: func(gitlabJob *models.GitlabJob) ([]interface{}, errors.Error) {
 			createdAt := time.Now()
 			if gitlabJob.GitlabCreatedAt != nil {
 				createdAt = *gitlabJob.GitlabCreatedAt

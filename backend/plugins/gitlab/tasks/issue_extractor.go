@@ -134,7 +134,8 @@ type IssuesResponse struct {
 }
 
 func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_ISSUE_TABLE)
+
 	config := data.Options.ScopeConfig
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
@@ -162,8 +163,13 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err, "regexp Compile issuePriority failed")
 		}
 	}
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+	subtaskCommonArgs.SubtaskConfig = map[string]interface{}{
+		"issueSeverity":      issueSeverity,
+		"issueComponent":     issueComponent,
+		"issuePriorityRegex": issuePriorityRegex,
+	}
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			body := &IssuesResponse{}
 			err := errors.Convert(json.Unmarshal(row.Data, body))

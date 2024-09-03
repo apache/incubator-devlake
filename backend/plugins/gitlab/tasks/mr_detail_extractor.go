@@ -40,8 +40,8 @@ var ExtractApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiCommitsMeta},
 }
 
-func ExtractApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_DETAIL_TABLE)
+func ExtractApiMergeRequestDetails(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_DETAIL_TABLE)
 	config := data.Options.ScopeConfig
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
@@ -60,8 +60,12 @@ func ExtractApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
 		}
 	}
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+	subtaskCommonArgs.SubtaskConfig = map[string]string{
+		"prType":      prType,
+		"prComponent": prComponent,
+	}
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			mr := &MergeRequestRes{}
 			err := errors.Convert(json.Unmarshal(row.Data, mr))
