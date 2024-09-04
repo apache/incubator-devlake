@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 func init() {
@@ -50,14 +49,14 @@ func ConvertJobs(subtaskCtx plugin.SubTaskContext) (err errors.Error) {
 	regexEnricher := data.RegexEnricher
 	subtaskCommonArgs.SubtaskConfig = regexEnricher.PlainMap()
 
-	jobIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabJob{})
-	projectIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
-	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
+	jobIdGen := didgen.NewDomainIdGenerator(&models.GitlabJob{})
+	projectIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
+	pipelineIdGen := didgen.NewDomainIdGenerator(&models.GitlabPipeline{})
 	converter, err := api.NewStatefulDataConverter[models.GitlabJob](&api.StatefulDataConverterArgs[models.GitlabJob]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{
-				dal.From(gitlabModels.GitlabJob{}),
+				dal.From(models.GitlabJob{}),
 				dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
 			}
 			if stateManager.IsIncremental() {
