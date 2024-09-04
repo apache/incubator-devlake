@@ -59,8 +59,8 @@ var ExtractApiJobsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&CollectApiJobsMeta},
 }
 
-func ExtractApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
-	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_JOB_TABLE)
+func ExtractApiJobs(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_JOB_TABLE)
 
 	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
 		SubtaskCommonArgs: subtaskCommonArgs,

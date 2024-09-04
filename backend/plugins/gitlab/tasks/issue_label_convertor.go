@@ -58,13 +58,10 @@ func ConvertIssueLabels(subtaskCtx plugin.SubTaskContext) errors.Error {
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{
-				dal.Select("*"),
-				dal.From(&models.GitlabIssueLabel{}),
-				dal.Join(`left join _tool_gitlab_issues on
-									_tool_gitlab_issues.gitlab_id = _tool_gitlab_issue_labels.issue_id`),
-				dal.Where(`_tool_gitlab_issues.project_id = ?
-									and _tool_gitlab_issues.connection_id = ?`,
-					projectId, data.Options.ConnectionId),
+				dal.Select("l.*"),
+				dal.From("_tool_gitlab_issue_labels l"),
+				dal.Join(`LEFT JOIN _tool_gitlab_issues s ON s.gitlab_id = l.issue_id AND l.connection_id = s.connection_id`),
+				dal.Where(`s.project_id = ?  AND s.connection_id = ?`, projectId, data.Options.ConnectionId),
 				dal.Orderby("issue_id ASC"),
 			}
 			if stateManager.IsIncremental() {

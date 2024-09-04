@@ -53,7 +53,7 @@ func ConvertMrReviewers(subtaskCtx plugin.SubTaskContext) errors.Error {
 			clauses := []dal.Clause{
 				dal.Select("c.*"),
 				dal.From("_tool_gitlab_reviewers c"),
-				dal.Join(`LEFT JOIN _tool_gitlab_merge_requests mr ON mr.gitlab_id = c.merge_request_id`),
+				dal.Join(`LEFT JOIN _tool_gitlab_merge_requests mr ON mr.gitlab_id = c.merge_request_id AND c.connection_id = mr.connection_id`),
 				dal.Where(`mr.project_id = ?  and mr.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 			}
 			if stateManager.IsIncremental() {

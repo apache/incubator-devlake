@@ -44,9 +44,9 @@ var ConvertJobMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&ConvertPipelineCommitMeta},
 }
 
-func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
-	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_JOB_TABLE)
-	db := taskCtx.GetDal()
+func ConvertJobs(subtaskCtx plugin.SubTaskContext) (err errors.Error) {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_JOB_TABLE)
+	db := subtaskCtx.GetDal()
 	regexEnricher := data.RegexEnricher
 	subtaskCommonArgs.SubtaskConfig = regexEnricher.PlainMap()
 
