@@ -42,16 +42,9 @@ var ConvertIssueLabelsMeta = plugin.SubTaskMeta{
 
 func ConvertIssueLabels(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_ISSUE_TABLE)
+
 	db := subtaskCtx.GetDal()
 	projectId := data.Options.ProjectId
-	clauses := []dal.Clause{}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
 	issueIdGen := didgen.NewDomainIdGenerator(&models.GitlabIssue{})
 
 	converter, err := api.NewStatefulDataConverter[models.GitlabIssueLabel](&api.StatefulDataConverterArgs[models.GitlabIssueLabel]{
@@ -60,14 +53,14 @@ func ConvertIssueLabels(subtaskCtx plugin.SubTaskContext) errors.Error {
 			clauses := []dal.Clause{
 				dal.Select("l.*"),
 				dal.From("_tool_gitlab_issue_labels l"),
-				dal.Join(`LEFT JOIN _tool_gitlab_issues s ON s.gitlab_id = l.issue_id AND l.connection_id = s.connection_id`),
-				dal.Where(`s.project_id = ?  AND s.connection_id = ?`, projectId, data.Options.ConnectionId),
-				dal.Orderby("issue_id ASC"),
+				dal.Join("LEFT JOIN _tool_gitlab_issues s ON s.gitlab_id = l.issue_id AND l.connection_id = s.connection_id"),
+				dal.Where("s.project_id = ?  AND s.connection_id = ?", projectId, data.Options.ConnectionId),
+				// dal.Orderby("s.issue_id ASC"),
 			}
 			if stateManager.IsIncremental() {
 				since := stateManager.GetSince()
 				if since != nil {
-					clauses = append(clauses, dal.Where("_tool_gitlab_issues.updated_at >= ? ", since))
+					clauses = append(clauses, dal.Where("l.updated_at >= ? ", since))
 				}
 			}
 			return db.Cursor(clauses...)

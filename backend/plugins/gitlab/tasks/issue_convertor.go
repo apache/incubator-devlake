@@ -58,7 +58,7 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{
 				dal.From(&models.GitlabIssue{}),
-				dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
+				dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
 			}
 			if stateManager.IsIncremental() {
 				since := stateManager.GetSince()
