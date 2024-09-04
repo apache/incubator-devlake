@@ -50,9 +50,7 @@ type GitlabMergeRequest struct {
 	Description      string
 	AuthorUsername   string `gorm:"type:varchar(255)"`
 	AuthorUserId     int
-	Component        string     `gorm:"type:varchar(255)"`
-	FirstCommentTime *time.Time `gorm:"comment:Time when the first comment occurred"`
-	ReviewRounds     int        `gorm:"comment:How many rounds of review this MR went through"`
+	Component        string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 
