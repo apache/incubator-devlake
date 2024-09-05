@@ -149,7 +149,6 @@ func RunTask(
 }
 
 func RunPluginTask(ctx gocontext.Context, basicRes context.BasicRes, task *models.Task, progress chan plugin.RunningProgress, syncPolicy *models.SyncPolicy) errors.Error {
-
 	pluginMeta, err := plugin.GetPlugin(task.Plugin)
 	if err != nil {
 		return errors.Default.WrapRaw(err)
@@ -230,7 +229,6 @@ func RunPluginSubTasksParallel(
 	progress chan plugin.RunningProgress,
 	syncPolicy *models.SyncPolicy,
 ) errors.Error {
-
 	taskID := task.ID
 	subTaskFlag, err := getSubtaskFlagMap(pluginTask, syncPolicy, task.Subtasks)
 	if err != nil {
