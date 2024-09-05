@@ -17,14 +17,14 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Layout as AntdLayout, Menu, Divider } from 'antd';
 
 import { PageLoading, Logo, ExternalLink } from '@/components';
-import { init, selectError, selectStatus } from '@/features';
+import { selectError, selectStatus, selectVersion } from '@/features';
 import { OnboardCard } from '@/routes/onboard/components';
-import { useAppDispatch, useAppSelector } from '@/hooks';
+import { useAppSelector } from '@/hooks';
 
 import { menuItems, menuItemsMatch, headerItems } from './config';
 
@@ -36,18 +36,12 @@ export const Layout = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
-
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  const dispatch = useAppDispatch();
   const status = useAppSelector(selectStatus);
   const error = useAppSelector(selectError);
-
-  useEffect(() => {
-    dispatch(init(plugins));
-  }, []);
+  const version = useAppSelector(selectVersion);
 
   useEffect(() => {
     const curMenuItem = menuItemsMatch[pathname];

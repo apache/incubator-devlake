@@ -16,4 +16,19 @@
  *
  */
 
-export * from './layout';
+import type { MutableRefObject } from 'react';
+import { useEffect } from 'react';
+
+export const useOutsideClick = (ref: MutableRefObject<HTMLDivElement | null>, cb: () => void) => {
+  useEffect(() => {
+    function handleClickOutside(event: any) {
+      if (ref.current && !ref.current.contains(event.target)) {
+        cb();
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [ref, cb]);
+};

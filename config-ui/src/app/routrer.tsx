@@ -19,15 +19,19 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import {
+  App,
+  appLoader,
   DBMigrate,
   Onboard,
   Error,
   Layout,
-  layoutLoader,
   Connections,
   Connection,
   ProjectHomePage,
-  ProjectDetailPage,
+  ProjectLayout,
+  ProjectGeneralSettings,
+  ProjectWebhook,
+  ProjectAdditionalSettings,
   BlueprintHomePage,
   BlueprintDetailPage,
   BlueprintConnectionDetailPage,
@@ -37,25 +41,13 @@ import {
   NotFound,
 } from '@/routes';
 
-const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
+const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '/';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Navigate to={PATH_PREFIX ? PATH_PREFIX : '/connections'} />,
-  },
-  {
-    path: `${PATH_PREFIX}/db-migrate`,
-    element: <DBMigrate />,
-  },
-  {
-    path: `${PATH_PREFIX}/onboard`,
-    element: <Onboard />,
-  },
-  {
-    path: `${PATH_PREFIX}`,
-    element: <Layout />,
-    loader: layoutLoader,
+    path: PATH_PREFIX,
+    element: <App />,
+    loader: appLoader,
     errorElement: <Error />,
     children: [
       {
@@ -63,53 +55,89 @@ export const router = createBrowserRouter([
         element: <Navigate to="projects" />,
       },
       {
-        path: 'projects',
-        element: <ProjectHomePage />,
+        path: 'db-migrate',
+        element: <DBMigrate />,
+      },
+      {
+        path: 'onboard',
+        element: <Onboard />,
       },
       {
         path: 'projects/:pname',
-        element: <ProjectDetailPage />,
-      },
-      {
-        path: 'projects/:pname/:unique',
-        element: <BlueprintConnectionDetailPage />,
-      },
-      {
-        path: 'connections',
-        element: <Connections />,
-      },
-      {
-        path: 'connections/:plugin/:id',
-        element: <Connection />,
-      },
-      {
-        path: 'advanced',
+        element: <ProjectLayout />,
         children: [
           {
-            path: 'blueprints',
-            element: <BlueprintHomePage />,
+            index: true,
+            element: <Navigate to="general-settings" />,
           },
           {
-            path: 'blueprints/:id',
-            element: <BlueprintDetailPage />,
+            path: 'general-settings',
+            element: <ProjectGeneralSettings />,
           },
           {
-            path: 'blueprints/:bid/:unique',
+            path: 'general-settings/:unique',
             element: <BlueprintConnectionDetailPage />,
           },
           {
-            path: 'pipelines',
-            element: <Pipelines />,
+            path: 'webhooks',
+            element: <ProjectWebhook />,
           },
           {
-            path: 'pipeline/:id',
-            element: <Pipeline />,
+            path: 'additional-settings',
+            element: <ProjectAdditionalSettings />,
           },
         ],
       },
       {
-        path: 'keys',
-        element: <ApiKeys />,
+        path: '',
+        element: <Layout />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="projects" />,
+          },
+          {
+            path: 'projects',
+            element: <ProjectHomePage />,
+          },
+          {
+            path: 'connections',
+            element: <Connections />,
+          },
+          {
+            path: 'connections/:plugin/:id',
+            element: <Connection />,
+          },
+          {
+            path: 'advanced',
+            children: [
+              {
+                path: 'blueprints',
+                element: <BlueprintHomePage />,
+              },
+              {
+                path: 'blueprints/:id',
+                element: <BlueprintDetailPage />,
+              },
+              {
+                path: 'blueprints/:bid/:unique',
+                element: <BlueprintConnectionDetailPage />,
+              },
+              {
+                path: 'pipelines',
+                element: <Pipelines />,
+              },
+              {
+                path: 'pipeline/:id',
+                element: <Pipeline />,
+              },
+            ],
+          },
+          {
+            path: 'keys',
+            element: <ApiKeys />,
+          },
+        ],
       },
     ],
   },
