@@ -1,8 +1,6 @@
 module github.com/apache/incubator-devlake
 
-go 1.21.0
-
-toolchain go1.23.0
+go 1.20
 
 require (
 	github.com/cockroachdb/errors v1.11.1
