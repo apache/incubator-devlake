@@ -58,7 +58,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// Collect all users if endpoint is private gitlab instance
-	if !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com") {
+	if !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com") && !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://jihulab.com") {
 		urlTemplate = "/users"
 	}
 
