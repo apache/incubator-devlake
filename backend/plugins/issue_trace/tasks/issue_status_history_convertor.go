@@ -54,7 +54,6 @@ var ConvertIssueStatusHistoryMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertIssueStatusHistory,
 	EnabledByDefault: true,
 	Description:      "Convert changelogs to issue status history",
-	ForceRunOnResume: true,
 }
 
 func ConvertIssueStatusHistory(taskCtx plugin.SubTaskContext) errors.Error {
