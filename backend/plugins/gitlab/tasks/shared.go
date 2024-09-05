@@ -187,9 +187,10 @@ func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, apiCollector *helpe
 	clauses := []dal.Clause{
 		dal.Select("gmr.gitlab_id, gmr.iid"),
 		dal.From("_tool_gitlab_merge_requests gmr"),
+		// collect only openning merge request's notes and commits to speed up the process
 		dal.Where(
-			`gmr.project_id = ? and gmr.connection_id = ?`,
-			data.Options.ProjectId, data.Options.ConnectionId,
+			`gmr.project_id = ? and gmr.connection_id = ? AND state = ?`,
+			data.Options.ProjectId, data.Options.ConnectionId, "opened",
 		),
 	}
 	if apiCollector != nil {
