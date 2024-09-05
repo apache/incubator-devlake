@@ -68,6 +68,16 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return db.Cursor(clauses...)
 		},
+		BeforeConvert: func(issue *models.GitlabIssue, stateManager *api.SubtaskStateManager) errors.Error {
+			issueId := issueIdGen.Generate(data.Options.ConnectionId, issue.GitlabId)
+			if err := db.Delete(&ticket.IssueAssignee{}, dal.Where("issue_id = ?", issueId)); err != nil {
+				return err
+			}
+			if err := db.Delete(&ticket.IssueLabel{}, dal.Where("issue_id = ?", issueId)); err != nil {
+				return err
+			}
+			return nil
+		},
 		Convert: func(issue *models.GitlabIssue) ([]interface{}, errors.Error) {
 			domainIssue := &ticket.Issue{
 				DomainEntity:            domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.GitlabId)},
@@ -105,6 +115,7 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, projectId),
 				IssueId: domainIssue.Id,
 			}
+
 			return []interface{}{
 				domainIssue,
 				boardIssue,

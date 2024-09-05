@@ -27,9 +27,10 @@ import (
 
 type StatefulDataConverterArgs[InputType any] struct {
 	*SubtaskCommonArgs
-	Input     func(*SubtaskStateManager) (dal.Rows, errors.Error)
-	Convert   func(row *InputType) ([]any, errors.Error)
-	BatchSize int
+	Input         func(*SubtaskStateManager) (dal.Rows, errors.Error)
+	BeforeConvert func(issue *InputType, stateManager *SubtaskStateManager) errors.Error
+	Convert       func(row *InputType) ([]any, errors.Error)
+	BatchSize     int
 }
 
 // StatefulDataConverter is a struct that manages the stateful data conversion process.
@@ -78,6 +79,15 @@ type StatefulDataConverterArgs[InputType any] struct {
 // 		}
 // 		return db.Cursor(clauses...)
 // 	},
+//	BeforeConvert: func(jiraIssue *models.GitlabMergeRequest, stateManager *api.SubtaskStateManager) errors.Error {
+//		// Delete child records
+//		issueId := issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.IssueId)
+//		if err := db.Delete(&ticket.IssueAssignee{}, dal.Where("issue_id = ?", issueId)); err != nil {
+//			return err
+//		}
+//		...
+//		return nil
+//	},
 // 	Convert: func(jiraIssue *models.JiraIssue) ([]interface{}, errors.Error) {
 // 	},
 // })
@@ -144,6 +154,13 @@ func (converter *StatefulDataConverter[InputType]) Execute() errors.Error {
 		err := db.Fetch(cursor, inputRow)
 		if err != nil {
 			return errors.Default.Wrap(err, "error fetching rows")
+		}
+
+		if converter.BeforeConvert != nil {
+			err = converter.BeforeConvert(inputRow, converter.SubtaskStateManager)
+			if err != nil {
+				return err
+			}
 		}
 
 		results, err := converter.Convert(inputRow)

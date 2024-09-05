@@ -64,6 +64,25 @@ func ConvertApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return db.Cursor(clauses...)
 		},
+		BeforeConvert: func(gitlabMr *models.GitlabMergeRequest, stateManager *api.SubtaskStateManager) errors.Error {
+			mrId := domainMrIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.GitlabId)
+			if err := db.Delete(&code.PullRequestAssignee{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
+				return err
+			}
+			if err := db.Delete(&code.PullRequestReviewer{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
+				return err
+			}
+			if err := db.Delete(&code.PullRequestComment{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
+				return err
+			}
+			if err := db.Delete(&code.PullRequestCommit{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
+				return err
+			}
+			if err := db.Delete(&code.PullRequestLabel{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
+				return err
+			}
+			return nil
+		},
 		Convert: func(gitlabMr *models.GitlabMergeRequest) ([]interface{}, errors.Error) {
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{

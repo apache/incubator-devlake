@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"regexp"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -133,9 +134,10 @@ type IssuesResponse struct {
 	}
 }
 
-func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_ISSUE_TABLE)
+func ExtractApiIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_ISSUE_TABLE)
 
+	db := subtaskCtx.GetDal()
 	config := data.Options.ScopeConfig
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
@@ -186,11 +188,18 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
+			err = db.Delete(
+				&models.GitlabIssueLabel{},
+				dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, gitlabIssue.GitlabId),
+			)
+			if err != nil {
+				return nil, err
+			}
 			for _, label := range body.Labels {
 				results = append(results, &models.GitlabIssueLabel{
+					ConnectionId: data.Options.ConnectionId,
 					IssueId:      gitlabIssue.GitlabId,
 					LabelName:    label,
-					ConnectionId: data.Options.ConnectionId,
 				})
 				if issueSeverityRegex != nil && issueSeverityRegex.MatchString(label) {
 					gitlabIssue.Severity = label
@@ -213,6 +222,13 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			results = append(results, gitlabIssue)
 
+			err = db.Delete(
+				&models.GitlabIssueAssignee{},
+				dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, gitlabIssue.GitlabId),
+			)
+			if err != nil {
+				return nil, err
+			}
 			for _, v := range body.Assignees {
 				assignee := &models.GitlabAccount{
 					ConnectionId: data.Options.ConnectionId,

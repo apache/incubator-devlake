@@ -22,6 +22,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -98,6 +99,8 @@ var ExtractApiMergeRequestsMeta = plugin.SubTaskMeta{
 
 func ExtractApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_TABLE)
+
+	db := subtaskCtx.GetDal()
 	config := data.Options.ScopeConfig
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
@@ -149,6 +152,13 @@ func ExtractApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, len(mr.Reviewers)+len(mr.Labels)+1)
 			gitlabMergeRequest.ConnectionId = data.Options.ConnectionId
 			results = append(results, gitlabMergeRequest)
+			err = db.Delete(
+				&models.GitlabMrLabel{},
+				dal.Where("connection_id = ? AND mr_id = ?", data.Options.ConnectionId, gitlabMergeRequest.GitlabId),
+			)
+			if err != nil {
+				return nil, err
+			}
 			for _, label := range mr.Labels {
 				results = append(results, &models.GitlabMrLabel{
 					MrId:         gitlabMergeRequest.GitlabId,
@@ -164,6 +174,13 @@ func ExtractApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 					gitlabMergeRequest.Component = label
 				}
 			}
+			err = db.Delete(
+				&models.GitlabReviewer{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, gitlabMergeRequest.GitlabId),
+			)
+			if err != nil {
+				return nil, err
+			}
 			for _, reviewer := range mr.Reviewers {
 				gitlabReviewer := &models.GitlabReviewer{
 					ConnectionId:   data.Options.ConnectionId,
@@ -177,6 +194,13 @@ func ExtractApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 					WebUrl:         reviewer.WebUrl,
 				}
 				results = append(results, gitlabReviewer)
+			}
+			err = db.Delete(
+				&models.GitlabAssignee{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, gitlabMergeRequest.GitlabId),
+			)
+			if err != nil {
+				return nil, err
 			}
 			for _, assignee := range mr.Assignees {
 				gitlabAssignee := &models.GitlabAssignee{
