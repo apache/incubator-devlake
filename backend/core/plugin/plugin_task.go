@@ -139,13 +139,11 @@ type CloseablePluginTask interface {
 
 type ParallelTask interface {
 	PluginTask
-	GetOrchestratedTask() (*OrchestratedTask, errors.Error)
+	GetOrchestratedTask() (OrchestratedTask, errors.Error)
 }
 
 type SequentialTasks []SubTaskMeta
 
-type OrchestratedTask struct {
-	InitTasks  []SequentialTasks // will be executed in parallel
-	CommonTask []SequentialTasks // will be executed in parallel after all InitTasks are finished
-	EndTasks   []SequentialTasks // will be executed in parallel after all CommonTask are finished
-}
+type ParallelSequentialTaskGroup []SequentialTasks
+
+type OrchestratedTask []ParallelSequentialTaskGroup

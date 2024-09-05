@@ -168,25 +168,25 @@ func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.
 	return plan, nil
 }
 
-func (p Dora) GetOrchestratedTask() (*plugin.OrchestratedTask, errors.Error) {
-	ret := &plugin.OrchestratedTask{
-		InitTasks: []plugin.SequentialTasks{
-			{
+func (p Dora) GetOrchestratedTask() (plugin.OrchestratedTask, errors.Error) {
+	ret := []plugin.ParallelSequentialTaskGroup{
+		{
+			plugin.SequentialTasks{
 				tasks.DeploymentGeneratorMeta,
 				tasks.DeploymentCommitsGeneratorMeta,
 				tasks.EnrichPrevSuccessDeploymentCommitMeta,
 			},
-			{
+			plugin.SequentialTasks{
 				tasks.CalculateChangeLeadTimeMeta,
 			},
 		},
-		CommonTask: []plugin.SequentialTasks{
-			{
+		{
+			plugin.SequentialTasks{
 				tasks.IssuesToIncidentsMeta,
 			},
 		},
-		EndTasks: []plugin.SequentialTasks{
-			{
+		{
+			plugin.SequentialTasks{
 				tasks.ConnectIncidentToDeploymentMeta,
 			},
 		},

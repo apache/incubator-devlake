@@ -230,13 +230,13 @@ func RunPluginSubTasksParallel(
 	progress chan plugin.RunningProgress,
 	syncPolicy *models.SyncPolicy,
 ) errors.Error {
-	fmt.Println("task.Subtask", task.Subtasks)
+
 	taskID := task.ID
 	subTaskFlag, err := getSubtaskFlagMap(pluginTask, syncPolicy, task.Subtasks)
 	if err != nil {
 		return err
 	}
-	tasks, err := pluginTask.GetOrchestratedTask()
+	orchestratedParallelTasks, err := pluginTask.GetOrchestratedTask()
 	if err != nil {
 		return err
 	}
@@ -262,7 +262,7 @@ func RunPluginSubTasksParallel(
 
 	subtaskNumber := 0
 
-	for _, parallelTasks := range [][]plugin.SequentialTasks{tasks.InitTasks, tasks.CommonTask, tasks.EndTasks} {
+	for _, parallelTasks := range orchestratedParallelTasks {
 		g := new(errgroup.Group)
 		for _, commonSubTasks := range parallelTasks {
 			subTasks, subTaskCtxs, err := getRunnableSubtaskMetas(taskCtx, commonSubTasks)
