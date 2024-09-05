@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 20,
+  "id": 39,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -566,6 +566,7 @@
         "showValue": "auto",
         "stacking": "normal",
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -751,8 +752,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -787,7 +787,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n)\n\nSELECT  count(distinct c.sha)\nFROM commits c\njoin _accounts a on c.author_id = a.account_id\nwhere $__timeFilter(authored_date)\n",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name, u.email\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n)\n\nSELECT  count(distinct c.sha)\nFROM commits c\njoin _accounts a on c.author_id = a.email\nwhere $__timeFilter(authored_date)\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -823,8 +823,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -896,8 +895,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -969,8 +967,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1065,8 +1062,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1194,8 +1190,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1267,8 +1262,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1341,8 +1335,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1414,7 +1407,6 @@
     "list": [
       {
         "current": {
-          "isNone": true,
           "selected": false,
           "text": "None",
           "value": ""
@@ -1446,7 +1438,6 @@
         },
         "datasource": "mysql",
         "definition": "select concat(users.name, '--', users.id) from users left join team_users on users.id = team_users.user_id where team_users.team_id in ($team)",
-        "error": {},
         "hide": 0,
         "includeAll": true,
         "label": "User",
@@ -1466,10 +1457,11 @@
     "from": "now-6M",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
   "title": "Work Logs",
   "uid": "d449042e-22f0-4357-b8b7-22083f47618d",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
