@@ -38,7 +38,7 @@ var ConvertMrCommentMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Add domain layer Comment according to GitlabMrComment",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta, &ExtractApiMrNotesMeta},
 }
 
 func ConvertMergeRequestNote(subtaskCtx plugin.SubTaskContext) errors.Error {
