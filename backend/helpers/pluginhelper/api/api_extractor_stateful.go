@@ -55,6 +55,10 @@ type StatefulApiExtractorArgs struct {
 //	                            // It is also recommended that the configuration includes only the necessary fields used by the extractor.
 //	..},
 //	  Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+//	    jiraIssue := &models.JiraIssue{}
+//	    json.Unmarshal([]byte(row.Data), jiraIssue)
+//	    // It is important to delete the existing child-records if any
+//	    db.Delete(&models.JiraIssueLabel{}, dal.Where("connection_id ? = ? AND issue_id = ?", issue.ConnectionId, issue.IssueId))
 //	    return extractIssues(data, config, row, userFieldMap)
 //	  },
 //	})
