@@ -39,7 +39,6 @@ var CollectApiChildPipelinesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect child pipeline data from gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	Dependencies:     []*plugin.SubTaskMeta{&CollectApiPipelinesMeta},
 }
 
 func CollectApiChildPipelines(taskCtx plugin.SubTaskContext) errors.Error {

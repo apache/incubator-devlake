@@ -45,7 +45,7 @@ type GitlabPipeline struct {
 	Environment string `gorm:"type:varchar(255)"`
 
 	IsDetailRequired bool
-	IsChild          bool
+	Source           string
 
 	common.NoPKModel
 }
@@ -65,7 +65,7 @@ type GitlabPipelineProject struct {
 	GitlabUpdatedAt *time.Time
 	common.NoPKModel
 
-	IsChild bool
+	Source string
 }
 
 func (GitlabPipelineProject) TableName() string {

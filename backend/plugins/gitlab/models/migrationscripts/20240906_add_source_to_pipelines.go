@@ -23,7 +23,7 @@ import (
 )
 
 type gitlabPipelineProject240906 struct {
-	IsChild bool
+	Source string
 }
 
 func (gitlabPipelineProject240906) TableName() string {
@@ -31,7 +31,7 @@ func (gitlabPipelineProject240906) TableName() string {
 }
 
 type gitlabPipeline240906 struct {
-	IsChild bool
+	Source string
 }
 
 func (gitlabPipeline240906) TableName() string {

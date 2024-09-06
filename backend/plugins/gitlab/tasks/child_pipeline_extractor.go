@@ -24,67 +24,34 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 func init() {
-	RegisterSubtaskMeta(&ExtractApiPipelinesMeta)
+	RegisterSubtaskMeta(&ExtractApiChildPipelinesMeta)
 }
 
-type ApiDetailedStatus struct {
-	Icon        string
-	Text        string
-	Label       string
-	Group       string
-	Tooltip     string
-	HasDetails  bool   `json:"has_details"`
-	DetailsPath string `json:"details_path"`
-	Favicon     string
-}
-
-const (
-	PipelineSourceParentPipeline = "parent_pipeline"
-)
-
-type ApiPipeline struct {
-	Id             int `json:"id"`
-	Ref            string
-	Sha            string
-	Status         string
-	Tag            bool
-	Duration       int
-	QueuedDuration *float64 `json:"queued_duration"`
-	WebUrl         string   `json:"web_url"`
-	Source         string   `json:"source"`
-
-	CreatedAt  *common.Iso8601Time `json:"created_at"`
-	UpdatedAt  *common.Iso8601Time `json:"updated_at"`
-	StartedAt  *common.Iso8601Time `json:"started_at"`
-	FinishedAt *common.Iso8601Time `json:"finished_at"`
-
-	ApiDetailedStatus
-}
-
-var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
-	Name:             "Extract Pipelines",
-	EntryPoint:       ExtractApiPipelines,
+var ExtractApiChildPipelinesMeta = plugin.SubTaskMeta{
+	Name:             "Extract Child Pipelines",
+	EntryPoint:       ExtractApiChildPipelines,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	Dependencies:     []*plugin.SubTaskMeta{&CollectApiPipelinesMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectApiChildPipelinesMeta},
 }
 
-func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
+func ExtractApiChildPipelines(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_CHILD_PIPELINE_TABLE)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			gitlabApiPipeline := &ApiPipeline{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiPipeline))
+			gitlabApiChildPipeline := &ApiPipeline{}
+			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiChildPipeline))
 			if err != nil {
 				return nil, err
 			}
-			pipelineProject := convertApiPipelineToGitlabPipelineProject(gitlabApiPipeline, data.Options.ConnectionId, data.Options.ProjectId)
+			pipelineProject := convertApiPipelineToGitlabPipelineProject(gitlabApiChildPipeline, data.Options.ConnectionId, data.Options.ProjectId)
 			return []interface{}{pipelineProject}, nil
 		},
 	})
@@ -99,4 +66,19 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return nil
+}
+
+func convertApiPipelineToGitlabPipelineProject(gitlabApiChildPipeline *ApiPipeline, connectionId uint64, projectId int) *models.GitlabPipelineProject {
+	pipelineProject := &models.GitlabPipelineProject{
+		ConnectionId:    connectionId,
+		PipelineId:      gitlabApiChildPipeline.Id,
+		ProjectId:       projectId,
+		Ref:             gitlabApiChildPipeline.Ref,
+		WebUrl:          gitlabApiChildPipeline.WebUrl,
+		Sha:             gitlabApiChildPipeline.Sha,
+		Source:          gitlabApiChildPipeline.Source,
+		GitlabCreatedAt: common.Iso8601TimeToTime(gitlabApiChildPipeline.CreatedAt),
+		GitlabUpdatedAt: common.Iso8601TimeToTime(gitlabApiChildPipeline.UpdatedAt),
+	}
+	return pipelineProject
 }
