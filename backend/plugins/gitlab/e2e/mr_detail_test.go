@@ -41,6 +41,8 @@ func TestGitlabMrDetailDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
+	dataflowTester.FlushTabler(&code.PullRequestAssignee{})
+	dataflowTester.FlushTabler(&code.PullRequestReviewer{})
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_merge_requests.csv",
 		"_raw_gitlab_api_merge_request_details")
 
