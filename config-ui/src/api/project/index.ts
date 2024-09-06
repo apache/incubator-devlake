@@ -20,7 +20,7 @@ import type { IProject } from '@/types';
 import { encodeName } from '@/routes';
 import { request } from '@/utils';
 
-export const list = (data: Pagination): Promise<{ count: number; projects: IProject[] }> =>
+export const list = (data: Pagination & { keyword?: string }): Promise<{ count: number; projects: IProject[] }> =>
   request('/projects', { data });
 
 export const get = (name: string): Promise<IProject> => request(`/projects/${encodeName(name)}`);

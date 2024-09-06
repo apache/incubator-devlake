@@ -47,7 +47,6 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			// create gitlab commit
 			gitlabApiPipeline := &ApiPipeline{}
 			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiPipeline))
 			if err != nil {
@@ -70,11 +69,10 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId:    data.Options.ConnectionId,
 				Type:            data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
 				Environment:     data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
+				Source:          gitlabApiPipeline.Source,
 			}
 
-			results := make([]interface{}, 0, 1)
-			results = append(results, gitlabPipeline)
-			return results, nil
+			return []interface{}{gitlabPipeline}, nil
 		},
 	})
 	if err != nil {
