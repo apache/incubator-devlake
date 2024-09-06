@@ -189,8 +189,10 @@ func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
 
 func (p Bitbucket) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
-	scopes []*coreModels.BlueprintScope) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

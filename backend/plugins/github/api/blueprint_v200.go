@@ -45,14 +45,17 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// load connection, scope and scopeConfig from the db
 	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
+		fmt.Println("--->1", err)
 		return nil, nil, err
 	}
 	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
+		fmt.Println("--->2", err)
 		return nil, nil, err
 	}
 
@@ -60,15 +63,18 @@ func MakeDataSourcePipelinePlanV200(
 	// if AppKey authentication method is selected
 	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
+		fmt.Println("--->3", err)
 		return nil, nil, err
 	}
 
 	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
+		fmt.Println("--->4", err)
 		return nil, nil, err
 	}
 	scopes, err := makeScopesV200(scopeDetails, connection)
 	if err != nil {
+		fmt.Println("--->5", err)
 		return nil, nil, err
 	}
 

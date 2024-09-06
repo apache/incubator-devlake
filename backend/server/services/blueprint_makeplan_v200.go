@@ -56,8 +56,10 @@ func GeneratePlanJsonV200(
 			sourcePlans[i], pluginScopes, err = pluginBp.MakeDataSourcePipelinePlanV200(
 				connection.ConnectionId,
 				connection.Scopes,
+				skipCollectors,
 			)
 			if err != nil {
+				fmt.Println("===>", err)
 				return nil, err
 			}
 			// collect scopes for the project. a github repository may produce
@@ -101,6 +103,7 @@ func GeneratePlanJsonV200(
 	for metricPluginName, metricPluginOptJson := range metrics {
 		p, err := plugin.GetPlugin(metricPluginName)
 		if err != nil {
+			fmt.Println("===>2", err)
 			return nil, err
 		}
 		if pluginBp, ok := p.(plugin.MetricPluginBlueprintV200); ok {
@@ -110,6 +113,7 @@ func GeneratePlanJsonV200(
 			}
 			metricPlans[i], err = pluginBp.MakeMetricPluginPipelinePlanV200(projectName, metricPluginOptJson)
 			if err != nil {
+				fmt.Println("===>3", err)
 				return nil, err
 			}
 			i++
@@ -123,11 +127,13 @@ func GeneratePlanJsonV200(
 	if projectName != "" {
 		p, err := plugin.GetPlugin("org")
 		if err != nil {
+			fmt.Println("===>4", err)
 			return nil, err
 		}
 		if pluginBp, ok := p.(plugin.ProjectMapper); ok {
 			planForProjectMapping, err = pluginBp.MapProject(projectName, scopes)
 			if err != nil {
+				fmt.Println("===>5", err)
 				return nil, err
 			}
 		}

@@ -37,6 +37,7 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// load connection, scope and scopeConfig from the db
 	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)

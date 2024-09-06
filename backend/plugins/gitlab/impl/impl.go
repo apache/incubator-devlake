@@ -76,8 +76,9 @@ func (p Gitlab) ScopeConfig() dal.Tabler {
 func (p Gitlab) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Gitlab) GetTablesInfo() []dal.Tabler {
