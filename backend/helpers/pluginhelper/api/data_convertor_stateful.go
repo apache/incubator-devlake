@@ -80,7 +80,7 @@ type StatefulDataConverterArgs[InputType any] struct {
 // 		return db.Cursor(clauses...)
 // 	},
 //	BeforeConvert: func(jiraIssue *models.GitlabMergeRequest, stateManager *api.SubtaskStateManager) errors.Error {
-//		// Delete child records
+//		// It is important to delete all existing child-records under DiffSync Mode
 //		issueId := issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.IssueId)
 //		if err := db.Delete(&ticket.IssueAssignee{}, dal.Where("issue_id = ?", issueId)); err != nil {
 //			return err

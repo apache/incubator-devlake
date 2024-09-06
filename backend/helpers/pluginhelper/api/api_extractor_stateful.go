@@ -56,10 +56,17 @@ type StatefulApiExtractorArgs[InputType any] struct {
 //	                            // Ensure that the configuration is serializable and contains only public fields.
 //	                            // It is also recommended that the configuration includes only the necessary fields used by the extractor.
 //	..},
+//	  BeforeExtract: func(body *IssuesResponse, stateManager *api.SubtaskStateManager) errors.Error {
+//	    if stateManager.IsIncremental() {
+//	      // It is important to delete all existing child-records under DiffSync Mode
+//	      err := db.Delete(
+//	        &models.JiraIssueLabel{},
+//	        dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, body.Id),
+//	      )
+//	    }
+//	    return nil
+//	  },
 //	  Extract: func(apiIssue *apiv2models.Issue, row *api.RawData) ([]interface{}, errors.Error) {
-//	    // It is important to delete the existing child-records if any
-//	    db.Delete(&models.JiraIssueLabel{}, dal.Where("connection_id ? = ? AND issue_id = ?", issue.ConnectionId, issue.IssueId))
-//	    return extractIssues(data, config, row, userFieldMap)
 //	  },
 //	})
 //
