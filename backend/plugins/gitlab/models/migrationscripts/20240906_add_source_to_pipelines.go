@@ -52,7 +52,7 @@ func (*addIsChildToPipelines240906) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*addIsChildToPipelines240906) Version() uint64 {
-	return 20240531110339
+	return 20240906150000
 }
 
 func (*addIsChildToPipelines240906) Name() string {
