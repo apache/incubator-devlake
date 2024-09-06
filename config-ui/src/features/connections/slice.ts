@@ -28,42 +28,48 @@ import { transformConnection, transformWebhook } from './utils';
 const initialState: {
   status: IStatus;
   error: any;
+  version: string;
   plugins: string[];
   connections: IConnection[];
   webhooks: IWebhook[];
 } = {
   status: 'idle',
   error: null,
+  version: '',
   plugins: [],
   connections: [],
   webhooks: [],
 };
 
-export const init = createAsyncThunk('connections/init', async (plugins: string[]) => {
-  const connections = await Promise.all(
-    plugins
-      .filter((plugin) => plugin !== 'webhook')
-      .map(async (plugin) => {
-        const connections = await API.connection.list(plugin);
-        return connections.map((connection) => transformConnection(plugin, connection));
-      }),
-  );
+export const init = createAsyncThunk(
+  'connections/init',
+  async ({ version, plugins }: { version: string; plugins: string[] }) => {
+    const connections = await Promise.all(
+      plugins
+        .filter((plugin) => plugin !== 'webhook')
+        .map(async (plugin) => {
+          const connections = await API.connection.list(plugin);
+          return connections.map((connection) => transformConnection(plugin, connection));
+        }),
+    );
 
-  const webhooks = await Promise.all(
-    plugins
-      .filter((plugin) => plugin === 'webhook')
-      .map(async () => {
-        const webhooks = await API.plugin.webhook.list();
-        return webhooks.map((webhook) => transformWebhook(webhook));
-      }),
-  );
+    const webhooks = await Promise.all(
+      plugins
+        .filter((plugin) => plugin === 'webhook')
+        .map(async () => {
+          const webhooks = await API.plugin.webhook.list();
+          return webhooks.map((webhook) => transformWebhook(webhook));
+        }),
+    );
 
-  return {
-    plugins,
-    connections: flatten(connections),
-    webhooks: flatten(webhooks),
-  };
-});
+    return {
+      version,
+      plugins,
+      connections: flatten(connections),
+      webhooks: flatten(webhooks),
+    };
+  },
+);
 
 export const addConnection = createAsyncThunk('connections/addConnection', async ({ plugin, ...payload }: any) => {
   const connection = await API.connection.create(plugin, payload);
@@ -143,6 +149,7 @@ export const connectionsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(init.fulfilled, (state, action) => {
+        state.version = action.payload.version;
         state.plugins = action.payload.plugins;
         state.connections = action.payload.connections;
         state.webhooks = action.payload.webhooks;
@@ -204,6 +211,8 @@ export default connectionsSlice.reducer;
 export const selectStatus = (state: RootState) => state.connections.status;
 
 export const selectError = (state: RootState) => state.connections.error;
+
+export const selectVersion = (state: RootState) => state.connections.version;
 
 export const selectPlugins = (state: RootState) => state.connections.plugins;
 

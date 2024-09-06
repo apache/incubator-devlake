@@ -20,13 +20,12 @@ package impl
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strings"
 	"time"
-
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -170,77 +169,87 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID: %v")
 	}
 
-	apiClient, err := githubTasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
+	taskData := &githubTasks.GithubTaskData{
+		Options: &op,
 	}
 
-	err = githubImpl.EnrichOptions(taskCtx, &op, apiClient.ApiClient)
-	if err != nil {
-		return nil, err
-	}
-
-	tokens := strings.Split(connection.Token, ",")
-	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: tokens[0]},
-	)
-	oauthContext := taskCtx.GetContext()
-	proxy := connection.GetProxy()
-	if proxy != "" {
-		pu, err := url.Parse(proxy)
+	syncPolicy := taskCtx.SyncPolicy()
+	var enricherApiClient *helper.ApiClient
+	if !syncPolicy.SkipCollectors {
+		apiClient, err := githubTasks.CreateApiClient(taskCtx, connection)
 		if err != nil {
-			return nil, errors.Convert(err)
+			return nil, errors.Default.Wrap(err, "unable to get github API client instance")
 		}
-		if pu.Scheme == "http" || pu.Scheme == "socks5" {
-			proxyClient := &http.Client{
-				Transport: &http.Transport{Proxy: http.ProxyURL(pu)},
-			}
-			oauthContext = context.WithValue(
-				taskCtx.GetContext(),
-				oauth2.HTTPClient,
-				proxyClient,
-			)
-			logger.Debug("Proxy set in oauthContext to %s", proxy)
-		} else {
-			return nil, errors.BadInput.New("Unsupported scheme set in proxy")
-		}
-	}
+		enricherApiClient = apiClient.ApiClient
 
-	httpClient := oauth2.NewClient(oauthContext, src)
-	endpoint, err := errors.Convert01(url.Parse(connection.Endpoint))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("malformed connection endpoint supplied: %s", connection.Endpoint))
-	}
-
-	// github.com and github enterprise have different graphql endpoints
-	endpoint.Path = "/graphql" // see https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
-	if endpoint.Hostname() != "api.github.com" {
-		// see https://docs.github.com/en/enterprise-server@3.11/graphql/guides/forming-calls-with-graphql
-		endpoint.Path = "/api/graphql"
-	}
-	client := graphql.NewClient(endpoint.String(), httpClient)
-	graphqlClient, err := helper.CreateAsyncGraphqlClient(taskCtx, client, taskCtx.GetLogger(),
-		func(ctx context.Context, client *graphql.Client, logger log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
-			var query GraphQueryRateLimit
-			dataErrors, err := errors.Convert01(client.Query(taskCtx.GetContext(), &query, nil))
+		tokens := strings.Split(connection.Token, ",")
+		src := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: tokens[0]},
+		)
+		oauthContext := taskCtx.GetContext()
+		proxy := connection.GetProxy()
+		if proxy != "" {
+			pu, err := url.Parse(proxy)
 			if err != nil {
-				return 0, nil, err
+				return nil, errors.Convert(err)
 			}
-			if len(dataErrors) > 0 {
-				return 0, nil, errors.Default.Wrap(dataErrors[0], `query rate limit fail`)
+			if pu.Scheme == "http" || pu.Scheme == "socks5" {
+				proxyClient := &http.Client{
+					Transport: &http.Transport{Proxy: http.ProxyURL(pu)},
+				}
+				oauthContext = context.WithValue(
+					taskCtx.GetContext(),
+					oauth2.HTTPClient,
+					proxyClient,
+				)
+				logger.Debug("Proxy set in oauthContext to %s", proxy)
+			} else {
+				return nil, errors.BadInput.New("Unsupported scheme set in proxy")
 			}
-			logger.Info(`github graphql init success with remaining %d/%d and will reset at %s`,
-				query.RateLimit.Remaining, query.RateLimit.Limit, query.RateLimit.ResetAt)
-			return int(query.RateLimit.Remaining), &query.RateLimit.ResetAt, nil
+		}
+
+		httpClient := oauth2.NewClient(oauthContext, src)
+		endpoint, err := errors.Convert01(url.Parse(connection.Endpoint))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("malformed connection endpoint supplied: %s", connection.Endpoint))
+		}
+
+		// github.com and github enterprise have different graphql endpoints
+		endpoint.Path = "/graphql" // see https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
+		if endpoint.Hostname() != "api.github.com" {
+			// see https://docs.github.com/en/enterprise-server@3.11/graphql/guides/forming-calls-with-graphql
+			endpoint.Path = "/api/graphql"
+		}
+		client := graphql.NewClient(endpoint.String(), httpClient)
+		graphqlClient, err := helper.CreateAsyncGraphqlClient(taskCtx, client, taskCtx.GetLogger(),
+			func(ctx context.Context, client *graphql.Client, logger log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
+				var query GraphQueryRateLimit
+				dataErrors, err := errors.Convert01(client.Query(taskCtx.GetContext(), &query, nil))
+				if err != nil {
+					return 0, nil, err
+				}
+				if len(dataErrors) > 0 {
+					return 0, nil, errors.Default.Wrap(dataErrors[0], `query rate limit fail`)
+				}
+				logger.Info(`github graphql init success with remaining %d/%d and will reset at %s`,
+					query.RateLimit.Remaining, query.RateLimit.Limit, query.RateLimit.ResetAt)
+				return int(query.RateLimit.Remaining), &query.RateLimit.ResetAt, nil
+			})
+		if err != nil {
+			return nil, err
+		}
+
+		graphqlClient.SetGetRateCost(func(q interface{}) int {
+			v := reflect.ValueOf(q)
+			return int(v.Elem().FieldByName(`RateLimit`).FieldByName(`Cost`).Int())
 		})
+		taskData.ApiClient = apiClient
+		taskData.GraphqlClient = graphqlClient
+	}
+	err = githubImpl.EnrichOptions(taskCtx, &op, enricherApiClient)
 	if err != nil {
 		return nil, err
 	}
-
-	graphqlClient.SetGetRateCost(func(q interface{}) int {
-		v := reflect.ValueOf(q)
-		return int(v.Elem().FieldByName(`RateLimit`).FieldByName(`Cost`).Int())
-	})
 
 	regexEnricher := helper.NewRegexEnricher()
 	if err = regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
@@ -252,13 +261,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
 	}
-
-	taskData := &githubTasks.GithubTaskData{
-		Options:       &op,
-		ApiClient:     apiClient,
-		GraphqlClient: graphqlClient,
-		RegexEnricher: regexEnricher,
-	}
+	taskData.RegexEnricher = regexEnricher
 
 	return taskData, nil
 }
@@ -277,8 +280,12 @@ func (p GithubGraphql) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
-	data.GraphqlClient.Release()
+	if data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
+	if data.GraphqlClient != nil {
+		data.GraphqlClient.Release()
+	}
 	return nil
 }
 

@@ -63,6 +63,7 @@ func (p Webhook) GetTablesInfo() []dal.Tabler {
 func (p Webhook) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	_ []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
 	return api.MakeDataSourcePipelinePlanV200(connectionId)
 }

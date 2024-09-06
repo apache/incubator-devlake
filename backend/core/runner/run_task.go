@@ -474,11 +474,11 @@ func RunPluginSubTasks(
 		defer closeablePlugin.Close(taskCtx)
 	}
 	options := task.Options
+	taskCtx.SetSyncPolicy(syncPolicy)
 	taskData, err := pluginTask.PrepareTaskData(taskCtx, options)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", task.Plugin))
 	}
-	taskCtx.SetSyncPolicy(syncPolicy)
 	taskCtx.SetData(taskData)
 
 	// record subtasks sequence to DB

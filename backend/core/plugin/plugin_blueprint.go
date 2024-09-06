@@ -72,6 +72,7 @@ type DataSourcePluginBlueprintV200 interface {
 	MakeDataSourcePipelinePlanV200(
 		connectionId uint64,
 		scopes []*models.BlueprintScope,
+		skipCollectors bool,
 	) (models.PipelinePlan, []Scope, errors.Error)
 }
 
