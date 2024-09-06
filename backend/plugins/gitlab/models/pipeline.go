@@ -23,6 +23,10 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
+const (
+	PipelineSourceParentPipeline = "parent_pipeline"
+)
+
 type GitlabPipeline struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
@@ -48,6 +52,11 @@ type GitlabPipeline struct {
 	Source           string
 
 	common.NoPKModel
+}
+
+func (gitlabPipeline GitlabPipeline) GenerateIsChild() bool {
+	return gitlabPipeline.Source == PipelineSourceParentPipeline
+
 }
 
 func (GitlabPipeline) TableName() string {

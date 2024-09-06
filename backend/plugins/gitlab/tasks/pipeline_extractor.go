@@ -41,10 +41,6 @@ type ApiDetailedStatus struct {
 	Favicon     string
 }
 
-const (
-	PipelineSourceParentPipeline = "parent_pipeline"
-)
-
 type ApiPipeline struct {
 	Id             int `json:"id"`
 	Ref            string
