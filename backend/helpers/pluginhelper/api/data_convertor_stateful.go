@@ -48,7 +48,7 @@ type StatefulDataConverterArgs[InputType any] struct {
 //
 // Example:
 //
-// converter, err := api.NewStatefulDataConverter[models.JiraIssue](&api.StatefulDataConverterArgs[models.JiraIssue]{
+// converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.JiraIssue]{
 // 	SubtaskCommonArgs: &api.SubtaskCommonArgs{
 // 		SubTaskContext: subtaskCtx,
 // 		Table:          RAW_ISSUE_TABLE,
@@ -103,7 +103,6 @@ type StatefulDataConverter[InputType any] struct {
 }
 
 func NewStatefulDataConverter[
-	OptType any,
 	InputType any,
 ](
 	args *StatefulDataConverterArgs[InputType],

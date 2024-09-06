@@ -62,7 +62,7 @@ func ConvertDeployment(subtaskCtx plugin.SubTaskContext) errors.Error {
 	projectIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 	idGen := didgen.NewDomainIdGenerator(&models.GitlabDeployment{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabDeployment](&api.StatefulDataConverterArgs[models.GitlabDeployment]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabDeployment]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

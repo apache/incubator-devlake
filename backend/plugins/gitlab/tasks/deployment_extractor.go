@@ -45,7 +45,7 @@ var ExtractDeploymentMeta = plugin.SubTaskMeta{
 func ExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_DEPLOYMENT)
 
-	extractor, err := api.NewStatefulApiExtractor[GitlabDeploymentResp](&api.StatefulApiExtractorArgs[GitlabDeploymentResp]{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[GitlabDeploymentResp]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(deploymentResp *GitlabDeploymentResp, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabDeployment := deploymentResp.toGitlabDeployment(data.Options.ConnectionId, data.Options.ProjectId)

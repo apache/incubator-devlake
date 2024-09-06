@@ -47,7 +47,7 @@ func ExtractIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	extractor, err := api.NewStatefulApiExtractor[apiv2models.Changelog](&api.StatefulApiExtractorArgs[apiv2models.Changelog]{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[apiv2models.Changelog]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
 			Table:          RAW_CHANGELOG_TABLE,

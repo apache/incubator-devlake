@@ -57,7 +57,7 @@ var ExtractApiTriggerJobsMeta = plugin.SubTaskMeta{
 func ExtractApiTriggerJobs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_TRIGGER_JOB_TABLE)
 
-	extractor, err := api.NewStatefulApiExtractor[ApiTriggerJob](&api.StatefulApiExtractorArgs[ApiTriggerJob]{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[ApiTriggerJob]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(gitlabApiTriggerJob *ApiTriggerJob, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabPipeline, err := convertTriggerJob(gitlabApiTriggerJob, data.Options.ProjectId)

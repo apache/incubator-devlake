@@ -49,7 +49,7 @@ func ConvertApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 	domainUserIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabMergeRequest](&api.StatefulDataConverterArgs[models.GitlabMergeRequest]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabMergeRequest]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

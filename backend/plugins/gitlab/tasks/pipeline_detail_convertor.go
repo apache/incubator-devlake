@@ -52,7 +52,7 @@ func ConvertDetailPipelines(subtaskCtx plugin.SubTaskContext) errors.Error {
 	pipelineIdGen := didgen.NewDomainIdGenerator(&models.GitlabPipeline{})
 	projectIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabPipeline](&api.StatefulDataConverterArgs[models.GitlabPipeline]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabPipeline]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

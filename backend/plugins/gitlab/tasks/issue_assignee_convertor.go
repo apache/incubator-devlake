@@ -48,7 +48,7 @@ func ConvertIssueAssignee(subtaskCtx plugin.SubTaskContext) errors.Error {
 	issueIdGen := didgen.NewDomainIdGenerator(&models.GitlabIssue{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabIssueAssignee](&api.StatefulDataConverterArgs[models.GitlabIssueAssignee]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabIssueAssignee]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

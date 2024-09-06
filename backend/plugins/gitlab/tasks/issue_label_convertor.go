@@ -47,7 +47,7 @@ func ConvertIssueLabels(subtaskCtx plugin.SubTaskContext) errors.Error {
 	projectId := data.Options.ProjectId
 	issueIdGen := didgen.NewDomainIdGenerator(&models.GitlabIssue{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabIssueLabel](&api.StatefulDataConverterArgs[models.GitlabIssueLabel]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabIssueLabel]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

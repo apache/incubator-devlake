@@ -52,7 +52,7 @@ func ConvertPipelineCommits(subtaskCtx plugin.SubTaskContext) errors.Error {
 
 	pipelineIdGen := didgen.NewDomainIdGenerator(&models.GitlabPipeline{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabPipelineProject](&api.StatefulDataConverterArgs[models.GitlabPipelineProject]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabPipelineProject]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

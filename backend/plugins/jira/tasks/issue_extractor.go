@@ -61,7 +61,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	extractor, err := api.NewStatefulApiExtractor[apiv2models.Issue](&api.StatefulApiExtractorArgs[apiv2models.Issue]{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[apiv2models.Issue]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
 			Table:          RAW_ISSUE_TABLE,

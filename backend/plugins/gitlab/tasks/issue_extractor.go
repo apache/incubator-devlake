@@ -169,7 +169,7 @@ func ExtractApiIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 		"issueComponent":     issueComponent,
 		"issuePriorityRegex": issuePriorityRegex,
 	}
-	extractor, err := api.NewStatefulApiExtractor[IssuesResponse](&api.StatefulApiExtractorArgs[IssuesResponse]{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[IssuesResponse]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		BeforeExtract: func(body *IssuesResponse, stateManager *api.SubtaskStateManager) errors.Error {
 			if stateManager.IsIncremental() {

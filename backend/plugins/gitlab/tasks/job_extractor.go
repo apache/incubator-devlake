@@ -60,7 +60,7 @@ var ExtractApiJobsMeta = plugin.SubTaskMeta{
 func ExtractApiJobs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_JOB_TABLE)
 
-	extractor, err := api.NewStatefulApiExtractor[ApiJob](&api.StatefulApiExtractorArgs[ApiJob]{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[ApiJob]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(gitlabApiJob *ApiJob, row *api.RawData) ([]interface{}, errors.Error) {
 			// create gitlab commit

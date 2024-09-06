@@ -64,7 +64,7 @@ func ExtractApiMergeRequestDetails(subtaskCtx plugin.SubTaskContext) errors.Erro
 		"prType":      prType,
 		"prComponent": prComponent,
 	}
-	extractor, err := api.NewStatefulApiExtractor[MergeRequestRes](&api.StatefulApiExtractorArgs[MergeRequestRes]{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[MergeRequestRes]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		BeforeExtract:     beforeExtractMr(db, data),
 		Extract: func(mr *MergeRequestRes, row *api.RawData) ([]interface{}, errors.Error) {

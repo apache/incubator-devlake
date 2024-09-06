@@ -53,7 +53,7 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabIssue](&api.StatefulDataConverterArgs[models.GitlabIssue]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabIssue]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

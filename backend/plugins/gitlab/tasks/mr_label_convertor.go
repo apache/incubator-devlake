@@ -46,7 +46,7 @@ func ConvertMrLabels(subtaskCtx plugin.SubTaskContext) errors.Error {
 
 	mrIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabMrLabel](&api.StatefulDataConverterArgs[models.GitlabMrLabel]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabMrLabel]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

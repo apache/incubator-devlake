@@ -47,7 +47,7 @@ func ConvertMrReviewers(subtaskCtx plugin.SubTaskContext) errors.Error {
 	mrIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
-	converter, err := api.NewStatefulDataConverter[models.GitlabReviewer](&api.StatefulDataConverterArgs[models.GitlabReviewer]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabReviewer]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

@@ -70,7 +70,7 @@ var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
 func ExtractApiPipelines(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_PIPELINE_TABLE)
 
-	extractor, err := api.NewStatefulApiExtractor[ApiPipeline](&api.StatefulApiExtractorArgs[ApiPipeline]{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[ApiPipeline]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(gitlabApiPipeline *ApiPipeline, row *api.RawData) ([]interface{}, errors.Error) {
 			pipelineProject := &models.GitlabPipelineProject{

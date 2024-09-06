@@ -53,7 +53,7 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	boardIdGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
 	boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.BoardId)
 
-	converter, err := api.NewStatefulDataConverter[models.JiraIssue](&api.StatefulDataConverterArgs[models.JiraIssue]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.JiraIssue]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
 			Table:          RAW_ISSUE_TABLE,
