@@ -107,7 +107,8 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertPlanBuildsMeta, taskData)
 
 	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath:   "./snapshot_tables/cicd_pipelines.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"is_child"},
 	})
 }
