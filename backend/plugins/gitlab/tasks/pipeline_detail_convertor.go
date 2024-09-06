@@ -41,7 +41,7 @@ var ConvertDetailPipelineMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_detail_pipeline into domain layer table pipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	Dependencies:     []*plugin.SubTaskMeta{&ConvertCommitsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiPipelineDetailsMeta},
 }
 
 func ConvertDetailPipelines(subtaskCtx plugin.SubTaskContext) errors.Error {

@@ -36,7 +36,7 @@ var ExtractApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw merge request Details data into tool layer table GitlabMergeRequest and GitlabReviewer",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiCommitsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectApiMergeRequestDetailsMeta},
 }
 
 func ExtractApiMergeRequestDetails(subtaskCtx plugin.SubTaskContext) errors.Error {
