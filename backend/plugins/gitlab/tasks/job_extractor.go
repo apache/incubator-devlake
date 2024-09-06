@@ -65,7 +65,6 @@ func ExtractApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			// create gitlab commit
 			gitlabApiJob := &ApiJob{}
 			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiJob))
 			if err != nil {
