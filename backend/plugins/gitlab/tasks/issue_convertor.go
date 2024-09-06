@@ -70,10 +70,10 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 		},
 		BeforeConvert: func(issue *models.GitlabIssue, stateManager *api.SubtaskStateManager) errors.Error {
 			issueId := issueIdGen.Generate(data.Options.ConnectionId, issue.GitlabId)
-			if err := db.Delete(&ticket.IssueAssignee{}, dal.Where("issue_id = ?", issueId)); err != nil {
+			if err := db.Delete(&ticket.IssueLabel{}, dal.Where("issue_id = ?", issueId)); err != nil {
 				return err
 			}
-			if err := db.Delete(&ticket.IssueLabel{}, dal.Where("issue_id = ?", issueId)); err != nil {
+			if err := db.Delete(&ticket.IssueAssignee{}, dal.Where("issue_id = ?", issueId)); err != nil {
 				return err
 			}
 			return nil

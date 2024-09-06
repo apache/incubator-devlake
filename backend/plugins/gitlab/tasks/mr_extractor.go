@@ -260,28 +260,7 @@ func beforeExtractMr(db dal.Dal, data *GitlabTaskData) func(mr *MergeRequestRes,
 				return err
 			}
 			err = db.Delete(
-				&models.GitlabIssueAssignee{},
-				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
-			)
-			if err != nil {
-				return err
-			}
-			err = db.Delete(
 				&models.GitlabAssignee{},
-				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
-			)
-			if err != nil {
-				return err
-			}
-			err = db.Delete(
-				&models.GitlabMrCommit{},
-				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
-			)
-			if err != nil {
-				return err
-			}
-			err = db.Delete(
-				&models.GitlabMrComment{},
 				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
 			)
 			if err != nil {

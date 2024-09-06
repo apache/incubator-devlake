@@ -72,12 +72,6 @@ func ConvertApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 			if err := db.Delete(&code.PullRequestReviewer{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
 				return err
 			}
-			if err := db.Delete(&code.PullRequestComment{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
-				return err
-			}
-			if err := db.Delete(&code.PullRequestCommit{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
-				return err
-			}
 			if err := db.Delete(&code.PullRequestLabel{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
 				return err
 			}
