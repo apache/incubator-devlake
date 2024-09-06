@@ -174,8 +174,9 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 func (p PagerDuty) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p PagerDuty) Close(taskCtx plugin.TaskContext) errors.Error {

@@ -137,11 +137,22 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID")
 	}
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
+
+	taskData := &tasks.GithubTaskData{
+		Options: op,
 	}
-	err = EnrichOptions(taskCtx, op, apiClient.ApiClient)
+
+	syncPolicy := taskCtx.SyncPolicy()
+	var apiClient *helper.ApiClient
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to get github API client instance")
+		}
+		apiClient = newApiClient.ApiClient
+		taskData.ApiClient = newApiClient
+	}
+	err = EnrichOptions(taskCtx, op, apiClient)
 	if err != nil {
 		return nil, err
 	}
@@ -156,12 +167,7 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
 	}
-
-	taskData := &tasks.GithubTaskData{
-		Options:       op,
-		ApiClient:     apiClient,
-		RegexEnricher: regexEnricher,
-	}
+	taskData.RegexEnricher = regexEnricher
 
 	return taskData, nil
 }
@@ -230,8 +236,9 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 func (p Github) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Github) Close(taskCtx plugin.TaskContext) errors.Error {
@@ -239,7 +246,9 @@ func (p Github) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }
 
@@ -266,17 +275,19 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.Name != "" {
 			var repo *tasks.GithubApiRepo
-			repo, err = api.MemorizedGetApiRepo(repo, op, apiClient)
-			if err != nil {
-				return err
+			if apiClient != nil {
+				repo, err = api.MemorizedGetApiRepo(repo, op, apiClient)
+				if err != nil {
+					return err
+				}
+				logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
+				scope := convertApiRepoToScope(repo, op.ConnectionId)
+				err = taskCtx.GetDal().CreateIfNotExist(scope)
+				if err != nil {
+					return err
+				}
+				op.GithubId = repo.GithubId
 			}
-			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			scope := convertApiRepoToScope(repo, op.ConnectionId)
-			err = taskCtx.GetDal().CreateIfNotExist(scope)
-			if err != nil {
-				return err
-			}
-			op.GithubId = repo.GithubId
 		} else {
 			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.Name))
 		}
