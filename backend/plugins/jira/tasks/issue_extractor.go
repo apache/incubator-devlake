@@ -74,13 +74,6 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 		BeforeExtract: func(apiIssue *apiv2models.Issue, stateManager *api.SubtaskStateManager) errors.Error {
 			if stateManager.IsIncremental() {
 				err := db.Delete(
-					&models.JiraSprintIssue{},
-					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, apiIssue.ID),
-				)
-				if err != nil {
-					return err
-				}
-				err = db.Delete(
 					&models.JiraIssueLabel{},
 					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, apiIssue.ID),
 				)
