@@ -132,5 +132,6 @@ func All() []plugin.MigrationScript {
 		new(addTableScopeIdToIncident),
 		new(addAssigneeToIncident),
 		new(addIsSubtaskToIssue),
+		new(addIsChildToCicdPipeline),
 	}
 }

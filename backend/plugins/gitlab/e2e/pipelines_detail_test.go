@@ -84,8 +84,9 @@ func TestGitlabPipelineDetailDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertDetailPipelineMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertPipelineCommitMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath:   "./snapshot_tables/cicd_pipelines.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"is_child"},
 	})
 
 	dataflowTester.VerifyTableWithOptions(&devops.CiCDPipelineCommit{}, e2ehelper.TableOptions{
