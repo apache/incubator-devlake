@@ -67,7 +67,6 @@ export const BlueprintDetail = ({ id, from }: Props) => {
   return (
     <S.Wrapper>
       <Tabs
-        centered
         items={[
           {
             key: 'status',

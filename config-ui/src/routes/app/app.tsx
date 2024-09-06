@@ -16,4 +16,24 @@
  *
  */
 
-export * from './layout';
+import { useEffect } from 'react';
+import { useNavigate, useLoaderData, Outlet } from 'react-router-dom';
+
+import { init } from '@/features';
+import { useAppDispatch } from '@/hooks';
+import { setUpRequestInterceptor } from '@/utils';
+
+export const App = () => {
+  const navigate = useNavigate();
+
+  const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    setUpRequestInterceptor(navigate);
+    dispatch(init({ version, plugins }));
+  }, []);
+
+  return <Outlet />;
+};

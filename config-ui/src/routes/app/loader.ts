@@ -26,7 +26,7 @@ type Props = {
   request: Request;
 };
 
-export const layoutLoader = async ({ request }: Props) => {
+export const appLoader = async ({ request }: Props) => {
   const onboard = await API.store.get('onboard');
 
   if (!onboard) {

@@ -27,7 +27,7 @@ export const PATHS = {
   PROJECTS: () => `${PATH_PREFIX}/projects`,
   PROJECT: (pname: string) => `${PATH_PREFIX}/projects/${encodeName(pname)}`,
   PROJECT_CONNECTION: (pname: string, plugin: string, connectionId: ID) =>
-    `${PATH_PREFIX}/projects/${encodeName(pname)}/${plugin}-${connectionId}`,
+    `${PATH_PREFIX}/projects/${encodeName(pname)}/general-settings/${plugin}-${connectionId}`,
   BLUEPRINTS: () => `${PATH_PREFIX}/advanced/blueprints`,
   BLUEPRINT: (bid: ID) => `${PATH_PREFIX}/advanced/blueprints/${bid}`,
   BLUEPRINT_CONNECTION: (bid: ID, plugin: string, connectionId: ID) =>

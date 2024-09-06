@@ -17,32 +17,32 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Alert, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
+import { useRefreshData } from '@/hooks';
 import type { WebhookItemType } from '@/plugins/register/webhook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webhook';
-import { IProject } from '@/types';
 import { operator } from '@/utils';
 
-interface Props {
-  project: IProject;
-  onRefresh: () => void;
-}
-
-export const WebhooksPanel = ({ project, onRefresh }: Props) => {
+export const ProjectWebhook = () => {
   const [type, setType] = useState<'selectExist' | 'create'>();
   const [operating, setOperating] = useState(false);
+  const [version, setVersion] = useState(0);
+
+  const { pname } = useParams() as { pname: string };
+
+  const { data } = useRefreshData(() => API.project.get(pname), [pname, version]);
 
   const webhookIds = useMemo(
     () =>
-      project.blueprint
-        ? project.blueprint.connections.filter((cs) => cs.pluginName === 'webhook').map((cs: any) => cs.connectionId)
+      data?.blueprint
+        ? data?.blueprint.connections.filter((cs) => cs.pluginName === 'webhook').map((cs: any) => cs.connectionId)
         : [],
-    [project],
+    [data],
   );
 
   const handleCancel = () => {
@@ -50,10 +50,14 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   };
 
   const handleCreate = async (id: ID) => {
+    if (!data) {
+      return;
+    }
+
     const payload = {
-      ...project.blueprint,
+      ...data.blueprint,
       connections: [
-        ...project.blueprint.connections,
+        ...data.blueprint.connections,
         {
           pluginName: 'webhook',
           connectionId: id,
@@ -61,20 +65,24 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
       ],
     };
 
-    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(data.blueprint.id, payload), {
       setOperating,
     });
 
     if (success) {
-      onRefresh();
+      setVersion(version + 1);
     }
   };
 
   const handleSelect = async (items: WebhookItemType[]) => {
+    if (!data) {
+      return;
+    }
+
     const payload = {
-      ...project.blueprint,
+      ...data.blueprint,
       connections: [
-        ...project.blueprint.connections,
+        ...data.blueprint.connections,
         ...items.map((it) => ({
           pluginName: 'webhook',
           connectionId: it.id,
@@ -82,29 +90,31 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
       ],
     };
 
-    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(data.blueprint.id, payload), {
       setOperating,
     });
 
     if (success) {
-      onRefresh();
+      setVersion(version + 1);
     }
   };
 
   const handleDelete = async (id: ID) => {
+    if (!data) {
+      return;
+    }
+
     const payload = {
-      ...project.blueprint,
-      connections: project.blueprint.connections.filter(
-        (cs) => !(cs.pluginName === 'webhook' && cs.connectionId === id),
-      ),
+      ...data.blueprint,
+      connections: data.blueprint.connections.filter((cs) => !(cs.pluginName === 'webhook' && cs.connectionId === id)),
     };
 
-    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(data.blueprint.id, payload), {
       setOperating,
     });
 
     if (success) {
-      onRefresh();
+      setVersion(version + 1);
     }
   };
 
