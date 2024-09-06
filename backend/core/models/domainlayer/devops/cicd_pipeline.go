@@ -40,6 +40,7 @@ type CICDPipeline struct {
 	Environment       string `gorm:"type:varchar(255)"`
 	TaskDatesInfo
 	CicdScopeId string `gorm:"index;type:varchar(255)"`
+	IsChild     bool
 }
 
 func (CICDPipeline) TableName() string {
