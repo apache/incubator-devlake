@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -60,15 +58,9 @@ var ExtractApiMrNotesMeta = plugin.SubTaskMeta{
 func ExtractApiMergeRequestsNotes(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_NOTES_TABLE)
 
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor[MergeRequestNote](&api.StatefulApiExtractorArgs[MergeRequestNote]{
 		SubtaskCommonArgs: subtaskCommonArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			mrNote := &MergeRequestNote{}
-			err := errors.Convert(json.Unmarshal(row.Data, mrNote))
-			if err != nil {
-				return nil, err
-			}
-
+		Extract: func(mrNote *MergeRequestNote, row *api.RawData) ([]interface{}, errors.Error) {
 			toolMrNote, err := convertMergeRequestNote(mrNote)
 			toolMrNote.ConnectionId = data.Options.ConnectionId
 			if err != nil {

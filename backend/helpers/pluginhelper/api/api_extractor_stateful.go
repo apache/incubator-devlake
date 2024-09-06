@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -27,9 +28,10 @@ import (
 )
 
 // StatefulApiExtractorArgs is a struct that contains the arguments for a stateful api extractor
-type StatefulApiExtractorArgs struct {
+type StatefulApiExtractorArgs[InputType any] struct {
 	*SubtaskCommonArgs
-	Extract func(row *RawData) ([]any, errors.Error)
+	BeforeExtract func(issue *InputType, stateManager *SubtaskStateManager) errors.Error
+	Extract       func(body *InputType, row *RawData) ([]any, errors.Error)
 }
 
 // StatefulApiExtractor is a struct that manages the stateful API extraction process.
@@ -41,7 +43,7 @@ type StatefulApiExtractorArgs struct {
 //
 // Example:
 //
-//	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+//	extractor, err := api.NewStatefulApiExtractor[apiv2models.Issue](&api.StatefulApiExtractorArgs[apiv2models.Issue]{
 //	  SubtaskCommonArgs: &api.SubtaskCommonArgs{
 //	    SubTaskContext: subtaskCtx,
 //	    Table:          RAW_ISSUE_TABLE,
@@ -54,9 +56,7 @@ type StatefulApiExtractorArgs struct {
 //	                            // Ensure that the configuration is serializable and contains only public fields.
 //	                            // It is also recommended that the configuration includes only the necessary fields used by the extractor.
 //	..},
-//	  Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-//	    jiraIssue := &models.JiraIssue{}
-//	    json.Unmarshal([]byte(row.Data), jiraIssue)
+//	  Extract: func(apiIssue *apiv2models.Issue, row *api.RawData) ([]interface{}, errors.Error) {
 //	    // It is important to delete the existing child-records if any
 //	    db.Delete(&models.JiraIssueLabel{}, dal.Where("connection_id ? = ? AND issue_id = ?", issue.ConnectionId, issue.IssueId))
 //	    return extractIssues(data, config, row, userFieldMap)
@@ -68,25 +68,25 @@ type StatefulApiExtractorArgs struct {
 //	}
 //
 // return extractor.Execute()
-type StatefulApiExtractor struct {
-	*StatefulApiExtractorArgs
+type StatefulApiExtractor[InputType any] struct {
+	*StatefulApiExtractorArgs[InputType]
 	*SubtaskStateManager
 }
 
 // NewStatefulApiExtractor creates a new StatefulApiExtractor
-func NewStatefulApiExtractor(args *StatefulApiExtractorArgs) (*StatefulApiExtractor, errors.Error) {
+func NewStatefulApiExtractor[InputType any](args *StatefulApiExtractorArgs[InputType]) (*StatefulApiExtractor[InputType], errors.Error) {
 	stateManager, err := NewSubtaskStateManager(args.SubtaskCommonArgs)
 	if err != nil {
 		return nil, err
 	}
-	return &StatefulApiExtractor{
+	return &StatefulApiExtractor[InputType]{
 		StatefulApiExtractorArgs: args,
 		SubtaskStateManager:      stateManager,
 	}, nil
 }
 
 // Execute sub-task
-func (extractor *StatefulApiExtractor) Execute() errors.Error {
+func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 	// load data from database
 	db := extractor.GetDal()
 	logger := extractor.GetLogger()
@@ -139,7 +139,20 @@ func (extractor *StatefulApiExtractor) Execute() errors.Error {
 			return errors.Default.Wrap(err, "error fetching row")
 		}
 
-		results, err := extractor.Extract(row)
+		body := new(InputType)
+		err = errors.Convert(json.Unmarshal(row.Data, body))
+		if err != nil {
+			return err
+		}
+
+		if extractor.BeforeExtract != nil {
+			err = extractor.BeforeExtract(body, extractor.SubtaskStateManager)
+			if err != nil {
+				return err
+			}
+		}
+
+		results, err := extractor.Extract(body, row)
 		if err != nil {
 			return errors.Default.Wrap(err, "error calling plugin Extract implementation")
 		}
@@ -173,4 +186,4 @@ func (extractor *StatefulApiExtractor) Execute() errors.Error {
 	return extractor.SubtaskStateManager.Close()
 }
 
-var _ plugin.SubTask = (*StatefulApiExtractor)(nil)
+var _ plugin.SubTask = (*StatefulApiExtractor[any])(nil)

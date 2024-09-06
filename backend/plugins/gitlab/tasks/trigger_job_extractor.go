@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -58,16 +57,9 @@ var ExtractApiTriggerJobsMeta = plugin.SubTaskMeta{
 func ExtractApiTriggerJobs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_TRIGGER_JOB_TABLE)
 
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor[ApiTriggerJob](&api.StatefulApiExtractorArgs[ApiTriggerJob]{
 		SubtaskCommonArgs: subtaskCommonArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			// create gitlab commit
-			gitlabApiTriggerJob := &ApiTriggerJob{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiTriggerJob))
-			if err != nil {
-				return nil, err
-			}
-
+		Extract: func(gitlabApiTriggerJob *ApiTriggerJob, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabPipeline, err := convertTriggerJob(gitlabApiTriggerJob, data.Options.ProjectId)
 			if err != nil {
 				return nil, err

@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -72,16 +70,9 @@ var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
 func ExtractApiPipelines(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_PIPELINE_TABLE)
 
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor[ApiPipeline](&api.StatefulApiExtractorArgs[ApiPipeline]{
 		SubtaskCommonArgs: subtaskCommonArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			// create gitlab commit
-			gitlabApiPipeline := &ApiPipeline{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiPipeline))
-			if err != nil {
-				return nil, err
-			}
-
+		Extract: func(gitlabApiPipeline *ApiPipeline, row *api.RawData) ([]interface{}, errors.Error) {
 			pipelineProject := &models.GitlabPipelineProject{
 				ConnectionId:    data.Options.ConnectionId,
 				PipelineId:      gitlabApiPipeline.Id,

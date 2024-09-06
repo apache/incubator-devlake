@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -170,28 +169,34 @@ func ExtractApiIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 		"issueComponent":     issueComponent,
 		"issuePriorityRegex": issuePriorityRegex,
 	}
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor[IssuesResponse](&api.StatefulApiExtractorArgs[IssuesResponse]{
 		SubtaskCommonArgs: subtaskCommonArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			body := &IssuesResponse{}
-			err := errors.Convert(json.Unmarshal(row.Data, body))
-			if err != nil {
-				return nil, err
+		BeforeExtract: func(body *IssuesResponse, stateManager *api.SubtaskStateManager) errors.Error {
+			if stateManager.IsIncremental() {
+				err := db.Delete(
+					&models.GitlabIssueLabel{},
+					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, body.Id),
+				)
+				if err != nil {
+					return err
+				}
+				err = db.Delete(
+					&models.GitlabIssueAssignee{},
+					dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, body.Id),
+				)
+				if err != nil {
+					return err
+				}
 			}
-
+			return nil
+		},
+		Extract: func(body *IssuesResponse, row *api.RawData) ([]interface{}, errors.Error) {
 			if body.ProjectId == 0 {
 				return nil, nil
 			}
 
 			results := make([]interface{}, 0, 2)
 			gitlabIssue, err := convertGitlabIssue(body, data.Options.ProjectId)
-			if err != nil {
-				return nil, err
-			}
-			err = db.Delete(
-				&models.GitlabIssueLabel{},
-				dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, gitlabIssue.GitlabId),
-			)
 			if err != nil {
 				return nil, err
 			}
@@ -222,13 +227,6 @@ func ExtractApiIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			}
 			results = append(results, gitlabIssue)
 
-			err = db.Delete(
-				&models.GitlabIssueAssignee{},
-				dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, gitlabIssue.GitlabId),
-			)
-			if err != nil {
-				return nil, err
-			}
 			for _, v := range body.Assignees {
 				assignee := &models.GitlabAccount{
 					ConnectionId: data.Options.ConnectionId,

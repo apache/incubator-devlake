@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -42,6 +41,7 @@ var ExtractApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
 
 func ExtractApiMergeRequestDetails(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_DETAIL_TABLE)
+	db := subtaskCtx.GetDal()
 	config := data.Options.ScopeConfig
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
@@ -64,15 +64,10 @@ func ExtractApiMergeRequestDetails(subtaskCtx plugin.SubTaskContext) errors.Erro
 		"prType":      prType,
 		"prComponent": prComponent,
 	}
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor[MergeRequestRes](&api.StatefulApiExtractorArgs[MergeRequestRes]{
 		SubtaskCommonArgs: subtaskCommonArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			mr := &MergeRequestRes{}
-			err := errors.Convert(json.Unmarshal(row.Data, mr))
-			if err != nil {
-				return nil, err
-			}
-
+		BeforeExtract:     beforeExtractMr(db, data),
+		Extract: func(mr *MergeRequestRes, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabMergeRequest, err := convertMergeRequest(mr)
 			if err != nil {
 				return nil, err

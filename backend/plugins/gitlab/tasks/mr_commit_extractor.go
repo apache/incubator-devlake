@@ -43,15 +43,10 @@ var ExtractApiMrCommitsMeta = plugin.SubTaskMeta{
 func ExtractApiMergeRequestsCommits(subtaskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
 
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor[GitlabApiCommit](&api.StatefulApiExtractorArgs[GitlabApiCommit]{
 		SubtaskCommonArgs: subtaskCommonArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+		Extract: func(gitlabApiCommit *GitlabApiCommit, row *api.RawData) ([]interface{}, errors.Error) {
 			// create gitlab commit
-			gitlabApiCommit := &GitlabApiCommit{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiCommit))
-			if err != nil {
-				return nil, err
-			}
 			gitlabCommit, err := ConvertCommit(gitlabApiCommit)
 			if err != nil {
 				return nil, err

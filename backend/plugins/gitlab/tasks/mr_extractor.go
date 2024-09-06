@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"regexp"
 	"strings"
 
@@ -126,16 +125,10 @@ func ExtractApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 		"prComponent": prComponent,
 	}
 
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor[MergeRequestRes](&api.StatefulApiExtractorArgs[MergeRequestRes]{
 		SubtaskCommonArgs: subtaskCommonArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			mr := &MergeRequestRes{}
-			s := string(row.Data)
-			err := errors.Convert(json.Unmarshal(row.Data, mr))
-			if err != nil {
-				return nil, err
-			}
-
+		BeforeExtract:     beforeExtractMr(db, data),
+		Extract: func(mr *MergeRequestRes, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabMergeRequest, err := convertMergeRequest(mr)
 			if err != nil {
 				return nil, err
@@ -143,6 +136,7 @@ func ExtractApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 
 			// if we can not find merged_at and closed_at info in the detail
 			// we need get detail for gitlab v11
+			s := string(row.Data)
 			if !strings.Contains(s, "\"merged_at\":") {
 				if !strings.Contains(s, "\"closed_at\":") {
 					gitlabMergeRequest.IsDetailRequired = true
@@ -253,4 +247,47 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		AuthorUserId:     mr.Author.Id,
 	}
 	return gitlabMergeRequest, nil
+}
+
+func beforeExtractMr(db dal.Dal, data *GitlabTaskData) func(mr *MergeRequestRes, stateManager *api.SubtaskStateManager) errors.Error {
+	return func(mr *MergeRequestRes, stateManager *api.SubtaskStateManager) errors.Error {
+		if stateManager.IsIncremental() {
+			err := db.Delete(
+				&models.GitlabMrLabel{},
+				dal.Where("connection_id = ? AND mr_id = ?", data.Options.ConnectionId, mr.GitlabId),
+			)
+			if err != nil {
+				return err
+			}
+			err = db.Delete(
+				&models.GitlabIssueAssignee{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
+			)
+			if err != nil {
+				return err
+			}
+			err = db.Delete(
+				&models.GitlabAssignee{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
+			)
+			if err != nil {
+				return err
+			}
+			err = db.Delete(
+				&models.GitlabMrCommit{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
+			)
+			if err != nil {
+				return err
+			}
+			err = db.Delete(
+				&models.GitlabMrComment{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
+			)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 }

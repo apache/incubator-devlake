@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -46,14 +45,9 @@ var ExtractDeploymentMeta = plugin.SubTaskMeta{
 func ExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_DEPLOYMENT)
 
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor[GitlabDeploymentResp](&api.StatefulApiExtractorArgs[GitlabDeploymentResp]{
 		SubtaskCommonArgs: subtaskCommonArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			deploymentResp := &GitlabDeploymentResp{}
-			err := errors.Convert(json.Unmarshal(row.Data, deploymentResp))
-			if err != nil {
-				return nil, err
-			}
+		Extract: func(deploymentResp *GitlabDeploymentResp, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabDeployment := deploymentResp.toGitlabDeployment(data.Options.ConnectionId, data.Options.ProjectId)
 			return []interface{}{
 				gitlabDeployment,
