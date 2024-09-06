@@ -50,32 +50,29 @@ func MakeDataSourcePipelinePlanV200(
 	// load connection, scope and scopeConfig from the db
 	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
-		fmt.Println("--->1", err)
-		return nil, nil, err
+		return nil, nil, errors.Default.Wrap(err, "find by pk")
 	}
 	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
-		fmt.Println("--->2", err)
-		return nil, nil, err
+		return nil, nil, errors.Default.Wrap(err, "map scope detail")
 	}
 
-	// needed for the connection to populate its access tokens
-	// if AppKey authentication method is selected
-	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-	if err != nil {
-		fmt.Println("--->3", err)
-		return nil, nil, err
+	if !skipCollectors {
+		// needed for the connection to populate its access tokens
+		// if AppKey authentication method is selected
+		_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+		if err != nil {
+			return nil, nil, errors.Default.Wrap(err, "create api client")
+		}
 	}
 
 	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
-		fmt.Println("--->4", err)
 		return nil, nil, err
 	}
 	scopes, err := makeScopesV200(scopeDetails, connection)
 	if err != nil {
-		fmt.Println("--->5", err)
-		return nil, nil, err
+		return nil, nil, errors.Default.Wrap(err, "make scopes v200")
 	}
 
 	return plan, scopes, nil
