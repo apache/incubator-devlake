@@ -17,25 +17,18 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Flex, Space, Card, Modal, Input, Checkbox, Button } from 'antd';
 
 import API from '@/api';
 import { Block, HelpTooltip, Message } from '@/components';
 import { PATHS } from '@/config';
-import { IProject } from '@/types';
+import { useRefreshData } from '@/hooks';
 import { operator } from '@/utils';
-
-import * as S from './styled';
 
 const RegexPrIssueDefaultValue = '(?mi)(Closes)[\\s]*.*(((and )?#\\d+[ ]*)+)';
 
-interface Props {
-  project: IProject;
-  onRefresh: () => void;
-}
-
-export const SettingsPanel = ({ project, onRefresh }: Props) => {
+export const ProjectAdditionalSettings = () => {
   const [name, setName] = useState('');
   const [dora, setDora] = useState({
     enable: false,
@@ -49,10 +42,19 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   });
   const [operating, setOperating] = useState(false);
   const [open, setOpen] = useState(false);
+  const [version, setVersion] = useState(0);
 
   const navigate = useNavigate();
 
+  const { pname } = useParams() as { pname: string };
+
+  const { data: project } = useRefreshData(() => API.project.get(pname), [pname, version]);
+
   useEffect(() => {
+    if (!project) {
+      return;
+    }
+
     const dora = project.metrics.find((ms) => ms.pluginName === 'dora');
     const linker = project.metrics.find((ms) => ms.pluginName === 'linker');
     const issueTrace = project.metrics.find((ms) => ms.pluginName === 'issue_trace');
@@ -71,6 +73,10 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   }, [project]);
 
   const handleUpdate = async () => {
+    if (!project) {
+      return;
+    }
+
     const [success] = await operator(
       () =>
         API.project.update(project.name, {
@@ -102,7 +108,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
     );
 
     if (success) {
-      onRefresh();
+      setVersion((v) => v + 1);
       navigate(PATHS.PROJECT(name), {
         state: {
           tabId: 'settings',
@@ -120,6 +126,10 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   };
 
   const handleDelete = async () => {
+    if (!project) {
+      return;
+    }
+
     const [success] = await operator(() => API.project.remove(project.name), {
       setOperating,
       formatMessage: () => 'Delete project successful.',
@@ -215,9 +225,9 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
         onCancel={handleHideDeleteDialog}
         onOk={handleDelete}
       >
-        <S.DialogBody>
+        <Flex align="center">
           <Message content="This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in this Connection." />
-        </S.DialogBody>
+        </Flex>
       </Modal>
     </Flex>
   );
