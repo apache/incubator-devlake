@@ -16,34 +16,4 @@
  *
  */
 
-import { createContext } from 'react';
-
-export type Record = {
-  plugin: string;
-  connectionId: ID;
-  blueprintId: ID;
-  pipelineId: ID;
-  scopeName: string;
-};
-
-const initialValue: {
-  step: number;
-  records: Record[];
-  done: boolean;
-  projectName?: string;
-  plugin?: string;
-  setStep: (value: number) => void;
-  setRecords: (value: Record[]) => void;
-  setProjectName: (value: string) => void;
-  setPlugin: (value: string) => void;
-} = {
-  step: 0,
-  records: [],
-  done: false,
-  setStep: () => {},
-  setRecords: () => {},
-  setProjectName: () => {},
-  setPlugin: () => {},
-};
-
-export const Context = createContext(initialValue);
+export * from './slice';

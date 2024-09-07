@@ -18,8 +18,8 @@
 
 import { Tour } from 'antd';
 
-import API from '@/api';
-import { useRefreshData } from '@/hooks';
+import { selectOnboard } from '@/features/onboard';
+import { useAppSelector } from '@/hooks';
 
 interface Props {
   nameRef: React.RefObject<HTMLInputElement>;
@@ -28,7 +28,7 @@ interface Props {
 }
 
 export const OnboardTour = ({ nameRef, connectionRef, configRef }: Props) => {
-  const { ready, data } = useRefreshData(() => API.store.get('onboard'), []);
+  const { step, done } = useAppSelector(selectOnboard);
 
   const steps = [
     {
@@ -49,7 +49,7 @@ export const OnboardTour = ({ nameRef, connectionRef, configRef }: Props) => {
     },
   ];
 
-  if (!ready || !data || data.step !== 4 || data.done) {
+  if (step !== 4 || done) {
     return null;
   }
 
