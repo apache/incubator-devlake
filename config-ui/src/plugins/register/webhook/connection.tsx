@@ -17,24 +17,26 @@
  */
 
 import { useState } from 'react';
-import { EyeOutlined, FormOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Flex, Table, Space, Button } from 'antd';
+import { EyeOutlined, FormOutlined, CloseCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Flex, Table, Space, Button, Modal } from 'antd';
 
+import { Message } from '@/components';
 import { useAppSelector } from '@/hooks';
 import { selectWebhooks } from '@/features/connections';
 import { IWebhook } from '@/types';
 
 import { CreateDialog, ViewDialog, EditDialog, DeleteDialog } from './components';
 
-type Type = 'add' | 'edit' | 'show' | 'delete';
+type Type = 'add' | 'edit' | 'show' | 'delete' | 'remove';
 
 interface Props {
+  fromProject?: boolean;
   filterIds?: ID[];
-  onCreateAfter?: (id: ID) => void;
-  onDeleteAfter?: (id: ID) => void;
+  onAssociate?: (id: ID) => void;
+  onRemove?: (id: ID) => void;
 }
 
-export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: Props) => {
+export const WebHookConnection = ({ filterIds, fromProject = false, onAssociate, onRemove }: Props) => {
   const [type, setType] = useState<Type>();
   const [currentID, setCurrentID] = useState<ID>();
 
@@ -76,7 +78,21 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
               <Space>
                 <Button type="primary" icon={<EyeOutlined />} onClick={() => handleShowDialog('show', row)} />
                 <Button type="primary" icon={<FormOutlined />} onClick={() => handleShowDialog('edit', row)} />
-                <Button type="primary" icon={<DeleteOutlined />} onClick={() => handleShowDialog('delete', row)} />
+                {fromProject ? (
+                  <Button
+                    type="primary"
+                    danger
+                    icon={<CloseCircleOutlined />}
+                    onClick={() => handleShowDialog('remove', row)}
+                  />
+                ) : (
+                  <Button
+                    type="primary"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleShowDialog('delete', row)}
+                  />
+                )}
               </Space>
             ),
           },
@@ -89,11 +105,20 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
           Add a Webhook
         </Button>
       </Flex>
-      {type === 'add' && <CreateDialog open onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />}
+      {type === 'add' && <CreateDialog open onCancel={handleHideDialog} onSubmitAfter={(id) => onAssociate?.(id)} />}
       {type === 'show' && currentID && <ViewDialog initialId={currentID} onCancel={handleHideDialog} />}
       {type === 'edit' && currentID && <EditDialog initialId={currentID} onCancel={handleHideDialog} />}
-      {type === 'delete' && currentID && (
-        <DeleteDialog initialId={currentID} onCancel={handleHideDialog} onSubmitAfter={(id) => onDeleteAfter?.(id)} />
+      {type === 'delete' && currentID && <DeleteDialog initialId={currentID} onCancel={handleHideDialog} />}
+      {type === 'remove' && currentID && (
+        <Modal
+          open
+          title="Remove this Webhook?"
+          okText="Confirm"
+          onCancel={handleHideDialog}
+          onOk={() => onRemove?.(currentID)}
+        >
+          <Message content="This will only remove the webhook from this project. To permanently delete the webhook, please visit the Connections page." />
+        </Modal>
       )}
     </Flex>
   );

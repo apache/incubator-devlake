@@ -71,6 +71,7 @@ export const ProjectWebhook = () => {
 
     if (success) {
       setVersion(version + 1);
+      handleCancel();
     }
   };
 
@@ -96,6 +97,7 @@ export const ProjectWebhook = () => {
 
     if (success) {
       setVersion(version + 1);
+      handleCancel();
     }
   };
 
@@ -115,6 +117,7 @@ export const ProjectWebhook = () => {
 
     if (success) {
       setVersion(version + 1);
+      handleCancel();
     }
   };
 
@@ -161,7 +164,7 @@ export const ProjectWebhook = () => {
           )}
         </>
       ) : (
-        <WebHookConnection filterIds={webhookIds} onCreateAfter={handleCreate} onDeleteAfter={handleDelete} />
+        <WebHookConnection fromProject filterIds={webhookIds} onAssociate={handleCreate} onRemove={handleDelete} />
       )}
     </>
   );
