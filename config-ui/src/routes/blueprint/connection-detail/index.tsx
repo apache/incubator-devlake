@@ -24,7 +24,6 @@ import { Flex, Popconfirm, Modal, Button } from 'antd';
 
 import API from '@/api';
 import { PageLoading, PageHeader, ExternalLink } from '@/components';
-import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { DataScopeSelect } from '@/plugins';
 import { operator } from '@/utils';
@@ -92,7 +91,7 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
-      navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprint.id), {
+      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`, {
         state: {
           activeKey: 'status',
         },
@@ -125,7 +124,7 @@ export const BlueprintConnectionDetailPage = () => {
           </div>
         ),
         onCancel: () => {
-          navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprint.id), {
+          navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`, {
             state: {
               tab: 'configuration',
             },
@@ -182,14 +181,14 @@ export const BlueprintConnectionDetailPage = () => {
       breadcrumbs={
         pname
           ? [
-              { name: 'Projects', path: PATHS.PROJECTS() },
-              { name: pname, path: PATHS.PROJECT(pname) },
+              { name: 'Projects', path: '/projects' },
+              { name: pname, path: `/projects/${pname}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
           : [
-              { name: 'Advanced', path: PATHS.BLUEPRINTS() },
-              { name: 'Blueprints', path: PATHS.BLUEPRINTS() },
-              { name: bid as any, path: PATHS.BLUEPRINT(bid as any) },
+              { name: 'Advanced', path: '/advanced/blueprints' },
+              { name: 'Blueprints', path: '/advanced/blueprints' },
+              { name: bid as any, path: `/advanced/blueprints/${bid}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
       }
@@ -202,7 +201,7 @@ export const BlueprintConnectionDetailPage = () => {
       <S.Top>
         <span>
           To manage the complete data scope and scope config for this connection, please{' '}
-          <ExternalLink link={PATHS.CONNECTION(connection.plugin, connection.id)}>
+          <ExternalLink link={`/connections/${connection.plugin}/${connection.id}`}>
             go to the connection detail page
           </ExternalLink>
           .

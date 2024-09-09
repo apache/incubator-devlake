@@ -23,7 +23,7 @@ import { Flex, Table, Button, Modal, Input } from 'antd';
 
 import API from '@/api';
 import { PageHeader, Block, IconButton } from '@/components';
-import { getCron, PATHS } from '@/config';
+import { getCron } from '@/config';
 import { ConnectionName } from '@/features/connections';
 import { useRefreshData } from '@/hooks';
 import { OnboardTour } from '@/routes/onboard/components';
@@ -102,7 +102,7 @@ export const ProjectHomePage = () => {
   };
 
   return (
-    <PageHeader breadcrumbs={[{ name: 'Projects', path: PATHS.PROJECTS() }]}>
+    <PageHeader breadcrumbs={[{ name: 'Projects', path: '/projects' }]}>
       <Flex style={{ marginBottom: 16 }} justify="flex-end">
         <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           New Project
@@ -119,7 +119,7 @@ export const ProjectHomePage = () => {
             key: 'name',
             render: (name: string) => (
               <Link
-                to={PATHS.PROJECT(name)}
+                to={`/projects/${encodeURIComponent(name)}`}
                 state={{ activeKey: 'configuration' }}
                 style={{ color: '#292b3f' }}
                 ref={nameRef}
@@ -184,7 +184,7 @@ export const ProjectHomePage = () => {
                 icon={<SettingOutlined />}
                 helptip="Project Configuration"
                 onClick={() =>
-                  navigate(PATHS.PROJECT(name), {
+                  navigate(`/projects/${encodeURIComponent(name)}`, {
                     state: { activeKey: 'configuration' },
                   })
                 }

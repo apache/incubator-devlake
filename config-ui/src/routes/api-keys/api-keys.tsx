@@ -23,7 +23,6 @@ import dayjs from 'dayjs';
 
 import API from '@/api';
 import { PageHeader, Block, ExternalLink, CopyText, Message } from '@/components';
-import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
@@ -93,7 +92,7 @@ export const ApiKeys = () => {
 
   return (
     <PageHeader
-      breadcrumbs={[{ name: 'API Keys', path: PATHS.APIKEYS() }]}
+      breadcrumbs={[{ name: 'API Keys', path: '/keys' }]}
       description="You can generate and manage your API keys to access the DevLake API."
     >
       <Flex style={{ marginBottom: 16 }} justify="flex-end">

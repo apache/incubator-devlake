@@ -22,7 +22,6 @@ import { Flex, Button, Tooltip } from 'antd';
 
 import API from '@/api';
 import { Markdown } from '@/components';
-import { PATHS } from '@/config';
 import { selectOnboard, previous, update } from '@/features/onboard';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
@@ -120,7 +119,7 @@ export const Step2 = () => {
               subLabel={
                 <p>
                   Create a personal access token in GitHub. For self-managed {config.name}, please skip the onboarding
-                  and configure via <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
+                  and configure via <Link to={'/connections'}>Data Connections</Link>.
                 </p>
               }
               initialValue=""
