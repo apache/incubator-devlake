@@ -39,7 +39,13 @@ type DataType = {
 
 export const request = createAsyncThunk('onboard/request', async () => {
   const res = await API.store.get('onboard');
-  return res;
+  return {
+    ...res,
+    initial: res ? true : res?.initial ?? false,
+    step: res?.step ?? 0,
+    records: res?.records ?? [],
+    done: res?.done ?? false,
+  };
 });
 
 export const update = createAsyncThunk('onboard/update', async (payload: Partial<DataType>, { getState }) => {
@@ -47,6 +53,7 @@ export const update = createAsyncThunk('onboard/update', async (payload: Partial
   const res = await API.store.set('onboard', {
     ...data,
     ...payload,
+    initial: true,
     step: payload.step ?? data.step + 1,
   });
   return res;
@@ -97,13 +104,7 @@ export const onboardSlice = createSlice({
       })
       .addCase(request.fulfilled, (state, action) => {
         state.status = 'success';
-        state.data = {
-          ...action.payload,
-          initial: action.payload?.initial ?? false,
-          step: action.payload?.step ?? 0,
-          records: action.payload?.records ?? [],
-          done: action.payload?.done ?? false,
-        };
+        state.data = action.payload;
       })
       .addCase(request.rejected, (state, action) => {
         state.status = 'failed';
