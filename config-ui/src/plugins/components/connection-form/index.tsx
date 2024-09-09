@@ -23,7 +23,7 @@ import { Flex, Alert, Button } from 'antd';
 import API from '@/api';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { ExternalLink } from '@/components';
-import { addConnection, updateConnection } from '@/features';
+import { addConnection, updateConnection } from '@/features/connections';
 import { selectConnection } from '@/features/connections';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';

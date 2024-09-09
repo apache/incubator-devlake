@@ -17,59 +17,67 @@
  */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { flatten } from 'lodash';
+import { intersection, flatten } from 'lodash';
 
 import API from '@/api';
 import { RootState } from '@/app/store';
 import { IConnection, IConnectionStatus, IWebhook, IStatus } from '@/types';
+import { getRegisterPlugins } from '@/plugins';
 
 import { transformConnection, transformWebhook } from './utils';
 
 const initialState: {
   status: IStatus;
-  error: any;
-  version: string;
+  error?: unknown;
   plugins: string[];
   connections: IConnection[];
   webhooks: IWebhook[];
 } = {
   status: 'idle',
-  error: null,
-  version: '',
   plugins: [],
   connections: [],
   webhooks: [],
 };
 
-export const init = createAsyncThunk(
-  'connections/init',
-  async ({ version, plugins }: { version: string; plugins: string[] }) => {
-    const connections = await Promise.all(
-      plugins
-        .filter((plugin) => plugin !== 'webhook')
-        .map(async (plugin) => {
-          const connections = await API.connection.list(plugin);
-          return connections.map((connection) => transformConnection(plugin, connection));
-        }),
-    );
+export const request = createAsyncThunk('connections/request', async () => {
+  let plugins = [];
+  let fePlugins = getRegisterPlugins();
+  const bePlugins = await API.plugin.list();
 
-    const webhooks = await Promise.all(
-      plugins
-        .filter((plugin) => plugin === 'webhook')
-        .map(async () => {
-          const webhooks = await API.plugin.webhook.list();
-          return webhooks.map((webhook) => transformWebhook(webhook));
-        }),
-    );
+  try {
+    const envPlugins = import.meta.env.DEVLAKE_PLUGINS.split(',').filter(Boolean);
+    fePlugins = fePlugins.filter((plugin) => !envPlugins.length || envPlugins.includes(plugin));
+  } catch (err) {}
 
-    return {
-      version,
-      plugins,
-      connections: flatten(connections),
-      webhooks: flatten(webhooks),
-    };
-  },
-);
+  plugins = intersection(
+    fePlugins,
+    bePlugins.map((it) => it.plugin),
+  );
+
+  const connections = await Promise.all(
+    plugins
+      .filter((plugin) => plugin !== 'webhook')
+      .map(async (plugin) => {
+        const connections = await API.connection.list(plugin);
+        return connections.map((connection) => transformConnection(plugin, connection));
+      }),
+  );
+
+  const webhooks = await Promise.all(
+    plugins
+      .filter((plugin) => plugin === 'webhook')
+      .map(async () => {
+        const webhooks = await API.plugin.webhook.list();
+        return webhooks.map((webhook) => transformWebhook(webhook));
+      }),
+  );
+
+  return {
+    plugins,
+    connections: flatten(connections),
+    webhooks: flatten(webhooks),
+  };
+});
 
 export const addConnection = createAsyncThunk('connections/addConnection', async ({ plugin, ...payload }: any) => {
   const connection = await API.connection.create(plugin, payload);
@@ -145,18 +153,16 @@ export const connectionsSlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder
-      .addCase(init.pending, (state) => {
+      .addCase(request.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(init.fulfilled, (state, action) => {
-        state.version = action.payload.version;
+      .addCase(request.fulfilled, (state, action) => {
         state.plugins = action.payload.plugins;
         state.connections = action.payload.connections;
         state.webhooks = action.payload.webhooks;
         state.status = 'success';
       })
-      .addCase(init.rejected, (state, action) => {
-        console.error(action.error.stack);
+      .addCase(request.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error;
       })
@@ -208,11 +214,9 @@ export const connectionsSlice = createSlice({
 
 export default connectionsSlice.reducer;
 
-export const selectStatus = (state: RootState) => state.connections.status;
+export const selectConnectionsStatus = (state: RootState) => state.connections.status;
 
-export const selectError = (state: RootState) => state.connections.error;
-
-export const selectVersion = (state: RootState) => state.connections.version;
+export const selectConnectionsError = (state: RootState) => state.connections.error;
 
 export const selectPlugins = (state: RootState) => state.connections.plugins;
 

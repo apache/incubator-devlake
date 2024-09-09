@@ -61,10 +61,10 @@ export const done = createAsyncThunk('onboard/done', async (_, { getState }) => 
   return {};
 });
 
-const initialState: { status: IStatus; data: DataType } = {
+const initialState: { status: IStatus; error?: unknown; data: DataType } = {
   status: 'idle',
   data: {
-    initial: false,
+    initial: true,
     step: 0,
     records: [],
     projectName: '',
@@ -105,6 +105,10 @@ export const onboardSlice = createSlice({
           done: action.payload?.done ?? false,
         };
       })
+      .addCase(request.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error;
+      })
       .addCase(update.fulfilled, (state, action) => {
         state.data = {
           ...state.data,
@@ -121,7 +125,9 @@ export default onboardSlice.reducer;
 
 export const { previous, changeProjectName, changePlugin, changeRecords } = onboardSlice.actions;
 
-export const selectStatus = (state: RootState) => state.onboard.status;
+export const selectOnboardStatus = (state: RootState) => state.onboard.status;
+
+export const selectOnboardError = (state: RootState) => state.onboard.error;
 
 export const selectOnboard = (state: RootState) => state.onboard.data;
 
