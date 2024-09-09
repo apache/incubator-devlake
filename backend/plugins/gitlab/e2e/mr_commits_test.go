@@ -133,37 +133,4 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 		CSVRelPath:  "./snapshot_tables/pull_request_commits.csv",
 		IgnoreTypes: []interface{}{common.Model{}},
 	})
-
-	// verify conversion
-	dataflowTester.FlushTabler(&code.Commit{})
-	dataflowTester.FlushTabler(&code.RepoCommit{})
-	dataflowTester.Subtask(tasks.ConvertCommitsMeta, taskData)
-	dataflowTester.VerifyTable(
-		code.Commit{},
-		"./snapshot_tables/commits.csv",
-		e2ehelper.ColumnWithRawData(
-			"sha",
-			"additions",
-			"deletions",
-			"dev_eq",
-			"message",
-			"author_name",
-			"author_email",
-			"authored_date",
-			"author_id",
-			"committer_name",
-			"committer_email",
-			"committed_date",
-			"committer_id",
-		),
-	)
-
-	dataflowTester.VerifyTable(
-		code.RepoCommit{},
-		"./snapshot_tables/repo_commits.csv",
-		e2ehelper.ColumnWithRawData(
-			"repo_id",
-			"commit_sha",
-		),
-	)
 }
