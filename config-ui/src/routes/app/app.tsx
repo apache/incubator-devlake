@@ -19,8 +19,10 @@
 import { useEffect } from 'react';
 import { useNavigate, useLoaderData, Outlet } from 'react-router-dom';
 
+import { PageLoading } from '@/components';
 import { init } from '@/features';
-import { useAppDispatch } from '@/hooks';
+import { request as requestOnboard, selectStatus } from '@/features/onboard';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { setUpRequestInterceptor } from '@/utils';
 
 export const App = () => {
@@ -29,11 +31,17 @@ export const App = () => {
   const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
 
   const dispatch = useAppDispatch();
+  const status = useAppSelector(selectStatus);
 
   useEffect(() => {
     setUpRequestInterceptor(navigate);
     dispatch(init({ version, plugins }));
+    dispatch(requestOnboard());
   }, []);
+
+  if (status === 'loading') {
+    return <PageLoading />;
+  }
 
   return <Outlet />;
 };

@@ -17,12 +17,13 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Layout as AntdLayout, Menu, Divider } from 'antd';
 
 import { PageLoading, Logo, ExternalLink } from '@/components';
-import { selectError, selectStatus, selectVersion } from '@/features';
+import { selectError, selectStatus, selectVersion } from '@/features/connections';
+import { selectOnboard } from '@/features/onboard';
 import { OnboardCard } from '@/routes/onboard/components';
 import { useAppSelector } from '@/hooks';
 
@@ -39,6 +40,7 @@ export const Layout = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
+  const { initial } = useAppSelector(selectOnboard);
   const status = useAppSelector(selectStatus);
   const error = useAppSelector(selectError);
   const version = useAppSelector(selectVersion);
@@ -75,6 +77,10 @@ export const Layout = () => {
 
   if (status === 'failed') {
     throw error.message;
+  }
+
+  if (!initial) {
+    return <Navigate to="/onboard" />;
   }
 
   return (

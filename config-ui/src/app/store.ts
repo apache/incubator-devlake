@@ -19,10 +19,12 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 import { connectionsSlice } from '@/features';
+import { onboardSlice } from '@/features/onboard';
 
 export const store = configureStore({
   reducer: {
     connections: connectionsSlice.reducer,
+    onboard: onboardSlice.reducer,
   },
 });
 

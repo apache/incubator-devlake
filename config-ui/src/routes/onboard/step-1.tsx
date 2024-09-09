@@ -16,24 +16,26 @@
  *
  */
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Input, Flex, Button, message } from 'antd';
 
 import API from '@/api';
 import { Block, Markdown } from '@/components';
 import { PATHS } from '@/config';
+import { selectOnboard, update, previous, changeProjectName, changePlugin } from '@/features/onboard';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { ConnectionSelect } from '@/plugins';
 import { operator } from '@/utils';
 
-import { Context } from './context';
 import * as S from './styled';
 
 export const Step1 = () => {
   const [QA, setQA] = useState('');
   const [operating, setOperating] = useState(false);
 
-  const { step, records, done, projectName, plugin, setStep, setProjectName, setPlugin } = useContext(Context);
+  const dispatch = useAppDispatch();
+  const { projectName, plugin } = useAppSelector(selectOnboard);
 
   useEffect(() => {
     fetch(`/onboard/step-1/${plugin ? plugin : 'default'}.md`)
@@ -56,14 +58,7 @@ export const Step1 = () => {
       return;
     }
 
-    const [success] = await operator(() => API.store.set('onboard', { step: 2, records, done, projectName, plugin }), {
-      setOperating,
-      hideToast: true,
-    });
-
-    if (success) {
-      setStep(step + 1);
-    }
+    dispatch(update({}));
   };
 
   return (
@@ -79,16 +74,16 @@ export const Step1 = () => {
               style={{ width: 386 }}
               placeholder="Your Project Name"
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={(e) => dispatch(changeProjectName(e.target.value))}
             />
           </Block>
           <Block
             title="Data Connection"
             description={
-              <p>
+              <>
                 For self-managed GitLab/GitHub/Bitbucket, please skip the onboarding and configure via{' '}
                 <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
-              </p>
+              </>
             }
             required
           >
@@ -117,14 +112,14 @@ export const Step1 = () => {
                 },
               ]}
               value={plugin}
-              onChange={setPlugin}
+              onChange={(p) => dispatch(changePlugin(p))}
             />
           </Block>
         </div>
         <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 64 }} justify="space-between">
-        <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>
+        <Button ghost type="primary" loading={operating} onClick={() => dispatch(previous())}>
           Previous Step
         </Button>
         <Button type="primary" loading={operating} disabled={!projectName || !plugin} onClick={handleSubmit}>
