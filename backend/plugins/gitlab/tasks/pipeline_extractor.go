@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 func init() {
@@ -49,6 +48,7 @@ type ApiPipeline struct {
 	Duration       int
 	QueuedDuration *float64 `json:"queued_duration"`
 	WebUrl         string   `json:"web_url"`
+	Source         string   `json:"source"`
 
 	CreatedAt  *common.Iso8601Time `json:"created_at"`
 	UpdatedAt  *common.Iso8601Time `json:"updated_at"`
@@ -73,21 +73,8 @@ func ExtractApiPipelines(subtaskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[ApiPipeline]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(gitlabApiPipeline *ApiPipeline, row *api.RawData) ([]interface{}, errors.Error) {
-			pipelineProject := &models.GitlabPipelineProject{
-				ConnectionId:    data.Options.ConnectionId,
-				PipelineId:      gitlabApiPipeline.Id,
-				ProjectId:       data.Options.ProjectId,
-				Ref:             gitlabApiPipeline.Ref,
-				WebUrl:          gitlabApiPipeline.WebUrl,
-				Sha:             gitlabApiPipeline.Sha,
-				GitlabCreatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
-				GitlabUpdatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
-			}
-
-			results := make([]interface{}, 0, 1)
-			results = append(results, pipelineProject)
-
-			return results, nil
+			pipelineProject := convertApiPipelineToGitlabPipelineProject(gitlabApiPipeline, data.Options.ConnectionId, data.Options.ProjectId)
+			return []interface{}{pipelineProject}, nil
 		},
 	})
 

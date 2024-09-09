@@ -56,9 +56,10 @@ func GeneratePlanJsonV200(
 			sourcePlans[i], pluginScopes, err = pluginBp.MakeDataSourcePipelinePlanV200(
 				connection.ConnectionId,
 				connection.Scopes,
+				skipCollectors,
 			)
 			if err != nil {
-				return nil, err
+				return nil, errors.Default.Wrap(err, "make data source pipeline plan v200")
 			}
 			// collect scopes for the project. a github repository may produce
 			// 2 scopes, 1 repo and 1 board
@@ -101,7 +102,7 @@ func GeneratePlanJsonV200(
 	for metricPluginName, metricPluginOptJson := range metrics {
 		p, err := plugin.GetPlugin(metricPluginName)
 		if err != nil {
-			return nil, err
+			return nil, errors.Default.Wrap(err, "get plugin")
 		}
 		if pluginBp, ok := p.(plugin.MetricPluginBlueprintV200); ok {
 			// If we enable one metric plugin, even if it has nil option, we still process it
@@ -110,7 +111,7 @@ func GeneratePlanJsonV200(
 			}
 			metricPlans[i], err = pluginBp.MakeMetricPluginPipelinePlanV200(projectName, metricPluginOptJson)
 			if err != nil {
-				return nil, err
+				return nil, errors.Default.Wrap(err, "make metric plugin pipeline plan v200")
 			}
 			i++
 		} else {
@@ -123,12 +124,12 @@ func GeneratePlanJsonV200(
 	if projectName != "" {
 		p, err := plugin.GetPlugin("org")
 		if err != nil {
-			return nil, err
+			return nil, errors.Default.Wrap(err, "get plugin org")
 		}
 		if pluginBp, ok := p.(plugin.ProjectMapper); ok {
 			planForProjectMapping, err = pluginBp.MapProject(projectName, scopes)
 			if err != nil {
-				return nil, err
+				return nil, errors.Default.Wrap(err, "make project")
 			}
 		}
 	}

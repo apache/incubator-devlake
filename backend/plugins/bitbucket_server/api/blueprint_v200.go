@@ -40,6 +40,7 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)

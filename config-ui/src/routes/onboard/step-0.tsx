@@ -16,18 +16,16 @@
  *
  */
 
-import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ExclamationCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import { Modal, Flex, Button } from 'antd';
 import styled from 'styled-components';
 
-import API from '@/api';
 import { Logo } from '@/components';
 import { PATHS } from '@/config';
+import { update } from '@/features/onboard';
+import { useAppDispatch } from '@/hooks';
 import { operator } from '@/utils';
-
-import { Context } from './context';
 
 const Wrapper = styled.div`
   .logo {
@@ -65,13 +63,10 @@ interface Props {
 }
 
 export const Step0 = ({ logo = <Logo direction="horizontal" />, title = 'DevLake' }: Props) => {
-  const [operating, setOperating] = useState(false);
-
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [modal, contextHolder] = Modal.useModal();
-
-  const { step, records, done, projectName, plugin, setStep } = useContext(Context);
 
   const handleClose = () => {
     modal.confirm({
@@ -80,34 +75,15 @@ export const Step0 = ({ logo = <Logo direction="horizontal" />, title = 'DevLake
       content: 'You can get back to this session via the card on top of the Projects page.',
       icon: <ExclamationCircleOutlined />,
       okText: 'Confirm',
-      onOk: async () => {
-        const [success] = await operator(
-          () => API.store.set('onboard', { step: 0, records, done, projectName, plugin }),
-          {
-            setOperating,
-            hideToast: true,
-          },
-        );
-
+      async onOk() {
+        const [success] = await operator(() => dispatch(update({ initial: true, step: 0 })).unwrap(), {
+          hideToast: true,
+        });
         if (success) {
           navigate(PATHS.ROOT());
         }
       },
     });
-  };
-
-  const handleSubmit = async () => {
-    const [success] = await operator(
-      async () => API.store.set('onboard', { step: 1, records, done, projectName, plugin }),
-      {
-        setOperating,
-        hideToast: true,
-      },
-    );
-
-    if (success) {
-      setStep(step + 1);
-    }
   };
 
   return (
@@ -123,7 +99,7 @@ export const Step0 = ({ logo = <Logo direction="horizontal" />, title = 'DevLake
         </h1>
         <h4>With just a few clicks, you can integrate your initial DevOps tool and observe engineering metrics.</h4>
         <div className="action">
-          <Button block size="large" type="primary" loading={operating} onClick={handleSubmit}>
+          <Button block size="large" type="primary" onClick={() => dispatch(update({}))}>
             Connect to your first repository
           </Button>
         </div>

@@ -35,6 +35,7 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {

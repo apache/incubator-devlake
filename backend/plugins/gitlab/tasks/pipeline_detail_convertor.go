@@ -99,7 +99,8 @@ func ConvertDetailPipelines(subtaskCtx plugin.SubTaskContext) errors.Error {
 				Type:              gitlabPipeline.Type,
 				DurationSec:       float64(gitlabPipeline.Duration),
 				// DisplayTitle:      gitlabPipeline.Ref,
-				Url: gitlabPipeline.WebUrl,
+				Url:     gitlabPipeline.WebUrl,
+				IsChild: gitlabPipeline.GenerateIsChild(),
 			}
 			return []interface{}{
 				domainPipeline,

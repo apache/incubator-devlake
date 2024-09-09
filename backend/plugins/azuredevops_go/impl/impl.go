@@ -253,8 +253,9 @@ func (p Azuredevops) ApiResources() map[string]map[string]plugin.ApiResourceHand
 func (p Azuredevops) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Azuredevops) Close(taskCtx plugin.TaskContext) errors.Error {
@@ -262,6 +263,8 @@ func (p Azuredevops) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

@@ -76,8 +76,9 @@ func (p Gitlab) ScopeConfig() dal.Tabler {
 func (p Gitlab) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Gitlab) GetTablesInfo() []dal.Tabler {
@@ -146,9 +147,14 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.BadInput.Wrap(err, "connection not found")
 	}
 
-	apiClient, err := tasks.NewGitlabApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if syncPolicy != nil && !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewGitlabApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 	if op.ProjectId != 0 {
 		var scope *models.GitlabProject
@@ -162,17 +168,19 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 			}
 		}
 		if err != nil && db.IsErrorNotFound(err) {
-			var project *models.GitlabApiProject
-			project, err = api.GetApiProject(op, apiClient)
-			if err != nil {
-				return nil, err
-			}
-			logger.Debug(fmt.Sprintf("Current project: %d", project.GitlabId))
-			scope := project.ConvertApiScope()
-			scope.ConnectionId = op.ConnectionId
-			err = taskCtx.GetDal().CreateIfNotExist(scope)
-			if err != nil {
-				return nil, err
+			if apiClient != nil {
+				var project *models.GitlabApiProject
+				project, err = api.GetApiProject(op, apiClient)
+				if err != nil {
+					return nil, err
+				}
+				logger.Debug(fmt.Sprintf("Current project: %d", project.GitlabId))
+				scope := project.ConvertApiScope()
+				scope.ConnectionId = op.ConnectionId
+				err = taskCtx.GetDal().CreateIfNotExist(scope)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 		if err != nil {
@@ -283,6 +291,8 @@ func (p Gitlab) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

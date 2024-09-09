@@ -17,6 +17,7 @@
  */
 
 export * from './api-keys';
+export * from './app';
 export * from './blueprint';
 export * from './connection';
 export * from './db-migrate';

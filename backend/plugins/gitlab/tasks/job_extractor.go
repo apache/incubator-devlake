@@ -63,7 +63,6 @@ func ExtractApiJobs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[ApiJob]{
 		SubtaskCommonArgs: subtaskCommonArgs,
 		Extract: func(gitlabApiJob *ApiJob, row *api.RawData) ([]interface{}, errors.Error) {
-			// create gitlab commit
 			gitlabPipeline, err := convertJob(gitlabApiJob, data.Options.ProjectId)
 			if err != nil {
 				return nil, err

@@ -16,7 +16,6 @@
  *
  */
 
-import { redirect } from 'react-router-dom';
 import { intersection } from 'lodash';
 
 import API from '@/api';
@@ -26,13 +25,7 @@ type Props = {
   request: Request;
 };
 
-export const layoutLoader = async ({ request }: Props) => {
-  const onboard = await API.store.get('onboard');
-
-  if (!onboard) {
-    return redirect('/onboard');
-  }
-
+export const appLoader = async ({ request }: Props) => {
   let fePlugins = getRegisterPlugins();
   const bePlugins = await API.plugin.list();
 

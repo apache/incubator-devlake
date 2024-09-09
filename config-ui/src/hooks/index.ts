@@ -18,5 +18,6 @@
 
 export * from './extend-redux';
 export * from './use-auto-refresh';
+export * from './use-outside-click';
 export * from './use-refresh-data';
 export * from './user-proxy-prefix';

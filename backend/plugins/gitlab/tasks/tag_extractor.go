@@ -56,10 +56,9 @@ func ExtractApiTag(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			// need to extract 1 kinds of entities here
+			// need to extract 1 kind of entities here
 			results := make([]interface{}, 0, 1)
 
-			// create gitlab commit
 			gitlabApiTag := &GitlabApiTag{}
 			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiTag))
 			if err != nil {
