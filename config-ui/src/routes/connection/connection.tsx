@@ -26,7 +26,7 @@ import API from '@/api';
 import { PageHeader, Message, IconButton } from '@/components';
 import { PATHS } from '@/config';
 import { useAppSelector } from '@/hooks';
-import { selectConnection } from '@/features';
+import { selectConnection } from '@/features/connections';
 import { useRefreshData } from '@/hooks';
 import {
   ConnectionStatus,

@@ -21,7 +21,7 @@ import { Modal } from 'antd';
 
 import { useAppDispatch } from '@/hooks';
 import { Message } from '@/components';
-import { removeWebhook } from '@/features';
+import { removeWebhook } from '@/features/connections';
 import { operator } from '@/utils';
 
 interface Props {

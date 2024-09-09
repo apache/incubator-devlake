@@ -25,7 +25,7 @@ import dayjs from 'dayjs';
 import API from '@/api';
 import { PageHeader, Block, TextTooltip, IconButton } from '@/components';
 import { getCronOptions, cronPresets, getCron, PATHS } from '@/config';
-import { ConnectionName } from '@/features';
+import { ConnectionName } from '@/features/connections';
 import { useRefreshData } from '@/hooks';
 import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';

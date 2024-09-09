@@ -17,30 +17,39 @@
  */
 
 import { useEffect } from 'react';
-import { useNavigate, useLoaderData, Outlet } from 'react-router-dom';
+import { useNavigate, Outlet } from 'react-router-dom';
 
 import { PageLoading } from '@/components';
-import { init } from '@/features';
-import { request as requestOnboard, selectStatus } from '@/features/onboard';
+import { request as requestVersion, selectVersionStatus, selectVersionError } from '@/features/version';
+import { request as requestConnections, selectConnectionsStatus, selectConnectionsError } from '@/features/connections';
+import { request as requestOnboard, selectOnboardStatus, selectOnboardError } from '@/features/onboard';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { setUpRequestInterceptor } from '@/utils';
 
 export const App = () => {
   const navigate = useNavigate();
 
-  const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
-
   const dispatch = useAppDispatch();
-  const status = useAppSelector(selectStatus);
+  const versionStatus = useAppSelector(selectVersionStatus);
+  const versionError = useAppSelector(selectVersionError);
+  const connectionsStatus = useAppSelector(selectConnectionsStatus);
+  const connectionsError = useAppSelector(selectConnectionsError);
+  const onboardStatus = useAppSelector(selectOnboardStatus);
+  const onboardError = useAppSelector(selectOnboardError);
 
   useEffect(() => {
     setUpRequestInterceptor(navigate);
-    dispatch(init({ version, plugins }));
+    dispatch(requestVersion());
+    dispatch(requestConnections());
     dispatch(requestOnboard());
   }, []);
 
-  if (status === 'loading') {
+  if (versionStatus === 'loading' || connectionsStatus === 'loading' || onboardStatus === 'loading') {
     return <PageLoading />;
+  }
+
+  if (versionStatus === 'failed' || connectionsStatus === 'failed' || onboardStatus === 'failed') {
+    throw (versionError as any).message || (connectionsError as any).message || (onboardError as any).message;
   }
 
   return <Outlet />;
