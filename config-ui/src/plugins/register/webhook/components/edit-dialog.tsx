@@ -21,7 +21,7 @@ import { Modal, Input } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { Block } from '@/components';
-import { updateWebhook, selectWebhook } from '@/features';
+import { updateWebhook, selectWebhook } from '@/features/connections';
 import { operator } from '@/utils';
 
 interface Props {

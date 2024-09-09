@@ -22,7 +22,7 @@ import MillerColumnsSelect from 'miller-columns-select';
 
 import { useAppSelector } from '@/hooks';
 import { Block, Loading } from '@/components';
-import { selectWebhooks } from '@/features';
+import { selectWebhooks } from '@/features/connections';
 import { IWebhook } from '@/types';
 
 import * as S from '../styled';

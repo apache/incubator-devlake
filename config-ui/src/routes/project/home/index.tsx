@@ -24,7 +24,7 @@ import { Flex, Table, Button, Modal, Input } from 'antd';
 import API from '@/api';
 import { PageHeader, Block, IconButton } from '@/components';
 import { getCron, PATHS } from '@/config';
-import { ConnectionName } from '@/features';
+import { ConnectionName } from '@/features/connections';
 import { useRefreshData } from '@/hooks';
 import { OnboardTour } from '@/routes/onboard/components';
 import { formatTime, operator } from '@/utils';

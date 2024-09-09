@@ -24,7 +24,7 @@ import { Flex, Table, Button } from 'antd';
 import API from '@/api';
 import { NoData } from '@/components';
 import { getCron, PATHS } from '@/config';
-import { ConnectionName } from '@/features';
+import { ConnectionName } from '@/features/connections';
 import { getPluginConfig } from '@/plugins';
 import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';

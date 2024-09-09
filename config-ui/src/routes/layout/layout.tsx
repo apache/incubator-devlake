@@ -21,9 +21,9 @@ import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Layout as AntdLayout, Menu, Divider } from 'antd';
 
-import { PageLoading, Logo, ExternalLink } from '@/components';
-import { selectError, selectStatus, selectVersion } from '@/features/connections';
+import { Logo, ExternalLink } from '@/components';
 import { selectOnboard } from '@/features/onboard';
+import { selectVersion } from '@/features/version';
 import { OnboardCard } from '@/routes/onboard/components';
 import { useAppSelector } from '@/hooks';
 
@@ -41,8 +41,6 @@ export const Layout = () => {
   const { pathname } = useLocation();
 
   const { initial } = useAppSelector(selectOnboard);
-  const status = useAppSelector(selectStatus);
-  const error = useAppSelector(selectError);
   const version = useAppSelector(selectVersion);
 
   useEffect(() => {
@@ -70,14 +68,6 @@ export const Layout = () => {
     const curMenuItem = menuItemsMatch[pathname];
     return curMenuItem?.label ?? '';
   }, [pathname]);
-
-  if (['idle', 'loading'].includes(status)) {
-    return <PageLoading />;
-  }
-
-  if (status === 'failed') {
-    throw error.message;
-  }
 
   if (!initial) {
     return <Navigate to="/onboard" />;
