@@ -19,8 +19,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import {
-  App,
-  appLoader,
   DBMigrate,
   Onboard,
   Error,
@@ -41,13 +39,14 @@ import {
   NotFound,
 } from '@/routes';
 
+import { App } from '../App';
+
 const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '/';
 
 export const router = createBrowserRouter([
   {
     path: PATH_PREFIX,
     element: <App />,
-    loader: appLoader,
     errorElement: <Error />,
     children: [
       {

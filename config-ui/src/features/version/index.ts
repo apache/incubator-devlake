@@ -16,4 +16,4 @@
  *
  */
 
-export * from './connections';
+export * from './slice';
