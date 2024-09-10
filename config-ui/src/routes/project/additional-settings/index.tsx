@@ -22,7 +22,6 @@ import { Flex, Space, Card, Modal, Input, Checkbox, Button } from 'antd';
 
 import API from '@/api';
 import { Block, HelpTooltip, Message } from '@/components';
-import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { operator } from '@/utils';
 
@@ -109,7 +108,7 @@ export const ProjectAdditionalSettings = () => {
 
     if (success) {
       setVersion((v) => v + 1);
-      navigate(PATHS.PROJECT(name), {
+      navigate(`/projects/${encodeURIComponent(pname)}`, {
         state: {
           tabId: 'settings',
         },
@@ -136,7 +135,7 @@ export const ProjectAdditionalSettings = () => {
     });
 
     if (success) {
-      navigate(PATHS.PROJECTS());
+      navigate('/projects');
     }
   };
 

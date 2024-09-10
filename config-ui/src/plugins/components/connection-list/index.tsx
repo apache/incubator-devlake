@@ -24,7 +24,6 @@ import styled from 'styled-components';
 
 import { selectConnections, removeConnection } from '@/features/connections';
 import { Message } from '@/components';
-import { PATHS } from '@/config';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { getPluginConfig, ConnectionStatus, ConnectionForm } from '@/plugins';
 import { WebHookConnection } from '@/plugins/register/webhook';
@@ -140,7 +139,7 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
             width: 300,
             render: (_, { plugin, id }) => (
               <>
-                <Button type="link" icon={<EyeOutlined />} onClick={() => navigate(PATHS.CONNECTION(plugin, id))}>
+                <Button type="link" icon={<EyeOutlined />} onClick={() => navigate(`/connections/${plugin}/${id}`)}>
                   Details
                 </Button>
                 <Button type="link" icon={<EditOutlined />} onClick={() => handleShowModal('update', id)}>

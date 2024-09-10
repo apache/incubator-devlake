@@ -23,7 +23,6 @@ import styled from 'styled-components';
 
 import API from '@/api';
 import { IconButton, Message } from '@/components';
-import { PATHS } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
@@ -94,7 +93,7 @@ export const ScopeConfig = ({
     });
 
     if (success) {
-      window.open(PATHS.PROJECT(pname));
+      window.open(`/projects/${pname}`);
     }
   };
 

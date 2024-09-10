@@ -22,7 +22,6 @@ import { theme, Badge, Modal } from 'antd';
 import { chunk } from 'lodash';
 
 import { selectPlugins, selectAllConnections, selectWebhooks } from '@/features/connections';
-import { PATHS } from '@/config';
 import { useAppSelector } from '@/hooks';
 import { getPluginConfig, ConnectionList, ConnectionForm } from '@/plugins';
 
@@ -71,7 +70,7 @@ export const Connections = () => {
   };
 
   const handleSuccessAfter = async (plugin: string, id: ID) => {
-    navigate(PATHS.CONNECTION(plugin, id));
+    navigate(`/connections/${plugin}/${id}`);
   };
 
   return (

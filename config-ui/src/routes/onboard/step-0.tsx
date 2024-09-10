@@ -22,7 +22,6 @@ import { Modal, Flex, Button } from 'antd';
 import styled from 'styled-components';
 
 import { Logo } from '@/components';
-import { PATHS } from '@/config';
 import { update } from '@/features/onboard';
 import { useAppDispatch } from '@/hooks';
 import { operator } from '@/utils';
@@ -80,7 +79,7 @@ export const Step0 = ({ logo = <Logo direction="horizontal" />, title = 'DevLake
           hideToast: true,
         });
         if (success) {
-          navigate(PATHS.ROOT());
+          navigate('/');
         }
       },
     });

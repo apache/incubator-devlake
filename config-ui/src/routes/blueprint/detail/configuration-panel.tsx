@@ -23,7 +23,7 @@ import { Flex, Table, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
-import { getCron, PATHS } from '@/config';
+import { getCron } from '@/config';
 import { ConnectionName } from '@/features/connections';
 import { getPluginConfig } from '@/plugins';
 import { IBlueprint, IBPMode } from '@/types';
@@ -32,7 +32,7 @@ import { formatTime, operator } from '@/utils';
 import { FromEnum } from '../types';
 import { validRawPlan } from '../utils';
 
-import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from './components';
+import { AdvancedEditor, UpdatePolicyDialog, AddConnectionDialog } from './components';
 import * as S from './styled';
 
 interface Props {
@@ -43,7 +43,7 @@ interface Props {
 }
 
 export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: Props) => {
-  const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
+  const [type, setType] = useState<'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
   const [operating, setOperating] = useState(false);
 
@@ -70,10 +70,6 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
 
   const handleCancel = () => {
     setType(undefined);
-  };
-
-  const handleShowNameDialog = () => {
-    setType('name');
   };
 
   const handleShowPolicyDialog = () => {
@@ -120,11 +116,6 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
 
   return (
     <S.ConfigurationPanel>
-      <div className="block">
-        <h3>Blueprint Name</h3>
-        <span>{blueprint.name}</span>
-        <Button type="link" icon={<FormOutlined />} onClick={handleShowNameDialog} />
-      </div>
       <div className="block">
         <h3>
           <span>Sync Policy</span>
@@ -177,8 +168,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             <NoData
               text={
                 <>
-                  If you have not created data connections yet, please{' '}
-                  <Link to={PATHS.CONNECTIONS()}>create connections</Link> first and then add them to the project.
+                  If you have not created data connections yet, please <Link to="/connections">create connections</Link>{' '}
+                  first and then add them to the project.
                 </>
               }
               action={
@@ -205,8 +196,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? PATHS.BLUEPRINT_CONNECTION(blueprint.id, cs.plugin, cs.connectionId)
-                            : PATHS.PROJECT_CONNECTION(blueprint.projectName, cs.plugin, cs.connectionId)
+                            ? `/advanced/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
+                            : `/projects/${encodeURIComponent(blueprint.projectName)}/general-settings/${cs.plugin}-${
+                                cs.connectionId
+                              }`
                         }
                       >
                         Edit Data Scope and Scope Config
@@ -241,14 +234,6 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             </Button>
           </div>
         </div>
-      )}
-      {type === 'name' && (
-        <UpdateNameDialog
-          name={blueprint.name}
-          operating={operating}
-          onCancel={handleCancel}
-          onSubmit={(name) => handleUpdate({ name })}
-        />
       )}
       {type === 'policy' && (
         <UpdatePolicyDialog
