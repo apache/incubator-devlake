@@ -17,7 +17,7 @@
  */
 
 import { useMemo } from 'react';
-import { useParams, useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { RollbackOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 
@@ -52,18 +52,49 @@ const items = [
   },
 ];
 
+const breadcrumbs = (paths: string[]) => {
+  const map: Record<
+    string,
+    {
+      path: string;
+      name: string;
+    }
+  > = {
+    '/config': {
+      path: '/',
+      name: 'Configurations',
+    },
+    projects: {
+      path: '/projects',
+      name: 'Projects',
+    },
+  };
+
+  return paths
+    .filter((p) => p)
+    .map(
+      (p) =>
+        map[p] ?? {
+          path: `/projects/${p}`,
+          name: p,
+        },
+    );
+};
+
 export const ProjectLayout = () => {
   const { pname } = useParams() as { pname: string };
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  const { selectedKeys, breadcrumbs } = useMemo(() => {
-    const key = pathname.split('/').pop();
+  const { paths, selectedKeys, title } = useMemo(() => {
+    const paths = pathname.split('/');
+    const key = paths.pop();
     const item = items.find((i) => i.key === key);
 
     return {
+      paths,
       selectedKeys: key ? [key] : [],
-      breadcrumbs: [
+      title: [
         {
           name: item?.label ?? '',
           path: '',
@@ -90,8 +121,15 @@ export const ProjectLayout = () => {
       </Sider>
       <Layout>
         <Content style={{ padding: '36px 48px', overflowY: 'auto' }}>
-          <p>Configurations / Projects / {pname} /</p>
-          <PageHeader breadcrumbs={breadcrumbs}>
+          <p>
+            {breadcrumbs(paths).map((b) => (
+              <span key={b.path}>
+                <Link to={b.path}>{b.name}</Link>
+                <span> / </span>
+              </span>
+            ))}
+          </p>
+          <PageHeader breadcrumbs={title}>
             <Outlet />
           </PageHeader>
         </Content>

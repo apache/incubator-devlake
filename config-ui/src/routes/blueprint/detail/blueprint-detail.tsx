@@ -77,7 +77,7 @@ export const BlueprintDetail = ({ id, from }: Props) => {
           },
           {
             key: 'configuration',
-            label: 'Configuration',
+            label: 'General Settings',
             children: (
               <ConfigurationPanel
                 from={from}

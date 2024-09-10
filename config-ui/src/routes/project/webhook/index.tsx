@@ -135,7 +135,7 @@ export const ProjectWebhook = () => {
             <div style={{ marginTop: 16 }}>
               To calculate DORA after receiving Webhook data immediately, you can visit the{' '}
               <b style={{ textDecoration: 'underline' }}>
-                <Link to={`${window.location.pathname}?tab=status`}>Status tab</Link>
+                <Link to={`/projects/${encodeURIComponent(pname)}/general-settings`}>Status tab</Link>
               </b>{' '}
               of the Blueprint page and click on Run Now.
             </div>

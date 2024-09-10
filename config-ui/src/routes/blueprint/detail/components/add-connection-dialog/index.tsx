@@ -17,7 +17,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Modal, Select, Space, Button } from 'antd';
 import styled from 'styled-components';
@@ -110,9 +110,12 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
               optionRender={(option, { index }) => {
                 if (index === 0) {
                   return (
-                    <Button size="small" type="link" icon={<PlusOutlined />}>
-                      Add New Connection
-                    </Button>
+                    <Link style={{ display: 'block' }} to="/connections" target="_blank">
+                      <Space>
+                        <PlusOutlined />
+                        <span>Add New Connection</span>
+                      </Space>
+                    </Link>
                   );
                 }
                 return (
@@ -123,7 +126,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
               }}
               onChange={(value) => {
                 if (!value) {
-                  navigate('/connections');
+                  return;
                 }
                 setSelectedValue(value);
               }}
