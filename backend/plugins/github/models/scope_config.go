@@ -39,6 +39,7 @@ type GithubScopeConfig struct {
 	DeploymentPattern    string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
 	ProductionPattern    string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 	EnvNamePattern       string            `mapstructure:"envNamePattern,omitempty" json:"envNamePattern" gorm:"type:varchar(255)"`
+	EnvNameList          []string          `gorm:"type:json;serializer:json" json:"envNameList" mapstructure:"envNameList"`
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 
