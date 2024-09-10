@@ -32,7 +32,7 @@ import { formatTime, operator } from '@/utils';
 import { FromEnum } from '../types';
 import { validRawPlan } from '../utils';
 
-import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from './components';
+import { AdvancedEditor, UpdatePolicyDialog, AddConnectionDialog } from './components';
 import * as S from './styled';
 
 interface Props {
@@ -43,7 +43,7 @@ interface Props {
 }
 
 export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: Props) => {
-  const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
+  const [type, setType] = useState<'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
   const [operating, setOperating] = useState(false);
 
@@ -70,10 +70,6 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
 
   const handleCancel = () => {
     setType(undefined);
-  };
-
-  const handleShowNameDialog = () => {
-    setType('name');
   };
 
   const handleShowPolicyDialog = () => {
@@ -120,11 +116,6 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
 
   return (
     <S.ConfigurationPanel>
-      <div className="block">
-        <h3>Blueprint Name</h3>
-        <span>{blueprint.name}</span>
-        <Button type="link" icon={<FormOutlined />} onClick={handleShowNameDialog} />
-      </div>
       <div className="block">
         <h3>
           <span>Sync Policy</span>
@@ -243,14 +234,6 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             </Button>
           </div>
         </div>
-      )}
-      {type === 'name' && (
-        <UpdateNameDialog
-          name={blueprint.name}
-          operating={operating}
-          onCancel={handleCancel}
-          onSubmit={(name) => handleUpdate({ name })}
-        />
       )}
       {type === 'policy' && (
         <UpdatePolicyDialog

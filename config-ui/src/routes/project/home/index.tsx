@@ -119,7 +119,7 @@ export const ProjectHomePage = () => {
             key: 'name',
             render: (name: string) => (
               <Link
-                to={`/projects/${encodeURIComponent(name)}`}
+                to={`/projects/${encodeURIComponent(name)}/general-settings`}
                 state={{ activeKey: 'configuration' }}
                 style={{ color: '#292b3f' }}
                 ref={nameRef}
@@ -182,9 +182,9 @@ export const ProjectHomePage = () => {
                 ref={configRef}
                 type="primary"
                 icon={<SettingOutlined />}
-                helptip="Project Configuration"
+                helptip="Project Settings"
                 onClick={() =>
-                  navigate(`/projects/${encodeURIComponent(name)}`, {
+                  navigate(`/projects/${encodeURIComponent(name)}/general-settings`, {
                     state: { activeKey: 'configuration' },
                   })
                 }
