@@ -89,7 +89,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
         }),
       {
         setOperating,
-        formatMessage: () => 'Update blueprint successful.',
+        formatMessage: () =>
+          from === FromEnum.project ? 'Update project successful.' : 'Update blueprint successful.',
       },
     );
 
