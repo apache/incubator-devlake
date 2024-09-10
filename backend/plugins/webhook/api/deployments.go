@@ -21,7 +21,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -135,19 +134,15 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 		request.Environment = devops.PRODUCTION
 	}
 	duration := float64(request.FinishedDate.Sub(*request.StartedDate).Milliseconds() / 1e3)
-	name := request.Name
-	if name == "" {
-		var commitShaList []string
-		for _, commit := range request.DeploymentCommits {
-			commitShaList = append(commitShaList, commit.CommitSha)
-		}
-		name = fmt.Sprintf(`deploy %s to %s`, strings.Join(commitShaList, ","), request.Environment)
-	}
 	createdDate := time.Now()
 	if request.CreatedDate != nil {
 		createdDate = *request.CreatedDate
 	} else if request.StartedDate != nil {
 		createdDate = *request.StartedDate
+	}
+	name := request.Name
+	if name == "" {
+		name = fmt.Sprintf(`deploy to %s at %s`, request.Environment, createdDate.Format(time.RFC3339))
 	}
 
 	// prepare deploymentCommits and deployment records
