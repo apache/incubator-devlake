@@ -134,7 +134,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
                 type="primary"
                 disabled={!blueprint.enable}
                 loading={operating}
-                onClick={() => handleRun({ skipCollectors: true })}
+                onClick={() => handleRun({ skipCollectors: true, fullSync: true })}
               >
                 Re-transform Data
               </Button>
