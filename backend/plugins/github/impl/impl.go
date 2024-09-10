@@ -153,8 +153,15 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
-	if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	if len(op.ScopeConfig.EnvNameList) > 0 || (len(op.ScopeConfig.EnvNameList) == 0 && op.ScopeConfig.EnvNamePattern == "") {
+		if err = regexEnricher.TryAddList(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNameList...); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNameList`")
+		}
+	} else {
+		if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+		}
+
 	}
 
 	taskData := &tasks.GithubTaskData{
@@ -211,6 +218,12 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
+		},
+		"connections/:connectionId/scope-configs/:scopeConfigId/deployments": {
+			"GET": api.GetScopeConfigDeployments,
+		},
+		"connections/:connectionId/scope-configs/:scopeConfigId/transform-to-deployments": {
+			"POST": api.GetScopeConfigTransformToDeployments,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
