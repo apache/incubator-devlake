@@ -17,7 +17,6 @@
  */
 
 export * from './additional-settings';
-export * from './utils';
 export * from './home';
 export * from './general-settings';
 export * from './layout';

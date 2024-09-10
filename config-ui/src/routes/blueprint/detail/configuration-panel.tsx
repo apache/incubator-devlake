@@ -23,7 +23,7 @@ import { Flex, Table, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
-import { getCron, PATHS } from '@/config';
+import { getCron } from '@/config';
 import { ConnectionName } from '@/features/connections';
 import { getPluginConfig } from '@/plugins';
 import { IBlueprint, IBPMode } from '@/types';
@@ -177,8 +177,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             <NoData
               text={
                 <>
-                  If you have not created data connections yet, please{' '}
-                  <Link to={PATHS.CONNECTIONS()}>create connections</Link> first and then add them to the project.
+                  If you have not created data connections yet, please <Link to="/connections">create connections</Link>{' '}
+                  first and then add them to the project.
                 </>
               }
               action={
@@ -205,8 +205,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? PATHS.BLUEPRINT_CONNECTION(blueprint.id, cs.plugin, cs.connectionId)
-                            : PATHS.PROJECT_CONNECTION(blueprint.projectName, cs.plugin, cs.connectionId)
+                            ? `/advanced/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
+                            : `/projects/${encodeURIComponent(blueprint.projectName)}/general-settings/${cs.plugin}-${
+                                cs.connectionId
+                              }`
                         }
                       >
                         Edit Data Scope and Scope Config

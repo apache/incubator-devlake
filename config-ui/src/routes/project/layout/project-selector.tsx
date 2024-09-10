@@ -23,7 +23,6 @@ import { Input, Button, Flex } from 'antd';
 import { useDebounce } from 'ahooks';
 
 import { PageLoading } from '@/components';
-import { PATHS } from '@/config';
 import { useOutsideClick } from '@/hooks';
 import { operator } from '@/utils';
 
@@ -102,7 +101,7 @@ export const ProjectSelector = ({ name }: Props) => {
           ) : state.length ? (
             <ul>
               {state.map((it) => (
-                <li key={it.name} onClick={() => navigate(PATHS.PROJECT(it.name))}>
+                <li key={it.name} onClick={() => navigate(`/projects/${encodeURIComponent(it.name)}`)}>
                   {it.name}
                 </li>
               ))}

@@ -22,7 +22,6 @@ import { CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { theme, Layout, Modal } from 'antd';
 
 import { selectOnboard } from '@/features/onboard';
-import { PATHS } from '@/config';
 import { useAppSelector } from '@/hooks';
 
 import { Step0 } from './step-0';
@@ -72,7 +71,7 @@ export const Onboard = ({ logo, title }: Props) => {
       content: 'You can get back to this session via the card on top of the Projects page.',
       icon: <ExclamationCircleOutlined />,
       okText: 'Confirm',
-      onOk: () => navigate(PATHS.ROOT()),
+      onOk: () => navigate('/'),
     });
   };
 

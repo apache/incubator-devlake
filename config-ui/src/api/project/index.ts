@@ -17,15 +17,14 @@
  */
 
 import type { IProject } from '@/types';
-import { encodeName } from '@/routes';
 import { request } from '@/utils';
 
 export const list = (data: Pagination & { keyword?: string }): Promise<{ count: number; projects: IProject[] }> =>
   request('/projects', { data });
 
-export const get = (name: string): Promise<IProject> => request(`/projects/${encodeName(name)}`);
+export const get = (name: string): Promise<IProject> => request(`/projects/${encodeURIComponent(name)}`);
 
-export const checkName = (name: string) => request(`/projects/${encodeName(name)}/check`);
+export const checkName = (name: string) => request(`/projects/${encodeURIComponent(name)}/check`);
 
 export const create = (data: Pick<IProject, 'name' | 'description' | 'metrics'>) =>
   request('/projects', {
@@ -34,15 +33,15 @@ export const create = (data: Pick<IProject, 'name' | 'description' | 'metrics'>)
   });
 
 export const remove = (name: string) =>
-  request(`/projects/${encodeName(name)}`, {
+  request(`/projects/${encodeURIComponent(name)}`, {
     method: 'delete',
   });
 
 export const update = (name: string, data: Pick<IProject, 'name' | 'description' | 'metrics'>) =>
-  request(`/projects/${encodeName(name)}`, {
+  request(`/projects/${encodeURIComponent(name)}`, {
     method: 'patch',
     data: {
       ...data,
-      name: encodeName(data.name),
+      name: encodeURIComponent(data.name),
     },
   });

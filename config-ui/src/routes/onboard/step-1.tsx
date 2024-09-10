@@ -22,7 +22,6 @@ import { Input, Flex, Button, message } from 'antd';
 
 import API from '@/api';
 import { Block, Markdown } from '@/components';
-import { PATHS } from '@/config';
 import { selectOnboard, update, previous, changeProjectName, changePlugin } from '@/features/onboard';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { ConnectionSelect } from '@/plugins';
@@ -82,7 +81,7 @@ export const Step1 = () => {
             description={
               <>
                 For self-managed GitLab/GitHub/Bitbucket, please skip the onboarding and configure via{' '}
-                <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
+                <Link to={'/connections'}>Data Connections</Link>.
               </>
             }
             required

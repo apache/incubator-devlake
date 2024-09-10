@@ -24,10 +24,8 @@ import { theme, Space, Table, Button, Modal, message } from 'antd';
 
 import API from '@/api';
 import { PageHeader, Message, IconButton } from '@/components';
-import { PATHS } from '@/config';
-import { useAppSelector } from '@/hooks';
 import { selectConnection } from '@/features/connections';
-import { useRefreshData } from '@/hooks';
+import { useAppSelector, useRefreshData } from '@/hooks';
 import {
   ConnectionStatus,
   DataScopeRemote,
@@ -188,7 +186,7 @@ export const Connection = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Connections', path: PATHS.CONNECTIONS() },
+        { name: 'Connections', path: '/connections' },
         { name, path: '' },
       ]}
     >
@@ -239,7 +237,7 @@ export const Connection = () => {
                     <ul>
                       {projects.map((it: string) => (
                         <li key={it}>
-                          <Link to={PATHS.PROJECT(it)}>{it}</Link>
+                          <Link to={`/projects/${encodeURIComponent(it)}`}>{it}</Link>
                         </li>
                       ))}
                     </ul>

@@ -20,7 +20,6 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
 import { PageHeader } from '@/components';
-import { PATHS } from '@/config';
 
 import { FromEnum } from '../types';
 
@@ -34,9 +33,9 @@ export const BlueprintDetailPage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: PATHS.BLUEPRINTS() },
-        { name: 'Blueprints', path: PATHS.BLUEPRINTS() },
-        { name: id, path: PATHS.BLUEPRINT(id) },
+        { name: 'Advanced', path: '/advanced/blueprints' },
+        { name: 'Blueprints', path: '/advanced/blueprints' },
+        { name: id, path: `/advanced/blueprints/${id}` },
       ]}
     >
       <Helmet>

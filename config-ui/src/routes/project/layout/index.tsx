@@ -22,7 +22,6 @@ import { RollbackOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 
 import { PageHeader } from '@/components';
-import { PATHS } from '@/config';
 
 import { ProjectSelector } from './project-selector';
 import * as S from './styled';
@@ -76,7 +75,7 @@ export const ProjectLayout = () => {
   return (
     <Layout style={{ height: '100%', overflow: 'hidden' }}>
       <Sider width={240} style={{ padding: '36px 12px', backgroundColor: '#F9F9FA', borderRight: '1px solid #E7E9F3' }}>
-        <S.Top onClick={() => navigate(PATHS.PROJECTS())}>
+        <S.Top onClick={() => navigate('/projects')}>
           <RollbackOutlined />
           <span className="back">Back to Projects</span>
         </S.Top>
@@ -86,7 +85,7 @@ export const ProjectLayout = () => {
           style={{ backgroundColor: '#F9F9FA', border: 'none' }}
           items={items}
           selectedKeys={selectedKeys}
-          onClick={({ key }) => navigate(`${PATHS.PROJECT(pname)}/${key}`)}
+          onClick={({ key }) => navigate(`/projects/${encodeURIComponent(pname)}/${key}`)}
         />
       </Sider>
       <Layout>
