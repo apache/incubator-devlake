@@ -104,7 +104,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			deploymentCommit.DurationSec = &durationSec
 
 			if data.RegexEnricher != nil {
-				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, githubDeployment.Environment) != "" {
+				if data.RegexEnricher.ReturnNameIfMatchedList(devops.ENV_NAME_PATTERN, githubDeployment.Environment) != "" {
 					deploymentCommit.Environment = devops.PRODUCTION
 				}
 			}
