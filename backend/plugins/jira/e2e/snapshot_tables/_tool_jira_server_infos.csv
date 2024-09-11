@@ -1,0 +1,2 @@
+"connection_id","base_url","build_date","build_number","deployment_type","scm_info","server_time","server_title","version","version_numbers"
+1,"http://172.26.129.92:8092","2021-04-19T00:00:00.000+0000",816001,"Server","b8b28db1b682e9a8568ad9c3cfad139bae9ed93f","2024-09-10T12:41:46.085+0000","Jira","8.16.1","[8, 16, 1]"
