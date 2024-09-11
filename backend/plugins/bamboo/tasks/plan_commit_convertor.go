@@ -68,7 +68,7 @@ func ConvertPlanVcs(taskCtx plugin.SubTaskContext) errors.Error {
 			domainPlanVcs.RepoId = repoMap[line.RepositoryId]
 			fakeRepoUrl, err := generateFakeRepoUrl(data.EndPoint, line.RepositoryId)
 			if err != nil {
-				logger.Warn(err, "generate fake repo url, endpoint: %s, repo id: %d", data.ApiClient.GetEndpoint(), line.RepositoryId)
+				logger.Warn(err, "generate fake repo url, endpoint: %s, repo id: %d", data.EndPoint, line.RepositoryId)
 			} else {
 				domainPlanVcs.RepoUrl = fakeRepoUrl
 			}
