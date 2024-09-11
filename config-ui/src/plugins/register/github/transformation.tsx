@@ -23,15 +23,25 @@ import { theme, Form, Collapse, Input, Tag, Checkbox } from 'antd';
 
 import { HelpTooltip, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
+import { CheckMatchedItems, Deployments } from '@/plugins';
 
 interface Props {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
   setHasError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const GitHubTransformation = ({ entities, transformation, setTransformation, setHasError }: Props) => {
+export const GitHubTransformation = ({
+  plugin,
+  connectionId,
+  entities,
+  transformation,
+  setTransformation,
+  setHasError,
+}: Props) => {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
@@ -77,6 +87,8 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
       style={{ background: token.colorBgContainer }}
       size="large"
       items={renderCollapseItems({
+        plugin,
+        connectionId,
         entities,
         panelStyle,
         transformation,
@@ -89,6 +101,8 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
 };
 
 const renderCollapseItems = ({
+  plugin,
+  connectionId,
   entities,
   panelStyle,
   transformation,
@@ -96,6 +110,8 @@ const renderCollapseItems = ({
   useCustom,
   onChangeUseCustom,
 }: {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   panelStyle: React.CSSProperties;
   transformation: any;
@@ -245,16 +261,11 @@ const renderCollapseItems = ({
           </Checkbox>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
             <span>If its environment name matches</span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="(?i)prod(.*)"
-              value={transformation.envNamePattern}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  envNamePattern: e.target.value,
-                })
-              }
+            <Deployments
+              plugin={plugin}
+              connectionId={connectionId}
+              transformation={transformation}
+              setTransformation={onChangeTransformation}
             />
             <span>, this deployment is a ‘Production Deployment’</span>
           </div>
@@ -296,6 +307,7 @@ const renderCollapseItems = ({
             <span>, this deployment is a ‘Production Deployment’</span>
             <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
           </div>
+          <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
         </>
       ),
     },
