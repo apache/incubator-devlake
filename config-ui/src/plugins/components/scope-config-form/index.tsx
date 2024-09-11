@@ -243,6 +243,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'github' && (
                 <GitHubTransformation
+                  plugin={plugin}
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
