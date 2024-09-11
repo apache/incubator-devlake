@@ -410,7 +410,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 // @Tags plugins/github
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} models.GithubScopeConfigDeployment
+// @Success 200  {array} string "List of Environment Names"
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/deployments [GET]
@@ -437,7 +437,7 @@ func GetConnectionDeployments(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Tags plugins/github
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} models.GithubScopeConfigDeployment
+// @Success 200  {object} map[string]interface{}
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/transform-to-deployments [POST]

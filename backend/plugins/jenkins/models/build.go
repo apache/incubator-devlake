@@ -18,22 +18,24 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 // JenkinsBuild db entity for jenkins build
 type JenkinsBuild struct {
 	common.NoPKModel
 	// collected fields
-	ConnectionId      uint64    `gorm:"primaryKey"`
-	JobName           string    `gorm:"index;type:varchar(255)"`
-	JobPath           string    `gorm:"index;type:varchar(255)"`
-	Duration          float64   // build time
-	FullName          string    `gorm:"primaryKey;type:varchar(255)"` // "path/job name#7"
-	EstimatedDuration float64   // EstimatedDuration
-	Number            int64     `gorm:"index"`
-	Result            string    // Result
+	ConnectionId      uint64  `gorm:"primaryKey"`
+	JobName           string  `gorm:"index;type:varchar(255)"`
+	JobPath           string  `gorm:"index;type:varchar(255)"`
+	Duration          float64 // build time
+	FullName          string  `gorm:"primaryKey;type:varchar(255)"` // "path/job name#7"
+	EstimatedDuration float64 // EstimatedDuration
+	Number            int64   `gorm:"index"`
+	Result            string  // Result
+	Url               string
 	Timestamp         int64     // start time
 	StartTime         time.Time // convered by timestamp
 	Type              string    `gorm:"index;type:varchar(255)"`
