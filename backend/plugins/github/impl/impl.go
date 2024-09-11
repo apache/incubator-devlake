@@ -225,11 +225,11 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
-		"connections/:connectionId/scope-configs/:scopeConfigId/deployments": {
-			"GET": api.GetScopeConfigDeployments,
+		"connections/:connectionId/deployments": {
+			"GET": api.GetConnectionDeployments,
 		},
-		"connections/:connectionId/scope-configs/:scopeConfigId/transform-to-deployments": {
-			"POST": api.GetScopeConfigTransformToDeployments,
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
