@@ -19,8 +19,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { RedoOutlined, PlusOutlined } from '@ant-design/icons';
 import { Flex, Button, Input, Space, Tag } from 'antd';
-import { useDebounce } from 'ahooks';
 import { MillerColumns } from '@mints/miller-columns';
+import { useDebounce } from '@mints/hooks';
 
 import API from '@/api';
 import { Loading, Block, ExternalLink, Message } from '@/components';

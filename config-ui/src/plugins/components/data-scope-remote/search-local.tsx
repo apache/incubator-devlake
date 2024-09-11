@@ -20,7 +20,7 @@ import { useState, useReducer, useCallback } from 'react';
 import { CheckCircleFilled, SearchOutlined } from '@ant-design/icons';
 import { Space, Tag, Button, Input, Modal } from 'antd';
 import { MillerColumns } from '@mints/miller-columns';
-import { useDebounce } from 'ahooks';
+import { useDebounce } from '@mints/hooks';
 
 import API from '@/api';
 import { Block, Loading, Message } from '@/components';

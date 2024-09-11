@@ -20,7 +20,7 @@ import { useState, useEffect, useReducer, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CaretDownOutlined } from '@ant-design/icons';
 import { Input, Button, Flex } from 'antd';
-import { useDebounce } from 'ahooks';
+import { useDebounce } from '@mints/hooks';
 
 import { PageLoading } from '@/components';
 import { useOutsideClick } from '@/hooks';
