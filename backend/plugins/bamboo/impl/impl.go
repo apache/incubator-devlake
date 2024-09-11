@@ -140,10 +140,16 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Bamboo connection by the given connection ID")
 	}
+	endPoint := connection.GetEndpoint()
 
-	apiClient, err := tasks.NewBambooApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get Bamboo API client instance")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewBambooApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to get Bamboo API client instance")
+		}
+		apiClient = newApiClient
 	}
 	if op.PlanKey != "" {
 		var scope *models.BambooPlan
@@ -189,6 +195,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	return &tasks.BambooOptions{
 		Options:       op,
 		ApiClient:     apiClient,
+		EndPoint:      endPoint,
 		RegexEnricher: regexEnricher,
 	}, nil
 }

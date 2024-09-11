@@ -15,28 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-)
-
-type BambooOptions struct {
-	Options       *models.BambooOptions
-	ApiClient     *helper.ApiAsyncClient
-	EndPoint      string
-	RegexEnricher *helper.RegexEnricher
+type JiraServerInfo struct {
+	ConnectionID   uint64 `json:"connection_id" gorm:"primaryKey"`
+	BaseURL        string `json:"baseUrl"`
+	BuildDate      string `json:"buildDate"`
+	BuildNumber    int    `json:"buildNumber"`
+	DeploymentType string `json:"deploymentType"`
+	ScmInfo        string `json:"ScmInfo"`
+	ServerTime     string `json:"serverTime"`
+	ServerTitle    string `json:"serverTitle"`
+	Version        string `json:"version"`
+	VersionNumbers []int  `json:"versionNumbers" gorm:"type:json;serializer:json"`
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*models.BambooOptions, errors.Error) {
-	var op models.BambooOptions
-	if err := helper.Decode(options, &op, nil); err != nil {
-		return nil, err
-	}
-	if op.ConnectionId == 0 {
-		return nil, errors.Default.New("connectionId is invalid")
-	}
-	return &op, nil
+func (JiraServerInfo) TableName() string {
+	return "_tool_jira_server_infos"
 }

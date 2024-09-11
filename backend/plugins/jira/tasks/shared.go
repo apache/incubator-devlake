@@ -18,9 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"net/http"
 )
 
@@ -45,4 +47,38 @@ func getStdStatus(statusKey string) string {
 	} else {
 		return ticket.IN_PROGRESS
 	}
+}
+
+func isServer(jiraServerInfo *models.JiraServerInfo, apiclient *api.ApiAsyncClient, db dal.Dal, connectionID uint64) (bool, errors.Error) {
+	if jiraServerInfo != nil {
+		return jiraServerInfo.IsDeploymentServer(), nil
+	}
+	// try to fetch jiraServerInfo from remote api
+	if apiclient != nil {
+		info, code, err := GetJiraServerInfo(apiclient)
+		if err != nil || code != http.StatusOK || info == nil {
+			return false, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info")
+		}
+		return info.IsDeploymentServer(), nil
+	}
+	// fetch from db
+	info, err := getJiraServerInfoFromDB(db, connectionID)
+	if err != nil {
+		return false, err
+	}
+	if info == nil {
+		return false, nil
+	}
+	return info.IsDeploymentServer(), nil
+}
+
+func getJiraServerInfoFromDB(db dal.Dal, connectionID uint64) (*models.JiraServerInfo, errors.Error) {
+	var info models.JiraServerInfo
+	if err := db.First(&info, dal.Where("connection_id = ?", connectionID)); err != nil {
+		if db.IsErrorNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &info, nil
 }

@@ -127,9 +127,14 @@ func (p Azuredevops) PrepareTaskData(taskCtx plugin.TaskContext, options map[str
 		return nil, errors.Default.Wrap(err, "failed to retrieve an Azure DevOps connection from the database using the provided connection ID")
 	}
 
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to retrieve an Azure DevOps connection from the database using the provided connection ID")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "failed to retrieve an Azure DevOps connection from the database using the provided connection ID")
+		}
+		apiClient = newApiClient
 	}
 
 	if op.RepositoryId != "" {

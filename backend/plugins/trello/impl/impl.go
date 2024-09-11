@@ -116,9 +116,14 @@ func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error getting connection for Trello plugin")
 	}
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 	return &tasks.TrelloTaskData{
 		Options:   &op,

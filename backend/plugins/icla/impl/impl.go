@@ -71,9 +71,14 @@ func (p Icla) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		return nil, err
 	}
 
-	apiClient, err := errors.Convert01(tasks.NewIclaApiClient(taskCtx))
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := errors.Convert01(tasks.NewIclaApiClient(taskCtx))
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 
 	return &tasks.IclaTaskData{

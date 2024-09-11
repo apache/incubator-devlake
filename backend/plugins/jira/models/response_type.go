@@ -25,6 +25,7 @@ const DeploymentServer DeploymentType = "Server"
 const LocaleEnUS Locale = "en_US"
 
 type JiraServerInfo struct {
+	ConnectionID   uint64         `json:"connection_id" gorm:"primaryKey"` // for db store
 	BaseURL        string         `json:"baseUrl"`
 	BuildDate      string         `json:"buildDate"`
 	BuildNumber    int            `json:"buildNumber"`
@@ -33,7 +34,11 @@ type JiraServerInfo struct {
 	ServerTime     string         `json:"serverTime"`
 	ServerTitle    string         `json:"serverTitle"`
 	Version        string         `json:"version"`
-	VersionNumbers []int          `json:"versionNumbers"`
+	VersionNumbers []int          `json:"versionNumbers"  gorm:"type:json;serializer:json"`
+}
+
+func (jiraServerInfo JiraServerInfo) IsDeploymentServer() bool {
+	return jiraServerInfo.DeploymentType == DeploymentServer
 }
 
 type JiraErrorInfo struct {

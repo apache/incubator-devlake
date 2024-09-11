@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 const RAW_ISSUE_TYPE_TABLE = "jira_api_issue_types"
@@ -45,7 +44,11 @@ func CollectIssueTypes(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("collect issue_types")
 
 	urlTemplate := "api/3/issuetype"
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+	isServerFlag, err := isServer(data.JiraServerInfo, data.ApiClient, taskCtx.GetDal(), data.Options.ConnectionId)
+	if err != nil {
+		return err
+	}
+	if isServerFlag {
 		urlTemplate = "api/2/issuetype"
 	}
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{

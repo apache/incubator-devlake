@@ -109,9 +109,14 @@ func (p Feishu) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, err
 	}
 
-	apiClient, err := tasks.NewFeishuApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewFeishuApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 	return &tasks.FeishuTaskData{
 		Options:   &op,
