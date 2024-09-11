@@ -32,7 +32,7 @@ const initialState: {
   error?: unknown;
   version: string;
 } = {
-  status: 'idle',
+  status: 'loading',
   version: '',
 };
 
