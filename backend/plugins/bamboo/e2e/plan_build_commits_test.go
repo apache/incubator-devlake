@@ -43,7 +43,7 @@ func TestBambooPlanBuildCommitsDataFlow(t *testing.T) {
 			},
 		},
 		ApiClient: getFakeAPIClient(),
-		EndPoint:  getFakeAPIClient().GetEndpoint(),
+		EndPoint:  getFakeHomepage(),
 	}
 
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})
