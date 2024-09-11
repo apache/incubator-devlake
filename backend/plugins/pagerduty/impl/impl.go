@@ -109,14 +109,19 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, errors.Default.Wrap(err, "unable to get Pagerduty connection by the given connection ID")
 	}
 
-	client, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+	var asyncClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		client, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 
-	if err != nil {
-		return nil, err
-	}
-	asyncClient, err := helper.CreateAsyncApiClient(taskCtx, client, nil)
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		newAsyncClient, err := helper.CreateAsyncApiClient(taskCtx, client, nil)
+		if err != nil {
+			return nil, err
+		}
+		asyncClient = newAsyncClient
 	}
 	return &tasks.PagerDutyTaskData{
 		Options: op,

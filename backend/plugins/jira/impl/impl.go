@@ -19,8 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -32,6 +30,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
+	"net/http"
 )
 
 var _ interface {
@@ -190,9 +189,17 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Jira connection")
 	}
-	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to create jira api client")
+
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		// Jira plugin cannot disable api client when re transforming,
+		// Because it will fetch
+		jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "failed to create jira api client")
+		}
+		apiClient = jiraApiClient
 	}
 
 	if op.BoardId != 0 {
@@ -202,16 +209,18 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		db := taskCtx.GetDal()
 		err = db.First(&scope, dal.Where("connection_id = ? AND board_id = ?", op.ConnectionId, op.BoardId))
 		if err != nil && db.IsErrorNotFound(err) {
-			var board *apiv2models.Board
-			board, err = api.GetApiJira(&op, jiraApiClient)
-			if err != nil {
-				return nil, err
-			}
-			logger.Debug(fmt.Sprintf("Current project: %d", board.ID))
-			scope = board.ToToolLayer(connection.ID)
-			err = db.CreateIfNotExist(&scope)
-			if err != nil {
-				return nil, err
+			if apiClient != nil {
+				var board *apiv2models.Board
+				board, err = api.GetApiJira(&op, apiClient)
+				if err != nil {
+					return nil, err
+				}
+				logger.Debug(fmt.Sprintf("Current project: %d", board.ID))
+				scope = board.ToToolLayer(connection.ID)
+				err = db.CreateIfNotExist(&scope)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 		if err != nil {
@@ -241,14 +250,20 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		op.PageSize = 100
 	}
 
-	info, code, err := tasks.GetJiraServerInfo(jiraApiClient)
-	if err != nil || code != http.StatusOK || info == nil {
-		return nil, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info")
-	}
 	taskData := &tasks.JiraTaskData{
-		Options:        &op,
-		ApiClient:      jiraApiClient,
-		JiraServerInfo: *info,
+		Options:   &op,
+		ApiClient: apiClient,
+	}
+	if taskData.ApiClient != nil {
+		info, code, err := tasks.GetJiraServerInfo(taskData.ApiClient)
+		if err != nil || code != http.StatusOK || info == nil {
+			return nil, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info")
+		}
+		taskData.JiraServerInfo = info
+		info.ConnectionID = connection.ID
+		if err := taskCtx.GetDal().CreateOrUpdate(info); err != nil {
+			return nil, errors.Default.Wrap(err, "create or update jira server info")
+		}
 	}
 
 	return taskData, nil

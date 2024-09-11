@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
@@ -39,7 +38,12 @@ var ExtractIssueChangelogsMeta = plugin.SubTaskMeta{
 
 func ExtractIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	data := subtaskCtx.GetData().(*JiraTaskData)
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+
+	isServerFlag, err := isServer(data.JiraServerInfo, data.ApiClient, subtaskCtx.GetDal(), data.Options.ConnectionId)
+	if err != nil {
+		return err
+	}
+	if isServerFlag {
 		return nil
 	}
 	connectionId := data.Options.ConnectionId

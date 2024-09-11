@@ -126,9 +126,14 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		return nil, err
 	}
 
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 
 	op.ConnectionEndpoint = connection.Endpoint
@@ -260,21 +265,23 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	}
 
-	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
-		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
-		op.JobPath = job.Path
-		op.URL = job.URL
-		op.Class = job.Class
-		jenkinsJob := job.ToJenkinsJob()
+	if apiClient != nil {
+		err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
+			log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
+			op.JobPath = job.Path
+			op.URL = job.URL
+			op.Class = job.Class
+			jenkinsJob := job.ToJenkinsJob()
 
-		jenkinsJob.ConnectionId = op.ConnectionId
-		jenkinsJob.ScopeConfigId = op.ScopeConfigId
+			jenkinsJob.ConnectionId = op.ConnectionId
+			jenkinsJob.ScopeConfigId = op.ScopeConfigId
 
-		err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
-		return err
-	})
-	if err != nil {
-		return err
+			err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
+			return err
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	if !strings.HasSuffix(op.JobPath, "/") {

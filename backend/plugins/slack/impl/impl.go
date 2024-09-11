@@ -108,9 +108,14 @@ func (p Slack) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]in
 		return nil, err
 	}
 
-	apiClient, err := tasks.NewSlackApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewSlackApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 	return &tasks.SlackTaskData{
 		Options:   &op,
