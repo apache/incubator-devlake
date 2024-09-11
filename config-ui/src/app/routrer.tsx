@@ -46,6 +46,10 @@ const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '/';
 export const router = createBrowserRouter(
   [
     {
+      path: 'db-migrate',
+      element: <DBMigrate />,
+    },
+    {
       path: '/',
       element: <App />,
       errorElement: <Error />,
@@ -53,10 +57,6 @@ export const router = createBrowserRouter(
         {
           index: true,
           element: <Navigate to="projects" />,
-        },
-        {
-          path: 'db-migrate',
-          element: <DBMigrate />,
         },
         {
           path: 'onboard',

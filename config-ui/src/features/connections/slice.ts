@@ -33,7 +33,7 @@ const initialState: {
   connections: IConnection[];
   webhooks: IWebhook[];
 } = {
-  status: 'idle',
+  status: 'loading',
   plugins: [],
   connections: [],
   webhooks: [],

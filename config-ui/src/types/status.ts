@@ -16,4 +16,4 @@
  *
  */
 
-export type IStatus = 'idle' | 'loading' | 'success' | 'failed';
+export type IStatus = 'loading' | 'success' | 'failed';
