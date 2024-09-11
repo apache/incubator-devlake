@@ -69,7 +69,7 @@ export const done = createAsyncThunk('onboard/done', async (_, { getState }) => 
 });
 
 const initialState: { status: IStatus; error?: unknown; data: DataType } = {
-  status: 'idle',
+  status: 'loading',
   data: {
     initial: true,
     step: 0,

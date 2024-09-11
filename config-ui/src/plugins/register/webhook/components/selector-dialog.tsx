@@ -16,9 +16,9 @@
  *
  */
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Modal } from 'antd';
-import MillerColumnsSelect from 'miller-columns-select';
+import { MillerColumns } from '@mints/miller-columns';
 
 import { useAppSelector } from '@/hooks';
 import { Block, Loading } from '@/components';
@@ -39,6 +39,17 @@ export const SelectorDialog = ({ open, saving, onCancel, onSubmit }: Props) => {
 
   const webhooks = useAppSelector(selectWebhooks);
 
+  const request = useCallback(async () => {
+    return {
+      data: webhooks.map((it) => ({
+        parentId: null,
+        id: it.id,
+        title: it.name,
+      })),
+      hasMore: false,
+    };
+  }, [webhooks]);
+
   const handleSubmit = () => onSubmit(webhooks.filter((it) => selectedIds.includes(it.id)));
 
   return (
@@ -57,19 +68,18 @@ export const SelectorDialog = ({ open, saving, onCancel, onSubmit }: Props) => {
     >
       <S.Wrapper>
         <Block title="Webhooks" description="Select an existing Webhook to import to the current project.">
-          <MillerColumnsSelect
-            columnCount={1}
+          <MillerColumns
+            bordered
+            theme={{
+              colorPrimary: '#7497f7',
+              borderColor: '#dbe4fd',
+            }}
+            request={request}
             columnHeight={160}
-            getHasMore={() => false}
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-            items={webhooks.map((it) => ({
-              parentId: null,
-              id: it.id,
-              title: it.name,
-              name: it.name,
-            }))}
+            selectable
             selectedIds={selectedIds}
-            onSelectItemIds={setSelectedIds}
+            onSelectedIds={setSelectedIds}
           />
         </Block>
       </S.Wrapper>

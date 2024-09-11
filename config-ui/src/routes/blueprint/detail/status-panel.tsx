@@ -98,7 +98,8 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
         }),
       {
         setOperating,
-        formatMessage: () => 'Update blueprint successful.',
+        formatMessage: () =>
+          from === FromEnum.project ? 'Update project successful.' : 'Update blueprint successful.',
       },
     );
 
