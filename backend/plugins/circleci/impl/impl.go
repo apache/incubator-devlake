@@ -208,6 +208,9 @@ func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
+		},
 		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
