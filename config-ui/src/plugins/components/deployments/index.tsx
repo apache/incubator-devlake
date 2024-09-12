@@ -21,16 +21,17 @@ import { Space, Select, Input } from 'antd';
 import { useRequest } from '@mints/hooks';
 
 import API from '@/api';
-import { PageLoading } from '@/components';
+import { Loading } from '@/components';
 
 interface Props {
+  style?: React.CSSProperties;
   plugin: string;
   connectionId: ID;
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const Deployments = ({ plugin, connectionId, transformation, setTransformation }: Props) => {
+export const Deployments = ({ style, plugin, connectionId, transformation, setTransformation }: Props) => {
   const [type, setType] = useState('regex');
 
   const { loading, data } = useRequest(() => API.scopeConfig.deployments(plugin, connectionId), [plugin, connectionId]);
@@ -77,11 +78,11 @@ export const Deployments = ({ plugin, connectionId, transformation, setTransform
   };
 
   if (loading || !data) {
-    return <PageLoading />;
+    return <Loading style={style} />;
   }
 
   return (
-    <Space>
+    <Space style={style}>
       <Select value={type} onChange={handleChangeType}>
         <Select.Option value="select">is one of</Select.Option>
         <Select.Option value="regex">matches</Select.Option>
