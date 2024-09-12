@@ -55,10 +55,10 @@ export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Prop
       pageSize: 10,
     });
 
-    dispatch({ type: 'APPEND', payload: res.data });
+    dispatch({ type: 'APPEND', payload: res ? res.data : [] });
 
     setPage(page + 1);
-    setTotal(res.total);
+    setTotal(res?.total ?? 0);
     setLoading(false);
   };
 
