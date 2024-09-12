@@ -33,10 +33,10 @@ export const Authentication = ({ initialValue, value, setValue }: Props) => {
   }, [initialValue]);
 
   return (
-    <Block title="Authentication type" required>
+    <Block title="Authentication Type" required>
       <Radio.Group value={value || initialValue} onChange={(e) => setValue(e.target.value)}>
-        <Radio value="AccessToken">Github Access Token</Radio>
-        <Radio value="AppKey">Github App</Radio>
+        <Radio value="AccessToken">GitHub Access Token</Radio>
+        <Radio value="AppKey">GitHub App(Beta)</Radio>
       </Radio.Group>
     </Block>
   );
