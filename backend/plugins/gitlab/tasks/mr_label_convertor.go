@@ -37,7 +37,7 @@ var ConvertMrLabelsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_mr_labels into  domain layer table pull_request_labels",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ConvertIssueLabelsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
 func ConvertMrLabels(subtaskCtx plugin.SubTaskContext) errors.Error {

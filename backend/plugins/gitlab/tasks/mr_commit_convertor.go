@@ -37,7 +37,7 @@ var ConvertApiMrCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Add domain layer PullRequestCommit according to GitlabMrCommit",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ConvertMrCommentMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
 func ConvertApiMergeRequestsCommits(subtaskCtx plugin.SubTaskContext) errors.Error {

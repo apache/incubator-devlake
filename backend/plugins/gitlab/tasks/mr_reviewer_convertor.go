@@ -37,7 +37,7 @@ var ConvertMrReviewersMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_reviewers into domain layer table pull_request_reviewers",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiMergeRequestDetailsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
 func ConvertMrReviewers(subtaskCtx plugin.SubTaskContext) errors.Error {

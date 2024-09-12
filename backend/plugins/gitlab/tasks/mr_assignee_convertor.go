@@ -37,7 +37,7 @@ var ConvertMrAssigneesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_assignees into  domain layer table pull_request_assignees",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiMergeRequestDetailsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
 func ConvertMrAssignees(subtaskCtx plugin.SubTaskContext) errors.Error {

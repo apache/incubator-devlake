@@ -38,7 +38,7 @@ var ConvertIssueAssigneeMeta = plugin.SubTaskMeta{
 	Description:      "Convert tool layer table _tool_gitlab_issue_assignees into  domain layer table issue_assignees",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{models.GitlabIssueAssignee{}.TableName()},
-	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiIssuesMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertIssuesMeta},
 }
 
 func ConvertIssueAssignee(subtaskCtx plugin.SubTaskContext) errors.Error {
