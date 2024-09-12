@@ -100,7 +100,7 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		":connectionId/deployments": {
 			"POST": api.PostDeployments,
 		},
-		":connectionId/generic": {
+		"connections/:connectionId/generic": {
 			"POST": api.PostGeneric,
 		},
 		":connectionId/issues": {

@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -32,20 +34,24 @@ import (
 )
 
 type WebhookGenericReq struct {
-	Url         string `mapstructure:"url"`
-	IssueKey    string `mapstructure:"issueKey" validate:"required"`
-	Title       string `mapstructure:"title" validate:"required"`
-	Description string `mapstructure:"description"`
-	Name        string `mapstructure:"name"`
-	Json        string `mapstructure:"json"`
+	Title       string                 `mapstructure:"title" validate:"required"`
+	Description string                 `mapstructure:"description"`
+	Json        map[string]interface{} `mapstructure:"json"`
 
-	CreatedDate  *time.Time `mapstructure:"createdDate"`
-	StartedDate  *time.Time `mapstructure:"startedDate" validate:"required"`
-	FinishedDate *time.Time `mapstructure:"finishedDate" validate:"required"`
+	CreatedDate *time.Time `mapstructure:"createdDate"`
+}
+
+type Generic struct {
+	Id          int
+	Title       string
+	Description string
+	CreatedDate *time.Time
+	data        string
 }
 
 func PostGeneric(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
+
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
@@ -64,18 +70,19 @@ func PostGeneric(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 	if err != nil {
 		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
 	}
+
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	defer txHelper.End()
 	tx := txHelper.Begin()
 	if err := Create(connection, request, tx, logger); err != nil {
-		logger.Error(err, "create deployments")
+		logger.Error(err, "create generic")
 		return nil, err
 	}
 
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
-func Create(connection *models.WebhookConnection, request *WebhookGenericReq, tx dal.Transaction, logger log.Logger) errors.Error {
+func Create(connection *models.WebhookConnection, request *WebhookGenericReq, db dal.Transaction, logger log.Logger) errors.Error {
 	// validation
 	if request == nil {
 		return errors.BadInput.New("request body is nil")
@@ -83,27 +90,42 @@ func Create(connection *models.WebhookConnection, request *WebhookGenericReq, tx
 	if len(request.Json) == 0 {
 		return errors.BadInput.New("json payload is empty")
 	}
-	if request.CreatedDate == nil {
-		request.CreatedDate = request.StartedDate
-	}
-	if request.FinishedDate == nil {
-		now := time.Now()
-		request.FinishedDate = &now
-	}
 	createdDate := time.Now()
 	if request.CreatedDate != nil {
 		createdDate = *request.CreatedDate
-	} else if request.StartedDate != nil {
-		createdDate = *request.StartedDate
 	}
 	if request.CreatedDate == nil {
 		request.CreatedDate = &createdDate
 	}
 
-	if err := tx.CreateOrUpdate(request.Json); err != nil {
-		logger.Error(err, "failed to generic json data to disk")
-		return err
+	fmt.Println(request.Json)
+
+	jsonString, err := json.Marshal(request.Json)
+	fmt.Println(jsonString)
+	if err != nil {
+		logger.Error(err, "Error marshaling JSON:")
 	}
+
+	generic := new(Generic)
+	generic.Title = request.Title
+	generic.Description = request.Description
+	generic.CreatedDate = request.CreatedDate
+	generic.data = string(jsonString)
+
+	if !db.HasTable(generic) {
+		db.AutoMigrate(generic)
+	}
+	db.AutoMigrate(generic)
+	err = db.Create(generic)
+	if err != nil {
+		return nil
+	}
+	db.All(generic)
+
+	// if err := tx.CreateOrUpdate(generic); err != nil {
+	// 	logger.Error(err, "failed to generic json data to disk")
+	// 	return err
+	// }
 
 	return nil
 }

@@ -139,12 +139,13 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 
 type WebhookConnectionResponse struct {
 	models.WebhookConnection
-	PostIssuesEndpoint             string             `json:"postIssuesEndpoint"`
-	CloseIssuesEndpoint            string             `json:"closeIssuesEndpoint"`
-	PostPipelineTaskEndpoint       string             `json:"postPipelineTaskEndpoint"`
-	PostPipelineDeployTaskEndpoint string             `json:"postPipelineDeployTaskEndpoint"`
-	ClosePipelineEndpoint          string             `json:"closePipelineEndpoint"`
-	ApiKey                         *coreModels.ApiKey `json:"apiKey,omitempty"`
+	PostIssuesEndpoint              string             `json:"postIssuesEndpoint"`
+	CloseIssuesEndpoint             string             `json:"closeIssuesEndpoint"`
+	PostPipelineTaskEndpoint        string             `json:"postPipelineTaskEndpoint"`
+	PostPipelineDeployTaskEndpoint  string             `json:"postPipelineDeployTaskEndpoint"`
+	PostPipelineGenericTaskEndpoint string             `json:"postPipelineGenericTaskEndpoint"`
+	ClosePipelineEndpoint           string             `json:"closePipelineEndpoint"`
+	ApiKey                          *coreModels.ApiKey `json:"apiKey,omitempty"`
 }
 
 // ListConnections
@@ -197,6 +198,7 @@ func formatConnection(connection *models.WebhookConnection, withApiKeyInfo bool)
 	response.CloseIssuesEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/issue/:issueKey/close`, connection.ID)
 	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/cicd_tasks`, connection.ID)
 	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/deployments`, connection.ID)
+	response.PostPipelineGenericTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/generic`, connection.ID)
 	response.ClosePipelineEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
 	if withApiKeyInfo {
 		db := basicRes.GetDal()
