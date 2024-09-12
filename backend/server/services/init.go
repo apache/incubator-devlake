@@ -125,11 +125,13 @@ func Init() {
 	registerPluginsMigrationScripts()
 }
 
-func InjectCustomService(pipelineNotifier PipelineNotificationService) errors.Error {
-	if pipelineNotifier == nil {
-		return errors.Default.New("pipeline notifier is nil")
+func InjectCustomService(customPipelineNotifier PipelineNotificationService, customProjectService ProjectService) errors.Error {
+	if customPipelineNotifier != nil {
+		customPipelineNotificationService = customPipelineNotifier
 	}
-	customPipelineNotificationService = pipelineNotifier
+	if customProjectService != nil {
+		projectService = customProjectService
+	}
 	return nil
 }
 
