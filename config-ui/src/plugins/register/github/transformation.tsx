@@ -260,8 +260,9 @@ const renderCollapseItems = ({
             Convert a GitHub Deployment to a DevLake Deployment
           </Checkbox>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>If its environment name matches</span>
+            <span>If its environment name</span>
             <Deployments
+              style={{ margin: '0 4px' }}
               plugin={plugin}
               connectionId={connectionId}
               transformation={transformation}
