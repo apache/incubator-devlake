@@ -30,6 +30,12 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+type ProjectService interface {
+	RenameProject(db dal.Transaction, oldProjectName, newProjectName string) errors.Error
+}
+
+var projectService ProjectService
+
 // ProjectQuery used to query projects as the api project input
 type ProjectQuery struct {
 	Pagination
@@ -267,6 +273,11 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		)
 		if err != nil {
 			return nil, err
+		}
+		if projectService != nil {
+			if err := projectService.RenameProject(tx, name, project.Name); err != nil {
+				return nil, err
+			}
 		}
 		// rename project
 		err = tx.UpdateColumn(
