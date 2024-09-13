@@ -142,9 +142,14 @@ func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 		return nil, errors.Default.Wrap(err, "unable to get Teambition connection by the given connection ID")
 	}
 
-	apiClient, err := tasks.NewTeambitionApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get Teambition API client instance")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewTeambitionApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to get Teambition API client instance")
+		}
+		apiClient = newApiClient
 	}
 	taskData := &tasks.TeambitionTaskData{
 		Options:   op,

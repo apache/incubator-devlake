@@ -22,13 +22,11 @@ import (
 	"reflect"
 	"strings"
 
+	"encoding/json"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
-
-	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
@@ -51,7 +49,11 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	batchSize := 100
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer && len(data.JiraServerInfo.VersionNumbers) == 3 && data.JiraServerInfo.VersionNumbers[0] <= 8 {
+	isServerFlag, err := isServer(data.JiraServerInfo, data.ApiClient, taskCtx.GetDal(), data.Options.ConnectionId)
+	if err != nil {
+		return err
+	}
+	if isServerFlag && len(data.JiraServerInfo.VersionNumbers) == 3 && data.JiraServerInfo.VersionNumbers[0] <= 8 {
 		batchSize = 1
 	}
 	epicIterator, err := GetEpicKeysIterator(db, data, batchSize)
@@ -130,12 +132,12 @@ func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (api.Ite
 		dal.Join(`
 			LEFT JOIN _tool_jira_board_issues bi ON (
 			i.connection_id = bi.connection_id
-			AND 
+			AND
 			i.issue_id = bi.issue_id
 		)`),
 		dal.Where(`
 			i.connection_id = ?
-			AND 
+			AND
 			bi.board_id = ?
 			AND
 			i.epic_key != ''

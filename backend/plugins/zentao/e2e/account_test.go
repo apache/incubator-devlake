@@ -35,7 +35,7 @@ var basicContext = runner.CreateAppBasicRes()
 
 func getFakeAPIClient() *helper.ApiAsyncClient {
 	client, _ := helper.NewApiClient(gocontext.Background(),
-		"https://zentaomax.demo.qucheng.cc/api.php/v1/",
+		getFakeHomepage()+"/api.php/v1/",
 		//"https://zentao.demo.haogs.cn/api.php/v1/",
 		nil, time.Second*5, "",
 		basicContext,
@@ -43,6 +43,10 @@ func getFakeAPIClient() *helper.ApiAsyncClient {
 	return &helper.ApiAsyncClient{
 		ApiClient: client,
 	}
+}
+
+func getFakeHomepage() string {
+	return "https://zentaomax.demo.qucheng.cc"
 }
 
 func TestZentaoAccountDataFlow(t *testing.T) {
@@ -57,6 +61,7 @@ func TestZentaoAccountDataFlow(t *testing.T) {
 		},
 		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 		ApiClient:    getFakeAPIClient(),
+		HomePageURL:  getFakeHomepage(),
 	}
 
 	// import raw data table

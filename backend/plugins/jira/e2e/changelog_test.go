@@ -39,6 +39,7 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_changelogs.csv", "_raw_jira_api_issue_changelogs")
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_fields.csv", &models.JiraIssueField{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_server_infos.csv", &models.JiraServerInfo{})
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
 	dataflowTester.FlushTabler(&models.JiraAccount{})

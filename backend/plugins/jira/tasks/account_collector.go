@@ -66,7 +66,12 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	queryKey := "accountId"
 	urlTemplate := "api/2/user"
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+
+	isServerFlag, err := isServer(data.JiraServerInfo, data.ApiClient, taskCtx.GetDal(), data.Options.ConnectionId)
+	if err != nil {
+		return err
+	}
+	if isServerFlag {
 		queryKey = "key"
 	}
 

@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"golang.org/x/sync/errgroup"
 	"strings"
 	"time"
@@ -29,6 +30,12 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
+
+type ProjectService interface {
+	RenameProject(db dal.Transaction, oldProjectName, newProjectName string) errors.Error
+}
+
+var projectService ProjectService
 
 // ProjectQuery used to query projects as the api project input
 type ProjectQuery struct {
@@ -136,7 +143,7 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		ProjectName: project.Name,
 		Mode:        "NORMAL",
 		Enable:      true,
-		CronConfig:  "0 0 * * *",
+		CronConfig:  services.BP_CRON_WEEKLY,
 		IsManual:    false,
 		SyncPolicy: models.SyncPolicy{
 			TimeAfter: func() *time.Time {
@@ -267,6 +274,11 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		)
 		if err != nil {
 			return nil, err
+		}
+		if projectService != nil {
+			if err := projectService.RenameProject(tx, name, project.Name); err != nil {
+				return nil, err
+			}
 		}
 		// rename project
 		err = tx.UpdateColumn(

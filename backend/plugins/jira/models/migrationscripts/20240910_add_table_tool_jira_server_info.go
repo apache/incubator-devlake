@@ -15,28 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
-type BambooOptions struct {
-	Options       *models.BambooOptions
-	ApiClient     *helper.ApiAsyncClient
-	EndPoint      string
-	RegexEnricher *helper.RegexEnricher
+var _ plugin.MigrationScript = (*addJiraServerInfo)(nil)
+
+type addJiraServerInfo struct{}
+
+func (*addJiraServerInfo) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(archived.JiraServerInfo{})
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*models.BambooOptions, errors.Error) {
-	var op models.BambooOptions
-	if err := helper.Decode(options, &op, nil); err != nil {
-		return nil, err
-	}
-	if op.ConnectionId == 0 {
-		return nil, errors.Default.New("connectionId is invalid")
-	}
-	return &op, nil
+func (*addJiraServerInfo) Version() uint64 {
+	return 20240910170000
+}
+
+func (*addJiraServerInfo) Name() string {
+	return "add new table _tool_jira_server_info"
 }
