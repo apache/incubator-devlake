@@ -189,8 +189,15 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
-	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.EnvNamePattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	if len(op.BambooScopeConfig.EnvNameList) > 0 || (len(op.BambooScopeConfig.EnvNameList) == 0 && op.BambooScopeConfig.EnvNamePattern == "") {
+		if err = regexEnricher.TryAddList(devops.ENV_NAME_PATTERN, op.BambooScopeConfig.EnvNameList...); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNameList`")
+		}
+	} else {
+		if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.BambooScopeConfig.EnvNamePattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+		}
+
 	}
 	return &tasks.BambooOptions{
 		Options:       op,
