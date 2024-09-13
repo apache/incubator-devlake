@@ -68,7 +68,7 @@ func Test_getBambooWebURL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getBambooHomePage(tt.args.endpoint)
+			got, err := GetBambooHomePage(tt.args.endpoint)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getbambooHomePage() error = %v, wantErr %v", err, tt.wantErr)
 				return
