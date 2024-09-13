@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"golang.org/x/sync/errgroup"
 	"strings"
 	"time"
@@ -142,7 +143,7 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		ProjectName: project.Name,
 		Mode:        "NORMAL",
 		Enable:      true,
-		CronConfig:  "0 0 * * *",
+		CronConfig:  services.BP_CRON_WEEKLY,
 		IsManual:    false,
 		SyncPolicy: models.SyncPolicy{
 			TimeAfter: func() *time.Time {
