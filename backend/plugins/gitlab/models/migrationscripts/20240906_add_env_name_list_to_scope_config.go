@@ -30,7 +30,7 @@ type scopeConfig20240906 struct {
 }
 
 func (scopeConfig20240906) TableName() string {
-	return "_tool_github_scope_configs"
+	return "_tool_gitlab_scope_configs"
 }
 
 type addEnvNameListToScopeConfig struct{}
@@ -44,9 +44,9 @@ func (*addEnvNameListToScopeConfig) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addEnvNameListToScopeConfig) Version() uint64 {
-	return 20240906142100
+	return 20240906142101
 }
 
 func (*addEnvNameListToScopeConfig) Name() string {
-	return "add env_name_list to _tool_github_scope_configs"
+	return "add env_name_list to _tool_gitlab_scope_configs"
 }
