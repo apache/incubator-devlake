@@ -212,8 +212,15 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
-	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	if len(op.ScopeConfig.EnvNameList) > 0 || (len(op.ScopeConfig.EnvNameList) == 0 && op.ScopeConfig.EnvNamePattern == "") {
+		if err = regexEnricher.TryAddList(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNameList...); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNameList`")
+		}
+	} else {
+		if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+		}
+
 	}
 
 	taskData := tasks.GitlabTaskData{
@@ -267,6 +274,12 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScopes,
+		},
+		"connections/:connectionId/deployments": {
+			"GET": api.GetConnectionDeployments,
+		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
 		},
 		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
