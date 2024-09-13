@@ -197,17 +197,19 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 		FROM(
 			SELECT pipeline_number, name, project_slug, created_date
 			FROM _tool_circleci_workflows
-			WHERE connection_id = ? AND name REGEXP ?
-			AND name REGEXP ?
+			WHERE connection_id = ? 
+			    AND (? = '' OR name REGEXP ?)
+    			AND (? = '' OR name REGEXP ?)
 			UNION
 			SELECT w.pipeline_number, w.name, w.project_slug, w.created_date
 			FROM _tool_circleci_jobs j 
 			LEFT JOIN _tool_circleci_workflows w on w.id = j.workflow_id
-			WHERE j.connection_id = ? AND j.name REGEXP ?
-			AND j.name REGEXP ?
+			WHERE j.connection_id = ? 
+			    AND (? = '' OR j.name REGEXP ?)
+    			AND (? = '' OR j.name REGEXP ?)
 		) AS t
 		ORDER BY created_date DESC
-	`, connectionId, deploymentPattern, productionPattern, connectionId, deploymentPattern, productionPattern)
+	`, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get")
 	}
