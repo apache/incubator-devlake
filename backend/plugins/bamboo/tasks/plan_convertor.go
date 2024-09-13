@@ -62,7 +62,7 @@ func ConvertPlans(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:         bambooPlan.Name,
 				Description:  bambooPlan.Description,
 			}
-			homepage, err := getBambooHomePage(bambooPlan.Href)
+			homepage, err := GetBambooHomePage(bambooPlan.Href)
 			if err != nil {
 				logger.Warn(err, "get bamboo home")
 			} else {
