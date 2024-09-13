@@ -49,7 +49,7 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, body.PlanName)
 
 			var url string
-			homepage, errGetHomePage := getBambooHomePage(body.LinkHref)
+			homepage, errGetHomePage := GetBambooHomePage(body.LinkHref)
 			if errGetHomePage != nil {
 				logger.Warn(errGetHomePage, "get bamboo home")
 			} else {
