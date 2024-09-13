@@ -51,7 +51,7 @@ export const transform2deployments = (
     deploymentPattern: string;
     productionPattern: string;
   } & Pagination,
-): Promise<{ total: number; data: ITransform2deployments[] } | null> =>
+): Promise<{ total: number; data: ITransform2deployments[] | null }> =>
   request(`/plugins/${plugin}/connections/${connectionId}/transform-to-deployments`, {
     method: 'post',
     data,
