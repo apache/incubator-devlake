@@ -112,7 +112,7 @@ func GetResultsResult(res *http.Response) ([]json.RawMessage, errors.Error) {
 }
 
 // getBambooHomePage receive endpoint like "http://127.0.0.1:30001/rest/api/latest/" and return bamboo's homepage like "http://127.0.0.1:30001/"
-func getBambooHomePage(endpoint string) (string, error) {
+func GetBambooHomePage(endpoint string) (string, error) {
 	if endpoint == "" {
 		return "", errors.Default.New("empty endpoint")
 	}
