@@ -64,7 +64,7 @@ export const BlueprintHomePage = () => {
       name,
       mode,
       enable: true,
-      cronConfig: presets[0],
+      cronConfig: presets[1],
       isManual: false,
       skipOnFail: true,
     };
