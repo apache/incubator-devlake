@@ -142,7 +142,7 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		ProjectName: project.Name,
 		Mode:        "NORMAL",
 		Enable:      true,
-		CronConfig:  "0 0 * * *",
+		CronConfig:  "0 0 * * 1",
 		IsManual:    false,
 		SyncPolicy: models.SyncPolicy{
 			TimeAfter: func() *time.Time {
