@@ -36,6 +36,7 @@ func TestIssueRelationshipDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 2,
 			BoardId:      8,
+			ScopeConfig:  &models.JiraScopeConfig{},
 		},
 	}
 
