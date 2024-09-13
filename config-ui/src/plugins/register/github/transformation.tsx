@@ -273,42 +273,46 @@ const renderCollapseItems = ({
           <Checkbox checked={useCustom} onChange={onChangeUseCustom}>
             Convert a GitHub workflow run as a DevLake Deployment when:
           </Checkbox>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>
-              The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
-            </span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
-              value={transformation.deploymentPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  deploymentPattern: e.target.value,
-                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                })
-              }
-            />
-            <i style={{ marginRight: 4, color: '#E34040' }}>*</i>
-            <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
-          </div>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>If the name or its branch’s name also matches</span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="prod(.*)"
-              value={transformation.productionPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  productionPattern: e.target.value,
-                })
-              }
-            />
-            <span>, this deployment is a ‘Production Deployment’</span>
-            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
-          </div>
-          <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
+          {useCustom && (
+            <>
+              <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+                <span>
+                  The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
+                </span>
+                <Input
+                  style={{ width: 180, margin: '0 8px' }}
+                  placeholder="(deploy|push-image)"
+                  value={transformation.deploymentPattern ?? ''}
+                  onChange={(e) =>
+                    onChangeTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                    })
+                  }
+                />
+                <i style={{ marginRight: 4, color: '#E34040' }}>*</i>
+                <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
+              </div>
+              <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+                <span>If the name or its branch’s name also matches</span>
+                <Input
+                  style={{ width: 180, margin: '0 8px' }}
+                  placeholder="prod(.*)"
+                  value={transformation.productionPattern ?? ''}
+                  onChange={(e) =>
+                    onChangeTransformation({
+                      ...transformation,
+                      productionPattern: e.target.value,
+                    })
+                  }
+                />
+                <span>, this deployment is a ‘Production Deployment’</span>
+                <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
+              </div>
+              <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
+            </>
+          )}
         </>
       ),
     },
