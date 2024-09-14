@@ -72,5 +72,4 @@ func checkConnectionToken(connectionID uint64, pluginName string) errors.Error {
 		msg := fmt.Sprintf("plugin: %s doesn't impl test connection api", pluginName)
 		return errors.Default.New(msg)
 	}
-	return nil
 }
