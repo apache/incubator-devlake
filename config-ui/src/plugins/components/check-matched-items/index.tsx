@@ -69,27 +69,29 @@ export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Prop
           Check Matched Items
         </Button>
       </div>
-      {total === 0 ? (
-        <p>No item found</p>
-      ) : (
-        <Flex vertical gap="small">
-          <h3>Matched Items</h3>
-          <Flex wrap="wrap" gap="small">
-            {state.map((it) => (
-              <Tag key={it.url} color="blue">
-                <ExternalLink link={it.url}>{it.name}</ExternalLink>
-              </Tag>
-            ))}
+      {total ? (
+        total === 0 ? (
+          <p>No item found</p>
+        ) : (
+          <Flex vertical gap="small">
+            <h4>Matched Items</h4>
+            <Flex wrap="wrap" gap="small">
+              {state.map((it) => (
+                <Tag key={it.url} color="blue">
+                  <ExternalLink link={it.url}>{it.name}</ExternalLink>
+                </Tag>
+              ))}
+            </Flex>
+            {total && total > state.length && (
+              <div>
+                <Button type="link" size="small" loading={loading} icon={<PlusOutlined />} onClick={handleLoadItems}>
+                  See More
+                </Button>
+              </div>
+            )}
           </Flex>
-          {total && total > state.length && (
-            <div>
-              <Button type="link" size="small" loading={loading} icon={<PlusOutlined />} onClick={handleLoadItems}>
-                See More
-              </Button>
-            </div>
-          )}
-        </Flex>
-      )}
+        )
+      ) : null}
     </Flex>
   );
 };
