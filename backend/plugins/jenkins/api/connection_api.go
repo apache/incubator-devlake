@@ -207,17 +207,19 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 		FROM(
 			SELECT number, job_name, full_name, url, start_time
 			FROM _tool_jenkins_builds
-			WHERE connection_id = ? AND full_name REGEXP ?
-			AND full_name REGEXP ?
+			WHERE connection_id = ? 
+				AND (full_name REGEXP ?)
+				AND (? = '' OR full_name REGEXP ?)
 			UNION
 			SELECT number, job_name, full_name, url, start_time
 			FROM _tool_jenkins_stages s 
 			LEFT JOIN _tool_jenkins_builds b ON b.full_name = s.build_name 
-			WHERE s.connection_id = ? AND s.name REGEXP ?
-			AND s.name REGEXP ?
+			WHERE s.connection_id = ? 
+				AND s.name REGEXP ?
+				AND (? = '' OR s.name REGEXP ?)
 		) AS t
 		ORDER BY start_time DESC
-	`, connectionId, deploymentPattern, productionPattern, connectionId, deploymentPattern, productionPattern)
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get")
 	}

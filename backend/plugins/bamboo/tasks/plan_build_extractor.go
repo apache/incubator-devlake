@@ -46,7 +46,7 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body.ConnectionId = data.Options.ConnectionId
 			body.PlanKey = data.Options.PlanKey
 			body.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.PlanName)
-			body.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, body.PlanName)
+			body.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.PlanName)
 
 			var url string
 			homepage, errGetHomePage := GetBambooHomePage(body.LinkHref)
