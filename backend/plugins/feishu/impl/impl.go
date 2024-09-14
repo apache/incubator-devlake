@@ -132,6 +132,11 @@ func (p Feishu) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
+func (p Feishu) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
+}
+
 func (p Feishu) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {

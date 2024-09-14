@@ -138,6 +138,11 @@ func (p PagerDuty) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
+func (p PagerDuty) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
+}
+
 func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {

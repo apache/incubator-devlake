@@ -122,3 +122,7 @@ func (p GitExtractor) Close(taskCtx plugin.TaskContext) errors.Error {
 func (p GitExtractor) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitextractor"
 }
+
+func (p GitExtractor) TestConnection(id uint64) errors.Error {
+	return nil
+}

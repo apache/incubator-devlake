@@ -121,10 +121,24 @@ func GeneratePlanJsonV200(
 		}
 	}
 	var planForProjectMapping coreModels.PipelinePlan
+	var planForProjectTokenChecker coreModels.PipelinePlan
 	if projectName != "" {
 		p, err := plugin.GetPlugin("org")
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "get plugin org")
+		}
+		if pluginBp, ok := p.(plugin.ProjectTokenChecker); ok {
+			var simpleConns []plugin.ProjectTokenCheckerConnection
+			for _, connection := range connections {
+				simpleConns = append(simpleConns, plugin.ProjectTokenCheckerConnection{
+					PluginName:   connection.PluginName,
+					ConnectionId: connection.ConnectionId,
+				})
+			}
+			planForProjectTokenChecker, err = pluginBp.MakePipeline(skipCollectors, projectName, simpleConns)
+			if err != nil {
+				return nil, errors.Default.Wrap(err, "org token checker make pipeline")
+			}
 		}
 		if pluginBp, ok := p.(plugin.ProjectMapper); ok {
 			planForProjectMapping, err = pluginBp.MapProject(projectName, scopes)
@@ -134,6 +148,7 @@ func GeneratePlanJsonV200(
 		}
 	}
 	plan := SequentializePipelinePlans(
+		planForProjectTokenChecker,
 		planForProjectMapping,
 		ParallelizePipelinePlans(sourcePlans...),
 		ParallelizePipelinePlans(metricPlans...),
