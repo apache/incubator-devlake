@@ -258,8 +258,8 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 		WebUrl   string
 	}
 	type transformedFields struct {
-		Name string
-		URL  string
+		Name string `json:"name"`
+		URL  string `json:"url"`
 	}
 	var allRuns []transformedFields
 	for cursor.Next() {
