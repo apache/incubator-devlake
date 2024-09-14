@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useReducer } from 'react';
+import { useState, useReducer, useEffect } from 'react';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { Flex, Button, Tag } from 'antd';
 
@@ -24,10 +24,12 @@ import API from '@/api';
 import type { ITransform2deployments } from '@/api/scope-config/types';
 import { ExternalLink } from '@/components';
 
-const reducer = (state: ITransform2deployments[], action: { type: string; payload: ITransform2deployments[] }) => {
+const reducer = (state: ITransform2deployments[], action: { type: string; payload?: ITransform2deployments[] }) => {
   switch (action.type) {
+    case 'RESET':
+      return [];
     case 'APPEND':
-      return [...state, ...action.payload];
+      return [...state, ...(action.payload ?? [])];
     default:
       return state;
   }
@@ -40,11 +42,16 @@ interface Props {
 }
 
 export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Props) => {
+  const [inital, setInitial] = useState(false);
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState<number>();
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const [state, dispatch] = useReducer(reducer, []);
+
+  useEffect(() => {
+    dispatch({ type: 'RESET' });
+  }, [transformation.deploymentPattern, transformation.productionPattern]);
 
   const handleLoadItems = async () => {
     setLoading(true);
@@ -57,6 +64,7 @@ export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Prop
 
     dispatch({ type: 'APPEND', payload: res.data ?? [] });
 
+    setInitial(true);
     setPage(page + 1);
     setTotal(res.total);
     setLoading(false);
@@ -69,7 +77,7 @@ export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Prop
           Check Matched Items
         </Button>
       </div>
-      {total ? (
+      {inital ? (
         total === 0 ? (
           <p>No item found</p>
         ) : (

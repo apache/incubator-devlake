@@ -28,6 +28,7 @@ const Wrapper = styled.div`
   width: 100%;
   font-size: 12px;
   background-color: #fff;
+  box-sizing: border-box;
   overflow: hidden;
 
   li {
@@ -71,8 +72,7 @@ export const WorkflowRun = () => {
         <li>
           <div>
             In the first input field, enter the following regex to identify deployments (highlighted by the{' '}
-            <span className="yellow">yellow</span>
-            rectangle):
+            <span className="yellow">yellow</span> rectangle):
           </div>
           <div style={{ marginTop: 10 }}>
             The name of the <strong>GitHub workflow run</strong> or <strong>one of its jobs</strong> matches{' '}
