@@ -71,6 +71,12 @@ export const GitHubTransformation = ({
     if (!checked) {
       setTransformation({
         ...transformation,
+        deploymentPattern: undefined,
+        productionPattern: undefined,
+      });
+    } else {
+      setTransformation({
+        ...transformation,
         deploymentPattern: '',
         productionPattern: '',
       });
