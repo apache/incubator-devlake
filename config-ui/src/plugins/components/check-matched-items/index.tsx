@@ -41,7 +41,7 @@ interface Props {
 
 export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Props) => {
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState<number>();
   const [loading, setLoading] = useState(false);
 
   const [state, dispatch] = useReducer(reducer, []);
@@ -69,7 +69,9 @@ export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Prop
           Check Matched Items
         </Button>
       </div>
-      {!!state.length && (
+      {total === 0 ? (
+        <p>No item found</p>
+      ) : (
         <Flex vertical gap="small">
           <h3>Matched Items</h3>
           <Flex wrap="wrap" gap="small">
@@ -79,7 +81,7 @@ export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Prop
               </Tag>
             ))}
           </Flex>
-          {total > state.length && (
+          {total && total > state.length && (
             <div>
               <Button type="link" size="small" loading={loading} icon={<PlusOutlined />} onClick={handleLoadItems}>
                 See More
