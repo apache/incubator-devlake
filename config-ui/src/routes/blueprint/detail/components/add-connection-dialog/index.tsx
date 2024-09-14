@@ -17,7 +17,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Modal, Select, Space, Button } from 'antd';
 import styled from 'styled-components';
@@ -61,8 +61,6 @@ interface Props {
 export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props) => {
   const [step, setStep] = useState(1);
   const [selectedValue, setSelectedValue] = useState<string>();
-
-  const navigate = useNavigate();
 
   const connections = useAppSelector(selectAllConnections);
 

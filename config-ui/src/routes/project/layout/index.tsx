@@ -122,9 +122,9 @@ export const ProjectLayout = () => {
       <Layout>
         <Content style={{ padding: '36px 48px', overflowY: 'auto' }}>
           <p>
-            {breadcrumbs(paths).map((b) => (
+            {breadcrumbs(paths).map((b, i) => (
               <span key={b.path}>
-                <Link to={b.path}>{b.name}</Link>
+                {i !== paths.length - 2 ? <Link to={b.path}>{b.name}</Link> : <span>{b.name}</span>}
                 <span> / </span>
               </span>
             ))}
