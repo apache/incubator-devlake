@@ -70,7 +70,10 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			SubtaskConfig: mappings,
+			SubtaskConfig: map[string]any{
+				"typeMappings":    mappings,
+				"storyPointField": data.Options.ScopeConfig.StoryPointField,
+			},
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			return extractIssues(data, mappings, row, userFieldMap)

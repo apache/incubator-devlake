@@ -169,7 +169,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             <NoData
               text={
                 <>
-                  If you have not created data connections yet, please <Link to="/connections">create connections</Link>{' '}
+                  If you have not created data connections yet, please{' '}
+                  <Link to="/connections" target="_blank">
+                    create connections
+                  </Link>{' '}
                   first and then add them to the project.
                 </>
               }

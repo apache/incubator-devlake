@@ -370,19 +370,17 @@ func UpdateProgressDetail(basicRes context.BasicRes, taskId uint64, progressDeta
 		progressDetail.TotalRecords = p.Total
 	case plugin.SubTaskIncProgress:
 		progressDetail.FinishedRecords = p.Current
-		// update subtask progress
-		where := dal.Where("task_id = ? and name = ?", taskId, progressDetail.SubTaskName)
-		err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
-			{ColumnName: "finished_records", Value: progressDetail.FinishedRecords},
-		}, where)
-		if err != nil {
-			basicRes.GetLogger().Error(err, "failed to update _devlake_subtasks progress")
-		}
 	case plugin.SetCurrentSubTask:
 		progressDetail.SubTaskName = p.SubTaskName
 		progressDetail.SubTaskNumber = p.SubTaskNumber
-	default:
-		return
+	}
+	// update subtask progress
+	where := dal.Where("task_id = ? and name = ?", taskId, progressDetail.SubTaskName)
+	err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
+		{ColumnName: "finished_records", Value: progressDetail.FinishedRecords},
+	}, where)
+	if err != nil {
+		basicRes.GetLogger().Error(err, "failed to update _devlake_subtasks progress")
 	}
 }
 
@@ -418,7 +416,7 @@ func recordSubtask(basicRes context.BasicRes, subtask *models.Subtask) {
 		{ColumnName: "began_at", Value: subtask.BeganAt},
 		{ColumnName: "finished_at", Value: subtask.FinishedAt},
 		{ColumnName: "spent_seconds", Value: subtask.SpentSeconds},
-		{ColumnName: "finished_records", Value: subtask.FinishedRecords},
+		//{ColumnName: "finished_records", Value: subtask.FinishedRecords}, // FinishedRecords is zero always.
 		{ColumnName: "number", Value: subtask.Number},
 	}, where); err != nil {
 		basicRes.GetLogger().Error(err, "error writing subtask %d status to DB: %v", subtask.ID)

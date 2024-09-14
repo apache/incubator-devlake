@@ -28,6 +28,7 @@ FROM node:18-bookworm-slim as builder
 WORKDIR /home/node/code
 COPY . .
 
+RUN cp env.example .env
 RUN yarn install
 RUN yarn build
 
