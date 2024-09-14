@@ -17,13 +17,21 @@
  */
 
 import { useState, useEffect } from 'react';
-import { CheckCircleOutlined, CloseCircleOutlined, CaretRightOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CaretRightOutlined,
+  CaretDownFilled,
+  CaretRightFilled,
+} from '@ant-design/icons';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { theme, Form, Collapse, Input, Tag, Checkbox } from 'antd';
+import { theme, Form, Collapse, Input, Tag, Checkbox, Button } from 'antd';
 
 import { HelpTooltip, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 import { CheckMatchedItems, Deployments } from '@/plugins';
+
+import { WorkflowRun } from './workflow-run';
 
 interface Props {
   plugin: string;
@@ -43,6 +51,7 @@ export const GitHubTransformation = ({
   setHasError,
 }: Props) => {
   const [useCustom, setUseCustom] = useState(false);
+  const [showCICD, setShowCICD] = useState(false);
 
   useEffect(() => {
     if (transformation.deploymentPattern || transformation.productionPattern) {
@@ -95,6 +104,8 @@ export const GitHubTransformation = ({
         onChangeTransformation: setTransformation,
         useCustom,
         onChangeUseCustom: handleChangeUseCustom,
+        showCICD,
+        onChangeShowCICD: setShowCICD,
       })}
     />
   );
@@ -109,6 +120,8 @@ const renderCollapseItems = ({
   onChangeTransformation,
   useCustom,
   onChangeUseCustom,
+  showCICD,
+  onChangeShowCICD,
 }: {
   plugin: string;
   connectionId: ID;
@@ -118,6 +131,8 @@ const renderCollapseItems = ({
   onChangeTransformation: any;
   useCustom: boolean;
   onChangeUseCustom: any;
+  showCICD: boolean;
+  onChangeShowCICD: any;
 }) =>
   [
     {
@@ -274,8 +289,21 @@ const renderCollapseItems = ({
             Convert a GitHub workflow run as a DevLake Deployment when:
           </Checkbox>
           {useCustom && (
-            <>
-              <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <div style={{ paddingLeft: 28 }}>
+              <p>
+                Select this option only if you are not enabling GitHub Deployments.{' '}
+                <Button
+                  type="link"
+                  size="small"
+                  icon={showCICD ? <CaretDownFilled /> : <CaretRightFilled />}
+                  iconPosition="end"
+                  onClick={() => onChangeShowCICD(!showCICD)}
+                >
+                  See how to configure
+                </Button>
+              </p>
+              {showCICD && <WorkflowRun />}
+              <div style={{ margin: '8px 0' }}>
                 <span>
                   The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
                 </span>
@@ -294,7 +322,7 @@ const renderCollapseItems = ({
                 <i style={{ marginRight: 4, color: '#E34040' }}>*</i>
                 <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
               </div>
-              <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+              <div style={{ margin: '8px 0' }}>
                 <span>If the name or its branch’s name also matches</span>
                 <Input
                   style={{ width: 180, margin: '0 8px' }}
@@ -311,7 +339,7 @@ const renderCollapseItems = ({
                 <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
               </div>
               <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
-            </>
+            </div>
           )}
         </>
       ),
