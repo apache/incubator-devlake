@@ -50,7 +50,7 @@ export const GitHubTransformation = ({
     } else {
       setUseCustom(false);
     }
-  }, [transformation]);
+  }, []);
 
   useEffect(() => {
     setHasError(useCustom && !transformation.deploymentPattern);
