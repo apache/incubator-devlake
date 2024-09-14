@@ -438,17 +438,11 @@ func TriggerBlueprint(id uint64, triggerSyncPolicy *models.TriggerSyncPolicy, sh
 
 func needToCheckToken(triggerSyncPolicy *models.TriggerSyncPolicy) bool {
 	// case1: retransform
-	if triggerSyncPolicy.SkipCollectors && triggerSyncPolicy.FullSync == false {
+	if triggerSyncPolicy.SkipCollectors && !triggerSyncPolicy.FullSync {
 		return false
 	}
-	// case2: collect data
-	if triggerSyncPolicy.SkipCollectors == false && triggerSyncPolicy.FullSync == false {
-		return true
-	}
-	// case3: collect data with fullsync
-	if triggerSyncPolicy.SkipCollectors == false && triggerSyncPolicy.FullSync == true {
-		return true
-	}
+	// case2: collect data: triggerSyncPolicy.SkipCollectors == false && triggerSyncPolicy.FullSync == false
+	// case3: collect data with fullsync: triggerSyncPolicy.SkipCollectors == false && triggerSyncPolicy.FullSync == true
 	// case4: others
 	return true
 }
