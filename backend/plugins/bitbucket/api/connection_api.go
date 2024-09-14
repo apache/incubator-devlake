@@ -205,18 +205,18 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 			SELECT build_number, ref_name, repo_id, web_url, bitbucket_created_on
 			FROM _tool_bitbucket_pipelines
 			WHERE connection_id = ? 
-			    AND (? = '' OR ref_name REGEXP ?)
+			    AND (ref_name REGEXP ?)
     			AND (? = '' OR ref_name REGEXP ?)
 			UNION
 			SELECT build_number, ref_name, p.repo_id, web_url,bitbucket_created_on
 			FROM _tool_bitbucket_pipelines p
 			LEFT JOIN _tool_bitbucket_pipeline_steps s on s.pipeline_id = p.bitbucket_id
 			WHERE s.connection_id = ? AND 
-   				AND (? = '' OR s.name REGEXP ?)
+   				AND (s.name REGEXP ?)
     			AND (? = '' OR s.name REGEXP ?)
 		) AS t
 		ORDER BY bitbucket_created_on DESC
-	`, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern)
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get")
 	}
