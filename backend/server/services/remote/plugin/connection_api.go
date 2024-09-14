@@ -205,18 +205,18 @@ func (pa *pluginAPI) GetConnectionTransformToDeployments(input *plugin.ApiResour
 			SELECT id, name, url, start_time
 			FROM _tool_azuredevops_builds
       		WHERE connection_id = ?
-		    	AND (? = '' OR name REGEXP ?)
+		    	AND (name REGEXP ?)
     			AND (? = '' OR name REGEXP ?)
     		UNION
 			SELECT b.id, b.name, b.url, b.start_time
 			FROM _tool_azuredevops_jobs j
 			LEFT JOIN _tool_azuredevops_builds b on CONCAT('azuredevops:Build:', b.connection_id, ':', b.id) = j.build_id
 			WHERE j.connection_id = ?
-			    AND (? = '' OR j.name REGEXP ?)
+			    AND (j.name REGEXP ?)
     			AND (? = '' OR j.name REGEXP ?)
 		) AS t
 		ORDER BY start_time DESC
-	`, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern)
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get")
 	}

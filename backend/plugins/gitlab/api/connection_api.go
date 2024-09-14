@@ -234,7 +234,7 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 			FROM _tool_gitlab_pipelines p
 			LEFT JOIN _tool_gitlab_projects r on r.gitlab_id = p.project_id
 			WHERE p.connection_id = ? 
-				AND (? = '' OR ref REGEXP ?)
+				AND (ref REGEXP ?)
 				AND (? = '' OR ref REGEXP ?)
 			UNION
 			SELECT r.name, p.gitlab_id, p.web_url, p.started_at
@@ -242,11 +242,11 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 			LEFT JOIN _tool_gitlab_projects r on r.gitlab_id = p.project_id
 			LEFT JOIN _tool_gitlab_jobs j on j.pipeline_id = p.gitlab_id
 			WHERE j.connection_id = ? 
-			   	AND (? = '' OR j.name REGEXP ?)
+			   	AND (j.name REGEXP ?)
     		   	AND (? = '' OR j.name REGEXP ?)
 		) r
 		ORDER BY r.started_at DESC
-	`, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern)
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get")
 	}

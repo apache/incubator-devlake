@@ -68,7 +68,7 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				QueuedDuration:  gitlabApiPipeline.QueuedDuration,
 				ConnectionId:    data.Options.ConnectionId,
 				Type:            data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
-				Environment:     data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
+				Environment:     data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
 				Source:          gitlabApiPipeline.Source,
 			}
 
