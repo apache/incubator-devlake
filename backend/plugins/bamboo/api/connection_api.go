@@ -222,19 +222,19 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 			SELECT plan_build_key, link_href, build_started_time
 			FROM _tool_bamboo_plan_builds
 			WHERE connection_id = ? 
-			    AND (? = '' OR plan_name REGEXP ?)
+			    AND (plan_name REGEXP ?)
     			AND (? = '' OR plan_name REGEXP ?)
 			UNION
 			SELECT p.plan_build_key, p.link_href, p.build_started_time
 			FROM _tool_bamboo_job_builds j
 			LEFT JOIN _tool_bamboo_plan_builds p on p.plan_build_key = j.plan_build_key
 			WHERE j.connection_id = ? 
-			    AND (? = '' OR j.job_name REGEXP ?)
+			    AND (j.job_name REGEXP ?)
     			AND (? = '' OR j.job_name REGEXP ?)
 			ORDER BY build_started_time DESC
 		) AS t
 		ORDER BY build_started_time DESC
-	`, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern)
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get")
 	}
