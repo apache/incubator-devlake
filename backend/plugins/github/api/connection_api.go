@@ -461,18 +461,18 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 			SELECT id, run_number, name, head_branch, html_url, run_started_at
 			FROM _tool_github_runs
 			WHERE connection_id = ? 
-				AND (? = '' OR name REGEXP ?)
+				AND (name REGEXP ?)
 				AND (? = '' OR name REGEXP ? OR head_branch REGEXP ?)
 			UNION
 			SELECT r.id, r.run_number, r.name, r.head_branch, r.html_url, r.run_started_at
 			FROM _tool_github_jobs j
 			LEFT JOIN _tool_github_runs r ON j.run_id = r.id
 			WHERE j.connection_id = ?
-			    AND (? = '' OR j.name REGEXP ?)
+			    AND (j.name REGEXP ?)
     			AND (? = '' OR j.name REGEXP ?)
 		) r
 		ORDER BY r.run_started_at DESC
-	`, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern, productionPattern, connectionId, deploymentPattern, deploymentPattern, productionPattern, productionPattern)
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get")
 	}
