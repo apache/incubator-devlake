@@ -219,6 +219,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'bitbucket' && (
                 <BitbucketTransformation
+                  plugin="bitbucket"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
