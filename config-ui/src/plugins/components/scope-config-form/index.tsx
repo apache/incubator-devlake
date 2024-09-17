@@ -193,16 +193,10 @@ export const ScopeConfigForm = ({
             )}
 
             <Form labelCol={{ span: 4 }} wrapperCol={{ span: 16 }}>
-              {plugin === 'azuredevops' && (
+              {(plugin === 'azuredevops' || plugin === 'azuredevops_go') && (
                 <AzureTransformation
-                  entities={entities}
-                  transformation={transformation}
-                  setTransformation={setTransformation}
-                />
-              )}
-
-              {plugin === 'azuredevops_go' && (
-                <AzureTransformation
+                  plugin="azuredevops"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
