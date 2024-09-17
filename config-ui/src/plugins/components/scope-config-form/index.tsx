@@ -243,7 +243,7 @@ export const ScopeConfigForm = ({
 
               {plugin === 'github' && (
                 <GitHubTransformation
-                  plugin={plugin}
+                  plugin="github"
                   connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
@@ -254,6 +254,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'gitlab' && (
                 <GitLabTransformation
+                  plugin="gitlab"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
@@ -263,7 +265,7 @@ export const ScopeConfigForm = ({
 
               {plugin === 'jenkins' && (
                 <JenkinsTransformation
-                  plugin={plugin}
+                  plugin="jenkins"
                   connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
