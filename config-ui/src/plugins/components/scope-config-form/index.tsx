@@ -263,6 +263,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'jenkins' && (
                 <JenkinsTransformation
+                  plugin={plugin}
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
