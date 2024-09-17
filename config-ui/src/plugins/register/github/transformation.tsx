@@ -17,17 +17,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  CaretRightOutlined,
-  CaretDownFilled,
-  CaretRightFilled,
-} from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, CaretRightOutlined } from '@ant-design/icons';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { theme, Form, Collapse, Input, Tag, Checkbox, Button } from 'antd';
+import { theme, Form, Collapse, Input, Tag, Checkbox } from 'antd';
 
-import { HelpTooltip, ExternalLink } from '@/components';
+import { ShowMore, HelpTooltip, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 import { CheckMatchedItems, Deployments } from '@/plugins';
 
@@ -51,7 +45,6 @@ export const GitHubTransformation = ({
   setHasError,
 }: Props) => {
   const [useCustom, setUseCustom] = useState(false);
-  const [showCICD, setShowCICD] = useState(false);
 
   useEffect(() => {
     if (transformation.deploymentPattern || transformation.productionPattern) {
@@ -110,8 +103,6 @@ export const GitHubTransformation = ({
         onChangeTransformation: setTransformation,
         useCustom,
         onChangeUseCustom: handleChangeUseCustom,
-        showCICD,
-        onChangeShowCICD: setShowCICD,
       })}
     />
   );
@@ -126,8 +117,6 @@ const renderCollapseItems = ({
   onChangeTransformation,
   useCustom,
   onChangeUseCustom,
-  showCICD,
-  onChangeShowCICD,
 }: {
   plugin: string;
   connectionId: ID;
@@ -137,8 +126,6 @@ const renderCollapseItems = ({
   onChangeTransformation: any;
   useCustom: boolean;
   onChangeUseCustom: any;
-  showCICD: boolean;
-  onChangeShowCICD: any;
 }) =>
   [
     {
@@ -296,19 +283,12 @@ const renderCollapseItems = ({
           </Checkbox>
           {useCustom && (
             <div style={{ paddingLeft: 28 }}>
-              <p>
-                Select this option only if you are not enabling GitHub Deployments.{' '}
-                <Button
-                  type="link"
-                  size="small"
-                  icon={showCICD ? <CaretDownFilled /> : <CaretRightFilled />}
-                  iconPosition="end"
-                  onClick={() => onChangeShowCICD(!showCICD)}
-                >
-                  See how to configure
-                </Button>
-              </p>
-              {showCICD && <WorkflowRun />}
+              <ShowMore
+                text={<p>Select this option only if you are not enabling GitHub Deployments.</p>}
+                btnText="See how to configure"
+              >
+                <WorkflowRun />
+              </ShowMore>
               <div style={{ margin: '8px 0' }}>
                 <span>
                   The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
