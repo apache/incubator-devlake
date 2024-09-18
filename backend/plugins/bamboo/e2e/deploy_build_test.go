@@ -41,20 +41,22 @@ func getFakeAPIClient() *helper.ApiAsyncClient {
 func TestBambooDeployBuildDataFlow(t *testing.T) {
 	var bamboo impl.Bamboo
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
+	dPattern := "(?i)release"
+	pPattern := "(?i)release"
 	taskData := &tasks.BambooOptions{
 		Options: &models.BambooOptions{
 			ConnectionId: 1,
 			PlanKey:      "TEST-PLA2",
 			BambooScopeConfig: &models.BambooScopeConfig{
-				DeploymentPattern: "(?i)release",
-				ProductionPattern: "(?i)release",
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
 			},
 		},
 		RegexEnricher: helper.NewRegexEnricher(),
 		ApiClient:     getFakeAPIClient(),
 	}
-	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
-	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)
+	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, *taskData.Options.DeploymentPattern)
+	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, *taskData.Options.ProductionPattern)
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_deploy_builds.csv", "_raw_bamboo_api_deploy_builds")
 
