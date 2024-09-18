@@ -205,6 +205,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'bamboo' && (
                 <BambooTransformation
+                  plugin="bamboo"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
