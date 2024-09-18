@@ -231,6 +231,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'circleci' && (
                 <CircleCITransformation
+                  plugin="circleci"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
