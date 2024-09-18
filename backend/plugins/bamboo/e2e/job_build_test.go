@@ -30,22 +30,23 @@ import (
 )
 
 func TestBambooJobBuildDataFlow(t *testing.T) {
-
 	var bamboo impl.Bamboo
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
+	dPattern := "(?i)release"
+	pPattern := "(?i)release"
 	taskData := &tasks.BambooOptions{
 		Options: &models.BambooOptions{
 			ConnectionId: 1,
 			PlanKey:      "TEST-PLA3",
 			BambooScopeConfig: &models.BambooScopeConfig{
-				DeploymentPattern: "(?i)compile",
-				ProductionPattern: "(?i)compile",
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
 			},
 		},
 		RegexEnricher: helper.NewRegexEnricher(),
 		ApiClient:     getFakeAPIClient(),
 	}
-	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
+	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, *taskData.Options.DeploymentPattern)
 	// import raw data table
 	// SELECT * FROM _raw_bamboo_api_job_build INTO OUTFILE "/tmp/_raw_bamboo_api_job_builds.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_job_builds.csv", "_raw_bamboo_api_job_builds")
@@ -63,7 +64,7 @@ func TestBambooJobBuildDataFlow(t *testing.T) {
 	)
 
 	// verify extraction
-	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)
+	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, *taskData.Options.ProductionPattern)
 	dataflowTester.FlushTabler(&models.BambooJobBuild{})
 	dataflowTester.Subtask(tasks.ExtractJobBuildMeta, taskData)
 	dataflowTester.VerifyTable(
