@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"net/url"
 	"reflect"
 	"time"
 
@@ -89,14 +88,8 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		CollectUnfinishedDetails: &api.FinalizableApiCollectorDetailArgs{
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: "/v2/workflow/{{ .Input.Id }}/job", // The individual job endpoint has different fields so need to recollect all jobs for a workflow
-				Query: func(reqData *api.RequestData, _ *time.Time) (url.Values, errors.Error) {
-					query := url.Values{}
-					if pageToken, ok := reqData.CustomData.(string); ok && pageToken != "" {
-						query.Set("page-token", pageToken)
-					}
-					return query, nil
-				},
+				UrlTemplate:    "/v2/workflow/{{ .Input.Id }}/job", // The individual job endpoint has different fields so need to recollect all jobs for a workflow
+				Query:          BuildQueryParamsWithPageToken,
 				ResponseParser: ParseCircleciPageTokenResp,
 				AfterResponse:  ignoreDeletedBuilds,
 			},
