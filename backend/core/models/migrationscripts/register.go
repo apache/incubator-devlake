@@ -136,5 +136,6 @@ func All() []plugin.MigrationScript {
 		new(addCqIssueImpacts),
 		new(addDueDateToIssues),
 		new(createQaTables),
+		new(increaseCqIssueComponentLength),
 	}
 }
