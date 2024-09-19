@@ -172,6 +172,11 @@ func (p Circleci) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
+func (p Circleci) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
+}
+
 func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {

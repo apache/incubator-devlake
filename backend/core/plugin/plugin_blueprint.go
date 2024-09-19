@@ -93,6 +93,16 @@ type ProjectMapper interface {
 	MapProject(projectName string, scopes []Scope) (models.PipelinePlan, errors.Error)
 }
 
+type ProjectTokenCheckerConnection struct {
+	PluginName   string
+	ConnectionId uint64
+}
+
+// ProjectTokenChecker is implemented by the plugin org, which generate a task tp check all connection's tokens
+type ProjectTokenChecker interface {
+	MakePipeline(skipCollectors bool, projectName string, scopes []ProjectTokenCheckerConnection) (models.PipelinePlan, errors.Error)
+}
+
 // CompositeDataSourcePluginBlueprintV200 is for unit test
 type CompositeDataSourcePluginBlueprintV200 interface {
 	PluginMeta
