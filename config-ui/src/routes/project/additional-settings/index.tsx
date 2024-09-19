@@ -108,7 +108,7 @@ export const ProjectAdditionalSettings = () => {
 
     if (success) {
       setVersion((v) => v + 1);
-      navigate(`/projects/${encodeURIComponent(pname)}`, {
+      navigate(`/projects/${encodeURIComponent(name)}`, {
         state: {
           tabId: 'settings',
         },
