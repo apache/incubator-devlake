@@ -104,6 +104,10 @@ func (p Icla) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return nil
 }
 
+func (p Icla) TestConnection(id uint64) errors.Error {
+	return nil
+}
+
 func (p Icla) Close(taskCtx plugin.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.IclaTaskData)
 	if !ok {

@@ -73,6 +73,10 @@ type PluginApi interface {
 	ApiResources() map[string]map[string]ApiResourceHandler
 }
 
+type PluginTestConnectionAPI interface {
+	TestConnection(id uint64) errors.Error
+}
+
 const wrapResponseError = "WRAP_RESPONSE_ERROR"
 
 func WrapTestConnectionErrResp(basicRes context.BasicRes, err errors.Error) errors.Error {

@@ -15,20 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package api
 
 import (
+	"context"
+	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// RemotePlugin API supported by plugins running in different/remote processes
-type RemotePlugin interface {
-	plugin.PluginApi
-	plugin.PluginTask
-	plugin.PluginMeta
-	plugin.PluginOpenApiSpec
-	plugin.PluginModel
-	plugin.PluginMigration
-	plugin.PluginSource
-	plugin.PluginTestConnectionAPI
+func TestExistingConnectionForTokenCheck(input *plugin.ApiResourceInput) errors.Error {
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
+	if err != nil {
+		return err
+	}
+	testConnectionResult, testConnectionErr := testExistingConnection(context.TODO(), connection.GithubConn)
+	if testConnectionErr != nil {
+		return testConnectionErr
+	}
+	for _, token := range testConnectionResult.Tokens {
+		if !token.Success {
+			return errors.Default.New(fmt.Sprintf("token %s failed with msg: %s", token.Token, token.Message))
+		}
+	}
+	return nil
 }
