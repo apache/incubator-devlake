@@ -40,8 +40,5 @@ export const remove = (name: string) =>
 export const update = (name: string, data: Pick<IProject, 'name' | 'description' | 'metrics'>) =>
   request(`/projects/${encodeURIComponent(name)}`, {
     method: 'patch',
-    data: {
-      ...data,
-      name: encodeURIComponent(data.name),
-    },
+    data,
   });

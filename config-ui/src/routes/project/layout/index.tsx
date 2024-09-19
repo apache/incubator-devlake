@@ -124,7 +124,7 @@ export const ProjectLayout = () => {
           <p>
             {breadcrumbs(paths).map((b, i) => (
               <span key={b.path}>
-                {i !== paths.length - 2 ? <Link to={b.path}>{b.name}</Link> : <span>{b.name}</span>}
+                {i !== paths.length - 2 ? <Link to={b.path}>{b.name}</Link> : <span>{decodeURIComponent(b.name)}</span>}
                 <span> / </span>
               </span>
             ))}
