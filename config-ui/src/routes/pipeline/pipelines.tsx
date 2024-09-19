@@ -43,9 +43,9 @@ export const Pipelines = () => {
         loading={!ready}
         dataSource={dataSource}
         pagination={{
-          total,
-          page,
+          current: page,
           pageSize,
+          total,
           onChange: setPage,
         }}
       />

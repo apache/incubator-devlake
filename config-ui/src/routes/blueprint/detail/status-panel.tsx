@@ -24,9 +24,9 @@ import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'ant
 import API from '@/api';
 import { Message } from '@/components';
 import { getCron, PATHS } from '@/config';
-import { useAutoRefresh } from '@/hooks';
+import { useRefreshData } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
-import { IBlueprint, IPipeline, IPipelineStatus } from '@/types';
+import { IBlueprint } from '@/types';
 import { formatTime, operator } from '@/utils';
 
 import { FromEnum } from '../types';
@@ -40,32 +40,17 @@ interface Props {
 
 export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) => {
   const [type, setType] = useState<'delete' | 'fullSync'>();
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
   const [operating, setOperating] = useState(false);
 
   const navigate = useNavigate();
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
-  const { loading, data } = useAutoRefresh<IPipeline[]>(
-    async () => {
-      const res = await API.blueprint.pipelines(blueprint.id);
-      return res.pipelines;
-    },
-    [],
-    {
-      cancel: (data) =>
-        !!(
-          data &&
-          data.every((it) =>
-            [
-              IPipelineStatus.COMPLETED,
-              IPipelineStatus.PARTIAL,
-              IPipelineStatus.CANCELLED,
-              IPipelineStatus.FAILED,
-            ].includes(it.status),
-          )
-        ),
-    },
+  const { ready, data } = useRefreshData(
+    () => API.blueprint.pipelines(blueprint.id, { page, pageSize }),
+    [blueprint.id, page, pageSize],
   );
 
   const handleResetType = () => {
@@ -208,10 +193,19 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
 
         <h3>Historical Pipelines</h3>
 
-        {!data?.length ? (
+        {!data?.count ? (
           <Card>There are no historical runs associated with this blueprint.</Card>
         ) : (
-          <PipelineTable loading={loading} dataSource={data} />
+          <PipelineTable
+            loading={!ready}
+            dataSource={data.pipelines}
+            pagination={{
+              current: page,
+              pageSize,
+              total: data.count,
+              onChange: setPage,
+            }}
+          />
         )}
       </Space>
 
