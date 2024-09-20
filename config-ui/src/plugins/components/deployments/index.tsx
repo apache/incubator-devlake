@@ -32,7 +32,7 @@ interface Props {
 }
 
 export const Deployments = ({ style, plugin, connectionId, transformation, setTransformation }: Props) => {
-  const [type, setType] = useState('regex');
+  const [type, setType] = useState('select');
 
   const { loading, data } = useRequest(() => API.scopeConfig.deployments(plugin, connectionId), [plugin, connectionId]);
 
