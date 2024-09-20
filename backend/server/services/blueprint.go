@@ -243,7 +243,7 @@ func DeleteBlueprint(id uint64) errors.Error {
 		return err
 	}
 	if pipelinesAreUnfinished {
-		return errors.Default.New("There are unfinished pipelines under current blueprint. It can not be deleted now.")
+		return errors.Default.New("There are unfinished pipelines in the current project. It cannot be deleted at this time.")
 	}
 	err = bpManager.DeleteBlueprint(bp.ID)
 	if err != nil {

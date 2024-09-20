@@ -365,7 +365,7 @@ func DeleteProject(name string) errors.Error {
 		return err
 	}
 	if pipelinesAreUnfinished {
-		return errors.Default.New("There are unfinished pipelines under current project. It can not be deleted now.")
+		return errors.Default.New("There are unfinished pipelines in the current project. It cannot be deleted at this time.")
 	}
 	err = deleteProjectBlueprint(name)
 	if err != nil {
