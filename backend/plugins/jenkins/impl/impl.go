@@ -118,9 +118,6 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		nil,
 		p.Name(),
 	)
-	if err != nil {
-		return nil, err
-	}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return nil, err
@@ -295,19 +292,18 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
 	// We only set op.JenkinsScopeConfig when it's nil and we have op.ScopeConfigId != 0
-	if op.ScopeConfig.DeploymentPattern != nil && op.ScopeConfig.ProductionPattern != nil {
-		if *op.ScopeConfig.DeploymentPattern == "" && *op.ScopeConfig.ProductionPattern == "" && op.ScopeConfigId != 0 {
-			var scopeConfig models.JenkinsScopeConfig
-			err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
-			if err != nil {
-				return errors.BadInput.Wrap(err, "fail to get scopeConfig")
-			}
-			op.ScopeConfig = &scopeConfig
+	if op.ScopeConfig.DeploymentPattern == nil && op.ScopeConfig.ProductionPattern == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.JenkinsScopeConfig
+		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+		if err != nil {
+			return errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-
-		if *op.ScopeConfig.DeploymentPattern == "" && *op.ScopeConfig.ProductionPattern == "" && op.ScopeConfigId == 0 {
-			op.ScopeConfig = new(models.JenkinsScopeConfig)
-		}
+		op.ScopeConfig = &scopeConfig
 	}
+
+	if *op.ScopeConfig.DeploymentPattern == "" && *op.ScopeConfig.ProductionPattern == "" && op.ScopeConfigId == 0 {
+		op.ScopeConfig = new(models.JenkinsScopeConfig)
+	}
+
 	return nil
 }
