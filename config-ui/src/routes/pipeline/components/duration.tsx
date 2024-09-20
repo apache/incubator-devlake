@@ -22,7 +22,7 @@ import { IPipelineStatus } from '@/types';
 
 const duration = (minute: number) => {
   if (minute < 1) {
-    return '1m';
+    return '< 1m';
   }
 
   if (minute < 60) {
