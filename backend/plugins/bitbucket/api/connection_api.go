@@ -211,7 +211,7 @@ func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugi
 			SELECT build_number, ref_name, p.repo_id, web_url,bitbucket_created_on
 			FROM _tool_bitbucket_pipelines p
 			LEFT JOIN _tool_bitbucket_pipeline_steps s on s.pipeline_id = p.bitbucket_id
-			WHERE s.connection_id = ? AND 
+			WHERE s.connection_id = ? 
    				AND (s.name REGEXP ?)
     			AND (? = '' OR s.name REGEXP ?)
 		) AS t
