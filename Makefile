@@ -17,8 +17,8 @@
 # https://stackoverflow.com/questions/920413/make-error-missing-separator
 # https://tutorialedge.net/golang/makefiles-for-go-developers/
 
-SHA := $(shell git show -s --format=%h 2>/dev/null || echo "default_SHA")
-TAG := $(shell git tag --points-at HEAD 2>/dev/null || echo "default_TAG")
+SHA ?= $(shell git show -s --format=%h 2>/dev/null || echo "default_SHA")
+TAG ?= $(shell git tag --points-at HEAD 2>/dev/null || echo "default_TAG")
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 
