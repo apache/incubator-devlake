@@ -16,35 +16,31 @@
  *
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Table } from 'antd';
 
-import API from '@/api';
-import { useRefreshData } from '@/hooks';
 import { getPluginScopeId, ScopeConfig } from '@/plugins';
 
 interface Props {
   plugin: string;
   connectionId: ID;
-  scopeIds: ID[];
+  scopes: any[];
 }
 
-export const BlueprintConnectionDetailTable = ({ plugin, connectionId, scopeIds }: Props) => {
+export const BlueprintConnectionDetailTable = ({ plugin, connectionId, scopes }: Props) => {
   const [version, setVersion] = useState(1);
 
-  const { ready, data } = useRefreshData(async () => {
-    const scopes = await Promise.all(scopeIds.map((scopeId) => API.scope.get(plugin, connectionId, scopeId)));
+  const dataSource = useMemo(() => {
     return scopes.map((sc) => ({
       id: getPluginScopeId(plugin, sc.scope),
       name: sc.scope.fullName ?? sc.scope.name,
       scopeConfigId: sc.scopeConfig?.id,
       scopeConfigName: sc.scopeConfig?.name,
     }));
-  }, [version]);
+  }, [scopes]);
 
   return (
     <Table
-      loading={!ready}
       rowKey="id"
       size="middle"
       columns={[
@@ -69,7 +65,7 @@ export const BlueprintConnectionDetailTable = ({ plugin, connectionId, scopeIds 
           ),
         },
       ]}
-      dataSource={data ?? []}
+      dataSource={dataSource}
     />
   );
 };
