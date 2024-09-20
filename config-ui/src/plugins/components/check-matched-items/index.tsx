@@ -51,6 +51,9 @@ export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Prop
 
   useEffect(() => {
     dispatch({ type: 'RESET' });
+    setInitial(false);
+    setPage(1);
+    setTotal(0);
   }, [transformation.deploymentPattern, transformation.productionPattern]);
 
   const handleLoadItems = async () => {
