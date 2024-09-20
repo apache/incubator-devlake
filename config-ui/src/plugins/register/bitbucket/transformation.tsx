@@ -52,7 +52,7 @@ export const BitbucketTransformation = ({
     } else {
       setUseCustom(false);
     }
-  }, [transformation]);
+  }, []);
 
   const options = useMemo(() => {
     const disabledOptions = [
@@ -249,12 +249,14 @@ const renderCollapseItems = ({
                   }
                 />
                 <span>.</span>
+                <i style={{ color: '#E34040' }}>*</i>
                 <HelpTooltip content="View your Bitbucket Pipelines: https://support.atlassian.com/bitbucket-cloud/docs/view-your-pipeline/" />
               </div>
-              <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+              <div style={{ margin: '8px 0' }}>
                 <span>If the branch or the step also matches</span>
                 <Input
                   style={{ width: 200, margin: '0 8px' }}
+                  disabled={!transformation.deploymentPattern}
                   placeholder="(?i)(prod|release)"
                   value={transformation.productionPattern ?? ''}
                   onChange={(e) =>
