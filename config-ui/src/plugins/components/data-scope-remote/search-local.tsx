@@ -31,13 +31,9 @@ import * as S from './styled';
 type StateType = {
   status: string;
   scope: any[];
-  originData: any[];
 };
 
-const reducer = (
-  state: StateType,
-  action: { type: string; payload?: Pick<Partial<StateType>, 'scope' | 'originData'> },
-) => {
+const reducer = (state: StateType, action: { type: string; payload?: Pick<Partial<StateType>, 'scope'> }) => {
   switch (action.type) {
     case 'LOADING':
       return {
@@ -48,7 +44,6 @@ const reducer = (
       return {
         ...state,
         scope: [...state.scope, ...(action.payload?.scope ?? [])],
-        originData: [...state.originData, ...(action.payload?.originData ?? [])],
       };
     case 'DONE':
       return {
@@ -74,50 +69,49 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  const [{ status, scope, originData }, dispatch] = useReducer(reducer, {
+  const [{ status, scope }, dispatch] = useReducer(reducer, {
     status: 'idle',
     scope: [],
-    originData: [],
   });
 
   const searchDebounce = useDebounce(search, { wait: 500 });
 
   const request = useCallback(
     async (groupId?: string | number, params?: any) => {
-      if (scope.length) {
-        return {
-          data: searchDebounce
-            ? scope
-                .filter((it) => it.title.includes(searchDebounce) && !it.canExpand)
-                .map((it) => ({ ...it, parentId: null }))
-            : scope.filter((it) => it.parentId === (groupId ?? null)),
-          hasMore: status === 'loading' ? true : false,
-          originData,
-        };
-      }
-
       const res = await API.scope.remote(plugin, connectionId, {
         groupId: groupId ?? null,
         pageToken: params?.nextPageToken,
       });
 
-      const data = res.children.map((it) => ({
-        parentId: it.parentId,
-        id: it.id,
-        title: it.name ?? it.fullName,
-        canExpand: it.type === 'group',
-      }));
-
       return {
-        data,
+        data: res.children.map((it) => ({
+          parentId: it.parentId,
+          id: it.id,
+          title: it.name ?? it.fullName,
+          canExpand: it.type === 'group',
+          original: it,
+        })),
         hasMore: !!res.nextPageToken,
         params: {
           nextPageToken: res.nextPageToken,
         },
-        originData: res.children,
       };
     },
-    [plugin, connectionId, scope, status, searchDebounce],
+    [plugin, connectionId, scope, searchDebounce],
+  );
+
+  const requestAll = useCallback(
+    async (groupId?: string | number) => {
+      return {
+        data: searchDebounce
+          ? scope
+              .filter((it) => it.title.includes(searchDebounce) && !it.canExpand)
+              .map((it) => ({ ...it, parentId: null }))
+          : scope.filter((it) => it.parentId === (groupId ?? null)),
+        hasMore: false,
+      };
+    },
+    [scope, searchDebounce],
   );
 
   const handleRequestAll = async () => {
@@ -135,9 +129,9 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
         id: it.id,
         title: it.name ?? it.fullName,
         canExpand: it.type === 'group',
+        original: it,
       }));
-
-      dispatch({ type: 'APPEND', payload: { scope: data, originData: res.children } });
+      dispatch({ type: 'APPEND', payload: { scope: data } });
 
       if (res.nextPageToken) {
         await getData(groupId, res.nextPageToken);
@@ -172,17 +166,17 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
         </Space>
       </Block>
       <Block>
-        {(status === 'loading' || status === 'cancel') && (
+        {status === 'loading' && (
           <S.JobLoad>
             <Loading style={{ marginRight: 8 }} size={20} />
-            Loading: <span className="count">{scope.length}</span> scopes found
+            Loading: <span className="count">{scope.filter((sc) => !sc.canExpand).length}</span> scopes found
           </S.JobLoad>
         )}
 
         {status === 'done' && (
           <S.JobLoad>
             <CheckCircleFilled style={{ color: '#4DB764' }} />
-            <span className="count">{scope.length}</span> scopes found
+            <span className="count">{scope.filter((sc) => !sc.canExpand).length}</span> scopes found
           </S.JobLoad>
         )}
 
@@ -195,32 +189,59 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
         )}
       </Block>
       <Block>
-        {status === 'done' && (
-          <Input prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} />
+        {status === 'idle' && (
+          <MillerColumns
+            bordered
+            theme={{
+              colorPrimary: '#7497f7',
+              borderColor: '#dbe4fd',
+            }}
+            request={request}
+            columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
+            columnHeight={300}
+            mode={mode}
+            renderTitle={(id) =>
+              !id &&
+              config.millerColumn?.firstColumnTitle && (
+                <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>
+              )
+            }
+            renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+            renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
+            selectable
+            disabledIds={(disabledScope ?? []).map((it) => it.id)}
+            selectedIds={selectedScope.map((it) => it.id)}
+            onSelectedIds={(_, data) => onChange(data ?? [])}
+          />
         )}
-        <MillerColumns
-          bordered
-          theme={{
-            colorPrimary: '#7497f7',
-            borderColor: '#dbe4fd',
-          }}
-          request={request}
-          columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
-          columnHeight={300}
-          mode={mode}
-          renderTitle={(id) =>
-            !id &&
-            config.millerColumn?.firstColumnTitle && (
-              <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>
-            )
-          }
-          renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-          renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
-          selectable
-          disabledIds={(disabledScope ?? []).map((it) => it.id)}
-          selectedIds={selectedScope.map((it) => it.id)}
-          onSelectedIds={(ids, data) => onChange((data ?? []).filter((it) => ids.includes(it.id)))}
-        />
+        {status === 'done' && (
+          <>
+            <Input prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} />
+            <MillerColumns
+              bordered
+              theme={{
+                colorPrimary: '#7497f7',
+                borderColor: '#dbe4fd',
+              }}
+              request={requestAll}
+              columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
+              columnHeight={300}
+              mode={mode}
+              renderTitle={(id) =>
+                !id &&
+                config.millerColumn?.firstColumnTitle && (
+                  <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>
+                )
+              }
+              renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+              renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
+              selectable
+              disabledIds={(disabledScope ?? []).map((it) => it.id)}
+              selectedIds={selectedScope.map((it) => it.id)}
+              onSelectedIds={(_, data) => onChange(data ?? [])}
+            />
+          </>
+        )}
       </Block>
       <Modal open={open} centered onOk={handleRequestAll} onCancel={() => setOpen(false)}>
         <Message content={`This operation may take a long time, as it iterates through all the ${config.title}.`} />
