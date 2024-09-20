@@ -56,9 +56,6 @@ export const JenkinsConfig: IPluginConfig = {
   },
   scopeConfig: {
     entities: ['CICD'],
-    transformation: {
-      deploymentPattern: '(deploy|push-image)',
-      productionPattern: 'prod(.*)',
-    },
+    transformation: {},
   },
 };
