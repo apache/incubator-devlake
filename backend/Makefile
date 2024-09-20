@@ -23,7 +23,6 @@ IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 PYTHON_DIR ?= "./python"
 
-
 all: build
 
 go-dep:
