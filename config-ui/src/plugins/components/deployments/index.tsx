@@ -90,7 +90,13 @@ export const Deployments = ({ style, plugin, connectionId, transformation, setTr
       {type === 'regex' ? (
         <Input placeholder="(?i)prod(.*)" onChange={handleChangeRegex} />
       ) : (
-        <Select mode="tags" style={{ width: 180 }} maxTagCount={2} onChange={handleChangeSelect}>
+        <Select
+          mode="tags"
+          style={{ width: 180 }}
+          maxTagCount={2}
+          value={transformation.envNameList}
+          onChange={handleChangeSelect}
+        >
           {data.map((d) => (
             <Select.Option key={d} value={d}>
               {d}
