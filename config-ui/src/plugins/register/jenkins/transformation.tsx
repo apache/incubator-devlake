@@ -102,7 +102,7 @@ const renderCollapseItems = ({
             </span>
             <Input
               style={{ width: 200, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
+              placeholder="(?i)(deploy|push-image)"
               value={transformation.deploymentPattern ?? ''}
               onChange={(e) =>
                 onChangeTransformation({
@@ -120,7 +120,7 @@ const renderCollapseItems = ({
             <Input
               style={{ width: 120, margin: '0 8px' }}
               disabled={!transformation.deploymentPattern}
-              placeholder="prod(.*)"
+              placeholder="(?i)(prod|release)"
               value={transformation.productionPattern ?? ''}
               onChange={(e) =>
                 onChangeTransformation({
