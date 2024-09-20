@@ -48,7 +48,6 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
       let data = [];
       let hasMore = false;
       let newParams = {};
-      let originData = [];
 
       if (!searchDebounce) {
         const res = await API.scope.remote(plugin, connectionId, {
@@ -61,13 +60,13 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
           id: it.id,
           title: it.name ?? it.fullName,
           canExpand: it.type === 'group',
+          original: it,
         }));
 
         hasMore = !!res.nextPageToken;
         newParams = {
           pageToken: res.nextPageToken,
         };
-        originData = res.children;
       } else {
         const res = await API.scope.searchRemote(plugin, connectionId, {
           search: searchDebounce,
@@ -80,6 +79,7 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
           id: it.id,
           title: it.fullName ?? it.name,
           canExpand: it.type === 'group',
+          original: it,
         }));
 
         hasMore = res.children.length === res.pageSize;
@@ -87,14 +87,12 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
           page: (params?.page ?? 0) + 1,
           count: (params?.count ?? 0) + res.children.length,
         };
-        originData = res.children;
       }
 
       return {
         data,
         hasMore,
         params: newParams,
-        originData,
       };
     },
     [plugin, connectionId, searchDebounce],
@@ -147,7 +145,7 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
           selectable
           disabledIds={disabledScope.map((it) => it.id)}
           selectedIds={selectedScope.map((it) => it.id)}
-          onSelectedIds={(ids, data) => onChange((data ?? []).filter((it) => ids.includes(it.id)))}
+          onSelectedIds={(_, data) => onChange(data ?? [])}
         />
       </Block>
     </>
