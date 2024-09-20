@@ -20,6 +20,7 @@ package services
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
+	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 	"strings"
 	"time"
@@ -322,6 +323,31 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	return makeProjectOutput(project, false)
 }
 
+func thereAreUnfinishedPipelinesUnderProject(projectName string) (bool, errors.Error) {
+	blueprint, err := GetBlueprintByProjectName(projectName)
+	if err != nil {
+		return false, err
+	}
+	return thereAreUnfinishedPipelinesUnderBlueprint(blueprint.ID)
+}
+
+func thereAreUnfinishedPipelinesUnderBlueprint(blueprintID uint64) (bool, errors.Error) {
+	// get the first page
+	dbPipelines, count, err := GetDbPipelines(&PipelineQuery{BlueprintId: blueprintID})
+	if err != nil {
+		return false, err
+	}
+	if count <= 0 {
+		return false, nil
+	}
+	for _, pipeline := range dbPipelines {
+		if !slices.Contains(models.FinishedTaskStatus, pipeline.Status) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // DeleteProject FIXME ...
 func DeleteProject(name string) errors.Error {
 	// verify input
@@ -332,6 +358,14 @@ func DeleteProject(name string) errors.Error {
 	_, err := getProjectByName(db, name)
 	if err != nil {
 		return err
+	}
+	// make sure there is no running pipelines in current projects
+	pipelinesAreUnfinished, err := thereAreUnfinishedPipelinesUnderProject(name)
+	if err != nil {
+		return err
+	}
+	if pipelinesAreUnfinished {
+		return errors.Default.New("There are unfinished pipelines under current project. It can not be deleted now.")
 	}
 	err = deleteProjectBlueprint(name)
 	if err != nil {
