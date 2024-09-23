@@ -127,6 +127,7 @@ const renderCollapseItems = ({
             <Input
               style={{ width: 200, margin: '0 8px' }}
               placeholder="(?i)(prod|release)"
+              disabled={!transformation.deploymentPattern}
               value={transformation.productionPattern ?? ''}
               onChange={(e) =>
                 onChangeTransformation({
