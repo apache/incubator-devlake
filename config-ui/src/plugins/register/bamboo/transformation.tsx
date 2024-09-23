@@ -43,7 +43,7 @@ export const BambooTransformation = ({ plugin, connectionId, entities, transform
     } else {
       setUseCustom(false);
     }
-  }, [transformation]);
+  }, []);
 
   const handleChangeUseCustom = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
@@ -177,6 +177,7 @@ const renderCollapseItems = ({
                 <Input
                   style={{ width: 180, margin: '0 8px' }}
                   placeholder="(?i)(prod|release)"
+                  disabled={!transformation.deploymentPattern}
                   value={transformation.productionPattern ?? ''}
                   onChange={(e) =>
                     onChangeTransformation({
