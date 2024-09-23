@@ -23,6 +23,7 @@ import { Flex, Button, Tag } from 'antd';
 import API from '@/api';
 import type { ITransform2deployments } from '@/api/scope-config/types';
 import { ExternalLink } from '@/components';
+import { operator } from '@/utils';
 
 const reducer = (state: ITransform2deployments[], action: { type: string; payload?: ITransform2deployments[] }) => {
   switch (action.type) {
@@ -57,20 +58,26 @@ export const CheckMatchedItems = ({ plugin, connectionId, transformation }: Prop
   }, [transformation.deploymentPattern, transformation.productionPattern]);
 
   const handleLoadItems = async () => {
-    setLoading(true);
-    const res = await API.scopeConfig.transform2deployments(plugin, connectionId, {
-      deploymentPattern: transformation.deploymentPattern,
-      productionPattern: transformation.productionPattern,
-      page,
-      pageSize: 10,
-    });
+    const [success, res] = await operator(
+      () =>
+        API.scopeConfig.transform2deployments(plugin, connectionId, {
+          deploymentPattern: transformation.deploymentPattern,
+          productionPattern: transformation.productionPattern,
+          page,
+          pageSize: 10,
+        }),
+      {
+        setOperating: setLoading,
+        hideToast: true,
+      },
+    );
 
-    dispatch({ type: 'APPEND', payload: res.data ?? [] });
-
-    setInitial(true);
-    setPage(page + 1);
-    setTotal(res.total);
-    setLoading(false);
+    if (success) {
+      dispatch({ type: 'APPEND', payload: res.data ?? [] });
+      setInitial(true);
+      setPage(page + 1);
+      setTotal(res.total);
+    }
   };
 
   return (
