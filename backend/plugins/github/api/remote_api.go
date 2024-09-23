@@ -202,18 +202,25 @@ func listGithubAppInstalledRepos(
 	}
 	var appRepos GithubAppRepo
 	errors.Must(api.UnmarshalResponse(resApp, &appRepos))
-	processedOrgs := make(map[string]struct{})
 	for _, r := range appRepos.Repositories {
 		orgName := r.Owner.Login
-		if _, exists := processedOrgs[orgName]; !exists && orgName != "" {
+		if orgName != "" {
 			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
 				Type:     api.RAS_ENTRY_TYPE_SCOPE,
 				ParentId: &orgName,
 				Id:       fmt.Sprintf("%v", r.ID),
 				Name:     fmt.Sprintf("%v", r.Name),
 				FullName: fmt.Sprintf("%v", r.FullName),
+				Data: &models.GithubRepo{
+					GithubId:    r.ID,
+					Name:        r.Name,
+					FullName:    r.FullName,
+					HTMLUrl:     r.HTMLURL,
+					Description: r.Description,
+					OwnerId:     r.Owner.ID,
+					CloneUrl:    r.CloneURL,
+				},
 			})
-			processedOrgs[orgName] = struct{}{}
 		}
 	}
 	if len(appRepos.Repositories) == page.PerPage {
