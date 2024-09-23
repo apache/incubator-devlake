@@ -32,14 +32,14 @@ const duration = (minute: number) => {
   if (minute < 60 * 24) {
     const hours = Math.floor(minute / 60);
     const minutes = minute - hours * 60;
-    return `${hours}h${minutes !== 0 ? `${minutes}m` : ''}`;
+    return `${hours}h${minutes !== 0 ? ` ${minutes}m` : ''}`;
   }
 
   const days = Math.floor(minute / (60 * 24));
   const hours = Math.floor((minute - days * 60 * 24) / 60);
   const minutes = minute - days * 60 * 24 - hours * 60;
 
-  return `${days}d${hours !== 0 ? `${hours}h` : ''}${minutes !== 0 ? `${minutes}m` : ''}`;
+  return `${days}d${hours !== 0 ? ` ${hours}h` : ''}${minutes !== 0 ? ` ${minutes}m` : ''}`;
 };
 
 interface Props {
