@@ -108,7 +108,6 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					deploymentCommit.Environment = devops.PRODUCTION
 				}
 			}
-
 			deploymentCommit.CicdDeploymentId = deploymentCommit.Id
 			return []interface{}{
 				deploymentCommit,

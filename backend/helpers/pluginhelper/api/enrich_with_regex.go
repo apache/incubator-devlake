@@ -112,7 +112,6 @@ func (r *RegexEnricher) TryAddList(name string, patterns ...string) errors.Error
 	if _, ok := r.regexMapList[name]; ok {
 		return errors.Default.New(fmt.Sprintf("Regex pattern with name: %s already exists", name))
 	}
-
 	var regexList []*regexp.Regexp
 	for _, pattern := range patterns {
 		if pattern == "" {
@@ -137,17 +136,17 @@ func (r *RegexEnricher) ReturnNameIfMatchedList(name string, targets ...string) 
 	if regexList, ok := r.regexMapList[name]; !ok {
 		return ""
 	} else {
+		matched := false
 		for _, regex := range regexList {
-			matched := false
 			for _, target := range targets {
 				if regex.MatchString(target) {
 					matched = true
-					break
+					return name
 				}
 			}
-			if !matched {
-				return "" // If any regex fails to match, return ""
-			}
+		}
+		if !matched {
+			return "" // If any regex fails to match, return ""
 		}
 	}
 	return name // Return name if all regex conditions were fulfilled
