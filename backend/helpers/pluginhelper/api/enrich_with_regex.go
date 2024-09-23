@@ -136,18 +136,14 @@ func (r *RegexEnricher) ReturnNameIfMatchedList(name string, targets ...string) 
 	if regexList, ok := r.regexMapList[name]; !ok {
 		return ""
 	} else {
-		matched := false
 		for _, regex := range regexList {
 			for _, target := range targets {
 				if regex.MatchString(target) {
-					matched = true
 					return name
 				}
 			}
 		}
-		if !matched {
-			return "" // If any regex fails to match, return ""
-		}
+		return "" // If any regex fails to match, return ""
 	}
 	return name // Return name if all regex conditions were fulfilled
 }
