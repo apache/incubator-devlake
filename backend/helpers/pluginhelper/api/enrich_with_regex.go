@@ -145,7 +145,6 @@ func (r *RegexEnricher) ReturnNameIfMatchedList(name string, targets ...string) 
 		}
 		return "" // If any regex fails to match, return ""
 	}
-	return name // Return name if all regex conditions were fulfilled
 }
 
 // ReturnNameIfOmittedOrMatched returns the given name if regex of the given name is omitted or fallback to ReturnNameIfMatched
