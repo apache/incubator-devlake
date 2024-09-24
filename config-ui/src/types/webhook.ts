@@ -17,7 +17,7 @@
  */
 
 export interface IWebhookAPI {
-  id: number;
+  id: ID;
   name: string;
   postIssuesEndpoint: string;
   closeIssuesEndpoint: string;
@@ -29,7 +29,7 @@ export interface IWebhookAPI {
 }
 
 export interface IWebhook {
-  id: number;
+  id: ID;
   name: string;
   postIssuesEndpoint: string;
   closeIssuesEndpoint: string;

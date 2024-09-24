@@ -16,16 +16,4 @@
  *
  */
 
-import { selectProject } from '@/features/project';
-import { useAppSelector } from '@/hooks';
-import { BlueprintDetail, FromEnum } from '@/routes';
-
-export const ProjectGeneralSettings = () => {
-  const project = useAppSelector(selectProject);
-
-  if (!project) {
-    return null;
-  }
-
-  return <BlueprintDetail id={project.blueprint.id} from={FromEnum.project} />;
-};
+export * from './slice';
