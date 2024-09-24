@@ -88,7 +88,7 @@ export const Deployments = ({ style, plugin, connectionId, transformation, setTr
         <Select.Option value="regex">matches</Select.Option>
       </Select>
       {type === 'regex' ? (
-        <Input placeholder="(?i)prod(.*)" onChange={handleChangeRegex} />
+        <Input placeholder="(?i)prod(.*)" value={transformation.envNamePattern} onChange={handleChangeRegex} />
       ) : (
         <Select
           mode="tags"
