@@ -108,7 +108,7 @@ export const ProjectAdditionalSettings = () => {
 
     if (success) {
       setVersion((v) => v + 1);
-      navigate(`/projects/${encodeURIComponent(pname)}`, {
+      navigate(`/projects/${encodeURIComponent(name)}`, {
         state: {
           tabId: 'settings',
         },
@@ -149,7 +149,7 @@ export const ProjectAdditionalSettings = () => {
           <Block
             title={
               <Checkbox checked={dora.enable} onChange={(e) => setDora({ enable: e.target.checked })}>
-                Enable DORA Metrics
+                Enable DORA metrics
               </Checkbox>
             }
             description="DORA metrics are four widely-adopted metrics for measuring software delivery performance."
