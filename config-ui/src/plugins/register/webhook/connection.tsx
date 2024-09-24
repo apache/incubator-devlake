@@ -115,7 +115,10 @@ export const WebHookConnection = ({ filterIds, fromProject = false, onAssociate,
           title="Remove this Webhook?"
           okText="Confirm"
           onCancel={handleHideDialog}
-          onOk={() => onRemove?.(currentID)}
+          onOk={() => {
+            onRemove?.(currentID);
+            handleHideDialog();
+          }}
         >
           <Message content="This will only remove the webhook from this project. To permanently delete the webhook, please visit the Connections page." />
         </Modal>

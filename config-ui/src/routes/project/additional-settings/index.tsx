@@ -17,12 +17,13 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Flex, Space, Card, Modal, Input, Checkbox, Button } from 'antd';
 
 import API from '@/api';
 import { Block, HelpTooltip, Message } from '@/components';
-import { useRefreshData } from '@/hooks';
+import { selectProject } from '@/features/project';
+import { useAppSelector } from '@/hooks';
 import { operator } from '@/utils';
 
 const RegexPrIssueDefaultValue = '(?mi)(Closes)[\\s]*.*(((and )?#\\d+[ ]*)+)';
@@ -41,13 +42,10 @@ export const ProjectAdditionalSettings = () => {
   });
   const [operating, setOperating] = useState(false);
   const [open, setOpen] = useState(false);
-  const [version, setVersion] = useState(0);
 
   const navigate = useNavigate();
 
-  const { pname } = useParams() as { pname: string };
-
-  const { data: project } = useRefreshData(() => API.project.get(pname), [pname, version]);
+  const project = useAppSelector(selectProject);
 
   useEffect(() => {
     if (!project) {
@@ -107,7 +105,6 @@ export const ProjectAdditionalSettings = () => {
     );
 
     if (success) {
-      setVersion((v) => v + 1);
       navigate(`/projects/${encodeURIComponent(name)}`, {
         state: {
           tabId: 'settings',
