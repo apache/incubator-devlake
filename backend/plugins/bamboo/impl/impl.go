@@ -160,11 +160,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		if err != nil {
 			return nil, err
 		}
-
 		op.ScopeConfigId = scope.ScopeConfigId
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find plan: %s", op.PlanKey))
-		}
 	}
 
 	if op.BambooScopeConfig == nil && op.ScopeConfigId != 0 {
