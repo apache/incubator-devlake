@@ -17,14 +17,15 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
+import { useNavigate, Link } from 'react-router-dom';
+import { MoreOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
+import { theme, Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
 
 import API from '@/api';
 import { Message } from '@/components';
 import { getCron } from '@/config';
-import { useRefreshData } from '@/hooks';
+import { selectAllConnections } from '@/features/connections';
+import { useAppSelector, useRefreshData } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
 import { IBlueprint } from '@/types';
 import { formatTime, operator } from '@/utils';
@@ -39,12 +40,21 @@ interface Props {
 }
 
 export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) => {
-  const [type, setType] = useState<'delete' | 'fullSync'>();
+  const [type, setType] = useState<'delete' | 'fullSync' | 'checkTokenFailed'>();
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [operating, setOperating] = useState(false);
+  const [connectionFailed, setConnectionFailed] = useState<
+    Array<{ unique: string; name: string; plugin: string; connectionId: ID }>
+  >([]);
 
   const navigate = useNavigate();
+
+  const {
+    token: { orange5 },
+  } = theme.useToken();
+
+  const connections = useAppSelector(selectAllConnections);
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
@@ -64,6 +74,32 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     skipCollectors?: boolean;
     fullSync?: boolean;
   }) => {
+    if (!skipCollectors && from === FromEnum.project) {
+      const [success, res] = await operator(() => API.project.check(blueprint.projectName, { check_token: 1 }), {
+        hideToast: true,
+        setOperating,
+      });
+
+      if (success && res.tokens.length) {
+        const connectionFailed = res.tokens
+          .filter((token: any) => !token.success)
+          .map((it: any) => {
+            const unique = `${it.pluginName}-${it.connectionId}`;
+            const connection = connections.find((c) => c.unique === unique);
+            return {
+              unique,
+              name: connection?.name ?? '',
+              plugin: it.pluginName,
+              connectionId: it.connectionId,
+            };
+          });
+
+        setType('checkTokenFailed');
+        setConnectionFailed(connectionFailed);
+        return;
+      }
+    }
+
     const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync }), {
       setOperating,
       formatMessage: () => 'Trigger blueprint successful.',
@@ -243,6 +279,35 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           onOk={() => handleRun({ fullSync: true })}
         >
           <Message content="This operation may take a long time as it will empty all of your existing data and re-collect it." />
+        </Modal>
+      )}
+
+      {type === 'checkTokenFailed' && (
+        <Modal
+          open
+          title={
+            <>
+              <WarningOutlined style={{ marginRight: 8, fontSize: 20, color: orange5 }} />
+              <span>Invalid Token(s) Detected</span>
+            </>
+          }
+          width={820}
+          footer={null}
+          onCancel={() => {
+            handleResetType();
+            setConnectionFailed([]);
+          }}
+        >
+          <p>There are invalid tokens in the following connections. Please update them before re-syncing the data.</p>
+          <ul style={{ paddingLeft: 20 }}>
+            {connectionFailed.map((it) => (
+              <li key={it.unique} style={{ listStyle: 'initial' }}>
+                <Link to={`/connections/${it.plugin}/${it.connectionId}`} target="_blank">
+                  {it.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </Modal>
       )}
     </Flex>
