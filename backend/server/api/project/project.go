@@ -58,6 +58,7 @@ func GetProject(c *gin.Context) {
 // @Tags framework/projects
 // @Accept application/json
 // @Param projectName path string true "project name"
+// @Param check_token query int false "need to check token validity or not"
 // @Success 200  {object} models.ApiProjectCheck
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
