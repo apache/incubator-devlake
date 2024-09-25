@@ -117,6 +117,30 @@ func GetBlueprint(blueprintId uint64, shouldSanitize bool) (*models.Blueprint, e
 	return blueprint, nil
 }
 
+func CheckBlueprintConnectionTokens(blueprintId uint64) (*models.ApiBlueprintConnectionTokenCheck, errors.Error) {
+	blueprint, err := GetBlueprint(blueprintId, false)
+	if err != nil {
+		return nil, err
+	}
+	var ret models.ApiBlueprintConnectionTokenCheck
+	for _, connection := range blueprint.Connections {
+		pluginName := connection.PluginName
+		connectionId := connection.ConnectionId
+		connectionTokenResult := models.ConnectionTokenCheckResult{
+			PluginName:   pluginName,
+			ConnectionID: connectionId,
+			Success:      true,
+			Message:      "success",
+		}
+		if err := checkConnectionToken(logger, *connection); err != nil {
+			connectionTokenResult.Success = false
+			connectionTokenResult.Message = err.Error()
+		}
+		ret = append(ret, connectionTokenResult)
+	}
+	return &ret, nil
+}
+
 // GetBlueprintByProjectName returns the detail of a given ProjectName
 func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Error) {
 	if projectName == "" {

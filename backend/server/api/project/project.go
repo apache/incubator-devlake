@@ -58,14 +58,12 @@ func GetProject(c *gin.Context) {
 // @Tags framework/projects
 // @Accept application/json
 // @Param projectName path string true "project name"
-// @Param check_token query int false "need to check token validity or not"
 // @Success 200  {object} models.ApiProjectCheck
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects/{projectName}/check [get]
 func GetProjectCheck(c *gin.Context) {
 	projectName := c.Param("projectName")
-
 	projectOutputCheck := &models.ApiProjectCheck{}
 	_, err := services.GetProject(projectName)
 	if err != nil {
@@ -73,16 +71,6 @@ func GetProjectCheck(c *gin.Context) {
 	} else {
 		projectOutputCheck.Exist = true
 	}
-
-	if c.Query("check_token") == "1" {
-		checkTokenResult, err := services.CheckProjectTokens(projectName)
-		if err != nil {
-			shared.ApiOutputError(c, errors.Default.Wrap(err, "error check project tokens"))
-			return
-		}
-		projectOutputCheck.Tokens = checkTokenResult
-	}
-
 	shared.ApiOutputSuccess(c, projectOutputCheck, http.StatusOK) // //shared.ApiOutputSuccess(c, projectOutputCheck, http.StatusOK)
 }
 
