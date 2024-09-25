@@ -58,7 +58,7 @@ func GetProject(c *gin.Context) {
 // @Tags framework/projects
 // @Accept application/json
 // @Param projectName path string true "project name"
-// @Success 200  {object} models.ApiOutputProject
+// @Success 200  {object} models.ApiProjectCheck
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects/{projectName}/check [get]
