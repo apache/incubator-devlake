@@ -73,8 +73,28 @@ type ApiOutputProject struct {
 }
 
 type ApiProjectCheck struct {
-	Exist bool `json:"exist" mapstructure:"exist"`
+	Exist  bool                  `json:"exist" mapstructure:"exist"`
+	Tokens *ApiProjectCheckToken `json:"tokens,omitempty" mapstructure:"tokens"`
 }
+
+type SuccessAndMessage struct {
+	Success bool   `json:"success" mapstructure:"success"`
+	Message string `json:"message" mapstructure:"message"`
+}
+
+// ApiProjectCheckToken
+//
+//	{
+//	    "plugin_name":
+//	    {
+//	        "connection_id":
+//	        {
+//	            "success": true,
+//	            "message": ""
+//	        }
+//	    }
+//	}
+type ApiProjectCheckToken = map[string]map[int]SuccessAndMessage
 
 type Store struct {
 	StoreKey   string          `gorm:"primaryKey;type:varchar(255)"`
