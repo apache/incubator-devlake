@@ -18,6 +18,9 @@ limitations under the License.
 package srvhelper
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -57,67 +60,59 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(conne
 }
 
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(pluginName string, scopeConfig *SC) (*models.ProjectScopeOutput, errors.Error) {
-	ps := &models.ProjectScopeOutput{}
-	projectMap := make(map[string]*models.ProjectScope)
-	// 1. get all scopes that are using the scopeConfigId
-	var scope []*S
-	err := scopeConfigSrv.db.All(&scope,
-		dal.Where("scope_config_id = ?", (*scopeConfig).ScopeConfigId()),
-	)
+	s := new(S)
+	// find out the primary key of the scope model
+	sPk, err := dal.GetPrimarykeyColumnNames(scopeConfigSrv.db, (interface{}(s)).(dal.Tabler))
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	for _, s := range scope {
-		// 2. get blueprint id by connection id and scope id
-		bpScope := []*models.BlueprintScope{}
-		err = scopeConfigSrv.db.All(&bpScope,
-			dal.Where("plugin_name = ? and connection_id = ? and scope_id = ?", pluginName, (*s).ScopeConnectionId(), (*s).ScopeId()),
+	if len(sPk) != 2 {
+		return nil, errors.Internal.New("Scope model should have 2 primary key fields")
+	}
+	theOtherPk := sPk[0]
+	if strings.HasSuffix(theOtherPk, ".connection_id") {
+		theOtherPk = sPk[1]
+	}
+	var bpss []struct {
+		S           *S `gorm:"embedded"`
+		BlueprintId uint64
+		ProjectName string
+		ScopeId     string
+	}
+	scopeTable := (*s).TableName()
+	errors.Must(scopeConfigSrv.db.All(
+		&bpss,
+		dal.Select(fmt.Sprintf("bp.id AS blueprint_id, bp.project_name, bps.scope_id, %s.*", scopeTable)),
+		dal.From("_devlake_blueprint_scopes bps"),
+		dal.Join("LEFT JOIN _devlake_blueprints bp ON (bp.id = bps.blueprint_id)"),
+		dal.Join(fmt.Sprintf("LEFT JOIN %s ON (%s.connection_id = bps.connection_id AND %s = bps.scope_id)", scopeTable, scopeTable, theOtherPk)),
+		dal.Where("bps.plugin_name = ? AND bps.connection_id = ?", pluginName, (*scopeConfig).ScopeConfigConnectionId()),
+	))
+	projectScopeMap := make(map[string]*models.ProjectScope)
+	for _, bps := range bpss {
+		if _, ok := projectScopeMap[bps.ProjectName]; !ok {
+			projectScopeMap[bps.ProjectName] = &models.ProjectScope{
+				Name:        bps.ProjectName,
+				BlueprintId: bps.BlueprintId,
+			}
+		}
+		projectScopeMap[bps.ProjectName].Scopes = append(
+			projectScopeMap[bps.ProjectName].Scopes,
+			struct {
+				ScopeID   string "json:\"scopeId\""
+				ScopeName string "json:\"scopeName\""
+			}{
+				ScopeID:   bps.ScopeId,
+				ScopeName: (*bps.S).ScopeName(),
+			},
 		)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, bs := range bpScope {
-			// 3. get project details by blueprint id
-			bp := models.Blueprint{}
-			err = scopeConfigSrv.db.All(&bp,
-				dal.Where("id = ?", bs.BlueprintId),
-			)
-			if err != nil {
-				return nil, err
-			}
-			if project, exists := projectMap[bp.ProjectName]; exists {
-				project.Scopes = append(project.Scopes, struct {
-					ScopeID   string `json:"scopeId"`
-					ScopeName string `json:"scopeName"`
-				}{
-					ScopeID:   bs.ScopeId,
-					ScopeName: (*s).ScopeName(),
-				})
-			} else {
-				projectMap[bp.ProjectName] = &models.ProjectScope{
-					Name:        bp.ProjectName,
-					BlueprintId: bp.ID,
-					Scopes: []struct {
-						ScopeID   string `json:"scopeId"`
-						ScopeName string `json:"scopeName"`
-					}{
-						{
-							ScopeID:   bs.ScopeId,
-							ScopeName: (*s).ScopeName(),
-						},
-					},
-				}
-			}
-		}
 	}
-	// 4. combine all projects
-	for _, project := range projectMap {
-		ps.Projects = append(ps.Projects, *project)
+	ps := &models.ProjectScopeOutput{}
+	for _, projectScope := range projectScopeMap {
+		ps.Projects = append(ps.Projects, *projectScope)
 	}
 	ps.Count = len(ps.Projects)
-
-	return ps, err
+	return ps, nil
 }
 
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) DeleteScopeConfig(scopeConfig *SC) (refs []*S, err errors.Error) {
