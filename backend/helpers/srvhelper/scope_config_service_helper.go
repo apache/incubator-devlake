@@ -62,10 +62,7 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(conne
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(pluginName string, scopeConfig *SC) (*models.ProjectScopeOutput, errors.Error) {
 	s := new(S)
 	// find out the primary key of the scope model
-	sPk, err := dal.GetPrimarykeyColumnNames(scopeConfigSrv.db, (interface{}(s)).(dal.Tabler))
-	if err != nil {
-		panic(err)
-	}
+	sPk := errors.Must1(dal.GetPrimarykeyColumnNames(scopeConfigSrv.db, (interface{}(s)).(dal.Tabler)))
 	if len(sPk) != 2 {
 		return nil, errors.Internal.New("Scope model should have 2 primary key fields")
 	}
@@ -99,8 +96,8 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 		projectScopeMap[bps.ProjectName].Scopes = append(
 			projectScopeMap[bps.ProjectName].Scopes,
 			struct {
-				ScopeID   string "json:\"scopeId\""
-				ScopeName string "json:\"scopeName\""
+				ScopeID   string `json:"scopeId"`
+				ScopeName string `json:"scopeName"`
 			}{
 				ScopeID:   bps.ScopeId,
 				ScopeName: (*bps.S).ScopeName(),
