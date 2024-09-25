@@ -59,6 +59,7 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.GET("/blueprints/:blueprintId", blueprints.Get)
 	r.POST("/blueprints/:blueprintId/trigger", blueprints.Trigger)
 	r.GET("/blueprints/:blueprintId/pipelines", blueprints.GetBlueprintPipelines)
+	r.GET("/blueprints/:blueprintId/connections-token-check", blueprints.GetBlueprintConnectionTokenCheck)
 
 	r.POST("/tasks/:taskId/rerun", task.PostRerun)
 

@@ -92,3 +92,12 @@ type SyncPolicy struct {
 	TimeAfter  *time.Time `json:"timeAfter"`
 	TriggerSyncPolicy
 }
+
+type ConnectionTokenCheckResult struct {
+	PluginName   string `json:"pluginName" mapstructure:"pluginName"`
+	ConnectionID uint64 `json:"connectionId" mapstructure:"connectionId"`
+	Success      bool   `json:"success" mapstructure:"success"`
+	Message      string `json:"message" mapstructure:"message"`
+}
+
+type ApiBlueprintConnectionTokenCheck []ConnectionTokenCheckResult
