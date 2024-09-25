@@ -215,6 +215,7 @@ func CheckProjectTokens(name string) (*models.ApiProjectCheckToken, errors.Error
 		}
 		ret = append(ret, connectionTokenResult)
 	}
+
 	return &ret, nil
 }
 
