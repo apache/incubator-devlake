@@ -24,16 +24,7 @@ export const list = (data: Pagination & { keyword?: string }): Promise<{ count: 
 
 export const get = (name: string): Promise<IProject> => request(`/projects/${encodeURIComponent(name)}`);
 
-export const check = (
-  name: string,
-  data?: { check_token: 1 },
-): Promise<{
-  exist: boolean;
-  tokens: Array<{ pluginName: string; connectionId: ID; success: boolean }>;
-}> =>
-  request(`/projects/${encodeURIComponent(name)}/check`, {
-    data,
-  });
+export const checkName = (name: string) => request(`/projects/${encodeURIComponent(name)}/check`);
 
 export const create = (data: Pick<IProject, 'name' | 'description' | 'metrics'>) =>
   request('/projects', {

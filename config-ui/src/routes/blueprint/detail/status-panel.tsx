@@ -74,15 +74,15 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     skipCollectors?: boolean;
     fullSync?: boolean;
   }) => {
-    if (!skipCollectors && from === FromEnum.project) {
-      const [success, res] = await operator(() => API.project.check(blueprint.projectName, { check_token: 1 }), {
+    if (!skipCollectors) {
+      const [success, res] = await operator(() => API.blueprint.connectionsTokenCheck(blueprint.id), {
         hideToast: true,
         setOperating,
       });
 
-      if (success && res.tokens.length) {
-        const connectionFailed = res.tokens
-          .filter((token: any) => !token.success)
+      if (success && res.length) {
+        const connectionFailed = res
+          .filter((it: any) => !it.success)
           .map((it: any) => {
             const unique = `${it.pluginName}-${it.connectionId}`;
             const connection = connections.find((c) => c.unique === unique);
