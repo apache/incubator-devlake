@@ -53,12 +53,12 @@ func GetProject(c *gin.Context) {
 	shared.ApiOutputSuccess(c, projectOutput, http.StatusOK)
 }
 
-// @Summary Get project exist check
-// @Description Get project exist check
+// @Summary Get project related check
+// @Description Get project related check info, such existence, token validity
 // @Tags framework/projects
 // @Accept application/json
 // @Param projectName path string true "project name"
-// @Success 200  {object} models.ApiOutputProject
+// @Success 200  {object} models.ApiProjectCheck
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects/{projectName}/check [get]
