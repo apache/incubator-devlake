@@ -193,6 +193,33 @@ func GetProject(name string) (*models.ApiOutputProject, errors.Error) {
 	return makeProjectOutput(project, false)
 }
 
+func CheckProjectTokens(name string) (*models.ApiProjectCheckToken, errors.Error) {
+	blueprint, err := GetBlueprintByProjectName(name)
+	if err != nil {
+		return nil, err
+	}
+	ret := make(map[string]map[int]models.SuccessAndMessage)
+	for _, connection := range blueprint.Connections {
+		pluginName := connection.PluginName
+		connectionId := int(connection.ConnectionId)
+		if _, ok := ret[pluginName]; !ok {
+			ret[pluginName] = make(map[int]models.SuccessAndMessage)
+		}
+		connectionTokenResult := models.SuccessAndMessage{
+			Success: true,
+			Message: "success",
+		}
+		if err := checkConnectionToken(logger, *connection); err != nil {
+			ret[pluginName][connectionId] = models.SuccessAndMessage{
+				Success: false,
+				Message: err.Error(),
+			}
+		}
+		ret[pluginName][connectionId] = connectionTokenResult
+	}
+	return &ret, nil
+}
+
 // PatchProject FIXME ...
 func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputProject, errors.Error) {
 	projectInput := &models.ApiInputProject{}

@@ -73,6 +73,15 @@ func GetProjectCheck(c *gin.Context) {
 		projectOutputCheck.Exist = true
 	}
 
+	if c.Query("check_token") == "1" {
+		checkTokenResult, err := services.CheckProjectTokens(projectName)
+		if err != nil {
+			shared.ApiOutputError(c, errors.Default.Wrap(err, "error check project tokens"))
+			return
+		}
+		projectOutputCheck.Tokens = checkTokenResult
+	}
+
 	shared.ApiOutputSuccess(c, projectOutputCheck, http.StatusOK) // //shared.ApiOutputSuccess(c, projectOutputCheck, http.StatusOK)
 }
 
