@@ -198,24 +198,22 @@ func CheckProjectTokens(name string) (*models.ApiProjectCheckToken, errors.Error
 	if err != nil {
 		return nil, err
 	}
-	ret := make(map[string]map[int]models.SuccessAndMessage)
+	var ret models.ApiProjectCheckToken
 	for _, connection := range blueprint.Connections {
 		pluginName := connection.PluginName
-		connectionId := int(connection.ConnectionId)
-		if _, ok := ret[pluginName]; !ok {
-			ret[pluginName] = make(map[int]models.SuccessAndMessage)
-		}
-		connectionTokenResult := models.SuccessAndMessage{
-			Success: true,
-			Message: "success",
+		connectionId := connection.ConnectionId
+		connectionTokenResult := models.TokenResultSuccessAndMessage{
+			PluginName:   pluginName,
+			ConnectionID: connectionId,
+			Success:      true,
+			Message:      "success",
 		}
 		if err := checkConnectionToken(logger, *connection); err != nil {
-			ret[pluginName][connectionId] = models.SuccessAndMessage{
-				Success: false,
-				Message: err.Error(),
-			}
+			connectionTokenResult.Success = false
+			connectionTokenResult.Message = err.Error()
+
 		}
-		ret[pluginName][connectionId] = connectionTokenResult
+		ret = append(ret, connectionTokenResult)
 	}
 	return &ret, nil
 }

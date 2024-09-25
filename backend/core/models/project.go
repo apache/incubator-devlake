@@ -77,24 +77,14 @@ type ApiProjectCheck struct {
 	Tokens *ApiProjectCheckToken `json:"tokens,omitempty" mapstructure:"tokens"`
 }
 
-type SuccessAndMessage struct {
-	Success bool   `json:"success" mapstructure:"success"`
-	Message string `json:"message" mapstructure:"message"`
+type TokenResultSuccessAndMessage struct {
+	PluginName   string `json:"pluginName" mapstructure:"pluginName"`
+	ConnectionID uint64 `json:"connectionId" mapstructure:"connectionId"`
+	Success      bool   `json:"success" mapstructure:"success"`
+	Message      string `json:"message" mapstructure:"message"`
 }
 
-// ApiProjectCheckToken
-//
-//	{
-//	    "plugin_name":
-//	    {
-//	        "connection_id":
-//	        {
-//	            "success": true,
-//	            "message": ""
-//	        }
-//	    }
-//	}
-type ApiProjectCheckToken = map[string]map[int]SuccessAndMessage
+type ApiProjectCheckToken []TokenResultSuccessAndMessage
 
 type Store struct {
 	StoreKey   string          `gorm:"primaryKey;type:varchar(255)"`
