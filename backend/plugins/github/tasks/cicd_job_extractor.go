@@ -84,9 +84,12 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				RunnerID:      githubJob.RunID,
 				RunnerName:    githubJob.RunnerName,
 				RunnerGroupID: githubJob.RunnerGroupID,
-				Type:          data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubJob.Name),
-				Environment:   data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubJob.Name),
 			}
+			if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
+				githubJobResult.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubJob.Name)
+				githubJobResult.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubJob.Name)
+			}
+
 			results = append(results, githubJobResult)
 			return results, nil
 		},

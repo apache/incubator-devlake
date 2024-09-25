@@ -73,20 +73,18 @@ export const DataScopeSelect = ({
         searchTerm: searchDebounce,
       });
 
-      const data = res.scopes.map((it) => ({
-        parentId: null,
-        id: getPluginScopeId(plugin, it.scope),
-        title: it.scope.fullName ?? it.scope.name,
-        canExpand: false,
-      }));
-
       return {
-        data,
+        data: res.scopes.map((it) => ({
+          parentId: null,
+          id: getPluginScopeId(plugin, it.scope),
+          title: it.scope.fullName ?? it.scope.name,
+          canExpand: false,
+          original: it,
+        })),
         hasMore: res.count > (params?.page ?? 1) * 20,
         params: {
           page: (params?.page ?? 1) + 1,
         },
-        originData: res.scopes,
       };
     },
     [plugin, connectionId, searchDebounce, version],
@@ -168,12 +166,10 @@ export const DataScopeSelect = ({
             onSelectedIds={(ids, data) => {
               setSelectedIds(ids);
               setSelectedScope(
-                data
-                  ?.filter((it) => ids.includes(getPluginScopeId(plugin, it.scope)))
-                  .map((it) => ({
-                    id: getPluginScopeId(plugin, it.scope),
-                    name: it.scope.fullName ?? it.scope.name,
-                  })) ?? [],
+                (data ?? []).map((it) => ({
+                  id: it.scope.id,
+                  name: it.scope.name,
+                })),
               );
             }}
           />

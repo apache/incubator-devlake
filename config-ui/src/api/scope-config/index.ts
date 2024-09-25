@@ -18,7 +18,7 @@
 
 import { request } from '@/utils';
 
-import { ICheck } from './types';
+import { ICheck, ITransform2deployments } from './types';
 
 export const list = (plugin: string, connectionId: ID) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`);
@@ -40,3 +40,19 @@ export const update = (plugin: string, connectionId: ID, id: ID, data: any) =>
 
 export const check = (plugin: string, id: ID): Promise<ICheck> =>
   request(`/plugins/${plugin}/scope-config/${id}/projects`);
+
+export const deployments = (plugin: string, connectionId: ID): Promise<string[]> =>
+  request(`/plugins/${plugin}/connections/${connectionId}/deployments`);
+
+export const transform2deployments = (
+  plugin: string,
+  connectionId: ID,
+  data: {
+    deploymentPattern: string;
+    productionPattern: string;
+  } & Pagination,
+): Promise<{ total: number; data: ITransform2deployments[] | null }> =>
+  request(`/plugins/${plugin}/connections/${connectionId}/transform-to-deployments`, {
+    method: 'post',
+    data,
+  });

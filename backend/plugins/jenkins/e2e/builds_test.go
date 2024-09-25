@@ -29,7 +29,6 @@ import (
 )
 
 func TestJenkinsBuildsDataFlow(t *testing.T) {
-
 	var jenkins impl.Jenkins
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "jenkins", jenkins)
 
@@ -41,6 +40,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			JobName:      `devlake`,
 			JobFullName:  `Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake`,
 			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
+			ScopeConfig:  new(models.JenkinsScopeConfig),
 		},
 		RegexEnricher: regexEnricher,
 	}

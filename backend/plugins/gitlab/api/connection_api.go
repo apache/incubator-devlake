@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -173,4 +174,127 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Router /plugins/gitlab/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return dsHelper.ConnApi.GetDetail(input)
+}
+
+// GetConnectionDeployments return one connection deployments
+// @Summary return one connection deployments
+// @Description return one connection deployments
+// @Tags plugins/gitlab
+// @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
+// @Success 200  {array} string "List of Environment Names"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/gitlab/connections/{connectionId}/deployments [GET]
+func GetConnectionDeployments(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	db := basicRes.GetDal()
+	connectionId := input.Params["connectionId"]
+	var environments []string
+	err := db.All(&environments,
+		dal.From(&models.GitlabDeployment{}),
+		dal.Where("connection_id = ?", connectionId),
+		dal.Select("DISTINCT environment"))
+	if err != nil {
+		return nil, err
+	}
+
+	return &plugin.ApiResourceOutput{
+		Body: environments,
+	}, nil
+}
+
+// GetConnectionTransformToDeployments return one connection deployments
+// @Summary return one connection deployments
+// @Description return one connection deployments
+// @Tags plugins/gitlab
+// @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
+// @Success 200  {object} map[string]interface{}
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/gitlab/connections/{connectionId}/transform-to-deployments [POST]
+func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	db := basicRes.GetDal()
+	connectionId := input.Params["connectionId"]
+	deploymentPattern := input.Body["deploymentPattern"]
+	productionPattern := input.Body["productionPattern"]
+	page, err := api.ParsePageParam(input.Body, "page", 1)
+	if err != nil {
+		return nil, errors.Default.New("invalid page value")
+	}
+	pageSize, err := api.ParsePageParam(input.Body, "pageSize", 10)
+	if err != nil {
+		return nil, errors.Default.New("invalid pageSize value")
+	}
+
+	cursor, err := db.RawCursor(`
+		SELECT DISTINCT name, gitlab_id, web_url, started_at
+		FROM (
+			SELECT r.name, p.gitlab_id, p.web_url, p.started_at
+			FROM _tool_gitlab_pipelines p
+			LEFT JOIN _tool_gitlab_projects r on r.gitlab_id = p.project_id
+			WHERE p.connection_id = ? 
+				AND (ref REGEXP ?)
+				AND (? = '' OR ref REGEXP ?)
+			UNION
+			SELECT r.name, p.gitlab_id, p.web_url, p.started_at
+			FROM _tool_gitlab_pipelines p
+			LEFT JOIN _tool_gitlab_projects r on r.gitlab_id = p.project_id
+			LEFT JOIN _tool_gitlab_jobs j on j.pipeline_id = p.gitlab_id
+			WHERE j.connection_id = ? 
+			   	AND (j.name REGEXP ?)
+    		   	AND (? = '' OR j.name REGEXP ?)
+		) r
+		ORDER BY r.started_at DESC
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error on get")
+	}
+	defer cursor.Close()
+
+	type selectFileds struct {
+		Name     string
+		GitlabId int
+		WebUrl   string
+	}
+	type transformedFields struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	}
+	var allRuns []transformedFields
+	for cursor.Next() {
+		sf := &selectFileds{}
+		err = db.Fetch(cursor, sf)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error on fetch")
+		}
+		// Directly transform and append to allRuns
+		transformed := transformedFields{
+			Name: fmt.Sprintf("%s-#%d", sf.Name, sf.GitlabId),
+			URL:  sf.WebUrl,
+		}
+		allRuns = append(allRuns, transformed)
+	}
+	// Calculate total count
+	totalCount := len(allRuns)
+
+	// Paginate in memory
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	if start > totalCount {
+		start = totalCount
+	}
+	if end > totalCount {
+		end = totalCount
+	}
+	pagedRuns := allRuns[start:end]
+
+	// Return result containing paged runs and total count
+	result := map[string]interface{}{
+		"total": totalCount,
+		"data":  pagedRuns,
+	}
+	return &plugin.ApiResourceOutput{
+		Body: result,
+	}, nil
 }
