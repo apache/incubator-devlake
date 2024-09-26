@@ -19,8 +19,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { RedoOutlined, PlusOutlined } from '@ant-design/icons';
 import { Flex, Button, Input, Space, Tag } from 'antd';
-import { useDebounce } from 'ahooks';
 import { MillerColumns } from '@mints/miller-columns';
+import { useDebounce } from '@mints/hooks';
 
 import API from '@/api';
 import { Loading, Block, ExternalLink, Message } from '@/components';
@@ -44,14 +44,25 @@ export const DataScopeSelect = ({
   onCancel,
 }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
-  const [originData, setOriginData] = useState<any[]>([]);
+  const [selectedScope, setSelectedScope] = useState<
+    Array<{
+      id: ID;
+      name: string;
+    }>
+  >([]);
   const [search, setSearch] = useState('');
   const [version, setVersion] = useState(0);
 
   const searchDebounce = useDebounce(search, { wait: 500 });
 
   useEffect(() => {
-    setSelectedIds((initialScope ?? []).map((sc) => sc.id));
+    setSelectedIds((initialScope ?? []).map((it) => getPluginScopeId(plugin, it.scope)));
+    setSelectedScope(
+      (initialScope ?? []).map((it) => ({
+        id: getPluginScopeId(plugin, it.scope),
+        name: it.scope.fullName ?? it.scope.name,
+      })),
+    );
   }, []);
 
   const request = useCallback(
@@ -62,20 +73,18 @@ export const DataScopeSelect = ({
         searchTerm: searchDebounce,
       });
 
-      const data = res.scopes.map((it) => ({
-        parentId: null,
-        id: getPluginScopeId(plugin, it.scope),
-        title: it.scope.fullName ?? it.scope.name,
-        canExpand: false,
-      }));
-
       return {
-        data,
+        data: res.scopes.map((it) => ({
+          parentId: null,
+          id: getPluginScopeId(plugin, it.scope),
+          title: it.scope.fullName ?? it.scope.name,
+          canExpand: false,
+          original: it,
+        })),
         hasMore: res.count > (params?.page ?? 1) * 20,
         params: {
           page: (params?.page ?? 1) + 1,
         },
-        originData: res.scopes,
       };
     },
     [plugin, connectionId, searchDebounce, version],
@@ -87,21 +96,10 @@ export const DataScopeSelect = ({
     <Block
       title="Select Data Scope"
       description={
-        originData.length ? (
-          <>
-            Select the data scope in this Connection that you wish to associate with this Project. If you wish to add
-            more Data Scope to this Connection, please{' '}
-            <ExternalLink link={`/connections/${plugin}/${connectionId}`}>go to the Connection page</ExternalLink>.
-          </>
-        ) : (
-          <>
-            There is no Data Scope in this connection yet, please{' '}
-            <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
-              add Data Scope and manage their Scope Configs
-            </ExternalLink>{' '}
-            first.
-          </>
-        )
+        <>
+          If no Data Scope appears in the dropdown list, please{' '}
+          <ExternalLink link={`/connections/${plugin}/${connectionId}`}>add one to this connection</ExternalLink> first.
+        </>
       }
       required
     >
@@ -125,9 +123,8 @@ export const DataScopeSelect = ({
           </Flex>
         )}
         <Space wrap>
-          {selectedIds.length ? (
-            selectedIds.map((id) => {
-              const item = originData.find((it) => getPluginScopeId(plugin, it.scope) === `${id}`);
+          {selectedScope.length ? (
+            selectedScope.map(({ id, name }) => {
               return (
                 <Tag
                   key={id}
@@ -135,7 +132,7 @@ export const DataScopeSelect = ({
                   closable
                   onClose={() => setSelectedIds(selectedIds.filter((it) => it !== id))}
                 >
-                  {item?.scope.fullName ?? item?.scope.name}
+                  {name}
                 </Tag>
               );
             })
@@ -168,7 +165,12 @@ export const DataScopeSelect = ({
             selectedIds={selectedIds}
             onSelectedIds={(ids, data) => {
               setSelectedIds(ids);
-              setOriginData(data ?? []);
+              setSelectedScope(
+                (data ?? []).map((it) => ({
+                  id: it.scope.id,
+                  name: it.scope.name,
+                })),
+              );
             }}
           />
         </div>

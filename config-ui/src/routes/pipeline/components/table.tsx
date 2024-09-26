@@ -37,7 +37,7 @@ interface Props {
   dataSource: IPipeline[];
   pagination?: {
     total: number;
-    page: number;
+    current: number;
     pageSize: number;
     onChange: (page: number) => void;
   };

@@ -96,7 +96,7 @@ func registerPluginsMigrationScripts() {
 
 func InitExecuteMigration() {
 	// check if there are pending migration
-	logger.Info("has pending scripts? %v, FORCE_MIGRATION: %s", migrator.HasPendingScripts(), cfg.GetBool("FORCE_MIGRATION"))
+	logger.Info("has pending scripts? %v, FORCE_MIGRATION: %v", migrator.HasPendingScripts(), cfg.GetBool("FORCE_MIGRATION"))
 	if migrator.HasPendingScripts() {
 		if cfg.GetBool("FORCE_MIGRATION") {
 			errors.Must(ExecuteMigration())
@@ -125,11 +125,13 @@ func Init() {
 	registerPluginsMigrationScripts()
 }
 
-func InjectCustomService(pipelineNotifier PipelineNotificationService) errors.Error {
-	if pipelineNotifier == nil {
-		return errors.Default.New("pipeline notifier is nil")
+func InjectCustomService(customPipelineNotifier PipelineNotificationService, customProjectService ProjectService) errors.Error {
+	if customPipelineNotifier != nil {
+		customPipelineNotificationService = customPipelineNotifier
 	}
-	customPipelineNotificationService = pipelineNotifier
+	if customProjectService != nil {
+		projectService = customProjectService
+	}
 	return nil
 }
 

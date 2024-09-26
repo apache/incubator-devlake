@@ -49,10 +49,6 @@ export const BambooConfig: IPluginConfig = {
   },
   scopeConfig: {
     entities: ['CICD', 'CROSS'],
-    transformation: {
-      envNamePattern: '(?i)prod(.*)',
-      deploymentPattern: '',
-      productionPattern: '',
-    },
+    transformation: {},
   },
 };

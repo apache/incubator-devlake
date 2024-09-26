@@ -127,7 +127,7 @@ func ConvertDeployment(subtaskCtx plugin.SubTaskContext) errors.Error {
 				Url:               repo.WebUrl + "/environments",
 			}
 			if data.RegexEnricher != nil {
-				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {
+				if data.RegexEnricher.ReturnNameIfMatchedList(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {
 					domainDeployCommit.Environment = devops.PRODUCTION
 				}
 			}

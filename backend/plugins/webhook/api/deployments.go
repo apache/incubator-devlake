@@ -43,6 +43,7 @@ type WebhookDeploymentReq struct {
 	Result       string `mapstructure:"result"`
 	Environment  string `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
 	Name         string `mapstructure:"name"`
+	Url          string `mapstructure:"url"`
 	// DeploymentCommits is used for multiple commits in one deployment
 	DeploymentCommits []WebhookDeploymentCommitReq `mapstructure:"deploymentCommits" validate:"omitempty,dive"`
 	CreatedDate       *time.Time                   `mapstructure:"createdDate"`
@@ -209,6 +210,7 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 	deployment.StartedDate = request.StartedDate
 	deployment.FinishedDate = request.FinishedDate
 	deployment.Result = request.Result
+	deployment.Url = request.Url
 	if err := tx.CreateOrUpdate(deployment); err != nil {
 		logger.Error(err, "failed to save deployment")
 		return err

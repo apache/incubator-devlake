@@ -93,7 +93,7 @@ class PluginCommands:
         return self._plugin.test_connection(connection)
 
     @plugin_method
-    def make_pipeline(self, _, scope_config_pairs: list[tuple[dict, dict]], connection: dict):
+    def make_pipeline(self, _, scope_config_pairs: list[tuple[dict, dict]], connection: dict,skip_collectors: bool):
         connection = self._plugin.connection_type(**connection)
         scope_config_pairs = [
             (
@@ -102,7 +102,7 @@ class PluginCommands:
             )
             for raw_scope, raw_config in scope_config_pairs
         ]
-        return self._plugin.make_pipeline(scope_config_pairs, connection)
+        return self._plugin.make_pipeline(scope_config_pairs, connection, skip_collectors)
 
     @plugin_method
     def plugin_info(self, _):

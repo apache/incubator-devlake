@@ -20,12 +20,16 @@ import { useMemo, useState, useEffect } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { theme, Collapse, Tag, Form, Input, Checkbox, Select } from 'antd';
 
-import { ExternalLink, HelpTooltip } from '@/components';
+import { ShowMore, ExternalLink, HelpTooltip } from '@/components';
+import { CheckMatchedItems } from '@/plugins';
 import { DOC_URL } from '@/release';
 
 import ExampleJpg from './assets/bitbucket-example.jpg';
+import { WorkflowRun } from './workflow-run';
 
 interface Props {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
@@ -33,7 +37,13 @@ interface Props {
 
 const ALL_STATES = ['new', 'open', 'resolved', 'closed', 'on hold', 'wontfix', 'duplicate', 'invalid'];
 
-export const BitbucketTransformation = ({ entities, transformation, setTransformation }: Props) => {
+export const BitbucketTransformation = ({
+  plugin,
+  connectionId,
+  entities,
+  transformation,
+  setTransformation,
+}: Props) => {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
@@ -42,7 +52,7 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
     } else {
       setUseCustom(false);
     }
-  }, [transformation]);
+  }, []);
 
   const options = useMemo(() => {
     const disabledOptions = [
@@ -58,6 +68,12 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
     const checked = (e.target as HTMLInputElement).checked;
 
     if (!checked) {
+      setTransformation({
+        ...transformation,
+        deploymentPattern: undefined,
+        productionPattern: undefined,
+      });
+    } else {
       setTransformation({
         ...transformation,
         deploymentPattern: '',
@@ -85,6 +101,8 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
       style={{ background: token.colorBgContainer }}
       size="large"
       items={renderCollapseItems({
+        plugin,
+        connectionId,
         entities,
         panelStyle,
         options,
@@ -98,6 +116,8 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
 };
 
 const renderCollapseItems = ({
+  plugin,
+  connectionId,
   entities,
   panelStyle,
   options,
@@ -106,6 +126,8 @@ const renderCollapseItems = ({
   useCustom,
   onChangeUseCustom,
 }: {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   panelStyle: React.CSSProperties;
   options: Array<{ label: string; value: string }>;
@@ -204,39 +226,52 @@ const renderCollapseItems = ({
           <Checkbox checked={useCustom} onChange={onChangeUseCustom}>
             Convert a Bitbucket Pipeline to a DevLake Deployment when its branch/tag name
           </Checkbox>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>matches</span>
-            <Input
-              style={{ width: 200, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
-              value={transformation.deploymentPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  deploymentPattern: e.target.value,
-                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                })
-              }
-            />
-            <span>.</span>
-            <HelpTooltip content="View your Bitbucket Pipelines: https://support.atlassian.com/bitbucket-cloud/docs/view-your-pipeline/" />
-          </div>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>If the name also matches</span>
-            <Input
-              style={{ width: 200, margin: '0 8px' }}
-              placeholder="prod(.*)"
-              value={transformation.productionPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  productionPattern: e.target.value,
-                })
-              }
-            />
-            <span>, this Deployment is a ‘Production Deployment’</span>
-            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
-          </div>
+          {useCustom && (
+            <div style={{ paddingLeft: 28 }}>
+              <ShowMore
+                text={<p>Select this option only if you are not enabling Bitbucket deployments.</p>}
+                btnText="See how to configure"
+              >
+                <WorkflowRun />
+              </ShowMore>
+              <div style={{ margin: '8px 0' }}>
+                <span>Its branch or one of its steps matches</span>
+                <Input
+                  style={{ width: 200, margin: '0 8px' }}
+                  placeholder="(?i)(deploy|push-image)"
+                  value={transformation.deploymentPattern ?? ''}
+                  onChange={(e) =>
+                    onChangeTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                    })
+                  }
+                />
+                <span>.</span>
+                <i style={{ color: '#E34040' }}>*</i>
+                <HelpTooltip content="View your Bitbucket Pipelines: https://support.atlassian.com/bitbucket-cloud/docs/view-your-pipeline/" />
+              </div>
+              <div style={{ margin: '8px 0' }}>
+                <span>If the branch or the step also matches</span>
+                <Input
+                  style={{ width: 200, margin: '0 8px' }}
+                  disabled={!transformation.deploymentPattern}
+                  placeholder="(?i)(prod|release)"
+                  value={transformation.productionPattern ?? ''}
+                  onChange={(e) =>
+                    onChangeTransformation({
+                      ...transformation,
+                      productionPattern: e.target.value,
+                    })
+                  }
+                />
+                <span>, this deployment will be regarded as a ‘Production Deployment’.</span>
+                <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
+              </div>
+              <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
+            </div>
+          )}
         </>
       ),
     },

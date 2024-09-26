@@ -49,6 +49,7 @@ func TestZentaoStoryDataFlow(t *testing.T) {
 		Stories:      map[int64]struct{}{},
 		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 		ApiClient:    getFakeAPIClient(),
+		HomePageURL:  getFakeHomepage(),
 	}
 
 	// import raw data table

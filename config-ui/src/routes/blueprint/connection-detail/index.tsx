@@ -60,6 +60,13 @@ export const BlueprintConnectionDetailPage = () => {
       API.connection.get(plugin, connectionId),
     ]);
 
+    const scopeIds =
+      blueprint.connections
+        .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
+        ?.scopes?.map((sc: any) => sc.scopeId) ?? [];
+
+    const scopes = await Promise.all(scopeIds.map((scopeId) => API.scope.get(plugin, connectionId, scopeId)));
+
     return {
       blueprint,
       connection: {
@@ -68,10 +75,7 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopeIds:
-        blueprint.connections
-          .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
-          ?.scopes?.map((sc: any) => sc.scopeId) ?? [],
+      scopes,
     };
   }, [version, pname, bid]);
 
@@ -79,7 +83,7 @@ export const BlueprintConnectionDetailPage = () => {
     return <PageLoading />;
   }
 
-  const { blueprint, connection, scopeIds } = data;
+  const { blueprint, connection, scopes } = data;
 
   const handleShowDataScope = () => setOpen(true);
   const handleHideDataScope = () => setOpen(false);
@@ -228,14 +232,14 @@ export const BlueprintConnectionDetailPage = () => {
             Manage Data Scope
           </Button>
         </Flex>
-        <BlueprintConnectionDetailTable plugin={plugin} connectionId={connectionId} scopeIds={scopeIds} />
+        <BlueprintConnectionDetailTable plugin={plugin} connectionId={connectionId} scopes={scopes} />
       </Flex>
       <Modal open={open} width={820} centered title="Manage Data Scope" footer={null} onCancel={handleHideDataScope}>
         <DataScopeSelect
           plugin={connection.plugin}
           connectionId={connection.id}
           showWarning
-          initialScope={scopeIds.map((id) => ({ id }))}
+          initialScope={scopes}
           onCancel={handleHideDataScope}
           onSubmit={handleChangeDataScope}
         />

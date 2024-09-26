@@ -45,7 +45,6 @@ var ConvertProjectMeta = plugin.SubTaskMeta{
 func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
-	logger := taskCtx.GetLogger()
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoProject{}),
@@ -55,11 +54,6 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	homePage, getZentaoHomePageErr := getZentaoHomePage(data.ApiClient.GetEndpoint())
-	if getZentaoHomePageErr != nil {
-		logger.Error(getZentaoHomePageErr, "get zentao homepage")
-		return errors.Default.WrapRaw(getZentaoHomePageErr)
-	}
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.ZentaoProject{}),
 		Input:        cursor,
@@ -79,7 +73,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
 				Type:        "scrum",
-				Url:         fmt.Sprintf("%s/project-index-%d.html", homePage, data.Options.ProjectId),
+				Url:         fmt.Sprintf("%s/project-index-%d.html", data.HomePageURL, data.Options.ProjectId),
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)

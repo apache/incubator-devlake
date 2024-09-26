@@ -34,7 +34,7 @@ export const remove = (id: ID) => request(`/blueprints/${id}`, { method: 'delete
 
 export const update = (id: ID, data: Partial<IBlueprint>) => request(`/blueprints/${id}`, { method: 'patch', data });
 
-export const pipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
+export const pipelines = (id: ID, data?: Pagination) => request(`/blueprints/${id}/pipelines`, { data });
 
 type TriggerQuery = {
   skipCollectors?: boolean;

@@ -77,7 +77,7 @@ export const ConnectionEndpoint = ({
   if (multipleVersions) {
     return (
       <>
-        <Block title={name} required>
+        <Block title={`${name} Version`} required>
           <Radio.Group value={version} onChange={handleChange}>
             <Radio value="cloud">{name} Cloud</Radio>
             <Radio value="server" disabled={!multipleVersions.server}>

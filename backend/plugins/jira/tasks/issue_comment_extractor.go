@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
@@ -38,7 +37,11 @@ var ExtractIssueCommentsMeta = plugin.SubTaskMeta{
 
 func ExtractIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+	isServerFlag, err := isServer(data.JiraServerInfo, data.ApiClient, taskCtx.GetDal(), data.Options.ConnectionId)
+	if err != nil {
+		return err
+	}
+	if isServerFlag {
 		return nil
 	}
 	connectionId := data.Options.ConnectionId

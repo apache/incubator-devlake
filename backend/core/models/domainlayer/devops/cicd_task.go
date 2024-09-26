@@ -36,6 +36,16 @@ const (
 
 const ENV_NAME_PATTERN = "ENV_NAME_PATTERN"
 
+type TransformDeployment struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+type TransformDeploymentResponse struct {
+	Total int                   `json:"total"`
+	Data  []TransformDeployment `json:"data"`
+}
+
 type CICDTask struct {
 	domainlayer.DomainEntity
 	Name              string `gorm:"type:varchar(255)"`

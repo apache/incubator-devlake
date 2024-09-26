@@ -21,6 +21,7 @@ const URLS = {
   ADVANCED_MODE: {
     EXAMPLES: 'https://devlake.apache.org/docs/Configuration/AdvancedMode/#examples',
   },
+  DATA_ENTITIES: 'https://devlake.apache.org/docs/Overview/KeyConcepts#data-entities',
   DORA: 'https://devlake.apache.org/docs/DORA/',
   PLUGIN: {
     AZUREDEVOPS: {

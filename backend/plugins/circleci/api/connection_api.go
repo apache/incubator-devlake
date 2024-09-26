@@ -167,3 +167,99 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return dsHelper.ConnApi.GetDetail(input)
 }
+
+// GetConnectionTransformToDeployments return one connection deployments
+// @Summary return one connection deployments
+// @Description return one connection deployments
+// @Tags plugins/circleci
+// @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
+// @Success 200  {object} map[string]interface{}
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/circleci/connections/{connectionId}/transform-to-deployments [POST]
+func GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	db := basicRes.GetDal()
+	connectionId := input.Params["connectionId"]
+	deploymentPattern := input.Body["deploymentPattern"]
+	productionPattern := input.Body["productionPattern"]
+	page, err := api.ParsePageParam(input.Body, "page", 1)
+	if err != nil {
+		return nil, errors.Default.New("invalid page value")
+	}
+	pageSize, err := api.ParsePageParam(input.Body, "pageSize", 10)
+	if err != nil {
+		return nil, errors.Default.New("invalid pageSize value")
+	}
+
+	cursor, err := db.RawCursor(`
+		SELECT DISTINCT pipeline_number, name, project_slug, created_date
+		FROM(
+			SELECT pipeline_number, name, project_slug, created_date
+			FROM _tool_circleci_workflows
+			WHERE connection_id = ? 
+			    AND (name REGEXP ?)
+    			AND (? = '' OR name REGEXP ?)
+			UNION
+			SELECT w.pipeline_number, w.name, w.project_slug, w.created_date
+			FROM _tool_circleci_jobs j 
+			LEFT JOIN _tool_circleci_workflows w on w.id = j.workflow_id
+			WHERE j.connection_id = ? 
+			    AND (j.name REGEXP ?)
+    			AND (? = '' OR j.name REGEXP ?)
+		) AS t
+		ORDER BY created_date DESC
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error on get")
+	}
+	defer cursor.Close()
+
+	type selectFileds struct {
+		PipelineNumber int
+		Name           string
+		ProjectSlug    string
+	}
+	type transformedFields struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	}
+	var allRuns []transformedFields
+	for cursor.Next() {
+		sf := &selectFileds{}
+		err = db.Fetch(cursor, sf)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error on fetch")
+		}
+		// Directly transform and append to allRuns
+		transformed := transformedFields{
+			Name: fmt.Sprintf("#%d - %s", sf.PipelineNumber, sf.Name),
+			URL:  CIRCLECI_URL + sf.ProjectSlug,
+		}
+		allRuns = append(allRuns, transformed)
+	}
+	// Calculate total count
+	totalCount := len(allRuns)
+
+	// Paginate in memory
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	if start > totalCount {
+		start = totalCount
+	}
+	if end > totalCount {
+		end = totalCount
+	}
+	pagedRuns := allRuns[start:end]
+
+	// Return result containing paged runs and total count
+	result := map[string]interface{}{
+		"total": totalCount,
+		"data":  pagedRuns,
+	}
+	return &plugin.ApiResourceOutput{
+		Body: result,
+	}, nil
+}
+
+const CIRCLECI_URL = "https://app.circleci.com/pipelines/"

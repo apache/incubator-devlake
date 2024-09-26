@@ -18,8 +18,8 @@
 
 import { Tour } from 'antd';
 
-import { selectOnboard } from '@/features/onboard';
-import { useAppSelector } from '@/hooks';
+import { done as doneFuc, selectOnboard } from '@/features/onboard';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 
 interface Props {
   nameRef: React.RefObject<HTMLInputElement>;
@@ -28,6 +28,7 @@ interface Props {
 }
 
 export const OnboardTour = ({ nameRef, connectionRef, configRef }: Props) => {
+  const dispatch = useAppDispatch();
   const { step, done } = useAppSelector(selectOnboard);
 
   const steps = [
@@ -53,5 +54,5 @@ export const OnboardTour = ({ nameRef, connectionRef, configRef }: Props) => {
     return null;
   }
 
-  return <Tour steps={steps} />;
+  return <Tour steps={steps} onClose={() => dispatch(doneFuc())} />;
 };

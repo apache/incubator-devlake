@@ -38,5 +38,6 @@ func All() []plugin.MigrationScript {
 		new(addMissingPrimaryKeyForBambooPlanBuildVcsRevision),
 		new(addQueuedFieldsInJobBuild20231128),
 		new(addLinkHrefToBambooPlanBuild),
+		new(addEnvNameListToScopeConfig),
 	}
 }

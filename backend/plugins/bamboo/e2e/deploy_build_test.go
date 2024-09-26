@@ -41,20 +41,22 @@ func getFakeAPIClient() *helper.ApiAsyncClient {
 func TestBambooDeployBuildDataFlow(t *testing.T) {
 	var bamboo impl.Bamboo
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
+	dPattern := "(?i)release"
+	pPattern := "(?i)release"
 	taskData := &tasks.BambooOptions{
 		Options: &models.BambooOptions{
 			ConnectionId: 1,
 			PlanKey:      "TEST-PLA2",
 			BambooScopeConfig: &models.BambooScopeConfig{
-				DeploymentPattern: "(?i)release",
-				ProductionPattern: "(?i)release",
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
 			},
 		},
 		RegexEnricher: helper.NewRegexEnricher(),
 		ApiClient:     getFakeAPIClient(),
 	}
-	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
-	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)
+	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, *taskData.Options.DeploymentPattern)
+	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, *taskData.Options.ProductionPattern)
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_deploy_builds.csv", "_raw_bamboo_api_deploy_builds")
 
@@ -102,7 +104,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:   "./snapshot_tables/cicd_deployment_commits.csv",
 		IgnoreTypes:  []interface{}{common.NoPKModel{}},
-		IgnoreFields: []string{"created_date", "queued_date", "started_date", "finished_date"},
+		IgnoreFields: []string{"created_date", "queued_date", "started_date", "finished_date", "repo_url"},
 	})
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:   "./snapshot_tables/cicd_deployments.csv",

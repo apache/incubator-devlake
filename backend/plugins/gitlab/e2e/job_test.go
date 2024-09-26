@@ -30,8 +30,9 @@ import (
 )
 
 func TestGitlabJobDataFlow(t *testing.T) {
-
 	var gitlab impl.Gitlab
+	dPattern := ""
+	pPattern := ""
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)
 	regexEnricher := api.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "(?i)compile")
@@ -39,6 +40,10 @@ func TestGitlabJobDataFlow(t *testing.T) {
 		Options: &tasks.GitlabOptions{
 			ConnectionId: 1,
 			ProjectId:    44,
+			ScopeConfig: &models.GitlabScopeConfig{
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
+			},
 		},
 		RegexEnricher: regexEnricher,
 	}

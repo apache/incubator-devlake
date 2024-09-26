@@ -91,7 +91,7 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus: line.LifeCycleState,
 				DisplayTitle:   line.GenerateCICDPipeLineName(),
 			}
-			homepage, err := getBambooHomePage(line.LinkHref)
+			homepage, err := GetBambooHomePage(line.LinkHref)
 			if err != nil {
 				logger.Warn(err, "get bamboo home")
 			} else {

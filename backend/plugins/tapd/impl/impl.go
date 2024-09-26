@@ -204,9 +204,14 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	if connection.RateLimitPerHour == 0 {
 		connection.RateLimitPerHour = 3600
 	}
-	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to create tapd api client")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "failed to create tapd api client")
+		}
+		apiClient = tapdApiClient
 	}
 
 	if op.WorkspaceId != 0 {
@@ -238,7 +243,7 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	op.CstZone = cstZone
 	taskData := &tasks.TapdTaskData{
 		Options:    op,
-		ApiClient:  tapdApiClient,
+		ApiClient:  apiClient,
 		Connection: connection,
 	}
 	return taskData, nil
