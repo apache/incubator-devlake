@@ -54,5 +54,6 @@ func All() []plugin.MigrationScript {
 		new(changeIssueComponentType),
 		new(flushJiraIssues),
 		new(addJiraServerInfo),
+		new(addEnableIssueTrace20240926),
 	}
 }
