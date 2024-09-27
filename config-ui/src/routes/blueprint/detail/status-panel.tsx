@@ -17,20 +17,21 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { MoreOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
 import { theme, Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
 
 import API from '@/api';
 import { Message } from '@/components';
 import { getCron } from '@/config';
-import { selectAllConnections } from '@/features/connections';
-import { useAppSelector, useRefreshData } from '@/hooks';
+import { useRefreshData } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
 import { IBlueprint } from '@/types';
 import { formatTime, operator } from '@/utils';
 
 import { FromEnum } from '../types';
+
+import { ConnectionCheck } from './components';
 
 interface Props {
   from: FromEnum;
@@ -44,17 +45,13 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [operating, setOperating] = useState(false);
-  const [connectionFailed, setConnectionFailed] = useState<
-    Array<{ unique: string; name: string; plugin: string; connectionId: ID }>
-  >([]);
+  const [connectionFailed, setConnectionFailed] = useState<Array<{ plugin: string; connectionId: ID }>>([]);
 
   const navigate = useNavigate();
 
   const {
     token: { orange5 },
   } = theme.useToken();
-
-  const connections = useAppSelector(selectAllConnections);
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
@@ -84,11 +81,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
         const connectionFailed = res
           .filter((it: any) => !it.success)
           .map((it: any) => {
-            const unique = `${it.pluginName}-${it.connectionId}`;
-            const connection = connections.find((c) => c.unique === unique);
             return {
-              unique,
-              name: connection?.name ?? '',
               plugin: it.pluginName,
               connectionId: it.connectionId,
             };
@@ -299,12 +292,10 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           }}
         >
           <p>There are invalid tokens in the following connections. Please update them before re-syncing the data.</p>
-          <ul style={{ paddingLeft: 20 }}>
-            {connectionFailed.map((it) => (
-              <li key={it.unique} style={{ listStyle: 'initial' }}>
-                <Link to={`/connections/${it.plugin}/${it.connectionId}`} target="_blank">
-                  {it.name}
-                </Link>
+          <ul>
+            {connectionFailed.map(({ plugin, connectionId }) => (
+              <li key={`${plugin}-${connectionId}`}>
+                <ConnectionCheck plugin={plugin} connectionId={connectionId} />
               </li>
             ))}
           </ul>
