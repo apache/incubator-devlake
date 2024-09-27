@@ -83,11 +83,6 @@ export const ProjectHomePage = () => {
               pluginOption: {},
               enable: true,
             },
-            {
-              pluginName: 'issue_trace',
-              pluginOption: {},
-              enable: true,
-            },
           ],
         }),
       {
