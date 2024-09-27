@@ -87,9 +87,11 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             };
           });
 
-        setType('checkTokenFailed');
-        setConnectionFailed(connectionFailed);
-        return;
+        if (connectionFailed.length) {
+          setType('checkTokenFailed');
+          setConnectionFailed(connectionFailed);
+          return;
+        }
       }
     }
 
