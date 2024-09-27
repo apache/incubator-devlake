@@ -18,14 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -42,35 +40,32 @@ var ConvertIssueLabelsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&ConvertIssuesMeta},
 }
 
-func ConvertIssueLabels(taskCtx plugin.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
+func ConvertIssueLabels(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_ISSUE_TABLE)
+
+	db := subtaskCtx.GetDal()
 	projectId := data.Options.ProjectId
-	clauses := []dal.Clause{
-		dal.Select("*"),
-		dal.From(&models.GitlabIssueLabel{}),
-		dal.Join(`left join _tool_gitlab_issues on
-			_tool_gitlab_issues.gitlab_id = _tool_gitlab_issue_labels.issue_id`),
-		dal.Where(`_tool_gitlab_issues.project_id = ?
-			and _tool_gitlab_issues.connection_id = ?`,
-			projectId, data.Options.ConnectionId),
-		dal.Orderby("issue_id ASC"),
-	}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
 	issueIdGen := didgen.NewDomainIdGenerator(&models.GitlabIssue{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabIssueLabel{}),
-		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			issueLabel := inputRow.(*models.GitlabIssueLabel)
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabIssueLabel]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.Select("l.*"),
+				dal.From("_tool_gitlab_issue_labels l"),
+				dal.Join("LEFT JOIN _tool_gitlab_issues s ON s.gitlab_id = l.issue_id AND l.connection_id = s.connection_id"),
+				dal.Where("s.project_id = ?  AND s.connection_id = ?", projectId, data.Options.ConnectionId),
+				// dal.Orderby("s.issue_id ASC"),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("l.updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(issueLabel *models.GitlabIssueLabel) ([]interface{}, errors.Error) {
 			domainIssueLabel := &ticket.IssueLabel{
 				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, issueLabel.IssueId),
 				LabelName: issueLabel.LabelName,

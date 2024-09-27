@@ -18,10 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"regexp"
 	"strings"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -96,8 +96,10 @@ var ExtractApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&CollectApiMergeRequestsMeta},
 }
 
-func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
+func ExtractApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_TABLE)
+
+	db := subtaskCtx.GetDal()
 	config := data.Options.ScopeConfig
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
@@ -118,17 +120,15 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+	subtaskCommonArgs.SubtaskConfig = map[string]any{
+		"prType":      prType,
+		"prComponent": prComponent,
+	}
 
-			mr := &MergeRequestRes{}
-			s := string(row.Data)
-			err := errors.Convert(json.Unmarshal(row.Data, mr))
-			if err != nil {
-				return nil, err
-			}
-
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[MergeRequestRes]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		BeforeExtract:     beforeExtractMr(db, data),
+		Extract: func(mr *MergeRequestRes, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabMergeRequest, err := convertMergeRequest(mr)
 			if err != nil {
 				return nil, err
@@ -136,15 +136,23 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 
 			// if we can not find merged_at and closed_at info in the detail
 			// we need get detail for gitlab v11
+			s := string(row.Data)
 			if !strings.Contains(s, "\"merged_at\":") {
 				if !strings.Contains(s, "\"closed_at\":") {
 					gitlabMergeRequest.IsDetailRequired = true
 				}
 			}
 
-			results := make([]interface{}, 0, len(mr.Reviewers)+1)
+			results := make([]interface{}, 0, len(mr.Reviewers)+len(mr.Labels)+1)
 			gitlabMergeRequest.ConnectionId = data.Options.ConnectionId
 			results = append(results, gitlabMergeRequest)
+			err = db.Delete(
+				&models.GitlabMrLabel{},
+				dal.Where("connection_id = ? AND mr_id = ?", data.Options.ConnectionId, gitlabMergeRequest.GitlabId),
+			)
+			if err != nil {
+				return nil, err
+			}
 			for _, label := range mr.Labels {
 				results = append(results, &models.GitlabMrLabel{
 					MrId:         gitlabMergeRequest.GitlabId,
@@ -160,6 +168,13 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 					gitlabMergeRequest.Component = label
 				}
 			}
+			err = db.Delete(
+				&models.GitlabReviewer{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, gitlabMergeRequest.GitlabId),
+			)
+			if err != nil {
+				return nil, err
+			}
 			for _, reviewer := range mr.Reviewers {
 				gitlabReviewer := &models.GitlabReviewer{
 					ConnectionId:   data.Options.ConnectionId,
@@ -173,6 +188,13 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 					WebUrl:         reviewer.WebUrl,
 				}
 				results = append(results, gitlabReviewer)
+			}
+			err = db.Delete(
+				&models.GitlabAssignee{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, gitlabMergeRequest.GitlabId),
+			)
+			if err != nil {
+				return nil, err
 			}
 			for _, assignee := range mr.Assignees {
 				gitlabAssignee := &models.GitlabAssignee{
@@ -188,17 +210,13 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				results = append(results, gitlabAssignee)
 			}
-
 			return results, nil
 		},
 	})
-
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-
 	return extractor.Execute()
-
 }
 
 func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, errors.Error) {
@@ -229,4 +247,26 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		AuthorUserId:     mr.Author.Id,
 	}
 	return gitlabMergeRequest, nil
+}
+
+func beforeExtractMr(db dal.Dal, data *GitlabTaskData) func(mr *MergeRequestRes, stateManager *api.SubtaskStateManager) errors.Error {
+	return func(mr *MergeRequestRes, stateManager *api.SubtaskStateManager) errors.Error {
+		if stateManager.IsIncremental() {
+			err := db.Delete(
+				&models.GitlabMrLabel{},
+				dal.Where("connection_id = ? AND mr_id = ?", data.Options.ConnectionId, mr.GitlabId),
+			)
+			if err != nil {
+				return err
+			}
+			err = db.Delete(
+				&models.GitlabAssignee{},
+				dal.Where("connection_id = ? AND merge_request_id = ?", data.Options.ConnectionId, mr.GitlabId),
+			)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 }

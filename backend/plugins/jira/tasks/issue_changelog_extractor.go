@@ -47,7 +47,7 @@ func ExtractIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[apiv2models.Changelog]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
 			Table:          RAW_CHANGELOG_TABLE,
@@ -56,15 +56,10 @@ func ExtractIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 				BoardId:      data.Options.BoardId,
 			},
 		},
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+		Extract: func(changelog *apiv2models.Changelog, row *api.RawData) ([]interface{}, errors.Error) {
 			// process input
 			var input apiv2models.Input
 			err := errors.Convert(json.Unmarshal(row.Input, &input))
-			if err != nil {
-				return nil, err
-			}
-			var changelog apiv2models.Changelog
-			err = errors.Convert(json.Unmarshal(row.Data, &changelog))
 			if err != nil {
 				return nil, err
 			}

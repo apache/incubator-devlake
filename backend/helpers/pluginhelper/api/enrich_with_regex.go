@@ -28,12 +28,13 @@ import (
 // TODO: remove Enricher from naming since it is more like a util function
 type RegexEnricher struct {
 	// This field will store compiled regular expression for every pattern
-	regexpMap map[string]*regexp.Regexp
+	regexpMap    map[string]*regexp.Regexp
+	regexMapList map[string][]*regexp.Regexp
 }
 
 // NewRegexEnricher initialize a regexEnricher
 func NewRegexEnricher() *RegexEnricher {
-	return &RegexEnricher{regexpMap: make(map[string]*regexp.Regexp)}
+	return &RegexEnricher{regexpMap: make(map[string]*regexp.Regexp), regexMapList: make(map[string][]*regexp.Regexp)}
 }
 
 // AddRegexp will add compiled regular expression for pattern to regexpMap
@@ -101,6 +102,62 @@ func (r *RegexEnricher) ReturnNameIfMatched(name string, targets ...string) stri
 // ReturnNameIfOmittedOrMatched returns the given name if regex of the given name is omitted or fallback to ReturnNameIfMatched
 func (r *RegexEnricher) ReturnNameIfOmittedOrMatched(name string, targets ...string) string {
 	if _, ok := r.regexpMap[name]; !ok {
+		return name
+	}
+	return r.ReturnNameIfMatched(name, targets...)
+}
+
+func (r *RegexEnricher) PlainMap() map[string]string {
+	m := make(map[string]string)
+	for k, v := range r.regexpMap {
+		m[k] = v.String()
+	}
+	return m
+}
+
+// TryAdd a named regexp if given pattern is not empty
+func (r *RegexEnricher) TryAddList(name string, patterns ...string) errors.Error {
+	if _, ok := r.regexMapList[name]; ok {
+		return errors.Default.New(fmt.Sprintf("Regex pattern with name: %s already exists", name))
+	}
+	var regexList []*regexp.Regexp
+	for _, pattern := range patterns {
+		if pattern == "" {
+			continue
+		}
+		regex, err := errors.Convert01(regexp.Compile(pattern))
+		if err != nil {
+			return errors.BadInput.Wrap(err, fmt.Sprintf("Fail to compile pattern for regex pattern: %s", pattern))
+		}
+		regexList = append(regexList, regex)
+	}
+
+	// Only save non-empty regexList
+	if len(regexList) > 0 {
+		r.regexMapList[name] = regexList
+	}
+	return nil
+}
+
+// ReturnNameIfMatched will return name if any of the targets matches the regex associated with the given name
+func (r *RegexEnricher) ReturnNameIfMatchedList(name string, targets ...string) string {
+	if regexList, ok := r.regexMapList[name]; !ok {
+		return ""
+	} else {
+		for _, regex := range regexList {
+			for _, target := range targets {
+				if regex.MatchString(target) {
+					return name
+				}
+			}
+		}
+		return "" // If any regex fails to match, return ""
+	}
+}
+
+// ReturnNameIfOmittedOrMatched returns the given name if regex of the given name is omitted or fallback to ReturnNameIfMatched
+func (r *RegexEnricher) ReturnNameIfOmittedOrMatchedList(name string, targets ...string) string {
+	if _, ok := r.regexMapList[name]; !ok {
 		return name
 	}
 	return r.ReturnNameIfMatched(name, targets...)

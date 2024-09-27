@@ -43,7 +43,7 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect gitlab users, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	Dependencies:     []*plugin.SubTaskMeta{&EnrichMergeRequestsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{},
 }
 
 func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
@@ -58,7 +58,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// Collect all users if endpoint is private gitlab instance
-	if !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com") {
+	if !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com") && !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://jihulab.com") {
 		urlTemplate = "/users"
 	}
 
