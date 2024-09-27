@@ -37,9 +37,6 @@ export const ProjectAdditionalSettings = () => {
     enable: false,
     prToIssueRegexp: '',
   });
-  const [issueTrace, setIssueTrace] = useState({
-    enable: false,
-  });
   const [operating, setOperating] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -54,7 +51,6 @@ export const ProjectAdditionalSettings = () => {
 
     const dora = project.metrics.find((ms) => ms.pluginName === 'dora');
     const linker = project.metrics.find((ms) => ms.pluginName === 'linker');
-    const issueTrace = project.metrics.find((ms) => ms.pluginName === 'issue_trace');
 
     setName(project.name);
     setDora({
@@ -63,9 +59,6 @@ export const ProjectAdditionalSettings = () => {
     setLinker({
       enable: linker?.enable ?? false,
       prToIssueRegexp: linker?.pluginOption?.prToIssueRegexp ?? RegexPrIssueDefaultValue,
-    });
-    setIssueTrace({
-      enable: issueTrace?.enable ?? false,
     });
   }, [project]);
 
@@ -91,11 +84,6 @@ export const ProjectAdditionalSettings = () => {
                 prToIssueRegexp: linker.prToIssueRegexp,
               },
               enable: linker.enable,
-            },
-            {
-              pluginName: 'issue_trace',
-              pluginOption: {},
-              enable: issueTrace.enable,
             },
           ],
         }),
@@ -189,14 +177,6 @@ export const ProjectAdditionalSettings = () => {
               />
             )}
           </Block>
-          <Block
-            title={
-              <Checkbox checked={issueTrace.enable} onChange={(e) => setIssueTrace({ enable: e.target.checked })}>
-                Enable issue trace
-              </Checkbox>
-            }
-            description="Parse the issue status and assignee history from issue changelogs. Currently, only Jira issues are supported."
-          />
           <Block>
             <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
               Save

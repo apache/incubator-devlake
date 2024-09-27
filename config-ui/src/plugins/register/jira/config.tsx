@@ -62,6 +62,7 @@ export const JiraConfig: IPluginConfig = {
     transformation: {
       storyPointField: '',
       typeMappings: {},
+      enableIssueTrace: true,
       remotelinkCommitShaPattern: '',
       remotelinkRepoPattern: [],
     },

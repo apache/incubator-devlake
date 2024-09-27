@@ -150,7 +150,7 @@ export const ScopeConfigForm = ({
               title="Data Entities"
               description={
                 <>
-                  Select the data entities you wish to collect for the Data Scope. 
+                  Select the data entities you wish to collect for the Data Scope.
                   <ExternalLink link="{DOC_URL.DATA_ENTITIES}">Learn about data entities</ExternalLink>
                 </>
               }
