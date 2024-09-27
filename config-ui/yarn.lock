@@ -2073,9 +2073,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mints/hooks@npm:^1.0.0-beta.2":
-  version: 1.0.0-beta.2
-  resolution: "@mints/hooks@npm:1.0.0-beta.2"
+"@mints/hooks@npm:^1.0.0-beta.9":
+  version: 1.0.0-beta.9
+  resolution: "@mints/hooks@npm:1.0.0-beta.9"
   dependencies:
     lodash: ^4.17.21
     react: ^18.3.1
@@ -2083,13 +2083,13 @@ __metadata:
   peerDependencies:
     react: ^18.3.1
     react-dom: ^18.3.1
-  checksum: b11707b70aca8c931d247e18065046d7f5bbef4eee7e17bbae1ff1c85a4f90e830d6af0d3397bd8bec63fa81b5f44055363184b162b4cd90edc0316d4d53251b
+  checksum: 03f146f2e1881dee18383502dc7631f630c7b99fd7da67d54d37a7b3abac6518e0a302e34b968c72d27cb21ae0c45c39e34d668930881d3e1fd2fbb7dac34b85
   languageName: node
   linkType: hard
 
-"@mints/miller-columns@npm:^2.0.0-beta.5":
-  version: 2.0.0-beta.5
-  resolution: "@mints/miller-columns@npm:2.0.0-beta.5"
+"@mints/miller-columns@npm:^2.0.0-beta.10":
+  version: 2.0.0-beta.10
+  resolution: "@mints/miller-columns@npm:2.0.0-beta.10"
   dependencies:
     "@fontsource/roboto": ^5.0.14
     "@mui/material": ^5.16.7
@@ -2108,7 +2108,7 @@ __metadata:
     react-dom: ^18.2.0
     react-infinite-scroll-component: ^6.1.0
     styled-components: ^6.1.12
-  checksum: 2ff5e7e942a1f5e592d7fe53d5522a59d72075604e80cfcf816d70d67ad33d3982b699770cdab01065bff19a219117b51017ea878ce5f015f120fb6623431839
+  checksum: 94c3ba41210f2ccbddc413ef6c26e5615f11c5a3aac7954484d838d1b05713543def70b6714e79cfc396efea522f553b2d648b36af994bf66456a440836a1386
   languageName: node
   linkType: hard
 
@@ -3910,8 +3910,8 @@ __metadata:
   dependencies:
     "@ant-design/icons": ^5.4.0
     "@fontsource/roboto": ^5.0.14
-    "@mints/hooks": ^1.0.0-beta.2
-    "@mints/miller-columns": ^2.0.0-beta.5
+    "@mints/hooks": ^1.0.0-beta.9
+    "@mints/miller-columns": ^2.0.0-beta.10
     "@mui/icons-material": ^5.16.7
     "@mui/material": ^5.16.7
     "@mui/styled-engine-sc": ^6.0.0-alpha.18

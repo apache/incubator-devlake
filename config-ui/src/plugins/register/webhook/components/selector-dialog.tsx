@@ -16,7 +16,7 @@
  *
  */
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Modal } from 'antd';
 import { MillerColumns } from '@mints/miller-columns';
 
@@ -38,17 +38,6 @@ export const SelectorDialog = ({ open, saving, onCancel, onSubmit }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
   const webhooks = useAppSelector(selectWebhooks);
-
-  const request = useCallback(async () => {
-    return {
-      data: webhooks.map((it) => ({
-        parentId: null,
-        id: it.id,
-        title: it.name,
-      })),
-      hasMore: false,
-    };
-  }, [webhooks]);
 
   const handleSubmit = () => onSubmit(webhooks.filter((it) => selectedIds.includes(it.id)));
 
@@ -74,7 +63,11 @@ export const SelectorDialog = ({ open, saving, onCancel, onSubmit }: Props) => {
               colorPrimary: '#7497f7',
               borderColor: '#dbe4fd',
             }}
-            request={request}
+            items={webhooks.map((it) => ({
+              parentId: null,
+              id: it.id,
+              title: it.name,
+            }))}
             columnHeight={160}
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
             selectable

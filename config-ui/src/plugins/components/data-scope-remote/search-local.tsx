@@ -16,11 +16,12 @@
  *
  */
 
-import { useState, useReducer, useCallback } from 'react';
+import { useState, useReducer } from 'react';
 import { CheckCircleFilled, SearchOutlined } from '@ant-design/icons';
 import { Space, Tag, Button, Input, Modal } from 'antd';
-import { MillerColumns } from '@mints/miller-columns';
 import { useDebounce } from '@mints/hooks';
+import type { IDType } from '@mints/miller-columns';
+import { MillerColumns } from '@mints/miller-columns';
 
 import API from '@/api';
 import { Block, Loading, Message } from '@/components';
@@ -76,43 +77,26 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
 
   const searchDebounce = useDebounce(search, { wait: 500 });
 
-  const request = useCallback(
-    async (groupId?: string | number, params?: any) => {
-      const res = await API.scope.remote(plugin, connectionId, {
-        groupId: groupId ?? null,
-        pageToken: params?.nextPageToken,
-      });
+  const request = async (groupId?: string | number, params?: any) => {
+    const res = await API.scope.remote(plugin, connectionId, {
+      groupId: groupId ?? null,
+      pageToken: params?.nextPageToken,
+    });
 
-      return {
-        data: res.children.map((it) => ({
-          parentId: it.parentId,
-          id: it.id,
-          title: it.name ?? it.fullName,
-          canExpand: it.type === 'group',
-          original: it,
-        })),
-        hasMore: !!res.nextPageToken,
-        params: {
-          nextPageToken: res.nextPageToken,
-        },
-      };
-    },
-    [plugin, connectionId, scope, searchDebounce],
-  );
-
-  const requestAll = useCallback(
-    async (groupId?: string | number) => {
-      return {
-        data: searchDebounce
-          ? scope
-              .filter((it) => it.title.includes(searchDebounce) && !it.canExpand)
-              .map((it) => ({ ...it, parentId: null }))
-          : scope.filter((it) => it.parentId === (groupId ?? null)),
-        hasMore: false,
-      };
-    },
-    [scope, searchDebounce],
-  );
+    return {
+      data: res.children.map((it) => ({
+        parentId: it.parentId,
+        id: it.id,
+        title: it.name ?? it.fullName,
+        canExpand: it.type === 'group',
+        original: it,
+      })),
+      hasMore: !!res.nextPageToken,
+      params: {
+        nextPageToken: res.nextPageToken,
+      },
+    };
+  };
 
   const handleRequestAll = async () => {
     setOpen(false);
@@ -143,6 +127,24 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
     await getData();
 
     dispatch({ type: 'DONE' });
+  };
+
+  const millerColumnsProps = {
+    bordered: true,
+    theme: {
+      colorPrimary: '#7497f7',
+      borderColor: '#dbe4fd',
+    },
+    columnHeight: 300,
+    mode,
+    renderTitle: (id?: IDType) =>
+      !id &&
+      config.millerColumn?.firstColumnTitle && <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>,
+    renderLoading: () => <Loading size={20} style={{ padding: '4px 12px' }} />,
+    selectable: true,
+    disabledIds: disabledScope.map((it) => it.id),
+    selectedIds: selectedScope.map((it) => it.id),
+    onSelectedIds: (_: IDType[], data?: any) => onChange(data ?? []),
   };
 
   return (
@@ -189,56 +191,19 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
         )}
       </Block>
       <Block>
-        {status === 'idle' && (
+        {status === 'idle' ? (
           <MillerColumns
-            bordered
-            theme={{
-              colorPrimary: '#7497f7',
-              borderColor: '#dbe4fd',
-            }}
+            {...millerColumnsProps}
             request={request}
-            columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
-            columnHeight={300}
-            mode={mode}
-            renderTitle={(id) =>
-              !id &&
-              config.millerColumn?.firstColumnTitle && (
-                <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>
-              )
-            }
-            renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-            renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
-            selectable
-            disabledIds={(disabledScope ?? []).map((it) => it.id)}
-            selectedIds={selectedScope.map((it) => it.id)}
-            onSelectedIds={(_, data) => onChange(data ?? [])}
+            columnCount={config.millerColumn?.columnCount ?? 1}
           />
-        )}
-        {status === 'done' && (
+        ) : (
           <>
             <Input prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} />
             <MillerColumns
-              bordered
-              theme={{
-                colorPrimary: '#7497f7',
-                borderColor: '#dbe4fd',
-              }}
-              request={requestAll}
-              columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
-              columnHeight={300}
-              mode={mode}
-              renderTitle={(id) =>
-                !id &&
-                config.millerColumn?.firstColumnTitle && (
-                  <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>
-                )
-              }
-              renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-              renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
-              selectable
-              disabledIds={(disabledScope ?? []).map((it) => it.id)}
-              selectedIds={selectedScope.map((it) => it.id)}
-              onSelectedIds={(_, data) => onChange(data ?? [])}
+              {...millerColumnsProps}
+              loading={status === 'loading'}
+              items={searchDebounce ? scope.filter((it) => it.title.includes(searchDebounce) && !it.canExpand) : scope}
             />
           </>
         )}
