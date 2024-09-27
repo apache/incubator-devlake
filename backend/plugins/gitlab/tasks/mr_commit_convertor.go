@@ -18,14 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -39,45 +37,39 @@ var ConvertApiMrCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Add domain layer PullRequestCommit according to GitlabMrCommit",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ConvertMrCommentMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
-func ConvertApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
-	db := taskCtx.GetDal()
+func ConvertApiMergeRequestsCommits(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
+	db := subtaskCtx.GetDal()
 
-	clauses := []dal.Clause{
-		dal.From(&models.GitlabMrCommit{}),
-		dal.Join(`left join _tool_gitlab_merge_requests
-			on _tool_gitlab_merge_requests.gitlab_id =
-			_tool_gitlab_mr_commits.merge_request_id`),
-		dal.Where(`_tool_gitlab_merge_requests.project_id = ?
-			and _tool_gitlab_merge_requests.connection_id = ?`,
-			data.Options.ProjectId, data.Options.ConnectionId),
-		dal.Orderby("merge_request_id ASC"),
-	}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-
-	// TODO: adopt batch indate operation
 	domainIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabMrCommit{}),
-		Input:              cursor,
-
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			GitlabMrCommit := inputRow.(*models.GitlabMrCommit)
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabMrCommit]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.Select("c.*"),
+				dal.From("_tool_gitlab_mr_commits c"),
+				dal.Join(`LEFT JOIN _tool_gitlab_merge_requests mr ON mr.gitlab_id = c.merge_request_id AND c.connection_id = mr.connection_id`),
+				dal.Where(`mr.project_id = ?  and mr.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("c.updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(mrCommit *models.GitlabMrCommit) ([]interface{}, errors.Error) {
 			domainPrcommit := &code.PullRequestCommit{
-				CommitSha:          GitlabMrCommit.CommitSha,
-				PullRequestId:      domainIdGenerator.Generate(data.Options.ConnectionId, GitlabMrCommit.MergeRequestId),
-				CommitAuthorName:   GitlabMrCommit.CommitAuthorName,
-				CommitAuthorEmail:  GitlabMrCommit.CommitAuthorEmail,
-				CommitAuthoredDate: *GitlabMrCommit.CommitAuthoredDate,
+				CommitSha:          mrCommit.CommitSha,
+				PullRequestId:      domainIdGenerator.Generate(data.Options.ConnectionId, mrCommit.MergeRequestId),
+				CommitAuthorName:   mrCommit.CommitAuthorName,
+				CommitAuthorEmail:  mrCommit.CommitAuthorEmail,
+				CommitAuthoredDate: *mrCommit.CommitAuthoredDate,
 			}
 			return []interface{}{
 				domainPrcommit,

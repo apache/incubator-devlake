@@ -18,14 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -39,39 +37,33 @@ var ConvertMrAssigneesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_assignees into  domain layer table pull_request_assignees",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiMergeRequestDetailsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
-func ConvertMrAssignees(taskCtx plugin.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
+func ConvertMrAssignees(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_TABLE)
+	db := subtaskCtx.GetDal()
 	projectId := data.Options.ProjectId
-	clauses := []dal.Clause{
-		dal.Select("_tool_gitlab_assignees.*"),
-		dal.From(&models.GitlabAssignee{}),
-		dal.Join(`left join _tool_gitlab_merge_requests mr on
-			mr.gitlab_id = _tool_gitlab_assignees.merge_request_id`),
-		dal.Where(`mr.project_id = ?
-			and mr.connection_id = ?`,
-			projectId, data.Options.ConnectionId),
-		dal.Orderby("_tool_gitlab_assignees.merge_request_id ASC"),
-	}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
 	mrIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabAssignee{}),
-		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			mrAssignee := inputRow.(*models.GitlabAssignee)
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabAssignee]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(&models.GitlabAssignee{}),
+				dal.Where(`project_id = ? and connection_id = ?`, projectId, data.Options.ConnectionId),
+				dal.Orderby("merge_request_id ASC"),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(mrAssignee *models.GitlabAssignee) ([]interface{}, errors.Error) {
 			domainPrAssigne := &code.PullRequestAssignee{
 				PullRequestId: mrIdGen.Generate(data.Options.ConnectionId, mrAssignee.MergeRequestId),
 				AssigneeId:    accountIdGen.Generate(data.Options.ConnectionId, mrAssignee.AssigneeId),

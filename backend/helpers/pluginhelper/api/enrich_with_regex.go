@@ -107,6 +107,14 @@ func (r *RegexEnricher) ReturnNameIfOmittedOrMatched(name string, targets ...str
 	return r.ReturnNameIfMatched(name, targets...)
 }
 
+func (r *RegexEnricher) PlainMap() map[string]string {
+	m := make(map[string]string)
+	for k, v := range r.regexpMap {
+		m[k] = v.String()
+	}
+	return m
+}
+
 // TryAdd a named regexp if given pattern is not empty
 func (r *RegexEnricher) TryAddList(name string, patterns ...string) errors.Error {
 	if _, ok := r.regexMapList[name]; ok {

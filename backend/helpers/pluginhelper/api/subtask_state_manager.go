@@ -34,7 +34,7 @@ type SubtaskCommonArgs struct {
 	plugin.SubTaskContext
 	Table         string // raw table name
 	Params        any    // for filtering rows belonging to the scope (jira board, github repo) of the subtask
-	SubtaskConfig any    // for determining whether the subtask should run in incremental or full sync mode
+	SubtaskConfig any    // for determining whether the subtask should run in Incremental or Full-Sync mode by comparing with the previous config to see if it changed
 	BatchSize     int    // batch size for saving data
 }
 

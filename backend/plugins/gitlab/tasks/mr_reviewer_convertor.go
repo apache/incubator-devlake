@@ -18,14 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -39,39 +37,34 @@ var ConvertMrReviewersMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_reviewers into domain layer table pull_request_reviewers",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiMergeRequestDetailsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
-func ConvertMrReviewers(taskCtx plugin.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-	projectId := data.Options.ProjectId
-	clauses := []dal.Clause{
-		dal.Select("_tool_gitlab_reviewers.*"),
-		dal.From(&models.GitlabReviewer{}),
-		dal.Join(`left join _tool_gitlab_merge_requests mr on
-			mr.gitlab_id = _tool_gitlab_reviewers.merge_request_id`),
-		dal.Where(`mr.project_id = ?
-			and mr.connection_id = ?`,
-			projectId, data.Options.ConnectionId),
-		dal.Orderby("_tool_gitlab_reviewers.merge_request_id ASC"),
-	}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
+func ConvertMrReviewers(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_TABLE)
+	db := subtaskCtx.GetDal()
 
 	mrIdGen := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabReviewer{}),
-		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			mrReviewer := inputRow.(*models.GitlabReviewer)
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabReviewer]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.Select("c.*"),
+				dal.From("_tool_gitlab_reviewers c"),
+				dal.Join(`LEFT JOIN _tool_gitlab_merge_requests mr ON mr.gitlab_id = c.merge_request_id AND c.connection_id = mr.connection_id`),
+				dal.Where(`mr.project_id = ?  and mr.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("c.updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(mrReviewer *models.GitlabReviewer) ([]interface{}, errors.Error) {
 			domainPrReviewer := &code.PullRequestReviewer{
 				PullRequestId: mrIdGen.Generate(data.Options.ConnectionId, mrReviewer.MergeRequestId),
 				ReviewerId:    accountIdGen.Generate(data.Options.ConnectionId, mrReviewer.ReviewerId),

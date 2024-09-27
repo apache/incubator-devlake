@@ -40,18 +40,33 @@ var ExtractApiMrCommitsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&CollectApiMrCommitsMeta},
 }
 
-func ExtractApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
+type GitlabApiCommit struct {
+	GitlabId       string `json:"id"`
+	Title          string
+	Message        string
+	ProjectId      int
+	ShortId        string             `json:"short_id"`
+	AuthorName     string             `json:"author_name"`
+	AuthorEmail    string             `json:"author_email"`
+	AuthoredDate   common.Iso8601Time `json:"authored_date"`
+	CommitterName  string             `json:"committer_name"`
+	CommitterEmail string             `json:"committer_email"`
+	CommittedDate  common.Iso8601Time `json:"committed_date"`
+	WebUrl         string             `json:"web_url"`
+	Stats          struct {
+		Additions int
+		Deletions int
+		Total     int
+	}
+}
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+func ExtractApiMergeRequestsCommits(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
+
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[GitlabApiCommit]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Extract: func(gitlabApiCommit *GitlabApiCommit, row *api.RawData) ([]interface{}, errors.Error) {
 			// create gitlab commit
-			gitlabApiCommit := &GitlabApiCommit{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiCommit))
-			if err != nil {
-				return nil, err
-			}
 			gitlabCommit, err := ConvertCommit(gitlabApiCommit)
 			if err != nil {
 				return nil, err
@@ -90,4 +105,25 @@ func ExtractApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error 
 	}
 
 	return extractor.Execute()
+}
+
+// Convert the API response to our DB model instance
+func ConvertCommit(commit *GitlabApiCommit) (*models.GitlabCommit, errors.Error) {
+	gitlabCommit := &models.GitlabCommit{
+		Sha:            commit.GitlabId,
+		Title:          commit.Title,
+		Message:        commit.Message,
+		ShortId:        commit.ShortId,
+		AuthorName:     commit.AuthorName,
+		AuthorEmail:    commit.AuthorEmail,
+		AuthoredDate:   commit.AuthoredDate.ToTime(),
+		CommitterName:  commit.CommitterName,
+		CommitterEmail: commit.CommitterEmail,
+		CommittedDate:  commit.CommittedDate.ToTime(),
+		WebUrl:         commit.WebUrl,
+		Additions:      commit.Stats.Additions,
+		Deletions:      commit.Stats.Deletions,
+		Total:          commit.Stats.Total,
+	}
+	return gitlabCommit, nil
 }
