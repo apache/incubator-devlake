@@ -19,12 +19,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { RedoOutlined, PlusOutlined } from '@ant-design/icons';
 import { Flex, Button, Input, Space, Tag } from 'antd';
+import { useRequest } from '@mints/hooks';
+import type { IDType } from '@mints/miller-columns';
 import { MillerColumns } from '@mints/miller-columns';
 import { useDebounce } from '@mints/hooks';
 
 import API from '@/api';
 import { Loading, Block, ExternalLink, Message } from '@/components';
 import { getPluginScopeId } from '@/plugins';
+import type { IDataScope } from '@/types';
 
 interface Props {
   plugin: string;
@@ -65,6 +68,25 @@ export const DataScopeSelect = ({
     );
   }, []);
 
+  const { loading, data } = useRequest(async () => {
+    if (!searchDebounce) {
+      return [];
+    }
+    const res = await API.scope.list(plugin, connectionId, {
+      page: 1,
+      pageSize: 50,
+      searchTerm: searchDebounce,
+    });
+
+    return res.scopes.map((it) => ({
+      parentId: null,
+      id: getPluginScopeId(plugin, it.scope),
+      title: it.scope.fullName ?? it.scope.name,
+      canExpand: false,
+      original: it,
+    }));
+  }, [plugin, connectionId, searchDebounce, version]);
+
   const request = useCallback(
     async (_?: string | number, params?: any) => {
       const res = await API.scope.list(plugin, connectionId, {
@@ -87,10 +109,45 @@ export const DataScopeSelect = ({
         },
       };
     },
-    [plugin, connectionId, searchDebounce, version],
+    [plugin, connectionId],
   );
 
   const handleSubmit = () => onSubmit?.(selectedIds);
+
+  const millerColumnsProps = {
+    bordered: true,
+    theme: {
+      colorPrimary: '#7497f7',
+      borderColor: '#dbe4fd',
+    },
+    columnHeight: 200,
+    renderLoading: () => <Loading size={20} style={{ padding: '4px 12px' }} />,
+    renderNoData: () => (
+      <Flex style={{ height: '100%' }} justify="center" align="center">
+        <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
+          <Button type="primary" icon={<PlusOutlined />}>
+            Add Data Scope
+          </Button>
+        </ExternalLink>
+      </Flex>
+    ),
+    selectable: true,
+    selectedIds,
+    onSelectedIds: (
+      ids: IDType[],
+      data?: Array<{
+        scope: IDataScope;
+      }>,
+    ) => {
+      setSelectedIds(ids);
+      setSelectedScope(
+        (data ?? []).map((it) => ({
+          id: getPluginScopeId(plugin, it.scope),
+          name: it.scope.fullName ?? it.scope.name,
+        })),
+      );
+    },
+  };
 
   return (
     <Block
@@ -142,37 +199,11 @@ export const DataScopeSelect = ({
         </Space>
         <div>
           <Input.Search value={search} onChange={(e) => setSearch(e.target.value)} />
-          <MillerColumns
-            bordered
-            theme={{
-              colorPrimary: '#7497f7',
-              borderColor: '#dbe4fd',
-            }}
-            request={request}
-            columnHeight={200}
-            renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-            renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
-            renderNoData={() => (
-              <Flex style={{ height: '100%' }} justify="center" align="center">
-                <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
-                  <Button type="primary" icon={<PlusOutlined />}>
-                    Add Data Scope
-                  </Button>
-                </ExternalLink>
-              </Flex>
-            )}
-            selectable
-            selectedIds={selectedIds}
-            onSelectedIds={(ids, data) => {
-              setSelectedIds(ids);
-              setSelectedScope(
-                (data ?? []).map((it) => ({
-                  id: it.scope.id,
-                  name: it.scope.name,
-                })),
-              );
-            }}
-          />
+          {searchDebounce ? (
+            <MillerColumns {...millerColumnsProps} loading={loading} items={data ?? []} />
+          ) : (
+            <MillerColumns {...millerColumnsProps} request={request} rootId={version} />
+          )}
         </div>
         <Flex justify="flex-end" gap="small">
           <Button onClick={onCancel}>Cancel</Button>
