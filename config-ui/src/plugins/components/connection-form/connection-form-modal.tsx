@@ -16,44 +16,36 @@
  *
  */
 
-import { useMemo } from 'react';
-import { theme, Modal } from 'antd';
+import { Modal } from 'antd';
 
-import { getPluginConfig } from '@/plugins';
-
+import { ConnectionName } from '../connection-name';
 import { ConnectionForm } from '../connection-form';
-
-import * as S from './styled';
 
 interface Props {
   plugin: string;
-  connectionId: ID;
+  connectionId?: ID;
   open: boolean;
   onCancel: () => void;
+  onSuccess?: (id: ID) => void;
 }
 
-export const ConnectionFormModal = ({ plugin, connectionId, open, onCancel }: Props) => {
-  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
-
-  const {
-    token: { colorPrimary },
-  } = theme.useToken();
-
+export const ConnectionFormModal = ({ plugin, connectionId, open, onCancel, onSuccess }: Props) => {
   return (
     <Modal
       open={open}
       width={820}
       centered
       title={
-        <S.ModalTitle>
-          <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
-          <span className="name">Manage Connections: {pluginConfig.name}</span>
-        </S.ModalTitle>
+        <ConnectionName
+          plugin={plugin}
+          connectionId={connectionId}
+          customName={(pluginName) => `Manage Connections: ${pluginName}`}
+        />
       }
       footer={null}
-      onCancel={onCancel}
+      onCancel={() => onCancel()}
     >
-      <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={onCancel} />
+      <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={onSuccess} />
     </Modal>
   );
 };

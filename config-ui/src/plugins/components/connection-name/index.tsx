@@ -26,25 +26,48 @@ import * as S from './styled';
 
 interface Props {
   plugin: string;
-  connectionId: ID;
+  connectionId?: ID;
+  customName?: (pluginName: string) => string;
   onClick?: () => void;
 }
 
-export const ConnectionName = ({ plugin, connectionId, onClick }: Props) => {
+const Name = ({ plugin, connectionId }: Required<Pick<Props, 'plugin' | 'connectionId'>>) => {
+  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`));
+  const webhook = useAppSelector((state) => selectWebhook(state, connectionId));
+
+  return (
+    <S.Name>{connection ? connection.name : webhook ? webhook.name : `${plugin}/connection/${connectionId}`}</S.Name>
+  );
+};
+
+export const ConnectionName = ({ plugin, connectionId, customName, onClick }: Props) => {
   const {
     token: { colorPrimary },
   } = theme.useToken();
-
-  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`));
-  const webhook = useAppSelector((state) => selectWebhook(state, connectionId));
   const config = getPluginConfig(plugin);
 
-  const name = connection ? connection.name : webhook ? webhook.name : `${plugin}/connection/${connectionId}`;
+  if (!connectionId) {
+    return (
+      <S.Wrapper onClick={onClick}>
+        <S.Icon>{config.icon({ color: colorPrimary })}</S.Icon>
+        <S.Name title={config.name}>{config.name}</S.Name>
+      </S.Wrapper>
+    );
+  }
+
+  if (customName) {
+    return (
+      <S.Wrapper onClick={onClick}>
+        <S.Icon>{config.icon({ color: colorPrimary })}</S.Icon>
+        <S.Name>{customName(config.name)}</S.Name>
+      </S.Wrapper>
+    );
+  }
 
   return (
     <S.Wrapper onClick={onClick}>
       <S.Icon>{config.icon({ color: colorPrimary })}</S.Icon>
-      <S.Name title={name}>{name}</S.Name>
+      <Name plugin={plugin} connectionId={connectionId} />
     </S.Wrapper>
   );
 };
