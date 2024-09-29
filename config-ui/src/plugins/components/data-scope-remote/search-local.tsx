@@ -203,7 +203,16 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
             <MillerColumns
               {...millerColumnsProps}
               loading={status === 'loading'}
-              items={searchDebounce ? scope.filter((it) => it.title.includes(searchDebounce) && !it.canExpand) : scope}
+              items={
+                searchDebounce
+                  ? scope
+                      .filter((it) => it.title.includes(searchDebounce) && !it.canExpand)
+                      .map((it) => ({
+                        ...it,
+                        parentId: null,
+                      }))
+                  : scope
+              }
             />
           </>
         )}
