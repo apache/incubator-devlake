@@ -17,9 +17,8 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MoreOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
-import { theme, Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
+import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
 
 import API from '@/api';
 import { Message } from '@/components';
@@ -27,31 +26,24 @@ import { getCron } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
 import { IBlueprint } from '@/types';
-import { formatTime, operator } from '@/utils';
+import { formatTime } from '@/utils';
 
 import { FromEnum } from '../types';
-
-import { ConnectionCheck } from './components';
 
 interface Props {
   from: FromEnum;
   blueprint: IBlueprint;
   pipelineId?: ID;
-  onRefresh: () => void;
+  operating: boolean;
+  onDelete: () => void;
+  onUpdate: (payload: any) => void;
+  onTrigger: (payload?: { skipCollectors?: boolean; fullSync?: boolean }) => void;
 }
 
-export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) => {
+export const StatusPanel = ({ from, blueprint, pipelineId, operating, onDelete, onUpdate, onTrigger }: Props) => {
   const [type, setType] = useState<'delete' | 'fullSync' | 'checkTokenFailed'>();
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
-  const [operating, setOperating] = useState(false);
-  const [connectionFailed, setConnectionFailed] = useState<Array<{ plugin: string; connectionId: ID }>>([]);
-
-  const navigate = useNavigate();
-
-  const {
-    token: { orange5 },
-  } = theme.useToken();
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
@@ -62,77 +54,6 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
 
   const handleResetType = () => {
     setType(undefined);
-  };
-
-  const handleRun = async ({
-    skipCollectors = false,
-    fullSync = false,
-  }: {
-    skipCollectors?: boolean;
-    fullSync?: boolean;
-  }) => {
-    if (!skipCollectors) {
-      const [success, res] = await operator(() => API.blueprint.connectionsTokenCheck(blueprint.id), {
-        hideToast: true,
-        setOperating,
-      });
-
-      if (success && res.length) {
-        const connectionFailed = res
-          .filter((it: any) => !it.success)
-          .map((it: any) => {
-            return {
-              plugin: it.pluginName,
-              connectionId: it.connectionId,
-            };
-          });
-
-        if (connectionFailed.length) {
-          setType('checkTokenFailed');
-          setConnectionFailed(connectionFailed);
-          return;
-        }
-      }
-    }
-
-    const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync }), {
-      setOperating,
-      formatMessage: () => 'Trigger blueprint successful.',
-    });
-
-    if (success) {
-      onRefresh();
-    }
-  };
-
-  const handleUpdate = async (payload: any) => {
-    const [success] = await operator(
-      () =>
-        API.blueprint.update(blueprint.id, {
-          ...blueprint,
-          ...payload,
-        }),
-      {
-        setOperating,
-        formatMessage: () =>
-          from === FromEnum.project ? 'Update project successful.' : 'Update blueprint successful.',
-      },
-    );
-
-    if (success) {
-      onRefresh();
-    }
-  };
-
-  const handleDelete = async () => {
-    const [success] = await operator(() => API.blueprint.remove(blueprint.id), {
-      setOperating,
-      formatMessage: () => 'Delete blueprint successful.',
-    });
-
-    if (success) {
-      navigate('/advanced/blueprints');
-    }
   };
 
   return (
@@ -151,12 +72,12 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
                 type="primary"
                 disabled={!blueprint.enable}
                 loading={operating}
-                onClick={() => handleRun({ skipCollectors: true, fullSync: true })}
+                onClick={() => onTrigger({ skipCollectors: true })}
               >
                 Re-transform Data
               </Button>
             </Tooltip>
-            <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
+            <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => onTrigger()}>
               Collect Data
             </Button>
             <Dropdown
@@ -184,14 +105,14 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
       {from === FromEnum.blueprint && (
         <Flex justify="center" align="center">
           <Space>
-            <Button type="primary" disabled={!blueprint.enable} onClick={() => handleRun({})}>
+            <Button type="primary" disabled={!blueprint.enable} onClick={() => onTrigger()}>
               Run Now
             </Button>
             <Switch
               style={{ marginBottom: 0 }}
               disabled={!!blueprint.projectName}
               checked={blueprint.enable}
-              onChange={(enable) => handleUpdate({ enable })}
+              onChange={(enable) => onUpdate({ enable })}
             />
             Blueprint Enabled
             <Tooltip title="Delete Blueprint">
@@ -252,7 +173,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             loading: operating,
           }}
           onCancel={handleResetType}
-          onOk={handleDelete}
+          onOk={onDelete}
         >
           <Message
             content="Please note: deleting the Blueprint will not delete the historical data of the Data Scopes in this
@@ -271,36 +192,9 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             loading: operating,
           }}
           onCancel={handleResetType}
-          onOk={() => handleRun({ fullSync: true })}
+          onOk={() => onTrigger({ fullSync: true })}
         >
           <Message content="This operation may take a long time as it will empty all of your existing data and re-collect it." />
-        </Modal>
-      )}
-
-      {type === 'checkTokenFailed' && (
-        <Modal
-          open
-          title={
-            <>
-              <WarningOutlined style={{ marginRight: 8, fontSize: 20, color: orange5 }} />
-              <span>Invalid Token(s) Detected</span>
-            </>
-          }
-          width={820}
-          footer={null}
-          onCancel={() => {
-            handleResetType();
-            setConnectionFailed([]);
-          }}
-        >
-          <p>There are invalid tokens in the following connections. Please update them before re-syncing the data.</p>
-          <ul>
-            {connectionFailed.map(({ plugin, connectionId }) => (
-              <li key={`${plugin}-${connectionId}`}>
-                <ConnectionCheck plugin={plugin} connectionId={connectionId} />
-              </li>
-            ))}
-          </ul>
         </Modal>
       )}
     </Flex>
