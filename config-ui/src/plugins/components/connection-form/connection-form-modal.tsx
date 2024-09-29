@@ -30,6 +30,11 @@ interface Props {
 }
 
 export const ConnectionFormModal = ({ plugin, connectionId, open, onCancel, onSuccess }: Props) => {
+  const handleSuccess = (id: ID) => {
+    onSuccess?.(id);
+    onCancel();
+  };
+
   return (
     <Modal
       open={open}
@@ -45,7 +50,7 @@ export const ConnectionFormModal = ({ plugin, connectionId, open, onCancel, onSu
       footer={null}
       onCancel={() => onCancel()}
     >
-      <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={onSuccess} />
+      <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={handleSuccess} />
     </Modal>
   );
 };
