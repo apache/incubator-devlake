@@ -255,6 +255,11 @@ func (p Azuredevops) ApiResources() map[string]map[string]plugin.ApiResourceHand
 	}
 }
 
+func (p Azuredevops) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
+}
+
 func (p Azuredevops) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,

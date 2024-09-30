@@ -16,4 +16,24 @@
  *
  */
 
-export * from './slice';
+import { useState } from 'react';
+import { Flex } from 'antd';
+
+import { ConnectionName, ConnectionFormModal } from '@/plugins';
+
+interface Props {
+  plugin: string;
+  connectionId: ID;
+}
+
+export const ConnectionCheck = ({ plugin, connectionId }: Props) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Flex align="center" gap="small" style={{ paddingLeft: 16, cursor: 'pointer' }}>
+      <span>-</span>
+      <ConnectionName plugin={plugin} connectionId={connectionId} onClick={() => setOpen(true)} />
+      <ConnectionFormModal plugin={plugin} connectionId={connectionId} open={open} onCancel={() => setOpen(false)} />
+    </Flex>
+  );
+};

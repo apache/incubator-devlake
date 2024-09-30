@@ -125,3 +125,7 @@ func (p Linker) MakeMetricPluginPipelinePlanV200(projectName string, options jso
 	}
 	return plan, nil
 }
+
+func (p Linker) TestConnection(id uint64) errors.Error {
+	return nil
+}

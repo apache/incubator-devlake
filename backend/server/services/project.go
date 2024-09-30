@@ -219,7 +219,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		return nil, err
 	}
 
-	// allowed to changed the name
+	// allowed to change the name
 	if projectInput.Name == "" {
 		projectInput.Name = name
 	}

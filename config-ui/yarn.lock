@@ -2087,9 +2087,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mints/miller-columns@npm:^2.0.0-beta.10":
-  version: 2.0.0-beta.10
-  resolution: "@mints/miller-columns@npm:2.0.0-beta.10"
+"@mints/miller-columns@npm:^2.0.0-beta.11":
+  version: 2.0.0-beta.11
+  resolution: "@mints/miller-columns@npm:2.0.0-beta.11"
   dependencies:
     "@fontsource/roboto": ^5.0.14
     "@mui/material": ^5.16.7
@@ -2108,7 +2108,7 @@ __metadata:
     react-dom: ^18.2.0
     react-infinite-scroll-component: ^6.1.0
     styled-components: ^6.1.12
-  checksum: 94c3ba41210f2ccbddc413ef6c26e5615f11c5a3aac7954484d838d1b05713543def70b6714e79cfc396efea522f553b2d648b36af994bf66456a440836a1386
+  checksum: a2408f665aae4f037c265b18cac976b7b77ec2216e93ae24fdb8f77603ff7411efbb5398f30a6a1128e2df4e31b8ebb3b99efb9a0f2f502fec96394bde1f2259
   languageName: node
   linkType: hard
 
@@ -3911,7 +3911,7 @@ __metadata:
     "@ant-design/icons": ^5.4.0
     "@fontsource/roboto": ^5.0.14
     "@mints/hooks": ^1.0.0-beta.9
-    "@mints/miller-columns": ^2.0.0-beta.10
+    "@mints/miller-columns": ^2.0.0-beta.11
     "@mui/icons-material": ^5.16.7
     "@mui/material": ^5.16.7
     "@mui/styled-engine-sc": ^6.0.0-alpha.18

@@ -191,6 +191,10 @@ func (p Github) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
+func (p Github) TestConnection(id uint64) errors.Error {
+	return api.TestExistingConnectionForTokenCheck(helper.GenerateTestingConnectionApiResourceInput(id))
+}
+
 func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {

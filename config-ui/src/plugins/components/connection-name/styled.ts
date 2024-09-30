@@ -16,4 +16,31 @@
  *
  */
 
-export * from './slice';
+import styled from 'styled-components';
+
+export const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+
+  span + span {
+    margin-left: 4px;
+  }
+`;
+
+export const Icon = styled.span`
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+
+  & > svg {
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+export const Name = styled.span`
+  max-width: 240px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+`;

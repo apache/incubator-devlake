@@ -17,7 +17,6 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'antd';
 
@@ -27,7 +26,7 @@ import { getCron } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
 import { IBlueprint } from '@/types';
-import { formatTime, operator } from '@/utils';
+import { formatTime } from '@/utils';
 
 import { FromEnum } from '../types';
 
@@ -35,16 +34,16 @@ interface Props {
   from: FromEnum;
   blueprint: IBlueprint;
   pipelineId?: ID;
-  onRefresh: () => void;
+  operating: boolean;
+  onDelete: () => void;
+  onUpdate: (payload: any) => void;
+  onTrigger: (payload?: { skipCollectors?: boolean; fullSync?: boolean }) => void;
 }
 
-export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) => {
-  const [type, setType] = useState<'delete' | 'fullSync'>();
+export const StatusPanel = ({ from, blueprint, pipelineId, operating, onDelete, onUpdate, onTrigger }: Props) => {
+  const [type, setType] = useState<'delete' | 'fullSync' | 'checkTokenFailed'>();
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
-  const [operating, setOperating] = useState(false);
-
-  const navigate = useNavigate();
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
@@ -55,53 +54,6 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
 
   const handleResetType = () => {
     setType(undefined);
-  };
-
-  const handleRun = async ({
-    skipCollectors = false,
-    fullSync = false,
-  }: {
-    skipCollectors?: boolean;
-    fullSync?: boolean;
-  }) => {
-    const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync }), {
-      setOperating,
-      formatMessage: () => 'Trigger blueprint successful.',
-    });
-
-    if (success) {
-      onRefresh();
-    }
-  };
-
-  const handleUpdate = async (payload: any) => {
-    const [success] = await operator(
-      () =>
-        API.blueprint.update(blueprint.id, {
-          ...blueprint,
-          ...payload,
-        }),
-      {
-        setOperating,
-        formatMessage: () =>
-          from === FromEnum.project ? 'Update project successful.' : 'Update blueprint successful.',
-      },
-    );
-
-    if (success) {
-      onRefresh();
-    }
-  };
-
-  const handleDelete = async () => {
-    const [success] = await operator(() => API.blueprint.remove(blueprint.id), {
-      setOperating,
-      formatMessage: () => 'Delete blueprint successful.',
-    });
-
-    if (success) {
-      navigate('/advanced/blueprints');
-    }
   };
 
   return (
@@ -120,12 +72,12 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
                 type="primary"
                 disabled={!blueprint.enable}
                 loading={operating}
-                onClick={() => handleRun({ skipCollectors: true, fullSync: true })}
+                onClick={() => onTrigger({ skipCollectors: true })}
               >
                 Re-transform Data
               </Button>
             </Tooltip>
-            <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => handleRun({})}>
+            <Button type="primary" disabled={!blueprint.enable} loading={operating} onClick={() => onTrigger()}>
               Collect Data
             </Button>
             <Dropdown
@@ -153,14 +105,14 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
       {from === FromEnum.blueprint && (
         <Flex justify="center" align="center">
           <Space>
-            <Button type="primary" disabled={!blueprint.enable} onClick={() => handleRun({})}>
+            <Button type="primary" disabled={!blueprint.enable} onClick={() => onTrigger()}>
               Run Now
             </Button>
             <Switch
               style={{ marginBottom: 0 }}
               disabled={!!blueprint.projectName}
               checked={blueprint.enable}
-              onChange={(enable) => handleUpdate({ enable })}
+              onChange={(enable) => onUpdate({ enable })}
             />
             Blueprint Enabled
             <Tooltip title="Delete Blueprint">
@@ -221,7 +173,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             loading: operating,
           }}
           onCancel={handleResetType}
-          onOk={handleDelete}
+          onOk={onDelete}
         >
           <Message
             content="Please note: deleting the Blueprint will not delete the historical data of the Data Scopes in this
@@ -240,7 +192,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             loading: operating,
           }}
           onCancel={handleResetType}
-          onOk={() => handleRun({ fullSync: true })}
+          onOk={() => onTrigger({ fullSync: true })}
         >
           <Message content="This operation may take a long time as it will empty all of your existing data and re-collect it." />
         </Modal>

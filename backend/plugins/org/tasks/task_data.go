@@ -20,8 +20,14 @@ package tasks
 import "github.com/apache/incubator-devlake/core/plugin"
 
 type Options struct {
-	ConnectionId    uint64           `json:"connectionId"`
-	ProjectMappings []ProjectMapping `json:"projectMappings"`
+	ConnectionId       uint64              `json:"connectionId"`
+	ProjectMappings    []ProjectMapping    `json:"projectMappings"`
+	ProjectConnections []ProjectConnection `json:"projectConnections"`
+}
+
+type ProjectConnection struct {
+	PluginName   string
+	ConnectionId uint64
 }
 
 // ProjectMapping represents the relations between project and scopes

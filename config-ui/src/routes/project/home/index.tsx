@@ -24,11 +24,11 @@ import { Flex, Table, Button, Modal, Input } from 'antd';
 import API from '@/api';
 import { PageHeader, Block, IconButton } from '@/components';
 import { getCron } from '@/config';
-import { ConnectionName } from '@/features/connections';
 import { useRefreshData } from '@/hooks';
 import { OnboardTour } from '@/routes/onboard/components';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
+import { ConnectionName } from '@/plugins';
 import { IBlueprint } from '@/types';
 
 export const ProjectHomePage = () => {

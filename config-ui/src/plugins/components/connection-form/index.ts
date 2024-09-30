@@ -16,4 +16,5 @@
  *
  */
 
-export * from './name';
+export * from './connection-form-modal';
+export * from './connection-form';
