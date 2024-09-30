@@ -83,18 +83,23 @@ func ExtractBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ActionDesc:   res.Desc,
 			}
 
-			match := re.FindStringSubmatch(res.Extra)
-			if len(match) > 1 {
-				bugCommits.Extra = match[1]
-			} else {
-				return nil, nil
+			if bugCommits.Actor == "linked2revision" {
+				match := re.FindStringSubmatch(res.Extra)
+				if len(match) > 1 {
+					bugCommits.Extra = match[1]
+				} else {
+					return nil, nil
+				}
+				u, err := url.Parse(match[1])
+				if err != nil {
+					return nil, errors.Default.WrapRaw(err)
+				}
+				bugCommits.Host = u.Host
+				bugCommits.RepoRevision = "/" + path.Base(u.Path)
 			}
-			u, err := url.Parse(match[1])
-			if err != nil {
-				return nil, errors.Default.WrapRaw(err)
+			if bugCommits.Actor == "linked2revision" {
+				// how?
 			}
-			bugCommits.Host = u.Host
-			bugCommits.RepoRevision = "/" + path.Base(u.Path)
 
 			results := make([]interface{}, 0)
 			results = append(results, bugCommits)

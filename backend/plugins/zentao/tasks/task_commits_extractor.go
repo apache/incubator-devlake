@@ -78,19 +78,24 @@ func ExtractTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ActionDesc:   res.Desc,
 			}
 
-			match := re.FindStringSubmatch(res.Extra)
-			if len(match) > 1 {
-				taskCommits.Extra = match[1]
-			} else {
-				return nil, nil
-			}
-			u, err := url.Parse(match[1])
-			if err != nil {
-				return nil, errors.Default.WrapRaw(err)
-			}
+			if taskCommits.Actor == "linked2revision" {
+				match := re.FindStringSubmatch(res.Extra)
+				if len(match) > 1 {
+					taskCommits.Extra = match[1]
+				} else {
+					return nil, nil
+				}
+				u, err := url.Parse(match[1])
+				if err != nil {
+					return nil, errors.Default.WrapRaw(err)
+				}
 
-			taskCommits.Host = u.Host
-			taskCommits.RepoRevision = "/" + path.Base(u.Path)
+				taskCommits.Host = u.Host
+				taskCommits.RepoRevision = "/" + path.Base(u.Path)
+			}
+			if taskCommits.Actor == "gitcommited" {
+				// how?
+			}
 
 			results := make([]interface{}, 0)
 			results = append(results, taskCommits)
