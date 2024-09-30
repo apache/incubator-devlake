@@ -19,7 +19,6 @@ package impl
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -167,4 +166,30 @@ func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.
 		},
 	}
 	return plan, nil
+}
+
+func (p Dora) GetOrchestratedTask() (plugin.OrchestratedTask, errors.Error) {
+	ret := []plugin.ParallelSequentialTaskGroup{
+		{
+			plugin.SequentialTasks{
+				tasks.DeploymentGeneratorMeta,
+				tasks.DeploymentCommitsGeneratorMeta,
+				tasks.EnrichPrevSuccessDeploymentCommitMeta,
+			},
+			plugin.SequentialTasks{
+				tasks.CalculateChangeLeadTimeMeta,
+			},
+		},
+		{
+			plugin.SequentialTasks{
+				tasks.IssuesToIncidentsMeta,
+			},
+		},
+		{
+			plugin.SequentialTasks{
+				tasks.ConnectIncidentToDeploymentMeta,
+			},
+		},
+	}
+	return ret, nil
 }

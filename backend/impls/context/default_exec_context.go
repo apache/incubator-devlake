@@ -87,7 +87,7 @@ func (c *defaultExecContext) IncProgress(progressType plugin.ProgressType, quant
 			Current: int(current),
 			Total:   c.total,
 		}
-		// subtask progress may go too fast, remove old messages because they don't matter any more
+		// subtask progress may go too fast, remove old messages because they don't matter anymore
 		if progressType == plugin.SubTaskSetProgress {
 			for len(c.progress) > 1 {
 				<-c.progress

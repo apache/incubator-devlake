@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"context"
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -28,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/refdiff/models"
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
+	"reflect"
 )
 
 var CalculateDeploymentCommitsDiffMeta = plugin.SubTaskMeta{
