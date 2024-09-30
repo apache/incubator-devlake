@@ -126,7 +126,7 @@ export const Layout = () => {
             ))}
         </Header>
         <Content style={{ overflowY: 'auto' }}>
-          <div style={{ padding: 24, margin: '0 auto', maxWidth: 1280 }}>
+          <div style={{ padding: 24, margin: '0 auto', maxWidth: 1280, minWidth: 960 }}>
             <OnboardCard style={{ marginBottom: 32 }} />
             <Outlet />
           </div>
