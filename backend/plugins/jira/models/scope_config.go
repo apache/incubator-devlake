@@ -48,6 +48,7 @@ type JiraScopeConfig struct {
 	RemotelinkRepoPattern      []CommitUrlPattern     `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern" gorm:"type:json;serializer:json"`
 	TypeMappings               map[string]TypeMapping `mapstructure:"typeMappings,omitempty" json:"typeMappings" gorm:"type:json;serializer:json"`
 	ApplicationType            string                 `mapstructure:"applicationType,omitempty" json:"applicationType" gorm:"type:varchar(255)"`
+	EnableIssueTrace           *bool                  `mapstructure:"enableIssueTrace,omitempty" json:"enableIssueTrace" gorm:"type:boolean"`
 }
 
 func (r *JiraScopeConfig) SetConnectionId(c *JiraScopeConfig, connectionId uint64) {
