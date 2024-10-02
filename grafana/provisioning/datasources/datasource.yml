@@ -19,11 +19,13 @@
 apiVersion: 1
 
 datasources:
-  - name: mysql
-    type: mysql
-    url: $MYSQL_URL
-    database: $MYSQL_DATABASE
-    user: $MYSQL_USER
+  - name: default-db
+    type: $DB_TYPE # can be "postgres" or "mysql"
+    url: $DB_HOST
+    jsonData: # as stated in https://github.com/grafana/grafana/issues/11407
+      sslmode: disable
+    database: $DB_DATABASE
+    user: $DB_USER
     secureJsonData:
-      password: $MYSQL_PASSWORD
+      password: $DB_PASSWORD
     editable: false
