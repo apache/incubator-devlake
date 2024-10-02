@@ -18,9 +18,11 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 // CallDB wraps DB calls with this signature, and handles the case if the struct is wrapped in a models.DynamicTabler.
@@ -30,4 +32,12 @@ func CallDB(f func(any, ...dal.Clause) errors.Error, x any, clauses ...dal.Claus
 		x = dynamic.Unwrap()
 	}
 	return f(x, clauses...)
+}
+
+func GenerateTestingConnectionApiResourceInput(connectionID uint64) *plugin.ApiResourceInput {
+	return &plugin.ApiResourceInput{
+		Params: map[string]string{
+			"connectionId": fmt.Sprintf("%d", connectionID),
+		},
+	}
 }

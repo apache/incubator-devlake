@@ -25,8 +25,8 @@ import dayjs from 'dayjs';
 import API from '@/api';
 import { PageHeader, Block, TextTooltip, IconButton } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
-import { ConnectionName } from '@/features/connections';
 import { useRefreshData } from '@/hooks';
+import { ConnectionName } from '@/plugins';
 import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';
 
@@ -64,7 +64,7 @@ export const BlueprintHomePage = () => {
       name,
       mode,
       enable: true,
-      cronConfig: presets[0],
+      cronConfig: presets[1],
       isManual: false,
       skipOnFail: true,
     };

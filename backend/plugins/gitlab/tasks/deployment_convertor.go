@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -50,9 +49,9 @@ var ConvertDeploymentMeta = plugin.SubTaskMeta{
 
 // ConvertDeployment should be split into two task theoretically
 // But in GitLab, all deployments have commits, so there is no need to change it.
-func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
-	db := taskCtx.GetDal()
+func ConvertDeployment(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_DEPLOYMENT)
+	db := subtaskCtx.GetDal()
 
 	repo := &models.GitlabProject{}
 	err := db.First(repo, dal.Where("gitlab_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
@@ -61,25 +60,24 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	projectIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
-
-	cursor, err := db.Cursor(
-		dal.From(&models.GitlabDeployment{}),
-		dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
-	)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
 	idGen := didgen.NewDomainIdGenerator(&models.GitlabDeployment{})
 
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(models.GitlabDeployment{}),
-		Input:              cursor,
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabDeployment := inputRow.(*models.GitlabDeployment)
-
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabDeployment]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(&models.GitlabDeployment{}),
+				dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(gitlabDeployment *models.GitlabDeployment) ([]interface{}, errors.Error) {
 			var duration *float64
 			if gitlabDeployment.DeployableDuration != nil {
 				deployableDuration := cast.ToFloat64(*gitlabDeployment.DeployableDuration)
@@ -129,7 +127,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:               repo.WebUrl + "/environments",
 			}
 			if data.RegexEnricher != nil {
-				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {
+				if data.RegexEnricher.ReturnNameIfMatchedList(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {
 					domainDeployCommit.Environment = devops.PRODUCTION
 				}
 			}

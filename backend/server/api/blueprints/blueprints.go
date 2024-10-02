@@ -18,6 +18,7 @@ limitations under the License.
 package blueprints
 
 import (
+	"github.com/spf13/cast"
 	"net/http"
 	"strconv"
 
@@ -166,6 +167,7 @@ func Patch(c *gin.Context) {
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Param skipCollectors body models.TriggerSyncPolicy false "json"
+// @Param fullSync body models.TriggerSyncPolicy false "json"
 // @Success 200 {object} models.Pipeline
 // @Failure 400 {object} shared.ApiBody "Bad Request"
 // @Failure 500 {object} shared.ApiBody "Internal Error"
@@ -224,6 +226,29 @@ func GetBlueprintPipelines(c *gin.Context) {
 		return
 	}
 	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
+}
+
+// @Summary get connection token check by blueprint id
+// @Description get connection token check by blueprint id
+// @Tags framework/blueprints
+// @Accept application/json
+// @Param blueprintId path int true "blueprint id"
+// @Success 200  {object} models.ApiBlueprintConnectionTokenCheck
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /blueprints/{blueprintId}/connections-token-check [get]
+func GetBlueprintConnectionTokenCheck(c *gin.Context) {
+	blueprintId, err := cast.ToUint64E(c.Param("blueprintId"))
+	if err != nil {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintID format supplied"))
+		return
+	}
+	resp, err := services.CheckBlueprintConnectionTokens(blueprintId)
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting blue print connection token check"))
+		return
+	}
+	shared.ApiOutputSuccess(c, resp, http.StatusOK)
 }
 
 // @Summary delete blueprint by id

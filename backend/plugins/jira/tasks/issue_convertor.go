@@ -53,7 +53,7 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	boardIdGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
 	boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.BoardId)
 
-	converter, err := api.NewStatefulDataConverter[models.JiraIssue](&api.StatefulDataConverterArgs[models.JiraIssue]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.JiraIssue]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
 			Table:          RAW_ISSUE_TABLE,
@@ -84,6 +84,17 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return db.Cursor(clauses...)
 		},
+		// not needed for now due to jira assignee and label are converted in FullSync(Delete+Insert) manner
+		// BeforeConvert: func(jiraIssue *models.JiraIssue, stateManager *api.SubtaskStateManager) errors.Error {
+		// 	issueId := issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.IssueId)
+		// 	if err := db.Delete(&ticket.IssueAssignee{}, dal.Where("issue_id = ?", issueId)); err != nil {
+		// 		return err
+		// 	}
+		// 	if err := db.Delete(&ticket.IssueLabel{}, dal.Where("issue_id = ?", issueId)); err != nil {
+		// 		return err
+		// 	}
+		// 	return nil
+		// },
 		Convert: func(jiraIssue *models.JiraIssue) ([]interface{}, errors.Error) {
 			var result []interface{}
 			issue := &ticket.Issue{

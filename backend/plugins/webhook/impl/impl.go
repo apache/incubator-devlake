@@ -77,6 +77,10 @@ func (p Webhook) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
+func (p Webhook) TestConnection(id uint64) errors.Error {
+	return nil
+}
+
 func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"connections": {

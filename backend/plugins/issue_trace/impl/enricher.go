@@ -19,7 +19,6 @@ package impl
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -149,6 +148,10 @@ func (p IssueTrace) GetTablesInfo() []dal.Tabler {
 		&models.IssueAssigneeHistory{},
 		&models.IssueStatusHistory{},
 	}
+}
+
+func (p IssueTrace) TestConnection(id uint64) errors.Error {
+	return nil
 }
 
 func (p IssueTrace) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (coreModels.PipelinePlan, errors.Error) {

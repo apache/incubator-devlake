@@ -59,13 +59,8 @@ func Init() {
 	basicRes = services.GetBasicRes()
 }
 
-func InjectCustomService(pipelineNotifier services.PipelineNotificationService) errors.Error {
-	if pipelineNotifier != nil {
-		if err := services.InjectCustomService(pipelineNotifier); err != nil {
-			return err
-		}
-	}
-	return nil
+func InjectCustomService(pipelineNotifier services.PipelineNotificationService, projectService services.ProjectService) errors.Error {
+	return services.InjectCustomService(pipelineNotifier, projectService)
 }
 
 // @title  DevLake Swagger API
@@ -127,12 +122,7 @@ func SetupApiServer(router *gin.Engine) {
 	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
 		// Execute database migration
-		err := services.ExecuteMigration()
-		if err != nil {
-			// Return error response
-			shared.ApiOutputError(ctx, errors.Default.Wrap(err, "error executing migration"))
-			return
-		}
+		errors.Must(services.ExecuteMigration())
 		// Return success response
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 	})

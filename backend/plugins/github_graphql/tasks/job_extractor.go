@@ -75,8 +75,6 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					CompletedAt:  checkRun.CompletedAt,
 					Name:         checkRun.Name,
 					Steps:        paramsBytes,
-					Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, checkRun.Name),
-					Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, checkRun.Name),
 					// these columns can not fill by graphql
 					//HeadSha:       ``,  // use _tool_github_runs
 					//RunURL:        ``,
@@ -85,6 +83,10 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					//RunnerID:      ``, // not in use
 					//RunnerName:    ``, // not in use
 					//RunnerGroupID: ``, // not in use
+				}
+				if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
+					githubJob.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, checkRun.Name)
+					githubJob.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, checkRun.Name)
 				}
 				results = append(results, githubJob)
 			}

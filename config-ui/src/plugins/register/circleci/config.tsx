@@ -57,6 +57,9 @@ export const CircleCIConfig: IPluginConfig = {
   },
   scopeConfig: {
     entities: ['CICD'],
-    transformation: {},
+    transformation: {
+      deploymentPattern: '',
+      productionPattern: '',
+    },
   },
 };

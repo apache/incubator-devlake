@@ -153,11 +153,15 @@ func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 		op.ScopeConfig = new(models.CircleciScopeConfig)
 	}
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	if op.ScopeConfig.DeploymentPattern != nil {
+		if err := regexEnricher.TryAdd(devops.DEPLOYMENT, *op.ScopeConfig.DeploymentPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+		}
 	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	if op.ScopeConfig.ProductionPattern != nil {
+		if err := regexEnricher.TryAdd(devops.PRODUCTION, *op.ScopeConfig.ProductionPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+		}
 	}
 	taskData.RegexEnricher = regexEnricher
 	return taskData, nil
@@ -170,6 +174,11 @@ func (p Circleci) RootPkgPath() string {
 
 func (p Circleci) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Circleci) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -207,6 +216,9 @@ func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 		"connections/:connectionId/scope-configs": {
 			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
+		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
 		},
 		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.PatchScopeConfig,

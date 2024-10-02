@@ -16,4 +16,34 @@
  *
  */
 
-export * from './name';
+import { useState } from 'react';
+import { CaretDownFilled, CaretRightFilled } from '@ant-design/icons';
+import { Flex, Button } from 'antd';
+
+interface Props {
+  text?: React.ReactNode;
+  btnText: string;
+  children: React.ReactNode;
+}
+
+export const ShowMore = ({ text, btnText, children }: Props) => {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div>
+      <Flex align="center">
+        {text}
+        <Button
+          type="link"
+          size="small"
+          icon={show ? <CaretDownFilled /> : <CaretRightFilled />}
+          iconPosition="end"
+          onClick={() => setShow(!show)}
+        >
+          {btnText}
+        </Button>
+      </Flex>
+      {show && children}
+    </div>
+  );
+};

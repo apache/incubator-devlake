@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"strconv"
 	"strings"
 	"time"
@@ -62,7 +61,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs{
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[apiv2models.Issue]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: subtaskCtx,
 			Table:          RAW_ISSUE_TABLE,
@@ -70,10 +69,32 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			SubtaskConfig: mappings,
+			SubtaskConfig: map[string]any{
+				"typeMappings":    mappings,
+				"storyPointField": data.Options.ScopeConfig.StoryPointField,
+			},
 		},
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			return extractIssues(data, mappings, row, userFieldMap)
+		BeforeExtract: func(apiIssue *apiv2models.Issue, stateManager *api.SubtaskStateManager) errors.Error {
+			if stateManager.IsIncremental() {
+				err := db.Delete(
+					&models.JiraIssueLabel{},
+					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, apiIssue.ID),
+				)
+				if err != nil {
+					return err
+				}
+				err = db.Delete(
+					&models.JiraIssueRelationship{},
+					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, apiIssue.ID),
+				)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+		Extract: func(apiIssue *apiv2models.Issue, row *api.RawData) ([]interface{}, errors.Error) {
+			return extractIssues(data, mappings, apiIssue, row, userFieldMap)
 		},
 	})
 	if err != nil {
@@ -82,13 +103,8 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
-	var apiIssue apiv2models.Issue
-	err := errors.Convert(json.Unmarshal(row.Data, &apiIssue))
-	if err != nil {
-		return nil, err
-	}
-	err = apiIssue.SetAllFields(row.Data)
+func extractIssues(data *JiraTaskData, mappings *typeMappings, apiIssue *apiv2models.Issue, row *api.RawData, userFieldMaps map[string]struct{}) ([]interface{}, errors.Error) {
+	err := apiIssue.SetAllFields(row.Data)
 	if err != nil {
 		return nil, err
 	}

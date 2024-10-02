@@ -19,6 +19,8 @@ package services
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
+	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 	"strings"
 	"time"
@@ -29,6 +31,12 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
+
+type ProjectService interface {
+	RenameProject(db dal.Transaction, oldProjectName, newProjectName string) errors.Error
+}
+
+var projectService ProjectService
 
 // ProjectQuery used to query projects as the api project input
 type ProjectQuery struct {
@@ -136,7 +144,7 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		ProjectName: project.Name,
 		Mode:        "NORMAL",
 		Enable:      true,
-		CronConfig:  "0 0 * * *",
+		CronConfig:  services.BP_CRON_WEEKLY,
 		IsManual:    false,
 		SyncPolicy: models.SyncPolicy{
 			TimeAfter: func() *time.Time {
@@ -211,7 +219,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		return nil, err
 	}
 
-	// allowed to changed the name
+	// allowed to change the name
 	if projectInput.Name == "" {
 		projectInput.Name = name
 	}
@@ -268,6 +276,11 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		if err != nil {
 			return nil, err
 		}
+		if projectService != nil {
+			if err := projectService.RenameProject(tx, name, project.Name); err != nil {
+				return nil, err
+			}
+		}
 		// rename project
 		err = tx.UpdateColumn(
 			&models.Project{},
@@ -310,6 +323,31 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	return makeProjectOutput(project, false)
 }
 
+func thereAreUnfinishedPipelinesUnderProject(projectName string) (bool, errors.Error) {
+	blueprint, err := GetBlueprintByProjectName(projectName)
+	if err != nil {
+		return false, err
+	}
+	return thereAreUnfinishedPipelinesUnderBlueprint(blueprint.ID)
+}
+
+func thereAreUnfinishedPipelinesUnderBlueprint(blueprintID uint64) (bool, errors.Error) {
+	// get the first page
+	dbPipelines, count, err := GetDbPipelines(&PipelineQuery{BlueprintId: blueprintID})
+	if err != nil {
+		return false, err
+	}
+	if count <= 0 {
+		return false, nil
+	}
+	for _, pipeline := range dbPipelines {
+		if !slices.Contains(models.FinishedTaskStatus, pipeline.Status) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // DeleteProject FIXME ...
 func DeleteProject(name string) errors.Error {
 	// verify input
@@ -320,6 +358,14 @@ func DeleteProject(name string) errors.Error {
 	_, err := getProjectByName(db, name)
 	if err != nil {
 		return err
+	}
+	// make sure there is no running pipelines in current projects
+	pipelinesAreUnfinished, err := thereAreUnfinishedPipelinesUnderProject(name)
+	if err != nil {
+		return err
+	}
+	if pipelinesAreUnfinished {
+		return errors.Default.New("There are unfinished pipelines in the current project. It cannot be deleted at this time.")
 	}
 	err = deleteProjectBlueprint(name)
 	if err != nil {

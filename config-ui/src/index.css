@@ -70,3 +70,7 @@ p {
 #root {
   height: 100vh;
 }
+
+.ant-tour-title {
+  padding-right: 28px;
+}

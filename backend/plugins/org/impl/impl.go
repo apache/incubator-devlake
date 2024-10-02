@@ -59,9 +59,31 @@ func (p Org) Name() string {
 
 func (p Org) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.TaskCheckTokenMeta,
 		tasks.ConnectUserAccountsExactMeta,
 		tasks.SetProjectMappingMeta,
 	}
+}
+
+func (p Org) MakePipeline(skipCollectors bool, projectName string, connections []plugin.ProjectTokenCheckerConnection) (coreModels.PipelinePlan, errors.Error) {
+	var plan coreModels.PipelinePlan
+	var stage coreModels.PipelineStage
+
+	// construct task options for Org
+	options := make(map[string]interface{})
+	if !skipCollectors {
+		options["projectConnections"] = connections
+	}
+
+	stage = append(stage, &coreModels.PipelineTask{
+		Plugin: p.Name(),
+		Subtasks: []string{
+			tasks.TaskCheckTokenMeta.Name,
+		},
+		Options: options,
+	})
+	plan = append(plan, stage)
+	return plan, nil
 }
 
 func (p Org) MapProject(projectName string, scopes []plugin.Scope) (coreModels.PipelinePlan, errors.Error) {

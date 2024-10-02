@@ -41,6 +41,7 @@ export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) 
       "startedDate": "2023-01-01T12:00:00+00:00",
       "finishedDate": "2023-01-01T12:00:00+00:00",
       "result": "SUCCESS",
+      "url": "Optional. The URL of the deployment",
       "deploymentCommits":[
         {
           "repoUrl": "your-git-url",
