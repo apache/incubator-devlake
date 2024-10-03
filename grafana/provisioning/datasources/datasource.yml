@@ -22,7 +22,7 @@ datasources:
   - name: mysql
     type: $DB_TYPE # can be "postgres" or "mysql"
     url: $DB_HOST
-    jsonData: # as stated in https://github.com/grafana/grafana/issues/11407
+    jsonData: # as stated in https://github.com/grafana/grafana/issues/11407#issuecomment-376862604
       sslmode: disable
     database: $DB_DATABASE
     user: $DB_USER
