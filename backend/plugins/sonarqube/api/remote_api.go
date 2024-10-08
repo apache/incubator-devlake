@@ -48,10 +48,12 @@ func querySonarqubeProjects(
 	if page.Page == 0 {
 		page.Page = 1
 	}
+	org := apiClient.GetData(models.ORG).(string)
 	res, err := apiClient.Get("projects/search", url.Values{
-		"p":  {fmt.Sprintf("%v", page.Page)},
-		"ps": {fmt.Sprintf("%v", page.PageSize)},
-		"q":  {keyword},
+		"p":            {fmt.Sprintf("%v", page.Page)},
+		"ps":           {fmt.Sprintf("%v", page.PageSize)},
+		"q":            {keyword},
+		"organization": {org},
 	}, nil)
 	if err != nil {
 		return

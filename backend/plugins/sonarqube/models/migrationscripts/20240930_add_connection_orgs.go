@@ -17,25 +17,34 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-		new(increaseProjectKeyLength),
-		new(addOrgToConn),
-	}
+var _ plugin.MigrationScript = (*addOrgToConn)(nil)
+
+type connection20240930 struct {
+	Organization string
+}
+
+func (connection20240930) TableName() string {
+	return "_tool_sonarqube_connections"
+}
+
+type addOrgToConn struct {
+}
+
+func (script *addOrgToConn) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &connection20240930{})
+}
+
+func (*addOrgToConn) Version() uint64 {
+	return 20240930151715
+}
+
+func (*addOrgToConn) Name() string {
+	return "add organizations to the connections table"
 }
