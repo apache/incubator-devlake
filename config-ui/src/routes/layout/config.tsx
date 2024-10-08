@@ -20,7 +20,6 @@ import {
   AppstoreOutlined,
   ProjectOutlined,
   ExperimentOutlined,
-  KeyOutlined,
   DashboardOutlined,
   FileSearchOutlined,
   ApiOutlined,
@@ -54,19 +53,14 @@ export const menuItems: MenuItem[] = [
     icon: <ExperimentOutlined />,
     children: [
       {
-        key: '/advanced/blueprints',
-        label: 'Blueprints',
+        key: '/advanced/keys',
+        label: 'API Keys',
       },
       {
         key: '/advanced/pipelines',
-        label: 'Pipelines',
+        label: 'Pipeline Results',
       },
     ],
-  },
-  {
-    key: '/keys',
-    label: 'API Keys',
-    icon: <KeyOutlined />,
   },
 ];
 

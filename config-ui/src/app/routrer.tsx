@@ -30,11 +30,8 @@ import {
   ProjectGeneralSettings,
   ProjectWebhook,
   ProjectAdditionalSettings,
-  BlueprintHomePage,
-  BlueprintDetailPage,
   BlueprintConnectionDetailPage,
   Pipelines,
-  Pipeline,
   ApiKeys,
   NotFound,
 } from '@/routes';
@@ -112,30 +109,14 @@ export const router = createBrowserRouter(
               path: 'advanced',
               children: [
                 {
-                  path: 'blueprints',
-                  element: <BlueprintHomePage />,
-                },
-                {
-                  path: 'blueprints/:id',
-                  element: <BlueprintDetailPage />,
-                },
-                {
-                  path: 'blueprints/:bid/:unique',
-                  element: <BlueprintConnectionDetailPage />,
+                  path: 'keys',
+                  element: <ApiKeys />,
                 },
                 {
                   path: 'pipelines',
                   element: <Pipelines />,
                 },
-                {
-                  path: 'pipeline/:id',
-                  element: <Pipeline />,
-                },
               ],
-            },
-            {
-              path: 'keys',
-              element: <ApiKeys />,
             },
           ],
         },
