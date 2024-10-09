@@ -98,8 +98,8 @@ func (connection *SonarqubeConnection) IsCloud() bool {
 
 const ORG = "org"
 
-func (conn *SonarqubeConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
-	apiClient.SetData(ORG, conn.Organization)
+func (connection *SonarqubeConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
+	apiClient.SetData(ORG, connection.Organization)
 	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 		org := apiClient.GetData(ORG).(string)
 		if org != "" {
