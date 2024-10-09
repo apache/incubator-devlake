@@ -50,7 +50,7 @@ func (sat SonarqubeAccessToken) GetEncodedToken() string {
 type SonarqubeConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	SonarqubeAccessToken  `mapstructure:",squash"`
-	Organization          string `gorm:"serializer:json"`
+	Organization          string `gorm:"serializer:json" json:"org" mapstructure:"org"`
 }
 
 func (connection SonarqubeConn) Sanitize() SonarqubeConn {
@@ -98,7 +98,17 @@ func (connection *SonarqubeConnection) IsCloud() bool {
 
 const ORG = "org"
 
-func (conn *SonarqubeConnection) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
+func (conn *SonarqubeConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	apiClient.SetData(ORG, conn.Organization)
+	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
+		org := apiClient.GetData(ORG).(string)
+		if org != "" {
+			query := req.URL.Query()
+			query.Add("organization", org)
+			req.URL.RawQuery = query.Encode()
+		}
+		return nil
+	})
+
 	return nil
 }
