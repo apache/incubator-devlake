@@ -20,6 +20,9 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"golang.org/x/sync/errgroup"
 	"strings"
 	"sync"
 
@@ -112,6 +115,30 @@ func GetBlueprint(blueprintId uint64, shouldSanitize bool) (*models.Blueprint, e
 		}
 	}
 	return blueprint, nil
+}
+
+func CheckBlueprintConnectionTokens(blueprintId uint64) (*models.ApiBlueprintConnectionTokenCheck, errors.Error) {
+	blueprint, err := GetBlueprint(blueprintId, false)
+	if err != nil {
+		return nil, err
+	}
+	var ret models.ApiBlueprintConnectionTokenCheck
+	for _, connection := range blueprint.Connections {
+		pluginName := connection.PluginName
+		connectionId := connection.ConnectionId
+		connectionTokenResult := models.ConnectionTokenCheckResult{
+			PluginName:   pluginName,
+			ConnectionID: connectionId,
+			Success:      true,
+			Message:      "success",
+		}
+		if err := checkConnectionToken(logger, *connection); err != nil {
+			connectionTokenResult.Success = false
+			connectionTokenResult.Message = err.Error()
+		}
+		ret = append(ret, connectionTokenResult)
+	}
+	return &ret, nil
 }
 
 // GetBlueprintByProjectName returns the detail of a given ProjectName
@@ -237,6 +264,13 @@ func DeleteBlueprint(id uint64) errors.Error {
 	bp, err := bpManager.GetDbBlueprint(id)
 	if err != nil {
 		return err
+	}
+	pipelinesAreUnfinished, err := thereAreUnfinishedPipelinesUnderBlueprint(bp.ID)
+	if err != nil {
+		return err
+	}
+	if pipelinesAreUnfinished {
+		return errors.Default.New("There are unfinished pipelines in the current project. It cannot be deleted at this time.")
 	}
 	err = bpManager.DeleteBlueprint(bp.ID)
 	if err != nil {
@@ -412,6 +446,11 @@ func TriggerBlueprint(id uint64, triggerSyncPolicy *models.TriggerSyncPolicy, sh
 	}
 	blueprint.SkipCollectors = triggerSyncPolicy.SkipCollectors
 	blueprint.FullSync = triggerSyncPolicy.FullSync
+
+	if err := checkBlueprintTokens(blueprint, triggerSyncPolicy); err != nil {
+		return nil, errors.Default.Wrap(err, "check blue print tokens")
+	}
+
 	pipeline, err := createPipelineByBlueprint(blueprint, &models.SyncPolicy{
 		SkipOnFail:        false,
 		TimeAfter:         nil,
@@ -426,4 +465,65 @@ func TriggerBlueprint(id uint64, triggerSyncPolicy *models.TriggerSyncPolicy, sh
 		}
 	}
 	return pipeline, nil
+}
+
+func needToCheckToken(triggerSyncPolicy *models.TriggerSyncPolicy) bool {
+	// case1: retransform
+	if triggerSyncPolicy.SkipCollectors && !triggerSyncPolicy.FullSync {
+		return false
+	}
+	// case2: collect data: triggerSyncPolicy.SkipCollectors == false && triggerSyncPolicy.FullSync == false
+	// case3: collect data with fullsync: triggerSyncPolicy.SkipCollectors == false && triggerSyncPolicy.FullSync == true
+	// case4: others
+	return true
+}
+
+func checkBlueprintTokens(blueprint *models.Blueprint, triggerSyncPolicy *models.TriggerSyncPolicy) errors.Error {
+	if blueprint == nil {
+		return errors.Default.New("blueprint is nil")
+	}
+	if triggerSyncPolicy == nil {
+		return errors.Default.New("triggerSyncPolicy is nil")
+	}
+
+	if !needToCheckToken(triggerSyncPolicy) {
+		return nil
+	}
+
+	if len(blueprint.Connections) == 0 {
+		return nil
+	}
+
+	g := new(errgroup.Group)
+	for _, connection := range blueprint.Connections {
+		conn := *connection
+		g.Go(func() error {
+			if err := checkConnectionToken(logger, conn); err != nil {
+				return err
+			}
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return errors.Convert(err)
+	}
+
+	return nil
+}
+
+func checkConnectionToken(logger log.Logger, connection models.BlueprintConnection) errors.Error {
+	pluginEntry, err := plugin.GetPlugin(connection.PluginName)
+	if err != nil {
+		return err
+	}
+	if v, ok := pluginEntry.(plugin.PluginTestConnectionAPI); ok {
+		if err := v.TestConnection(connection.ConnectionId); err != nil {
+			logger.Error(err, "plugin: %s, id: %d", connection.PluginName, connection.ConnectionId)
+			return err
+		}
+		return nil
+	} else {
+		msg := fmt.Sprintf("plugin: %s doesn't impl test connection api", connection.PluginName)
+		return errors.Default.New(msg)
+	}
 }

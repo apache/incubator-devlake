@@ -24,9 +24,10 @@ import (
 type BambooScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
 	RepoMap            map[string][]int `json:"repoMap" gorm:"type:json;serializer:json"` // should be {realRepoName: [bamboo_repoId, ...]}
-	DeploymentPattern  string           `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	ProductionPattern  string           `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	DeploymentPattern  *string          `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ProductionPattern  *string          `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 	EnvNamePattern     string           `mapstructure:"envNamePattern,omitempty" json:"envNamePattern" gorm:"type:varchar(255)"`
+	EnvNameList        []string         `gorm:"type:json;serializer:json" json:"envNameList" mapstructure:"envNameList"`
 }
 
 func (BambooScopeConfig) TableName() string {

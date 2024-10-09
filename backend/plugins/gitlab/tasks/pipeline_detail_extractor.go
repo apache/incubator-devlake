@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -41,18 +39,12 @@ var ExtractApiPipelineDetailsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&CollectApiPipelineDetailsMeta},
 }
 
-func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_DETAILS_TABLE)
+func ExtractApiPipelineDetails(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_PIPELINE_DETAILS_TABLE)
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			gitlabApiPipeline := &ApiPipeline{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiPipeline))
-			if err != nil {
-				return nil, err
-			}
-
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[ApiPipeline]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Extract: func(gitlabApiPipeline *ApiPipeline, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabPipeline := &models.GitlabPipeline{
 				GitlabId:        gitlabApiPipeline.Id,
 				ProjectId:       data.Options.ProjectId,
@@ -67,9 +59,11 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				Duration:        gitlabApiPipeline.Duration,
 				QueuedDuration:  gitlabApiPipeline.QueuedDuration,
 				ConnectionId:    data.Options.ConnectionId,
-				Type:            data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
-				Environment:     data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
 				Source:          gitlabApiPipeline.Source,
+			}
+			if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
+				gitlabPipeline.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref)
+				gitlabPipeline.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabApiPipeline.Ref)
 			}
 
 			return []interface{}{gitlabPipeline}, nil

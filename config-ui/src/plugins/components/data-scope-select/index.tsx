@@ -19,12 +19,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { RedoOutlined, PlusOutlined } from '@ant-design/icons';
 import { Flex, Button, Input, Space, Tag } from 'antd';
+import { useRequest } from '@mints/hooks';
+import type { IDType } from '@mints/miller-columns';
 import { MillerColumns } from '@mints/miller-columns';
 import { useDebounce } from '@mints/hooks';
 
 import API from '@/api';
 import { Loading, Block, ExternalLink, Message } from '@/components';
 import { getPluginScopeId } from '@/plugins';
+import type { IDataScope } from '@/types';
 
 interface Props {
   plugin: string;
@@ -44,15 +47,45 @@ export const DataScopeSelect = ({
   onCancel,
 }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
-  const [originData, setOriginData] = useState<any[]>([]);
+  const [selectedScope, setSelectedScope] = useState<
+    Array<{
+      id: ID;
+      name: string;
+    }>
+  >([]);
   const [search, setSearch] = useState('');
   const [version, setVersion] = useState(0);
 
   const searchDebounce = useDebounce(search, { wait: 500 });
 
   useEffect(() => {
-    setSelectedIds((initialScope ?? []).map((sc) => sc.id));
+    setSelectedIds((initialScope ?? []).map((it) => getPluginScopeId(plugin, it.scope)));
+    setSelectedScope(
+      (initialScope ?? []).map((it) => ({
+        id: getPluginScopeId(plugin, it.scope),
+        name: it.scope.fullName ?? it.scope.name,
+      })),
+    );
   }, []);
+
+  const { loading, data } = useRequest(async () => {
+    if (!searchDebounce) {
+      return [];
+    }
+    const res = await API.scope.list(plugin, connectionId, {
+      page: 1,
+      pageSize: 50,
+      searchTerm: searchDebounce,
+    });
+
+    return res.scopes.map((it) => ({
+      parentId: null,
+      id: getPluginScopeId(plugin, it.scope),
+      title: it.scope.fullName ?? it.scope.name,
+      canExpand: false,
+      original: it,
+    }));
+  }, [plugin, connectionId, searchDebounce, version]);
 
   const request = useCallback(
     async (_?: string | number, params?: any) => {
@@ -62,46 +95,68 @@ export const DataScopeSelect = ({
         searchTerm: searchDebounce,
       });
 
-      const data = res.scopes.map((it) => ({
-        parentId: null,
-        id: getPluginScopeId(plugin, it.scope),
-        title: it.scope.fullName ?? it.scope.name,
-        canExpand: false,
-      }));
-
       return {
-        data,
+        data: res.scopes.map((it) => ({
+          parentId: null,
+          id: getPluginScopeId(plugin, it.scope),
+          title: it.scope.fullName ?? it.scope.name,
+          canExpand: false,
+          original: it,
+        })),
         hasMore: res.count > (params?.page ?? 1) * 20,
         params: {
           page: (params?.page ?? 1) + 1,
         },
-        originData: res.scopes,
       };
     },
-    [plugin, connectionId, searchDebounce, version],
+    [plugin, connectionId],
   );
 
   const handleSubmit = () => onSubmit?.(selectedIds);
+
+  const millerColumnsProps = {
+    bordered: true,
+    theme: {
+      colorPrimary: '#7497f7',
+      borderColor: '#dbe4fd',
+    },
+    columnHeight: 200,
+    renderLoading: () => <Loading size={20} style={{ padding: '4px 12px' }} />,
+    renderNoData: () => (
+      <Flex style={{ height: '100%' }} justify="center" align="center">
+        <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
+          <Button type="primary" icon={<PlusOutlined />}>
+            Add Data Scope
+          </Button>
+        </ExternalLink>
+      </Flex>
+    ),
+    selectable: true,
+    selectedIds,
+    onSelectedIds: (
+      ids: IDType[],
+      data?: Array<{
+        scope: IDataScope;
+      }>,
+    ) => {
+      setSelectedIds(ids);
+      setSelectedScope(
+        (data ?? []).map((it) => ({
+          id: getPluginScopeId(plugin, it.scope),
+          name: it.scope.fullName ?? it.scope.name,
+        })),
+      );
+    },
+  };
 
   return (
     <Block
       title="Select Data Scope"
       description={
-        originData.length ? (
-          <>
-            Select the data scope in this Connection that you wish to associate with this Project. If you wish to add
-            more Data Scope to this Connection, please{' '}
-            <ExternalLink link={`/connections/${plugin}/${connectionId}`}>go to the Connection page</ExternalLink>.
-          </>
-        ) : (
-          <>
-            There is no Data Scope in this connection yet, please{' '}
-            <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
-              add Data Scope and manage their Scope Configs
-            </ExternalLink>{' '}
-            first.
-          </>
-        )
+        <>
+          If no Data Scope appears in the dropdown list, please{' '}
+          <ExternalLink link={`/connections/${plugin}/${connectionId}`}>add one to this connection</ExternalLink> first.
+        </>
       }
       required
     >
@@ -125,9 +180,8 @@ export const DataScopeSelect = ({
           </Flex>
         )}
         <Space wrap>
-          {selectedIds.length ? (
-            selectedIds.map((id) => {
-              const item = originData.find((it) => getPluginScopeId(plugin, it.scope) === `${id}`);
+          {selectedScope.length ? (
+            selectedScope.map(({ id, name }) => {
               return (
                 <Tag
                   key={id}
@@ -135,7 +189,7 @@ export const DataScopeSelect = ({
                   closable
                   onClose={() => setSelectedIds(selectedIds.filter((it) => it !== id))}
                 >
-                  {item?.scope.fullName ?? item?.scope.name}
+                  {name}
                 </Tag>
               );
             })
@@ -145,32 +199,11 @@ export const DataScopeSelect = ({
         </Space>
         <div>
           <Input.Search value={search} onChange={(e) => setSearch(e.target.value)} />
-          <MillerColumns
-            bordered
-            theme={{
-              colorPrimary: '#7497f7',
-              borderColor: '#dbe4fd',
-            }}
-            request={request}
-            columnHeight={200}
-            renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-            renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
-            renderNoData={() => (
-              <Flex style={{ height: '100%' }} justify="center" align="center">
-                <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
-                  <Button type="primary" icon={<PlusOutlined />}>
-                    Add Data Scope
-                  </Button>
-                </ExternalLink>
-              </Flex>
-            )}
-            selectable
-            selectedIds={selectedIds}
-            onSelectedIds={(ids, data) => {
-              setSelectedIds(ids);
-              setOriginData(data ?? []);
-            }}
-          />
+          {searchDebounce ? (
+            <MillerColumns {...millerColumnsProps} loading={loading} items={data ?? []} />
+          ) : (
+            <MillerColumns {...millerColumnsProps} request={request} rootId={version} />
+          )}
         </div>
         <Flex justify="flex-end" gap="small">
           <Button onClick={onCancel}>Cancel</Button>

@@ -111,19 +111,3 @@ export const Wrapper = styled.div<{ theme: string }>`
     }
   }
 `;
-
-export const ModalTitle = styled.div`
-  display: flex;
-  align-items: center;
-
-  .icon {
-    display: inline-flex;
-    margin-right: 8px;
-    width: 24px;
-
-    & > svg {
-      width: 100%;
-      height: 100%;
-    }
-  }
-`;

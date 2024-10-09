@@ -74,10 +74,6 @@ export const GitLabConfig: IPluginConfig = {
   },
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
-    transformation: {
-      envNamePattern: '(?i)prod(.*)',
-      deploymentPattern: '',
-      productionPattern: '',
-    },
+    transformation: {},
   },
 };

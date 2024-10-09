@@ -18,9 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"regexp"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -133,8 +133,10 @@ type IssuesResponse struct {
 	}
 }
 
-func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
+func ExtractApiIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_ISSUE_TABLE)
+
+	db := subtaskCtx.GetDal()
 	config := data.Options.ScopeConfig
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
@@ -162,15 +164,33 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err, "regexp Compile issuePriority failed")
 		}
 	}
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			body := &IssuesResponse{}
-			err := errors.Convert(json.Unmarshal(row.Data, body))
-			if err != nil {
-				return nil, err
+	subtaskCommonArgs.SubtaskConfig = map[string]interface{}{
+		"issueSeverity":      issueSeverity,
+		"issueComponent":     issueComponent,
+		"issuePriorityRegex": issuePriorityRegex,
+	}
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[IssuesResponse]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		BeforeExtract: func(body *IssuesResponse, stateManager *api.SubtaskStateManager) errors.Error {
+			if stateManager.IsIncremental() {
+				err := db.Delete(
+					&models.GitlabIssueLabel{},
+					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, body.Id),
+				)
+				if err != nil {
+					return err
+				}
+				err = db.Delete(
+					&models.GitlabIssueAssignee{},
+					dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, body.Id),
+				)
+				if err != nil {
+					return err
+				}
 			}
-
+			return nil
+		},
+		Extract: func(body *IssuesResponse, row *api.RawData) ([]interface{}, errors.Error) {
 			if body.ProjectId == 0 {
 				return nil, nil
 			}
@@ -182,9 +202,9 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			for _, label := range body.Labels {
 				results = append(results, &models.GitlabIssueLabel{
+					ConnectionId: data.Options.ConnectionId,
 					IssueId:      gitlabIssue.GitlabId,
 					LabelName:    label,
-					ConnectionId: data.Options.ConnectionId,
 				})
 				if issueSeverityRegex != nil && issueSeverityRegex.MatchString(label) {
 					gitlabIssue.Severity = label

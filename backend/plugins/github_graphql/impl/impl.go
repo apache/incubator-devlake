@@ -20,12 +20,13 @@ package impl
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -252,14 +253,24 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err = regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	if op.ScopeConfig.DeploymentPattern != nil {
+		if err = regexEnricher.TryAdd(devops.DEPLOYMENT, *op.ScopeConfig.DeploymentPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+		}
 	}
-	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	if op.ScopeConfig.ProductionPattern != nil {
+		if err = regexEnricher.TryAdd(devops.PRODUCTION, *op.ScopeConfig.ProductionPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+		}
 	}
-	if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	if len(op.ScopeConfig.EnvNameList) > 0 || (len(op.ScopeConfig.EnvNameList) == 0 && op.ScopeConfig.EnvNamePattern == "") {
+		if err = regexEnricher.TryAddList(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNameList...); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNameList`")
+		}
+	} else {
+		if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+		}
 	}
 	taskData.RegexEnricher = regexEnricher
 

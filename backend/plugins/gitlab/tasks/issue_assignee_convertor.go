@@ -18,14 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -40,35 +38,36 @@ var ConvertIssueAssigneeMeta = plugin.SubTaskMeta{
 	Description:      "Convert tool layer table _tool_gitlab_issue_assignees into  domain layer table issue_assignees",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{models.GitlabIssueAssignee{}.TableName()},
-	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiIssuesMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertIssuesMeta},
 }
 
-func ConvertIssueAssignee(taskCtx plugin.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-
-	cursor, err := db.Cursor(
-		dal.From(&models.GitlabIssueAssignee{}),
-		dal.Where("project_id = ? and connection_id=?", data.Options.ProjectId, data.Options.ConnectionId),
-	)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
+func ConvertIssueAssignee(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_ISSUE_TABLE)
+	db := subtaskCtx.GetDal()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&models.GitlabIssue{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabIssueAssignee{}),
-		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			input := inputRow.(*models.GitlabIssueAssignee)
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabIssueAssignee]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(&models.GitlabIssueAssignee{}),
+				dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(issueAssignee *models.GitlabIssueAssignee) ([]interface{}, errors.Error) {
 			domainIssueAssignee := &ticket.IssueAssignee{
-				IssueId:      issueIdGen.Generate(data.Options.ConnectionId, input.GitlabId),
-				AssigneeId:   accountIdGen.Generate(data.Options.ConnectionId, input.AssigneeId),
-				AssigneeName: input.AssigneeName,
+				IssueId:      issueIdGen.Generate(data.Options.ConnectionId, issueAssignee.GitlabId),
+				AssigneeId:   accountIdGen.Generate(data.Options.ConnectionId, issueAssignee.AssigneeId),
+				AssigneeName: issueAssignee.AssigneeName,
 			}
 			return []interface{}{domainIssueAssignee}, nil
 		},

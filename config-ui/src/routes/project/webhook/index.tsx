@@ -17,13 +17,15 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Alert, Button } from 'antd';
 
 import API from '@/api';
 import { NoData } from '@/components';
-import { useRefreshData } from '@/hooks';
+import { selectProject, updateBlueprint } from '@/features/project';
+import { selectWebhooks } from '@/features/connections';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import type { WebhookItemType } from '@/plugins/register/webhook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webhook';
 import { operator } from '@/utils';
@@ -31,18 +33,20 @@ import { operator } from '@/utils';
 export const ProjectWebhook = () => {
   const [type, setType] = useState<'selectExist' | 'create'>();
   const [operating, setOperating] = useState(false);
-  const [version, setVersion] = useState(0);
 
-  const { pname } = useParams() as { pname: string };
-
-  const { data } = useRefreshData(() => API.project.get(pname), [pname, version]);
+  const dispatch = useAppDispatch();
+  const project = useAppSelector(selectProject);
+  const webhooks = useAppSelector(selectWebhooks);
 
   const webhookIds = useMemo(
     () =>
-      data?.blueprint
-        ? data?.blueprint.connections.filter((cs) => cs.pluginName === 'webhook').map((cs: any) => cs.connectionId)
+      project?.blueprint
+        ? project?.blueprint.connections
+            .filter((cs) => cs.pluginName === 'webhook')
+            .filter((cs) => webhooks.map((wh) => wh.id).includes(cs.connectionId))
+            .map((cs: any) => cs.connectionId)
         : [],
-    [data],
+    [project],
   );
 
   const handleCancel = () => {
@@ -50,14 +54,16 @@ export const ProjectWebhook = () => {
   };
 
   const handleCreate = async (id: ID) => {
-    if (!data) {
+    if (!project) {
       return;
     }
 
     const payload = {
-      ...data.blueprint,
+      ...project.blueprint,
       connections: [
-        ...data.blueprint.connections,
+        ...project.blueprint.connections.filter(
+          (cs) => cs.pluginName !== 'webhook' || webhookIds.includes(cs.connectionId),
+        ),
         {
           pluginName: 'webhook',
           connectionId: id,
@@ -65,25 +71,28 @@ export const ProjectWebhook = () => {
       ],
     };
 
-    const [success] = await operator(() => API.blueprint.update(data.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
       setOperating,
+      hideToast: true,
     });
 
     if (success) {
-      setVersion(version + 1);
       handleCancel();
+      dispatch(updateBlueprint(payload));
     }
   };
 
   const handleSelect = async (items: WebhookItemType[]) => {
-    if (!data) {
+    if (!project) {
       return;
     }
 
     const payload = {
-      ...data.blueprint,
+      ...project.blueprint,
       connections: [
-        ...data.blueprint.connections,
+        ...project.blueprint.connections.filter(
+          (cs) => cs.pluginName !== 'webhook' || webhookIds.includes(cs.connectionId),
+        ),
         ...items.map((it) => ({
           pluginName: 'webhook',
           connectionId: it.id,
@@ -91,33 +100,35 @@ export const ProjectWebhook = () => {
       ],
     };
 
-    const [success] = await operator(() => API.blueprint.update(data.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
       setOperating,
     });
 
     if (success) {
-      setVersion(version + 1);
       handleCancel();
+      dispatch(updateBlueprint(payload));
     }
   };
 
   const handleDelete = async (id: ID) => {
-    if (!data) {
+    if (!project) {
       return;
     }
 
     const payload = {
-      ...data.blueprint,
-      connections: data.blueprint.connections.filter((cs) => !(cs.pluginName === 'webhook' && cs.connectionId === id)),
+      ...project.blueprint,
+      connections: project.blueprint.connections
+        .filter((cs) => cs.pluginName !== 'webhook' || webhookIds.includes(cs.connectionId))
+        .filter((cs) => !(cs.pluginName === 'webhook' && cs.connectionId === id)),
     };
 
-    const [success] = await operator(() => API.blueprint.update(data.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
       setOperating,
     });
 
     if (success) {
-      setVersion(version + 1);
       handleCancel();
+      dispatch(updateBlueprint(payload));
     }
   };
 
@@ -135,7 +146,7 @@ export const ProjectWebhook = () => {
             <div style={{ marginTop: 16 }}>
               To calculate DORA after receiving Webhook data immediately, you can visit the{' '}
               <b style={{ textDecoration: 'underline' }}>
-                <Link to={`/projects/${encodeURIComponent(pname)}/general-settings`}>Status tab</Link>
+                <Link to={`/projects/${encodeURIComponent(project?.name ?? '')}/general-settings`}>Status tab</Link>
               </b>{' '}
               of the Blueprint page and click on Run Now.
             </div>

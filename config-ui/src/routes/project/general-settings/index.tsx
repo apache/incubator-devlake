@@ -16,20 +16,15 @@
  *
  */
 
-import { useParams } from 'react-router-dom';
-
-import API from '@/api';
-import { PageLoading } from '@/components';
-import { useRefreshData } from '@/hooks';
+import { selectProject } from '@/features/project';
+import { useAppSelector } from '@/hooks';
 import { BlueprintDetail, FromEnum } from '@/routes';
 
 export const ProjectGeneralSettings = () => {
-  const { pname } = useParams() as { pname: string };
+  const project = useAppSelector(selectProject);
 
-  const { ready, data: project } = useRefreshData(() => API.project.get(pname), [pname]);
-
-  if (!ready || !project) {
-    return <PageLoading />;
+  if (!project) {
+    return null;
   }
 
   return <BlueprintDetail id={project.blueprint.id} from={FromEnum.project} />;

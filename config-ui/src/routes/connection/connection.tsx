@@ -28,6 +28,7 @@ import { selectConnection } from '@/features/connections';
 import { useAppSelector, useRefreshData } from '@/hooks';
 import {
   ConnectionStatus,
+  ConnectionName,
   DataScopeRemote,
   getPluginConfig,
   getPluginScopeId,
@@ -36,8 +37,6 @@ import {
 } from '@/plugins';
 import { IConnection } from '@/types';
 import { operator } from '@/utils';
-
-import * as S from './styled';
 
 const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
@@ -312,12 +311,7 @@ export const Connection = () => {
           centered
           style={{ width: 820 }}
           footer={null}
-          title={
-            <S.ModalTitle>
-              <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
-              <span className="name">Add Data Scope: {name}</span>
-            </S.ModalTitle>
-          }
+          title={<ConnectionName plugin={plugin} connectionId={connectionId} customName={() => `Add Data Scope`} />}
           onCancel={handleHideDialog}
         >
           <DataScopeRemote
@@ -371,10 +365,7 @@ export const Connection = () => {
           centered
           footer={null}
           title={
-            <S.ModalTitle>
-              <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
-              <span>Associate Scope Config</span>
-            </S.ModalTitle>
+            <ConnectionName plugin={plugin} connectionId={connectionId} customName={() => `Associate Scope Config`} />
           }
           onCancel={handleHideDialog}
         >

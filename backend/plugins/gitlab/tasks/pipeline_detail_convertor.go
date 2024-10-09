@@ -18,17 +18,16 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -42,37 +41,33 @@ var ConvertDetailPipelineMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_detail_pipeline into domain layer table pipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	Dependencies:     []*plugin.SubTaskMeta{&ConvertCommitsMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiPipelineDetailsMeta},
 }
 
-func ConvertDetailPipelines(taskCtx plugin.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*GitlabTaskData)
+func ConvertDetailPipelines(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_PIPELINE_DETAILS_TABLE)
 
-	cursor, err := db.Cursor(dal.From(models.GitlabPipeline{}),
-		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
+	db := subtaskCtx.GetDal()
 
 	pipelineIdGen := didgen.NewDomainIdGenerator(&models.GitlabPipeline{})
 	projectIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.GitlabPipeline{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: models.GitlabApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_PIPELINE_DETAILS_TABLE,
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabPipeline]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(models.GitlabPipeline{}),
+				dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabPipeline := inputRow.(*models.GitlabPipeline)
-
+		Convert: func(gitlabPipeline *models.GitlabPipeline) ([]interface{}, errors.Error) {
 			createdAt := time.Now()
 			if gitlabPipeline.GitlabCreatedAt != nil {
 				createdAt = *gitlabPipeline.GitlabCreatedAt

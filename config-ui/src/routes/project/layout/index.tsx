@@ -16,12 +16,14 @@
  *
  */
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { RollbackOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 
-import { PageHeader } from '@/components';
+import { PageHeader, PageLoading } from '@/components';
+import { request, selectProjectStatus, selectProject } from '@/features/project';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 
 import { ProjectSelector } from './project-selector';
 import * as S from './styled';
@@ -86,6 +88,14 @@ export const ProjectLayout = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectProjectStatus);
+  const project = useAppSelector(selectProject);
+
+  useEffect(() => {
+    dispatch(request(pname));
+  }, [pname]);
+
   const { paths, selectedKeys, title } = useMemo(() => {
     const paths = pathname.split('/');
     const key = paths.pop();
@@ -102,6 +112,10 @@ export const ProjectLayout = () => {
       ],
     };
   }, [pathname]);
+
+  if (status === 'loading' || !project) {
+    return <PageLoading />;
+  }
 
   return (
     <Layout style={{ height: '100%', overflow: 'hidden' }}>
@@ -124,7 +138,7 @@ export const ProjectLayout = () => {
           <p>
             {breadcrumbs(paths).map((b, i) => (
               <span key={b.path}>
-                {i !== paths.length - 2 ? <Link to={b.path}>{b.name}</Link> : <span>{b.name}</span>}
+                {i !== paths.length - 2 ? <Link to={b.path}>{b.name}</Link> : <span>{decodeURIComponent(b.name)}</span>}
                 <span> / </span>
               </span>
             ))}

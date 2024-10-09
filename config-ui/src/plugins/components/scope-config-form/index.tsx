@@ -151,7 +151,7 @@ export const ScopeConfigForm = ({
               description={
                 <>
                   Select the data entities you wish to collect for the Data Scope.
-                  <ExternalLink link="">Learn about data entities</ExternalLink>
+                  <ExternalLink link="{DOC_URL.DATA_ENTITIES}">Learn about data entities</ExternalLink>
                 </>
               }
               required
@@ -193,16 +193,10 @@ export const ScopeConfigForm = ({
             )}
 
             <Form labelCol={{ span: 4 }} wrapperCol={{ span: 16 }}>
-              {plugin === 'azuredevops' && (
+              {(plugin === 'azuredevops' || plugin === 'azuredevops_go') && (
                 <AzureTransformation
-                  entities={entities}
-                  transformation={transformation}
-                  setTransformation={setTransformation}
-                />
-              )}
-
-              {plugin === 'azuredevops_go' && (
-                <AzureTransformation
+                  plugin="azuredevops"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
@@ -211,6 +205,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'bamboo' && (
                 <BambooTransformation
+                  plugin="bamboo"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
@@ -219,6 +215,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'bitbucket' && (
                 <BitbucketTransformation
+                  plugin="bitbucket"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
@@ -235,6 +233,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'circleci' && (
                 <CircleCITransformation
+                  plugin="circleci"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
@@ -243,6 +243,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'github' && (
                 <GitHubTransformation
+                  plugin="github"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
@@ -252,6 +254,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'gitlab' && (
                 <GitLabTransformation
+                  plugin="gitlab"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}
@@ -261,6 +265,8 @@ export const ScopeConfigForm = ({
 
               {plugin === 'jenkins' && (
                 <JenkinsTransformation
+                  plugin="jenkins"
+                  connectionId={connectionId}
                   entities={entities}
                   transformation={transformation}
                   setTransformation={setTransformation}

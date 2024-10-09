@@ -113,28 +113,22 @@ export const Layout = () => {
             background: 'transparent',
           }}
         >
-          {headerItems
-            .filter((item) =>
-              import.meta.env.DEVLAKE_COPYRIGHT_HIDE ? !['Dashboards', 'GitHub', 'Slack'].includes(item.label) : true,
-            )
-            .map((item, i, arr) => (
-              <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
-                {item.icon}
-                <span style={{ marginLeft: 4 }}>{item.label}</span>
-                {i !== arr.length - 1 && <Divider type="vertical" />}
-              </ExternalLink>
-            ))}
+          {headerItems.map((item, i, arr) => (
+            <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
+              {item.icon}
+              <span style={{ marginLeft: 4 }}>{item.label}</span>
+              {i !== arr.length - 1 && <Divider type="vertical" />}
+            </ExternalLink>
+          ))}
         </Header>
         <Content style={{ overflowY: 'auto' }}>
-          <div style={{ padding: 24, margin: '0 auto', maxWidth: 1280 }}>
+          <div style={{ padding: 24, margin: '0 auto', maxWidth: 1280, minWidth: 960 }}>
             <OnboardCard style={{ marginBottom: 32 }} />
             <Outlet />
           </div>
-          {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
-            <Footer>
-              <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
-            </Footer>
-          )}
+          <Footer>
+            <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
+          </Footer>
         </Content>
       </AntdLayout>
     </AntdLayout>

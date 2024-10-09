@@ -34,7 +34,7 @@ type RawData struct {
 	Data      []byte
 	Url       string
 	Input     json.RawMessage `gorm:"type:json"`
-	CreatedAt time.Time
+	CreatedAt time.Time       `gorm:"index"`
 }
 
 type TaskOptions interface {

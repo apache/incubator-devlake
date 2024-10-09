@@ -110,7 +110,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 			SrcDb:         db,
 			DestDb:        starrocksDb,
 			SrcTableName:  table,
-			DestTableName: strings.TrimLeft(table, "_"),
+			DestTableName: table,
 		}
 		columnMap, orderBy, skip, err := createTmpTableInStarrocks(&dc)
 		if skip {

@@ -33,9 +33,10 @@ type GitlabScopeConfig struct {
 	IssueTypeBug         string            `mapstructure:"issueTypeBug" json:"issueTypeBug"`
 	IssueTypeIncident    string            `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
 	IssueTypeRequirement string            `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
-	DeploymentPattern    string            `mapstructure:"deploymentPattern" json:"deploymentPattern"`
-	ProductionPattern    string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	DeploymentPattern    *string           `mapstructure:"deploymentPattern" json:"deploymentPattern"`
+	ProductionPattern    *string           `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 	EnvNamePattern       string            `mapstructure:"envNamePattern,omitempty" json:"envNamePattern" gorm:"type:varchar(255)"`
+	EnvNameList          []string          `gorm:"type:json;serializer:json" json:"envNameList" mapstructure:"envNameList"`
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 

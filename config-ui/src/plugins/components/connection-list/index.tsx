@@ -16,34 +16,17 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { theme, Table, Button, Modal, message } from 'antd';
-import styled from 'styled-components';
 
 import { selectConnections, removeConnection } from '@/features/connections';
 import { Message } from '@/components';
 import { useAppDispatch, useAppSelector } from '@/hooks';
-import { getPluginConfig, ConnectionStatus, ConnectionForm } from '@/plugins';
+import { ConnectionStatus, ConnectionFormModal } from '@/plugins';
 import { WebHookConnection } from '@/plugins/register/webhook';
 import { operator } from '@/utils';
-
-const ModalTitle = styled.div`
-  display: flex;
-  align-items: center;
-
-  .icon {
-    display: inline-flex;
-    margin-right: 8px;
-    width: 24px;
-
-    & > svg {
-      width: 100%;
-      height: 100%;
-    }
-  }
-`;
 
 interface Props {
   plugin: string;
@@ -56,8 +39,6 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
   const [operating, setOperating] = useState(false);
   const [conflict, setConflict] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
-
-  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
 
   const {
     token: { colorPrimary },
@@ -159,22 +140,7 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
         Create a New Connection
       </Button>
       {modalType === 'update' && (
-        <Modal
-          destroyOnClose
-          open
-          width={820}
-          centered
-          title={
-            <ModalTitle>
-              <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
-              <span className="name">Manage Connections: {pluginConfig.name}</span>
-            </ModalTitle>
-          }
-          footer={null}
-          onCancel={hanldeHideModal}
-        >
-          <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={hanldeHideModal} />
-        </Modal>
+        <ConnectionFormModal plugin={plugin} connectionId={connectionId} open onCancel={hanldeHideModal} />
       )}
       {modalType === 'delete' && (
         <Modal

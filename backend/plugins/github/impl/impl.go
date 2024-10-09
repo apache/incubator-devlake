@@ -158,14 +158,25 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err = regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	if op.ScopeConfig.DeploymentPattern != nil {
+		if err = regexEnricher.TryAdd(devops.DEPLOYMENT, *op.ScopeConfig.DeploymentPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+		}
 	}
-	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	if op.ScopeConfig.ProductionPattern != nil {
+		if err = regexEnricher.TryAdd(devops.PRODUCTION, *op.ScopeConfig.ProductionPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+		}
 	}
-	if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	if len(op.ScopeConfig.EnvNameList) > 0 || (len(op.ScopeConfig.EnvNameList) == 0 && op.ScopeConfig.EnvNamePattern == "") {
+		if err = regexEnricher.TryAddList(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNameList...); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNameList`")
+		}
+	} else {
+		if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+		}
+
 	}
 	taskData.RegexEnricher = regexEnricher
 
@@ -178,6 +189,10 @@ func (p Github) RootPkgPath() string {
 
 func (p Github) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Github) TestConnection(id uint64) errors.Error {
+	return api.TestExistingConnectionForTokenCheck(helper.GenerateTestingConnectionApiResourceInput(id))
 }
 
 func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -217,6 +232,12 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
+		},
+		"connections/:connectionId/deployments": {
+			"GET": api.GetConnectionDeployments,
+		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,

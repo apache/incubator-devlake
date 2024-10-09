@@ -30,4 +30,5 @@ type RemotePlugin interface {
 	plugin.PluginModel
 	plugin.PluginMigration
 	plugin.PluginSource
+	plugin.PluginTestConnectionAPI
 }

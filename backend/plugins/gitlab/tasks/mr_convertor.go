@@ -18,15 +18,13 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -43,32 +41,43 @@ var ConvertApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&ConvertProjectMeta},
 }
 
-func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-	db := taskCtx.GetDal()
-	clauses := []dal.Clause{
-		dal.From(&models.GitlabMergeRequest{}),
-		dal.Where("project_id=? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
-	}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
+func ConvertApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_MERGE_REQUEST_TABLE)
+	db := subtaskCtx.GetDal()
 
 	domainMrIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabMergeRequest{})
 	domainRepoIdGenerator := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 	domainUserIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabMergeRequest{}),
-		Input:              cursor,
-
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabMr := inputRow.(*models.GitlabMergeRequest)
-
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabMergeRequest]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(&models.GitlabMergeRequest{}),
+				dal.Where("project_id=? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		BeforeConvert: func(gitlabMr *models.GitlabMergeRequest, stateManager *api.SubtaskStateManager) errors.Error {
+			mrId := domainMrIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.GitlabId)
+			if err := db.Delete(&code.PullRequestAssignee{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
+				return err
+			}
+			if err := db.Delete(&code.PullRequestReviewer{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
+				return err
+			}
+			if err := db.Delete(&code.PullRequestLabel{}, dal.Where("pull_request_id = ?", mrId)); err != nil {
+				return err
+			}
+			return nil
+		},
+		Convert: func(gitlabMr *models.GitlabMergeRequest) ([]interface{}, errors.Error) {
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: domainMrIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.GitlabId),

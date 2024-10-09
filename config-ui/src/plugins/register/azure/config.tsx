@@ -119,8 +119,6 @@ export const AzureGoConfig: IPluginConfig = {
   scopeConfig: {
     entities: ['CODE', 'CODEREVIEW', 'CROSS', 'CICD'],
     transformation: {
-      deploymentPattern: '(deploy|push-image)',
-      productionPattern: 'prod(.*)',
       refdiff: {
         tagsLimit: 10,
         tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
