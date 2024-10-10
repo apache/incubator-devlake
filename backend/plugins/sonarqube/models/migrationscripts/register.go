@@ -37,5 +37,6 @@ func All() []plugin.MigrationScript {
 		new(changeIssueComponentType),
 		new(increaseProjectKeyLength),
 		new(addOrgToConn),
+		new(addIssueImpacts),
 	}
 }
