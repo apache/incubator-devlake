@@ -18,7 +18,7 @@
 
 import { Input } from 'antd';
 
-import { Block } from '@/components';
+import { Block, ExternalLink } from '@/components';
 import { useEffect } from 'react';
 
 interface Props {
@@ -56,7 +56,13 @@ export const Organization = ({ initialValues, values, setValues, setErrors }: Pr
   return (
     <Block
       title="Organization"
-      description="Add the SonarCloud organization. If you have more than one, please create another connection."
+      description={
+        <>
+          Copy the organization key at{' '}
+          <ExternalLink link="https://sonarcloud.io/account/organizations">here</ExternalLink>. If you have more than
+          one, please create another connection.
+        </>
+      }
       required
     >
       <Input style={{ width: 386 }} placeholder="e.g. org-1" value={values.org} onChange={handleChange} />
