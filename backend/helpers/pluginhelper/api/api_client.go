@@ -62,6 +62,7 @@ type ApiClient struct {
 	data       map[string]interface{}
 	data_mutex sync.Mutex
 
+	authFunc      plugin.ApiClientBeforeRequest
 	beforeRequest plugin.ApiClientBeforeRequest
 	afterResponse plugin.ApiClientAfterResponse
 	ctx           gocontext.Context
@@ -92,7 +93,7 @@ func NewApiClientFromConnection(
 
 	// if connection requires authorization
 	if authenticator, ok := connection.(plugin.ApiAuthenticator); ok {
-		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
+		apiClient.SetAuthFunction(func(req *http.Request) errors.Error {
 			return authenticator.SetupAuthentication(req)
 		})
 	}
@@ -255,6 +256,16 @@ func (apiClient *ApiClient) SetBeforeFunction(callback plugin.ApiClientBeforeReq
 	apiClient.beforeRequest = callback
 }
 
+// GetAuthFunction
+func (apiClient *ApiClient) GetAuthFunction() plugin.ApiClientBeforeRequest {
+	return apiClient.authFunc
+}
+
+// SetAuthFunction
+func (apiClient *ApiClient) SetAuthFunction(callback plugin.ApiClientBeforeRequest) {
+	apiClient.authFunc = callback
+}
+
 // GetAfterFunction return afterResponseFunction
 func (apiClient *ApiClient) GetAfterFunction() plugin.ApiClientAfterResponse {
 	return apiClient.afterResponse
@@ -345,6 +356,14 @@ func (apiClient *ApiClient) Do(
 	}
 
 	var res *http.Response
+	// authFunc
+	if apiClient.authFunc != nil {
+		err = apiClient.authFunc(req)
+		if err != nil {
+			apiClient.logError(err, "[api-client] authFunc returned error for %s", req.URL.String())
+			return nil, err
+		}
+	}
 	// before send
 	if apiClient.beforeRequest != nil {
 		err = apiClient.beforeRequest(req)

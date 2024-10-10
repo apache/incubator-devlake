@@ -50,3 +50,15 @@ type SonarqubeIssue struct {
 func (SonarqubeIssue) TableName() string {
 	return "_tool_sonarqube_issues"
 }
+
+type SonarqubeIssueImpact struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	IssueKey        string `gorm:"primaryKey;type:varchar(100)"`
+	SoftwareQuality string `gorm:"primaryKey;type:varchar(255)"`
+	Severity        string `gorm:"type:varchar(100)"`
+	common.NoPKModel
+}
+
+func (SonarqubeIssueImpact) TableName() string {
+	return "_tool_sonarqube_issue_impacts"
+}
