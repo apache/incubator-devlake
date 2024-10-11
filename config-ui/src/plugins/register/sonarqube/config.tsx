@@ -41,7 +41,8 @@ export const SonarQubeConfig: IPluginConfig = {
           cloud: 'https://sonarcloud.io/api/',
           server: ' ',
         },
-        subLabel: 'If you are using SonarCloud, the endpoint URL will be set to `https://sonarcloud.io/api/`.',
+        cloudName: 'SonarCloud',
+        subLabel: 'The URL should be `http://<sonarqube-host>:<port>/api/`',
       },
       ({ type, initialValues, values, errors, setValues, setErrors }: any) => (
         <Organization
