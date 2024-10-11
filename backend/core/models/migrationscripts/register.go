@@ -133,5 +133,6 @@ func All() []plugin.MigrationScript {
 		new(addAssigneeToIncident),
 		new(addIsSubtaskToIssue),
 		new(addIsChildToCicdPipeline),
+		new(addCqIssueImpacts),
 	}
 }

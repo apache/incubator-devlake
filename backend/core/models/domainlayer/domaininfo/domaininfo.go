@@ -53,6 +53,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&codequality.CqFileMetrics{},
 		&codequality.CqIssueCodeBlock{},
 		&codequality.CqIssue{},
+		&codequality.CqIssueImpact{},
 		&codequality.CqProject{},
 		// crossdomain
 		&crossdomain.Account{},

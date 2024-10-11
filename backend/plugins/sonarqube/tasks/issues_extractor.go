@@ -107,6 +107,16 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 					results = append(results, codeBlock)
 				}
 			}
+
+			for _, v := range body.Impacts {
+				impact := &models.SonarqubeIssueImpact{
+					ConnectionId:    data.Options.ConnectionId,
+					IssueKey:        sonarqubeIssue.IssueKey,
+					SoftwareQuality: v.SoftwareQuality,
+					Severity:        v.Severity,
+				}
+				results = append(results, impact)
+			}
 			return results, nil
 		},
 	})
@@ -151,6 +161,10 @@ type IssuesResponse struct {
 	Type              string              `json:"type"`
 	Scope             string              `json:"scope"`
 	QuickFixAvailable bool                `json:"quickFixAvailable"`
+	Impacts           []struct {
+		SoftwareQuality string `json:"softwareQuality"`
+		Severity        string `json:"severity"`
+	} `json:"impacts"`
 }
 
 type flow struct {

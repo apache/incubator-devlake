@@ -52,3 +52,14 @@ type CqIssue struct {
 func (CqIssue) TableName() string {
 	return "cq_issues"
 }
+
+type CqIssueImpact struct {
+	common.NoPKModel
+	CqIssueId       string `gorm:"primaryKey;type:varchar(255)"`
+	SoftwareQuality string `gorm:"primaryKey;type:varchar(255)"`
+	Severity        string `gorm:"type:varchar(100)"`
+}
+
+func (CqIssueImpact) TableName() string {
+	return "cq_issue_impacts"
+}

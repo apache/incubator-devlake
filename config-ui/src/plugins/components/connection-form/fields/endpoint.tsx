@@ -29,6 +29,7 @@ interface Props {
   disabled?: boolean;
   name: string;
   multipleVersions?: Record<VersionType, string>;
+  cloudName?: string;
   initialValue: string;
   value: string;
   error: string;
@@ -41,6 +42,7 @@ export const ConnectionEndpoint = ({
   disabled = false,
   name,
   multipleVersions,
+  cloudName,
   initialValue,
   value,
   setValue,
@@ -79,7 +81,7 @@ export const ConnectionEndpoint = ({
       <>
         <Block title={name} required>
           <Radio.Group value={version} onChange={handleChange}>
-            <Radio value="cloud">{name} Cloud</Radio>
+            <Radio value="cloud">{cloudName ? cloudName : `${name} Cloud`}</Radio>
             <Radio value="server" disabled={!multipleVersions.server}>
               {name} Server {multipleVersions.server ? multipleVersions.server : '(to be supported)'}
             </Radio>
