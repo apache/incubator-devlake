@@ -137,6 +137,7 @@ func makeDataSourcePipelinePlanV200(
 					"repoId":   didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
 					"proxy":    connection.Proxy,
 					"connectionId": githubRepo.ConnectionId,
+					"pluginName": 	"github",
 				},
 			})
 

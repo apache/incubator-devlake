@@ -46,4 +46,5 @@ type GitExtractorOptions struct {
 	SkipCommitFiles       *bool  `json:"skipCommitFiles" mapstructure:"skipCommitFiles"`
 	NoShallowClone        bool   `json:"noShallowClone" mapstructure:"noShallowClone"`
 	ConnectionId					uint64 `json:"connectionId" mapstructure:"connectionId,omitempty"`
+	PluginName						string `json:"pluginName" mapstructure:"pluginName,omitempty"`
 }
