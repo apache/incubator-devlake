@@ -1121,7 +1121,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n_prs as (\n  SELECT \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(distinct pr.id) as pr_count\n  FROM pull_requests pr\n  join _accounts a on pr.author_id = a.account_id\n  where \n    $__timeFilter(created_date)\n    --  and created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pr.merged_date is not null\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
+          "rawSql": "with _accounts as (\n  select ua.account_id, ua.user_id, u.name\n    from accounts a \n    join user_accounts ua on a.id = ua.account_id\n    join users u on ua.user_id = u.id\n  where ua.user_id in ($users)\n),\n\n_prs as (\n  SELECT \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(distinct pr.id) as pr_count\n  FROM pull_requests pr\n  join _accounts a on pr.author_id = a.account_id\n  where \n    $__timeFilter(created_date)\n    and pr.merged_date is not null\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  pr_count as \"Pull Request Count\"\nFROM _prs\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
