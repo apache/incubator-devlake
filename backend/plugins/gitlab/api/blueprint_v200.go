@@ -140,6 +140,8 @@ func makePipelinePlanV200(
 					"fullName": gitlabProject.PathWithNamespace,
 					"repoId":   didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
 					"proxy":    connection.Proxy,
+					"connectionId": gitlabProject.ConnectionId,
+					"pluginName": 	"gitlab",
 				},
 			})
 		}

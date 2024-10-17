@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 
@@ -243,6 +244,34 @@ func (p Github) Close(taskCtx plugin.TaskContext) errors.Error {
 	return nil
 }
 
+func (p Github) GetDynamicGitUrl(taskCtx plugin.TaskContext, connectionId uint64, repoUrl string) (string, errors.Error) {
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+		p.Name(),
+	)
+
+	connection := &models.GithubConnection{}
+	err := connectionHelper.FirstById(connection, connectionId)
+	if err != nil {
+		return "", errors.Default.Wrap(err, "unable to get github connection by the given connection ID")
+	}
+
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.GetEndpoint(), nil, 0, connection.GetProxy(), taskCtx)
+	if err != nil {
+		return "", err
+	}
+
+	connection.PrepareApiClient(apiClient)
+
+	newUrl, err := replaceAcessTokenInUrl(repoUrl, connection.Token)
+	if err != nil {
+		return "", err
+	}
+
+	return newUrl, nil
+}
+
 func EnrichOptions(taskCtx plugin.TaskContext,
 	op *tasks.GithubOptions,
 	apiClient *helper.ApiClient) errors.Error {
@@ -309,4 +338,25 @@ func convertApiRepoToScope(repo *tasks.GithubApiRepo, connectionId uint64) *mode
 	scope.FullName = repo.FullName
 	scope.CloneUrl = repo.CloneUrl
 	return &scope
+}
+
+func replaceAcessTokenInUrl(gitURL, newCredential string) (string, errors.Error) {
+	atIndex := strings.Index(gitURL, "@")
+	if atIndex == -1 {
+		return "", errors.Default.New("Invalid Git URL")
+	}
+
+	protocolIndex := strings.Index(gitURL, "://")
+	if protocolIndex == -1 {
+		return "", errors.Default.New("Invalid Git URL")
+	}
+
+	// Extract the base URL (e.g., "https://git:")
+	baseURL := gitURL[:protocolIndex+7]
+
+	repoURL := gitURL[atIndex+1:]
+
+	modifiedURL := fmt.Sprintf("%s%s@%s", baseURL, newCredential, repoURL)
+
+	return modifiedURL, nil
 }

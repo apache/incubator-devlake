@@ -28,7 +28,6 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	giturls "github.com/chainguard-dev/git-urls"
 )
 
@@ -39,6 +38,10 @@ var _ interface {
 } = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
+
+type DynamicGitUrl interface {
+	GetDynamicGitUrl(taskCtx plugin.TaskContext, connectionId uint64, repoUrl string) (string, errors.Error)
+}
 
 func (p GitExtractor) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{}
@@ -71,33 +74,29 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 		return nil, err
 	}
 
-	connectionHelper := helper.NewConnectionHelper(
-		taskCtx,
-		nil,
-		p.Name(),
-	)
-	connection := &models.GithubConnection{}
-	err := connectionHelper.FirstById(connection, op.ConnectionId)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID")
+
+	if op.PluginName != "" {
+		pluginInstance, err := plugin.GetPlugin(op.PluginName)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to get plugin instance for plugin: %s", op.PluginName))
+
+		}
+
+		if pluginGit, ok := pluginInstance.(DynamicGitUrl); ok {
+			gitUrl, err := pluginGit.GetDynamicGitUrl(taskCtx, op.ConnectionId, op.Url)
+			if err != nil {
+					return nil, errors.Default.Wrap(err, "failed to get Git URL")
+			}
+
+			op.Url = gitUrl
+		} else {
+			log.Printf("Plugin does not implement DynamicGitUrl interface for plugin: %s", op.PluginName)
+		}
 	}
 
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.GetEndpoint(), nil, 0, connection.GetProxy(), taskCtx)
+	parsedURL, err := giturls.Parse(op.Url)
 	if err != nil {
-		return nil, err
-	}
-
-	connection.PrepareApiClient(apiClient)
-
-	newUrl, err := replaceAcessTokenInUrl(op.Url, connection.Token)
-	if err != nil {
-		return nil, err
-	}
-	op.Url = newUrl
-
-	parsedURL, errParse := giturls.Parse(op.Url)
-	if errParse != nil {
-		return nil, errors.BadInput.Wrap(errParse, "failed to parse git url")
+		return nil, errors.BadInput.Wrap(err, "failed to parse git url")
 	}
 
 	// append username to the git url
