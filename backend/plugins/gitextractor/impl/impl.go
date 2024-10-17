@@ -20,7 +20,6 @@ package impl
 import (
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -151,25 +150,4 @@ func (p GitExtractor) RootPkgPath() string {
 
 func (p GitExtractor) TestConnection(id uint64) errors.Error {
 	return nil
-}
-
-func replaceAcessTokenInUrl(gitURL, newCredential string) (string, errors.Error) {
-	atIndex := strings.Index(gitURL, "@")
-	if atIndex == -1 {
-		return "", errors.Default.New("Invalid Git URL")
-	}
-
-	protocolIndex := strings.Index(gitURL, "://")
-	if protocolIndex == -1 {
-		return "", errors.Default.New("Invalid Git URL")
-	}
-
-	// Extract the base URL (e.g., "https://git:")
-	baseURL := gitURL[:protocolIndex+7]
-
-	repoURL := gitURL[atIndex+1:]
-
-	modifiedURL := fmt.Sprintf("%s%s@%s", baseURL, newCredential, repoURL)
-
-	return modifiedURL, nil
 }
