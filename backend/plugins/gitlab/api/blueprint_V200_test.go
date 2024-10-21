@@ -130,6 +130,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					Name:              gitlabProjectName,
 					PathWithNamespace: pathWithNamespace,
 					HttpUrlToRepo:     httpUrlToRepo,
+					Scope: common.Scope{
+						ConnectionId:		connectionID,
+					},
 				},
 				ScopeConfig: scopeConfig,
 			},
@@ -166,6 +169,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"name":     gitlabProjectName,
 					"fullName": pathWithNamespace,
 					"url":      "https://git:nddtf@this_is_cloneUrl",
+					"connectionId": connectionID,
+					"pluginName": pluginName,
 				},
 			},
 		},
