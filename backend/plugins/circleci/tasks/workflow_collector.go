@@ -18,7 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+	"net/http"
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -44,31 +47,64 @@ func CollectWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect workflows")
 
-	clauses := []dal.Clause{
-		dal.Select("id"),
-		dal.From(&models.CircleciPipeline{}),
-		dal.Where("_tool_circleci_pipelines.connection_id = ? and _tool_circleci_pipelines.project_slug = ? ", data.Options.ConnectionId, data.Options.ProjectSlug),
-	}
+	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
+			PageSize:              int(data.Options.PageSize),
+			GetNextPageCustomData: ExtractNextPageToken,
+			BuildInputIterator: func(isIncremental bool, createdAfter *time.Time) (api.Iterator, errors.Error) {
+				clauses := []dal.Clause{
+					dal.Select("id"),
+					dal.From(&models.CircleciPipeline{}),
+					dal.Where("connection_id = ? AND project_slug = ?", data.Options.ConnectionId, data.Options.ProjectSlug),
+				}
 
-	db := taskCtx.GetDal()
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.CircleciPipeline{}))
-	if err != nil {
-		return err
-	}
+				if isIncremental {
+					clauses = append(clauses, dal.Where("created_date > ?", createdAfter))
+				}
 
-	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
-		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
-		ApiClient:             data.ApiClient,
-		UrlTemplate:           "/v2/pipeline/{{ .Input.Id }}/workflow",
-		Input:                 iterator,
-		GetNextPageCustomData: ExtractNextPageToken,
-		Query:                 BuildQueryParamsWithPageToken,
-		ResponseParser:        ParseCircleciPageTokenResp,
-		AfterResponse:         ignoreDeletedBuilds, // Ignore the 404 response if a workflow has been deleted
+				db := taskCtx.GetDal()
+				cursor, err := db.Cursor(clauses...)
+				if err != nil {
+					return nil, err
+				}
+				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.CircleciPipeline{}))
+			},
+			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
+				UrlTemplate:    "/v2/pipeline/{{ .Input.Id }}/workflow",
+				Query:          BuildQueryParamsWithPageToken,
+				ResponseParser: ParseCircleciPageTokenResp,
+				AfterResponse:  ignoreDeletedBuilds, // Ignore the 404 response if a workflow has been deleted
+			},
+			GetCreated: extractCreatedAt,
+		},
+		CollectUnfinishedDetails: &api.FinalizableApiCollectorDetailArgs{
+			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
+				UrlTemplate: "/v2/workflow/{{ .Input.Id }}",
+				Query:       nil,
+				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+					var data json.RawMessage
+					err := api.UnmarshalResponse(res, &data)
+					return []json.RawMessage{data}, err
+				},
+				AfterResponse: ignoreDeletedBuilds,
+			},
+			BuildInputIterator: func() (api.Iterator, errors.Error) {
+				clauses := []dal.Clause{
+					dal.Select("id"),
+					dal.From(&models.CircleciWorkflow{}),
+					dal.Where("connection_id = ? AND project_slug = ? AND status IN ('running', 'on_hold', 'failing')", data.Options.ConnectionId, data.Options.ProjectSlug),
+				}
+
+				db := taskCtx.GetDal()
+				cursor, err := db.Cursor(clauses...)
+				if err != nil {
+					return nil, err
+				}
+				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.CircleciWorkflow{}))
+			},
+		},
 	})
 	if err != nil {
 		logger.Error(err, "collect workflows error")
