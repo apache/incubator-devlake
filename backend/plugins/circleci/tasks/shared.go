@@ -19,6 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -107,7 +111,7 @@ func ExtractNextPageToken(prevReqData *api.RequestData, prevPageResponse *http.R
 	return res.NextPageToken, nil
 }
 
-func BuildQueryParamsWithPageToken(reqData *api.RequestData) (url.Values, errors.Error) {
+func BuildQueryParamsWithPageToken(reqData *api.RequestData, _ *time.Time) (url.Values, errors.Error) {
 	query := url.Values{}
 	if pageToken, ok := reqData.CustomData.(string); ok && pageToken != "" {
 		query.Set("page-token", pageToken)
@@ -119,4 +123,23 @@ func ParseCircleciPageTokenResp(res *http.Response) ([]json.RawMessage, errors.E
 	data := CircleciPageTokenResp[[]json.RawMessage]{}
 	err := api.UnmarshalResponse(res, &data)
 	return data.Items, err
+}
+
+func ignoreDeletedBuilds(res *http.Response) errors.Error {
+	// CircleCI API will return a 404 response for a workflow/job that has been deleted
+	// due to their data retention policy. We should ignore these errors.
+	if res.StatusCode == http.StatusNotFound {
+		return api.ErrIgnoreAndContinue
+	}
+	return nil
+}
+
+func extractCreatedAt(item json.RawMessage) (time.Time, errors.Error) {
+	var entity struct {
+		CreatedAt time.Time `json:"created_at"`
+	}
+	if err := json.Unmarshal(item, &entity); err != nil {
+		return time.Time{}, errors.Default.Wrap(err, "failed to unmarshal item")
+	}
+	return entity.CreatedAt, nil
 }
