@@ -262,7 +262,10 @@ func (p Github) GetDynamicGitUrl(taskCtx plugin.TaskContext, connectionId uint64
 		return "", err
 	}
 
-	connection.PrepareApiClient(apiClient)
+	err = connection.PrepareApiClient(apiClient)
+	if err != nil {
+		return "", err
+	}
 
 	newUrl, err := replaceAcessTokenInUrl(repoUrl, connection.Token)
 	if err != nil {
@@ -274,7 +277,8 @@ func (p Github) GetDynamicGitUrl(taskCtx plugin.TaskContext, connectionId uint64
 
 func EnrichOptions(taskCtx plugin.TaskContext,
 	op *tasks.GithubOptions,
-	apiClient *helper.ApiClient) errors.Error {
+	apiClient *helper.ApiClient,
+) errors.Error {
 	var githubRepo models.GithubRepo
 	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
 	err := tasks.ValidateTaskOptions(op)
