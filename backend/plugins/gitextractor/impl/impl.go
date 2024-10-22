@@ -73,18 +73,16 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 		return nil, err
 	}
 
-
 	if op.PluginName != "" {
 		pluginInstance, err := plugin.GetPlugin(op.PluginName)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to get plugin instance for plugin: %s", op.PluginName))
-
 		}
 
 		if pluginGit, ok := pluginInstance.(DynamicGitUrl); ok {
 			gitUrl, err := pluginGit.GetDynamicGitUrl(taskCtx, op.ConnectionId, op.Url)
 			if err != nil {
-					return nil, errors.Default.Wrap(err, "failed to get Git URL")
+				return nil, errors.Default.Wrap(err, "failed to get Git URL")
 			}
 
 			op.Url = gitUrl
