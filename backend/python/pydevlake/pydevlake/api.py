@@ -39,10 +39,12 @@ class Request:
     def __init__(self,
                  url: str,
                  query_args: Optional[QueryArgs] = None,
-                 headers: Optional[Headers] = None):
+                 headers: Optional[Headers] = None,
+                 verify: bool = True):
         self.url = url
         self.query_args = query_args or {}
         self.headers = headers or {}
+        self.verify = verify
 
     def copy(self):
         return Request(self.url, self.query_args, self.headers)
@@ -123,7 +125,8 @@ class APIBase:
             url=request.url,
             headers=request.headers,
             params=request.query_args,
-            proxies=proxies
+            proxies=proxies,
+            verify=request.verify
         )
 
         response = Response(
