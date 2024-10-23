@@ -129,17 +129,23 @@ export const Step2 = () => {
     return null;
   }
 
+  const platformNames: Record<string, string> = {
+    github: 'GitHub',
+    gitlab: 'GitLab',
+    azuredevops: 'Azure DevOps',
+  }
+
   return (
     <>
       <S.StepContent>
-        {['github', 'gitlab', 'azuredevops'].includes(plugin) && (
+        {platformNames[plugin] && (
           <div className="content">
             <ConnectionToken
               type="create"
               label="Personal Access Token"
               subLabel={
                 <p>
-                  Create a personal access token in GitHub. For self-managed {config.name}, please skip the onboarding
+                  Create a personal access token in {platformNames[plugin]}. For self-managed {config.name}, please skip the onboarding
                   and configure via <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
                 </p>
               }
