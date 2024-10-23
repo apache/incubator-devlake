@@ -350,6 +350,9 @@ func RunPluginSubTasks(
 
 // UpdateProgressDetail FIXME ...
 func UpdateProgressDetail(basicRes context.BasicRes, taskId uint64, progressDetail *models.TaskProgressDetail, p *plugin.RunningProgress) {
+	cfg := basicRes.GetConfigReader()
+	skipSubtaskProgressUpdate := cfg.GetBool("SKIP_SUBTASK_PROGRESS")
+
 	task := &models.Task{
 		Model: common.Model{ID: taskId},
 	}
@@ -376,6 +379,9 @@ func UpdateProgressDetail(basicRes context.BasicRes, taskId uint64, progressDeta
 		progressDetail.SubTaskNumber = p.SubTaskNumber
 		// reset finished records
 		progressDetail.FinishedRecords = 0
+	}
+	if skipSubtaskProgressUpdate {
+		return
 	}
 	currentFinishedRecords := progressDetail.FinishedRecords
 	currentTotalRecords := progressDetail.TotalRecords
