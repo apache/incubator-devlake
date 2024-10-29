@@ -57,11 +57,11 @@ func ConvertIssuesToIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 			 FROM issues i
 			 LEFT JOIN board_issues bi ON bi.issue_id = i.id
 			 LEFT JOIN project_mapping pm ON pm.row_id = bi.board_id
-			 WHERE i.type = "INCIDENT"
+			 WHERE i.type = ?
 			   AND pm.project_name = ?
-		       AND pm.table = "boards")
+		       AND pm.table = ?)
 	`
-	if err := db.Exec(deleteIncidentsSql, data.Options.ProjectName); err != nil {
+	if err := db.Exec(deleteIncidentsSql, "INCIDENT", data.Options.ProjectName, "boards"); err != nil {
 		return errors.Default.Wrap(err, "error deleting previous incidents")
 
 	}
@@ -73,11 +73,11 @@ func ConvertIssuesToIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 			 FROM issues i
 			 LEFT JOIN board_issues bi ON bi.issue_id = i.id
 			 LEFT JOIN project_mapping pm ON pm.row_id = bi.board_id
-			 WHERE i.type = "INCIDENT"
+			 WHERE i.type = ?
 			   AND pm.project_name = ?
-		       AND pm.table = "boards")
+		       AND pm.table = ?)
 	`
-	if err := db.Exec(deleteIncidentAssigneesSql, data.Options.ProjectName); err != nil {
+	if err := db.Exec(deleteIncidentAssigneesSql, "INCIDENT", data.Options.ProjectName, "boards"); err != nil {
 		return errors.Default.Wrap(err, "error deleting previous incident_assignees")
 	}
 
