@@ -46,7 +46,7 @@ Apache DevLake is used by Engineering Leads, Open Source Software Maintainers an
 
 ## 👉 Live Demos
 
-The main way you interact with DevLake is through the integrated dashboards powered by [Grafana](https://github.com/grafana/grafana). 
+The main way you interact with DevLake is through the integrated dashboards powered by [Grafana](https://github.com/grafana/grafana).
 
 [Live DORA Dashboard](https://grafana-lake.demo.devlake.io/grafana/d/qNo8_0M4z/dora?orgId=1)
 
@@ -58,10 +58,10 @@ The main way you interact with DevLake is through the integrated dashboards powe
 
 DevLake supports connections to many popular development tools, including GitHub, GitLab, Jenkins, Jira, Sonarqube and more. [Here](https://devlake.apache.org/docs/Overview/SupportedDataSources) you can find all data sources supported by DevLake, their scopes, supported versions and more!
 
-
 ## 🚀 Getting Started
 
 ### Installation
+
 You can set up Apache DevLake by following our step-by-step instructions for either Docker Compose or Helm. Feel free to [ask the community](#💙-community) if you get stuck at any point.
 
 - [Install via Docker Compose](https://devlake.apache.org/docs/GettingStarted/DockerComposeSetup)
@@ -92,6 +92,7 @@ Once the first run of the Blueprint is completed, you can view the corresponding
 If the pre-built dashboards are limited for your use cases, you can always customize or create your own metrics or dashboards with SQL.
 
 ## Contributing
+
 Please read the [contribution guidelines](https://devlake.apache.org/community) before you make contribution. The following docs list the resources you might need to know after you decided to make contribution.
 
 - [Create an Issue](https://devlake.apache.org/community/MakingContributions/fix-or-create-issues): Report a bug or feature request to Apache DevLake
@@ -102,15 +103,14 @@ Please read the [contribution guidelines](https://devlake.apache.org/community) 
 
 ### 👩🏾‍💻 Contributing Code
 
-If you plan to contribute code to Apache DevLake, we have instructions on how to get started with setting up your Development environemtn.
+If you plan to contribute code to Apache DevLake, we have instructions on how to get started with setting up your Development environment.
 
 - [Developer Setup Instructions](https://devlake.apache.org/docs/DeveloperManuals/DeveloperSetup)
 - [Development Workflow](https://devlake.apache.org/community/MakingContributions/development-workflow)
 
-
 ### 📄 Contributing Documentation
 
-One of the best ways to get started contributing is by improving DevLake's documentation. 
+One of the best ways to get started contributing is by improving DevLake's documentation.
 
 - Apache DevLake's documentation is hosted at [devlake.apache.org](https://devlake.apache.org/)
 - **We have a separate GitHub repository for Apache DevLake's documentation:** [github.com/apache/incubator-devlake-website](https://github.com/apache/incubator-devlake-website)
