@@ -36,6 +36,7 @@ var ExtractStoryChangelogMeta = plugin.SubTaskMeta{
 }
 
 func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
+	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -89,7 +90,7 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 						}
 						err = convertUnicode(&item)
 						if err != nil {
-							return nil, err
+							logger.Error(err, "convert unicode: %s, err: %s", item, err)
 						}
 						results = append(results, &item)
 					}
@@ -103,7 +104,7 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				err = convertUnicode(&item)
 				if err != nil {
-					return nil, err
+					logger.Error(err, "convert unicode: %s, err: %s", item, err)
 				}
 				if item.Field == "iteration_id" {
 					// some users' tapd will not return iteration_id_from/iteration_id_to
