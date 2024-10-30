@@ -94,7 +94,6 @@ func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					err = convertUnicode(&item)
 					if err != nil {
 						logger.Error(err, "convert unicode: %s, err: %s", item, err)
-						return nil, err
 					}
 				default:
 					item.ConnectionId = data.Options.ConnectionId
@@ -106,7 +105,6 @@ func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				err = convertUnicode(&item)
 				if err != nil {
 					logger.Error(err, "convert unicode: %s, err: %s", item, err)
-					return nil, err
 				}
 				if item.Field == "iteration_id" {
 					iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)
