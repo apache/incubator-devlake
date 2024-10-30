@@ -38,6 +38,7 @@ var ExtractTaskChangelogMeta = plugin.SubTaskMeta{
 
 func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE)
+	logger := taskCtx.GetLogger()
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -92,6 +93,7 @@ func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					}
 					err = convertUnicode(&item)
 					if err != nil {
+						logger.Error(err, "convert unicode: %s, err: %s", item, err)
 						return nil, err
 					}
 				default:
@@ -103,6 +105,7 @@ func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				err = convertUnicode(&item)
 				if err != nil {
+					logger.Error(err, "convert unicode: %s, err: %s", item, err)
 					return nil, err
 				}
 				if item.Field == "iteration_id" {
