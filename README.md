@@ -25,7 +25,7 @@ limitations under the License.
 [![Dockerhub pulls](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhub.docker.com%2Fv2%2Frepositories%2Fapache%2Fdevlake&query=%24.pull_count&label=Dockerhub%20pulls)](https://hub.docker.com/r/apache/devlake)
 [![unit-test](https://github.com/apache/incubator-devlake/actions/workflows/test.yml/badge.svg)](https://github.com/apache/incubator-devlake/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/apache/incubator-devlake)](https://goreportcard.com/report/github.com/apache/incubator-devlake)
-[![Slack](https://img.shields.io/badge/slack-join_chat-success.svg?logo=slack)](https://join.slack.com/t/devlake-io/shared_invite/zt-18uayb6ut-cHOjiYcBwERQ8VVPZ9cQQw)
+[![Slack](https://img.shields.io/badge/slack-join_chat-success.svg?logo=slack)](https://join.slack.com/t/devlake-io/shared_invite/zt-26ulybksw-IDrJYuqY1FrdjlMMJhs53Q)
 [![Twitter](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/ApacheDevLake)
 
 </div>
@@ -121,7 +121,7 @@ One of the best ways to get started contributing is by improving DevLake's docum
 
 ## 💙 Community
 
-- Slack: Message us on <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-18uayb6ut-cHOjiYcBwERQ8VVPZ9cQQw" target="_blank">Slack</a>
+- Slack: Message us on <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-26ulybksw-IDrJYuqY1FrdjlMMJhs53Q" target="_blank">Slack</a>
 - Wechat Community: [Check the barcode](resources/img/wechat_community_barcode.png)
 
 ## 📄 License<a id="license"></a>
