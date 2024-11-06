@@ -18,6 +18,7 @@ limitations under the License.
 package impl
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -36,6 +37,10 @@ var _ interface {
 } = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
+
+type DynamicGitUrl interface {
+	GetDynamicGitUrl(taskCtx plugin.TaskContext, connectionId uint64, repoUrl string) (string, errors.Error)
+}
 
 func (p GitExtractor) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{}
@@ -66,6 +71,24 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 	var op parser.GitExtractorOptions
 	if err := helper.DecodeMapStruct(options, &op, true); err != nil {
 		return nil, err
+	}
+
+	if op.PluginName != "" {
+		pluginInstance, err := plugin.GetPlugin(op.PluginName)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to get plugin instance for plugin: %s", op.PluginName))
+		}
+
+		if pluginGit, ok := pluginInstance.(DynamicGitUrl); ok {
+			gitUrl, err := pluginGit.GetDynamicGitUrl(taskCtx, op.ConnectionId, op.Url)
+			if err != nil {
+				return nil, errors.Default.Wrap(err, "failed to get Git URL")
+			}
+
+			op.Url = gitUrl
+		} else {
+			log.Printf("Plugin does not implement DynamicGitUrl interface for plugin: %s", op.PluginName)
+		}
 	}
 
 	parsedURL, err := giturls.Parse(op.Url)
@@ -121,4 +144,8 @@ func (p GitExtractor) Close(taskCtx plugin.TaskContext) errors.Error {
 
 func (p GitExtractor) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitextractor"
+}
+
+func (p GitExtractor) TestConnection(id uint64) errors.Error {
+	return nil
 }
