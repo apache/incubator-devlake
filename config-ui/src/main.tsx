@@ -24,7 +24,7 @@ import { ConfigProvider } from 'antd';
 import { PageLoading } from '@/components';
 
 import { store } from './app/store';
-import { router } from './app/routrer';
+import { router } from './app/router';
 import './index.css';
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
