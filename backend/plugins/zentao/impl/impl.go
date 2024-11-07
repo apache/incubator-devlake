@@ -153,8 +153,7 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectStoryCommitsMeta,
 		tasks.ExtractStoryCommitsMeta,
-		tasks.CollectStoryRepoCommitsMeta,
-		tasks.ExtractStoryRepoCommitsMeta,
+		tasks.DBGetStoryRepoCommitsMeta,
 		tasks.ConvertStoryRepoCommitsMeta,
 
 		tasks.CollectBugCommitsMeta,
