@@ -23,18 +23,18 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-var _ plugin.MigrationScript = (*increaseProjectKeyLength)(nil)
+var _ plugin.MigrationScript = (*increaseCqProjectsIdLength)(nil)
 
-type increaseProjectKeyLength struct{}
+type increaseCqProjectsIdLength struct{}
 
-func (script *increaseProjectKeyLength) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().ModifyColumnType("cq_projects", "project_key", "varchar(500)")
+func (script *increaseCqProjectsIdLength) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().ModifyColumnType("cq_projects", "id", "varchar(500)")
 }
 
-func (*increaseProjectKeyLength) Version() uint64 {
+func (*increaseCqProjectsIdLength) Version() uint64 {
 	return 20240813160242
 }
 
-func (*increaseProjectKeyLength) Name() string {
-	return "increase cq_projects.project_key length to 500"
+func (*increaseCqProjectsIdLength) Name() string {
+	return "increase cq_projects.id length to 500"
 }
