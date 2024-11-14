@@ -38,6 +38,7 @@ var ExtractBugChangelogMeta = plugin.SubTaskMeta{
 
 func ExtractBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
+	logger := taskCtx.GetLogger()
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -47,6 +48,7 @@ func ExtractBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			err := errors.Convert(json.Unmarshal(row.Data, &bugChangelogBody))
 			if err != nil {
+				logger.Error(err, "unmarshal: %s, err: %s", row.Data, err)
 				return nil, err
 			}
 			bugChangelog := bugChangelogBody.BugChange
@@ -62,11 +64,12 @@ func ExtractBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			err = convertUnicode(item)
 			if err != nil {
-				return nil, err
+				logger.Error(err, "convert unicode: %s, err: %s", item, err)
 			}
 			if item.Field == "iteration_id" {
 				iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)
 				if err != nil {
+					logger.Error(err, "parseIterationChangelog: %s, err: %s", item, err)
 					return nil, err
 				}
 				item.IterationIdFrom = iterationFrom

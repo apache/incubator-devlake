@@ -18,7 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -44,31 +46,68 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect jobs")
 
-	clauses := []dal.Clause{
-		dal.Select("id, pipeline_id"),
-		dal.From(&models.CircleciWorkflow{}),
-		dal.Where("_tool_circleci_workflows.connection_id = ? and _tool_circleci_workflows.project_slug = ? ", data.Options.ConnectionId, data.Options.ProjectSlug),
-	}
+	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
+			PageSize:              int(data.Options.PageSize),
+			GetNextPageCustomData: ExtractNextPageToken,
+			BuildInputIterator: func(isIncremental bool, createdAfter *time.Time) (api.Iterator, errors.Error) {
+				clauses := []dal.Clause{
+					dal.Select("id, pipeline_id"), // pipeline_id not on individual job response but required for result
+					dal.From(&models.CircleciWorkflow{}),
+					dal.Where("connection_id = ? and project_slug = ?", data.Options.ConnectionId, data.Options.ProjectSlug),
+				}
 
-	db := taskCtx.GetDal()
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.CircleciWorkflow{}))
-	if err != nil {
-		return err
-	}
+				if isIncremental {
+					clauses = append(clauses, dal.Where("created_date > ?", createdAfter))
+				}
 
-	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
-		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
-		ApiClient:             data.ApiClient,
-		UrlTemplate:           "/v2/workflow/{{ .Input.Id }}/job",
-		Input:                 iterator,
-		GetNextPageCustomData: ExtractNextPageToken,
-		Query:                 BuildQueryParamsWithPageToken,
-		ResponseParser:        ParseCircleciPageTokenResp,
-		AfterResponse:         ignoreDeletedBuilds, // Ignore the 404 response if a job has been deleted
+				db := taskCtx.GetDal()
+				cursor, err := db.Cursor(clauses...)
+				if err != nil {
+					return nil, err
+				}
+				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.CircleciWorkflow{}))
+			},
+			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
+				UrlTemplate:    "/v2/workflow/{{ .Input.Id }}/job",
+				Query:          BuildQueryParamsWithPageToken,
+				ResponseParser: ParseCircleciPageTokenResp,
+				AfterResponse:  ignoreDeletedBuilds, // Ignore the 404 response if a workflow has been deleted
+			},
+			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
+				var job struct { // Individual job response lacks created_at field, so have to use started_at
+					CreatedAt time.Time `json:"started_at"` // This will be null in some cases (e.g. queued, not_running, blocked)
+				}
+				if err := json.Unmarshal(item, &job); err != nil {
+					return time.Time{}, errors.Default.Wrap(err, "failed to unmarshal job")
+				}
+				return job.CreatedAt, nil
+			},
+		},
+		CollectUnfinishedDetails: &api.FinalizableApiCollectorDetailArgs{
+			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
+				UrlTemplate:    "/v2/workflow/{{ .Input.Id }}/job", // The individual job endpoint has different fields so need to recollect all jobs for a workflow
+				Query:          BuildQueryParamsWithPageToken,
+				ResponseParser: ParseCircleciPageTokenResp,
+				AfterResponse:  ignoreDeletedBuilds,
+			},
+			BuildInputIterator: func() (api.Iterator, errors.Error) {
+				clauses := []dal.Clause{
+					dal.Select("DISTINCT workflow_id"), // Only need to recollect jobs for a workflow once
+					dal.From(&models.CircleciJob{}),
+					dal.Where("connection_id = ? AND project_slug = ? AND status IN ('running', 'not_running', 'queued', 'on_hold')", data.Options.ConnectionId, data.Options.ProjectSlug),
+				}
+
+				db := taskCtx.GetDal()
+				cursor, err := db.Cursor(clauses...)
+				if err != nil {
+					return nil, err
+				}
+				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.CircleciJob{}))
+			},
+		},
 	})
 	if err != nil {
 		logger.Error(err, "collect jobs error")

@@ -139,10 +139,19 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	createdAfter := manager.CollectorStateManager.GetSince()
 	isIncremental := manager.CollectorStateManager.IsIncremental()
 
+	var inputIterator Iterator
+	if args.CollectNewRecordsByList.BuildInputIterator != nil {
+		inputIterator, err = args.CollectNewRecordsByList.BuildInputIterator(isIncremental, createdAfter)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// step 1: create a collector to collect newly added records
 	err = manager.InitCollector(ApiCollectorArgs{
 		ApiClient: args.ApiClient,
 		// common
+		Input:       inputIterator,
 		Incremental: isIncremental,
 		UrlTemplate: args.CollectNewRecordsByList.UrlTemplate,
 		Query: func(reqData *RequestData) (url.Values, errors.Error) {
@@ -169,21 +178,41 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 
 			// time filter or diff sync
 			if createdAfter != nil && args.CollectNewRecordsByList.GetCreated != nil {
-				// if the first record of the page was created before createdAfter, return emtpy set and stop
+				// if the first record of the page was created before createdAfter and not a zero value, return empty set and stop
 				firstCreated, err := args.CollectNewRecordsByList.GetCreated(items[0])
 				if err != nil {
 					return nil, err
 				}
-				if firstCreated.Before(*createdAfter) {
+				if firstCreated.Before(*createdAfter) && !firstCreated.IsZero() {
 					return nil, ErrFinishCollect
 				}
-				// if the last record was created before createdAfter, return records and stop
+
+				// If last record was created before CreatedAfter, including a zero value, check each record individually
 				lastCreated, err := args.CollectNewRecordsByList.GetCreated(items[len(items)-1])
 				if err != nil {
 					return nil, err
 				}
 				if lastCreated.Before(*createdAfter) {
-					return items, ErrFinishCollect
+					var validItems []json.RawMessage
+					// Only collect items that were created after the last successful collection to prevent duplicates
+					for _, item := range items {
+						itemCreatedAt, err := args.CollectNewRecordsByList.GetCreated(item)
+						if err != nil {
+							return nil, err
+						}
+
+						if itemCreatedAt.IsZero() {
+							// If zero then timestamp is null on the response - accept as valid for downstream processing
+							validItems = append(validItems, item)
+							continue
+						}
+
+						if itemCreatedAt.Before(*createdAfter) {
+							// Once we reach an item that was created before the last successful collection, stop & return
+							return validItems, ErrFinishCollect
+						}
+						validItems = append(validItems, item)
+					}
 				}
 			}
 			return items, err
@@ -267,6 +296,7 @@ type FinalizableApiCollectorListArgs struct {
 	Concurrency           int                                                                                         // required for Undetermined Strategy, number of concurrent requests
 	GetNextPageCustomData func(prevReqData *RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) // required for Sequential Strategy, to extract the next page cursor from the given response
 	GetTotalPages         func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)                        // required for Determined Strategy, to extract the total number of pages from the given response
+	BuildInputIterator    func(isIncremental bool, createdAfter *time.Time) (Iterator, errors.Error)
 }
 
 // FinalizableApiCollectorDetailArgs is the arguments for the detail collector

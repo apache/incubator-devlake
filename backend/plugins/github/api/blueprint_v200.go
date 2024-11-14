@@ -131,11 +131,13 @@ func makeDataSourcePipelinePlanV200(
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"url":      cloneUrl.String(),
-					"name":     githubRepo.FullName,
-					"fullName": githubRepo.FullName,
-					"repoId":   didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
-					"proxy":    connection.Proxy,
+					"url":          cloneUrl.String(),
+					"name":         githubRepo.FullName,
+					"fullName":     githubRepo.FullName,
+					"repoId":       didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+					"proxy":        connection.Proxy,
+					"connectionId": githubRepo.ConnectionId,
+					"pluginName":   "github",
 				},
 			})
 

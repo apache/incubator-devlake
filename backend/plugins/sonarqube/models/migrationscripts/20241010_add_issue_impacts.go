@@ -20,21 +20,36 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-var _ plugin.MigrationScript = (*increaseProjectKeyLength)(nil)
+var _ plugin.MigrationScript = (*addIssueImpacts)(nil)
 
-type increaseProjectKeyLength struct{}
-
-func (script *increaseProjectKeyLength) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().ModifyColumnType("cq_projects", "project_key", "varchar(500)")
+type issueImpacts20241010 struct {
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	IssueKey        string `gorm:"primaryKey;type:varchar(100)"`
+	SoftwareQuality string `gorm:"primaryKey;type:varchar(255)"`
+	Severity        string `gorm:"type:varchar(100)"`
+	archived.NoPKModel
 }
 
-func (*increaseProjectKeyLength) Version() uint64 {
-	return 20240813160242
+func (issueImpacts20241010) TableName() string {
+	return "_tool_sonarqube_issue_impacts"
 }
 
-func (*increaseProjectKeyLength) Name() string {
-	return "increase cq_projects.project_key length to 500"
+type addIssueImpacts struct {
+}
+
+func (script *addIssueImpacts) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &issueImpacts20241010{})
+}
+
+func (*addIssueImpacts) Version() uint64 {
+	return 20241010162943
+}
+
+func (*addIssueImpacts) Name() string {
+	return "add issue_impacts table for sonarcloud"
 }

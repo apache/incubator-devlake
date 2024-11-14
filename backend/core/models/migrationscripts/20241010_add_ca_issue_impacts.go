@@ -20,21 +20,30 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-var _ plugin.MigrationScript = (*changeIssueComponentType)(nil)
+var _ plugin.MigrationScript = (*addCqIssueImpacts)(nil)
 
-type changeIssueComponentType struct{}
-
-func (script *changeIssueComponentType) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().ModifyColumnType("issues", "component", "text")
+type cqIssueImpacts struct {
+	archived.NoPKModel
+	CqIssueId       string `gorm:"primaryKey;type:varchar(255)"`
+	SoftwareQuality string `gorm:"primaryKey;type:varchar(255)"`
+	Severity        string `gorm:"type:varchar(100)"`
 }
 
-func (*changeIssueComponentType) Version() uint64 {
-	return 20240813153901
+type addCqIssueImpacts struct {
 }
 
-func (*changeIssueComponentType) Name() string {
-	return "change issues.components type to text"
+func (script *addCqIssueImpacts) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&cqIssueImpacts{})
+}
+
+func (*addCqIssueImpacts) Version() uint64 {
+	return 20241010162658
+}
+
+func (*addCqIssueImpacts) Name() string {
+	return "add cq_issue_impacts table"
 }

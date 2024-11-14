@@ -134,5 +134,8 @@ func All() []plugin.MigrationScript {
 		new(addIsSubtaskToIssue),
 		new(addIsChildToCicdPipeline),
 		new(increaseCqIssueComponentLength),
+		new(addCqIssueImpacts),
+		new(changeIssueComponentType),
+		new(increaseCqProjectsIdLength),
 	}
 }
