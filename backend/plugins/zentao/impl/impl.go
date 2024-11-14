@@ -137,8 +137,7 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectTaskCommitsMeta,
 		tasks.ExtractTaskCommitsMeta,
-		tasks.CollectTaskRepoCommitsMeta,
-		tasks.ExtractTaskRepoCommitsMeta,
+		tasks.DBGetTaskRepoCommitsMeta,
 		tasks.ConvertTaskRepoCommitsMeta,
 
 		// product
@@ -153,14 +152,12 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectStoryCommitsMeta,
 		tasks.ExtractStoryCommitsMeta,
-		tasks.CollectStoryRepoCommitsMeta,
-		tasks.ExtractStoryRepoCommitsMeta,
+		tasks.DBGetStoryRepoCommitsMeta,
 		tasks.ConvertStoryRepoCommitsMeta,
 
 		tasks.CollectBugCommitsMeta,
 		tasks.ExtractBugCommitsMeta,
-		tasks.CollectBugRepoCommitsMeta,
-		tasks.ExtractBugRepoCommitsMeta,
+		tasks.DBGetBugRepoCommitsMeta,
 		tasks.ConvertBugRepoCommitsMeta,
 
 		tasks.DBGetChangelogMeta,
