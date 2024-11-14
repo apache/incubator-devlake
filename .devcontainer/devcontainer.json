@@ -14,7 +14,10 @@
       "version": "18"
     }
   },
-  "forwardPorts": [4000,8080],
+  "forwardPorts": [
+    4000,
+    8080
+  ],
   "postCreateCommand": "npm install commitizen -g",
   "customizations": {
     "vscode": {
