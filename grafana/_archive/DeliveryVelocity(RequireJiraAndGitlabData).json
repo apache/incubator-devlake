@@ -123,7 +123,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average lead time of requirements.\n2. Lead time refers to the length of time from requirement creation to delivery.\n3. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -204,7 +204,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The lead time at which 80% requirements‘ lead time lies below it.\n2. The requirements being calculated are filtered by \"requirement resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -288,7 +288,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average requirement lead time over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_lead_time of \"2021-06-01\" refers to the average lead time of requirements whose resolution time falls under [2020-06-01, 2020-07-01).",
       "fieldConfig": {
         "defaults": {
@@ -409,7 +409,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The cumulative distribution of requirement lead time. \n2. Each point refers to the percent rank of a lead time.",
       "fill": 0,
       "fillGradient": 4,
@@ -534,7 +534,7 @@
       }
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The average lead time of requirements under different Jira Epics.",
       "fieldConfig": {
         "defaults": {
@@ -629,7 +629,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The average time spent in each state of a requirement, including all history states that have been used.",
       "fieldConfig": {
         "defaults": {
@@ -725,7 +725,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
       "fieldConfig": {
         "defaults": {
@@ -844,7 +844,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Total number of requirements created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -920,7 +920,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The number of requirements created over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", the requirement_count of \"2021-06-01\" refers to the number of requirements whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
@@ -1027,7 +1027,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The number of requirements under different Jira Epics.",
       "fieldConfig": {
         "defaults": {
@@ -1122,7 +1122,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Number of requirements that have been delivered.\n2. A requirement is delivered when its status equals 'delivered'.\n3. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -1199,7 +1199,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Delivered Requirement Count/Requirement Count (Total)",
       "fieldConfig": {
         "defaults": {
@@ -1281,7 +1281,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The requirement delivery rate over time.\n2. When Time Interval is set to \"month\", value \"requirement_delivery_rate\" of \"2021-06-01\" calculates the requirements whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
@@ -1389,7 +1389,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The average delivery rate of requirements under different Jira Epics.",
       "fieldConfig": {
         "defaults": {
@@ -1486,7 +1486,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average story point (workload) of requirements.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -1563,7 +1563,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The story point/estimated hours at which 80% requirements' story point/estimated hours lies below it.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -1643,7 +1643,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The average and 80th percentile requirement granularity over time.",
       "fieldConfig": {
         "defaults": {
@@ -1764,7 +1764,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The cumulative distribution of requirement granularity.\n2. Each point refers to the percent rank of a value of granularity.",
       "fill": 0,
       "fillGradient": 4,
@@ -1912,7 +1912,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Average PR/MR review time.\n2. PR/MR review time refers to the time between the creation time and merged time of a PR/MR.\n3. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -1993,7 +1993,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The 80th percentile PR/MR review time.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -2074,7 +2074,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average and 80th percentile PR/MR review time over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", the average review time of \"2021-06-01\" refers to the review time of PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
@@ -2178,7 +2178,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Total number of commits created.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -2260,7 +2260,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Number of commits created over time.\n2. When Time Interval is set to \"month\", the commit_count\" of \"2021-06-01\" calculates the commits whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
@@ -2371,7 +2371,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The number of commits from different repos.",
       "fill": 1,
       "fillGradient": 0,
@@ -2483,7 +2483,7 @@
       }
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The number of commits from different commit authors.",
       "fieldConfig": {
         "defaults": {
@@ -2579,7 +2579,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Sum of the number of added lines of code under all commits.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -2660,7 +2660,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Sum of the number of deleted lines of code under all commits.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -2741,7 +2741,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Added/deleted number of lines of code over time.",
       "fieldConfig": {
         "defaults": {
@@ -2848,7 +2848,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The number of added/deleted LOC from different commit authors.",
       "fieldConfig": {
         "defaults": {
@@ -2965,7 +2965,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average bug age.\n2. Bug age refers to the length of time from bug creation to resolution.\n3. The bugs being calculated are filtered by \"bug resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -3046,7 +3046,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The bug age at which 80% bugs‘ age lies below it.\n2. The bugs being calculated are filtered by \"bug resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -3127,7 +3127,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average and 80th percentile bug age over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_bug_age of \"2021-06-01\" refers to the average age of bugs whose resolution time falls under [2020-06-01, 2020-07-01).",
       "fieldConfig": {
         "defaults": {
@@ -3239,7 +3239,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The cumulative distribution of bug age. \n2. Each point refers to the percent rank of a bug age.",
       "fieldConfig": {
         "defaults": {
@@ -3369,7 +3369,7 @@
       }
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The average time spent on fixing bugs under different Jira Epics.",
       "fieldConfig": {
         "defaults": {
@@ -3487,7 +3487,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average incident age.\n2. Incident age refers to the length of time from incident creation to resolution.\n3. The incidents being calculated are filtered by \"incident resolution time\" (time filter at the upper-right corner) and \"Jira board\"(\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -3568,7 +3568,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The incident age at which 80% incidents‘ age lies below it.\n2. The incidents being calculated are filtered by \"incident resolution time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -3648,7 +3648,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average and 80th percentile incident age over time.\n2. The time granularity can be switched to Week or Month by \"Time Interval\" above. \n3. When Time Interval is set to \"Month\", the average_incident_age of \"2021-06-01\" refers to the average age of incidents whose resolution time falls under [2020-06-01, 2020-07-01).",
       "fieldConfig": {
         "defaults": {
@@ -3760,7 +3760,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The cumulative distribution of incident age.\n2. Each point refers to the percent rank of a incident age.",
       "fieldConfig": {
         "defaults": {
@@ -3890,7 +3890,7 @@
       }
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The average time spent on fixing incidents under different Jira Epics.",
       "fieldConfig": {
         "defaults": {
@@ -4034,7 +4034,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct concat(name, ': ', board_id) from jira_boards",
         "description": null,
         "error": null,
@@ -4062,7 +4062,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
         "description": null,
         "error": null,

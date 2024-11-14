@@ -71,7 +71,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -157,7 +157,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -209,7 +209,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -295,7 +295,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -347,7 +347,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -435,7 +435,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -500,7 +500,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -557,7 +557,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -609,7 +609,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -669,7 +669,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -721,7 +721,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -828,7 +828,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -880,7 +880,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -937,7 +937,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -989,7 +989,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1051,7 +1051,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1103,7 +1103,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1224,7 +1224,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1276,7 +1276,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1364,7 +1364,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1416,7 +1416,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1473,7 +1473,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1525,7 +1525,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1582,7 +1582,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1616,7 +1616,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1761,7 +1761,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1813,7 +1813,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1901,7 +1901,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1953,7 +1953,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2098,7 +2098,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2198,7 +2198,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select concat(name, '-', id) as text from boards",
         "hide": 0,
         "includeAll": true,
@@ -2219,7 +2219,7 @@
           "text": "BUG",
           "value": "BUG"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct type from issues",
         "hide": 0,
         "includeAll": true,
@@ -2244,7 +2244,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct priority from issues",
         "hide": 0,
         "includeAll": true,

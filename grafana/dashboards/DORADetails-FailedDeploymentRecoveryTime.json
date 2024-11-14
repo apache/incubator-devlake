@@ -70,7 +70,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -116,7 +116,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -146,7 +146,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -307,7 +307,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -359,7 +359,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -404,7 +404,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -447,7 +447,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct name from projects",
         "hide": 0,
         "includeAll": true,

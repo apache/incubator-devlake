@@ -47,7 +47,7 @@
   ],
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Number of builds executed.\n2. The builds being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -124,7 +124,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The percentage of successful, failed, and aborted builds.",
       "fieldConfig": {
         "defaults": {
@@ -215,7 +215,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Number of successful builds / Number of total builds",
       "fieldConfig": {
         "defaults": {
@@ -298,7 +298,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Build success rate over time.\n2. The builds being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {

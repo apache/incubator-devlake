@@ -65,7 +65,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Number of builds executed in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -116,7 +116,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -167,7 +167,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Number of successful workflows / Number of total workflows",
       "fieldConfig": {
         "defaults": {
@@ -221,7 +221,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -272,7 +272,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -409,7 +409,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -460,7 +460,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Number of successful workflows / Number of total workflows",
       "fieldConfig": {
         "defaults": {
@@ -512,7 +512,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -563,7 +563,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -651,7 +651,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -703,7 +703,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Mean workflows success rate over time.\n2. The workflows being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -811,7 +811,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -862,7 +862,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -981,7 +981,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -1033,7 +1033,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1137,7 +1137,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1241,7 +1241,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select concat(name, '--', id) as text from cicd_scopes where id like \"%circleci%\" ",
         "hide": 0,
         "includeAll": true,

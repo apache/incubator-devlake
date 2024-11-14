@@ -19,7 +19,7 @@
 apiVersion: 1
 
 datasources:
-  - name: mysql
+  - name: default
     type: $DB_TYPE # can be "postgres" or "mysql"
     url: $DB_HOST
     jsonData: # as stated in https://github.com/grafana/grafana/issues/11407#issuecomment-376862604

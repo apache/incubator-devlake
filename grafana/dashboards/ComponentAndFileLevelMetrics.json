@@ -131,7 +131,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -246,7 +246,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "hide": false,
@@ -388,7 +388,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -521,7 +521,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -681,7 +681,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -782,7 +782,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -834,7 +834,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
       "fieldConfig": {
         "defaults": {
@@ -913,7 +913,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1047,7 +1047,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1125,7 +1125,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
       "fieldConfig": {
         "defaults": {
@@ -1204,7 +1204,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1256,7 +1256,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
       "fieldConfig": {
         "defaults": {
@@ -1309,7 +1309,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1378,7 +1378,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select concat(name, '--', id) as text from repos",
         "hide": 0,
         "includeAll": true,

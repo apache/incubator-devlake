@@ -63,7 +63,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -201,7 +201,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -231,7 +231,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -318,7 +318,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -370,7 +370,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -457,7 +457,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -487,7 +487,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -574,7 +574,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -604,7 +604,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -692,7 +692,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -722,7 +722,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -799,7 +799,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -829,7 +829,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -904,7 +904,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -934,7 +934,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1028,7 +1028,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -1058,7 +1058,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1138,7 +1138,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "hide": false,
@@ -1181,7 +1181,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct name from teams",
         "hide": 0,
         "includeAll": true,
@@ -1202,7 +1202,7 @@
           "text": "2023",
           "value": "2023"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select dora_report from dora_benchmarks",
         "hide": 0,
         "includeAll": false,
@@ -1223,7 +1223,7 @@
           "text": "Failed Deployment Recovery Time",
           "value": "Failed Deployment Recovery Time"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "SELECT \n  CASE \n    WHEN dora_report = '2023' THEN \"Failed Deployment Recovery Time\"\n    WHEN dora_report = '2021' THEN \"Median Time to Restore Service\"\n    ELSE NULL \n  END AS title_value\nFROM dora_benchmarks\nWHERE dora_report = '${dora_report:raw}'",
         "hide": 2,
         "includeAll": false,
