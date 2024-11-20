@@ -1,24 +1,6 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
-name: Build-Images-Push-Docker
+name: Build-Images-Push-GHCR
 env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 on:
   push:
     tags:
@@ -28,6 +10,7 @@ on:
       - release-*
       - feat-*
       - bugfix-*
+  workflow_dispatch:
 
 jobs:
   build-and-push-builder:
@@ -39,21 +22,23 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
+      - name: Login to GHCR
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push lake image
         uses: docker/build-push-action@v3
         with:
           context: ./backend
           push: true
           target: builder
-          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          tags: ghcr.io/${{ github.repository_owner }}/devlake:amd64-builder
           platforms: linux/amd64
-          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
-          cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          cache-from: ghcr.io/${{ github.repository_owner }}/devlake:amd64-builder
+          cache-to: ghcr.io/${{ github.repository_owner }}/devlake:amd64-builder
+
   build-and-push-base:
     name: Build and Push devlake base
     runs-on: ubuntu-latest
@@ -63,21 +48,23 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
+      - name: Login to GHCR
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push lake image
         uses: docker/build-push-action@v3
         with:
           context: ./backend
           push: true
           target: base
-          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+          tags: ghcr.io/${{ github.repository_owner }}/devlake:base
           platforms: linux/amd64,linux/arm64
-          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
-          cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+          cache-from: ghcr.io/${{ github.repository_owner }}/devlake:base
+          cache-to: ghcr.io/${{ github.repository_owner }}/devlake:base
+
   build-devlake:
     needs: build-and-push-builder
     name: Build and cache devlake
@@ -94,11 +81,12 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
+      - name: Login to GHCR
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/cache@v3
         with:
           path: /tmp/devlake-build-cache-${{ matrix.platform }}
@@ -109,13 +97,14 @@ jobs:
           context: ./backend
           push: false
           target: build
-          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:build-cache-${{ matrix.platform }}
+          tags: ghcr.io/${{ github.repository_owner }}/devlake:build-cache-${{ matrix.platform }}
           platforms: linux/${{ matrix.platform }}
-          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          cache-from: ghcr.io/${{ github.repository_owner }}/devlake:amd64-builder
           cache-to: type=local,mode=min,dest=/tmp/devlake-build-cache-${{ matrix.platform }}
           build-args: |
             TAG=${{ github.ref_name }}
             SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
+
   get-timestamp:
     name: Get build timestamp
     runs-on: ubuntu-latest
@@ -125,6 +114,7 @@ jobs:
       - name: Get build timestamp
         id: ts
         run: echo "timestamp=$(date '+%y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
+
   build-and-push-devlake:
     needs: [build-devlake, build-and-push-base, get-timestamp]
     name: Build and Push devlake image
@@ -138,11 +128,12 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
+      - name: Login to GHCR
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/cache@v3
         with:
           path: /tmp/devlake-build-cache-amd64
@@ -154,7 +145,7 @@ jobs:
       - name: Get push tags
         id: get_push_tags
         run: |
-          image_name=${{ secrets.DOCKERHUB_OWNER }}/devlake
+          image_name=ghcr.io/${{ github.repository_owner }}/devlake
           if printf ${{ github.ref }} |grep -Pq '^refs/tags/' && printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
               echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           elif printf ${{ github.ref }} |grep -Pq '^refs/tags/'; then
@@ -170,30 +161,13 @@ jobs:
           tags: ${{ steps.get_push_tags.outputs.TAGS }}
           platforms: linux/amd64,linux/arm64
           cache-from: |
-            ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
-            ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+            ghcr.io/${{ github.repository_owner }}/devlake:amd64-builder
+            ghcr.io/${{ github.repository_owner }}/devlake:base
             type=local,src=/tmp/devlake-build-cache-amd64
             type=local,src=/tmp/devlake-build-cache-arm64
           build-args: |
             TAG=${{ github.ref_name }}
             SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
-      - name: Clear cache
-        uses: actions/github-script@v6
-        if: always()
-        with:
-          script: |
-            for (const arch of ['amd64', 'arm64']) {
-              try {
-                await github.rest.actions.deleteActionsCacheByKey({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  key: `buildx-devlake-build-cache-${context.runId}-${arch}`,
-                })
-                console.log(`Clear cache buildx-devlake-build-cache-${context.runId}-${arch}`)
-              } catch (e) {
-                console.warn(`Error clear cache buildx-devlake-build-cache-${context.runId}-${arch}: ${e}`)
-              }
-            }
 
   build-and-push-other-image:
     needs: [get-timestamp]
@@ -217,15 +191,16 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
+      - name: Login to GHCR
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Get push tags
         id: get_push_tags
         run: |
-          image_name=${{ secrets.DOCKERHUB_OWNER }}/${{ matrix.build.image }}
+          image_name=ghcr.io/${{ github.repository_owner }}/${{ matrix.build.image }}
           if printf ${{ github.ref }} |grep -Pq '^refs/tags/' && printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
               echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           elif printf ${{ github.ref }} |grep -Pq '^refs/tags/'; then
