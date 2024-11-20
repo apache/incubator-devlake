@@ -115,5 +115,8 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"PATCH":  api.PatchConnectionByName,
 			"DELETE": api.DeleteConnectionByName,
 		},
+		"connections/by-name/:connectionName/deployments": {
+			"POST": api.PostDeploymentsByName,
+		},
 	}
 }
