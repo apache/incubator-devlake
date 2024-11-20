@@ -110,5 +110,10 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		":connectionId/issue/:issueKey/close": {
 			"POST": api.CloseIssue,
 		},
+		"connections/by-name/:connectionName": {
+			"GET":    api.GetConnectionByName,
+			"PATCH":  api.PatchConnectionByName,
+			"DELETE": api.DeleteConnectionByName,
+		},
 	}
 }
