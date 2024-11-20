@@ -33,7 +33,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 const (
@@ -62,10 +62,10 @@ type GitlabInput struct {
 	Iid      int
 }
 
-func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
+func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 	total := res.Header.Get("X-Total-Pages")
 	if total == "" {
-		return 0, nil
+		return 0, api.ErrUndetermined
 	}
 	totalInt, err := strconv.Atoi(total)
 	if err != nil {
@@ -140,13 +140,13 @@ func GetRawMessageUpdatedAtAfter(timeAfter *time.Time) func(res *http.Response) 
 			}
 		}
 		if isFinish {
-			return filterRawMessages, helper.ErrFinishCollect
+			return filterRawMessages, api.ErrFinishCollect
 		}
 		return filterRawMessages, nil
 	}
 }
 
-func GetQuery(reqData *helper.RequestData) (url.Values, errors.Error) {
+func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
 	query := url.Values{}
 	query.Set("with_stats", "true")
 	query.Set("sort", "asc")
@@ -155,9 +155,9 @@ func GetQuery(reqData *helper.RequestData) (url.Values, errors.Error) {
 	return query, nil
 }
 
-func CreateRawDataSubTaskArgs(subtaskCtx plugin.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *GitlabTaskData) {
+func CreateRawDataSubTaskArgs(subtaskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *GitlabTaskData) {
 	data := subtaskCtx.GetData().(*GitlabTaskData)
-	rawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
+	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx: subtaskCtx,
 		Params: models.GitlabApiParams{
 			ProjectId:    data.Options.ProjectId,
@@ -168,9 +168,9 @@ func CreateRawDataSubTaskArgs(subtaskCtx plugin.SubTaskContext, Table string) (*
 	return rawDataSubTaskArgs, data
 }
 
-func CreateSubtaskCommonArgs(subtaskCtx plugin.SubTaskContext, table string) (*helper.SubtaskCommonArgs, *GitlabTaskData) {
+func CreateSubtaskCommonArgs(subtaskCtx plugin.SubTaskContext, table string) (*api.SubtaskCommonArgs, *GitlabTaskData) {
 	data := subtaskCtx.GetData().(*GitlabTaskData)
-	args := &helper.SubtaskCommonArgs{
+	args := &api.SubtaskCommonArgs{
 		SubTaskContext: subtaskCtx,
 		Table:          table,
 		Params: models.GitlabApiParams{
@@ -181,7 +181,7 @@ func CreateSubtaskCommonArgs(subtaskCtx plugin.SubTaskContext, table string) (*h
 	return args, data
 }
 
-func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, apiCollector *helper.StatefulApiCollector) (*helper.DalCursorIterator, errors.Error) {
+func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, apiCollector *api.StatefulApiCollector) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	clauses := []dal.Clause{
@@ -204,5 +204,5 @@ func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, apiCollector *helpe
 		return nil, err
 	}
 
-	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
+	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
 }

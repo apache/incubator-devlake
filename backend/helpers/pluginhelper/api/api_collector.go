@@ -56,6 +56,8 @@ type RequestData struct {
 // AsyncResponseHandler FIXME ...
 type AsyncResponseHandler func(res *http.Response) error
 
+var ErrUndetermined = errors.BadInput.New("undetermined")
+
 // ApiCollectorArgs FIXME ...
 type ApiCollectorArgs struct {
 	RawDataSubTaskArgs
@@ -259,7 +261,7 @@ func (collector *ApiCollector) exec(input interface{}) {
 		collector.fetchPagesDetermined(reqData)
 		// fetch pages in parallel without number of total pages
 	} else {
-		collector.fetchPagesUndetermined(reqData)
+		collector.fetchPagesUndetermined(reqData, false)
 	}
 }
 
@@ -296,6 +298,12 @@ func (collector *ApiCollector) fetchPagesDetermined(reqData *RequestData) {
 	collector.fetchAsync(reqData, func(count int, body []byte, res *http.Response) errors.Error {
 		totalPages, err := collector.args.GetTotalPages(res, collector.args)
 		if err != nil {
+			// Some APIs might or might not return total pages/records based on total number of records
+			// check https://github.com/apache/incubator-devlake/issues/8187 for details
+			if err == ErrUndetermined {
+				collector.fetchPagesUndetermined(reqData, true)
+				return nil
+			}
 			return errors.Default.Wrap(err, "fetchPagesDetermined get totalPages failed")
 		}
 		// spawn a none blocking go routine to fetch other pages
@@ -319,7 +327,7 @@ func (collector *ApiCollector) fetchPagesDetermined(reqData *RequestData) {
 }
 
 // fetchPagesUndetermined fetches data of all pages for APIs that do NOT return paging information
-func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
+func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData, skipFirstPage bool) {
 	//logger := collector.args.Ctx.GetLogger()
 	//logger.Debug("fetch all pages in parallel with specified concurrency: %d", collector.args.Concurrency)
 	// if api doesn't return total number of pages, employ a step concurrent technique
@@ -350,6 +358,9 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 			},
 			Input:     reqData.Input,
 			InputJSON: reqData.InputJSON,
+		}
+		if skipFirstPage && reqDataCopy.Pager.Page == 1 {
+			reqDataCopy.Pager.Page += concurrency
 		}
 		var collect func() errors.Error
 		collect = func() errors.Error {
