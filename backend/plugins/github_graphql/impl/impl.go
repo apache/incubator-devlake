@@ -144,7 +144,7 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 type GraphQueryRateLimit struct {
-	RateLimit struct {
+	RateLimit *struct {
 		Limit     graphql.Int
 		Remaining graphql.Int
 		ResetAt   time.Time
@@ -228,6 +228,10 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 			}
 			if len(dataErrors) > 0 {
 				return 0, nil, errors.Default.Wrap(dataErrors[0], `query rate limit fail`)
+			}
+			if query.RateLimit == nil {
+				logger.Info(`github graphql rate limit are disabled, fallback to 5000req/hour`)
+				return 5000, nil, nil
 			}
 			logger.Info(`github graphql init success with remaining %d/%d and will reset at %s`,
 				query.RateLimit.Remaining, query.RateLimit.Limit, query.RateLimit.ResetAt)
