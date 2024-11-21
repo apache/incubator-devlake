@@ -127,8 +127,11 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 					AssigneeId:   combined.Responder.Id,
 					AssigneeName: resolve(&assigneeName),
 				}
+				domainIssue.AssigneeName = issueAssignee.AssigneeName
+				domainIssue.AssigneeId = issueAssignee.AssigneeId
 				result = append(result, issueAssignee)
 			}
+
 			result = append(result, domainIssue)
 			boardIssue := &ticket.BoardIssue{
 				BoardId: serviceIdGen.Generate(data.Options.ConnectionId, data.Options.ServiceId),
