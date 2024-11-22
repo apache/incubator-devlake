@@ -5,7 +5,7 @@
   "packageManager": "yarn@3.4.1",
   "type": "module",
   "scripts": {
-    "start": "vite",
+    "start": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc && eslint . --fix",
