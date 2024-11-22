@@ -99,7 +99,20 @@ func (c *ConnectionApiHelper) Patch(connection interface{}, input *plugin.ApiRes
 	return c.save(connection, c.db.CreateOrUpdate)
 }
 
-// First finds connection from db  by parsing request input and decrypt it
+// PatchByName (Modify) a connection record based on request body by connection name
+func (c *ConnectionApiHelper) PatchByName(connection interface{}, input *plugin.ApiResourceInput) errors.Error {
+	err := c.FirstByName(connection, input.Params)
+	if err != nil {
+		return err
+	}
+	err = c.merge(connection, input.Body)
+	if err != nil {
+		return err
+	}
+	return c.save(connection, c.db.CreateOrUpdate)
+}
+
+// First finds connection from db by id, parsing request input and decrypt it
 func (c *ConnectionApiHelper) First(connection interface{}, params map[string]string) errors.Error {
 	connectionId := params["connectionId"]
 	if connectionId == "" {
@@ -115,6 +128,18 @@ func (c *ConnectionApiHelper) First(connection interface{}, params map[string]st
 // FirstById finds connection from db by id and decrypt it
 func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) errors.Error {
 	return CallDB(c.db.First, connection, dal.Where("id = ?", id))
+}
+
+// FirstByName finds connection from db by name, parsing request input and decrypting it
+func (c *ConnectionApiHelper) FirstByName(connection interface{}, params map[string]string) errors.Error {
+	connectionName := params["connectionName"]
+	if connectionName == "" {
+		return errors.BadInput.New("missing connectionName")
+	}
+	if len(connectionName) > 100 {
+		return errors.BadInput.New("invalid connectionName")
+	}
+	return CallDB(c.db.First, connection, dal.Where("name = ?", connectionName))
 }
 
 // List returns all connections with password/token decrypted
