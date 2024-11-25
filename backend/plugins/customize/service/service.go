@@ -207,21 +207,23 @@ func (s *Service) ImportIssueCommit(boardId string, file io.ReadCloser) errors.E
 }
 
 // ImportIssueRepoCommit imports data to the table `issue_repo_commits` and `issue_commits`
-func (s *Service) ImportIssueRepoCommit(boardId string, file io.ReadCloser) errors.Error {
-	// delete old records of the table `issue_repo_commit` and `issue_commit`
-	err := s.dal.Delete(
-		&crossdomain.IssueRepoCommit{},
-		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
-	)
-	if err != nil {
-		return err
-	}
-	err = s.dal.Delete(
-		&crossdomain.IssueCommit{},
-		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
-	)
-	if err != nil {
-		return err
+func (s *Service) ImportIssueRepoCommit(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old records of the table `issue_repo_commit` and `issue_commit`
+		err := s.dal.Delete(
+			&crossdomain.IssueRepoCommit{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+		err = s.dal.Delete(
+			&crossdomain.IssueCommit{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
 	}
 	return s.importCSV(file, boardId, s.issueRepoCommitHandler)
 }
