@@ -89,21 +89,37 @@ func TestImportIssueDataFlow(t *testing.T) {
 		t.Fatal(err1)
 	}
 	defer issueFile.Close()
-	err = svc.ImportIssue("csv-board", issueFile)
+	err = svc.ImportIssue("csv-board", issueFile, false)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	issueFile2, err2 := os.Open("raw_tables/issues_input2.csv")
+	issueAppendToFile1, err2 := os.Open("raw_tables/issues_input_incremental.csv")
 	if err2 != nil {
 		t.Fatal(err2)
 	}
-	defer issueFile2.Close()
-	err = svc.ImportIssue("csv-board2", issueFile2)
+	defer issueAppendToFile1.Close()
+	err = svc.ImportIssue("csv-board", issueAppendToFile1, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	issueFile2, err3 := os.Open("raw_tables/issues_input2.csv")
+	if err3 != nil {
+		t.Fatal(err3)
+	}
+	defer issueFile2.Close()
+	err = svc.ImportIssue("csv-board2", issueFile2, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	issueToOverwriteFile2, err4 := os.Open("raw_tables/issues_input2_overwrite.csv")
+	if err4 != nil {
+		t.Fatal(err4)
+	}
+	defer issueToOverwriteFile2.Close()
+	err = svc.ImportIssue("csv-board2", issueToOverwriteFile2, false)
+	if err != nil {
+		t.Fatal(err)
+	}
 	dataflowTester.VerifyTableWithRawData(
 		ticket.Issue{},
 		"snapshot_tables/issues_output.csv",
