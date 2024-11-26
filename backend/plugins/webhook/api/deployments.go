@@ -84,6 +84,31 @@ type WebhookDeploymentCommitReq struct {
 func PostDeployments(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
+
+	return postDeployments(input, connection, err)
+}
+
+// PostDeploymentsByName
+// @Summary create deployment by webhook name
+// @Description Create deployment pipeline by webhook name.<br/>
+// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
+// @Description So we suggest request before task after deployment pipeline finish.
+// @Description Both cicd_pipeline and cicd_task will be created
+// @Tags plugins/webhook
+// @Param body body WebhookDeploymentReq true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 403  {string} errcode.Error "Forbidden"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/by-name/:connectionName/deployments [POST]
+func PostDeploymentsByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.FirstByName(connection, input.Params)
+
+	return postDeployments(input, connection, err)
+}
+
+func postDeployments(input *plugin.ApiResourceInput, connection *models.WebhookConnection, err errors.Error) (*plugin.ApiResourceOutput, errors.Error) {
 	if err != nil {
 		return nil, err
 	}

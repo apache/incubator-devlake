@@ -97,6 +97,24 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection}, nil
 }
 
+// PatchConnectionByName
+// @Summary patch webhook connection by name
+// @Description Patch webhook connection
+// @Tags plugins/webhook
+// @Param body body models.WebhookConnection true "json body"
+// @Success 200  {object} models.WebhookConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/by-name/{connectionName} [PATCH]
+func PatchConnectionByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.PatchByName(connection, input)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: connection}, nil
+}
+
 // DeleteConnection
 // @Summary delete a webhook connection
 // @Description Delete a webhook connection
@@ -107,7 +125,32 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, e := strconv.ParseInt(input.Params["connectionId"], 10, 64)
+	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	return deleteConnection(e, connectionId)
+}
+
+// DeleteConnectionByName
+// @Summary delete a webhook connection by name
+// @Description Delete a webhook connection
+// @Tags plugins/webhook
+// @Success 200  {object} models.WebhookConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/by-name/{connectionName} [DELETE]
+func DeleteConnectionByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.FirstByName(connection, input.Params)
+
+	if err != nil {
+		logger.Error(err, "query connection")
+		return nil, err
+	}
+
+	return deleteConnection(nil, connection.ConnectionId())
+}
+
+func deleteConnection(e error, connectionId uint64) (*plugin.ApiResourceOutput, errors.Error) {
 	if e != nil {
 		return nil, errors.BadInput.WrapRaw(e)
 	}
@@ -183,6 +226,24 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
+	return getConnection(err, connection)
+}
+
+// GetConnectionByName
+// @Summary get webhook connection detail by name
+// @Description Get webhook connection detail
+// @Tags plugins/webhook
+// @Success 200  {object} WebhookConnectionResponse
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/by-name/{connectionName} [GET]
+func GetConnectionByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.FirstByName(connection, input.Params)
+	return getConnection(err, connection)
+}
+
+func getConnection(err errors.Error, connection *models.WebhookConnection) (*plugin.ApiResourceOutput, errors.Error) {
 	if err != nil {
 		logger.Error(err, "query connection")
 		return nil, err
