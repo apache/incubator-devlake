@@ -154,32 +154,33 @@ func (s *Service) getCustomizedFields(table string) ([]models.CustomizedField, e
 
 // ImportIssue import csv file to the table `issues`, and create relations to boards
 // issue could exist in multiple boards, so we should only delete an old records when it doesn't belong to another board
-func (s *Service) ImportIssue(boardId string, file io.ReadCloser) errors.Error {
-	err := s.dal.Delete(
-		&ticket.Issue{},
-		dal.Where("id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
-	)
-	if err != nil {
-		return err
-	}
+func (s *Service) ImportIssue(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		err := s.dal.Delete(
+			&ticket.Issue{},
+			dal.Where("id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
 
-	err = s.dal.Delete(
-		&ticket.IssueLabel{},
-		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
-	)
-	if err != nil {
-		return err
-	}
+		err = s.dal.Delete(
+			&ticket.IssueLabel{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
 
-	err = s.dal.Delete(
-		&ticket.BoardIssue{},
-		dal.Where("board_id = ?", boardId),
-	)
-	if err != nil {
-		return err
+		err = s.dal.Delete(
+			&ticket.BoardIssue{},
+			dal.Where("board_id = ?", boardId),
+		)
+		if err != nil {
+			return err
+		}
 	}
-
-	return s.importCSV(file, boardId, s.issueHandlerFactory(boardId))
+	return s.importCSV(file, boardId, s.issueHandlerFactory(boardId, incremental))
 }
 
 // SaveBoard make sure the board exists in table `boards`
@@ -206,21 +207,23 @@ func (s *Service) ImportIssueCommit(boardId string, file io.ReadCloser) errors.E
 }
 
 // ImportIssueRepoCommit imports data to the table `issue_repo_commits` and `issue_commits`
-func (s *Service) ImportIssueRepoCommit(boardId string, file io.ReadCloser) errors.Error {
-	// delete old records of the table `issue_repo_commit` and `issue_commit`
-	err := s.dal.Delete(
-		&crossdomain.IssueRepoCommit{},
-		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
-	)
-	if err != nil {
-		return err
-	}
-	err = s.dal.Delete(
-		&crossdomain.IssueCommit{},
-		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
-	)
-	if err != nil {
-		return err
+func (s *Service) ImportIssueRepoCommit(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old records of the table `issue_repo_commit` and `issue_commit`
+		err := s.dal.Delete(
+			&crossdomain.IssueRepoCommit{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+		err = s.dal.Delete(
+			&crossdomain.IssueCommit{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
 	}
 	return s.importCSV(file, boardId, s.issueRepoCommitHandler)
 }
@@ -260,7 +263,7 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 }
 
 // issueHandlerFactory returns a handler that save record into `issues`, `board_issues` and `issue_labels` table
-func (s *Service) issueHandlerFactory(boardId string) func(record map[string]interface{}) errors.Error {
+func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
 		var err errors.Error
 		var id string
