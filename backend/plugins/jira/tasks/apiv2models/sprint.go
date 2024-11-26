@@ -37,22 +37,17 @@ type Sprint struct {
 
 func (s Sprint) ToToolLayer(connectionId uint64, isServer bool) *models.JiraSprint {
 	sprint := &models.JiraSprint{
-		ConnectionId: connectionId,
-		SprintId:     s.ID,
-		Self:         s.Self,
-		State:        s.State,
-		Name:         s.Name,
-		// StartDate:     s.StartDate,
+		ConnectionId:  connectionId,
+		SprintId:      s.ID,
+		Self:          s.Self,
+		State:         s.State,
+		Name:          s.Name,
+		StartDate:     s.StartDate,
 		EndDate:       s.EndDate,
 		CompleteDate:  s.CompleteDate,
 		OriginBoardID: s.OriginBoardID,
 	}
-	// jira cloud
-	if !isServer {
-		sprint.StartDate = s.StartDate
-	}
-	// jira server
-	if isServer && s.ActivatedDate != nil {
+	if s.ActivatedDate != nil {
 		sprint.StartDate = s.ActivatedDate
 	}
 	return sprint
