@@ -44,6 +44,7 @@ func TestSprintDataFlow(t *testing.T) {
 	// verify sprint extraction
 	dataflowTester.FlushTabler(&models.JiraSprint{})
 	dataflowTester.FlushTabler(&models.JiraBoardSprint{})
+	dataflowTester.FlushTabler(&models.JiraServerInfo{})
 	dataflowTester.Subtask(tasks.ExtractSprintsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JiraSprint{},
