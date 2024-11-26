@@ -34,6 +34,7 @@ const maxMemory = 32 << 20 // 32 MB
 // @Accept       multipart/form-data
 // @Param        boardId formData string true "the ID of the board"
 // @Param        boardName formData string true "the name of the board"
+// @Param        incremental formData bool false "whether to import incrementally"
 // @Param        file formData file true "select file to upload"
 // @Produce      json
 // @Success      200
@@ -47,6 +48,10 @@ func (h *Handlers) ImportIssue(input *plugin.ApiResourceInput) (*plugin.ApiResou
 	}
 	// nolint
 	defer file.Close()
+	incremental := false
+	if input.Request.FormValue("incremental") == "true" {
+		incremental = true
+	}
 	boardId := strings.TrimSpace(input.Request.FormValue("boardId"))
 	if boardId == "" {
 		return nil, errors.BadInput.New("empty boardId")
@@ -59,7 +64,7 @@ func (h *Handlers) ImportIssue(input *plugin.ApiResourceInput) (*plugin.ApiResou
 	if err != nil {
 		return nil, err
 	}
-	return nil, h.svc.ImportIssue(boardId, file)
+	return nil, h.svc.ImportIssue(boardId, file, incremental)
 }
 
 // ImportIssueCommit accepts a CSV file, parses and saves it to the database
@@ -94,6 +99,7 @@ func (h *Handlers) ImportIssueCommit(input *plugin.ApiResourceInput) (*plugin.Ap
 // @Tags 		 plugins/customize
 // @Accept       multipart/form-data
 // @Param        boardId formData string true "the ID of the board"
+// @Param        incremental formData bool false "whether to import incrementally"
 // @Param        file formData file true "select file to upload"
 // @Produce      json
 // @Success      200
@@ -111,7 +117,11 @@ func (h *Handlers) ImportIssueRepoCommit(input *plugin.ApiResourceInput) (*plugi
 	if boardId == "" {
 		return nil, errors.Default.New("empty boardId")
 	}
-	return nil, h.svc.ImportIssueRepoCommit(boardId, file)
+	incremental := false
+	if input.Request.FormValue("incremental") == "true" {
+		incremental = true
+	}
+	return nil, h.svc.ImportIssueRepoCommit(boardId, file, incremental)
 }
 
 func (h *Handlers) extractFile(input *plugin.ApiResourceInput) (io.ReadCloser, errors.Error) {

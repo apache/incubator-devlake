@@ -1,5 +1,5 @@
 issue_id,label_name,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
 csv:10,hello worlds,csv-board2,,0,
-csv:14,label1,csv-board,,0,
-csv:14,label2,csv-board,,0,
-csv:14,label3,csv-board,,0,
+csv:14,label1,csv-board2,,0,
+csv:14,label2,csv-board2,,0,
+csv:14,label3,csv-board2,,0,
