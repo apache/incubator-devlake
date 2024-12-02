@@ -56,10 +56,11 @@ services:
     environment:
       GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
       GF_USERS_DEFAULT_THEME: "light"
-      MYSQL_URL: mysql:3306
-      MYSQL_DATABASE: lake
-      MYSQL_USER: merico
-      MYSQL_PASSWORD: merico
+      DB_TYPE: mysql
+      DB_HOST: mysql:3306
+      DB_DATABASE: lake
+      DB_USER: merico
+      DB_PASSWORD: merico
       TZ: UTC
     restart: always
     depends_on:

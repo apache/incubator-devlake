@@ -59,7 +59,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -111,7 +111,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -145,7 +145,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -195,7 +195,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -229,7 +229,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -279,7 +279,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -313,7 +313,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -362,7 +362,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -414,7 +414,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -464,7 +464,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -498,7 +498,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -548,7 +548,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -582,7 +582,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -632,7 +632,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -684,7 +684,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -740,7 +740,7 @@
       "pluginVersion": "9.5.15",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -840,7 +840,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select concat(name, '-', id) from repos",
         "hide": 0,
         "includeAll": true,

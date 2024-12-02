@@ -70,7 +70,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Total number of Pull/Merge request created.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
@@ -146,7 +146,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Total number of Pull/Merge request merged.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner)",
       "fieldConfig": {
         "defaults": {
@@ -224,7 +224,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Pull Request Pass Count/Pull Request Count",
       "fieldConfig": {
         "defaults": {
@@ -306,7 +306,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Pull Request Pass Rate over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", value \"pull_request_pass_rate\" of \"2021-06-01\" calculates the PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
@@ -436,7 +436,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Average PR/MR review time.\n2. PR/MR review time refers to the time between the creation time and merged time of a PR/MR.\n3. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -517,7 +517,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The 80th percentile PR/MR review time.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -598,7 +598,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. The average and 80th percentile PR/MR review time over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", the average review time of \"2021-06-01\" refers to the review time of PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
@@ -702,7 +702,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The average round of PR/MR review.",
       "fieldConfig": {
         "defaults": {
@@ -778,7 +778,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Avg PR/MR Review Round over time.\n2. The time granularity can be switched to week or month by \"Time Interval\" above. \n3. When Time Interval is set to \"month\", value \"Avg Pull Request Review Round\" of \"2021-06-01\" calculates the PR/MR whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
@@ -885,7 +885,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The average round of PR/MR review of PR authors.",
       "fieldConfig": {
         "defaults": {
@@ -977,7 +977,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "One-time pass rate for PR/MR over time.",
       "fieldConfig": {
         "defaults": {
@@ -1103,7 +1103,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Total number of commits created.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -1185,7 +1185,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Number of commits created over time.\n2. When Time Interval is set to \"month\", the commit_count\" of \"2021-06-01\" calculates the commits whose creation time falls under [2020-06-01, 2020-07-01)",
       "fieldConfig": {
         "defaults": {
@@ -1296,7 +1296,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The number of commits from different repos.",
       "fill": 1,
       "fillGradient": 0,
@@ -1408,7 +1408,7 @@
       }
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Sum of the number of added lines of code under all commits.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -1489,7 +1489,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Sum of the number of deleted lines of code under all commits.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner) and \"Gitlab repo\"(\"Choose Repo\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -1570,7 +1570,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Added/deleted number of lines of code over time.",
       "fieldConfig": {
         "defaults": {
@@ -1677,7 +1677,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The number of added/deleted LOC from different commit authors.",
       "fieldConfig": {
         "defaults": {
@@ -1794,7 +1794,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Number of people who have created or reviewed a Pull/Merge Request.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner).",
       "fieldConfig": {
         "defaults": {
@@ -1875,7 +1875,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Total number of Commit Authors.\n2. The commits being calculated are filtered by \"authored_date\" (time filter at the upper-right corner).",
       "fieldConfig": {
         "defaults": {
@@ -1951,7 +1951,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Number of Pull/Merge Request Reviewers.\n2. The PR/MR being calculated are filtered by \"PR/MR creation time\" (time filter at the upper-right corner).",
       "fieldConfig": {
         "defaults": {
@@ -2027,7 +2027,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "Pull Request Reviewer Count/Total Developer Count",
       "fieldConfig": {
         "defaults": {
@@ -2155,7 +2155,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct concat(name, ': ', gitlab_id) from gitlab_projects",
         "description": null,
         "error": null,

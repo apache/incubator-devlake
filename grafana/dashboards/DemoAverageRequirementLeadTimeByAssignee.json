@@ -44,7 +44,7 @@
   ],
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "1. Compare the average time spent in each state of a requirement in the last 2 months.\n2. The requirements being calculated are the requirements delivered in the last 2 months.",
       "fieldConfig": {
         "defaults": {
@@ -139,7 +139,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
