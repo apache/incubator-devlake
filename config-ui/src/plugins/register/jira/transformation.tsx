@@ -19,10 +19,10 @@
 import { useState, useEffect } from 'react';
 import { uniqWith } from 'lodash';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { theme, Collapse, Tag, Form, Select } from 'antd';
+import { theme, Collapse, Tag, Form, Select, Switch } from 'antd';
 
 import API from '@/api';
-import { PageLoading, HelpTooltip, ExternalLink } from '@/components';
+import { PageLoading, HelpTooltip, ExternalLink, Block } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
 
@@ -265,6 +265,20 @@ const renderCollapseItems = ({
               }
             />
           </Form.Item>
+          <Block
+            title="Enable Issue Trace"
+            description="Parse the issue status and assignee history from Jira issue changelogs."
+          >
+            <Switch
+              checked={transformation.enableIssueTrace}
+              onChange={(checcked) =>
+                onChangeTransformation({
+                  ...transformation,
+                  enableIssueTrace: checcked,
+                })
+              }
+            />
+          </Block>
         </Form>
       ),
     },
