@@ -37,7 +37,11 @@ type GraphqlQueryCheckRunWrapper struct {
 	RateLimit struct {
 		Cost int
 	}
-	Node []GraphqlQueryCheckSuite `graphql:"node(id: $id)" graphql-extend:"true"`
+	Node     []GraphqlQueryCheckSuite `graphql:"node(id: $id)" graphql-extend:"true"`
+	PageInfo struct {
+		EndCursor   string `graphql:"endCursor"`
+		HasNextPage bool   `graphql:"hasNextPage"`
+	} `graphql:"pageInfo"`
 }
 
 type GraphqlQueryCheckSuite struct {
@@ -97,6 +101,35 @@ var CollectJobsMeta = plugin.SubTaskMeta{
 
 var _ plugin.SubTaskEntryPoint = CollectAccount
 
+func getPageInfo(query interface{}, args *helper.GraphqlCollectorArgs) (*helper.GraphqlQueryPageInfo, error) {
+	queryWrapper := query.(*GraphqlQueryCheckRunWrapper)
+	return &helper.GraphqlQueryPageInfo{
+		EndCursor:   queryWrapper.PageInfo.EndCursor,
+		HasNextPage: queryWrapper.PageInfo.HasNextPage,
+	}, nil
+}
+
+func buildQuery(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+	query := &GraphqlQueryCheckRunWrapper{}
+	if reqData == nil {
+		return query, map[string]interface{}{}, nil
+	}
+	workflowRuns := reqData.Input.([]interface{})
+	checkSuiteIds := []map[string]interface{}{}
+	for _, iWorkflowRuns := range workflowRuns {
+		workflowRun := iWorkflowRuns.(*SimpleWorkflowRun)
+		checkSuiteIds = append(checkSuiteIds, map[string]interface{}{
+			`id`: graphql.ID(workflowRun.CheckSuiteNodeID),
+		})
+	}
+	variables := map[string]interface{}{
+		"node":       checkSuiteIds,
+		"pageSize":   graphql.Int(reqData.Pager.Size),
+		"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
+	}
+	return query, variables, nil
+}
+
 func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
@@ -139,24 +172,8 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:         iterator,
 		InputStep:     20,
 		GraphqlClient: data.GraphqlClient,
-		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
-			query := &GraphqlQueryCheckRunWrapper{}
-			if reqData == nil {
-				return query, map[string]interface{}{}, nil
-			}
-			workflowRuns := reqData.Input.([]interface{})
-			checkSuiteIds := []map[string]interface{}{}
-			for _, iWorkflowRuns := range workflowRuns {
-				workflowRun := iWorkflowRuns.(*SimpleWorkflowRun)
-				checkSuiteIds = append(checkSuiteIds, map[string]interface{}{
-					`id`: graphql.ID(workflowRun.CheckSuiteNodeID),
-				})
-			}
-			variables := map[string]interface{}{
-				"node": checkSuiteIds,
-			}
-			return query, variables, nil
-		},
+		BuildQuery:    buildQuery,
+		GetPageInfo:   getPageInfo,
 		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
 			query := queryWrapper.(*GraphqlQueryCheckRunWrapper)
 			for _, node := range query.Node {
