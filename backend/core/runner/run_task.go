@@ -334,7 +334,7 @@ func RunPluginSubTasks(
 				logger.Error(err, "")
 				where := dal.Where("task_id = ? and name = ?", task.ID, subtaskCtx.GetName())
 				if err := basicRes.GetDal().UpdateColumns(subtask, []dal.DalSet{
-					{ColumnName: "is_failed", Value: 1},
+					{ColumnName: "is_failed", Value: true},
 					{ColumnName: "message", Value: err.Error()},
 				}, where); err != nil {
 					basicRes.GetLogger().Error(err, "error writing subtask %v status to DB", subtaskCtx.GetName())
