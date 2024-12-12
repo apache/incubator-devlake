@@ -26,11 +26,11 @@ metadata:
   namespace: devlake
 data:
   # shared between deployment
-  MYSQL_USER: merico
-  MYSQL_PASSWORD: merico
-  MYSQL_DATABASE: lake
-  MYSQL_ROOT_PASSWORD: admin
-  MYSQL_URL: mysql:3306
+  DB_TYPE: mysql
+  DB_HOST: mysql:3306
+  DB_DATABASE: lake
+  DB_USER: merico
+  DB_PASSWORD: merico
   # grafana deployment
   GF_SERVER_ROOT_URL: http://YOURDOMAIN:30002/grafana
   GF_USERS_DEFAULT_THEME: "light"

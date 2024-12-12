@@ -44,7 +44,7 @@
   ],
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "The number of commits from different commit authors.",
       "fieldConfig": {
         "defaults": {
@@ -142,7 +142,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
