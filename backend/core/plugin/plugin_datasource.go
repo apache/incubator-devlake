@@ -41,11 +41,6 @@ type CacheableConnection interface {
 	GetHash() string
 }
 
-type UnCacheableConnection interface {
-	ApiConnection
-	UncCacheable() bool
-}
-
 // ApiAuthenticator is to be implemented by a Concreate Connection if Authorization is required
 type ApiAuthenticator interface {
 	// SetupAuthentication is a hook function for connection to set up authentication for the HTTP request

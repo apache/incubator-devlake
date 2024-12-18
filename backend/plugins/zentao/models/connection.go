@@ -73,9 +73,9 @@ type ZentaoConn struct {
 	DbMaxConns     int    `json:"dbMaxConns" mapstructure:"dbMaxConns"`
 }
 
-func (connection ZentaoConn) UncCacheable() bool {
+func (connection ZentaoConn) GetHash() string {
 	// zentao's token will expire after about 24min, so api client cannot be cached.
-	return true
+	return ""
 }
 
 func (connection ZentaoConn) Sanitize() ZentaoConn {
@@ -111,8 +111,8 @@ func (connection ZentaoConn) SanitizeDbUrl() string {
 	return dbUrl
 }
 
-func (connection ZentaoConnection) UncCacheable() bool {
-	return connection.ZentaoConn.UncCacheable()
+func (connection ZentaoConnection) GetHash() string {
+	return connection.ZentaoConn.GetHash()
 }
 
 func (connection ZentaoConnection) Sanitize() ZentaoConnection {
