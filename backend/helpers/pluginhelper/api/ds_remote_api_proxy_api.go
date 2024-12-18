@@ -67,11 +67,15 @@ func (rap *DsRemoteApiProxyHelper[C]) prepare(input *plugin.ApiResourceInput) (*
 func (rap *DsRemoteApiProxyHelper[C]) getApiClient(connection *C) (*ApiClient, errors.Error) {
 	c := interface{}(connection)
 	key := ""
+	var cacheable bool = false
+	if unCacheableConnection, ok := c.(plugin.UnCacheableConnection); ok {
+		cacheable = !unCacheableConnection.UncCacheable()
+	}
 	if cacheableConn, ok := c.(plugin.CacheableConnection); ok {
 		key = cacheableConn.GetHash()
 	}
 	// try to reuse api client
-	if key != "" {
+	if key != "" && cacheable {
 		rap.httpClientCacheMutex.RLock()
 		client, ok := rap.httpClientCache[key]
 		rap.httpClientCacheMutex.RUnlock()
@@ -86,7 +90,7 @@ func (rap *DsRemoteApiProxyHelper[C]) getApiClient(connection *C) (*ApiClient, e
 		return nil, err
 	}
 	// cache the client if key is not empty
-	if key != "" {
+	if key != "" && cacheable {
 		rap.httpClientCacheMutex.Lock()
 		rap.httpClientCache[key] = client
 		rap.httpClientCacheMutex.Unlock()
