@@ -33,7 +33,7 @@ type JiraServerInfo struct {
 	ServerTime     string         `json:"serverTime"`
 	ServerTitle    string         `json:"serverTitle"`
 	Version        string         `json:"version"`
-	VersionNumbers []int          `json:"versionNumbers"`
+	VersionNumbers []int          `json:"versionNumbers"  gorm:"type:json;serializer:json"`
 }
 
 type JiraErrorInfo struct {
