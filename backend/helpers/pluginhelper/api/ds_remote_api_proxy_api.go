@@ -39,11 +39,7 @@ type DsRemoteApiProxyHelper[C plugin.ToolLayerApiConnection] struct {
 }
 
 // NewDsRemoteApiProxyHelper creates a new DsRemoteApiProxyHelper
-func NewDsRemoteApiProxyHelper[
-	C plugin.ToolLayerApiConnection,
-](
-	modelApiHelper *ModelApiHelper[C],
-) *DsRemoteApiProxyHelper[C] {
+func NewDsRemoteApiProxyHelper[C plugin.ToolLayerApiConnection](modelApiHelper *ModelApiHelper[C]) *DsRemoteApiProxyHelper[C] {
 	return &DsRemoteApiProxyHelper[C]{
 		ModelApiHelper:       modelApiHelper,
 		logger:               modelApiHelper.basicRes.GetLogger().Nested("remote_api_helper"),
