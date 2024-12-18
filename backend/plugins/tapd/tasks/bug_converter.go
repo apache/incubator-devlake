@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"math"
 	"reflect"
 	"strconv"
 	"time"
@@ -88,8 +89,12 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, issueAssignee)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
-				temp := uint(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
-				domainL.LeadTimeMinutes = &temp
+				durationInMinutes := domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes()
+				// we have found some issues' ResolutionDate is earlier than CreatedDate in tapd.
+				if durationInMinutes > 0 && durationInMinutes < math.MaxUint {
+					temp := uint(durationInMinutes)
+					domainL.LeadTimeMinutes = &temp
+				}
 			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, toolL.WorkspaceId),
