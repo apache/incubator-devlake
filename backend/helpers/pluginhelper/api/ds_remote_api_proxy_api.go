@@ -40,7 +40,7 @@ type DsRemoteApiProxyHelper[C plugin.ToolLayerApiConnection] struct {
 
 // NewDsRemoteApiProxyHelper creates a new DsRemoteApiProxyHelper
 func NewDsRemoteApiProxyHelper[
-	C plugin.ToolLayerApiConnection,
+C plugin.ToolLayerApiConnection,
 ](
 	modelApiHelper *ModelApiHelper[C],
 ) *DsRemoteApiProxyHelper[C] {
@@ -67,7 +67,7 @@ func (rap *DsRemoteApiProxyHelper[C]) prepare(input *plugin.ApiResourceInput) (*
 func (rap *DsRemoteApiProxyHelper[C]) getApiClient(connection *C) (*ApiClient, errors.Error) {
 	c := interface{}(connection)
 	key := ""
-	var cacheable bool = false
+	cacheable := true
 	if unCacheableConnection, ok := c.(plugin.UnCacheableConnection); ok {
 		cacheable = !unCacheableConnection.UncCacheable()
 	}
