@@ -53,7 +53,7 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// Get pull requests by repo project_name
-	var clauses = []dal.Clause{
+	clauses := []dal.Clause{
 		dal.Select("pr.id, pr.pull_request_key, pr.author_id, pr.merge_commit_sha, pr.created_date, pr.merged_date"),
 		dal.From("pull_requests pr"),
 		dal.Join(`LEFT JOIN project_mapping pm ON (pm.row_id = pr.base_repo_id)`),
@@ -165,7 +165,6 @@ func getFirstCommit(prId string, db dal.Dal) (*code.PullRequestCommit, errors.Er
 
 	// Execute the query and retrieve the first commit
 	err := db.First(commit, commitClauses...)
-
 	// If any other error occurred, return nil and the error
 	if err != nil {
 		// If the error indicates that no commit was found, return nil and no error
@@ -192,7 +191,6 @@ func getFirstReview(prId string, prCreator string, db dal.Dal) (*code.PullReques
 
 	// Execute the query and retrieve the first review comment
 	err := db.First(review, commentClauses...)
-
 	// If any other error occurred, return nil and the error
 	if err != nil {
 		// If the error indicates that no review comment was found, return nil and no error
@@ -218,7 +216,6 @@ func getDeploymentCommit(mergeSha string, projectName string, db dal.Dal) (*devo
 		dal.Join("LEFT JOIN cicd_deployment_commits p ON (dc.prev_success_deployment_commit_id = p.id)"),
 		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)"),
 		dal.Join("INNER JOIN commits_diffs cd ON (cd.new_commit_sha = dc.commit_sha AND cd.old_commit_sha = COALESCE (p.commit_sha, ''))"),
-		dal.Where("dc.prev_success_deployment_commit_id <> ''"),
 		dal.Where("dc.environment = 'PRODUCTION'"), // TODO: remove this when multi-environment is supported
 		dal.Where("pm.project_name = ? AND cd.commit_sha = ? AND dc.RESULT = ?", projectName, mergeSha, devops.RESULT_SUCCESS),
 		dal.Orderby("dc.started_date, dc.id ASC"),
