@@ -88,7 +88,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -147,7 +147,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -176,7 +176,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -235,7 +235,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -264,7 +264,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -324,7 +324,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -353,7 +353,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -412,7 +412,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -467,7 +467,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -526,7 +526,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -555,7 +555,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -615,7 +615,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -644,7 +644,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -704,7 +704,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -759,7 +759,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -818,7 +818,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -847,7 +847,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -906,7 +906,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -935,7 +935,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -996,7 +996,7 @@
       "pluginVersion": "11.2.0",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -1043,7 +1043,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select concat(name, '--', id) as text from cq_projects",
         "hide": 0,
         "includeAll": true,
@@ -1068,7 +1068,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct severity from cq_issues where id like 'sonar%'",
         "hide": 0,
         "includeAll": true,
