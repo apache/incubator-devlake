@@ -82,7 +82,7 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 		dal.Select(fmt.Sprintf("bp.id AS blueprint_id, bp.project_name, bps.scope_id, %s.*", scopeTable)),
 		dal.From("_devlake_blueprint_scopes bps"),
 		dal.Join("LEFT JOIN _devlake_blueprints bp ON (bp.id = bps.blueprint_id)"),
-		dal.Join(fmt.Sprintf("LEFT JOIN %s ON (%s.connection_id = bps.connection_id AND %s = bps.scope_id)", scopeTable, scopeTable, theOtherPk)),
+		dal.Join(fmt.Sprintf("LEFT JOIN %s ON (%s.connection_id = bps.connection_id AND cast(%s as varchar) = bps.scope_id)", scopeTable, scopeTable, theOtherPk)),
 		dal.Where("bps.plugin_name = ? AND bps.connection_id = ?", pluginName, (*scopeConfig).ScopeConfigConnectionId()),
 	))
 	projectScopeMap := make(map[string]*models.ProjectScope)
