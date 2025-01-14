@@ -83,7 +83,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -202,7 +202,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "time_series",
           "group": [],
           "hide": false,
@@ -236,7 +236,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -388,7 +388,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -476,7 +476,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -528,7 +528,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -616,7 +616,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "time_series",
           "group": [],
           "hide": false,
@@ -650,7 +650,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -739,7 +739,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "hide": false,
@@ -773,7 +773,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -861,7 +861,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -913,7 +913,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -998,7 +998,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "format": "table",
           "group": [],
           "hide": false,
@@ -1058,7 +1058,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1142,7 +1142,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1194,7 +1194,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1278,7 +1278,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1330,7 +1330,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1445,7 +1445,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1497,7 +1497,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1612,7 +1612,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1664,7 +1664,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1779,7 +1779,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": "default",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1879,7 +1879,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct name from projects",
         "hide": 0,
         "includeAll": true,
@@ -1905,7 +1905,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": "default",
         "definition": "select distinct priority from issues where priority != ''",
         "hide": 0,
         "includeAll": true,
