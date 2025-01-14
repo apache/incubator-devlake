@@ -1,0 +1,1730 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 34,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Homepage",
+      "tooltip": "",
+      "type": "link",
+      "url": "/grafana/d/Lv1XbLHnk/data-specific-dashboards-homepage"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [
+        "Data Source Specific Dashboard"
+      ],
+      "targetBlank": false,
+      "title": "Metric dashboards",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 148,
+      "panels": [],
+      "title": "Work in Progress",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 114,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select \r\n  count(*) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.type in ($type)\r\n  and i.status != 'DONE'\r\n  and bi.board_id in ($board_id)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Anzahl offene Features",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "issue_key"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 184
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Bezeichnung"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 723
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Epic"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 97
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 14,
+        "x": 4,
+        "y": 1
+      },
+      "id": 145,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT DISTINCT \r\n--  si.issue_key as JiraTicket,\r\n--  si.status as Status,\r\n  ti.issue_key as Epic,\r\n  ti.title as Bezeichnung,\r\n  ti.status as Status\r\nFROM\r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n  and ti.status in ('TODO', 'IN_PROGRESS')\r\nORDER BY ti.status\r\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Aktuelle Epics",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 147,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "Select \r\n epic_issues.source_epicissue_count as 'Anzahl Epic Features',\r\n non_epic_issues.source_non_epicissue_count as 'Anzahl non Epic Features'\r\n FROM (\r\nSELECT \r\n    COUNT(si.issue_key) AS source_epicissue_count\r\nFROM \r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n--  AND $__timeFilter(si.created_date)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n  AND si.status = 'TODO'\r\n) as epic_issues\r\nJOIN (SELECT\r\n    COUNT(DISTINCT si.issue_key) AS source_non_epicissue_count\r\nFROM \r\nissues si\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n--  AND $__timeFilter(si.created_date)\r\n  AND bi.board_id in ($board_id)\r\n  AND si.issue_key NOT IN (\r\n    SELECT\r\n  si.issue_key as JiraTicket\r\nFROM\r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n--  AND $__timeFilter(si.created_date)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n)\r\n  AND si.status = 'TODO'\r\n) as non_epic_issues\r\n;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Backlog Epic vs. non Epic Features",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 140,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "Select \r\n epic_issues.source_epicissue_count as 'Anzahl Epic Features',\r\n non_epic_issues.source_non_epicissue_count as 'Anzahl non Epic Features'\r\n FROM (\r\nSELECT \r\n    COUNT(si.issue_key) AS source_epicissue_count\r\nFROM \r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n--  AND $__timeFilter(si.created_date)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n  AND si.status = 'IN_PROGRESS'\r\n) as epic_issues\r\nJOIN (SELECT\r\n    COUNT(DISTINCT si.issue_key) AS source_non_epicissue_count\r\nFROM \r\nissues si\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n--  AND $__timeFilter(si.created_date)\r\n  AND bi.board_id in ($board_id)\r\n  AND si.issue_key NOT IN (\r\n    SELECT\r\n  si.issue_key as JiraTicket\r\nFROM\r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n--  AND $__timeFilter(si.created_date)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n)\r\n  AND si.status = 'IN_PROGRESS'\r\n) as non_epic_issues\r\n;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "In Progress Epic vs. non Epic Features",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 126,
+      "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "Durchsatz im ausgewählten Zeitraum",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 4,
+        "x": 0,
+        "y": 16
+      },
+      "id": 131,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select \r\n  count(*) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.type in ($type)\r\n  and i.status = 'DONE'\r\n  and $__timeFilter(i.resolution_date)\r\n  and bi.board_id in ($board_id)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Anzahl Features Done",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 14,
+        "x": 4,
+        "y": 16
+      },
+      "id": 133,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  DATE(i.resolution_date - INTERVAL DAY(i.resolution_date)-1 DAY) as time,\r\n  COUNT(DISTINCT CASE WHEN status = 'DONE' THEN i.id ELSE NULL END) as \"Number of Delivered Issues\"\r\nFROM issues i\r\n  JOIN board_issues bi ON i.id = bi.issue_id\r\nWHERE \r\n  i.type in ($type)\r\n  AND $__timeFilter(i.resolution_date)\r\n  AND bi.board_id in ($board_id)\r\nGROUP BY time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Nr. of Features Done pro Monat (Velocity)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "issue_key"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 184
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 6,
+        "x": 18,
+        "y": 16
+      },
+      "id": 132,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "ResolutionDate"
+          }
+        ]
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  issue_key as JiraTicket,\r\n  resolution_date as ResolutionDate,\r\n  lead_time_minutes/1440 as LeadTimeDays,\r\n  story_point\r\nFROM\r\n  issues i\r\n  JOIN board_issues bi ON i.id = bi.issue_id\r\nWHERE\r\n  i.type in ($type)\r\n  AND i.status = 'DONE'\r\n  AND $__timeFilter(i.resolution_date)\r\n  AND bi.board_id in ($board_id)\r\nORDER BY resolution_date desc\r\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Done Features",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 6,
+        "x": 0,
+        "y": 28
+      },
+      "id": 146,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "Select \r\n epic_issues.source_epicissue_count as 'Anzahl Epic Features',\r\n non_epic_issues.source_non_epicissue_count as 'Anzahl non Epic Features'\r\n FROM (\r\nSELECT \r\n    COUNT(si.issue_key) AS source_epicissue_count\r\nFROM \r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n  AND $__timeFilter(si.resolution_date)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n  AND si.status = 'DONE'\r\n) as epic_issues\r\nJOIN (SELECT\r\n    COUNT(DISTINCT si.issue_key) AS source_non_epicissue_count\r\nFROM \r\nissues si\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n  AND $__timeFilter(si.resolution_date)\r\n  AND bi.board_id in ($board_id)\r\n  AND si.issue_key NOT IN (\r\n    SELECT\r\n  si.issue_key as JiraTicket\r\nFROM\r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n  AND $__timeFilter(si.resolution_date)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n)\r\n  AND si.status = 'DONE'\r\n) as non_epic_issues\r\n;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Verteilung Done Featues (Epic vs. nonEpic)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 6,
+        "y": 28
+      },
+      "id": 136,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "10.2.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "Select \r\n COALESCE(epic_issues.time, non_epic_issues.time) as time,\r\n epic_issues.source_epicissue_count,\r\n non_epic_issues.source_non_epicissue_count\r\n FROM (\r\nSELECT \r\n    DATE(si.resolution_date - INTERVAL DAY(si.resolution_date)-1 DAY) as time,\r\n    COUNT(si.issue_key) AS source_epicissue_count\r\nFROM \r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n  AND $__timeFilter(si.resolution_date)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n  and si.status = 'DONE'\r\nGROUP BY \r\n    time\r\n) as epic_issues\r\nright JOIN (SELECT\r\n    DATE(si.resolution_date - INTERVAL DAY(si.resolution_date)-1 DAY) as time,\r\n    COUNT(DISTINCT si.issue_key) AS source_non_epicissue_count\r\nFROM \r\n    issues si\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n  AND $__timeFilter(si.resolution_date)\r\n  AND bi.board_id in ($board_id)\r\n  and si.status = 'DONE'\r\n  AND si.issue_key NOT IN (\r\n    SELECT\r\n  si.issue_key as JiraTicket\r\nFROM\r\n  issues si\r\n  left join issue_relationships ir on ir.source_issue_id = si.id\r\n  left join issues ti on ir.target_issue_id = ti.id\r\n  left JOIN board_issues bi ON si.id = bi.issue_id\r\nWHERE\r\n  si.type in ($type)\r\n  AND $__timeFilter(si.resolution_date)\r\n  AND bi.board_id in ($board_id)\r\n  and (ti.issue_key like 'CTP%' or ti.issue_key like 'NLP%' or ti.issue_key like 'FIP%' or ti.issue_key like 'LPMSC%')\r\n  and si.status = 'DONE'\r\n)\r\nGROUP BY \r\n    time\r\n) as non_epic_issues\r\non epic_issues.time = non_epic_issues.time\r\n;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Verteilung Done Features (Epic vs. non Epic)",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 110,
+      "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "Feature Lead Time",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 14
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 0,
+        "y": 41
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "/^value$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select \r\n  avg(lead_time_minutes/1440) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.type in ($type)\r\n  and i.status = 'DONE'\r\n  and $__timeFilter(i.resolution_date)\r\n  and bi.board_id in ($board_id)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Durchnittliche Lead Time Features [ Features done im ausgwählten Zeitraum]",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Lead Time(days)",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 20,
+        "x": 4,
+        "y": 41
+      },
+      "id": 17,
+      "interval": "",
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _requirements as(\r\n  select \r\n    DATE_ADD(date(i.resolution_date), INTERVAL -DAYOFMONTH(date(i.resolution_date))+1 DAY) as time,\r\n    avg(lead_time_minutes/1440) as mean_lead_time\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    i.type in ($type)\r\n    and i.status = 'DONE'\r\n    and $__timeFilter(i.resolution_date)\r\n    and bi.board_id in ($board_id)\r\n  group by 1\r\n)\r\n\r\nselect \r\n  date_format(time,'%M %Y') as month,\r\n  mean_lead_time\r\nfrom _requirements\r\norder by time asc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Durchnittliche Lead Time Features [ Features done im ausgwählten Zeitraum]",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 21
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 0,
+        "y": 47
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _ranks as(\r\n  select \r\n    i.lead_time_minutes,\r\n    percent_rank() over (order by lead_time_minutes asc) as ranks\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    i.type in ($type)\r\n    and i.status = 'DONE'\r\n    and $__timeFilter(i.resolution_date)\r\n    and bi.board_id in ($board_id)\r\n)\r\n\r\nselect\r\n  max(lead_time_minutes/1440) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "80% Feature Lead Time sind weniger als # Tage[Features Done im ausgwählten Zeitraum]",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ueberlaeufer_offen_count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 15,
+        "x": 0,
+        "y": 53
+      },
+      "id": 149,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "never",
+        "stacking": "normal",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": -90,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "dataset": "lake",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ReleaseDates AS (\r\n    SELECT \r\n        issue_id, \r\n        field_value AS releasedate,\r\n        ROW_NUMBER() OVER (PARTITION BY issue_id ORDER BY field_value) AS rn\r\n    FROM \r\n        issue_custom_array_fields\r\n    WHERE \r\n        field_id = 'x_releasedate'\r\n        -- Filtere nur die Einträge für Release-Daten\r\n       \r\n)\r\nSELECT \r\n    MIN(r.releasedate) AS releasedate,\r\n    -- Bestimme das früheste Release-Datum\r\n    SUM(CASE WHEN i.resolution_date <= r.releasedate THEN 1 ELSE 0 END) AS abgeschlossen_count,\r\n    -- Zähle die Anzahl der rechtzeitig abgeschlossenen Issues\r\n    SUM(CASE WHEN i.resolution_date > r.releasedate THEN 1 ELSE 0 END) AS ueberlaeufer_abgeschlossen_count,\r\n    -- Zähle die Anzahl der Überläufer (später abgeschlossen als geplant)\r\n    SUM(CASE WHEN i.resolution_date IS NULL AND CURRENT_DATE > r.releasedate THEN 1 ELSE 0 END) AS ueberlaeufer_offen_count\r\n    -- Zähle die Anzahl der offenen Überläufer (kein Abschlussdatum und Release-Datum ist vergangen)\r\nFROM \r\n    issues i\r\nJOIN \r\n    ReleaseDates r ON i.id = r.issue_id\r\n    -- Verbinde die Release-Daten mit der Issues-Tabelle\r\nLEFT JOIN \r\n    board_issues bi ON i.id = bi.issue_id\r\n    -- Optionale Verbindung mit der Board-Issues-Tabelle\r\nWHERE\r\n    bi.board_id IN ($board_id)\r\n    -- Filtere nach spezifischen Board-IDs\r\n     and r.releasedate < CURRENT_DATE\r\nGROUP BY \r\n    r.releasedate\r\n    -- Gruppiere die Ergebnisse nach Release-Datum\r\nORDER BY \r\n    MIN(r.releasedate) asc;\r\n    -- Sortiere die Ergebnisse nach dem frühesten Release-Datum\r\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Überläufer",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 9,
+        "x": 15,
+        "y": 53
+      },
+      "id": 151,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "frameIndex": 0,
+        "showHeader": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "dataset": "lake",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ReleaseDates AS (\r\n    SELECT \r\n        issue_id, \r\n        field_value AS releasedate,\r\n        ROW_NUMBER() OVER (PARTITION BY issue_id ORDER BY field_value) AS rn\r\n    FROM \r\n        issue_custom_array_fields\r\n    WHERE \r\n        field_id = 'x_releasedate'\r\n        -- Filtere nur die Einträge für Release-Daten\r\n)\r\nSELECT \r\n    MIN(r.releasedate) AS releasedate,\r\n    -- Bestimme das früheste Release-Datum\r\n    COUNT(i.id) AS issue_count,\r\n    -- Zähle die Anzahl der Issues pro Release-Datum\r\n    SUM(CASE WHEN i.resolution_date <= r.releasedate THEN 1 ELSE 0 END) AS abgeschlossen_count,\r\n    -- Zähle die Anzahl der rechtzeitig abgeschlossenen Issues\r\n    SUM(CASE WHEN i.resolution_date > r.releasedate THEN 1 ELSE 0 END) AS ueberlaeufer_abgeschlossen_count,\r\n    -- Zähle die Anzahl der Überläufer (später abgeschlossen als geplant)\r\n    SUM(CASE WHEN i.resolution_date IS NULL AND CURRENT_DATE > r.releasedate THEN 1 ELSE 0 END) AS ueberlaeufer_offen_count\r\n    -- Zähle die Anzahl der offenen Überläufer (kein Abschlussdatum und Release-Datum ist vergangen)\r\nFROM \r\n    issues i\r\nJOIN \r\n    ReleaseDates r ON i.id = r.issue_id\r\n    -- Verbinde die Release-Daten mit der Issues-Tabelle\r\nLEFT JOIN \r\n    board_issues bi ON i.id = bi.issue_id\r\n    -- Optionale Verbindung mit der Board-Issues-Tabelle\r\nWHERE\r\n    bi.board_id IN ($board_id)\r\n    -- Filtere nach spezifischen Board-IDs\r\nGROUP BY \r\n    r.releasedate\r\n    -- Gruppiere die Ergebnisse nach Release-Datum\r\nORDER BY \r\n    MIN(r.releasedate) DESC;\r\n    -- Sortiere die Ergebnisse nach dem frühesten Release-Datum\r\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Panel Title",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 9,
+        "x": 15,
+        "y": 65
+      },
+      "id": 150,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "dataset": "lake",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ReleaseDates AS (\r\n    SELECT \r\n        issue_id, \r\n        field_value AS releasedate\r\n    FROM \r\n        issue_custom_array_fields\r\n    WHERE \r\n        field_id = 'x_releasedate'\r\n        -- Filtere nur die Einträge für Release-Daten\r\n)\r\nSELECT \r\n    i.issue_key,\r\n    i.resolution_date,\r\n    r.releasedate\r\nFROM \r\n    issues i\r\nJOIN \r\n    ReleaseDates r ON i.id = r.issue_id\r\n    -- Verbinde die Release-Daten mit der Issues-Tabelle\r\nLEFT JOIN \r\n    board_issues bi ON i.id = bi.issue_id\r\n    -- Optionale Verbindung mit der Board-Issues-Tabelle\r\nWHERE\r\n    bi.board_id IN ($board_id)\r\n    -- Filtere nach spezifischen Board-IDs\r\nORDER BY \r\n    r.releasedate, i.issue_key;\r\n    -- Sortiere die Ergebnisse nach Release-Datum und Issue-Key\r\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Panel Title",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": [
+    "Migros"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "ART Cloud Enablement - Program Board"
+          ],
+          "value": [
+            "jira:JiraBoard:2:4533"
+          ]
+        },
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
+        "definition": "select concat(name, '--', id) from boards where id like 'jira%' and  name like 'ART%'",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Choose Board",
+        "multi": true,
+        "name": "board_id",
+        "options": [],
+        "query": "select concat(name, '--', id) from boards where id like 'jira%' and  name like 'ART%'",
+        "refresh": 1,
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
+        "definition": "select distinct type from issues limit 50",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Issue Type",
+        "multi": false,
+        "name": "type",
+        "options": [],
+        "query": "select distinct type from issues limit 50",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Jira ART",
+  "uid": "jiradashboardARTS",
+  "version": 46,
+  "weekStart": ""
+}
