@@ -29,6 +29,8 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -138,7 +140,6 @@ func createTmpTableInStarrocks(dc *DataConfigParams) (map[string]string, string,
 	table := dc.SrcTableName
 	starrocksTable := dc.DestTableName
 	starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
-
 	columnMetas, err := db.GetColumns(&Table{name: table}, nil)
 	updateColumn := config.UpdateColumn
 	columnMap := make(map[string]string)
@@ -163,8 +164,21 @@ func createTmpTableInStarrocks(dc *DataConfigParams) (map[string]string, string,
 	} else {
 		return nil, "", false, errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
 	}
+	tableConfig, ok := config.TableConfigs[table]
 	for _, cm := range columnMetas {
 		name := cm.Name()
+		if ok {
+			if len(tableConfig.ExcludedColumns) > 0 {
+				if slices.Contains(tableConfig.ExcludedColumns, name) {
+					continue
+				}
+			}
+			if len(tableConfig.IncludedColumns) > 0 {
+				if !slices.Contains(tableConfig.IncludedColumns, name) {
+					continue
+				}
+			}
+		}
 		if name == updateColumn {
 			// check update column to detect skip or not
 			var updatedFrom time.Time
@@ -276,7 +290,6 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 		} else {
 			return err
 		}
-
 	}
 	defer rows.Close()
 
