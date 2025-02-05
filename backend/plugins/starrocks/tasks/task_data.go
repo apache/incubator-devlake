@@ -20,6 +20,7 @@ package tasks
 type TableConfig struct {
 	IncludedColumns []string `mapstructure:"included_columns"`
 	ExcludedColumns []string `mapstructure:"excluded_columns"`
+	Where           string   `mapstructure:"where"`
 }
 
 type StarRocksConfig struct {

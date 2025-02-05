@@ -269,13 +269,18 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 	table := dc.SrcTableName
 	starrocksTable := dc.DestTableName
 	starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
-
+	tableConfig, ok := config.TableConfigs[table]
+	where := ""
+	if ok {
+		where = tableConfig.Where
+	}
 	var offset int
 	var err error
 	var rows dal.Rows
 	rows, err = db.Cursor(
 		dal.From(table),
 		dal.Orderby(orderBy),
+		dal.Where(where),
 	)
 	if err != nil {
 		if strings.Contains(err.Error(), "cached plan must not change result type") {
@@ -283,6 +288,7 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 			rows, err = db.Cursor(
 				dal.From(table),
 				dal.Orderby(orderBy),
+				dal.Where(where),
 			)
 			if err != nil {
 				return err
