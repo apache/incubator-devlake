@@ -40,10 +40,11 @@ services:
       GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_DASHBOARDS_JSON_ENABLED: 'true'
       GF_LIVE_ALLOWED_ORIGINS: '*'
-      MYSQL_URL: mysql:3306
-      MYSQL_DATABASE: lake
-      MYSQL_USER: merico
-      MYSQL_PASSWORD: merico
+      DB_TYPE: mysql
+      DB_HOST: mysql:3306
+      DB_DATABASE: lake
+      DB_USER: merico
+      DB_PASSWORD: merico
     restart: always
     depends_on:
       - mysql
