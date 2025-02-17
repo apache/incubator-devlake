@@ -110,7 +110,7 @@ If you plan to contribute code to Apache DevLake, we have instructions on how to
 
 ### 📄 Contributing Documentation
 
-One of the best ways to get started contributing is by improving DevLake's documentation.
+One of the best ways to get started contributing is by improving DevLake's documentation. That's could be amazing test.
 
 - Apache DevLake's documentation is hosted at [devlake.apache.org](https://devlake.apache.org/)
 - **We have a separate GitHub repository for Apache DevLake's documentation:** [github.com/apache/incubator-devlake-website](https://github.com/apache/incubator-devlake-website)
