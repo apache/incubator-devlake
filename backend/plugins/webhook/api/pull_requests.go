@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"crypto/md5"
 	"fmt"
 	"net/http"
 	"time"
@@ -30,7 +29,6 @@ import (
 	"github.com/go-playground/validator/v10"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -39,33 +37,33 @@ import (
 )
 
 type WebhookPullRequestReq struct {
-	Id             string `mapstructure:"id" validate:"required"`
-	BaseRepoId     string
-	HeadRepoId     string
-	Status         string `validate:"omitempty,oneof=OPEN CLOSED MERGED"`
-	OriginalStatus string
-	Title          string `mapstructure:"displayTitle"`
-	Description    string
-	Url            string `mapstructure:"url"`
-	AuthorName     string
-	AuthorId       string
-	MergedByName   string
-	MergedById     string
-	ParentPrId     string
-	PullRequestKey int
-	CreatedDate    *time.Time `mapstructure:"createdDate"`
-	MergedDate     *time.Time
-	ClosedDate     *time.Time
-	Type           string
-	Component      string
-	MergeCommitSha string
-	HeadRef        string
-	BaseRef        string
-	BaseCommitSha  string
-	HeadCommitSha  string
-	Additions      int
-	Deletions      int
-	IsDraft        bool
+	Id             string     `mapstructure:"id" validate:"required"`
+	BaseRepoId     string     `mapstructure:"baseRepoId"`
+	HeadRepoId     string     `mapstructure:"headRepoId"`
+	Status         string     `mapstructure:"status" validate:"omitempty,oneof=OPEN CLOSED MERGED"`
+	OriginalStatus string     `mapstructure:"originalStatus"`
+	Title          string     `mapstructure:"displayTitle" validate:"required"`
+	Description    string     `mapstructure:"description"`
+	Url            string     `mapstructure:"url"`
+	AuthorName     string     `mapstructure:"authorName"`
+	AuthorId       string     `mapstructure:"authorId"`
+	MergedByName   string     `mapstructure:"mergedByName"`
+	MergedById     string     `mapstructure:"mergedById"`
+	ParentPrId     string     `mapstructure:"parentPrId"`
+	PullRequestKey int        `mapstructure:"pullRequestKey" validate:"required"`
+	CreatedDate    *time.Time `mapstructure:"createdDate" validate:"required"`
+	MergedDate     *time.Time `mapstructure:"mergedDate"`
+	ClosedDate     *time.Time `mapstructure:"closedDate"`
+	Type           string     `mapstructure:"type"`
+	Component      string     `mapstructure:"component"`
+	MergeCommitSha string     `mapstructure:"mergeCommitSha"`
+	HeadRef        string     `mapstructure:"headRef"`
+	BaseRef        string     `mapstructure:"baseRef"`
+	BaseCommitSha  string     `mapstructure:"baseCommitSha"`
+	HeadCommitSha  string     `mapstructure:"headCommitSha"`
+	Additions      int        `mapstructure:"additions"`
+	Deletions      int        `mapstructure:"deletions"`
+	IsDraft        bool       `mapstructure:"isDraft"`
 	// PullRequestCommits is used for multiple commits in one pull request
 	//PullRequestCommits []WebhookPullRequestCommitReq `mapstructure:"pullRequestCommits" validate:"omitempty,dive"`
 }
@@ -162,7 +160,6 @@ func CreatePullRequest(connection *models.WebhookConnection, request *WebhookPul
 	//	return errors.BadInput.New("pull_request_commits is empty")
 	//}
 	// set default values for optional fields
-	pullRequestID := request.Id
 	// prepare pull request commits and pull request records
 	// queuedDuration := dateInfo.CalculateQueueDuration()
 	//prCommits := make([]*code.PullRequestCommit, len(request.PullRequestCommits))
@@ -170,9 +167,10 @@ func CreatePullRequest(connection *models.WebhookConnection, request *WebhookPul
 	//	if commit.Name == "" {
 	//		commit.Name = fmt.Sprintf(`commit for %s`, commit.CommitSha)
 	//	}
-	//	if commit.CreatedDate == nil {
-	//		commit.CreatedDate = &createdDate
-	//	}
+	//createdDate := time.Now()
+	//if request.CreatedDate == nil {
+	//	request.CreatedDate = &createdDate
+	//}
 	//	if commit.StartedDate == nil {
 	//		commit.StartedDate = request.StartedDate
 	//	}
@@ -201,7 +199,7 @@ func CreatePullRequest(connection *models.WebhookConnection, request *WebhookPul
 	// create a pull_request record
 	pullRequest := code.PullRequest{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: pullRequestID,
+			Id: fmt.Sprintf("%s:%d:%d", "webhook", connection.ID, request.PullRequestKey),
 		},
 		BaseRepoId:     request.BaseRepoId,
 		HeadRepoId:     request.HeadRepoId,
