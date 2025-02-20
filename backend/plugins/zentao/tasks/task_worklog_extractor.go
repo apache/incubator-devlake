@@ -44,56 +44,51 @@ func ExtractTaskWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 			Table:   RAW_TASK_WORKLOGS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			var worklogs []struct {
-				Id         uint64  `json:"id"`
+			var input struct {
+				Id         int64   `json:"id"`
 				ObjectType string  `json:"objectType"`
-				ObjectId   uint64  `json:"objectID"`
+				ObjectId   int64   `json:"objectID"`
 				Product    string  `json:"product"`
-				Project    uint64  `json:"project"`
-				Execution  uint64  `json:"Execution"`
+				Project    int64   `json:"project"`
+				Execution  int64   `json:"Execution"`
 				Account    string  `json:"account"`
 				Work       string  `json:"work"`
 				Vision     string  `json:"vision"`
 				Date       string  `json:"date"`
 				Left       float32 `json:"left"`
 				Consumed   float32 `json:"consumed"`
-				Begin      uint64  `json:"begin"`
-				End        uint64  `json:"end"`
+				Begin      int64   `json:"begin"`
+				End        int64   `json:"end"`
 				Extra      *string `json:"extra"`
-				Order      uint64  `json:"order"`
+				Order      int64   `json:"order"`
 				Deleted    string  `json:"deleted"`
 			}
 
-			err := errors.Convert(json.Unmarshal(row.Data, &worklogs))
+			err := errors.Convert(json.Unmarshal(row.Data, &input))
 			if err != nil {
 				return nil, err
 			}
-			results := make([]interface{}, 0, len(worklogs))
-			for _, effort := range worklogs {
-				worklog := &models.ZentaoWorklog{
-					ConnectionId: data.Options.ConnectionId,
-					Id:           effort.Id,
-					ObjectId:     effort.ObjectId,
-					ObjectType:   effort.ObjectType,
-					Project:      effort.Project,
-					Execution:    effort.Execution,
-					Product:      effort.Product,
-					Account:      effort.Account,
-					Work:         effort.Work,
-					Vision:       effort.Vision,
-					Date:         effort.Date,
-					Left:         effort.Left,
-					Consumed:     effort.Consumed,
-					Begin:        effort.Begin,
-					End:          effort.End,
-					Extra:        effort.Extra,
-					Order:        effort.Order,
-					Deleted:      effort.Deleted,
-				}
-				results = append(results, worklog)
+			worklog := &models.ZentaoWorklog{
+				ConnectionId: data.Options.ConnectionId,
+				Id:           input.Id,
+				ObjectId:     input.ObjectId,
+				ObjectType:   input.ObjectType,
+				Project:      input.Project,
+				Execution:    input.Execution,
+				Product:      input.Product,
+				Account:      input.Account,
+				Work:         input.Work,
+				Vision:       input.Vision,
+				Date:         input.Date,
+				Left:         input.Left,
+				Consumed:     input.Consumed,
+				Begin:        input.Begin,
+				End:          input.End,
+				Extra:        input.Extra,
+				Order:        input.Order,
+				Deleted:      input.Deleted,
 			}
-
-			return results, nil
+			return []interface{}{worklog}, nil
 		},
 	})
 
