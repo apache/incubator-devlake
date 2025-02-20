@@ -93,6 +93,7 @@ func (p Zentao) GetTablesInfo() []dal.Tabler {
 		&models.ZentaoExecutionSummary{},
 		&models.ZentaoProductSummary{},
 		&models.ZentaoProjectStory{},
+		&models.ZentaoWorklog{},
 	}
 }
 
@@ -162,6 +163,10 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.DBGetChangelogMeta,
 		tasks.ConvertChangelogMeta,
+
+		tasks.CollectTaskWorklogsMeta,
+		tasks.ExtractTaskWorklogsMeta,
+		tasks.ConvertTaskWorklogsMeta,
 	}
 }
 
