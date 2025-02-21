@@ -38,8 +38,7 @@ func TestZentaoTaskWorklogDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectId:    48,
 		},
-		ApiClient:   getFakeAPIClient(),
-		HomePageURL: getFakeHomepage(),
+		ApiClient: getFakeAPIClient(),
 	}
 
 	// import _raw_zentao_api_task_worklogs raw data table
