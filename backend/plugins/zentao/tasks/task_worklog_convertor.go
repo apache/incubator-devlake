@@ -88,19 +88,28 @@ func ConvertTaskWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "failed to convert zentao task worklog date")
 			}
+			// zentao task only has one field as date type for worklog creation
 			domainL.StartedDate = &timeData
 			domainL.LoggedDate = &timeData
 
 			domainL.IssueId = taskIdGen.Generate(data.Options.ConnectionId, toolL.ObjectId)
 
+			// get ID of account by username
 			var account models.ZentaoAccount
 			err = db.First(&account, dal.Where("connection_id = ? AND account = ?",
 				data.Options.ConnectionId, toolL.Account))
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "failed to get zentao account by account")
+				// if account isn't available, giving empty string as ID
+				if db.IsErrorNotFound(err) {
+					logger.Warn(nil, "cannot find zentao account by account: %s", toolL.Account)
+					domainL.AuthorId = ""
+				} else {
+					return nil, errors.Default.Wrap(err, "failed to get zentao account by account")
+				}
+			} else {
+				accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
+				domainL.AuthorId = accountIdGen.Generate(account.ConnectionId, account.ID)
 			}
-			accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
-			domainL.AuthorId = accountIdGen.Generate(account.ConnectionId, account.ID)
 
 			return []interface{}{
 				domainL,

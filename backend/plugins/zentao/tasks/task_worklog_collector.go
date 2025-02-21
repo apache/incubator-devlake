@@ -88,9 +88,6 @@ func CollectTaskWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:     data.ApiClient,
 		UrlTemplate:   "tasks/{{ .Input.Id }}/estimate",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
-			// According to the following resources, the worklogs API returns all worklogs without pagination
-			// https://community.atlassian.com/t5/Jira-questions/Worklog-Pagination/qaq-p/117614
-			// https://community.atlassian.com/t5/Jira-questions/Worklog-Pagination-JIRA-REST-API/qaq-p/2173832
 			return nil, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
