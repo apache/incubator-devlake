@@ -18,20 +18,25 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addScopeConfigTables),
-		new(addIssueRepoCommitsTables),
-		new(addInitChangelogTables),
-		new(addTaskLeft),
-		new(addExecutionStoryAndExecutionSummary),
-		new(addRawParamTableForScope),
-		new(dropTotalReal),
-		new(addWorklogs),
-	}
+type addWorklogs struct{}
+
+func (*addWorklogs) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.ZentaoWorklog{},
+	)
+}
+
+func (*addWorklogs) Version() uint64 {
+	return 20250219153329
+}
+
+func (*addWorklogs) Name() string {
+	return "add table _tool_zentao_worklogs"
 }
