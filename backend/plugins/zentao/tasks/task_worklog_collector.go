@@ -84,9 +84,9 @@ func CollectTaskWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// collect task worklogs
 	err = apiCollector.InitCollector(api.ApiCollectorArgs{
-		Input:         iterator,
-		ApiClient:     data.ApiClient,
-		UrlTemplate:   "tasks/{{ .Input.Id }}/estimate",
+		Input:       iterator,
+		ApiClient:   data.ApiClient,
+		UrlTemplate: "tasks/{{ .Input.Id }}/estimate",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			return nil, nil
 		},

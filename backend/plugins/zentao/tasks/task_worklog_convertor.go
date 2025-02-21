@@ -73,8 +73,8 @@ func ConvertTaskWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 			Options: data.Options,
 			Table:   RAW_TASK_WORKLOGS_TABLE,
 		},
-		InputRowType:       reflect.TypeOf(models.ZentaoWorklog{}),
-		Input:              cursor,
+		InputRowType: reflect.TypeOf(models.ZentaoWorklog{}),
+		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolL := inputRow.(*models.ZentaoWorklog)
 			domainL := &ticket.IssueWorklog{

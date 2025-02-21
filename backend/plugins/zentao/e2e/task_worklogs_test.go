@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -56,9 +56,9 @@ func TestZentaoTaskWorklogDataFlow(t *testing.T) {
 	})
 
 	// verify task repo commit conversion
-	dataflowTester.FlushTabler(&crossdomain.IssueWorklog{})
+	dataflowTester.FlushTabler(&ticket.IssueWorklog{})
 	dataflowTester.Subtask(tasks.ConvertTaskWorklogsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&crossdomain.IssueWorklog{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&ticket.IssueWorklog{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/issue_worklogs.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
