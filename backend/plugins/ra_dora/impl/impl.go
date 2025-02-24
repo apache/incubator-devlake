@@ -3,22 +3,17 @@ package impl
 import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 
-	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/ae/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/gitlab/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
+	"github.com/apache/incubator-devlake/plugins/ra_dora/tasks"
 )
 
 var _ interface {
 	plugin.PluginMeta
-	plugin.PluginInit
 	plugin.PluginTask
 	plugin.PluginModel
-	plugin.PluginMigration
 	plugin.PluginSource
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
@@ -39,12 +34,6 @@ func init() {
 	if _, err := sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort(); err != nil {
 		panic(err)
 	}
-}
-
-func (r RaDoraMetrics) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes, r)
-
-	return nil
 }
 
 func (r RaDoraMetrics) Description() string {
@@ -88,7 +77,7 @@ func (r RaDoraMetrics) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 }
 
 func (r RaDoraMetrics) MigrationScripts() []plugin.MigrationScript {
-	return migrationscripts.All()
+	return nil
 }
 
 func (r RaDoraMetrics) TestConnection(id uint64) errors.Error {
