@@ -18,22 +18,28 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(encodeConnToken),
-		new(addTransformation),
-		new(deleteIssue),
-		new(modifyCustomFieldName),
-		new(addCustomFieldValue),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addConnIdToLabels),
-		new(addCompanyIdToConnection),
-		new(addLifetimeTables),
+var _ plugin.MigrationScript = (*addLifetimeTables)(nil)
+
+type addLifetimeTables struct{}
+
+func (*addLifetimeTables) Up(basicRes context.BasicRes) errors.Error {
+	err := basicRes.GetDal().AutoMigrate(&models.TapdLifeTime{})
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to create tapd_life_times table")
 	}
+	return nil
+}
+
+func (*addLifetimeTables) Version() uint64 {
+	return 20250221000000
+}
+
+func (*addLifetimeTables) Name() string {
+	return "add tapd lifetime tables"
 }
