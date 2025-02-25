@@ -22,6 +22,7 @@ export interface IWebhookAPI {
   postIssuesEndpoint: string;
   closeIssuesEndpoint: string;
   postPipelineDeployTaskEndpoint: string;
+  postPullRequestsEndpoint: string;
   apiKey: {
     id: number;
     apiKey: string;
@@ -34,5 +35,6 @@ export interface IWebhook {
   postIssuesEndpoint: string;
   closeIssuesEndpoint: string;
   postPipelineDeployTaskEndpoint: string;
+  postPullRequestsEndpoint: string;
   apiKeyId: number;
 }

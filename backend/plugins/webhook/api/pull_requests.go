@@ -197,7 +197,7 @@ func CreatePullRequest(connection *models.WebhookConnection, request *WebhookPul
 	//}
 
 	// create a pull_request record
-	pullRequest := code.PullRequest{
+	pullRequest := &code.PullRequest{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: fmt.Sprintf("%s:%d:%d", "webhook", connection.ID, request.PullRequestKey),
 		},
