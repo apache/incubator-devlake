@@ -50,6 +50,26 @@ export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) 
         }
       ]
     }'`,
-    postPullRequestsEndpoint: `curl ${prefix}${webhook.postPullRequestsEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'}'`,
+    postPullRequestsEndpoint: `curl ${prefix}${webhook.postPullRequestsEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
+      }' -d '{
+      "id": "Required. This will be the unique ID of the pull request",
+      "baseRepoId": "Required. This must be in the format webhook:{connectionId} e.g. webhook:1",
+      "headRepoId": "your-repo-id",
+      "status": "MERGED",
+      "originalStatus": "OPEN",
+      "displayTitle": "Feature: Add new functionality",
+      "description": "This PR adds new features",
+      "url": "https://github.com/org/repo/pull/1",
+      "pullRequestKey": 1,
+      "createdDate": "2025-02-20T16:17:36Z",
+      "mergedDate": "2025-02-20T17:17:36Z",
+      "closedDate": null,
+      "mergeCommitSha": "bf0a79c57dff8f5f1f393de315ee5105a535e059",
+      "headRef": "your-branch-name",
+      "baseRef": "main",
+      "baseCommitSha": "e73325c2c9863f42ea25871cbfaeebcb8edcf604",
+      "headCommitSha": "b22f772f1197edfafd4cc5fe679a2d299ec12837",
+      "isDraft": false
+    }`,
   };
 };

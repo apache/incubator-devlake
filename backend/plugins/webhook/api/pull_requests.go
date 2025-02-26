@@ -38,7 +38,7 @@ import (
 
 type WebhookPullRequestReq struct {
 	Id             string     `mapstructure:"id" validate:"required"`
-	BaseRepoId     string     `mapstructure:"baseRepoId"`
+	BaseRepoId     string     `mapstructure:"baseRepoId" validate:"required"`
 	HeadRepoId     string     `mapstructure:"headRepoId"`
 	Status         string     `mapstructure:"status" validate:"omitempty,oneof=OPEN CLOSED MERGED"`
 	OriginalStatus string     `mapstructure:"originalStatus"`
@@ -51,7 +51,7 @@ type WebhookPullRequestReq struct {
 	MergedById     string     `mapstructure:"mergedById"`
 	ParentPrId     string     `mapstructure:"parentPrId"`
 	PullRequestKey int        `mapstructure:"pullRequestKey" validate:"required"`
-	CreatedDate    *time.Time `mapstructure:"createdDate" validate:"required"`
+	CreatedDate    time.Time  `mapstructure:"createdDate" validate:"required"`
 	MergedDate     *time.Time `mapstructure:"mergedDate"`
 	ClosedDate     *time.Time `mapstructure:"closedDate"`
 	Type           string     `mapstructure:"type"`
@@ -64,32 +64,13 @@ type WebhookPullRequestReq struct {
 	Additions      int        `mapstructure:"additions"`
 	Deletions      int        `mapstructure:"deletions"`
 	IsDraft        bool       `mapstructure:"isDraft"`
-	// PullRequestCommits is used for multiple commits in one pull request
-	//PullRequestCommits []WebhookPullRequestCommitReq `mapstructure:"pullRequestCommits" validate:"omitempty,dive"`
 }
-
-//type WebhookPullRequestCommitReq struct {
-//	DisplayTitle string     `mapstructure:"displayTitle"`
-//	RepoId       string     `mapstructure:"repoId"`
-//	RepoUrl      string     `mapstructure:"repoUrl" validate:"required"`
-//	Name         string     `mapstructure:"name"`
-//	RefName      string     `mapstructure:"refName"`
-//	CommitSha    string     `mapstructure:"commitSha" validate:"required"`
-//	CommitMsg    string     `mapstructure:"commitMsg"`
-//	Result       string     `mapstructure:"result"`
-//	Status       string     `mapstructure:"status"`
-//	CreatedDate  *time.Time `mapstructure:"createdDate"`
-//	// QueuedDate   *time.Time `mapstructure:"queue_time"`
-//	StartedDate  *time.Time `mapstructure:"startedDate" validate:"required"`
-//	FinishedDate *time.Time `mapstructure:"finishedDate" validate:"required"`
-//}
 
 // PostPullRequests
 // @Summary create pull requests by webhook
 // @Description Create pull request by webhook.<br/>
-// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
-// @Description So we suggest request before task after deployment pipeline finish.
-// @Description Both cicd_pipeline and cicd_task will be created
+// @Description example1: {"id": "pr1","baseRepoId": "webhook:1","headRepoId": "repo_fork1","status": "MERGED","originalStatus": "OPEN","displayTitle": "Feature: Add new functionality","description": "This PR adds new features","url": "https://github.com/org/repo/pull/1","authorName": "johndoe","authorId": "johnd123","mergedByName": "janedoe","mergedById": "janed123","parentPrId": "","pullRequestKey": 1,"createdDate": "2025-02-20T16:17:36Z","mergedDate": "2025-02-20T17:17:36Z","closedDate": null,"type": "feature","component": "backend","mergeCommitSha": "bf0a79c57dff8f5f1f393de315ee5105a535e059","headRef": "repo_fork1:feature-branch","baseRef": "main","baseCommitSha": "e73325c2c9863f42ea25871cbfaeebcb8edcf604","headCommitSha": "b22f772f1197edfafd4cc5fe679a2d299ec12837","additions": 100,"deletions": 50,"isDraft": false}<br/>
+// @Description "baseRepoId" must be equal to "webhook:{connectionId}" for this to work correctly and calculate DORA metrics
 // @Tags plugins/webhook
 // @Param body body WebhookPullRequestReq true "json body"
 // @Success 200
@@ -107,9 +88,8 @@ func PostPullRequests(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // PostPullRequestsByName
 // @Summary create pull requests by webhook name
 // @Description Create pull request by webhook name.<br/>
-// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
-// @Description So we suggest request before task after deployment pipeline finish.
-// @Description Both cicd_pipeline and cicd_task will be created
+// @Description example1: {"id": "pr1","baseRepoId": "webhook:1","headRepoId": "repo_fork1","status": "MERGED","originalStatus": "OPEN","displayTitle": "Feature: Add new functionality","description": "This PR adds new features","url": "https://github.com/org/repo/pull/1","authorName": "johndoe","authorId": "johnd123","mergedByName": "janedoe","mergedById": "janed123","parentPrId": "","pullRequestKey": 1,"createdDate": "2025-02-20T16:17:36Z","mergedDate": "2025-02-20T17:17:36Z","closedDate": null,"type": "feature","component": "backend","mergeCommitSha": "bf0a79c57dff8f5f1f393de315ee5105a535e059","headRef": "repo_fork1:feature-branch","baseRef": "main","baseCommitSha": "e73325c2c9863f42ea25871cbfaeebcb8edcf604","headCommitSha": "b22f772f1197edfafd4cc5fe679a2d299ec12837","additions": 100,"deletions": 50,"isDraft": false}<br/>
+// @Description "baseRepoId" must be equal to "webhook:{connectionId}" for this to work correctly and calculate DORA metrics
 // @Tags plugins/webhook
 // @Param body body WebhookPullRequestReq true "json body"
 // @Success 200
@@ -156,46 +136,6 @@ func CreatePullRequest(connection *models.WebhookConnection, request *WebhookPul
 	if request == nil {
 		return errors.BadInput.New("request body is nil")
 	}
-	//if len(request.PullRequestCommits) == 0 {
-	//	return errors.BadInput.New("pull_request_commits is empty")
-	//}
-	// set default values for optional fields
-	// prepare pull request commits and pull request records
-	// queuedDuration := dateInfo.CalculateQueueDuration()
-	//prCommits := make([]*code.PullRequestCommit, len(request.PullRequestCommits))
-	//for i, commit := range request.PullRequestCommits {
-	//	if commit.Name == "" {
-	//		commit.Name = fmt.Sprintf(`commit for %s`, commit.CommitSha)
-	//	}
-	//createdDate := time.Now()
-	//if request.CreatedDate == nil {
-	//	request.CreatedDate = &createdDate
-	//}
-	//	if commit.StartedDate == nil {
-	//		commit.StartedDate = request.StartedDate
-	//	}
-	//	if commit.FinishedDate == nil {
-	//		commit.FinishedDate = request.FinishedDate
-	//	}
-	//	// create a pull_request_commits record
-	//	prCommits[i] = &code.PullRequestCommit{
-	//		CommitSha:          commit.CommitSha,
-	//		PullRequestId:      request.Id,
-	//		CommitAuthorName:   commit.AuthorName,
-	//		CommitAuthorEmail:  commit.AuthorEmail,
-	//		CommitAuthoredDate: *commit.CreatedDate,
-	//		NoPKModel: common.NoPKModel{
-	//			CreatedAt: *commit.CreatedDate,
-	//			UpdatedAt: commit.UpdatedAt,
-	//		},
-	//	}
-	//}
-
-	//if err := tx.CreateOrUpdate(prCommits); err != nil {
-	//	logger.Error(err, "failed to save pull request commits")
-	//	return err
-	//}
-
 	// create a pull_request record
 	pullRequest := &code.PullRequest{
 		DomainEntity: domainlayer.DomainEntity{
@@ -214,7 +154,7 @@ func CreatePullRequest(connection *models.WebhookConnection, request *WebhookPul
 		MergedById:     request.MergedById,
 		ParentPrId:     request.ParentPrId,
 		PullRequestKey: request.PullRequestKey,
-		CreatedDate:    *request.CreatedDate,
+		CreatedDate:    request.CreatedDate,
 		MergedDate:     request.MergedDate,
 		ClosedDate:     request.ClosedDate,
 		Type:           request.Type,

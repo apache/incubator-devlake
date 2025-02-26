@@ -55,6 +55,7 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (coreModels.PipelinePla
 		Name: connection.Name,
 	})
 
+	// add repos to scopes
 	scopes = append(scopes, &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: fmt.Sprintf("%s:%d", "webhook", connection.ID),
