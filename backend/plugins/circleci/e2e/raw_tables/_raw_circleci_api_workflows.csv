@@ -104,7 +104,7 @@ id,params,data,url,input,created_at
     ""name"" : ""workflow"",
     ""project_slug"" : ""gh/coldgust/coldgust.github.io"",
     ""status"" : ""failed"",
-    ""started_by"" : ""1c762fc2-b0fb-4fe2-97d2-5e54ddd1eba7"",
+    ""started_by"" : """",
     ""pipeline_number"" : 16,
     ""created_at"" : """",
     ""stopped_at"" : """"
