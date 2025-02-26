@@ -62,11 +62,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 			userTool := inputRow.(*models.CircleciWorkflow)
 			// Check if CreatedDate is null
 			if userTool.CreatedDate == nil {
-				if userTool.PipelineId != nil {
-					logger.Warn("CreatedDate is null in the CircleCI API response for %s", userTool.PipelineId)
-				} else {
-					logger.Warn("CreatedDate is null in the CircleCI API response, skipping this entry")
-				}
+				logger.Info("CreatedDate is null in the CircleCI API response for %s", userTool.PipelineId)
 				return nil, nil
 			}
 			createdAt := userTool.CreatedDate.ToTime()
