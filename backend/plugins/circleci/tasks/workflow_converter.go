@@ -40,6 +40,9 @@ var ConvertWorkflowsMeta = plugin.SubTaskMeta{
 
 func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKFLOW_TABLE)
+	logger := taskCtx.GetLogger()
+	logger.Info("convert workflows")
+
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.CircleciWorkflow{}),
@@ -57,6 +60,15 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciWorkflow)
+			// Check if CreatedDate is null
+			if userTool.CreatedDate == nil {
+				if userTool.PipelineId != nil {
+					logger.Warn("CreatedDate is null in the CircleCI API response for %s", userTool.PipelineId)
+				} else {
+					logger.Warn("CreatedDate is null in the CircleCI API response, skipping this entry")
+				}
+				return nil, nil
+			}
 			createdAt := userTool.CreatedDate.ToTime()
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
