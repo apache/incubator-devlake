@@ -3,37 +3,25 @@ package tasks
 import (
 	"encoding/json"
 	"log"
-	"strconv"
 
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-const (
-	RAW_DEPLOYMENT = "ra_deployment"
-)
-
-type RaDoraTaskData struct {
-	Deployments *models.CICDDeployment
-}
-
 // Task metadata
 var CollectDeploymentsMeta = plugin.SubTaskMeta{
-	Name: "collect_deployments",
-	EntryPoint: func(taskCtx plugin.SubTaskContext) errors.Error {
-		return errors.Convert(CollectDeployments(taskCtx))
-	},
+	Name:             "collect_deployments",
+	EntryPoint:       CollectDeployment,
 	EnabledByDefault: true,
-	Description:      "Coleta deployments do ArgoCD via banco de dados",
+	Description:      "Coleta deployments do banco PostgreSQL do ArgoCD",
 }
 
 // Coletor principal
-func CollectDeployments(taskCtx plugin.SubTaskContext) error {
+func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	cfg := config.GetConfig()
 	host := cfg.GetString("POSTGRESQL_HOST")
 	user := cfg.GetString("POSTGRESQL_USER")
@@ -44,50 +32,34 @@ func CollectDeployments(taskCtx plugin.SubTaskContext) error {
 	dsn := "host=" + host + " user=" + user + " password=" + password + " dbname=" + dbname + " port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "Erro ao conectar ao banco PostgreSQL")
 	}
 
 	// Buscar dados da tabela cicd_deployments
-	var deployments []models.CICDDeployment
+	var deployments []models.DatabaseDeployments
 	result := db.Find(&deployments)
 	if result.Error != nil {
-		return result.Error
+		return errors.Default.Wrap(err, "Erro ao buscar deployments")
 	}
 
-	// Inserir dados na tabela _raw
-	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
+	// Obtendo o DAL (Data Access Layer) do DevLakes
+	devlakeDb := taskCtx.GetDal()
+
+	// Salvando os deployments no banco _raw do DevLake
 	for _, deployment := range deployments {
-		err := InsertRawData(rawDataSubTaskArgs, deployment)
+		data, err := json.Marshal(deployment)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "Erro ao serializar dados")
+		}
+
+		rawDeployment := models.RawDeployments{RawData: string(data)}
+
+		err = devlakeDb.Create(&rawDeployment)
+		if err != nil {
+			return errors.Default.Wrap(err, "Erro ao salvar deployment no banco _raw do DevLake")
 		}
 	}
 
 	log.Println("Coleta de deployments concluída com sucesso!")
 	return nil
-}
-
-func CreateRawDataSubTaskArgs(subtaskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *RaDoraTaskData) {
-	data := subtaskCtx.GetData().(*RaDoraTaskData)
-	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx:   subtaskCtx,
-		Table: Table,
-	}
-	return rawDataSubTaskArgs, data
-}
-
-func InsertRawData(args *api.RawDataSubTaskArgs, deployment models.CICDDeployment) error {
-	value, _ := strconv.ParseUint(deployment.ID, 10, 64)
-
-	rawData := &api.RawData{
-		ID: value,
-		Data: func() []byte {
-			data, err := json.Marshal(deployment)
-			if err != nil {
-				log.Fatalf("failed to marshal deployment: %v", err)
-			}
-			return data
-		}(),
-	}
-	return args.Ctx.GetDal().Create(rawData)
 }
