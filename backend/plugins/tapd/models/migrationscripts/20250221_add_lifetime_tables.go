@@ -18,29 +18,30 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
 type TapdLifeTime struct {
-	ConnectionId uint64          `gorm:"primaryKey"`
-	Id           uint64          `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
-	WorkspaceId  uint64          `json:"workspace_id,string"`
-	EntityType   string          `json:"entity_type" gorm:"type:varchar(255)"`
-	EntityId     uint64          `json:"entity_id,string"`
-	Status       string          `json:"status" gorm:"type:varchar(255)"`
-	Owner        string          `json:"owner" gorm:"type:varchar(255)"`
-	BeginDate    *common.CSTTime `json:"begin_date"`
-	EndDate      *common.CSTTime `json:"end_date"`
-	TimeCost     float64         `json:"time_cost,string"`
-	Created      *common.CSTTime `json:"created"`
-	Operator     string          `json:"operator" gorm:"type:varchar(255)"`
-	IsRepeated   int             `json:"is_repeated,string"`
-	ChangeFrom   string          `json:"change_from" gorm:"type:varchar(255)"`
+	ConnectionId uint64     `gorm:"primaryKey"`
+	Id           uint64     `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
+	WorkspaceId  uint64     `json:"workspace_id,string"`
+	EntityType   string     `json:"entity_type" gorm:"type:varchar(255)"`
+	EntityId     uint64     `json:"entity_id,string"`
+	Status       string     `json:"status" gorm:"type:varchar(255)"`
+	Owner        string     `json:"owner" gorm:"type:varchar(255)"`
+	BeginDate    *time.Time `json:"begin_date"`
+	EndDate      *time.Time `json:"end_date"`
+	TimeCost     float64    `json:"time_cost"`
+	Created      *time.Time `json:"created"`
+	Operator     string     `json:"operator" gorm:"type:varchar(255)"`
+	IsRepeated   int        `json:"is_repeated"`
+	ChangeFrom   string     `json:"change_from" gorm:"type:varchar(255)"`
 	archived.NoPKModel
 }
 
