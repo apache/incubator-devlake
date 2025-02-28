@@ -2,64 +2,67 @@ package tasks
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
+	"net/http"
+	"net/url"
 
-	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
+
+const RAW_DEPLOYMENT_TABLE = "argo_api_deployments"
 
 // Task metadata
 var CollectDeploymentsMeta = plugin.SubTaskMeta{
 	Name:             "collect_deployments",
-	EntryPoint:       CollectDeployment,
+	EntryPoint:       CollectApiDeployments,
 	EnabledByDefault: true,
-	Description:      "Coleta deployments do banco PostgreSQL do ArgoCD",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_DEPLOYMENT_TABLE},
 }
 
 // Coletor principal
-func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
-	cfg := config.GetConfig()
-	host := cfg.GetString("POSTGRESQL_HOST")
-	user := cfg.GetString("POSTGRESQL_USER")
-	password := cfg.GetString("POSTGRESQL_PASSWORD")
-	dbname := cfg.GetString("POSTGRESQL_DBNAME")
-
-	// Configuração do banco de dados PostgreSQL
-	dsn := "host=" + host + " user=" + user + " password=" + password + " dbname=" + dbname + " port=5432 sslmode=disable"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
+	data := taskCtx.GetData().(*models.ArgoTaskData)
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: models.ArgoApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Project:      data.Options.Project,
+		},
+		Table: RAW_DEPLOYMENT_TABLE,
+	})
 	if err != nil {
-		return errors.Default.Wrap(err, "Erro ao conectar ao banco PostgreSQL")
+		return err
 	}
 
-	// Buscar dados da tabela cicd_deployments
-	var deployments []models.DatabaseDeployments
-	result := db.Find(&deployments)
-	if result.Error != nil {
-		return errors.Default.Wrap(err, "Erro ao buscar deployments")
+	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		UrlTemplate: "api/v1/archived-workflows/{{ .Params.Project }}",
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
+			query := url.Values{}
+			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("offset", fmt.Sprintf("%v", reqData.Pager.Page*reqData.Pager.Size))
+			return query, nil
+		},
+		GetTotalPages: models.GetTotalPagesFromResponse,
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+			var items []json.RawMessage
+			err := helper.UnmarshalResponse(res, &items)
+			if err != nil {
+				return nil, err
+			}
+			return items, nil
+		},
+	})
+
+	if err != nil {
+		return err
 	}
 
-	// Obtendo o DAL (Data Access Layer) do DevLakes
-	devlakeDb := taskCtx.GetDal()
-
-	// Salvando os deployments no banco _raw do DevLake
-	for _, deployment := range deployments {
-		data, err := json.Marshal(deployment)
-		if err != nil {
-			return errors.Default.Wrap(err, "Erro ao serializar dados")
-		}
-
-		rawDeployment := models.RawDeployments{RawData: string(data)}
-
-		err = devlakeDb.Create(&rawDeployment)
-		if err != nil {
-			return errors.Default.Wrap(err, "Erro ao salvar deployment no banco _raw do DevLake")
-		}
-	}
-
-	log.Println("Coleta de deployments concluída com sucesso!")
-	return nil
+	return apiCollector.Execute()
 }

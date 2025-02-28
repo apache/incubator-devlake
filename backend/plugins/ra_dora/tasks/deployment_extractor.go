@@ -21,7 +21,9 @@ var ExtractDeploymentsMeta = plugin.SubTaskMeta{
 	Name:             "extract_deployments",
 	EntryPoint:       ExtractDeployments,
 	EnabledByDefault: true,
-	Description:      "Extrai deployments do DevLake para análise",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_DEPLOYMENT_TABLE},
 }
 
 func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
@@ -29,7 +31,7 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:    taskCtx,
 			Params: taskCtx.GetData(),
-			Table:  "ra_dora_deployments",
+			Table:  "argo_api_deployments",
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			var deployments models.DatabaseDeployments
