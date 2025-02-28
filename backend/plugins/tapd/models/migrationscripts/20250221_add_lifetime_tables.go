@@ -20,20 +20,40 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
+
+type TapdLifeTime struct {
+	ConnectionId uint64          `gorm:"primaryKey"`
+	Id           uint64          `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
+	WorkspaceId  uint64          `json:"workspace_id,string"`
+	EntityType   string          `json:"entity_type" gorm:"type:varchar(255)"`
+	EntityId     uint64          `json:"entity_id,string"`
+	Status       string          `json:"status" gorm:"type:varchar(255)"`
+	Owner        string          `json:"owner" gorm:"type:varchar(255)"`
+	BeginDate    *common.CSTTime `json:"begin_date"`
+	EndDate      *common.CSTTime `json:"end_date"`
+	TimeCost     float64         `json:"time_cost,string"`
+	Created      *common.CSTTime `json:"created"`
+	Operator     string          `json:"operator" gorm:"type:varchar(255)"`
+	IsRepeated   int             `json:"is_repeated,string"`
+	ChangeFrom   string          `json:"change_from" gorm:"type:varchar(255)"`
+	archived.NoPKModel
+}
+
+func (TapdLifeTime) TableName() string {
+	return "_tool_tapd_life_times"
+}
 
 var _ plugin.MigrationScript = (*addLifetimeTables)(nil)
 
 type addLifetimeTables struct{}
 
 func (*addLifetimeTables) Up(basicRes context.BasicRes) errors.Error {
-	err := basicRes.GetDal().AutoMigrate(&models.TapdLifeTime{})
-	if err != nil {
-		return errors.Default.Wrap(err, "failed to create tapd_life_times table")
-	}
-	return nil
+	return migrationhelper.AutoMigrateTables(basicRes, &TapdLifeTime{})
 }
 
 func (*addLifetimeTables) Version() uint64 {
