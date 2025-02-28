@@ -32,7 +32,7 @@
   ],
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": "default",
       "description": "",
       "fieldConfig": {
         "defaults": {
