@@ -34,7 +34,7 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			Table:  "argo_api_deployments",
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			var deployments models.DatabaseDeployments
+			var deployments models.Deployments
 
 			err := errors.Convert(json.Unmarshal(row.Data, &deployments))
 			if err != nil {
@@ -42,16 +42,7 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			raDeployment := &models.Deployments{
-				ID:           deployments.ID,
-				ScopeID:      deployments.ScopeID,
-				Name:         deployments.Name,
-				Result:       deployments.Result,
-				Status:       deployments.Status,
-				Environment:  deployments.Environment,
-				CreatedDate:  deployments.CreatedDate,
-				StartedDate:  deployments.StartedDate,
-				FinishedDate: deployments.FinishedDate,
-				DurationSec:  deployments.DurationSec,
+				ID: deployments.ID,
 			}
 
 			results := make([]interface{}, 0, 2)

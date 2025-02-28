@@ -1,9 +1,7 @@
 package tasks
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -49,15 +47,8 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("offset", fmt.Sprintf("%v", reqData.Pager.Page*reqData.Pager.Size))
 			return query, nil
 		},
-		GetTotalPages: models.GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var items []json.RawMessage
-			err := helper.UnmarshalResponse(res, &items)
-			if err != nil {
-				return nil, err
-			}
-			return items, nil
-		},
+		GetTotalPages:  models.GetTotalPagesFromResponse,
+		ResponseParser: models.GetRawMessageFromResponse,
 	})
 
 	if err != nil {
