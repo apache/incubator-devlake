@@ -76,6 +76,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatorId:      getAccountIdGen().Generate(data.Options.ConnectionId, toolL.Creator),
 				CreatorName:    toolL.Creator,
 				AssigneeName:   toolL.Owner,
+				DueDate:        (*time.Time)(toolL.Due),
 			}
 			var results []interface{}
 			if domainL.AssigneeName != "" {

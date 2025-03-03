@@ -122,6 +122,7 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 				OriginalProject:         jiraIssue.ProjectName,
 				Component:               jiraIssue.Components,
 				IsSubtask:               jiraIssue.Subtask,
+				DueDate:                 jiraIssue.DueDate,
 			}
 			if jiraIssue.CreatorAccountId != "" {
 				issue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId)
