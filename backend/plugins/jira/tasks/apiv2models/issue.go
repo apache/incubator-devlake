@@ -135,8 +135,8 @@ type Issue struct {
 			Progress int `json:"progress"`
 			Total    int `json:"total"`
 		} `json:"aggregateprogress"`
-		Environment interface{} `json:"environment"`
-		Duedate     interface{} `json:"duedate"`
+		Environment interface{}         `json:"environment"`
+		Duedate     *common.Iso8601Time `json:"duedate"`
 		Progress    struct {
 			Progress int `json:"progress"`
 			Total    int `json:"total"`
@@ -277,6 +277,9 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	if i.Fields.Timespent != nil {
 		temp := *i.Fields.Timespent / 60
 		result.SpentMinutes = &temp
+	}
+	if i.Fields.Duedate != nil {
+		result.DueDate = i.Fields.Duedate.ToNullableTime()
 	}
 	return result
 }
