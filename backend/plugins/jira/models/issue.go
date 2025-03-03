@@ -66,6 +66,7 @@ type JiraIssue struct {
 	Subtask                  bool
 	ChangelogTotal           int
 	WorklogTotal             int
+	DueDate                  *time.Time
 	common.NoPKModel
 }
 

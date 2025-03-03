@@ -105,6 +105,9 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 			if toolEntity.AssignedToId != 0 {
 				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
 			}
+			if toolEntity.Deadline != nil {
+				domainEntity.DueDate = toolEntity.Deadline.ToNullableTime()
+			}
 			closedDate := toolEntity.ClosedDate
 			openedDate := toolEntity.OpenedDate
 			if closedDate != nil && closedDate.ToTime().After(openedDate.ToTime()) {

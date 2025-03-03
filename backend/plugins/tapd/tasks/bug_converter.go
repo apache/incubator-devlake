@@ -77,6 +77,7 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
 				OriginalStatus: toolL.Status,
+				DueDate:        (*time.Time)(toolL.Due),
 			}
 			var results []interface{}
 			if domainL.AssigneeName != "" {
