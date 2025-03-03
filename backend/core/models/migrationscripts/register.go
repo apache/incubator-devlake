@@ -134,5 +134,6 @@ func All() []plugin.MigrationScript {
 		new(addIsSubtaskToIssue),
 		new(addIsChildToCicdPipeline),
 		new(addCqIssueImpacts),
+		new(addDueDateToIssues),
 	}
 }
