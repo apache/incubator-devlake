@@ -74,6 +74,7 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.JiraAccount{})
 	dataflowTester.FlushTabler(&models.JiraIssueType{})
 	dataflowTester.FlushTabler(&models.JiraIssueLabel{})
+	dataflowTester.FlushTabler(&models.JiraIssueField{})
 	dataflowTester.Subtask(tasks.ExtractIssueTypesMeta, taskData)
 	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -136,6 +137,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"changelog_total",
 			"comment_total",
 			"subtask",
+			"due_date",
 		),
 	)
 
@@ -236,6 +238,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"severity",
 			"component",
 			"original_project",
+			"due_date",
 		},
 	)
 	dataflowTester.VerifyTable(

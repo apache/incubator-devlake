@@ -20,6 +20,7 @@ package tasks
 import (
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -109,7 +110,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
 			}
 			if toolEntity.Deadline != nil {
-				domainEntity.DueDate = toolEntity.Deadline.ToNullableTime()
+				domainEntity.DueDate = (*time.Time)(toolEntity.Deadline)
 			}
 			closedDate := toolEntity.ClosedDate
 			openedDate := toolEntity.OpenedDate
