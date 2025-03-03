@@ -92,7 +92,7 @@ type ZentaoBugRes struct {
 	OpenedBuild    string                `json:"openedBuild"`
 	AssignedTo     *ApiAccount           `json:"assignedTo"`
 	AssignedDate   *common.Iso8601Time   `json:"assignedDate"`
-	Deadline       *common.Iso8601Time   `json:"deadline"`
+	Deadline       *common.CSTTime       `json:"deadline"`
 	ResolvedBy     *ApiAccount           `json:"resolvedBy"`
 	Resolution     string                `json:"resolution"`
 	ResolvedBuild  string                `json:"resolvedBuild"`
@@ -164,7 +164,7 @@ type ZentaoBug struct {
 	AssignedToId   int64
 	AssignedToName string
 	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
-	Deadline       *common.Iso8601Time `json:"deadline"`
+	Deadline       *common.CSTTime     `json:"deadline"`
 	ResolvedById   int64
 	Resolution     string              `json:"resolution"`
 	ResolvedBuild  string              `json:"resolvedBuild"`

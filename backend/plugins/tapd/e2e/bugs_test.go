@@ -132,6 +132,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"component",
 			"icon_url",
 			"creator_name",
+			"due_date",
 		),
 	)
 	dataflowTester.VerifyTable(

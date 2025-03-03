@@ -19,6 +19,7 @@ package apiv2models
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -135,8 +136,8 @@ type Issue struct {
 			Progress int `json:"progress"`
 			Total    int `json:"total"`
 		} `json:"aggregateprogress"`
-		Environment interface{}         `json:"environment"`
-		Duedate     *common.Iso8601Time `json:"duedate"`
+		Environment interface{} `json:"environment"`
+		Duedate     string      `json:"duedate"` // yyyy-MM-dd
 		Progress    struct {
 			Progress int `json:"progress"`
 			Total    int `json:"total"`
@@ -278,8 +279,16 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		temp := *i.Fields.Timespent / 60
 		result.SpentMinutes = &temp
 	}
-	if i.Fields.Duedate != nil {
-		result.DueDate = i.Fields.Duedate.ToNullableTime()
+	if i.Fields.Duedate != "" && i.Fields.Duedate != "null" {
+		// get timezone from i.Fields.Created
+		duedateStr := strings.Trim(i.Fields.Duedate, "\"")
+		// parse due date to time.Time
+		if i.Fields.Created != nil {
+			loc := i.Fields.Created.ToTime().Location()
+			if t, err := time.ParseInLocation("2006-01-02", duedateStr, loc); err == nil {
+				result.DueDate = &t
+			}
+		}
 	}
 	return result
 }
