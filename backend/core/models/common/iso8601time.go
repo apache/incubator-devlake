@@ -138,6 +138,16 @@ func ConvertStringToTime(timeString string) (t time.Time, err error) {
 	return time.Parse(time.RFC3339, timeString)
 }
 
+// ConvertStringToTimeInTz
+func ConvertStringToTimeInLoc(timeString string, loc *time.Location) (t time.Time, err error) {
+	for _, formatItem := range DateTimeFormats {
+		if formatItem.Matcher.MatchString(timeString) {
+			return time.ParseInLocation(formatItem.Format, timeString, loc)
+		}
+	}
+	return time.ParseInLocation(time.RFC3339, timeString, loc)
+}
+
 // Iso8601TimeToTime FIXME ...
 func Iso8601TimeToTime(iso8601Time *Iso8601Time) *time.Time {
 	if iso8601Time == nil {
