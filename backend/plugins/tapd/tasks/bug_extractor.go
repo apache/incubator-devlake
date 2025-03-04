@@ -20,12 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractBugs
@@ -60,7 +63,7 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := bugBody.Bug
-
+			toolL.SetAllFields(row.Data)
 			toolL.Status = statusLanguageMap[toolL.Status]
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "BUG"
@@ -76,6 +79,28 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/bugtrace/bugs/view?bug_id=%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.CurrentOwner, ";") {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
+			}
+			// get due date field
+			dueDateField := "due"
+			if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.BugDueDateField != "" {
+				dueDateField = data.Options.ScopeConfig.BugDueDateField
+			}
+			value := toolL.AllFields[dueDateField]
+			switch v := value.(type) {
+			case string:
+				if v == "" {
+					break
+				}
+				loc, err := time.LoadLocation("Asia/Shanghai")
+				if err != nil {
+					break
+				}
+				temp, _ := common.ConvertStringToTimeInLoc(v, loc)
+				toolL.DueDate = &temp
+			case nil:
+			default:
+				temp, _ := v.(time.Time)
+				toolL.DueDate = &temp
 			}
 			workSpaceBug := &models.TapdWorkSpaceBug{
 				ConnectionId: data.Options.ConnectionId,
