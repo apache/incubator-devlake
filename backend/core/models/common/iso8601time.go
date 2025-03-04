@@ -72,6 +72,10 @@ func init() {
 			Matcher: regexp.MustCompile(`[+-][\d]{2}-[\d]{2}$`),
 			Format:  "2006-01-02",
 		},
+		{
+			Matcher: regexp.MustCompile(`[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}$`),
+			Format:  "2006-01-02 15:04",
+		},
 	}
 }
 
