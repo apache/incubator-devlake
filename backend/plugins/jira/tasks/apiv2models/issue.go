@@ -19,7 +19,6 @@ package apiv2models
 
 import (
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -278,17 +277,6 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	if i.Fields.Timespent != nil {
 		temp := *i.Fields.Timespent / 60
 		result.SpentMinutes = &temp
-	}
-	if i.Fields.Duedate != "" && i.Fields.Duedate != "null" {
-		// get timezone from i.Fields.Created
-		duedateStr := strings.Trim(i.Fields.Duedate, "\"")
-		// parse due date to time.Time
-		if i.Fields.Created != nil {
-			loc := i.Fields.Created.ToTime().Location()
-			if t, err := time.ParseInLocation("2006-01-02", duedateStr, loc); err == nil {
-				result.DueDate = &t
-			}
-		}
 	}
 	return result
 }

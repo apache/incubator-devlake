@@ -321,3 +321,142 @@ func TestIssueSubtaskWithoutMapping(t *testing.T) {
 		},
 	)
 }
+
+func TestIssueCustomizeDueDate(t *testing.T) {
+	var plugin impl.Jira
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "jira", plugin)
+
+	taskData := &tasks.JiraTaskData{
+		Options: &tasks.JiraOptions{
+			ConnectionId: 2,
+			BoardId:      8,
+			ScopeConfig: &models.JiraScopeConfig{
+				StoryPointField: "customfield_10024",
+				DueDateField:    "customfield_10003",
+				TypeMappings: map[string]models.TypeMapping{
+					"子任务": {
+						StandardType: "Sub-task",
+						StatusMappings: map[string]models.StatusMapping{
+							"done": {StandardStatus: "你好世界"},
+							"new":  {StandardStatus: "\u6069\u5E95\u6EF4\u68AF\u6B38\u592B\u5178\u4EA2\u59C6"},
+						},
+					},
+					"任务": {
+						StandardType: "Task",
+						StatusMappings: map[string]models.StatusMapping{
+							"done": {StandardStatus: "hello world"},
+							"new":  {StandardStatus: "110 100 100 116 102 46 99 111 109"},
+						},
+					},
+					// issueType "Test Execution" in raw_data and not fill here to test issueType not be defined
+				},
+			},
+		},
+	}
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues_for_due_date.csv", "_raw_jira_api_issues")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_types.csv", "_raw_jira_api_issue_types")
+
+	// verify issue extraction
+	dataflowTester.FlushTabler(&models.JiraIssue{})
+	dataflowTester.FlushTabler(&models.JiraBoardIssue{})
+	dataflowTester.FlushTabler(&models.JiraSprintIssue{})
+	dataflowTester.FlushTabler(&models.JiraIssueComment{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
+	dataflowTester.FlushTabler(&models.JiraWorklog{})
+	dataflowTester.FlushTabler(&models.JiraAccount{})
+	dataflowTester.FlushTabler(&models.JiraIssueType{})
+	dataflowTester.FlushTabler(&models.JiraIssueLabel{})
+	dataflowTester.FlushTabler(&models.JiraIssueField{})
+	dataflowTester.Subtask(tasks.ExtractIssueTypesMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
+
+	dataflowTester.VerifyTable(
+		models.JiraIssue{},
+		"./snapshot_tables/_tool_jira_issues_for_due_date.csv",
+		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"issue_id",
+			"project_id",
+			"project_name",
+			"self",
+			"issue_key",
+			"summary",
+			"description",
+			"type",
+			"epic_key",
+			"status_name",
+			"status_key",
+			"story_point",
+			"original_estimate_minutes",
+			"aggregate_estimate_minutes",
+			"remaining_estimate_minutes",
+			"creator_account_id",
+			"creator_account_type",
+			"creator_display_name",
+			"assignee_account_id",
+			"assignee_account_type",
+			"assignee_display_name",
+			"priority_id",
+			"priority_name",
+			"parent_id",
+			"parent_key",
+			"sprint_id",
+			"sprint_name",
+			"resolution_date",
+			"created",
+			"updated",
+			"spent_minutes",
+			"lead_time_minutes",
+			"std_type",
+			"std_status",
+			"icon_url",
+			"changelog_total",
+			"comment_total",
+			"due_date",
+		),
+	)
+
+	// verify issue conversion
+	dataflowTester.FlushTabler(&ticket.Issue{})
+	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
+	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.Issue{},
+		"./snapshot_tables/issues_for_due_date.csv",
+		[]string{
+			"id",
+			"url",
+			"icon_url",
+			"issue_key",
+			"title",
+			"description",
+			"epic_key",
+			"type",
+			"original_type",
+			"status",
+			"original_status",
+			"story_point",
+			"resolution_date",
+			"created_date",
+			"updated_date",
+			"lead_time_minutes",
+			"parent_issue_id",
+			"priority",
+			"original_estimate_minutes",
+			"time_spent_minutes",
+			"time_remaining_minutes",
+			"creator_id",
+			"creator_name",
+			"assignee_id",
+			"assignee_name",
+			"severity",
+			"component",
+			"original_project",
+			"due_date",
+		},
+	)
+
+}

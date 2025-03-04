@@ -44,6 +44,7 @@ type JiraScopeConfig struct {
 	common.ScopeConfig         `mapstructure:",squash" json:",inline" gorm:"embedded"`
 	EpicKeyField               string                 `mapstructure:"epicKeyField,omitempty" json:"epicKeyField" gorm:"type:varchar(255)"`
 	StoryPointField            string                 `mapstructure:"storyPointField,omitempty" json:"storyPointField" gorm:"type:varchar(255)"`
+	DueDateField               string                 `mapstructure:"dueDateField,omitempty" json:"dueDateField" gorm:"type:varchar(255)"`
 	RemotelinkCommitShaPattern string                 `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
 	RemotelinkRepoPattern      []CommitUrlPattern     `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern" gorm:"type:json;serializer:json"`
 	TypeMappings               map[string]TypeMapping `mapstructure:"typeMappings,omitempty" json:"typeMappings" gorm:"type:json;serializer:json"`
