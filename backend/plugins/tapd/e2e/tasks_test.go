@@ -131,3 +131,39 @@ func TestTapdTaskDataFlow(t *testing.T) {
 	)
 
 }
+
+func TestTapdTaskCustomizeDueDate(t *testing.T) {
+	var tapd impl.Tapd
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "tapd", tapd)
+	taskData := &tasks.TapdTaskData{
+		Options: &tasks.TapdOptions{
+			ConnectionId: 1,
+			WorkspaceId:  991,
+			ScopeConfig: &models.TapdScopeConfig{
+				TaskDueDateField: "custom_field_one",
+				TypeMappings: map[string]string{
+					"BUG":  "缺陷",
+					"TASK": "任务",
+				},
+			},
+		},
+	}
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_tasks_for_due_date.csv",
+		"_raw_tapd_api_tasks")
+
+	// verify extraction
+	dataflowTester.FlushTabler(&models.TapdTask{})
+	dataflowTester.Subtask(tasks.ExtractTaskMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.TapdTask{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_tapd_tasks_for_due_date.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.FlushTabler(&ticket.Issue{})
+	dataflowTester.Subtask(tasks.ConvertTaskMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issues_task_for_due_date.csv",
+		IgnoreTypes: []interface{}{common.Model{}},
+	})
+}

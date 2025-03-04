@@ -20,12 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractTasks
@@ -63,7 +66,7 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := taskBody.Task
-
+			toolL.SetAllFields(row.Data)
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "TASK"
 			toolL.StdType = stdTypeMappings[toolL.Type]
@@ -104,6 +107,28 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 					}
 					results = append(results, toolLIssueLabel)
 				}
+			}
+			// get due date field
+			dueDateField := "due"
+			if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.TaskDueDateField != "" {
+				dueDateField = data.Options.ScopeConfig.TaskDueDateField
+			}
+			value := toolL.AllFields[dueDateField]
+			switch v := value.(type) {
+			case string:
+				if v == "" {
+					break
+				}
+				loc, err := time.LoadLocation("Asia/Shanghai")
+				if err != nil {
+					break
+				}
+				temp, _ := common.ConvertStringToTimeInLoc(v, loc)
+				toolL.DueDate = &temp
+			case nil:
+			default:
+				temp, _ := v.(time.Time)
+				toolL.DueDate = &temp
 			}
 			return results, nil
 		},

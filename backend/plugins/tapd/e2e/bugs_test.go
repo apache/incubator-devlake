@@ -104,7 +104,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		"./snapshot_tables/issue_bug.csv",
+		"./snapshot_tables/issues_bug.csv",
 		e2ehelper.ColumnWithRawData(
 			"id",
 			"url",
@@ -162,6 +162,74 @@ func TestTapdBugDataFlow(t *testing.T) {
 		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"label_name",
+		),
+	)
+}
+
+func TestTapdBugCustomizeDueDate(t *testing.T) {
+	var tapd impl.Tapd
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "tapd", tapd)
+
+	taskData := &tasks.TapdTaskData{
+		Options: &tasks.TapdOptions{
+			ConnectionId: 1,
+			WorkspaceId:  991,
+			ScopeConfig: &models.TapdScopeConfig{
+				TypeMappings: map[string]string{
+					"BUG":  "缺陷",
+					"TASK": "任务",
+				},
+				StatusMappings: map[string]string{
+					"已关闭":   "完成",
+					"接受/处理": "处理中",
+				},
+				BugDueDateField: "custom_field_four",
+			},
+		},
+	}
+
+	dataflowTester.FlushTabler(&models.TapdBug{})
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bugs_for_due_date.csv", "_raw_tapd_api_bugs")
+	dataflowTester.Subtask(tasks.ExtractBugMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.TapdBug{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_tapd_bugs_for_due_date.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.FlushTabler(&ticket.Issue{})
+	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.Issue{},
+		"./snapshot_tables/issues_bug_for_due_date.csv",
+		e2ehelper.ColumnWithRawData(
+			"id",
+			"url",
+			"issue_key",
+			"title",
+			"description",
+			"epic_key",
+			"type",
+			"status",
+			"original_status",
+			"story_point",
+			"resolution_date",
+			"created_date",
+			"updated_date",
+			"lead_time_minutes",
+			"parent_issue_id",
+			"priority",
+			"original_estimate_minutes",
+			"time_spent_minutes",
+			"time_remaining_minutes",
+			"creator_id",
+			"assignee_id",
+			"assignee_name",
+			"severity",
+			"component",
+			"icon_url",
+			"creator_name",
+			"due_date",
 		),
 	)
 }
