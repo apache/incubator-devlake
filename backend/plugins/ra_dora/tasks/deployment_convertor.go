@@ -24,12 +24,15 @@ var ConvertDeploymentsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
+// converte o _tools para o modelo de dominio (pacote devops)
+//
+//	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 
 	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.Deployments]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			Params: taskCtx.GetData(),
-			Table:  "argo_api_deployments",
+			Table:  RAW_DEPLOYMENT_TABLE,
 		},
 		Input:   nil,
 		Convert: nil,

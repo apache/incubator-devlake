@@ -31,7 +31,7 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:    taskCtx,
 			Params: taskCtx.GetData(),
-			Table:  "argo_api_deployments",
+			Table:  RAW_DEPLOYMENT_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			var deployments models.Deployments
