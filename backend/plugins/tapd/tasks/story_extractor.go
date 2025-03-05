@@ -55,6 +55,11 @@ func ExtractStories(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	// get due date field
+	dueDateField := "due"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.StoryDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.StoryDueDateField
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -117,11 +122,6 @@ func ExtractStories(taskCtx plugin.SubTaskContext) errors.Error {
 					}
 					results = append(results, toolLIssueLabel)
 				}
-			}
-			// get due date field
-			dueDateField := "due"
-			if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.StoryDueDateField != "" {
-				dueDateField = data.Options.ScopeConfig.StoryDueDateField
 			}
 			value := toolL.AllFields[dueDateField]
 			switch v := value.(type) {
