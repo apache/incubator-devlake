@@ -19,8 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -40,6 +42,11 @@ var ExtractStoryMeta = plugin.SubTaskMeta{
 func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	statusMappings := getStoryStatusMapping(data)
+	dueDateField := ""
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.StoryDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.StoryDueDateField
+	}
+
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -57,7 +64,6 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
-
 			data.Stories[res.ID] = struct{}{}
 			var results []interface{}
 			projectStory := &models.ZentaoProjectStory{
@@ -123,6 +129,29 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				PriOrder:         res.PriOrder.String(),
 				PlanTitle:        res.PlanTitle,
 				Url:              row.Url,
+			}
+			if dueDateField != "" {
+				err = res.SetAllFeilds(row.Data)
+				if err != nil {
+					return nil, errors.Default.WrapRaw(err)
+				}
+				dueDateValue := res.AllFeilds[dueDateField]
+				switch v := dueDateValue.(type) {
+				case string:
+					if v == "" {
+						break
+					}
+					loc, err := time.LoadLocation("Asia/Shanghai")
+					if err != nil {
+						break
+					}
+					temp, _ := common.ConvertStringToTimeInLoc(v, loc)
+					story.DueDate = &temp
+				case nil:
+				default:
+					temp, _ := v.(time.Time)
+					story.DueDate = &temp
+				}
 			}
 			if story.StdType == "" {
 				story.StdType = ticket.REQUIREMENT
