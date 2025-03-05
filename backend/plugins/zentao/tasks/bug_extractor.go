@@ -145,10 +145,16 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 					break
 				}
 				temp, _ := common.ConvertStringToTimeInLoc(v, loc)
+				if temp.IsZero() {
+					break
+				}
 				bug.DueDate = &temp
 			case nil:
 			default:
 				temp, _ := v.(time.Time)
+				if temp.IsZero() {
+					break
+				}
 				bug.DueDate = &temp
 			}
 			switch bug.Status {

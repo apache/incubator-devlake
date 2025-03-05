@@ -165,11 +165,17 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, apiIssue *apiv2mo
 		} else {
 			temp, _ = common.ConvertStringToTime(dd)
 		}
+		if temp.IsZero() {
+			break
+		}
 		issue.DueDate = &temp
 	case nil:
 	default:
 		// not string, convert to time.Time, ignore it if failed
 		temp, _ := dd.(time.Time)
+		if temp.IsZero() {
+			break
+		}
 		issue.DueDate = &temp
 	}
 	// code in next line will set issue.Type to issueType.Name

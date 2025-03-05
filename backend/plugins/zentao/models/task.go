@@ -98,12 +98,12 @@ func (zentaoTaskRes ZentaoTaskRes) ToJsonRawMessage() (json.RawMessage, error) {
 	return json.Marshal(zentaoTaskRes)
 }
 
-func (i *ZentaoTaskRes) SetAllFeilds(raw json.RawMessage) error {
+func (zentaoTaskRes *ZentaoTaskRes) SetAllFeilds(raw json.RawMessage) error {
 	var allFeilds map[string]interface{}
 	if err := json.Unmarshal(raw, &allFeilds); err != nil {
 		return err
 	}
-	i.AllFeilds = allFeilds
+	zentaoTaskRes.AllFeilds = allFeilds
 	return nil
 }
 
