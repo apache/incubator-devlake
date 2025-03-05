@@ -51,6 +51,11 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	customStatusMap := getStatusMapping(data)
 	stdTypeMappings := getStdTypeMappings(data)
+	// get due date field
+	dueDateField := "due"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.BugDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.BugDueDateField
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -82,11 +87,6 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/bugtrace/bugs/view?bug_id=%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.CurrentOwner, ";") {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
-			}
-			// get due date field
-			dueDateField := "due"
-			if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.BugDueDateField != "" {
-				dueDateField = data.Options.ScopeConfig.BugDueDateField
 			}
 			value := toolL.AllFields[dueDateField]
 			switch v := value.(type) {
