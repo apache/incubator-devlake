@@ -20,6 +20,7 @@ package models
 import (
 	"bytes"
 	"encoding/json"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 )
@@ -55,71 +56,81 @@ func (a *ApiAccount) UnmarshalJSON(data []byte) error {
 }
 
 type ZentaoBugRes struct {
-	ID             int64                 `json:"id"`
-	Project        int64                 `json:"project"`
-	Product        int64                 `json:"product"`
-	Injection      int                   `json:"injection"`
-	Identify       int                   `json:"identify"`
-	Branch         int                   `json:"branch"`
-	Module         int                   `json:"module"`
-	Execution      int64                 `json:"execution"`
-	Plan           int                   `json:"plan"`
-	Story          int64                 `json:"story"`
-	StoryVersion   int                   `json:"storyVersion"`
-	Task           int                   `json:"task"`
-	ToTask         int                   `json:"toTask"`
-	ToStory        int64                 `json:"toStory"`
-	Title          string                `json:"title"`
-	Keywords       string                `json:"keywords"`
-	Severity       int                   `json:"severity"`
-	Pri            int                   `json:"pri"`
-	Type           string                `json:"type"`
-	Os             string                `json:"os"`
-	Browser        string                `json:"browser"`
-	Hardware       string                `json:"hardware"`
-	Found          string                `json:"found"`
-	Steps          string                `json:"steps"`
-	Status         string                `json:"status"`
-	SubStatus      string                `json:"subStatus"`
-	Color          string                `json:"color"`
-	Confirmed      int                   `json:"confirmed"`
-	ActivatedCount int                   `json:"activatedCount"`
-	ActivatedDate  *common.Iso8601Time   `json:"activatedDate"`
-	FeedbackBy     string                `json:"feedbackBy"`
-	NotifyEmail    string                `json:"notifyEmail"`
-	OpenedBy       *ApiAccount           `json:"openedBy"`
-	OpenedDate     *common.Iso8601Time   `json:"openedDate"`
-	OpenedBuild    string                `json:"openedBuild"`
-	AssignedTo     *ApiAccount           `json:"assignedTo"`
-	AssignedDate   *common.Iso8601Time   `json:"assignedDate"`
-	Deadline       *common.CSTTime       `json:"deadline"`
-	ResolvedBy     *ApiAccount           `json:"resolvedBy"`
-	Resolution     string                `json:"resolution"`
-	ResolvedBuild  string                `json:"resolvedBuild"`
-	ResolvedDate   *common.Iso8601Time   `json:"resolvedDate"`
-	ClosedBy       *ApiAccount           `json:"closedBy"`
-	ClosedDate     *common.Iso8601Time   `json:"closedDate"`
-	DuplicateBug   int                   `json:"duplicateBug"`
-	LinkBug        string                `json:"linkBug"`
-	Feedback       int                   `json:"feedback"`
-	Result         int                   `json:"result"`
-	Repo           int                   `json:"repo"`
-	Mr             int                   `json:"mr"`
-	Entry          string                `json:"entry"`
-	NumOfLine      string                `json:"lines"`
-	V1             string                `json:"v1"`
-	V2             string                `json:"v2"`
-	RepoType       string                `json:"repoType"`
-	IssueKey       string                `json:"issueKey"`
-	Testtask       int                   `json:"testtask"`
-	LastEditedBy   *ApiAccount           `json:"lastEditedBy"`
-	LastEditedDate *common.Iso8601Time   `json:"lastEditedDate"`
-	Deleted        bool                  `json:"deleted"`
-	PriOrder       *common.StringFloat64 `json:"priOrder"`
-	SeverityOrder  int                   `json:"severityOrder"`
-	Needconfirm    bool                  `json:"needconfirm"`
-	StatusName     string                `json:"statusName"`
-	ProductStatus  string                `json:"productStatus"`
+	AllFeilds      map[string]interface{} `json:"-"`
+	ID             int64                  `json:"id"`
+	Project        int64                  `json:"project"`
+	Product        int64                  `json:"product"`
+	Injection      int                    `json:"injection"`
+	Identify       int                    `json:"identify"`
+	Branch         int                    `json:"branch"`
+	Module         int                    `json:"module"`
+	Execution      int64                  `json:"execution"`
+	Plan           int                    `json:"plan"`
+	Story          int64                  `json:"story"`
+	StoryVersion   int                    `json:"storyVersion"`
+	Task           int                    `json:"task"`
+	ToTask         int                    `json:"toTask"`
+	ToStory        int64                  `json:"toStory"`
+	Title          string                 `json:"title"`
+	Keywords       string                 `json:"keywords"`
+	Severity       int                    `json:"severity"`
+	Pri            int                    `json:"pri"`
+	Type           string                 `json:"type"`
+	Os             string                 `json:"os"`
+	Browser        string                 `json:"browser"`
+	Hardware       string                 `json:"hardware"`
+	Found          string                 `json:"found"`
+	Steps          string                 `json:"steps"`
+	Status         string                 `json:"status"`
+	SubStatus      string                 `json:"subStatus"`
+	Color          string                 `json:"color"`
+	Confirmed      int                    `json:"confirmed"`
+	ActivatedCount int                    `json:"activatedCount"`
+	ActivatedDate  *common.Iso8601Time    `json:"activatedDate"`
+	FeedbackBy     string                 `json:"feedbackBy"`
+	NotifyEmail    string                 `json:"notifyEmail"`
+	OpenedBy       *ApiAccount            `json:"openedBy"`
+	OpenedDate     *common.Iso8601Time    `json:"openedDate"`
+	OpenedBuild    string                 `json:"openedBuild"`
+	AssignedTo     *ApiAccount            `json:"assignedTo"`
+	AssignedDate   *common.Iso8601Time    `json:"assignedDate"`
+	Deadline       *common.CSTTime        `json:"deadline"`
+	ResolvedBy     *ApiAccount            `json:"resolvedBy"`
+	Resolution     string                 `json:"resolution"`
+	ResolvedBuild  string                 `json:"resolvedBuild"`
+	ResolvedDate   *common.Iso8601Time    `json:"resolvedDate"`
+	ClosedBy       *ApiAccount            `json:"closedBy"`
+	ClosedDate     *common.Iso8601Time    `json:"closedDate"`
+	DuplicateBug   int                    `json:"duplicateBug"`
+	LinkBug        string                 `json:"linkBug"`
+	Feedback       int                    `json:"feedback"`
+	Result         int                    `json:"result"`
+	Repo           int                    `json:"repo"`
+	Mr             int                    `json:"mr"`
+	Entry          string                 `json:"entry"`
+	NumOfLine      string                 `json:"lines"`
+	V1             string                 `json:"v1"`
+	V2             string                 `json:"v2"`
+	RepoType       string                 `json:"repoType"`
+	IssueKey       string                 `json:"issueKey"`
+	Testtask       int                    `json:"testtask"`
+	LastEditedBy   *ApiAccount            `json:"lastEditedBy"`
+	LastEditedDate *common.Iso8601Time    `json:"lastEditedDate"`
+	Deleted        bool                   `json:"deleted"`
+	PriOrder       *common.StringFloat64  `json:"priOrder"`
+	SeverityOrder  int                    `json:"severityOrder"`
+	Needconfirm    bool                   `json:"needconfirm"`
+	StatusName     string                 `json:"statusName"`
+	ProductStatus  string                 `json:"productStatus"`
+}
+
+func (i *ZentaoBugRes) SetAllFeilds(raw json.RawMessage) error {
+	var allFeilds map[string]interface{}
+	if err := json.Unmarshal(raw, &allFeilds); err != nil {
+		return err
+	}
+	i.AllFeilds = allFeilds
+	return nil
 }
 
 type ZentaoBug struct {
@@ -195,6 +206,7 @@ type ZentaoBug struct {
 	Url            string              `json:"url"`
 	StdStatus      string              `json:"stdStatus" gorm:"type:varchar(20)"`
 	StdType        string              `json:"stdType" gorm:"type:varchar(20)"`
+	DueDate        *time.Time          `json:"dueDate"`
 }
 
 func (ZentaoBug) TableName() string {

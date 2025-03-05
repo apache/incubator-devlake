@@ -19,65 +19,67 @@ package models
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type ZentaoTaskRes struct {
-	Id             int64               `json:"id"`
-	Project        int64               `json:"project"`
-	Parent         int64               `json:"parent"`
-	Execution      int64               `json:"execution"`
-	Module         int                 `json:"module"`
-	Design         int                 `json:"design"`
-	Story          int64               `json:"story"`
-	StoryVersion   int                 `json:"storyVersion"`
-	DesignVersion  int                 `json:"designVersion"`
-	FromBug        int                 `json:"fromBug"`
-	Feedback       int                 `json:"feedback"`
-	FromIssue      int                 `json:"fromIssue"`
-	Name           string              `json:"name"`
-	Type           string              `json:"type"`
-	Mode           string              `json:"mode"`
-	Pri            int                 `json:"pri"`
-	Estimate       float64             `json:"estimate"`
-	Consumed       float64             `json:"consumed"`
-	Left           float64             `json:"left"`
-	Deadline       *common.CSTTime     `json:"deadline"`
-	Status         string              `json:"status"`
-	SubStatus      string              `json:"subStatus"`
-	Color          string              `json:"color"`
-	Description    string              `json:"desc"`
-	Version        int                 `json:"version"`
-	OpenedBy       *ApiAccount         `json:"openedBy"`
-	OpenedDate     *common.Iso8601Time `json:"openedDate"`
-	AssignedTo     *ApiAccount         `json:"assignedTo"`
-	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
-	EstStarted     string              `json:"estStarted"`
-	RealStarted    *common.Iso8601Time `json:"realStarted"`
-	FinishedBy     *ApiAccount         `json:"finishedBy"`
-	FinishedDate   *common.Iso8601Time `json:"finishedDate"`
-	FinishedList   string              `json:"finishedList"`
-	CanceledBy     *ApiAccount         `json:"canceledBy"`
-	CanceledDate   *common.Iso8601Time `json:"canceledDate"`
-	ClosedBy       *ApiAccount         `json:"closedBy"`
-	ClosedDate     *common.Iso8601Time `json:"closedDate"`
-	PlanDuration   int                 `json:"planDuration"`
-	RealDuration   int                 `json:"realDuration"`
-	ClosedReason   string              `json:"closedReason"`
-	LastEditedBy   *ApiAccount         `json:"lastEditedBy"`
-	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
-	ActivatedDate  *common.Iso8601Time `json:"activatedDate"`
-	OrderIn        int                 `json:"order"`
-	Repo           int                 `json:"repo"`
-	Mr             int                 `json:"mr"`
-	Entry          string              `json:"entry"`
-	NumOfLine      string              `json:"lines"`
-	V1             string              `json:"v1"`
-	V2             string              `json:"v2"`
-	Vision         string              `json:"vision"`
-	StoryID        *common.StringInt64 `json:"storyID"`
-	StoryTitle     string              `json:"storyTitle"`
+	AllFeilds      map[string]interface{} `json:"-"`
+	Id             int64                  `json:"id"`
+	Project        int64                  `json:"project"`
+	Parent         int64                  `json:"parent"`
+	Execution      int64                  `json:"execution"`
+	Module         int                    `json:"module"`
+	Design         int                    `json:"design"`
+	Story          int64                  `json:"story"`
+	StoryVersion   int                    `json:"storyVersion"`
+	DesignVersion  int                    `json:"designVersion"`
+	FromBug        int                    `json:"fromBug"`
+	Feedback       int                    `json:"feedback"`
+	FromIssue      int                    `json:"fromIssue"`
+	Name           string                 `json:"name"`
+	Type           string                 `json:"type"`
+	Mode           string                 `json:"mode"`
+	Pri            int                    `json:"pri"`
+	Estimate       float64                `json:"estimate"`
+	Consumed       float64                `json:"consumed"`
+	Left           float64                `json:"left"`
+	Deadline       *common.CSTTime        `json:"deadline"`
+	Status         string                 `json:"status"`
+	SubStatus      string                 `json:"subStatus"`
+	Color          string                 `json:"color"`
+	Description    string                 `json:"desc"`
+	Version        int                    `json:"version"`
+	OpenedBy       *ApiAccount            `json:"openedBy"`
+	OpenedDate     *common.Iso8601Time    `json:"openedDate"`
+	AssignedTo     *ApiAccount            `json:"assignedTo"`
+	AssignedDate   *common.Iso8601Time    `json:"assignedDate"`
+	EstStarted     string                 `json:"estStarted"`
+	RealStarted    *common.Iso8601Time    `json:"realStarted"`
+	FinishedBy     *ApiAccount            `json:"finishedBy"`
+	FinishedDate   *common.Iso8601Time    `json:"finishedDate"`
+	FinishedList   string                 `json:"finishedList"`
+	CanceledBy     *ApiAccount            `json:"canceledBy"`
+	CanceledDate   *common.Iso8601Time    `json:"canceledDate"`
+	ClosedBy       *ApiAccount            `json:"closedBy"`
+	ClosedDate     *common.Iso8601Time    `json:"closedDate"`
+	PlanDuration   int                    `json:"planDuration"`
+	RealDuration   int                    `json:"realDuration"`
+	ClosedReason   string                 `json:"closedReason"`
+	LastEditedBy   *ApiAccount            `json:"lastEditedBy"`
+	LastEditedDate *common.Iso8601Time    `json:"lastEditedDate"`
+	ActivatedDate  *common.Iso8601Time    `json:"activatedDate"`
+	OrderIn        int                    `json:"order"`
+	Repo           int                    `json:"repo"`
+	Mr             int                    `json:"mr"`
+	Entry          string                 `json:"entry"`
+	NumOfLine      string                 `json:"lines"`
+	V1             string                 `json:"v1"`
+	V2             string                 `json:"v2"`
+	Vision         string                 `json:"vision"`
+	StoryID        *common.StringInt64    `json:"storyID"`
+	StoryTitle     string                 `json:"storyTitle"`
 	Branch         interface {
 	} `json:"branch"`
 	LatestStoryVersion interface {
@@ -94,6 +96,15 @@ type ZentaoTaskRes struct {
 
 func (zentaoTaskRes ZentaoTaskRes) ToJsonRawMessage() (json.RawMessage, error) {
 	return json.Marshal(zentaoTaskRes)
+}
+
+func (i *ZentaoTaskRes) SetAllFeilds(raw json.RawMessage) error {
+	var allFeilds map[string]interface{}
+	if err := json.Unmarshal(raw, &allFeilds); err != nil {
+		return err
+	}
+	i.AllFeilds = allFeilds
+	return nil
 }
 
 type ZentaoTask struct {
@@ -166,6 +177,7 @@ type ZentaoTask struct {
 	Url                string              `json:"url"`
 	StdStatus          string              `json:"stdStatus" gorm:"type:varchar(20)"`
 	StdType            string              `json:"stdType" gorm:"type:varchar(20)"`
+	DueDate            *time.Time          `json:"dueDate"`
 }
 
 func (ZentaoTask) TableName() string {

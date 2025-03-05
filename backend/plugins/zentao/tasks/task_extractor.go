@@ -19,7 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,7 +42,10 @@ var ExtractTaskMeta = plugin.SubTaskMeta{
 func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	et := newTaskExtractor(data)
-
+	dueDateField := "deadline"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.TaskDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.TaskDueDateField
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -52,13 +58,16 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
-
+			err = res.SetAllFeilds(row.Data)
+			if err != nil {
+				return nil, errors.Default.WrapRaw(err)
+			}
 			data.Tasks[res.Id] = struct{}{}
 			for _, t := range res.Children {
 				data.Tasks[t.Id] = struct{}{}
 			}
 			var tasks []*models.ZentaoTask
-			et.toZentaoTasks(data.AccountCache, res, row.Url, &tasks)
+			et.toZentaoTasks(data.AccountCache, res, row.Url, &tasks, dueDateField)
 			var results []interface{}
 			for _, task := range tasks {
 				results = append(results, task)
@@ -85,7 +94,7 @@ func newTaskExtractor(data *ZentaoTaskData) *taskExtractor {
 		statusMappings: getTaskStatusMapping(data),
 	}
 }
-func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.ZentaoTaskRes, url string, tasks *[]*models.ZentaoTask) {
+func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.ZentaoTaskRes, url string, tasks *[]*models.ZentaoTask, dueDateField string) {
 	task := &models.ZentaoTask{
 		ConnectionId:       c.connectionId,
 		ID:                 res.Id,
@@ -150,6 +159,24 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 		NeedConfirm:        res.NeedConfirm,
 		Progress:           res.Progress,
 		Url:                url,
+	}
+
+	dueDateValue := res.AllFeilds[dueDateField]
+	switch v := dueDateValue.(type) {
+	case string:
+		if v == "" {
+			break
+		}
+		loc, err := time.LoadLocation("Asia/Shanghai")
+		if err != nil {
+			break
+		}
+		temp, _ := common.ConvertStringToTimeInLoc(v, loc)
+		task.DueDate = &temp
+	case nil:
+	default:
+		temp, _ := v.(time.Time)
+		task.DueDate = &temp
 	}
 	if task.StdType == "" {
 		task.StdType = ticket.TASK

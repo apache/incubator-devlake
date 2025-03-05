@@ -19,8 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -40,6 +42,10 @@ var ExtractBugMeta = plugin.SubTaskMeta{
 func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	statusMappings := getBugStatusMapping(data)
+	dueDateField := "deadline"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.BugDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.BugDueDateField
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -49,6 +55,10 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoBugRes{}
 			err := json.Unmarshal(row.Data, res)
+			if err != nil {
+				return nil, errors.Default.WrapRaw(err)
+			}
+			err = res.SetAllFeilds(row.Data)
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
@@ -123,6 +133,23 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				StatusName:     res.StatusName,
 				ProductStatus:  res.ProductStatus,
 				Url:            row.Url,
+			}
+			dueDateValue := res.AllFeilds[dueDateField]
+			switch v := dueDateValue.(type) {
+			case string:
+				if v == "" {
+					break
+				}
+				loc, err := time.LoadLocation("Asia/Shanghai")
+				if err != nil {
+					break
+				}
+				temp, _ := common.ConvertStringToTimeInLoc(v, loc)
+				bug.DueDate = &temp
+			case nil:
+			default:
+				temp, _ := v.(time.Time)
+				bug.DueDate = &temp
 			}
 			switch bug.Status {
 			case "active", "closed", "resolved":
