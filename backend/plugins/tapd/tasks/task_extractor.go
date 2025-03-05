@@ -127,10 +127,16 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 					break
 				}
 				temp, _ := common.ConvertStringToTimeInLoc(v, loc)
+				if temp.IsZero() {
+					break
+				}
 				toolL.DueDate = &temp
 			case nil:
 			default:
 				temp, _ := v.(time.Time)
+				if temp.IsZero() {
+					break
+				}
 				toolL.DueDate = &temp
 			}
 			return results, nil

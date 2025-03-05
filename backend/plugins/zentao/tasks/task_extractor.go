@@ -172,10 +172,16 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 			break
 		}
 		temp, _ := common.ConvertStringToTimeInLoc(v, loc)
+		if temp.IsZero() {
+			break
+		}
 		task.DueDate = &temp
 	case nil:
 	default:
 		temp, _ := v.(time.Time)
+		if temp.IsZero() {
+			break
+		}
 		task.DueDate = &temp
 	}
 	if task.StdType == "" {
