@@ -53,6 +53,11 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}
 	stdTypeMappings := getStdTypeMappings(data)
+	// get due date field
+	dueDateField := "due"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.TaskDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.TaskDueDateField
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -110,11 +115,6 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 					}
 					results = append(results, toolLIssueLabel)
 				}
-			}
-			// get due date field
-			dueDateField := "due"
-			if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.TaskDueDateField != "" {
-				dueDateField = data.Options.ScopeConfig.TaskDueDateField
 			}
 			value := toolL.AllFields[dueDateField]
 			switch v := value.(type) {
