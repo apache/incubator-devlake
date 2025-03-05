@@ -6,7 +6,8 @@ type Deployments struct {
 	common.NoPKModel
 
 	//TODO
-	ID string `gorm:"primaryKey;type:varchar(255);column:id"`
+	ID      string `gorm:"primaryKey;type:varchar(255);column:id"`
+	ScopeID string
 }
 
 func (Deployments) TableName() string {
