@@ -27,6 +27,9 @@ type ZentaoScopeConfig struct {
 	BugStatusMappings   map[string]string `mapstructure:"bugStatusMappings,omitempty" json:"bugStatusMappings" gorm:"serializer:json"`
 	StoryStatusMappings map[string]string `mapstructure:"storyStatusMappings,omitempty" json:"storyStatusMappings" gorm:"serializer:json"`
 	TaskStatusMappings  map[string]string `mapstructure:"taskStatusMappings,omitempty" json:"taskStatusMappings" gorm:"serializer:json"`
+	BugDueDateField    string            `mapstructure:"bugDueDateField,omitempty" json:"bugDueDateField" gorm:"column:bug_due_date_field"`
+	TaskDueDateField   string            `mapstructure:"taskDueDateField,omitempty" json:"taskDueDateField" gorm:"column:task_due_date_field"`
+	StoryDueDateField  string            `mapstructure:"storyDueDateField,omitempty" json:"storyDueDateField" gorm:"column:story_due_date_field"`
 }
 
 func (t ZentaoScopeConfig) TableName() string {
