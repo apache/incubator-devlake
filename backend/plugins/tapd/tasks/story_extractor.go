@@ -67,7 +67,10 @@ func ExtractStories(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := storyBody.Story
-			toolL.SetAllFields(row.Data)
+			err = errors.Convert(toolL.SetAllFields(row.Data))
+			if err != nil {
+				return nil, err
+			}
 			toolL.Status = statusLanguageMap[toolL.Status]
 			if len(customStatusMap) != 0 {
 				toolL.StdStatus = customStatusMap[toolL.Status]

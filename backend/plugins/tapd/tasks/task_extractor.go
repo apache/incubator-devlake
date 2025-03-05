@@ -66,7 +66,10 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := taskBody.Task
-			toolL.SetAllFields(row.Data)
+			err = errors.Convert(toolL.SetAllFields(row.Data))
+			if err != nil {
+				return nil, err
+			}
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "TASK"
 			toolL.StdType = stdTypeMappings[toolL.Type]
