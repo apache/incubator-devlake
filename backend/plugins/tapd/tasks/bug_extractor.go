@@ -63,7 +63,10 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := bugBody.Bug
-			toolL.SetAllFields(row.Data)
+			err = errors.Convert(toolL.SetAllFields(row.Data))
+			if err != nil {
+				return nil, err
+			}
 			toolL.Status = statusLanguageMap[toolL.Status]
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "BUG"
