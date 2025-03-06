@@ -135,7 +135,9 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			if jiraIssue.ParentId != 0 {
 				issue.ParentIssueId = issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.ParentId)
 			}
-			if jiraIssue.Subtask {
+			// only set type to subtask if no type mapping is set
+			mapped, ok := mappings.StdTypeMappings[jiraIssue.Type]
+			if !(ok && mapped != "") && jiraIssue.Subtask {
 				issue.Type = ticket.SUBTASK
 			}
 			result = append(result, issue)
