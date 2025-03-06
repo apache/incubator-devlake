@@ -1,12 +1,18 @@
 package impl
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/ae/api"
+	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/tasks"
 )
 
@@ -36,8 +42,14 @@ func init() {
 	}
 }
 
+func (r RaDoraMetrics) Init(br context.BasicRes) errors.Error {
+	api.Init(br, r)
+
+	return nil
+}
+
 func (r RaDoraMetrics) Description() string {
-	return "Description"
+	return "Collection Argo data for DORA metrics"
 }
 
 func (r RaDoraMetrics) Name() string {
@@ -48,10 +60,12 @@ func (r RaDoraMetrics) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/ra_dora"
 }
 
+// TODO
 func (r RaDoraMetrics) Connection() dal.Tabler {
 	return nil
 }
 
+// TODO
 func (r RaDoraMetrics) Scope() plugin.ToolLayerScope {
 	return nil
 }
@@ -61,15 +75,17 @@ func (r RaDoraMetrics) ScopeConfig() dal.Tabler {
 }
 
 func (r RaDoraMetrics) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{}
+	return []dal.Tabler{
+		&models.Deployment{},
+	}
 }
 
 func (r RaDoraMetrics) SubTaskMetas() []plugin.SubTaskMeta {
-	list, err := sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort()
-	if err != nil {
-		panic(err)
+	return []plugin.SubTaskMeta{
+		tasks.CollectDeploymentsMeta,
+		tasks.ExtractDeploymentsMeta,
+		tasks.ConvertDeploymentsMeta,
 	}
-	return list
 }
 
 func (r RaDoraMetrics) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
@@ -77,7 +93,7 @@ func (r RaDoraMetrics) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 }
 
 func (r RaDoraMetrics) MigrationScripts() []plugin.MigrationScript {
-	return nil
+	return migrationscripts.All()
 }
 
 func (r RaDoraMetrics) TestConnection(id uint64) errors.Error {
@@ -89,5 +105,12 @@ func (r RaDoraMetrics) ApiResources() map[string]map[string]plugin.ApiResourceHa
 }
 
 func (r RaDoraMetrics) Close(taskCtx plugin.TaskContext) errors.Error {
+	data, ok := taskCtx.GetData().(*tasks.ArgoTaskData)
+	if !ok {
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
+	}
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

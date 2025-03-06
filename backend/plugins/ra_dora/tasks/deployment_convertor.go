@@ -28,8 +28,9 @@ var ConvertDeploymentsMeta = plugin.SubTaskMeta{
 //
 //	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
+	log.Println("Iniciando plugin de convert.")
 
-	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.Deployments]{
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.Deployment]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			Params: taskCtx.GetData(),
 			Table:  RAW_DEPLOYMENT_TABLE,

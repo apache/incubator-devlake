@@ -42,7 +42,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	rawMessages := []json.RawMessage{}
 
 	if res == nil {
-		return nil, errors.Default.New("res is nil")
+		return nil, errors.Default.New("response is nil")
 	}
 	defer res.Body.Close()
 	resBody, err := io.ReadAll(res.Body)

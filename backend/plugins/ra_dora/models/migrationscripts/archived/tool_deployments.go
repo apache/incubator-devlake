@@ -1,4 +1,4 @@
-package models
+package archived
 
 import "github.com/apache/incubator-devlake/core/models/common"
 

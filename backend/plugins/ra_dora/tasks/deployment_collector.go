@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -24,6 +25,8 @@ var CollectDeploymentsMeta = plugin.SubTaskMeta{
 
 // Coletor principal
 func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
+	log.Println("Iniciando plugin de collect.")
+
 	data := taskCtx.GetData().(*models.ArgoTaskData)
 	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
@@ -40,7 +43,7 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "api/v1/archived-workflows/{{ .Params.Project }}",
+		UrlTemplate: "api/v1/workflows/{{ .Params.Project }}",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
@@ -54,6 +57,8 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+
+	log.Println("Finalizado plugin de collect.")
 
 	return apiCollector.Execute()
 }

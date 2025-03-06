@@ -27,6 +27,8 @@ var ExtractDeploymentsMeta = plugin.SubTaskMeta{
 }
 
 func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
+	log.Println("Iniciando plugin de extract.")
+
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:    taskCtx,
@@ -34,15 +36,17 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			Table:  RAW_DEPLOYMENT_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			var deployments models.Deployments
+			var deployments models.Deployment
 
 			err := errors.Convert(json.Unmarshal(row.Data, &deployments))
 			if err != nil {
 				return nil, err
 			}
 
-			raDeployment := &models.Deployments{
-				ID: deployments.ID,
+			raDeployment := &models.Deployment{
+				Metadata: deployments.Metadata,
+				Spec:     deployments.Spec,
+				Status:   deployments.Status,
 			}
 
 			results := make([]interface{}, 0, 2)
