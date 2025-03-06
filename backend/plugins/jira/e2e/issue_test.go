@@ -135,6 +135,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"icon_url",
 			"changelog_total",
 			"comment_total",
+			"subtask",
 		),
 	)
 
@@ -246,4 +247,74 @@ func TestIssueDataFlow(t *testing.T) {
 		CSVRelPath:  "./snapshot_tables/issue_assignees.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
+}
+
+func TestIssueSubtaskWithoutMapping(t *testing.T) {
+	var plugin impl.Jira
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "jira", plugin)
+
+	taskData := &tasks.JiraTaskData{
+		Options: &tasks.JiraOptions{
+			ConnectionId: 2,
+			BoardId:      8,
+			ScopeConfig: &models.JiraScopeConfig{
+				StoryPointField: "customfield_10024",
+				TypeMappings: map[string]models.TypeMapping{
+					"任务": {
+						StandardType: "Task",
+						StatusMappings: map[string]models.StatusMapping{
+							"done": {StandardStatus: "hello world"},
+							"new":  {StandardStatus: "110 100 100 116 102 46 99 111 109"},
+						},
+					},
+					// issueType "Test Execution" in raw_data and not fill here to test issueType not be defined
+				},
+			},
+		},
+	}
+
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues.csv", "_raw_jira_api_issues")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_types.csv", "_raw_jira_api_issue_types")
+
+	dataflowTester.Subtask(tasks.ExtractIssueTypesMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
+
+	dataflowTester.FlushTabler(&ticket.Issue{})
+
+	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.Issue{},
+		"./snapshot_tables/issues_with_no_mapping_subtask.csv",
+		[]string{
+			"id",
+			"url",
+			"icon_url",
+			"issue_key",
+			"title",
+			"description",
+			"epic_key",
+			"type",
+			"original_type",
+			"status",
+			"original_status",
+			"story_point",
+			"resolution_date",
+			"created_date",
+			"updated_date",
+			"lead_time_minutes",
+			"parent_issue_id",
+			"priority",
+			"original_estimate_minutes",
+			"time_spent_minutes",
+			"time_remaining_minutes",
+			"creator_id",
+			"creator_name",
+			"assignee_id",
+			"assignee_name",
+			"severity",
+			"component",
+			"original_project",
+		},
+	)
 }
