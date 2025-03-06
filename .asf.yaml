@@ -57,10 +57,10 @@ github:
     #     #  - gh-infra/jenkins
     #     #  - another/build-that-must-pass
 
-      required_pull_request_reviews:
-        dismiss_stale_reviews: true
-        require_code_owner_reviews: false
-        required_approving_review_count: 1
+    #   required_pull_request_reviews:
+    #     dismiss_stale_reviews: true
+    #     require_code_owner_reviews: false
+    #     required_approving_review_count: 1
     release-v0.11:
       whatever: Just a placeholder to make it in protection
     release-v0.12:
