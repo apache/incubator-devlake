@@ -18,16 +18,15 @@ limitations under the License.
 package tasks
 
 import (
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
@@ -150,34 +149,9 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, apiIssue *apiv2mo
 	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.DueDateField != "" {
 		dueDateField = data.Options.ScopeConfig.DueDateField
 	}
-	unknownDueDate := apiIssue.Fields.AllFields[dueDateField]
-	switch dd := unknownDueDate.(type) {
-	case string:
-		// string, try to parse
-		if dd == "" || dd == "null" {
-			break
-		}
-		// use loc of issue.Created if dd is of type date (yyyy-MM-dd)
-		isDateStr, _ := regexp.Match(`\d{4}-\d{2}-\d{2}`, []byte(dd))
-		var temp time.Time
-		if isDateStr {
-			temp, _ = common.ConvertStringToTimeInLoc(dd, issue.Created.Location())
-		} else {
-			temp, _ = common.ConvertStringToTime(dd)
-		}
-		if temp.IsZero() {
-			break
-		}
-		issue.DueDate = &temp
-	case nil:
-	default:
-		// not string, convert to time.Time, ignore it if failed
-		temp, _ := dd.(time.Time)
-		if temp.IsZero() {
-			break
-		}
-		issue.DueDate = &temp
-	}
+	// using location of issues.Created
+	loc := issue.Created.Location()
+	issue.DueDate, _ = utils.GetTimeFeildFromMap(apiIssue.Fields.AllFields, dueDateField, loc)
 	// code in next line will set issue.Type to issueType.Name
 	issue.Type = mappings.TypeIdMappings[issue.Type]
 	issue.StdType = mappings.StdTypeMappings[issue.Type]

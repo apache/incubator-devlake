@@ -22,10 +22,10 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	helpers "github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
@@ -135,29 +135,8 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				if err != nil {
 					return nil, errors.Default.WrapRaw(err)
 				}
-				dueDateValue := res.AllFeilds[dueDateField]
-				switch v := dueDateValue.(type) {
-				case string:
-					if v == "" {
-						break
-					}
-					loc, err := time.LoadLocation("Asia/Shanghai")
-					if err != nil {
-						break
-					}
-					temp, _ := common.ConvertStringToTimeInLoc(v, loc)
-					if temp.IsZero() {
-						break
-					}
-					story.DueDate = &temp
-				case nil:
-				default:
-					temp, _ := v.(time.Time)
-					if temp.IsZero() {
-						break
-					}
-					story.DueDate = &temp
-				}
+				loc, _ := time.LoadLocation("Asia/Shanghai")
+				story.DueDate, _ = helpers.GetTimeFeildFromMap(res.AllFeilds, dueDateField, loc)
 			}
 			if story.StdType == "" {
 				story.StdType = ticket.REQUIREMENT

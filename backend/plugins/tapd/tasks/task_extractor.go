@@ -24,10 +24,10 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
@@ -116,29 +116,8 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 					results = append(results, toolLIssueLabel)
 				}
 			}
-			value := toolL.AllFields[dueDateField]
-			switch v := value.(type) {
-			case string:
-				if v == "" {
-					break
-				}
-				loc, err := time.LoadLocation("Asia/Shanghai")
-				if err != nil {
-					break
-				}
-				temp, _ := common.ConvertStringToTimeInLoc(v, loc)
-				if temp.IsZero() {
-					break
-				}
-				toolL.DueDate = &temp
-			case nil:
-			default:
-				temp, _ := v.(time.Time)
-				if temp.IsZero() {
-					break
-				}
-				toolL.DueDate = &temp
-			}
+			loc, _ := time.LoadLocation("Asia/Shanghai")
+			toolL.DueDate, _ = utils.GetTimeFeildFromMap(toolL.AllFields, dueDateField, loc)
 			return results, nil
 		},
 	})

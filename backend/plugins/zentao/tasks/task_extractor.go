@@ -22,10 +22,10 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
@@ -161,29 +161,8 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 		Url:                url,
 	}
 
-	dueDateValue := res.AllFeilds[dueDateField]
-	switch v := dueDateValue.(type) {
-	case string:
-		if v == "" {
-			break
-		}
-		loc, err := time.LoadLocation("Asia/Shanghai")
-		if err != nil {
-			break
-		}
-		temp, _ := common.ConvertStringToTimeInLoc(v, loc)
-		if temp.IsZero() {
-			break
-		}
-		task.DueDate = &temp
-	case nil:
-	default:
-		temp, _ := v.(time.Time)
-		if temp.IsZero() {
-			break
-		}
-		task.DueDate = &temp
-	}
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	task.DueDate, _ = utils.GetTimeFeildFromMap(res.AllFeilds, dueDateField, loc)
 	if task.StdType == "" {
 		task.StdType = ticket.TASK
 	}
