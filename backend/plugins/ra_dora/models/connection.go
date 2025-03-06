@@ -13,10 +13,14 @@ type ArgoConnection struct {
 	HTTPClient *http.Client
 }
 
+// TableName implements dal.Tabler.
+func (conn *ArgoConnection) TableName() string {
+	panic("_tool_argo_connection")
+}
+
 func (conn *ArgoConnection) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
 	header := http.Header{}
 	header.Set("Authorization", "Bearer "+conn.Token)
 
 	return nil
-
 }

@@ -62,7 +62,7 @@ func (r RaDoraMetrics) RootPkgPath() string {
 
 // TODO
 func (r RaDoraMetrics) Connection() dal.Tabler {
-	return nil
+	return &models.ArgoConnection{}
 }
 
 // TODO
