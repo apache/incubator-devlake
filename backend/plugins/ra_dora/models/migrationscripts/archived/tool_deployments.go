@@ -17,11 +17,11 @@ limitations under the License.
 
 package archived
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 
 // Deployment represents the entire JSON structure
 type Deployment struct {
-	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
+	archived.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 
 	Metadata Metadata `json:"metadata"`
 	Spec     Spec     `json:"spec"`
