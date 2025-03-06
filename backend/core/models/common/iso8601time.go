@@ -142,7 +142,7 @@ func ConvertStringToTime(timeString string) (t time.Time, err error) {
 	return time.Parse(time.RFC3339, timeString)
 }
 
-// ConvertStringToTimeInTz
+// ConvertStringToTimeInLoc converts a string to time.Time in the given location.
 func ConvertStringToTimeInLoc(timeString string, loc *time.Location) (t time.Time, err error) {
 	for _, formatItem := range DateTimeFormats {
 		if formatItem.Matcher.MatchString(timeString) {
