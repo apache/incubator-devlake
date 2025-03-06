@@ -11,7 +11,7 @@ import (
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/ae/api"
+	"github.com/apache/incubator-devlake/plugins/ra_dora/api"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/tasks"
 )
@@ -43,7 +43,7 @@ func init() {
 }
 
 func (r RaDoraMetrics) Init(br context.BasicRes) errors.Error {
-	api.Init(br, r)
+	//api.Init(br, r)
 
 	return nil
 }
@@ -60,7 +60,6 @@ func (r RaDoraMetrics) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/ra_dora"
 }
 
-// TODO
 func (r RaDoraMetrics) Connection() dal.Tabler {
 	return &models.ArgoConnection{}
 }
@@ -89,7 +88,22 @@ func (r RaDoraMetrics) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 func (r RaDoraMetrics) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	return nil, nil
+	connection := &models.ArgoConnection{}
+	err := taskCtx.GetDal().First(connection, dal.Where("id = ?", options["connectionId"]))
+	if err != nil {
+		return nil, err
+	}
+
+	apiClient, err := api.NewApiClient(connection)
+	if err != nil {
+		return nil, err
+	}
+
+	taskData := &tasks.ArgoTaskData{
+		ApiClient: apiClient.Client,
+	}
+
+	return taskData, nil
 }
 
 func (r RaDoraMetrics) MigrationScripts() []plugin.MigrationScript {
@@ -110,7 +124,7 @@ func (r RaDoraMetrics) Close(taskCtx plugin.TaskContext) errors.Error {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	if data != nil && data.ApiClient != nil {
-		data.ApiClient.Release()
+		// No need to call Release here as we are not managing connections manually
 	}
 	return nil
 }

@@ -12,7 +12,7 @@ type ArgoOptions struct {
 
 type ArgoTaskData struct {
 	Options   *ArgoOptions
-	ApiClient *helper.ApiAsyncClient
+	ApiClient *helper.ApiClient
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ArgoOptions, errors.Error) {
