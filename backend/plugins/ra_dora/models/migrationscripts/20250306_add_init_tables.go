@@ -20,9 +20,12 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/models/migrationscripts/archived"
 )
+
+var _ plugin.MigrationScript = (*addInitTables)(nil)
 
 type addInitTables struct{}
 
