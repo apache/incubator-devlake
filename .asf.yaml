@@ -48,14 +48,14 @@ github:
   # delete origin branch after merged
   del_branch_on_merge: true
   protected_branches:
-    main:
-      required_status_checks:
-        # strict means "Require branches to be up to date before merging".
-        strict: true
-        # contexts are the names of checks that must pass
-        #contexts:
-        #  - gh-infra/jenkins
-        #  - another/build-that-must-pass
+    # main:
+    #   required_status_checks:
+    #     # strict means "Require branches to be up to date before merging".
+    #     strict: true
+    #     # contexts are the names of checks that must pass
+    #     #contexts:
+    #     #  - gh-infra/jenkins
+    #     #  - another/build-that-must-pass
 
       required_pull_request_reviews:
         dismiss_stale_reviews: true
