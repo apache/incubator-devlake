@@ -77,12 +77,17 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 		ScopeId     string
 	}
 	scopeTable := (*s).TableName()
+	// Postgres fails as scope_id is a varchar and theOtherPk can be an integer in some cases
+	join := fmt.Sprintf("LEFT JOIN %s ON (%s.connection_id = bps.connection_id AND %s = bps.scope_id)", scopeTable, scopeTable, theOtherPk)
+	if scopeConfigSrv.db.Dialect() == "postgres" {
+		join = fmt.Sprintf("LEFT JOIN %s ON (%s.connection_id = bps.connection_id AND CAST(%s AS varchar) = bps.scope_id)", scopeTable, scopeTable, theOtherPk)
+	}
 	errors.Must(scopeConfigSrv.db.All(
 		&bpss,
 		dal.Select(fmt.Sprintf("bp.id AS blueprint_id, bp.project_name, bps.scope_id, %s.*", scopeTable)),
 		dal.From("_devlake_blueprint_scopes bps"),
 		dal.Join("LEFT JOIN _devlake_blueprints bp ON (bp.id = bps.blueprint_id)"),
-		dal.Join(fmt.Sprintf("LEFT JOIN %s ON (%s.connection_id = bps.connection_id AND cast(%s as varchar) = bps.scope_id)", scopeTable, scopeTable, theOtherPk)),
+		dal.Join(join),
 		dal.Where("bps.plugin_name = ? AND bps.connection_id = ?", pluginName, (*scopeConfig).ScopeConfigConnectionId()),
 	))
 	projectScopeMap := make(map[string]*models.ProjectScope)
