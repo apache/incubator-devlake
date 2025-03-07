@@ -83,3 +83,47 @@ func TestZentaoStoryDataFlow(t *testing.T) {
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }
+
+func TestZentaoStoryCustomizeDueDate(t *testing.T) {
+	var zentao impl.Zentao
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "zentao", zentao)
+
+	taskData := &tasks.ZentaoTaskData{
+		Options: &tasks.ZentaoOptions{
+			ConnectionId: 1,
+			ProjectId:    1,
+			ScopeConfig: &models.ZentaoScopeConfig{
+				TypeMappings: map[string]string{
+					"story.feature": "REQUIRE",
+				},
+				StoryStatusMappings: map[string]string{
+					"active": ticket.DONE,
+				},
+				StoryDueDateField: "title",
+			},
+		},
+		Stories:      map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
+		ApiClient:    getFakeAPIClient(),
+	}
+
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_zentao_api_stories_for_due_date.csv",
+		"_raw_zentao_api_stories")
+
+	dataflowTester.FlushTabler(&models.ZentaoStory{})
+	dataflowTester.Subtask(tasks.ExtractStoryMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.ZentaoStory{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_zentao_stories_for_due_date.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.FlushTabler(&ticket.Issue{})
+	dataflowTester.Subtask(tasks.ConvertStoryMeta, taskData)
+
+	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
+		CSVRelPath:   "./snapshot_tables/issues_story_for_due_date.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"original_project"},
+	})
+}
