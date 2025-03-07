@@ -18,14 +18,20 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(extendRepoTable),
-		new(expandTimelineRecordName),
-	}
+type expandTimelineRecordName struct{}
+
+func (*expandTimelineRecordName) Up(baseRes context.BasicRes) errors.Error {
+	return baseRes.GetDal().ModifyColumnType("_tool_azuredevops_go_timeline_records", "name", "text")
+}
+
+func (*expandTimelineRecordName) Version() uint64 {
+	return 20250307100000
+}
+
+func (*expandTimelineRecordName) Name() string {
+	return "make timeline record name column larger to support longer names"
 }
