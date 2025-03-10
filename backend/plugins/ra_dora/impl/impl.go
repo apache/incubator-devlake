@@ -24,11 +24,11 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/api"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
+	"github.com/apache/incubator-devlake/plugins/ra_dora/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/tasks"
 )
 
