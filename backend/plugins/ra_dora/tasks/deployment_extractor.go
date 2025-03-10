@@ -29,10 +29,6 @@ import (
 
 var _ plugin.SubTaskEntryPoint = ExtractDeployments
 
-func init() {
-	RegisterSubtaskMeta(&ExtractDeploymentsMeta)
-}
-
 // Task metadata
 var ExtractDeploymentsMeta = plugin.SubTaskMeta{
 	Name:             "extract_deployments",

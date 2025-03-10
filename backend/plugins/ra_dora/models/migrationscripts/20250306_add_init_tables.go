@@ -30,10 +30,42 @@ var _ plugin.MigrationScript = (*addInitTables)(nil)
 type addInitTables struct{}
 
 func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
+	db := basicRes.GetDal()
+
+	err := db.DropTables(
+		&archived.ArgoConnection{},
 		&archived.Deployment{},
 	)
+	if err != nil {
+		return err
+	}
+
+	err = migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.ArgoConnection{},
+		&archived.Deployment{},
+	)
+	if err != nil {
+		return err
+	}
+
+	encodeKey := basicRes.GetConfig(plugin.EncodeKeyEnvStr)
+	connection := &archived.ArgoConnection{}
+	connection.Endpoint = basicRes.GetConfig(`ARGO_URL`)
+	connection.Token = basicRes.GetConfig(`ARGO_TOKEN`)
+	connection.Name = `Argo Workflows`
+	if connection.Endpoint != `` && connection.Token != `` && encodeKey != `` {
+		connection.Token, err = plugin.Encrypt(encodeKey, connection.Token)
+		if err != nil {
+			return err
+		}
+		err = db.CreateIfNotExist(connection)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (*addInitTables) Version() uint64 {

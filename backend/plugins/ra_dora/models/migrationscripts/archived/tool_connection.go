@@ -15,21 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package archived
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	commonArchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type ArgoApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
+type ArgoConnection struct {
+	commonArchived.Model
+	Name     string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint string `gorm:"type:varchar(255)"`
+	Token    string `gorm:"type:varchar(255)"`
 }
 
-type ArgoOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-}
-
-type ArgoTaskData struct {
-	Options   *ArgoOptions
-	ApiClient *helper.ApiAsyncClient
+func (ArgoConnection) TableName() string {
+	return "_tool_argo_connections"
 }

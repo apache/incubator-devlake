@@ -49,7 +49,6 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		Ctx: taskCtx,
 		Params: models.ArgoApiParams{
 			ConnectionId: data.Options.ConnectionId,
-			Project:      data.Options.Project,
 		},
 		Table: RAW_DEPLOYMENT_TABLE,
 	})
@@ -60,7 +59,7 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "api/v1/workflows/{{ .Params.Project }}",
+		UrlTemplate: "/api/v1/workflows/{{ .Params.Project }}",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))

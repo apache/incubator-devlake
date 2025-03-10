@@ -15,12 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package api
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/go-playground/validator/v10"
+)
 
-var SubTaskMetaList []*plugin.SubTaskMeta
+var vld *validator.Validate
+var connectionHelper *api.ConnectionApiHelper
+var basicRes context.BasicRes
 
-func RegisterSubtaskMeta(meta *plugin.SubTaskMeta) {
-	SubTaskMetaList = append(SubTaskMetaList, meta)
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
+	basicRes = br
+	vld = validator.New()
+	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+		p.Name(),
+	)
 }
