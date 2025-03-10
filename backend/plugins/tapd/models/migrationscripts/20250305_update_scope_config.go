@@ -18,6 +18,8 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
@@ -33,12 +35,39 @@ func (t TapdScopeConfig20250305) TableName() string {
 	return "_tool_tapd_scope_configs"
 }
 
+type TapdBug20250310 struct {
+	DueDate *time.Time
+}
+
+func (t TapdBug20250310) TableName() string {
+	return "_tool_tapd_bugs"
+}
+
+type TapdTask20250310 struct {
+	DueDate *time.Time
+}
+
+func (t TapdTask20250310) TableName() string {
+	return "_tool_tapd_tasks"
+}
+
+type TapdStory20250310 struct {
+	DueDate *time.Time
+}
+
+func (t TapdStory20250310) TableName() string {
+	return "_tool_tapd_stories"
+}
+
 type updateScopeConfig20250305 struct{}
 
 func (u updateScopeConfig20250305) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&TapdScopeConfig20250305{},
+		&TapdBug20250310{},
+		&TapdStory20250310{},
+		&TapdTask20250310{},
 	)
 }
 

@@ -18,6 +18,8 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
@@ -33,12 +35,39 @@ func (t ZentaoScopeConfig20250305) TableName() string {
 	return "_tool_zentao_scope_configs"
 }
 
+type ZentaoBug20250310 struct {
+	DueDate *time.Time
+}
+
+func (t ZentaoBug20250310) TableName() string {
+	return "_tool_zentao_bugs"
+}
+
+type ZentaoTask20250310 struct {
+	DueDate *time.Time
+}
+
+func (t ZentaoTask20250310) TableName() string {
+	return "_tool_zentao_tasks"
+}
+
+type ZentaoStory20250310 struct {
+	DueDate *time.Time
+}
+
+func (t ZentaoStory20250310) TableName() string {
+	return "_tool_zentao_stories"
+}
+
 type updateScopeConfig struct{}
 
 func (*updateScopeConfig) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&ZentaoScopeConfig20250305{},
+		&ZentaoBug20250310{},
+		&ZentaoTask20250310{},
+		&ZentaoStory20250310{},
 	)
 }
 

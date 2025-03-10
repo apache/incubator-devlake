@@ -18,6 +18,8 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
@@ -31,12 +33,21 @@ func (t JiraScopeConfig20250305) TableName() string {
 	return "_tool_jira_scope_configs"
 }
 
+type JiraIssue20250310 struct {
+	DueDate *time.Time
+}
+
+func (t JiraIssue20250310) TableName() string {
+	return "_tool_jira_issues"
+}
+
 type updateScopeConfig struct{}
 
 func (*updateScopeConfig) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&JiraScopeConfig20250305{},
+		&JiraIssue20250310{},
 	)
 }
 
