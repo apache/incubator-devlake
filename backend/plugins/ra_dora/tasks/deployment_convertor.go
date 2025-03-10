@@ -28,7 +28,6 @@ import (
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployments
 
-// Task metadata
 var ConvertDeploymentsMeta = plugin.SubTaskMeta{
 	Name:             "convert_deployments",
 	EntryPoint:       ConvertDeployments,

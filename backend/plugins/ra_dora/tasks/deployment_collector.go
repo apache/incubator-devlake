@@ -30,7 +30,6 @@ import (
 
 const RAW_DEPLOYMENT_TABLE = "argo_api_deployments"
 
-// Task metadata
 var CollectDeploymentsMeta = plugin.SubTaskMeta{
 	Name:             "collect_deployments",
 	EntryPoint:       CollectApiDeployments,
