@@ -54,6 +54,7 @@ type Issue struct {
 	Component               string `gorm:"type:text"`
 	OriginalProject         string `gorm:"type:varchar(255)"`
 	IsSubtask               bool
+	DueDate                 *time.Time
 }
 
 func (Issue) TableName() string {
