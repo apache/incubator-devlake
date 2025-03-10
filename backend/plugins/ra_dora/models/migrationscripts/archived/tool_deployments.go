@@ -30,87 +30,32 @@ type Deployment struct {
 
 // Metadata represents the metadata part of the JSON
 type Metadata struct {
-	Name              string            `json:"name"`
-	GenerateName      string            `json:"generateName"`
-	Namespace         string            `json:"namespace"`
-	UID               string            `json:"uid"`
-	ResourceVersion   string            `json:"resourceVersion"`
-	Generation        int               `json:"generation"`
-	CreationTimestamp string            `json:"creationTimestamp"`
-	Labels            map[string]string `json:"labels"`
-	Annotations       map[string]string `json:"annotations"`
-	ManagedFields     []ManagedField    `json:"managedFields"`
-}
-
-// ManagedField represents the managed fields part of the JSON
-type ManagedField struct {
-	Manager    string   `json:"manager"`
-	Operation  string   `json:"operation"`
-	APIVersion string   `json:"apiVersion"`
-	Time       string   `json:"time"`
-	FieldsType string   `json:"fieldsType"`
-	FieldsV1   FieldsV1 `json:"fieldsV1"`
-}
-
-// FieldsV1 represents the fieldsV1 part of the JSON
-type FieldsV1 struct {
-	Metadata MetadataFields `json:"f:metadata"`
-	Spec     interface{}    `json:"f:spec"`
-	Status   interface{}    `json:"f:status"`
-}
-
-// MetadataFields represents the metadata fields part of the JSON
-type MetadataFields struct {
-	GenerateName interface{} `json:"f:generateName"`
-	Labels       Labels      `json:"f:labels"`
-	Annotations  Annotations `json:"f:annotations"`
-}
-
-// Labels represents the labels part of the JSON
-type Labels struct {
-	EventsActionTimestamp interface{} `json:"f:events.argoproj.io/action-timestamp"`
-	EventsSensor          interface{} `json:"f:events.argoproj.io/sensor"`
-	EventsTrigger         interface{} `json:"f:events.argoproj.io/trigger"`
-	WorkflowsCreator      interface{} `json:"f:workflows.argoproj.io/creator"`
-	WorkflowsCompleted    interface{} `json:"f:workflows.argoproj.io/completed"`
-	WorkflowsPhase        interface{} `json:"f:workflows.argoproj.io/phase"`
-}
-
-// Annotations represents the annotations part of the JSON
-type Annotations struct {
-	PodNameFormat interface{} `json:"f:workflows.argoproj.io/pod-name-format"`
+	Name              string `json:"name" gorm:"type:varchar(255)"`
+	GenerateName      string `json:"generateName" gorm:"type:varchar(255)"`
+	Namespace         string `json:"namespace" gorm:"type:varchar(255)"`
+	UID               string `json:"uid" gorm:"type:varchar(255)"`
+	ResourceVersion   string `json:"resourceVersion" gorm:"type:varchar(255)"`
+	Generation        int    `json:"generation" gorm:"type:int"`
+	CreationTimestamp string `json:"creationTimestamp" gorm:"type:varchar(255)"`
+	Labels            string `json:"labels" gorm:"type:text"`
+	Annotations       string `json:"annotations" gorm:"type:text"`
+	ManagedFields     string `json:"managedFields" gorm:"type:text"`
 }
 
 // Spec represents the spec part of the JSON
 type Spec struct {
-	Entrypoint          string              `json:"entrypoint"`
-	Arguments           Arguments           `json:"arguments"`
-	WorkflowTemplateRef WorkflowTemplateRef `json:"workflowTemplateRef"`
-}
-
-// Arguments represents the arguments part of the JSON
-type Arguments struct {
-	Parameters []Parameter `json:"parameters"`
-}
-
-// Parameter represents a single parameter in the arguments
-type Parameter struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-// WorkflowTemplateRef represents the workflow template reference part of the JSON
-type WorkflowTemplateRef struct {
-	Name string `json:"name"`
+	Entrypoint          string `json:"entrypoint" gorm:"type:varchar(255)"`
+	Arguments           string `json:"arguments" gorm:"type:text"`
+	WorkflowTemplateRef string `json:"workflowTemplateRef" gorm:"type:text"`
 }
 
 // Status represents the status part of the JSON
 type Status struct {
-	Phase      string                 `json:"phase"`
-	StartedAt  string                 `json:"startedAt"`
-	FinishedAt string                 `json:"finishedAt"`
-	Progress   string                 `json:"progress"`
-	Nodes      map[string]interface{} `json:"nodes"`
+	Phase      string `json:"phase" gorm:"type:varchar(255)"`
+	StartedAt  string `json:"startedAt" gorm:"type:varchar(255)"`
+	FinishedAt string `json:"finishedAt" gorm:"type:varchar(255)"`
+	Progress   string `json:"progress" gorm:"type:varchar(255)"`
+	Nodes      string `json:"nodes" gorm:"type:text"`
 }
 
 func (Deployment) TableName() string {
