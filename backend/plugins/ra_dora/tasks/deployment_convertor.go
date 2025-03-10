@@ -42,6 +42,7 @@ var ConvertDeploymentsMeta = plugin.SubTaskMeta{
 func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	log.Println("Iniciando plugin de convert.")
 
+	// TODO
 	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.Deployment]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			Params: taskCtx.GetData(),
