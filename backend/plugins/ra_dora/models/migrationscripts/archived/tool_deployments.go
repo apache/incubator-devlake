@@ -23,9 +23,10 @@ import "github.com/apache/incubator-devlake/core/models/migrationscripts/archive
 type Deployment struct {
 	archived.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 
-	Metadata Metadata `json:"metadata"`
-	Spec     Spec     `json:"spec"`
-	Status   Status   `json:"status"`
+	ConnectionId uint64   `gorm:"primaryKey"`
+	Metadata     Metadata `json:"metadata"`
+	Spec         Spec     `json:"spec"`
+	Status       Status   `json:"status"`
 }
 
 // Metadata represents the metadata part of the JSON
