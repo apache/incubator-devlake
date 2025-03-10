@@ -17,7 +17,13 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+
+	"github.com/apache/incubator-devlake/core/models/common"
+)
 
 // Deployment represents the entire JSON structure
 type Deployment struct {
@@ -43,11 +49,41 @@ type Metadata struct {
 	ManagedFields     string `json:"managedFields" gorm:"type:text"`
 }
 
+// Implement the driver.Valuer interface for Metadata
+func (m Metadata) Value() (driver.Value, error) {
+	return json.Marshal(m)
+}
+
+// Implement the sql.Scanner interface for Metadata
+func (m *Metadata) Scan(value interface{}) error {
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(bytes, m)
+}
+
 // Spec represents the spec part of the JSON
 type Spec struct {
 	Entrypoint          string `json:"entrypoint" gorm:"type:varchar(255)"`
 	Arguments           string `json:"arguments" gorm:"type:text"`
 	WorkflowTemplateRef string `json:"workflowTemplateRef" gorm:"type:text"`
+}
+
+// Implement the driver.Valuer interface for Spec
+func (s Spec) Value() (driver.Value, error) {
+	return json.Marshal(s)
+}
+
+// Implement the sql.Scanner interface for Spec
+func (s *Spec) Scan(value interface{}) error {
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(bytes, s)
 }
 
 // Status represents the status part of the JSON
@@ -57,6 +93,21 @@ type Status struct {
 	FinishedAt string `json:"finishedAt" gorm:"type:varchar(255)"`
 	Progress   string `json:"progress" gorm:"type:varchar(255)"`
 	Nodes      string `json:"nodes" gorm:"type:text"`
+}
+
+// Implement the driver.Valuer interface for Status
+func (s Status) Value() (driver.Value, error) {
+	return json.Marshal(s)
+}
+
+// Implement the sql.Scanner interface for Status
+func (s *Status) Scan(value interface{}) error {
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(bytes, s)
 }
 
 func (Deployment) TableName() string {
