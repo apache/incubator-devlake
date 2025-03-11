@@ -39,7 +39,7 @@ jobs:
       - uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
         with:
           gcloud_service_key: "${{ env.GCLOUD_SERVICE_KEY }}"
-          registry: "${{ env.AR_URL }}"
+          registry: "${{ env.GAR_URL }}"
           project_id: "${{ env.PROJECT_ID }}"
           image_name: devlake
           image_tag: amd64-builder
