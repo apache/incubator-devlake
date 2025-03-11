@@ -52,13 +52,7 @@ jobs:
         id: get_push_tags
         run: |
           image_name=${{ vars.GAR_URL }}/${{ vars.GAR_REPOSITORY }}/devlake
-          if printf ${{ github.ref }} |grep -Pq '^refs/tags/' && printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
-              echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          elif printf ${{ github.ref }} |grep -Pq '^refs/tags/'; then
-              echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          else
-              echo "TAGS=${image_name}:${{ github.ref_name }}_${{ needs.get-timestamp.outputs.timestamp }}_${{ steps.get_short_sha.outputs.SHORT_SHA }}" >> $GITHUB_OUTPUT
-          fi
+          echo "TAGS=${image_name}:${{ steps.get_short_sha.outputs.SHORT_SHA }}" >> $GITHUB_OUTPUT
 
       - name: Build & push to GAR
         uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
