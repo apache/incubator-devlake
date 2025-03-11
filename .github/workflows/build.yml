@@ -28,21 +28,15 @@ on:
 
 jobs:
 
-  get-timestamp:
-    name: Get build timestamp
-    runs-on: ubuntu-latest
-    outputs:
-      timestamp: ${{ steps.ts.outputs.timestamp }}
-    steps:
-      - name: Get build timestamp
-        id: ts
-        run: echo "timestamp=$(date '+%y%m%d_%H%M')" >> $GITHUB_OUTPUT
-
   build-and-push-to-gar:
     name: Build & push to gcloud artifact registry
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Get build timestamp
+        id: ts
+        run: echo "TIMESTAMP=$(date '+%y%m%d_%H%M')" >> $GITHUB_OUTPUT
 
       - name: Get short sha
         id: get_short_sha
@@ -51,8 +45,7 @@ jobs:
       - name: Get push tags
         id: get_push_tags
         run: |
-          image_name=${{ vars.GAR_URL }}/${{ vars.GAR_REPOSITORY }}/devlake
-          echo "TAGS=${image_name}:${{ steps.get_short_sha.outputs.SHORT_SHA }}" >> $GITHUB_OUTPUT
+          echo "TAGS=${{ steps.get_short_sha.outputs.SHORT_SHA }}, ${{ steps.ts.outputs.TIMESTAMP } " >> $GITHUB_OUTPUT
 
       - name: Build & push to GAR
         uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
