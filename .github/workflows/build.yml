@@ -43,6 +43,6 @@ jobs:
           project_id: "${{ env.PROJECT_ID }}"
           image_name: devlake
           image_tag: ${{ github.sha }}, amd64-builder
-          dockerfile: Dockerfile
+          dockerfile: ./backend/Dockerfile
           context: ./backend
           target: builder
