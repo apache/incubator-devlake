@@ -42,11 +42,6 @@ jobs:
         id: get_short_sha
         run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Get push tags
-        id: get_push_tags
-        run: |
-          echo "TAGS=${{ steps.get_short_sha.outputs.SHORT_SHA }}, ${{ steps.ts.outputs.TIMESTAMP } " >> $GITHUB_OUTPUT
-
       - name: Build & push to GAR
         uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
         with:
@@ -54,7 +49,7 @@ jobs:
           registry: "${{ vars.GAR_URL }}"
           project_id: "${{ vars.GAR_REPOSITORY }}"
           image_name: devlake
-          image_tag: ${{ steps.get_push_tags.outputs.TAGS }}
+          image_tag: ${{ steps.get_short_sha.outputs.SHORT_SHA }}, ${{ steps.ts.outputs.TIMESTAMP }}
           dockerfile: ./backend/Dockerfile
           context: ./backend
           platforms: linux/amd64
