@@ -17,7 +17,6 @@
 name: Build-Images-Push-Docker
 env:
   GAR_URL: ${{ vars.GAR_URL }}
-  GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
   PROJECT_ID: ${{ vars.GAR_REPOSITORY }}
 on:
   push:
@@ -38,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
         with:
-          gcloud_service_key: "$GCLOUD_SERVICE_KEY"
+          gcloud_service_key: "${{ secrets.GCLOUD_SERVICE_KEY }}"
           registry: "$GAR_URL"
           project_id: "$PROJECT_ID"
           image_name: devlake
