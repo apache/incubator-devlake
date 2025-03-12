@@ -25,7 +25,7 @@ type ArgoConnection struct {
 	commonArchived.Model
 	Name     string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint string `gorm:"type:varchar(255)"`
-	Token    string `gorm:"type:varchar(255)"`
+	Token    string `gorm:"type:varchar(512)"`
 }
 
 func (ArgoConnection) TableName() string {
