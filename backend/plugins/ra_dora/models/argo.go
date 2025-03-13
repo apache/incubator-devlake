@@ -36,10 +36,12 @@ type ArgoTaskData struct {
 
 type ArgoOptions struct {
 	ConnectionId uint64
+	ProjectId    string
 }
 
 type ArgoApiParams struct {
 	ConnectionId uint64
+	ProjectId    string
 }
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {

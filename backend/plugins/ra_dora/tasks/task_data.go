@@ -23,10 +23,12 @@ import (
 
 type ArgoApiParams struct {
 	ConnectionId uint64 `json:"connectionId"`
+	ProjectId    string `json:"projectId"`
 }
 
 type ArgoOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
+	ProjectId    string `json:"projectId"`
 }
 
 type ArgoTaskData struct {

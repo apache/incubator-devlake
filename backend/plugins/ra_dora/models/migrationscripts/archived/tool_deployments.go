@@ -26,6 +26,7 @@ type Deployment struct {
 	archived.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 
 	ConnectionId    uint64 `gorm:"primaryKey"`
+	ProjectId       string `gorm:"type:varchar(255)"`
 	Name            string `gorm:"type:varchar(255)"`
 	GeneratedName   string `gorm:"type:varchar(255)"`
 	Namespace       string `gorm:"type:varchar(255)"`
