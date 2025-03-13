@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
@@ -143,7 +144,14 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, apiIssue *apiv2mo
 		}
 
 	}
-
+	// default due date field is "duedate"
+	dueDateField := "duedate"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.DueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.DueDateField
+	}
+	// using location of issues.Created
+	loc := issue.Created.Location()
+	issue.DueDate, _ = utils.GetTimeFeildFromMap(apiIssue.Fields.AllFields, dueDateField, loc)
 	// code in next line will set issue.Type to issueType.Name
 	issue.Type = mappings.TypeIdMappings[issue.Type]
 	issue.StdType = mappings.StdTypeMappings[issue.Type]

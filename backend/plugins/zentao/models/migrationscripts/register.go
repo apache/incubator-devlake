@@ -33,5 +33,6 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(dropTotalReal),
 		new(addWorklogs),
+		new(updateScopeConfig),
 	}
 }

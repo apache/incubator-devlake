@@ -124,3 +124,85 @@ func TestIso8601Time_Scan(t *testing.T) {
 		})
 	}
 }
+
+func TestConvertStringToTime(t *testing.T) {
+	testCases := []struct {
+		name   string
+		input  string
+		output time.Time
+		err    error
+	}{
+		{
+			name:   "Valid time string",
+			input:  "2023-03-01T12:30:00+0000",
+			output: time.Date(2023, 3, 1, 12, 30, 0, 0, time.UTC).Local(),
+			err:       nil,
+		},
+		{
+			name:      "Valid date string",
+			input:     "2023-03-01",
+			output:    time.Date(2023, 3, 1, 0, 0, 0, 0, time.UTC),
+			err:       nil,
+		},
+		{
+			name:   "Invalid time string",
+			input:  "invalid",
+			output: time.Time{},
+			err:    fmt.Errorf("parsing time \"invalid\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"invalid\" as \"2006\""),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output, err := ConvertStringToTime(tc.input)
+			if !reflect.DeepEqual(tc.output, output) {
+				t.Errorf("Expected output to be %v, but got %v", tc.output, output)
+			}
+			assert.Equal(t, fmt.Sprintf("%v", err), fmt.Sprintf("%v", tc.err), "Expected error to be %v, but got %v", tc.err, err)
+		})
+	}
+}
+
+func TestConvertStringToTimeInLoc(t *testing.T) {
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		t.Fatalf("Failed to load location: %v", err)
+	}
+	testCases := []struct {
+		name   string
+		input  string
+		loc    *time.Location
+		output time.Time
+		err    error
+	}{
+		{
+			name:   "Valid time string with location",
+			input:  "2023-03-01T12:30:00+0800",
+			loc:    loc,
+			output: time.Date(2023, 3, 1, 12, 30, 0, 0, loc),
+			err:       nil,
+		},
+		{
+			name:      "Valid date string with location",
+			input:     "2023-03-01",
+			loc:       loc,
+			output:    time.Date(2023, 3, 1, 0, 0, 0, 0, loc),
+			err:       nil,
+		},
+		{
+			name:   "Invalid time string with location",
+			input:  "invalid",
+			loc:       loc,
+			output:    time.Time{},
+			err:       fmt.Errorf("parsing time \"invalid\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"invalid\" as \"2006\""),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output, err := ConvertStringToTimeInLoc(tc.input, tc.loc)
+			if !reflect.DeepEqual(tc.output, output) {
+				t.Errorf("Expected output to be %v, but got %v", tc.output, output)
+			}
+			assert.Equal(t, fmt.Sprintf("%v", err), fmt.Sprintf("%v", tc.err), "Expected error to be %v, but got %v", tc.err, err)
+		})
+	}
+}
