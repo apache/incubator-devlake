@@ -89,7 +89,7 @@ func (d DeploymentResp) toDeployment(connectionId uint64) *models.Deployment {
 		RefName:         d.Spec.Arguments.Parameters[0].Value,
 		CommitSha:       d.Spec.Arguments.Parameters[1].Value,
 		DurationSec:     GetDuration(d.Status.StartedAt, d.Status.FinishedAt),
-		RepoUrl:         "",
+		RepoUrl:         GetUrl(d.Status.Nodes),
 	}
 }
 
@@ -166,11 +166,37 @@ type WorkflowTemplateRef struct {
 }
 
 type Status struct {
-	Phase      string                 `json:"phase"`
-	StartedAt  string                 `json:"startedAt"`
-	FinishedAt string                 `json:"finishedAt"`
-	Progress   string                 `json:"progress"`
-	Nodes      map[string]interface{} `json:"nodes"`
+	Phase      string          `json:"phase"`
+	StartedAt  string          `json:"startedAt"`
+	FinishedAt string          `json:"finishedAt"`
+	Progress   string          `json:"progress"`
+	Nodes      map[string]Node `json:"nodes"`
+}
+
+type Node struct {
+	ID            string      `json:"id"`
+	Name          string      `json:"name"`
+	DisplayName   string      `json:"displayName"`
+	Type          string      `json:"type"`
+	TemplateRef   TemplateRef `json:"templateRef"`
+	TemplateScope string      `json:"templateScope"`
+	Phase         string      `json:"phase"`
+	BoundaryID    string      `json:"boundaryID"`
+	StartedAt     string      `json:"startedAt"`
+	FinishedAt    string      `json:"finishedAt"`
+	Progress      string      `json:"progress"`
+	Inputs        Inputs      `json:"inputs"`
+	Children      []string    `json:"children"`
+	OutboundNodes []string    `json:"outboundNodes"`
+}
+
+type TemplateRef struct {
+	Name     string `json:"name"`
+	Template string `json:"template"`
+}
+
+type Inputs struct {
+	Parameters []Parameter `json:"parameters"`
 }
 
 func GetDuration(started string, finished string) int64 {
@@ -188,4 +214,18 @@ func GetDuration(started string, finished string) int64 {
 	}
 
 	return 0
+}
+
+func GetUrl(node map[string]Node) string {
+	for _, node := range node {
+		if node.DisplayName == "exit-workflow" {
+			for _, param := range node.Inputs.Parameters {
+				if param.Name == "repository" {
+					return param.Value
+				}
+			}
+		}
+	}
+
+	return ""
 }
