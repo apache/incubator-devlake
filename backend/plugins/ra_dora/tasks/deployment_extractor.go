@@ -89,6 +89,7 @@ func (d DeploymentResp) toDeployment(connectionId uint64) *models.Deployment {
 		RefName:         d.Spec.Arguments.Parameters[0].Value,
 		CommitSha:       d.Spec.Arguments.Parameters[1].Value,
 		DurationSec:     GetDuration(d.Status.StartedAt, d.Status.FinishedAt),
+		RepoUrl:         "",
 	}
 }
 
