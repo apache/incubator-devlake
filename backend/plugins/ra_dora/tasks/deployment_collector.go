@@ -48,12 +48,16 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		Ctx: taskCtx,
 		Params: models.ArgoApiParams{
 			ConnectionId: data.Options.ConnectionId,
+			ProjectId:    data.Options.ProjectId,
 		},
 		Table: RAW_DEPLOYMENT_TABLE,
 	})
 	if err != nil {
 		return err
 	}
+
+	log.Println("[ARGO] ConnectionId: " + fmt.Sprintf("%d", data.Options.ConnectionId))
+	log.Println("[ARGO] ProjectId: " + data.Options.ProjectId)
 
 	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,

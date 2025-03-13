@@ -50,10 +50,11 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			Table:          RAW_DEPLOYMENT_TABLE,
 			Params: models.ArgoApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
 			},
 		},
 		Extract: func(deploymentResp *DeploymentResp, row *api.RawData) ([]interface{}, errors.Error) {
-			deployment := deploymentResp.toDeployment(data.Options.ConnectionId)
+			deployment := deploymentResp.toDeployment(data.Options.ConnectionId, data.Options.ProjectId)
 
 			log.Println("[ARGO] Extraindo dados...")
 			log.Println(deployment)
@@ -73,10 +74,11 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func (d DeploymentResp) toDeployment(connectionId uint64) *models.Deployment {
+func (d DeploymentResp) toDeployment(connectionId uint64, projectId string) *models.Deployment {
 	return &models.Deployment{
 		NoPKModel:       common.NewNoPKModel(),
 		ConnectionId:    connectionId,
+		ProjectId:       projectId,
 		Name:            d.Metadata.Name,
 		GeneratedName:   d.Metadata.GenerateName,
 		Namespace:       d.Metadata.Namespace,
