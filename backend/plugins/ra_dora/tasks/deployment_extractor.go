@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"log"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -39,7 +40,7 @@ var ExtractDeploymentsMeta = plugin.SubTaskMeta{
 }
 
 func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
-	log.Println("Iniciando plugin de extract.")
+	log.Println("[ARGO] Iniciando plugin de extract.")
 
 	data := taskCtx.GetData().(*ArgoTaskData)
 
@@ -52,9 +53,14 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			},
 		},
 		Extract: func(deploymentResp *DeploymentResp, row *api.RawData) ([]interface{}, errors.Error) {
-			gitlabDeployment := deploymentResp.toDeployment(data.Options.ConnectionId)
+			deployment := deploymentResp.toDeployment(data.Options.ConnectionId)
+
+			log.Println("[ARGO] Extraindo dados...")
+			log.Println(deployment)
+			log.Println("[ARGO] Extração finalizada.")
+
 			return []interface{}{
-				gitlabDeployment,
+				deployment,
 			}, nil
 		},
 	})
@@ -63,15 +69,26 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	log.Println("Extração de deployments concluída com sucesso!")
+	log.Println("[ARGO] Plugin extractor executado com sucesso!")
 	return extractor.Execute()
 }
 
 func (d DeploymentResp) toDeployment(connectionId uint64) *models.Deployment {
 	return &models.Deployment{
-		NoPKModel:    common.NewNoPKModel(),
-		ConnectionId: connectionId,
-		//TODO de-para
+		NoPKModel:       common.NewNoPKModel(),
+		ConnectionId:    connectionId,
+		Name:            d.Metadata.Name,
+		GeneratedName:   d.Metadata.GenerateName,
+		Namespace:       d.Metadata.Namespace,
+		UID:             d.Metadata.UID,
+		ResourceVersion: d.Metadata.ResourceVersion,
+		Result:          d.Status.Phase,
+		CreationDate:    d.Metadata.CreationTimestamp,
+		StartedAt:       d.Status.StartedAt,
+		FinishedAt:      d.Status.FinishedAt,
+		RefName:         d.Spec.Arguments.Parameters[0].Value,
+		CommitSha:       d.Spec.Arguments.Parameters[1].Value,
+		DurationSec:     GetDuration(d.Status.StartedAt, d.Status.FinishedAt),
 	}
 }
 
@@ -153,4 +170,21 @@ type Status struct {
 	FinishedAt string                 `json:"finishedAt"`
 	Progress   string                 `json:"progress"`
 	Nodes      map[string]interface{} `json:"nodes"`
+}
+
+func GetDuration(started string, finished string) int64 {
+	if started == "" || finished == "" {
+		startedAt, err := time.Parse(time.RFC3339, started)
+		if err != nil {
+			log.Println("Error parsing StartedAt:", err)
+		}
+		finishedAt, err := time.Parse(time.RFC3339, finished)
+		if err != nil {
+			log.Println("Error parsing FinishedAt:", err)
+		}
+
+		return int64(finishedAt.Sub(startedAt).Seconds())
+	}
+
+	return 0
 }

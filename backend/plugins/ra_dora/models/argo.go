@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -54,6 +55,8 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 }
 
 func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
+	log.Println("[ARGO] Buscando informações no endpoint do Argo.")
+
 	rawMessages := []json.RawMessage{}
 
 	if res == nil {
@@ -69,6 +72,8 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s. raw response was: %s", res.Request.URL.String(), string(resBody)))
 	}
+
+	log.Println("[ARGO] Informações OK.")
 
 	return rawMessages, nil
 }
