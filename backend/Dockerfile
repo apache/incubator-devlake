@@ -42,9 +42,9 @@ ARG HTTPS_PROXY=
 RUN apt-get update
 RUN apt-get install -y gcc binutils libfindbin-libs-perl cmake libssh2-1-dev libssl-dev zlib1g-dev
 
-RUN if [ "$(arch)" != "aarch64" ] ; then \
-        apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu ; \
-    fi
+# RUN if [ "$(arch)" != "aarch64" ] ; then \
+#         apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu ; \
+#     fi
 RUN if [ "$(arch)" != "x86_64" ] ; then \
         apt-get install -y gcc-x86-64-linux-gnu binutils-x86-64-linux-gnu ; \
     fi
@@ -61,23 +61,14 @@ COPY --from=debian-amd64 /lib/x86_64-linux-gnu /rootfs-amd64/lib/x86_64-linux-gn
 #COPY --from=debian-arm64 /lib/aarch64-linux-gnu /rootfs-arm64/lib/aarch64-linux-gnu
 
 
-RUN for arch in aarch64 x86_64 ; do \
-        mkdir -p /tmp/build/${arch} && cd /tmp/build/${arch} && \
-        wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.2.tar.gz -O - | tar -xz && \
-        cd libgit2-1.3.2 && \
-        mkdir build && cd build && \
-        if [ "$arch" = "aarch64" ] ; then \
-            cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
-                -DBUILD_SHARED_LIBS=ON -DCMAKE_SYSROOT=/rootfs-arm64 \
-                -DCMAKE_INSTALL_PREFIX=/usr/local/deps/${arch} ; \
-        elif [ "$arch" = "x86_64" ] ; then \
-            cmake .. -DCMAKE_C_COMPILER=x86_64-linux-gnu-gcc \
+RUN mkdir -p /tmp/build/x86_64 && cd /tmp/build/x86_64 && \
+    wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.2.tar.gz -O - | tar -xz && \
+    cd libgit2-1.3.2 && \
+    mkdir build && cd build && \
+    cmake .. -DCMAKE_C_COMPILER=x86_64-linux-gnu-gcc \
                 -DBUILD_SHARED_LIBS=ON -DCMAKE_SYSROOT=/rootfs-amd64 \
-                -DCMAKE_INSTALL_PREFIX=/usr/local/deps/${arch} ; \
-        fi && \
-        make -j install ; \
-    done
-
+                -DCMAKE_INSTALL_PREFIX=/usr/local/deps/x86_64 ; \
+    make -j install ;
 
 FROM builder as build
 
@@ -91,15 +82,9 @@ ARG SHA=
 ARG GO_PLUGINS=
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
-    if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then \
-        ln -s /usr/local/deps/aarch64 /usr/local/deps/target && \
-        export CC=aarch64-linux-gnu-gcc && \
-        export GOARCH=arm64 ; \
-    else \
-        ln -s /usr/local/deps/x86_64 /usr/local/deps/target && \
-        export CC=x86_64-linux-gnu-gcc && \
-        export GOARCH=amd64 ; \
-    fi && \
+    ln -s /usr/local/deps/x86_64 /usr/local/deps/target && \
+    export CC=x86_64-linux-gnu-gcc && \
+    export GOARCH=amd64 ; \
     export PKG_CONFIG_PATH=/usr/local/deps/target/lib/pkgconfig && \
     export CGO_ENABLED=1 &&\
     DEVLAKE_PLUGINS="$GO_PLUGINS" make all
