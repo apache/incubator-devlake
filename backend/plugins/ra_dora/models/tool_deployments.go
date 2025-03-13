@@ -25,7 +25,20 @@ import (
 type Deployment struct {
 	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 
-	ConnectionId uint64 `gorm:"primaryKey"`
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	Name            string `gorm:"type:varchar(255)"`
+	GeneratedName   string `gorm:"type:varchar(255)"`
+	Namespace       string `gorm:"type:varchar(255)"`
+	UID             string `gorm:"type:varchar(255)"`
+	ResourceVersion string `gorm:"type:varchar(255)"`
+	Result          string `gorm:"type:varchar(255)"`
+	CreationDate    string `gorm:"type:varchar(255)"`
+	StartedAt       string `gorm:"type:varchar(255)"`
+	FinishedAt      string `gorm:"type:varchar(255)"`
+	CommitSha       string `gorm:"type:varchar(255)"`
+	RefName         string `gorm:"type:varchar(255)"`
+	RepoUrl         string `gorm:"type:varchar(255)"`
+	DurationSec     int64  `gorm:"type:integer(12)"`
 }
 
 func (Deployment) TableName() string {

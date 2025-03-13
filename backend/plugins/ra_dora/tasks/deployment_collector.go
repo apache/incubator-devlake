@@ -41,7 +41,7 @@ var CollectDeploymentsMeta = plugin.SubTaskMeta{
 
 // Coletor principal
 func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
-	log.Println("Iniciando plugin de collect.")
+	log.Println("[ARGO] Iniciando plugin de collect.")
 
 	data := taskCtx.GetData().(*models.ArgoTaskData)
 	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
@@ -73,7 +73,7 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	log.Println("Finalizado plugin de collect.")
+	log.Println("[ARGO] Finalizado plugin de collect.")
 
 	return apiCollector.Execute()
 }
