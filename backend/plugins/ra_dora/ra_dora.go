@@ -18,12 +18,26 @@ limitations under the License.
 package main
 
 import (
+	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/impl"
+	"github.com/spf13/cobra"
 )
 
 // PluginEntry is a variable exported for Framework to search and load
 var PluginEntry impl.RaDoraMetrics //nolint
 
-// standalone mode for debugging
 func main() {
+	cmd := &cobra.Command{Use: "ra_dora"}
+	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "ra_dora connection id")
+	projectId := cmd.Flags().StringP("projectId", "n", "", "project id")
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
+	_ = cmd.MarkFlagRequired("connectionId")
+	_ = cmd.MarkFlagRequired("projectId")
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			"connectionId": *connectionId,
+			"projectId":    *projectId,
+		}, *timeAfter)
+	}
+	runner.RunCmd(cmd)
 }
