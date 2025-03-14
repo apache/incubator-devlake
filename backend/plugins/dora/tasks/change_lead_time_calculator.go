@@ -186,7 +186,7 @@ func getFirstReview(prId string, prCreator string, db dal.Dal) (*code.PullReques
 	// Define the SQL clauses for the database query
 	commentClauses := []dal.Clause{
 		dal.From(&code.PullRequestComment{}), // Select from the "pull_request_comments" table
-		dal.Where("pull_request_id = ? and account_id != ? and type = ?", prId, prCreator, code.REVIEW), // Filter by the PR ID and exclude comments from the PR creator
+		dal.Where("pull_request_id = ? and account_id != ? and (type = ? or type = '')", prId, prCreator, code.REVIEW), // Filter by the PR ID and exclude comments from the PR creator
 		dal.Orderby("created_date ASC"), // Order by the created date of the review comments (ascending)
 	}
 
