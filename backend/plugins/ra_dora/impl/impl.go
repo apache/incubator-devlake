@@ -39,6 +39,7 @@ var _ interface {
 	plugin.PluginModel
 	plugin.PluginMigration
 	plugin.CloseablePluginTask
+	//plugin.DataSourcePluginBlueprintV200
 	plugin.PluginSource
 } = (*RaDoraMetrics)(nil)
 
@@ -49,7 +50,6 @@ func (r RaDoraMetrics) Init(br context.BasicRes) errors.Error {
 
 	return nil
 }
-
 func (r RaDoraMetrics) Description() string {
 	return "Collection Argo data for DORA metrics"
 }
