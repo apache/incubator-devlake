@@ -18,14 +18,16 @@ limitations under the License.
 package pipelines
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/apache/incubator-devlake/server/services"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/incubator-devlake/server/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -102,6 +104,9 @@ func Index(c *gin.Context) {
 // @Router /pipelines/{pipelineId} [get]
 func Get(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
+
+	log.Println("RETIRAR - pipelineId: " + c.Param("pipelineId"))
+
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied"))

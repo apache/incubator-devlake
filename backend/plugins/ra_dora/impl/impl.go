@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/api"
@@ -44,14 +43,6 @@ var _ interface {
 } = (*RaDoraMetrics)(nil)
 
 type RaDoraMetrics struct{}
-
-func (r RaDoraMetrics) MakeDataSourcePipelinePlanV200(
-	connectionId uint64,
-	scopes []*coreModels.BlueprintScope,
-	skipCollectors bool,
-) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return nil, nil, nil
-}
 
 func (r RaDoraMetrics) Init(br context.BasicRes) errors.Error {
 	api.Init(br, r)
