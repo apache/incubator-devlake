@@ -18,6 +18,7 @@ limitations under the License.
 package task
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -59,6 +60,8 @@ type getTaskResponse struct {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /pipelines/{pipelineId}/tasks [get]
 func GetTaskByPipeline(c *gin.Context) {
+	log.Println("RETIRAR - pipelineId: " + c.Param("pipelineId"))
+
 	pipelineId, err := strconv.ParseUint(c.Param("pipelineId"), 10, 64)
 	if err != nil {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid pipeline ID format"))
@@ -82,6 +85,8 @@ func GetTaskByPipeline(c *gin.Context) {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /pipelines/{pipelineId}/subtasks [get]
 func GetSubtaskByPipeline(c *gin.Context) {
+	log.Println("RETIRAR - pipelineId: " + c.Param("pipelineId"))
+
 	pipelineId, err := strconv.ParseUint(c.Param("pipelineId"), 10, 64)
 	if err != nil {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid pipeline ID format"))
