@@ -24,6 +24,7 @@ import (
 type Project struct {
 	commonArchived.Model
 	ProjectId int
+	Name      string
 }
 
 func (Project) TableName() string {
