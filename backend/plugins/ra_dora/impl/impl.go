@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/api"
@@ -39,7 +40,7 @@ var _ interface {
 	plugin.PluginModel
 	plugin.PluginMigration
 	plugin.CloseablePluginTask
-	//plugin.DataSourcePluginBlueprintV200
+	plugin.DataSourcePluginBlueprintV200
 	plugin.PluginSource
 } = (*RaDoraMetrics)(nil)
 
@@ -142,6 +143,14 @@ func (r RaDoraMetrics) ApiResources() map[string]map[string]plugin.ApiResourceHa
 			"GET":    api.GetConnection,
 		},
 	}
+}
+
+func (p RaDoraMetrics) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (r RaDoraMetrics) Close(taskCtx plugin.TaskContext) errors.Error {

@@ -15,28 +15,42 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
-	"github.com/go-playground/validator/v10"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var basicRes context.BasicRes
-var dsHelper *api.DsHelper[models.ArgoConnection, models.Project, models.ArgoScopeConfig]
+var _ plugin.ToolLayerScope = (*Project)(nil)
 
-func Init(br context.BasicRes, p plugin.PluginMeta) {
+type Project struct {
+	common.Scope `mapstructure:",squash" gorm:"embedded"`
+	ProjectId    int
+}
 
-	basicRes = br
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
+func (Project) TableName() string {
+	return "_tool_argo_projects"
+}
+
+func (p Project) ScopeId() string {
+	return strconv.Itoa(p.ProjectId)
+}
+
+func (p Project) ScopeName() string {
+	return "Argo"
+}
+
+func (p Project) ScopeFullName() string {
+	return "Argo"
+}
+
+func (p Project) ScopeParams() interface{} {
+	return &ArgoApiParams{
+		ConnectionId: p.ConnectionId,
+		ProjectId:    strconv.Itoa(p.ProjectId),
+	}
 }
