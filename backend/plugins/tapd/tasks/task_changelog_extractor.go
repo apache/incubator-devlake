@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/spf13/cast"
 	"strings"
 )
 
@@ -82,12 +83,13 @@ func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 						item.ConnectionId = data.Options.ConnectionId
 						item.ChangelogId = taskChangelog.Id
 						item.Field = k
-						item.ValueAfterParsed = v.(string)
+						item.ValueAfterParsed = cast.ToString(v)
 						switch valueBeforeMap.(type) {
 						case map[string]interface{}:
-							item.ValueBeforeParsed = valueBeforeMap.(map[string]interface{})[k].(string)
+							value := valueBeforeMap.(map[string]interface{})[k]
+							item.ValueBeforeParsed = cast.ToString(value)
 						default:
-							item.ValueBeforeParsed = valueBeforeMap.(string)
+							item.ValueBeforeParsed = cast.ToString(valueBeforeMap)
 						}
 						results = append(results, &item)
 					}
