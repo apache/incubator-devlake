@@ -85,6 +85,7 @@ func (d DeploymentResp) toDeployment(connectionId uint64, projectId string) *mod
 		UID:             d.Metadata.UID,
 		ResourceVersion: d.Metadata.ResourceVersion,
 		Result:          d.Status.Phase,
+		Status:          GetStatus(d.Status.Phase),
 		CreationDate:    d.Metadata.CreationTimestamp,
 		StartedAt:       d.Status.StartedAt,
 		FinishedAt:      d.Status.FinishedAt,
@@ -92,6 +93,7 @@ func (d DeploymentResp) toDeployment(connectionId uint64, projectId string) *mod
 		CommitSha:       d.Spec.Arguments.Parameters[1].Value,
 		DurationSec:     GetDuration(d.Status.StartedAt, d.Status.FinishedAt),
 		RepoUrl:         GetUrl(d.Status.Nodes),
+		Environment:     "production",
 	}
 }
 
@@ -227,6 +229,14 @@ func GetUrl(node map[string]Node) string {
 				}
 			}
 		}
+	}
+
+	return ""
+}
+
+func GetStatus(s string) string {
+	if s == "succedded" {
+		return "done"
 	}
 
 	return ""

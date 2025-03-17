@@ -15,28 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
-	"github.com/go-playground/validator/v10"
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var basicRes context.BasicRes
-var dsHelper *api.DsHelper[models.ArgoConnection, models.Project, models.ArgoScopeConfig]
+type ArgoScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+}
 
-func Init(br context.BasicRes, p plugin.PluginMeta) {
+func (ArgoScopeConfig) TableName() string {
+	return "_tool_argo_scope_configs"
+}
 
-	basicRes = br
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
+func (cfg *ArgoScopeConfig) SetConnectionId(c *ArgoScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
 }

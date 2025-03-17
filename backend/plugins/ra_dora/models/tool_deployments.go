@@ -33,6 +33,7 @@ type Deployment struct {
 	UID             string `gorm:"type:varchar(255)"`
 	ResourceVersion string `gorm:"type:varchar(255)"`
 	Result          string `gorm:"type:varchar(255)"`
+	Status          string `gorm:"type:varchar(255)"`
 	CreationDate    string `gorm:"type:varchar(255)"`
 	StartedAt       string `gorm:"type:varchar(255)"`
 	FinishedAt      string `gorm:"type:varchar(255)"`
@@ -40,6 +41,7 @@ type Deployment struct {
 	RefName         string `gorm:"type:varchar(255)"`
 	RepoUrl         string `gorm:"type:varchar(255)"`
 	DurationSec     int64  `gorm:"type:integer(12)"`
+	Environment     string `gorm:"type:varchar(50)"`
 }
 
 func (Deployment) TableName() string {

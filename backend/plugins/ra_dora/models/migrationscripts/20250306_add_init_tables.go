@@ -35,6 +35,7 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	err := db.DropTables(
 		&archived.ArgoConnection{},
 		&archived.Deployment{},
+		&archived.Project{},
 	)
 	if err != nil {
 		return err
@@ -44,6 +45,7 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		basicRes,
 		&archived.ArgoConnection{},
 		&archived.Deployment{},
+		&archived.Project{},
 	)
 	if err != nil {
 		return err

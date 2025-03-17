@@ -15,28 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
-	"github.com/go-playground/validator/v10"
+	"github.com/apache/incubator-devlake/core/models/common"
+	commonArchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var basicRes context.BasicRes
-var dsHelper *api.DsHelper[models.ArgoConnection, models.Project, models.ArgoScopeConfig]
+type Project struct {
+	commonArchived.Model
+	common.Scope `mapstructure:",squash" gorm:"embedded"`
+	ProjectId    int
+}
 
-func Init(br context.BasicRes, p plugin.PluginMeta) {
-
-	basicRes = br
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
+func (Project) TableName() string {
+	return "_tool_argo_projects"
 }
