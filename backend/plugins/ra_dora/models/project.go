@@ -30,6 +30,7 @@ var _ plugin.ToolLayerScope = (*Project)(nil)
 type Project struct {
 	common.Scope `mapstructure:",squash" gorm:"embedded"`
 	ProjectId    int
+	Name         string
 }
 
 func (Project) TableName() string {

@@ -18,14 +18,13 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	commonArchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type Project struct {
 	commonArchived.Model
-	common.Scope `mapstructure:",squash" gorm:"embedded"`
-	ProjectId    int
+	ProjectId int
+	Name      string
 }
 
 func (Project) TableName() string {
