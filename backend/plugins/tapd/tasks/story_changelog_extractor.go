@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/spf13/cast"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractStoryChangelog
@@ -81,12 +82,13 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 						item.ConnectionId = data.Options.ConnectionId
 						item.ChangelogId = storyChangelog.Id
 						item.Field = k
-						item.ValueAfterParsed = v.(string)
-						switch valueBeforeMap.(type) {
+						item.ValueAfterParsed = cast.ToString(v)
+						switch v := valueBeforeMap.(type) {
 						case map[string]interface{}:
-							item.ValueBeforeParsed = valueBeforeMap.(map[string]interface{})[k].(string)
+							value := v[k]
+							item.ValueBeforeParsed = cast.ToString(value)
 						default:
-							item.ValueBeforeParsed = valueBeforeMap.(string)
+							item.ValueBeforeParsed = cast.ToString(valueBeforeMap)
 						}
 						err = convertUnicode(&item)
 						if err != nil {
@@ -98,9 +100,9 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					item.ConnectionId = data.Options.ConnectionId
 					item.ChangelogId = storyChangelog.Id
 					item.Field = fc.Field
-					item.ValueAfterParsed = valueAfterMap.(string)
+					item.ValueAfterParsed = cast.ToString(valueAfterMap)
 					// as ValueAfterParsed is string, valueBeforeMap is always string
-					item.ValueBeforeParsed = valueBeforeMap.(string)
+					item.ValueBeforeParsed = cast.ToString(valueBeforeMap)
 				}
 				err = convertUnicode(&item)
 				if err != nil {
