@@ -83,9 +83,9 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 						item.ChangelogId = storyChangelog.Id
 						item.Field = k
 						item.ValueAfterParsed = cast.ToString(v)
-						switch valueBeforeMap.(type) {
+						switch v := valueBeforeMap.(type) {
 						case map[string]interface{}:
-							value := valueBeforeMap.(map[string]interface{})[k]
+							value := v[k]
 							item.ValueBeforeParsed = cast.ToString(value)
 						default:
 							item.ValueBeforeParsed = cast.ToString(valueBeforeMap)
