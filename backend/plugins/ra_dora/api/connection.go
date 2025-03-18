@@ -18,12 +18,20 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
+	"github.com/apache/incubator-devlake/server/api/shared"
 )
+
+type ArgoTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.ArgoConn
+}
 
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.ArgoConnection{}
@@ -77,4 +85,62 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
+}
+
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	var err errors.Error
+	var connection models.ArgoConn
+	if err = api.Decode(input.Body, &connection, vld); err != nil {
+		return nil, err
+	}
+	result, err := testConnection(context.TODO(), connection)
+	if err != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+	}
+	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+}
+
+func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	if result, err := testConnection(context.TODO(), connection.ArgoConn); err != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+	} else {
+		return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
+	}
+}
+
+func testConnection(ctx context.Context, connection models.ArgoConn) (*ArgoTestConnResponse, errors.Error) {
+	if vld != nil {
+		if err := vld.Struct(connection); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := apiClient.Get("/api/v1/workflows/argo/", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing api or read_api permissions")
+	}
+
+	if res.StatusCode == http.StatusForbidden {
+		return nil, errors.BadInput.New("token need api or read_api permissions scope")
+	}
+
+	connection = connection.Sanitize()
+	body := ArgoTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+
+	return &body, nil
 }
