@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
-	"reflect"
 )
 
 const RAW_WORKFLOW_TABLE = "circleci_api_workflows"

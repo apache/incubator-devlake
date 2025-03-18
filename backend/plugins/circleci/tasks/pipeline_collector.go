@@ -20,7 +20,6 @@ package tasks
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"

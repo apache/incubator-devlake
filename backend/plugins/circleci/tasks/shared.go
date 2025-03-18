@@ -29,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
-	"net/http"
-	"net/url"
 )
 
 var accountIdGen *didgen.DomainIdGenerator
