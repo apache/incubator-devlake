@@ -20,12 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractStories
@@ -52,6 +55,11 @@ func ExtractStories(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	// get due date field
+	dueDateField := "due"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.StoryDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.StoryDueDateField
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -64,6 +72,10 @@ func ExtractStories(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := storyBody.Story
+			err = errors.Convert(toolL.SetAllFields(row.Data))
+			if err != nil {
+				return nil, err
+			}
 			toolL.Status = statusLanguageMap[toolL.Status]
 			if len(customStatusMap) != 0 {
 				toolL.StdStatus = customStatusMap[toolL.Status]
@@ -111,6 +123,8 @@ func ExtractStories(taskCtx plugin.SubTaskContext) errors.Error {
 					results = append(results, toolLIssueLabel)
 				}
 			}
+			loc, _ := time.LoadLocation("Asia/Shanghai")
+			toolL.DueDate, _ = utils.GetTimeFeildFromMap(toolL.AllFields, dueDateField, loc)
 			return results, nil
 		},
 	})
