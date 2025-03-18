@@ -80,6 +80,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				AssigneeName:         toolL.Owner,
 				Severity:             "",
 				Component:            toolL.Feature,
+				DueDate:              toolL.DueDate,
 			}
 			var results []interface{}
 			if domainL.AssigneeName != "" {

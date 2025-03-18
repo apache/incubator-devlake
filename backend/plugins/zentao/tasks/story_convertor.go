@@ -104,6 +104,9 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 			if toolEntity.AssignedToId != 0 {
 				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
 			}
+			if toolEntity.DueDate != nil {
+				domainEntity.DueDate = toolEntity.DueDate
+			}
 			if domainEntity.OriginalStatus == "closed-closed" {
 				domainEntity.OriginalStatus = "closed"
 			}
