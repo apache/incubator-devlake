@@ -128,11 +128,15 @@ func (r RaDoraMetrics) MigrationScripts() []plugin.MigrationScript {
 }
 
 func (r RaDoraMetrics) TestConnection(id uint64) errors.Error {
-	return nil
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (r RaDoraMetrics) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
+		"test": {
+			"POST": api.TestConnection,
+		},
 		"connections": {
 			"POST": api.PostConnections,
 			"GET":  api.ListConnections,
