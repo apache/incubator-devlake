@@ -69,11 +69,11 @@ func (r RaDoraMetrics) Connection() dal.Tabler {
 
 // TODO
 func (r RaDoraMetrics) Scope() plugin.ToolLayerScope {
-	return nil
+	return &models.Project{}
 }
 
 func (r RaDoraMetrics) ScopeConfig() dal.Tabler {
-	return nil
+	return &models.ArgoScopeConfig{}
 }
 
 func (r RaDoraMetrics) GetTablesInfo() []dal.Tabler {
