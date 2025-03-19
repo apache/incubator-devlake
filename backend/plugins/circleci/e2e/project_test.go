@@ -62,7 +62,7 @@ func TestCircleciProject(t *testing.T) {
 		devops.CicdScope{},
 		e2ehelper.TableOptions{
 			CSVRelPath:   "./snapshot_tables/cicd_scopes.csv",
-			IgnoreFields: []string{"created_date"},
+			IgnoreFields: []string{"created_at"},
 			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
 		},
 	)
