@@ -22,7 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/argo/models/migrationscripts/archived"
 )
 
 var _ plugin.MigrationScript = (*addInitTables)(nil)
@@ -75,5 +75,5 @@ func (*addInitTables) Version() uint64 {
 }
 
 func (*addInitTables) Name() string {
-	return "ra dora metrics (argo)  init schemas"
+	return "argo  init schemas"
 }

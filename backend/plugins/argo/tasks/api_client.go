@@ -15,28 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
-	"github.com/go-playground/validator/v10"
+	"github.com/apache/incubator-devlake/plugins/argo/models"
 )
 
-var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var basicRes context.BasicRes
-var dsHelper *api.DsHelper[models.ArgoConnection, models.Project, models.ArgoScopeConfig]
+func NewSlackApiClient(taskCtx plugin.TaskContext, connection *models.ArgoConnection) (*api.ApiAsyncClient, errors.Error) {
+	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+	if err != nil {
+		return nil, err
+	}
 
-func Init(br context.BasicRes, p plugin.PluginMeta) {
+	// create async api client
+	asyncApiClient, err := api.CreateAsyncApiClient(taskCtx, apiClient, &api.ApiRateLimitCalculator{
+		UserRateLimitPerHour: connection.RateLimitPerHour,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	basicRes = br
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
+	return asyncApiClient, nil
 }

@@ -29,8 +29,8 @@ import (
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
+	"github.com/apache/incubator-devlake/plugins/argo/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
 )
 
 func MakeDataSourcePipelinePlanV200(

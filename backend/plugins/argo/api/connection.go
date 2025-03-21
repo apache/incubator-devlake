@@ -24,7 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
+	"github.com/apache/incubator-devlake/plugins/argo/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
 
