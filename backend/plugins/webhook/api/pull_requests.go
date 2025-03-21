@@ -38,7 +38,7 @@ import (
 
 type WebhookPullRequestReq struct {
 	Id             string     `mapstructure:"id" validate:"required"`
-	BaseRepoId     string     `mapstructure:"baseRepoId" validate:"required"`
+	BaseRepoId     string     `mapstructure:"baseRepoId"`
 	HeadRepoId     string     `mapstructure:"headRepoId"`
 	Status         string     `mapstructure:"status" validate:"omitempty,oneof=OPEN CLOSED MERGED"`
 	OriginalStatus string     `mapstructure:"originalStatus"`
@@ -141,7 +141,7 @@ func CreatePullRequest(connection *models.WebhookConnection, request *WebhookPul
 		DomainEntity: domainlayer.DomainEntity{
 			Id: fmt.Sprintf("%s:%d:%d", "webhook", connection.ID, request.PullRequestKey),
 		},
-		BaseRepoId:     request.BaseRepoId,
+		BaseRepoId:     fmt.Sprintf("%s:%d", "webhook", connection.ID),
 		HeadRepoId:     request.HeadRepoId,
 		Status:         request.Status,
 		OriginalStatus: request.OriginalStatus,

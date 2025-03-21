@@ -53,7 +53,7 @@ export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) 
     postPullRequestsEndpoint: `curl ${prefix}${webhook.postPullRequestsEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
       }' -d '{
       "id": "Required. This will be the unique ID of the pull request",
-      "baseRepoId": "Required. This must be in the format webhook:{connectionId} e.g. webhook:1",
+      "baseRepoId": "your-repo-id",
       "headRepoId": "your-repo-id",
       "status": "MERGED",
       "originalStatus": "OPEN",
