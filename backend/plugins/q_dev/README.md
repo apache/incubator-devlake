@@ -35,6 +35,24 @@ limitations under the License.
 4. S3桶名称
 5. 速率限制(每小时)
 
+```bash
+curl 'http://localhost:8080/plugins/q_dev/connections' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "q_dev_connection",
+    "accessKeyId": "<YOUR_ACCESS_KEY_ID>",
+    "secretAccessKey": "<YOUR_SECRET_ACCESS_KEY>",
+    "region": "<AWS_REGION>",
+    "bucket": "<YOUR_S3_BUCKET_NAME>",
+    "rateLimitPerHour": 20000
+}'
+```
+请将以下占位符替换为实际值：
+<YOUR_ACCESS_KEY_ID>：您的 AWS 访问密钥 ID
+<YOUR_SECRET_ACCESS_KEY>：您的 AWS 访问密钥
+<YOUR_S3_BUCKET_NAME>：您要使用的 S3 存储桶名称
+<AWS_REGION>: 您要使用的 S3 所在的区域
+
 ## 数据流程
 
 插件包含以下任务：
@@ -48,4 +66,20 @@ limitations under the License.
 - `_tool_q_dev_connections`: 存储AWS S3连接信息
 - `_tool_q_dev_s3_file_meta`: 存储S3文件元数据
 - `_tool_q_dev_user_data`: 存储从CSV文件中解析的用户数据
-- `_tool_q_dev_user_metrics`: 存储聚合后的用户指标 
+- `_tool_q_dev_user_metrics`: 存储聚合后的用户指标
+
+## 数据收集配置
+
+要收集数据，请在创建流水线运行页面选择高级模式，并粘贴如下 JSON 配置：
+```json
+[
+  [
+    {
+      "plugin": "q_dev",
+      "options": {
+        "connectionId": 1
+      }
+    }
+  ]
+]
+```
