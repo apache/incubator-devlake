@@ -24,7 +24,7 @@ import (
 )
 
 // PluginEntry is a variable exported for Framework to search and load
-var PluginEntry impl.RaDoraMetrics //nolint
+var PluginEntry impl.Argo //nolint
 
 func main() {
 	cmd := &cobra.Command{Use: "argo"}
