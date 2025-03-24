@@ -42,48 +42,47 @@ var _ interface {
 	plugin.CloseablePluginTask
 	plugin.DataSourcePluginBlueprintV200
 	plugin.PluginSource
-} = (*RaDoraMetrics)(nil)
+} = (*Argo)(nil)
 
-type RaDoraMetrics struct{}
+type Argo struct{}
 
-func (r RaDoraMetrics) Init(br context.BasicRes) errors.Error {
-	api.Init(br, r)
+func (a Argo) Init(br context.BasicRes) errors.Error {
+	api.Init(br, a)
 
 	return nil
 }
-func (r RaDoraMetrics) Description() string {
+func (a Argo) Description() string {
 	return "Collection Argo data for DORA metrics"
 }
 
-func (r RaDoraMetrics) Name() string {
+func (a Argo) Name() string {
 	return "argo"
 }
 
-func (r RaDoraMetrics) RootPkgPath() string {
+func (a Argo) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/argo"
 }
 
-func (r RaDoraMetrics) Connection() dal.Tabler {
+func (a Argo) Connection() dal.Tabler {
 	return &models.ArgoConnection{}
 }
 
-// TODO
-func (r RaDoraMetrics) Scope() plugin.ToolLayerScope {
+func (a Argo) Scope() plugin.ToolLayerScope {
 	return &models.Project{}
 }
 
-func (r RaDoraMetrics) ScopeConfig() dal.Tabler {
+func (a Argo) ScopeConfig() dal.Tabler {
 	return &models.ArgoScopeConfig{}
 }
 
-func (r RaDoraMetrics) GetTablesInfo() []dal.Tabler {
+func (a Argo) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.ArgoConnection{},
 		&models.Deployment{},
 	}
 }
 
-func (r RaDoraMetrics) SubTaskMetas() []plugin.SubTaskMeta {
+func (a Argo) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectDeploymentsMeta,
 		tasks.ExtractDeploymentsMeta,
@@ -91,7 +90,7 @@ func (r RaDoraMetrics) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-func (r RaDoraMetrics) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+func (a Argo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.ArgoOptions
 	if err := helper.Decode(options, &op, nil); err != nil {
 		return nil, err
@@ -100,7 +99,7 @@ func (r RaDoraMetrics) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
-		r.Name(),
+		a.Name(),
 	)
 	connection := &models.ArgoConnection{}
 	err := connectionHelper.FirstById(connection, op.ConnectionId)
@@ -123,16 +122,16 @@ func (r RaDoraMetrics) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	}, nil
 }
 
-func (r RaDoraMetrics) MigrationScripts() []plugin.MigrationScript {
+func (a Argo) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (r RaDoraMetrics) TestConnection(id uint64) errors.Error {
+func (a Argo) TestConnection(id uint64) errors.Error {
 	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
 	return err
 }
 
-func (r RaDoraMetrics) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
+func (a Argo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {
 			"POST": api.TestConnection,
@@ -149,15 +148,15 @@ func (r RaDoraMetrics) ApiResources() map[string]map[string]plugin.ApiResourceHa
 	}
 }
 
-func (p RaDoraMetrics) MakeDataSourcePipelinePlanV200(
+func (a Argo) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
 	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
+	return api.MakeDataSourcePipelinePlanV200(a.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
-func (r RaDoraMetrics) Close(taskCtx plugin.TaskContext) errors.Error {
+func (a Argo) Close(taskCtx plugin.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.ArgoTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
