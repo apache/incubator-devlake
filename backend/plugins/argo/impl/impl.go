@@ -26,10 +26,10 @@ import (
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/api"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/tasks"
+	"github.com/apache/incubator-devlake/plugins/argo/api"
+	"github.com/apache/incubator-devlake/plugins/argo/models"
+	"github.com/apache/incubator-devlake/plugins/argo/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/argo/tasks"
 )
 
 var _ interface {
@@ -56,11 +56,11 @@ func (r RaDoraMetrics) Description() string {
 }
 
 func (r RaDoraMetrics) Name() string {
-	return "ra_dora"
+	return "argo"
 }
 
 func (r RaDoraMetrics) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/ra_dora"
+	return "github.com/apache/incubator-devlake/plugins/argo"
 }
 
 func (r RaDoraMetrics) Connection() dal.Tabler {

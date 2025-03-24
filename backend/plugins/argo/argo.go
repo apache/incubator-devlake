@@ -19,7 +19,7 @@ package main
 
 import (
 	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/plugins/ra_dora/impl"
+	"github.com/apache/incubator-devlake/plugins/argo/impl"
 	"github.com/spf13/cobra"
 )
 
@@ -27,8 +27,8 @@ import (
 var PluginEntry impl.RaDoraMetrics //nolint
 
 func main() {
-	cmd := &cobra.Command{Use: "ra_dora"}
-	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "ra_dora connection id")
+	cmd := &cobra.Command{Use: "argo"}
+	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "argo connection id")
 	projectId := cmd.Flags().StringP("projectId", "n", "", "project id")
 	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	_ = cmd.MarkFlagRequired("connectionId")
