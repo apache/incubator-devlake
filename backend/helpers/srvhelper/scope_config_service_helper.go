@@ -88,7 +88,7 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 		dal.From("_devlake_blueprint_scopes bps"),
 		dal.Join("LEFT JOIN _devlake_blueprints bp ON (bp.id = bps.blueprint_id)"),
 		dal.Join(join),
-		dal.Where("bps.plugin_name = ? AND bps.connection_id = ?", pluginName, (*scopeConfig).ScopeConfigConnectionId()),
+		dal.Where("bps.plugin_name = ? AND bps.connection_id = ? AND scope_config_id = ?", pluginName, (*scopeConfig).ScopeConfigConnectionId(), (*scopeConfig).ScopeConfigId()),
 	))
 	projectScopeMap := make(map[string]*models.ProjectScope)
 	for _, bps := range bpss {
