@@ -15,20 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type AzuredevopsRepoCommit struct {
-	common.NoPKModel
-
-	ConnectionId uint64 `gorm:"primaryKey"`
-	RepositoryId string `gorm:"primaryKey"`
-	CommitSha    string `gorm:"primaryKey"`
-}
-
-func (AzuredevopsRepoCommit) TableName() string {
-	return "_tool_azuredevops_go_repo_commits"
-}
+// All return all migration scripts
+func All() []plugin.MigrationScript {
+	return []plugin.MigrationScript{
+		new(initTables),
+	}
+} 

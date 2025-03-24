@@ -62,7 +62,7 @@ build: build-plugin build-server
 run:
 	go run server/main.go
 
-dev: build-plugin build-python run
+dev: build-plugin run
 
 godev:
 	DISABLED_REMOTE_PLUGINS=true make build-plugin run

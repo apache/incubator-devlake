@@ -21,34 +21,25 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models"
 )
 
-type addInitTables struct {
+type initTables struct{}
+
+func (*initTables) Name() string {
+	return "Init schema for Q Developer plugin"
 }
 
-func (u *addInitTables) Up(basicRes context.BasicRes) errors.Error {
-	err := migrationhelper.AutoMigrateTables(
+func (*initTables) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&archived.AzuredevopsBuild{},
-		&archived.AzuredevopsCommit{},
-		&archived.AzuredevopsConnection{},
-		&archived.AzuredevopsPrCommit{},
-		&archived.AzuredevopsPrLabel{},
-		&archived.AzuredevopsPullRequest{},
-		&archived.AzuredevopsRepo{},
-		&archived.AzuredevopsRepoCommit{},
-		&archived.AzuredevopsScopeConfig{},
-		&archived.AzuredevopsTimelineRecord{},
-		&archived.AzuredevopsUser{},
+		&models.QDevConnection{},
+		&models.QDevUserData{},
+		&models.QDevUserMetrics{},
+		&models.QDevS3FileMeta{},
 	)
-	return err
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20240211000001
-}
-
-func (*addInitTables) Name() string {
-	return "Initializing Azure DevOps Go Plugin schemas"
+func (*initTables) Version() uint64 {
+	return 20250319
 }
