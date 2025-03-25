@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/spf13/cast"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -104,7 +105,7 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				AssignedToId:   data.AccountCache.getAccountIDFromApiAccount(res.AssignedTo),
 				AssignedToName: data.AccountCache.getAccountNameFromApiAccount(res.AssignedTo),
 				AssignedDate:   res.AssignedDate,
-				Deadline:       res.GetDeadline(),
+				Deadline:       cast.ToString(res.Deadline),
 				ResolvedById:   data.AccountCache.getAccountIDFromApiAccount(res.ResolvedBy),
 				Resolution:     res.Resolution,
 				ResolvedBuild:  res.ResolvedBuild,

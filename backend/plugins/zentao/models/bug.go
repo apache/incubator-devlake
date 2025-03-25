@@ -20,7 +20,6 @@ package models
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/spf13/cast"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -125,14 +124,6 @@ type ZentaoBugRes struct {
 	ProductStatus  string                 `json:"productStatus"`
 }
 
-func (i *ZentaoBugRes) GetDeadline() *common.CSTTime {
-	if i == nil {
-		return nil
-	}
-	deadlineStr := cast.ToString(i.Deadline)
-	return DeadlineFieldToCSTTime(deadlineStr)
-}
-
 func (i *ZentaoBugRes) SetAllFeilds(raw json.RawMessage) error {
 	var allFeilds map[string]interface{}
 	if err := json.Unmarshal(raw, &allFeilds); err != nil {
@@ -184,7 +175,7 @@ type ZentaoBug struct {
 	AssignedToId   int64
 	AssignedToName string
 	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
-	Deadline       *common.CSTTime     `json:"deadline"`
+	Deadline       string              `json:"deadline"`
 	ResolvedById   int64
 	Resolution     string              `json:"resolution"`
 	ResolvedBuild  string              `json:"resolvedBuild"`

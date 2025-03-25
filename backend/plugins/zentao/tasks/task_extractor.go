@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/spf13/cast"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -116,7 +117,7 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 		Estimate:           res.Estimate,
 		Consumed:           res.Consumed,
 		Left:               res.Left,
-		Deadline:           res.GetDeadline(),
+		Deadline:           cast.ToString(res.Deadline),
 		Status:             res.Status,
 		SubStatus:          res.SubStatus,
 		Color:              res.Color,

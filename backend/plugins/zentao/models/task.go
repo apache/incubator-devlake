@@ -19,9 +19,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/spf13/cast"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -101,39 +98,6 @@ func (zentaoTaskRes ZentaoTaskRes) ToJsonRawMessage() (json.RawMessage, error) {
 	return json.Marshal(zentaoTaskRes)
 }
 
-func (zentaoTaskRes *ZentaoTaskRes) GetDeadline() *common.CSTTime {
-	if zentaoTaskRes == nil {
-		return nil
-	}
-	deadlineStr := cast.ToString(zentaoTaskRes.Deadline)
-	return DeadlineFieldToCSTTime(deadlineStr)
-}
-
-func DeadlineFieldToCSTTime(deadlineStr string) *common.CSTTime {
-	if deadlineStr == "" || deadlineStr == "null" || deadlineStr == "{}" {
-		return nil
-	}
-	if strings.Contains(deadlineStr, "0000-00-00") {
-		return nil
-	}
-	deadlineStr = strings.Trim(deadlineStr, `"`)
-	if len(deadlineStr) == 10 {
-		deadlineStr = fmt.Sprintf("%s 00:00:00", deadlineStr)
-	}
-	cstZone, err := time.LoadLocation("Asia/Shanghai")
-	if err != nil {
-		fmt.Printf("err: %+v, deadline string: %s\n", err, deadlineStr)
-		return nil
-	}
-	t, err := common.ConvertStringToTimeInLoc(deadlineStr, cstZone)
-	if err != nil {
-		fmt.Printf("err: %+v, deadline string: %s\n", err, deadlineStr)
-		return nil
-	}
-	ret := common.CSTTime(t)
-	return &ret
-}
-
 func (zentaoTaskRes *ZentaoTaskRes) SetAllFeilds(raw json.RawMessage) error {
 	var allFeilds map[string]interface{}
 	if err := json.Unmarshal(raw, &allFeilds); err != nil {
@@ -145,32 +109,32 @@ func (zentaoTaskRes *ZentaoTaskRes) SetAllFeilds(raw json.RawMessage) error {
 
 type ZentaoTask struct {
 	common.NoPKModel
-	ConnectionId       uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID                 int64           `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	Project            int64           `json:"project"`
-	Parent             int64           `json:"parent"`
-	Execution          int64           `json:"execution"`
-	Module             int             `json:"module"`
-	Design             int             `json:"design"`
-	Story              int64           `json:"story"`
-	StoryVersion       int             `json:"storyVersion"`
-	DesignVersion      int             `json:"designVersion"`
-	FromBug            int             `json:"fromBug"`
-	Feedback           int             `json:"feedback"`
-	FromIssue          int             `json:"fromIssue"`
-	Name               string          `json:"name"`
-	Type               string          `json:"type"`
-	Mode               string          `json:"mode"`
-	Pri                int             `json:"pri"`
-	Estimate           float64         `json:"estimate"`
-	Consumed           float64         `json:"consumed"`
-	Left               float64         `json:"left" gorm:"column:db_left"`
-	Deadline           *common.CSTTime `json:"deadline"`
-	Status             string          `json:"status"`
-	SubStatus          string          `json:"subStatus"`
-	Color              string          `json:"color"`
-	Description        string          `json:"desc"`
-	Version            int             `json:"version"`
+	ConnectionId       uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID                 int64   `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	Project            int64   `json:"project"`
+	Parent             int64   `json:"parent"`
+	Execution          int64   `json:"execution"`
+	Module             int     `json:"module"`
+	Design             int     `json:"design"`
+	Story              int64   `json:"story"`
+	StoryVersion       int     `json:"storyVersion"`
+	DesignVersion      int     `json:"designVersion"`
+	FromBug            int     `json:"fromBug"`
+	Feedback           int     `json:"feedback"`
+	FromIssue          int     `json:"fromIssue"`
+	Name               string  `json:"name"`
+	Type               string  `json:"type"`
+	Mode               string  `json:"mode"`
+	Pri                int     `json:"pri"`
+	Estimate           float64 `json:"estimate"`
+	Consumed           float64 `json:"consumed"`
+	Left               float64 `json:"left" gorm:"column:db_left"`
+	Deadline           string  `json:"deadline"`
+	Status             string  `json:"status"`
+	SubStatus          string  `json:"subStatus"`
+	Color              string  `json:"color"`
+	Description        string  `json:"desc"`
+	Version            int     `json:"version"`
 	OpenedById         int64
 	OpenedByName       string
 	OpenedDate         *common.Iso8601Time `json:"openedDate"`

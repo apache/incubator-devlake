@@ -36,7 +36,7 @@ import (
 func GetTimeFieldFromMap(allFields map[string]interface{}, fieldName string, loc *time.Location) (*time.Time, error) {
 	val, ok := allFields[fieldName]
 	if !ok {
-		return nil, fmt.Errorf("Field %s not found", fieldName)
+		return nil, fmt.Errorf("field %s not found", fieldName)
 	}
 	var temp time.Time
 	switch v := val.(type) {
