@@ -122,10 +122,12 @@ func DeadlineFieldToCSTTime(deadlineStr string) *common.CSTTime {
 	}
 	cstZone, err := time.LoadLocation("Asia/Shanghai")
 	if err != nil {
+		fmt.Printf("err: %+v, deadline string: %s\n", err, deadlineStr)
 		return nil
 	}
 	t, err := common.ConvertStringToTimeInLoc(deadlineStr, cstZone)
 	if err != nil {
+		fmt.Printf("err: %+v, deadline string: %s\n", err, deadlineStr)
 		return nil
 	}
 	ret := common.CSTTime(t)
