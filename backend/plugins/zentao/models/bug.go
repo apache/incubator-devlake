@@ -130,15 +130,7 @@ func (i *ZentaoBugRes) GetDeadline() *common.CSTTime {
 		return nil
 	}
 	deadlineStr := cast.ToString(i.Deadline)
-	if deadlineStr == "" || deadlineStr == "null" || deadlineStr == "{}" {
-		return nil
-	}
-	t, err := common.ConvertStringToTime(deadlineStr)
-	if err != nil {
-		return nil
-	}
-	ret := common.CSTTime(t)
-	return &ret
+	return DeadlineFieldToCSTTime(deadlineStr)
 }
 
 func (i *ZentaoBugRes) SetAllFeilds(raw json.RawMessage) error {

@@ -19,7 +19,9 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/spf13/cast"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -104,10 +106,25 @@ func (zentaoTaskRes *ZentaoTaskRes) GetDeadline() *common.CSTTime {
 		return nil
 	}
 	deadlineStr := cast.ToString(zentaoTaskRes.Deadline)
+	return DeadlineFieldToCSTTime(deadlineStr)
+}
+
+func DeadlineFieldToCSTTime(deadlineStr string) *common.CSTTime {
 	if deadlineStr == "" || deadlineStr == "null" || deadlineStr == "{}" {
 		return nil
 	}
-	t, err := common.ConvertStringToTime(deadlineStr)
+	if strings.Contains(deadlineStr, "0000-00-00") {
+		return nil
+	}
+	deadlineStr = strings.Trim(deadlineStr, `"`)
+	if len(deadlineStr) == 10 {
+		deadlineStr = fmt.Sprintf("%s 00:00:00", deadlineStr)
+	}
+	cstZone, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		return nil
+	}
+	t, err := common.ConvertStringToTimeInLoc(deadlineStr, cstZone)
 	if err != nil {
 		return nil
 	}
