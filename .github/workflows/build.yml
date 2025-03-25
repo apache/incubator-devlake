@@ -53,3 +53,29 @@ jobs:
           dockerfile: ./backend/Dockerfile
           context: ./backend
           platforms: linux/amd64
+
+  build-and-push-other-image:
+    name: Build and Push UI image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get build timestamp
+        id: ts
+        run: echo "TIMESTAMP=$(date '+%y%m%d_%H%M')" >> $GITHUB_OUTPUT
+
+      - name: Get short sha
+        id: get_short_sha
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build & push to GAR
+        uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
+        with:
+          gcloud_service_key: "${{ secrets.GCLOUD_SERVICE_KEY }}"
+          registry: "${{ vars.GAR_URL }}"
+          project_id: "${{ vars.GAR_REPOSITORY }}"
+          image_name: devlake-config-ui
+          image_tag: ${{ steps.get_short_sha.outputs.SHORT_SHA }}, ${{ steps.ts.outputs.TIMESTAMP }}, plugin
+          dockerfile: ./config-ui/Dockerfile
+          context: ./config-ui
+          platforms: linux/amd64
