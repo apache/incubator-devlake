@@ -117,7 +117,7 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 			}
 			loc, _ := time.LoadLocation("Asia/Shanghai")
-			toolL.DueDate, _ = utils.GetTimeFeildFromMap(toolL.AllFields, dueDateField, loc)
+			toolL.DueDate, _ = utils.GetTimeFieldFromMap(toolL.AllFields, dueDateField, loc)
 			return results, nil
 		},
 	})

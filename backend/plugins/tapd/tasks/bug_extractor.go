@@ -89,7 +89,7 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}
 			loc, _ := time.LoadLocation("Asia/Shanghai")
-			toolL.DueDate, _ = utils.GetTimeFeildFromMap(toolL.AllFields, dueDateField, loc)
+			toolL.DueDate, _ = utils.GetTimeFieldFromMap(toolL.AllFields, dueDateField, loc)
 			workSpaceBug := &models.TapdWorkSpaceBug{
 				ConnectionId: data.Options.ConnectionId,
 				WorkspaceId:  toolL.WorkspaceId,

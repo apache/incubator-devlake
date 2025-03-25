@@ -135,7 +135,7 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:            row.Url,
 			}
 			loc, _ := time.LoadLocation("Asia/Shanghai")
-			bug.DueDate, _ = utils.GetTimeFeildFromMap(res.AllFeilds, dueDateField, loc)
+			bug.DueDate, _ = utils.GetTimeFieldFromMap(res.AllFeilds, dueDateField, loc)
 			switch bug.Status {
 			case "active", "closed", "resolved":
 			default:

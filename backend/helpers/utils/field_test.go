@@ -124,23 +124,23 @@ func TestGetTimeFeildFromMap(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetTimeFeildFromMap(tt.allFields, tt.fieldName, tt.loc)
+			got, err := GetTimeFieldFromMap(tt.allFields, tt.fieldName, tt.loc)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("GetTimeFeildFromMap() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("GetTimeFieldFromMap() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			if tt.wantErr && err.Error() != tt.expectedErr {
-				t.Errorf("GetTimeFeildFromMap() error = %v, expectedErr %v", err, tt.expectedErr)
+				t.Errorf("GetTimeFieldFromMap() error = %v, expectedErr %v", err, tt.expectedErr)
 				return
 			}
 
 			if got != nil && tt.want != nil {
 				if !got.UTC().Equal(tt.want.UTC()) {
-					t.Errorf("GetTimeFeildFromMap() = %v, want %v", got, tt.want)
+					t.Errorf("GetTimeFieldFromMap() = %v, want %v", got, tt.want)
 				}
 			} else if got != tt.want {
-				t.Errorf("GetTimeFeildFromMap() = %v, want %v", got, tt.want)
+				t.Errorf("GetTimeFieldFromMap() = %v, want %v", got, tt.want)
 			}
 		})
 	}
