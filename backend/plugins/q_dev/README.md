@@ -35,6 +35,7 @@ limitations under the License.
 4. S3桶名称
 5. 速率限制(每小时)
 
+通过下面的curl可以创建connection
 ```bash
 curl 'http://localhost:8080/plugins/q_dev/connections' \
 --header 'Content-Type: application/json' \
@@ -53,6 +54,11 @@ curl 'http://localhost:8080/plugins/q_dev/connections' \
 <YOUR_S3_BUCKET_NAME>：您要使用的 S3 存储桶名称
 <AWS_REGION>: 您要使用的 S3 所在的区域
 
+通过下面的curl可以获取所有的connection
+```bash
+ curl Get 'http://localhost:8080/plugins/q_dev/connections'
+```
+
 ## 数据流程
 
 插件包含以下任务：
@@ -69,15 +75,21 @@ curl 'http://localhost:8080/plugins/q_dev/connections' \
 - `_tool_q_dev_user_metrics`: 存储聚合后的用户指标
 
 ## 数据收集配置
+收集数据步骤
+1. 在Config UI页面上选择左侧的`Advanced Mode`，点击`Blueprints`，
+2. 新建Blueprint
+3. ![img.png](img.png) 点击右侧齿轮
+4. 在`JSON Configuration`粘贴如下JSON配置：
 
-要收集数据，请在创建流水线运行页面选择高级模式，并粘贴如下 JSON 配置：
 ```json
 [
   [
     {
       "plugin": "q_dev",
+      "subtasks": null,
       "options": {
-        "connectionId": 1
+        "connectionId": 5,
+        "s3Prefix": ""
       }
     }
   ]
