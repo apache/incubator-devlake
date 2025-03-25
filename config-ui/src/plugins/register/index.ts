@@ -21,6 +21,7 @@ import { IPluginConfig } from '@/types';
 import { AzureConfig, AzureGoConfig } from './azure';
 import { BambooConfig } from './bamboo';
 import { BitbucketConfig } from './bitbucket';
+import { ArgoConfig } from './argo';
 import { BitbucketServerConfig } from './bitbucket-server';
 import { CircleCIConfig } from './circleci';
 import { GitHubConfig } from './github';
@@ -40,6 +41,7 @@ export const pluginConfigs: IPluginConfig[] = [
   AzureGoConfig,
   BambooConfig,
   BitbucketConfig,
+  ArgoConfig,
   BitbucketServerConfig,
   CircleCIConfig,
   GerritConfig,
