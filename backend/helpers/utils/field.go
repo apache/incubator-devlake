@@ -41,7 +41,8 @@ func GetTimeFeildFromMap(allFields map[string]interface{}, fieldName string, loc
 	var temp time.Time
 	switch v := val.(type) {
 	case string:
-		if v == "" || v == "null" {
+		if v == "" || v == "null" || v == "{}" {
+			// In Zentao, the field `deadline`'s value may be "{}".
 			return nil, nil
 		}
 		// If value is a string with the format yyyy-MM-dd, use loc to parse it

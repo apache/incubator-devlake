@@ -45,7 +45,7 @@ type ZentaoTaskRes struct {
 	Estimate       float64                `json:"estimate"`
 	Consumed       float64                `json:"consumed"`
 	Left           float64                `json:"left"`
-	Deadline       *common.CSTTime        `json:"deadline"`
+	Deadline       interface{}            `json:"deadline"`
 	Status         string                 `json:"status"`
 	SubStatus      string                 `json:"subStatus"`
 	Color          string                 `json:"color"`

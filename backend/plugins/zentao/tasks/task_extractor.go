@@ -116,7 +116,7 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 		Estimate:           res.Estimate,
 		Consumed:           res.Consumed,
 		Left:               res.Left,
-		Deadline:           res.Deadline,
+		Deadline:           nil,
 		Status:             res.Status,
 		SubStatus:          res.SubStatus,
 		Color:              res.Color,
