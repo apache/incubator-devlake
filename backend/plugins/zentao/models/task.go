@@ -19,6 +19,7 @@ package models
 
 import (
 	"encoding/json"
+	"github.com/spf13/cast"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -96,6 +97,22 @@ type ZentaoTaskRes struct {
 
 func (zentaoTaskRes ZentaoTaskRes) ToJsonRawMessage() (json.RawMessage, error) {
 	return json.Marshal(zentaoTaskRes)
+}
+
+func (zentaoTaskRes *ZentaoTaskRes) GetDeadline() *common.CSTTime {
+	if zentaoTaskRes == nil {
+		return nil
+	}
+	deadlineStr := cast.ToString(zentaoTaskRes.Deadline)
+	if deadlineStr == "" || deadlineStr == "null" || deadlineStr == "{}" {
+		return nil
+	}
+	t, err := common.ConvertStringToTime(deadlineStr)
+	if err != nil {
+		return nil
+	}
+	ret := common.CSTTime(t)
+	return &ret
 }
 
 func (zentaoTaskRes *ZentaoTaskRes) SetAllFeilds(raw json.RawMessage) error {

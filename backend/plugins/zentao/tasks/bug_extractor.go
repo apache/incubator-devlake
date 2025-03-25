@@ -104,7 +104,7 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				AssignedToId:   data.AccountCache.getAccountIDFromApiAccount(res.AssignedTo),
 				AssignedToName: data.AccountCache.getAccountNameFromApiAccount(res.AssignedTo),
 				AssignedDate:   res.AssignedDate,
-				Deadline:       nil,
+				Deadline:       res.GetDeadline(),
 				ResolvedById:   data.AccountCache.getAccountIDFromApiAccount(res.ResolvedBy),
 				Resolution:     res.Resolution,
 				ResolvedBuild:  res.ResolvedBuild,
