@@ -25,7 +25,7 @@ import (
 )
 
 type ZentaoStoryRes struct {
-	AllFeilds        map[string]interface{} `json:"-"`
+	AllFields        map[string]interface{} `json:"-"`
 	ID               int64                  `json:"id"`
 	Vision           string                 `json:"vision"`
 	Parent           int64                  `json:"parent"`
@@ -87,7 +87,7 @@ func (i *ZentaoStoryRes) SetAllFeilds(raw json.RawMessage) error {
 	if err := json.Unmarshal(raw, &allFeilds); err != nil {
 		return err
 	}
-	i.AllFeilds = allFeilds
+	i.AllFields = allFeilds
 	return nil
 }
 

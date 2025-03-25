@@ -56,7 +56,7 @@ func (a *ApiAccount) UnmarshalJSON(data []byte) error {
 }
 
 type ZentaoBugRes struct {
-	AllFeilds      map[string]interface{} `json:"-"`
+	AllFields      map[string]interface{} `json:"-"`
 	ID             int64                  `json:"id"`
 	Project        int64                  `json:"project"`
 	Product        int64                  `json:"product"`
@@ -129,7 +129,7 @@ func (i *ZentaoBugRes) SetAllFeilds(raw json.RawMessage) error {
 	if err := json.Unmarshal(raw, &allFeilds); err != nil {
 		return err
 	}
-	i.AllFeilds = allFeilds
+	i.AllFields = allFeilds
 	return nil
 }
 

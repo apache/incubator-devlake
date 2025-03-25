@@ -162,7 +162,7 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 	}
 
 	loc, _ := time.LoadLocation("Asia/Shanghai")
-	task.DueDate, _ = utils.GetTimeFieldFromMap(res.AllFeilds, dueDateField, loc)
+	task.DueDate, _ = utils.GetTimeFieldFromMap(res.AllFields, dueDateField, loc)
 	if task.StdType == "" {
 		task.StdType = ticket.TASK
 	}

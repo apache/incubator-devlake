@@ -25,7 +25,7 @@ import (
 )
 
 type ZentaoTaskRes struct {
-	AllFeilds      map[string]interface{} `json:"-"`
+	AllFields      map[string]interface{} `json:"-"`
 	Id             int64                  `json:"id"`
 	Project        int64                  `json:"project"`
 	Parent         int64                  `json:"parent"`
@@ -103,7 +103,7 @@ func (zentaoTaskRes *ZentaoTaskRes) SetAllFeilds(raw json.RawMessage) error {
 	if err := json.Unmarshal(raw, &allFeilds); err != nil {
 		return err
 	}
-	zentaoTaskRes.AllFeilds = allFeilds
+	zentaoTaskRes.AllFields = allFeilds
 	return nil
 }
 
