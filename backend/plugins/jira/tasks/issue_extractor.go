@@ -151,7 +151,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, apiIssue *apiv2mo
 	}
 	// using location of issues.Created
 	loc := issue.Created.Location()
-	issue.DueDate, _ = utils.GetTimeFeildFromMap(apiIssue.Fields.AllFields, dueDateField, loc)
+	issue.DueDate, _ = utils.GetTimeFieldFromMap(apiIssue.Fields.AllFields, dueDateField, loc)
 	// code in next line will set issue.Type to issueType.Name
 	issue.Type = mappings.TypeIdMappings[issue.Type]
 	issue.StdType = mappings.StdTypeMappings[issue.Type]

@@ -25,7 +25,7 @@ import (
 )
 
 type ZentaoTaskRes struct {
-	AllFeilds      map[string]interface{} `json:"-"`
+	AllFields      map[string]interface{} `json:"-"`
 	Id             int64                  `json:"id"`
 	Project        int64                  `json:"project"`
 	Parent         int64                  `json:"parent"`
@@ -45,7 +45,7 @@ type ZentaoTaskRes struct {
 	Estimate       float64                `json:"estimate"`
 	Consumed       float64                `json:"consumed"`
 	Left           float64                `json:"left"`
-	Deadline       *common.CSTTime        `json:"deadline"`
+	Deadline       interface{}            `json:"deadline"`
 	Status         string                 `json:"status"`
 	SubStatus      string                 `json:"subStatus"`
 	Color          string                 `json:"color"`
@@ -103,38 +103,38 @@ func (zentaoTaskRes *ZentaoTaskRes) SetAllFeilds(raw json.RawMessage) error {
 	if err := json.Unmarshal(raw, &allFeilds); err != nil {
 		return err
 	}
-	zentaoTaskRes.AllFeilds = allFeilds
+	zentaoTaskRes.AllFields = allFeilds
 	return nil
 }
 
 type ZentaoTask struct {
 	common.NoPKModel
-	ConnectionId       uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID                 int64           `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	Project            int64           `json:"project"`
-	Parent             int64           `json:"parent"`
-	Execution          int64           `json:"execution"`
-	Module             int             `json:"module"`
-	Design             int             `json:"design"`
-	Story              int64           `json:"story"`
-	StoryVersion       int             `json:"storyVersion"`
-	DesignVersion      int             `json:"designVersion"`
-	FromBug            int             `json:"fromBug"`
-	Feedback           int             `json:"feedback"`
-	FromIssue          int             `json:"fromIssue"`
-	Name               string          `json:"name"`
-	Type               string          `json:"type"`
-	Mode               string          `json:"mode"`
-	Pri                int             `json:"pri"`
-	Estimate           float64         `json:"estimate"`
-	Consumed           float64         `json:"consumed"`
-	Left               float64         `json:"left" gorm:"column:db_left"`
-	Deadline           *common.CSTTime `json:"deadline"`
-	Status             string          `json:"status"`
-	SubStatus          string          `json:"subStatus"`
-	Color              string          `json:"color"`
-	Description        string          `json:"desc"`
-	Version            int             `json:"version"`
+	ConnectionId       uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID                 int64   `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	Project            int64   `json:"project"`
+	Parent             int64   `json:"parent"`
+	Execution          int64   `json:"execution"`
+	Module             int     `json:"module"`
+	Design             int     `json:"design"`
+	Story              int64   `json:"story"`
+	StoryVersion       int     `json:"storyVersion"`
+	DesignVersion      int     `json:"designVersion"`
+	FromBug            int     `json:"fromBug"`
+	Feedback           int     `json:"feedback"`
+	FromIssue          int     `json:"fromIssue"`
+	Name               string  `json:"name"`
+	Type               string  `json:"type"`
+	Mode               string  `json:"mode"`
+	Pri                int     `json:"pri"`
+	Estimate           float64 `json:"estimate"`
+	Consumed           float64 `json:"consumed"`
+	Left               float64 `json:"left" gorm:"column:db_left"`
+	Deadline           string  `json:"deadline"`
+	Status             string  `json:"status"`
+	SubStatus          string  `json:"subStatus"`
+	Color              string  `json:"color"`
+	Description        string  `json:"desc"`
+	Version            int     `json:"version"`
 	OpenedById         int64
 	OpenedByName       string
 	OpenedDate         *common.Iso8601Time `json:"openedDate"`

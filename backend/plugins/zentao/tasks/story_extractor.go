@@ -136,7 +136,7 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 					return nil, errors.Default.WrapRaw(err)
 				}
 				loc, _ := time.LoadLocation("Asia/Shanghai")
-				story.DueDate, _ = helpers.GetTimeFeildFromMap(res.AllFeilds, dueDateField, loc)
+				story.DueDate, _ = helpers.GetTimeFieldFromMap(res.AllFields, dueDateField, loc)
 			}
 			if story.StdType == "" {
 				story.StdType = ticket.REQUIREMENT
