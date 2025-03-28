@@ -120,6 +120,7 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 				UpdatedDate:             &jiraIssue.Updated,
 				LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
 				TimeSpentMinutes:        jiraIssue.SpentMinutes,
+				TimeRemainingMinutes:    &jiraIssue.RemainingEstimateMinutes,
 				OriginalProject:         jiraIssue.ProjectName,
 				Component:               jiraIssue.Components,
 				IsSubtask:               jiraIssue.Subtask,
