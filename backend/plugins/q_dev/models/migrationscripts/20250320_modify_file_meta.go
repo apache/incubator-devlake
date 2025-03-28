@@ -15,18 +15,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/tasks"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-type AzuredevopsTaskOptions tasks.AzuredevopsOptions
+type modifyFileMetaTable struct{}
 
-// @Summary Azure DevOps task options for pipelines
-// @Description This is a dummy API to demonstrate the available task options for Azure DevOps pipelines
-// @Tags plugins/azuredevops
-// @Accept application/json
-// @Param pipeline body AzuredevopsTaskOptions true "json"
-// @Router /pipelines/azuredevops/pipeline-task [post]
-func _() {}
+func (*modifyFileMetaTable) Name() string {
+	return "Modify QDevS3FileMeta table to allow NULL processed_time"
+}
+
+func (*modifyFileMetaTable) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	
+	// 修改 processed_time 列允许为 NULL
+	sql := "ALTER TABLE _tool_q_dev_s3_file_meta MODIFY processed_time DATETIME NULL"
+	err := db.Exec(sql)
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to modify processed_time column")
+	}
+	
+	return nil
+}
+
+func (*modifyFileMetaTable) Version() uint64 {
+	return 20250320
+}
