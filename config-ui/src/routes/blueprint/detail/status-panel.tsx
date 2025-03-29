@@ -22,11 +22,19 @@ import { Card, Modal, Switch, Button, Tooltip, Dropdown, Flex, Space } from 'ant
 
 import API from '@/api';
 import { Message } from '@/components';
+<<<<<<< HEAD
 import { getCron } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
 import { IBlueprint } from '@/types';
 import { formatTime } from '@/utils';
+=======
+import { getCron, PATHS } from '@/config';
+import { useRefreshData } from '@/hooks';
+import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
+import { IBlueprint } from '@/types';
+import { formatTime, operator } from '@/utils';
+>>>>>>> main
 
 import { FromEnum } from '../types';
 
@@ -40,10 +48,20 @@ interface Props {
   onTrigger: (payload?: { skipCollectors?: boolean; fullSync?: boolean }) => void;
 }
 
+<<<<<<< HEAD
 export const StatusPanel = ({ from, blueprint, pipelineId, operating, onDelete, onUpdate, onTrigger }: Props) => {
   const [type, setType] = useState<'delete' | 'fullSync' | 'checkTokenFailed'>();
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
+=======
+export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) => {
+  const [type, setType] = useState<'delete' | 'fullSync'>();
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [operating, setOperating] = useState(false);
+
+  const navigate = useNavigate();
+>>>>>>> main
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
@@ -72,7 +90,11 @@ export const StatusPanel = ({ from, blueprint, pipelineId, operating, onDelete, 
                 type="primary"
                 disabled={!blueprint.enable}
                 loading={operating}
+<<<<<<< HEAD
                 onClick={() => onTrigger({ skipCollectors: true })}
+=======
+                onClick={() => handleRun({ skipCollectors: true, fullSync: true })}
+>>>>>>> main
               >
                 Re-transform Data
               </Button>

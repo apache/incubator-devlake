@@ -28,7 +28,11 @@ var _ plugin.MigrationScript = (*changeIssueComponentType)(nil)
 type changeIssueComponentType struct{}
 
 func (script *changeIssueComponentType) Up(basicRes context.BasicRes) errors.Error {
+<<<<<<< HEAD
 	return basicRes.GetDal().ModifyColumnType("issues", "component", "text")
+=======
+	return basicRes.GetDal().ModifyColumnType("issues", "components", "text")
+>>>>>>> main
 }
 
 func (*changeIssueComponentType) Version() uint64 {

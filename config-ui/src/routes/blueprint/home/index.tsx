@@ -121,11 +121,15 @@ export const BlueprintHomePage = () => {
               title: 'Blueprint Name',
               key: 'name',
               render: (_, { id, name }) => (
+<<<<<<< HEAD
                 <Link
                   to={`/advanced/blueprints/${id}`}
                   state={{ activeKey: 'configuration' }}
                   style={{ color: '#292b3f' }}
                 >
+=======
+                <Link to={PATHS.BLUEPRINT(id)} state={{ activeKey: 'configuration' }} style={{ color: '#292b3f' }}>
+>>>>>>> main
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
               ),
@@ -201,7 +205,11 @@ export const BlueprintHomePage = () => {
                   icon={<SettingOutlined />}
                   helptip="Blueprint Configuration"
                   onClick={() =>
+<<<<<<< HEAD
                     navigate(`/advanced/blueprints/${val}`, {
+=======
+                    navigate(PATHS.BLUEPRINT(val), {
+>>>>>>> main
                       state: {
                         activeKey: 'configuration',
                       },

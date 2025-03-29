@@ -16,14 +16,22 @@
  *
  */
 
+<<<<<<< HEAD
 import { useState, useEffect, useMemo } from 'react';
+=======
+import { useState, useContext, useEffect, useMemo } from 'react';
+>>>>>>> main
 import { Link } from 'react-router-dom';
 import { Flex, Button, Tooltip } from 'antd';
 
 import API from '@/api';
 import { Markdown } from '@/components';
+<<<<<<< HEAD
 import { selectOnboard, previous, update } from '@/features/onboard';
 import { useAppDispatch, useAppSelector } from '@/hooks';
+=======
+import { PATHS } from '@/config';
+>>>>>>> main
 import { getPluginConfig } from '@/plugins';
 import { ConnectionToken } from '@/plugins/components/connection-form/fields/token';
 import { ConnectionUsername } from '@/plugins/components/connection-form/fields/username';
@@ -125,7 +133,11 @@ export const Step2 = () => {
               subLabel={
                 <p>
                   Create a personal access token in {platformNames[plugin]}. For self-managed {config.name}, please skip the onboarding
+<<<<<<< HEAD
                   and configure via <Link to={'/connections'}>Data Connections</Link>.
+=======
+                  and configure via <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
+>>>>>>> main
                 </p>
               }
               initialValue=""

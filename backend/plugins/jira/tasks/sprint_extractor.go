@@ -39,10 +39,16 @@ var ExtractSprintsMeta = plugin.SubTaskMeta{
 
 func ExtractSprints(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
+<<<<<<< HEAD
 
 	isServerFlag, err := isServer(data.JiraServerInfo, data.ApiClient, taskCtx.GetDal(), data.Options.ConnectionId)
 	if err != nil {
 		return err
+=======
+	isServer := false
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+		isServer = true
+>>>>>>> main
 	}
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
@@ -65,7 +71,11 @@ func ExtractSprints(taskCtx plugin.SubTaskContext) errors.Error {
 				BoardId:      data.Options.BoardId,
 				SprintId:     sprint.ID,
 			}
+<<<<<<< HEAD
 			return []interface{}{sprint.ToToolLayer(data.Options.ConnectionId, isServerFlag), &boardSprint}, nil
+=======
+			return []interface{}{sprint.ToToolLayer(data.Options.ConnectionId, isServer), &boardSprint}, nil
+>>>>>>> main
 		},
 	})
 

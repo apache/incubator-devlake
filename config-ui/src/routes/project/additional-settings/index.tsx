@@ -26,6 +26,11 @@ import { selectProject } from '@/features/project';
 import { useAppSelector } from '@/hooks';
 import { operator } from '@/utils';
 
+<<<<<<< HEAD:config-ui/src/routes/project/additional-settings/index.tsx
+=======
+import * as S from './styled';
+
+>>>>>>> main:config-ui/src/routes/project/detail/settings-panel.tsx
 const RegexPrIssueDefaultValue = '(?mi)(Closes)[\\s]*.*(((and )?#\\d+[ ]*)+)';
 
 export const ProjectAdditionalSettings = () => {
@@ -70,10 +75,13 @@ export const ProjectAdditionalSettings = () => {
   }, [project]);
 
   const handleUpdate = async () => {
+<<<<<<< HEAD:config-ui/src/routes/project/additional-settings/index.tsx
     if (!project) {
       return;
     }
 
+=======
+>>>>>>> main:config-ui/src/routes/project/detail/settings-panel.tsx
     const [success] = await operator(
       () =>
         API.project.update(project.name, {
@@ -105,7 +113,12 @@ export const ProjectAdditionalSettings = () => {
     );
 
     if (success) {
+<<<<<<< HEAD:config-ui/src/routes/project/additional-settings/index.tsx
       navigate(`/projects/${encodeURIComponent(name)}`, {
+=======
+      onRefresh();
+      navigate(PATHS.PROJECT(name), {
+>>>>>>> main:config-ui/src/routes/project/detail/settings-panel.tsx
         state: {
           tabId: 'settings',
         },
@@ -221,9 +234,15 @@ export const ProjectAdditionalSettings = () => {
         onCancel={handleHideDeleteDialog}
         onOk={handleDelete}
       >
+<<<<<<< HEAD:config-ui/src/routes/project/additional-settings/index.tsx
         <Flex align="center">
           <Message content="This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in this Connection." />
         </Flex>
+=======
+        <S.DialogBody>
+          <Message content="This operation cannot be undone. Deleting this project will remove all associated project settings and data. This action does not delete any data connections or the data collected through them." />
+        </S.DialogBody>
+>>>>>>> main:config-ui/src/routes/project/detail/settings-panel.tsx
       </Modal>
     </Flex>
   );

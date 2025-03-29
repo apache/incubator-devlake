@@ -121,6 +121,7 @@ func All() []plugin.MigrationScript {
 		new(modifyCicdPipelineCommitsRepoUrlLength),
 		new(addPrAssigneeAndReviewer),
 		new(modifyPrAssigneeAndReviewerId),
+<<<<<<< HEAD
 		new(addPullRequestIdIndexToPullRequestCommits),
 		new(addPullRequestIdIndexToPullRequestComments),
 		new(initIncidentRelatedTables),
@@ -137,5 +138,21 @@ func All() []plugin.MigrationScript {
 		new(addCqIssueImpacts),
 		new(changeIssueComponentType),
 		new(increaseCqProjectsIdLength),
+=======
+		new(addChangesToPr),
+		new(addMergedByToPr),
+		new(addPullRequestIdIndexToPullRequestCommits),
+		new(addPullRequestIdIndexToPullRequestComments),
+		new(addIsDraftToPr),
+		new(initIncidentRelatedTables),
+		new(renameProjectIssueMetrics),
+		new(addDateFieldsToProjectPrMetric),
+		new(addTableScopeIdToIncident),
+		new(addAssigneeToIncident),
+		new(addIsSubtaskToIssue),
+		new(addIsChildToCicdPipeline),
+		new(addCqIssueImpacts),
+		new(addDueDateToIssues),
+>>>>>>> main
 	}
 }

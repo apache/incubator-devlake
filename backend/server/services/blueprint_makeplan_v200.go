@@ -148,7 +148,10 @@ func GeneratePlanJsonV200(
 		}
 	}
 	plan := SequentializePipelinePlans(
+<<<<<<< HEAD
 		planForProjectTokenChecker,
+=======
+>>>>>>> main
 		planForProjectMapping,
 		ParallelizePipelinePlans(sourcePlans...),
 		ParallelizePipelinePlans(metricPlans...),

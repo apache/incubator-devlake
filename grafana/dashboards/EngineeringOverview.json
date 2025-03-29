@@ -725,7 +725,11 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
+<<<<<<< HEAD
           "rawSql": "with _developers as(\n  select\n    DATE_ADD(date(c.authored_date), INTERVAL -DAY(date(c.authored_date))+1 DAY) as time,\n    count(distinct author_name) as developer_count\n  from\n    commits c\n    join repo_commits rc on c.sha = rc.commit_sha\n    join project_mapping pm on rc.repo_id = pm.row_id and pm.table = 'repos' \n  where\n    $__timeFilter(c.authored_date)\n    and pm.project_name in (${project})\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  developer_count\nfrom _developers\norder by time asc",
+=======
+          "rawSql": "with _developers as(\n  select\n    DATE_ADD(date(c.authored_date), INTERVAL -DAY(date(c.authored_date))+1 DAY) as time,\n    count(distinct author_name) as developer_count\n  from\n    commits c\n    join repo_commits rc on c.sha = rc.commit_sha\n    join project_mapping pm on rc.repo_id = pm.row_id and pm.table = 'repos' \n  where\n    $__timeFilter(c.authored_date)\n    and c.authored_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  developer_count\nfrom _developers\norder by time asc",
+>>>>>>> main
           "refId": "A",
           "select": [
             [

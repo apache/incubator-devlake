@@ -25,6 +25,7 @@ import { MillerColumns } from '@mints/miller-columns';
 import { useDebounce } from '@mints/hooks';
 
 import API from '@/api';
+import { PATHS } from '@/config';
 import { Loading, Block, ExternalLink, Message } from '@/components';
 import { getPluginScopeId } from '@/plugins';
 import type { IDataScope } from '@/types';
@@ -211,7 +212,19 @@ export const DataScopeSelect = ({
             Save
           </Button>
         </Flex>
+<<<<<<< HEAD
       </Flex>
+=======
+      ) : (
+        <Flex>
+          <ExternalLink link={PATHS.CONNECTION(plugin, connectionId)}>
+            <Button type="primary" icon={<PlusOutlined />}>
+              Add Data Scope
+            </Button>
+          </ExternalLink>
+        </Flex>
+      )}
+>>>>>>> main
     </Block>
   );
 };

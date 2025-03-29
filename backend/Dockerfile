@@ -146,7 +146,11 @@ VOLUME /app/logs
 COPY python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
+<<<<<<< HEAD
     pip install --upgrade pip
+=======
+    python3 -m pip install --upgrade pip
+>>>>>>> main
 
 # Setup Python Poetry package manager
 RUN curl -sSL https://install.python-poetry.org | python3 -

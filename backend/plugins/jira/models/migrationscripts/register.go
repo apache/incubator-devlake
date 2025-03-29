@@ -53,6 +53,10 @@ func All() []plugin.MigrationScript {
 		new(addIssueFieldTable),
 		new(changeIssueComponentType),
 		new(flushJiraIssues),
+<<<<<<< HEAD
 		new(addJiraServerInfo),
+=======
+		new(updateScopeConfig),
+>>>>>>> main
 	}
 }

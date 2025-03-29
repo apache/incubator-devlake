@@ -16,14 +16,22 @@
  *
  */
 
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
+=======
+import { useState, useEffect, useContext } from 'react';
+>>>>>>> main
 import { Link } from 'react-router-dom';
 import { Input, Flex, Button, message } from 'antd';
 
 import API from '@/api';
 import { Block, Markdown } from '@/components';
+<<<<<<< HEAD
 import { selectOnboard, update, previous, changeProjectName, changePlugin } from '@/features/onboard';
 import { useAppDispatch, useAppSelector } from '@/hooks';
+=======
+import { PATHS } from '@/config';
+>>>>>>> main
 import { ConnectionSelect } from '@/plugins';
 import { operator } from '@/utils';
 
@@ -79,10 +87,17 @@ export const Step1 = () => {
           <Block
             title="Data Connection"
             description={
+<<<<<<< HEAD
               <>
                 For self-managed GitLab/GitHub/Bitbucket, please skip the onboarding and configure via{' '}
                 <Link to={'/connections'}>Data Connections</Link>.
               </>
+=======
+              <p>
+                For self-managed GitLab/GitHub/Bitbucket, please skip the onboarding and configure via{' '}
+                <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
+              </p>
+>>>>>>> main
             }
             required
           >

@@ -95,7 +95,11 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
+<<<<<<< HEAD
       navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`, {
+=======
+      navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprint.id), {
+>>>>>>> main
         state: {
           activeKey: 'status',
         },
@@ -128,7 +132,11 @@ export const BlueprintConnectionDetailPage = () => {
           </div>
         ),
         onCancel: () => {
+<<<<<<< HEAD
           navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`, {
+=======
+          navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprint.id), {
+>>>>>>> main
             state: {
               tab: 'configuration',
             },

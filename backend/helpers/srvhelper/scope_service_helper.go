@@ -220,6 +220,9 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) getAllBlueprinsByScope(connectionId ui
 			scopeId,
 		),
 	))
+	for _, bp := range blueprints {
+		bp.Plan = nil
+	}
 	return blueprints
 }
 

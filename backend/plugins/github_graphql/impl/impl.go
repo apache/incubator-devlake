@@ -144,7 +144,7 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 type GraphQueryRateLimit struct {
-	RateLimit struct {
+	RateLimit *struct {
 		Limit     graphql.Int
 		Remaining graphql.Int
 		ResetAt   time.Time
@@ -207,6 +207,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 			} else {
 				return nil, errors.BadInput.New("Unsupported scheme set in proxy")
 			}
+<<<<<<< HEAD
 		}
 
 		httpClient := oauth2.NewClient(oauthContext, src)
@@ -243,6 +244,15 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 		graphqlClient.SetGetRateCost(func(q interface{}) int {
 			v := reflect.ValueOf(q)
 			return int(v.Elem().FieldByName(`RateLimit`).FieldByName(`Cost`).Int())
+=======
+			if query.RateLimit == nil {
+				logger.Info(`github graphql rate limit are disabled, fallback to 5000req/hour`)
+				return 5000, nil, nil
+			}
+			logger.Info(`github graphql init success with remaining %d/%d and will reset at %s`,
+				query.RateLimit.Remaining, query.RateLimit.Limit, query.RateLimit.ResetAt)
+			return int(query.RateLimit.Remaining), &query.RateLimit.ResetAt, nil
+>>>>>>> main
 		})
 		taskData.ApiClient = apiClient
 		taskData.GraphqlClient = graphqlClient

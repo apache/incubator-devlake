@@ -23,7 +23,12 @@ import { Flex, Table, Button, Modal, Input } from 'antd';
 
 import API from '@/api';
 import { PageHeader, Block, IconButton } from '@/components';
+<<<<<<< HEAD
 import { getCron } from '@/config';
+=======
+import { getCron, PATHS } from '@/config';
+import { ConnectionName } from '@/features';
+>>>>>>> main
 import { useRefreshData } from '@/hooks';
 import { OnboardTour } from '@/routes/onboard/components';
 import { formatTime, operator } from '@/utils';
@@ -119,7 +124,11 @@ export const ProjectHomePage = () => {
             key: 'name',
             render: (name: string) => (
               <Link
+<<<<<<< HEAD
                 to={`/projects/${encodeURIComponent(name)}/general-settings`}
+=======
+                to={PATHS.PROJECT(name)}
+>>>>>>> main
                 state={{ activeKey: 'configuration' }}
                 style={{ color: '#292b3f' }}
                 ref={nameRef}
@@ -182,9 +191,15 @@ export const ProjectHomePage = () => {
                 ref={configRef}
                 type="primary"
                 icon={<SettingOutlined />}
+<<<<<<< HEAD
                 helptip="Project Settings"
                 onClick={() =>
                   navigate(`/projects/${encodeURIComponent(name)}/general-settings`, {
+=======
+                helptip="Project Configuration"
+                onClick={() =>
+                  navigate(PATHS.PROJECT(name), {
+>>>>>>> main
                     state: { activeKey: 'configuration' },
                   })
                 }

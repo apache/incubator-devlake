@@ -59,11 +59,17 @@ func ExtractApiPipelineDetails(subtaskCtx plugin.SubTaskContext) errors.Error {
 				Duration:        gitlabApiPipeline.Duration,
 				QueuedDuration:  gitlabApiPipeline.QueuedDuration,
 				ConnectionId:    data.Options.ConnectionId,
+<<<<<<< HEAD
 				Source:          gitlabApiPipeline.Source,
 			}
 			if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
 				gitlabPipeline.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref)
 				gitlabPipeline.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabApiPipeline.Ref)
+=======
+				Type:            data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
+				Environment:     data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
+				Source:          gitlabApiPipeline.Source,
+>>>>>>> main
 			}
 
 			return []interface{}{gitlabPipeline}, nil

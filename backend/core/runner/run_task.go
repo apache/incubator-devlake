@@ -304,7 +304,10 @@ func RunPluginSubTasks(
 			// subtask was disabled
 			continue
 		}
+<<<<<<< HEAD
 		subtaskNumber++
+=======
+>>>>>>> main
 		// run subtask
 		if progress != nil {
 			progress <- plugin.RunningProgress{

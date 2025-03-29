@@ -52,6 +52,9 @@ func All() []plugin.MigrationScript {
 		new(addGitlabAssigneeAndReviewerPrimaryKey),
 		new(changeIssueComponentType),
 		new(addIsChildToPipelines240906),
+<<<<<<< HEAD
 		new(addEnvNameListToScopeConfig),
+=======
+>>>>>>> main
 	}
 }

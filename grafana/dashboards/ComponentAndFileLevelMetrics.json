@@ -1417,7 +1417,7 @@
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-5y",
     "to": "now"
   },
   "timeRangeUpdatedDuringEditOrView": false,

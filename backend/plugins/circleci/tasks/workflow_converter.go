@@ -60,12 +60,21 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciWorkflow)
+<<<<<<< HEAD
 			// Skip if CreatedDate is null or empty string - still enters into the `_tool_circleci_workflows` table with null values
 			if userTool.CreatedDate.ToNullableTime() == nil {
 				logger.Info("CreatedDate is null or empty string in the CircleCI API response for %s", userTool.PipelineId)
 				return []interface{}{}, nil
 			}
 			createdAt := userTool.CreatedDate.ToTime()
+=======
+			// Skip if CreatedAt is null or empty string - still enters into the `_tool_circleci_workflows` table with null values
+			if userTool.CreatedAt.ToNullableTime() == nil {
+				logger.Info("CreatedAt is null or empty string in the CircleCI API response for %s", userTool.PipelineId)
+				return []interface{}{}, nil
+			}
+			createdAt := userTool.CreatedAt.ToTime()
+>>>>>>> main
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getWorkflowIdGen().Generate(data.Options.ConnectionId, userTool.Id),

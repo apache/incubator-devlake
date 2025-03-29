@@ -16,10 +16,16 @@
  *
  */
 
+<<<<<<< HEAD
 import { useState, useEffect, useReducer } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { WarningOutlined } from '@ant-design/icons';
 import { theme, Tabs, Modal } from 'antd';
+=======
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Tabs } from 'antd';
+>>>>>>> main
 
 import API from '@/api';
 import { PageLoading } from '@/components';
@@ -57,6 +63,7 @@ interface Props {
 export const BlueprintDetail = ({ id, from }: Props) => {
   const [version, setVersion] = useState(1);
   const [activeKey, setActiveKey] = useState('status');
+<<<<<<< HEAD
   const [operating, setOperating] = useState(false);
 
   const [{ open, failedList }, dispatch] = useReducer(reducer, {
@@ -69,6 +76,10 @@ export const BlueprintDetail = ({ id, from }: Props) => {
   const {
     token: { orange5 },
   } = theme.useToken();
+=======
+
+  const { state } = useLocation();
+>>>>>>> main
 
   useEffect(() => {
     setActiveKey(state?.activeKey ?? 'status');
@@ -90,6 +101,7 @@ export const BlueprintDetail = ({ id, from }: Props) => {
     }
   };
 
+<<<<<<< HEAD
   const handleUpdate = async (payload: any) => {
     const [success] = await operator(
       () =>
@@ -144,6 +156,10 @@ export const BlueprintDetail = ({ id, from }: Props) => {
       setVersion((v) => v + 1);
       setActiveKey('status');
     }
+=======
+  const handleChangeActiveKey = (activeKey: string) => {
+    setActiveKey(activeKey);
+>>>>>>> main
   };
 
   if (!ready || !data) {
@@ -178,15 +194,24 @@ export const BlueprintDetail = ({ id, from }: Props) => {
               <ConfigurationPanel
                 from={from}
                 blueprint={blueprint}
+<<<<<<< HEAD
                 operating={operating}
                 onUpdate={handleUpdate}
                 onTrigger={handleTrigger}
+=======
+                onRefresh={handlRefresh}
+                onChangeTab={handleChangeActiveKey}
+>>>>>>> main
               />
             ),
           },
         ]}
         activeKey={activeKey}
+<<<<<<< HEAD
         onChange={setActiveKey}
+=======
+        onChange={handleChangeActiveKey}
+>>>>>>> main
       />
       <Modal
         open={open}

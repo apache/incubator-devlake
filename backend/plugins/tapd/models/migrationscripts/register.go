@@ -34,6 +34,10 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(addConnIdToLabels),
 		new(addCompanyIdToConnection),
+<<<<<<< HEAD
 		new(addLifetimeTables),
+=======
+		new(updateScopeConfig20250305),
+>>>>>>> main
 	}
 }

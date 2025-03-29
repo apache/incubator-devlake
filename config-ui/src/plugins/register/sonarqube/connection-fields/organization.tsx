@@ -39,7 +39,11 @@ export const Organization = ({ initialValues, values, setValues, setErrors }: Pr
 
   useEffect(() => {
     setErrors({
+<<<<<<< HEAD
       org: values.org ? '' : 'organization is required',
+=======
+      org: (values.endpoint != 'https://sonarcloud.io/api/' || values.org) ? '' : 'organization is required',
+>>>>>>> main
     });
   }, [values.org]);
 

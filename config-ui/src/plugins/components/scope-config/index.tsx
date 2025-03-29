@@ -93,7 +93,11 @@ export const ScopeConfig = ({
     });
 
     if (success) {
+<<<<<<< HEAD
       window.open(`/projects/${pname}`);
+=======
+      window.open(PATHS.PROJECT(pname));
+>>>>>>> main
     }
   };
 

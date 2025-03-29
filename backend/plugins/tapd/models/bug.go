@@ -18,12 +18,16 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type TapdBug struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           uint64 `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
+	AllFields    map[string]interface{} `gorm:"-"`
+	ConnectionId uint64                 `gorm:"primaryKey"`
+	Id           uint64                 `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
 	EpicKey      string
 	Title        string          `json:"title" gorm:"type:varchar(255)"`
 	Description  string          `json:"description"`
@@ -91,19 +95,20 @@ type TapdBug struct {
 	Type             string          `gorm:"type:varchar(255)"`
 	Url              string          `gorm:"type:varchar(255)"`
 
-	SupportId       uint64  `json:"support_id,string"`
-	SupportForumId  uint64  `json:"support_forum_id,string"`
-	TicketId        uint64  `json:"ticket_id,string"`
-	Follower        string  `json:"follower" gorm:"type:varchar(255)"`
-	SyncType        string  `json:"sync_type" gorm:"type:text"`
-	Label           string  `json:"label" gorm:"type:varchar(255)"`
-	Effort          float32 `json:"effort,string"`
-	EffortCompleted float32 `json:"effort_completed,string"`
-	Exceed          float32 `json:"exceed,string"`
-	Remain          float32 `json:"remain,string"`
-	Progress        string  `json:"progress" gorm:"type:varchar(255)"`
-	Estimate        float32 `json:"estimate,string"`
-	Bugtype         string  `json:"bugtype" gorm:"type:varchar(255)"`
+	SupportId       uint64     `json:"support_id,string"`
+	SupportForumId  uint64     `json:"support_forum_id,string"`
+	TicketId        uint64     `json:"ticket_id,string"`
+	Follower        string     `json:"follower" gorm:"type:varchar(255)"`
+	SyncType        string     `json:"sync_type" gorm:"type:text"`
+	Label           string     `json:"label" gorm:"type:varchar(255)"`
+	Effort          float32    `json:"effort,string"`
+	EffortCompleted float32    `json:"effort_completed,string"`
+	Exceed          float32    `json:"exceed,string"`
+	Remain          float32    `json:"remain,string"`
+	Progress        string     `json:"progress" gorm:"type:varchar(255)"`
+	Estimate        float32    `json:"estimate,string"`
+	Bugtype         string     `json:"bugtype" gorm:"type:varchar(255)"`
+	DueDate         *time.Time `json:"due_date"`
 
 	Milestone        string `json:"milestone" gorm:"type:varchar(255)"`
 	CustomFieldOne   string `json:"custom_field_one" gorm:"type:text"`
@@ -160,4 +165,16 @@ type TapdBug struct {
 
 func (TapdBug) TableName() string {
 	return "_tool_tapd_bugs"
+}
+
+func (i *TapdBug) SetAllFields(raw json.RawMessage) error {
+	var bugBody struct {
+		Bug map[string]interface{}
+	}
+	err := json.Unmarshal(raw, &bugBody)
+	if err != nil {
+		return err
+	}
+	i.AllFields = bugBody.Bug
+	return nil
 }

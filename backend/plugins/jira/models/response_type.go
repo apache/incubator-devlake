@@ -35,10 +35,13 @@ type JiraServerInfo struct {
 	ServerTitle    string         `json:"serverTitle"`
 	Version        string         `json:"version"`
 	VersionNumbers []int          `json:"versionNumbers"  gorm:"type:json;serializer:json"`
+<<<<<<< HEAD
 }
 
 func (jiraServerInfo JiraServerInfo) IsDeploymentServer() bool {
 	return jiraServerInfo.DeploymentType == DeploymentServer
+=======
+>>>>>>> main
 }
 
 type JiraErrorInfo struct {

@@ -113,6 +113,7 @@ export const Layout = () => {
             background: 'transparent',
           }}
         >
+<<<<<<< HEAD
           {headerItems.map((item, i, arr) => (
             <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
               {item.icon}
@@ -120,6 +121,19 @@ export const Layout = () => {
               {i !== arr.length - 1 && <Divider type="vertical" />}
             </ExternalLink>
           ))}
+=======
+          {headerItems
+            .filter((item) =>
+              import.meta.env.DEVLAKE_COPYRIGHT_HIDE ? !['Dashboards', 'GitHub', 'Slack'].includes(item.label) : true,
+            )
+            .map((item, i, arr) => (
+              <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
+                {item.icon}
+                <span style={{ marginLeft: 4 }}>{item.label}</span>
+                {i !== arr.length - 1 && <Divider type="vertical" />}
+              </ExternalLink>
+            ))}
+>>>>>>> main
         </Header>
         <Content style={{ overflowY: 'auto' }}>
           <div style={{ padding: 24, margin: '0 auto', maxWidth: 1280, minWidth: 960 }}>

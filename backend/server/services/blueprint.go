@@ -446,11 +446,14 @@ func TriggerBlueprint(id uint64, triggerSyncPolicy *models.TriggerSyncPolicy, sh
 	}
 	blueprint.SkipCollectors = triggerSyncPolicy.SkipCollectors
 	blueprint.FullSync = triggerSyncPolicy.FullSync
+<<<<<<< HEAD
 
 	if err := checkBlueprintTokens(blueprint, triggerSyncPolicy); err != nil {
 		return nil, errors.Default.Wrap(err, "check blue print tokens")
 	}
 
+=======
+>>>>>>> main
 	pipeline, err := createPipelineByBlueprint(blueprint, &models.SyncPolicy{
 		SkipOnFail:        false,
 		TimeAfter:         nil,
