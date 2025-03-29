@@ -28,7 +28,7 @@ interface Props
   helptip: string;
 }
 
-export const IconButton = forwardRef(function ({ helptip, ...props }: Props, ref?: Ref<HTMLElement>) {
+export const IconButton = forwardRef(function ({ helptip, ...props }: Props, ref?: Ref<HTMLButtonElement>) {
   return (
     <Tooltip title={helptip}>
       <Button ref={ref} {...props} />

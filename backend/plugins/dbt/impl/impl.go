@@ -74,3 +74,7 @@ func (p Dbt) RootPkgPath() string {
 func (p Dbt) Name() string {
 	return "dbt"
 }
+
+func (p Dbt) TestConnection(id uint64) errors.Error {
+	return nil
+}

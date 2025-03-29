@@ -108,9 +108,14 @@ func (p Slack) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]in
 		return nil, err
 	}
 
-	apiClient, err := tasks.NewSlackApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewSlackApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 	return &tasks.SlackTaskData{
 		Options:   &op,
@@ -124,6 +129,11 @@ func (p Slack) RootPkgPath() string {
 
 func (p Slack) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Slack) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Slack) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -151,6 +161,8 @@ func (p Slack) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

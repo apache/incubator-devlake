@@ -22,7 +22,7 @@ limitations under the License.
    ![1](/onboard/assets/github/1.png)
 
 2. What is the turnaround time for your Code Review process?
-   
+
    ![2](/onboard/assets/github/2.png)
 
 3. How effective is your CI/CD pipeline?

@@ -23,98 +23,111 @@ import {
   Onboard,
   Error,
   Layout,
-  layoutLoader,
   Connections,
   Connection,
   ProjectHomePage,
-  ProjectDetailPage,
-  BlueprintHomePage,
-  BlueprintDetailPage,
+  ProjectLayout,
+  ProjectGeneralSettings,
+  ProjectWebhook,
+  ProjectAdditionalSettings,
   BlueprintConnectionDetailPage,
   Pipelines,
-  Pipeline,
   ApiKeys,
   NotFound,
 } from '@/routes';
 
-const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
+import { App } from '../App';
 
-export const router = createBrowserRouter([
+const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '/';
+
+export const router = createBrowserRouter(
+  [
+    {
+      path: 'db-migrate',
+      element: <DBMigrate />,
+    },
+    {
+      path: '/',
+      element: <App />,
+      errorElement: <Error />,
+      children: [
+        {
+          index: true,
+          element: <Navigate to="projects" />,
+        },
+        {
+          path: 'onboard',
+          element: <Onboard />,
+        },
+        {
+          path: 'projects/:pname',
+          element: <ProjectLayout />,
+          children: [
+            {
+              index: true,
+              element: <Navigate to="general-settings" />,
+            },
+            {
+              path: 'general-settings',
+              element: <ProjectGeneralSettings />,
+            },
+            {
+              path: 'general-settings/:unique',
+              element: <BlueprintConnectionDetailPage />,
+            },
+            {
+              path: 'webhooks',
+              element: <ProjectWebhook />,
+            },
+            {
+              path: 'additional-settings',
+              element: <ProjectAdditionalSettings />,
+            },
+          ],
+        },
+        {
+          path: '',
+          element: <Layout />,
+          children: [
+            {
+              index: true,
+              element: <Navigate to="projects" />,
+            },
+            {
+              path: 'projects',
+              element: <ProjectHomePage />,
+            },
+            {
+              path: 'connections',
+              element: <Connections />,
+            },
+            {
+              path: 'connections/:plugin/:id',
+              element: <Connection />,
+            },
+            {
+              path: 'advanced',
+              children: [
+                {
+                  path: 'keys',
+                  element: <ApiKeys />,
+                },
+                {
+                  path: 'pipelines',
+                  element: <Pipelines />,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: '*',
+      element: <NotFound />,
+    },
+  ],
   {
-    path: '/',
-    element: <Navigate to={PATH_PREFIX ? PATH_PREFIX : '/connections'} />,
+    basename: PATH_PREFIX,
   },
-  {
-    path: `${PATH_PREFIX}/db-migrate`,
-    element: <DBMigrate />,
-  },
-  {
-    path: `${PATH_PREFIX}/onboard`,
-    element: <Onboard />,
-  },
-  {
-    path: `${PATH_PREFIX}`,
-    element: <Layout />,
-    loader: layoutLoader,
-    errorElement: <Error />,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="projects" />,
-      },
-      {
-        path: 'projects',
-        element: <ProjectHomePage />,
-      },
-      {
-        path: 'projects/:pname',
-        element: <ProjectDetailPage />,
-      },
-      {
-        path: 'projects/:pname/:unique',
-        element: <BlueprintConnectionDetailPage />,
-      },
-      {
-        path: 'connections',
-        element: <Connections />,
-      },
-      {
-        path: 'connections/:plugin/:id',
-        element: <Connection />,
-      },
-      {
-        path: 'advanced',
-        children: [
-          {
-            path: 'blueprints',
-            element: <BlueprintHomePage />,
-          },
-          {
-            path: 'blueprints/:id',
-            element: <BlueprintDetailPage />,
-          },
-          {
-            path: 'blueprints/:bid/:unique',
-            element: <BlueprintConnectionDetailPage />,
-          },
-          {
-            path: 'pipelines',
-            element: <Pipelines />,
-          },
-          {
-            path: 'pipeline/:id',
-            element: <Pipeline />,
-          },
-        ],
-      },
-      {
-        path: 'keys',
-        element: <ApiKeys />,
-      },
-    ],
-  },
-  {
-    path: '*',
-    element: <NotFound />,
-  },
-]);
+);

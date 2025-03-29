@@ -18,11 +18,11 @@
 
 import { useState } from 'react';
 import { Modal } from 'antd';
-import MillerColumnsSelect from 'miller-columns-select';
+import { MillerColumns } from '@mints/miller-columns';
 
 import { useAppSelector } from '@/hooks';
 import { Block, Loading } from '@/components';
-import { selectWebhooks } from '@/features';
+import { selectWebhooks } from '@/features/connections';
 import { IWebhook } from '@/types';
 
 import * as S from '../styled';
@@ -57,19 +57,22 @@ export const SelectorDialog = ({ open, saving, onCancel, onSubmit }: Props) => {
     >
       <S.Wrapper>
         <Block title="Webhooks" description="Select an existing Webhook to import to the current project.">
-          <MillerColumnsSelect
-            columnCount={1}
-            columnHeight={160}
-            getHasMore={() => false}
-            renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+          <MillerColumns
+            bordered
+            theme={{
+              colorPrimary: '#7497f7',
+              borderColor: '#dbe4fd',
+            }}
             items={webhooks.map((it) => ({
               parentId: null,
               id: it.id,
               title: it.name,
-              name: it.name,
             }))}
+            columnHeight={160}
+            renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+            selectable
             selectedIds={selectedIds}
-            onSelectItemIds={setSelectedIds}
+            onSelectedIds={setSelectedIds}
           />
         </Block>
       </S.Wrapper>

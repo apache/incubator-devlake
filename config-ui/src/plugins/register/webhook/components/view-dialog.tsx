@@ -21,7 +21,7 @@ import { Modal, Button } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { Block, CopyText, ExternalLink, Message } from '@/components';
-import { selectWebhook, renewWebhookApiKey } from '@/features';
+import { selectWebhook, renewWebhookApiKey } from '@/features/connections';
 import { IWebhook } from '@/types';
 import { operator } from '@/utils';
 

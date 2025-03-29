@@ -146,7 +146,7 @@ func ConvertDeployBuildsToDeploymentCommits(taskCtx plugin.SubTaskContext) error
 				RepoId:       strconv.Itoa(input.RepositoryId),
 				DisplayTitle: input.GenerateCICDDeploymentCommitName(),
 			}
-			u, err := url.Parse(data.ApiClient.GetEndpoint())
+			u, err := url.Parse(data.EndPoint)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -162,9 +162,9 @@ func ConvertDeployBuildsToDeploymentCommits(taskCtx plugin.SubTaskContext) error
 				duration := float64(input.FinishedDate.Sub(*input.ExecutedDate).Milliseconds() / 1e3)
 				deploymentCommit.DurationSec = &duration
 			}
-			fakeRepoUrl, err := generateFakeRepoUrl(data.ApiClient.GetEndpoint(), input.RepositoryId)
+			fakeRepoUrl, err := generateFakeRepoUrl(data.EndPoint, input.RepositoryId)
 			if err != nil {
-				logger.Warn(err, "generate fake repo url, endpoint: %s, repo id: %d", data.ApiClient.GetEndpoint(), input.RepositoryId)
+				logger.Warn(err, "generate fake repo url, endpoint: %s, repo id: %d", data.EndPoint, input.RepositoryId)
 			} else {
 				deploymentCommit.RepoUrl = fakeRepoUrl
 			}

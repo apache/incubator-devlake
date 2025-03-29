@@ -76,8 +76,9 @@ func (p Gitlab) ScopeConfig() dal.Tabler {
 func (p Gitlab) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Gitlab) GetTablesInfo() []dal.Tabler {
@@ -146,9 +147,14 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.BadInput.Wrap(err, "connection not found")
 	}
 
-	apiClient, err := tasks.NewGitlabApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if syncPolicy != nil && !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewGitlabApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 	if op.ProjectId != 0 {
 		var scope *models.GitlabProject
@@ -162,17 +168,19 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 			}
 		}
 		if err != nil && db.IsErrorNotFound(err) {
-			var project *models.GitlabApiProject
-			project, err = api.GetApiProject(op, apiClient)
-			if err != nil {
-				return nil, err
-			}
-			logger.Debug(fmt.Sprintf("Current project: %d", project.GitlabId))
-			scope := project.ConvertApiScope()
-			scope.ConnectionId = op.ConnectionId
-			err = taskCtx.GetDal().CreateIfNotExist(scope)
-			if err != nil {
-				return nil, err
+			if apiClient != nil {
+				var project *models.GitlabApiProject
+				project, err = api.GetApiProject(op, apiClient)
+				if err != nil {
+					return nil, err
+				}
+				logger.Debug(fmt.Sprintf("Current project: %d", project.GitlabId))
+				scope := project.ConvertApiScope()
+				scope.ConnectionId = op.ConnectionId
+				err = taskCtx.GetDal().CreateIfNotExist(scope)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 		if err != nil {
@@ -198,14 +206,25 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	if op.ScopeConfig.DeploymentPattern != nil {
+		if err := regexEnricher.TryAdd(devops.DEPLOYMENT, *op.ScopeConfig.DeploymentPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+		}
 	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	if op.ScopeConfig.ProductionPattern != nil {
+		if err := regexEnricher.TryAdd(devops.PRODUCTION, *op.ScopeConfig.ProductionPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+		}
 	}
-	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	if len(op.ScopeConfig.EnvNameList) > 0 || (len(op.ScopeConfig.EnvNameList) == 0 && op.ScopeConfig.EnvNamePattern == "") {
+		if err = regexEnricher.TryAddList(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNameList...); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNameList`")
+		}
+	} else {
+		if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+		}
+
 	}
 
 	taskData := tasks.GitlabTaskData{
@@ -223,6 +242,11 @@ func (p Gitlab) RootPkgPath() string {
 
 func (p Gitlab) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Gitlab) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -260,6 +284,12 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScopes,
 		},
+		"connections/:connectionId/deployments": {
+			"GET": api.GetConnectionDeployments,
+		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
+		},
 		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
@@ -283,6 +313,8 @@ func (p Gitlab) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

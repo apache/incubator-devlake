@@ -118,17 +118,19 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		nil,
 		p.Name(),
 	)
-	if err != nil {
-		return nil, err
-	}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return nil, err
 	}
 
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 
 	op.ConnectionEndpoint = connection.Endpoint
@@ -139,11 +141,15 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	if op.ScopeConfig.DeploymentPattern != nil {
+		if err := regexEnricher.TryAdd(devops.DEPLOYMENT, *op.ScopeConfig.DeploymentPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+		}
 	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	if op.ScopeConfig.ProductionPattern != nil {
+		if err := regexEnricher.TryAdd(devops.PRODUCTION, *op.ScopeConfig.ProductionPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+		}
 	}
 	taskData := &tasks.JenkinsTaskData{
 		Options:       op,
@@ -166,8 +172,14 @@ func (p Jenkins) MigrationScripts() []plugin.MigrationScript {
 func (p Jenkins) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
+}
+
+func (p Jenkins) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -210,6 +222,9 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
+		},
 		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.UpdateScopeConfig,
 			"GET":    api.GetScopeConfig,
@@ -229,7 +244,9 @@ func (p Jenkins) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }
 
@@ -257,28 +274,30 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	}
 
-	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
-		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
-		op.JobPath = job.Path
-		op.URL = job.URL
-		op.Class = job.Class
-		jenkinsJob := job.ToJenkinsJob()
+	if apiClient != nil {
+		err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
+			log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
+			op.JobPath = job.Path
+			op.URL = job.URL
+			op.Class = job.Class
+			jenkinsJob := job.ToJenkinsJob()
 
-		jenkinsJob.ConnectionId = op.ConnectionId
-		jenkinsJob.ScopeConfigId = op.ScopeConfigId
+			jenkinsJob.ConnectionId = op.ConnectionId
+			jenkinsJob.ScopeConfigId = op.ScopeConfigId
 
-		err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
-		return err
-	})
-	if err != nil {
-		return err
+			err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
+			return err
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	if !strings.HasSuffix(op.JobPath, "/") {
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
 	// We only set op.JenkinsScopeConfig when it's nil and we have op.ScopeConfigId != 0
-	if op.ScopeConfig.DeploymentPattern == "" && op.ScopeConfig.ProductionPattern == "" && op.ScopeConfigId != 0 {
+	if (op.ScopeConfig.DeploymentPattern == nil && op.ScopeConfig.ProductionPattern == nil || *op.ScopeConfig.DeploymentPattern == "" && *op.ScopeConfig.ProductionPattern == "") && op.ScopeConfigId != 0 {
 		var scopeConfig models.JenkinsScopeConfig
 		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
 		if err != nil {
@@ -287,7 +306,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		op.ScopeConfig = &scopeConfig
 	}
 
-	if op.ScopeConfig.DeploymentPattern == "" && op.ScopeConfig.ProductionPattern == "" && op.ScopeConfigId == 0 {
+	if (op.ScopeConfig.DeploymentPattern == nil && op.ScopeConfig.ProductionPattern == nil || *op.ScopeConfig.DeploymentPattern == "" && *op.ScopeConfig.ProductionPattern == "") && op.ScopeConfigId == 0 {
 		op.ScopeConfig = new(models.JenkinsScopeConfig)
 	}
 

@@ -26,6 +26,7 @@ import (
 type BambooOptions struct {
 	Options       *models.BambooOptions
 	ApiClient     *helper.ApiAsyncClient
+	EndPoint      string
 	RegexEnricher *helper.RegexEnricher
 }
 

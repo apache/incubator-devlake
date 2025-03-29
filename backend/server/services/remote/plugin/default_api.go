@@ -82,6 +82,9 @@ func GetDefaultAPI(
 			"POST": papi.PostScopeConfigs,
 			"GET":  papi.ListScopeConfigs,
 		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": papi.GetConnectionTransformToDeployments,
+		},
 		"connections/:connectionId/scope-configs/:id": {
 			"GET":    papi.GetScopeConfig,
 			"PATCH":  papi.PatchScopeConfig,

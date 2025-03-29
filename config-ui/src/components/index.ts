@@ -25,5 +25,6 @@ export * from './markdown';
 export * from './message';
 export * from './no-data';
 export * from './page-header';
+export * from './show-more';
 export * from './tip-layout';
 export * from './tooltip';

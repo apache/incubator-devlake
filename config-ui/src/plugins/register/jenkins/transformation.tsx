@@ -19,16 +19,20 @@
 import { CaretRightOutlined } from '@ant-design/icons';
 import { theme, Collapse, Tag, Input } from 'antd';
 
-import { ExternalLink, HelpTooltip } from '@/components';
-import { DOC_URL } from '@/release';
+import { ShowMore, HelpTooltip } from '@/components';
+import { CheckMatchedItems } from '@/plugins';
+
+import { WorkflowRun } from './workflow-run';
 
 interface Props {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const JenkinsTransformation = ({ entities, transformation, setTransformation }: Props) => {
+export const JenkinsTransformation = ({ plugin, connectionId, entities, transformation, setTransformation }: Props) => {
   const { token } = theme.useToken();
 
   const panelStyle: React.CSSProperties = {
@@ -46,6 +50,8 @@ export const JenkinsTransformation = ({ entities, transformation, setTransformat
       style={{ background: token.colorBgContainer }}
       size="large"
       items={renderCollapseItems({
+        plugin,
+        connectionId,
         entities,
         panelStyle,
         transformation,
@@ -56,11 +62,15 @@ export const JenkinsTransformation = ({ entities, transformation, setTransformat
 };
 
 const renderCollapseItems = ({
+  plugin,
+  connectionId,
   entities,
   panelStyle,
   transformation,
   onChangeTransformation,
 }: {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   panelStyle: React.CSSProperties;
   transformation: any;
@@ -73,24 +83,26 @@ const renderCollapseItems = ({
       style: panelStyle,
       children: (
         <>
-          <h3 style={{ marginBottom: 16 }}>
+          <h3>
             <span>Deployment</span>
             <Tag style={{ marginLeft: 4 }} color="blue">
               DORA
             </Tag>
           </h3>
-          <p style={{ marginBottom: 16 }}>
-            Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-            <ExternalLink link={DOC_URL.PLUGIN.JENKINS.TRANSFORMATION}>Learn more</ExternalLink>
-          </p>
-          <div style={{ marginTop: 16 }}>Convert a Jenkins Build as a DevLake Deployment when: </div>
+          <ShowMore
+            text={<p>Use Regular Expression to define Deployments to measure DORA metrics.</p>}
+            btnText="See how to configure"
+          >
+            <WorkflowRun />
+          </ShowMore>
+          <div>Convert a Jenkins Build as a DevLake Deployment when: </div>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
             <span>
               The name of the <strong>Jenkins job</strong> or <strong>one of its stages</strong> matches
             </span>
             <Input
               style={{ width: 200, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
+              placeholder="(?i)(deploy|push-image)"
               value={transformation.deploymentPattern ?? ''}
               onChange={(e) =>
                 onChangeTransformation({
@@ -108,7 +120,7 @@ const renderCollapseItems = ({
             <Input
               style={{ width: 120, margin: '0 8px' }}
               disabled={!transformation.deploymentPattern}
-              placeholder="prod(.*)"
+              placeholder="(?i)(prod|release)"
               value={transformation.productionPattern ?? ''}
               onChange={(e) =>
                 onChangeTransformation({
@@ -120,6 +132,7 @@ const renderCollapseItems = ({
             <span>, this Deployment is a ‘Production Deployment’</span>
             <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
           </div>
+          <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
         </>
       ),
     },

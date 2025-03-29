@@ -30,10 +30,10 @@ import (
 )
 
 func TestBitbucketPipelineDataFlow(t *testing.T) {
-
 	var bitbucket impl.Bitbucket
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", bitbucket)
-
+	dPattern := ""
+	pPattern := ""
 	regexEnricher := helper.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "main")
 	_ = regexEnricher.TryAdd(devops.PRODUCTION, "pipeline")
@@ -41,6 +41,10 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
 			FullName:     "likyh/likyhphp",
+			BitbucketScopeConfig: &models.BitbucketScopeConfig{
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
+			},
 		},
 		RegexEnricher: regexEnricher,
 	}

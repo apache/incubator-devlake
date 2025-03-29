@@ -17,8 +17,13 @@
 # https://stackoverflow.com/questions/920413/make-error-missing-separator
 # https://tutorialedge.net/golang/makefiles-for-go-developers/
 
+<<<<<<< HEAD
+SHA ?= $(shell git show -s --format=%h 2>/dev/null || echo "default_SHA")
+TAG ?= $(shell git tag --points-at HEAD 2>/dev/null || echo "default_TAG")
+=======
 SHA ?= $(shell if [ -d .git ]; then git show -s --format=%h; else echo "unknown_sha"; fi)
 TAG ?= $(shell if [ -d .git ]; then git tag --points-at HEAD; else echo "local_build"; fi)
+>>>>>>> main
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 
@@ -29,7 +34,7 @@ build-config-ui-image:
 	cd config-ui; docker build -t $(IMAGE_REPO)/devlake-config-ui:$(TAG) --file ./Dockerfile .
 
 build-grafana-image:
-	cd grafana; docker build -t $(IMAGE_REPO)/devlake-dashboard:$(TAG) --file ./backend/Dockerfile .
+	cd grafana; docker build -t $(IMAGE_REPO)/devlake-dashboard:$(TAG) --file ./Dockerfile .
 
 build-images: build-server-image build-config-ui-image build-grafana-image
 
@@ -40,7 +45,7 @@ push-config-ui-image: build-config-ui-image
 	docker push $(IMAGE_REPO)/devlake-config-ui:$(TAG)
 
 push-grafana-image: build-grafana-image
-        docker push $(IMAGE_REPO)/devlake-dashboard:$(TAG)
+	docker push $(IMAGE_REPO)/devlake-dashboard:$(TAG)
 
 push-images: push-server-image push-config-ui-image push-grafana-image
 

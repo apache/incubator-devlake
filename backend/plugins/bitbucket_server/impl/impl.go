@@ -123,13 +123,25 @@ func (p BitbucketServer) PrepareTaskData(taskCtx plugin.TaskContext, options map
 		return nil, errors.Default.Wrap(err, "unable to get bitbucket server connection by the given connection ID")
 	}
 
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get bitbucket server API client instance")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to get bitbucket server API client instance")
+		}
+		apiClient = newApiClient
 	}
-	err = EnrichOptions(taskCtx, op, apiClient.ApiClient)
-	if err != nil {
-		return nil, err
+	if apiClient == nil {
+		err = EnrichOptions(taskCtx, op, nil)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err = EnrichOptions(taskCtx, op, apiClient.ApiClient)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
@@ -152,8 +164,15 @@ func (p BitbucketServer) MigrationScripts() []plugin.MigrationScript {
 
 func (p BitbucketServer) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
-	scopes []*coreModels.BlueprintScope) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
+}
+
+func (p BitbucketServer) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -212,7 +231,9 @@ func (p BitbucketServer) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }
 
@@ -235,17 +256,19 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
-			var repo *models.BitbucketServerApiRepo
-			repo, err = tasks.GetApiRepo(op, apiClient)
-			if err != nil {
-				return err
-			}
-			logger.Debug(fmt.Sprintf("Current repo: %s", repo.Slug))
-			scope := repo.ConvertApiScope().(*models.BitbucketServerRepo)
-			scope.ConnectionId = op.ConnectionId
-			err = taskCtx.GetDal().CreateIfNotExist(scope)
-			if err != nil {
-				return err
+			if apiClient != nil {
+				var repo *models.BitbucketServerApiRepo
+				repo, err = tasks.GetApiRepo(op, apiClient)
+				if err != nil {
+					return err
+				}
+				logger.Debug(fmt.Sprintf("Current repo: %s", repo.Slug))
+				scope := repo.ConvertApiScope().(*models.BitbucketServerRepo)
+				scope.ConnectionId = op.ConnectionId
+				err = taskCtx.GetDal().CreateIfNotExist(scope)
+				if err != nil {
+					return err
+				}
 			}
 		} else {
 			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.FullName))

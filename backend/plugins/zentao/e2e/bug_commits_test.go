@@ -38,7 +38,8 @@ func TestZentaoBugCommitsDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectId:    22,
 		},
-		ApiClient: getFakeAPIClient(),
+		ApiClient:   getFakeAPIClient(),
+		HomePageURL: getFakeHomepage(),
 	}
 
 	// import _raw_zentao_api_bug_commits raw data table

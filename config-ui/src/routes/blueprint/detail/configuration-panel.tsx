@@ -21,31 +21,29 @@ import { Link } from 'react-router-dom';
 import { FormOutlined, PlusOutlined } from '@ant-design/icons';
 import { Flex, Table, Button } from 'antd';
 
-import API from '@/api';
 import { NoData } from '@/components';
-import { getCron, PATHS } from '@/config';
-import { ConnectionName } from '@/features';
-import { getPluginConfig } from '@/plugins';
+import { getCron } from '@/config';
+import { getPluginConfig, ConnectionName } from '@/plugins';
 import { IBlueprint, IBPMode } from '@/types';
-import { formatTime, operator } from '@/utils';
+import { formatTime } from '@/utils';
 
 import { FromEnum } from '../types';
 import { validRawPlan } from '../utils';
 
-import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from './components';
+import { AdvancedEditor, UpdatePolicyDialog, AddConnectionDialog } from './components';
 import * as S from './styled';
 
 interface Props {
   from: FromEnum;
   blueprint: IBlueprint;
-  onRefresh: () => void;
-  onChangeTab: (tab: string) => void;
+  operating: boolean;
+  onUpdate: (payload: any) => void;
+  onTrigger: (payload?: { skipCollectors?: boolean; fullSync?: boolean }) => void;
 }
 
-export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: Props) => {
-  const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
+export const ConfigurationPanel = ({ from, blueprint, operating, onUpdate, onTrigger }: Props) => {
+  const [type, setType] = useState<'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
-  const [operating, setOperating] = useState(false);
 
   useEffect(() => {
     setRawPlan(JSON.stringify(blueprint.plan, null, '  '));
@@ -72,10 +70,6 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
     setType(undefined);
   };
 
-  const handleShowNameDialog = () => {
-    setType('name');
-  };
-
   const handleShowPolicyDialog = () => {
     setType('policy');
   };
@@ -84,47 +78,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
     setType('add-connection');
   };
 
-  const handleUpdate = async (payload: any) => {
-    const [success] = await operator(
-      () =>
-        API.blueprint.update(blueprint.id, {
-          ...blueprint,
-          ...payload,
-        }),
-      {
-        setOperating,
-        formatMessage: () => 'Update blueprint successful.',
-      },
-    );
-
-    if (success) {
-      onRefresh();
-      handleCancel();
-    }
-  };
-
-  const handleRun = async () => {
-    const [success] = await operator(
-      () => API.blueprint.trigger(blueprint.id, { skipCollectors: false, fullSync: false }),
-      {
-        setOperating,
-        formatMessage: () => 'Trigger blueprint successful.',
-      },
-    );
-
-    if (success) {
-      onRefresh();
-      onChangeTab('status');
-    }
-  };
-
   return (
     <S.ConfigurationPanel>
-      <div className="block">
-        <h3>Blueprint Name</h3>
-        <span>{blueprint.name}</span>
-        <Button type="link" icon={<FormOutlined />} onClick={handleShowNameDialog} />
-      </div>
       <div className="block">
         <h3>
           <span>Sync Policy</span>
@@ -178,7 +133,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
               text={
                 <>
                   If you have not created data connections yet, please{' '}
-                  <Link to={PATHS.CONNECTIONS()}>create connections</Link> first and then add them to the project.
+                  <Link to="/connections" target="_blank">
+                    create connections
+                  </Link>{' '}
+                  first and then add them to the project.
                 </>
               }
               action={
@@ -205,8 +163,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? PATHS.BLUEPRINT_CONNECTION(blueprint.id, cs.plugin, cs.connectionId)
-                            : PATHS.PROJECT_CONNECTION(blueprint.projectName, cs.plugin, cs.connectionId)
+                            ? `/advanced/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
+                            : `/projects/${encodeURIComponent(blueprint.projectName)}/general-settings/${cs.plugin}-${
+                                cs.connectionId
+                              }`
                         }
                       >
                         Edit Data Scope and Scope Config
@@ -216,7 +176,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                 ))}
               </S.ConnectionList>
               <Flex justify="center">
-                <Button type="primary" disabled={!blueprint.enable} onClick={handleRun}>
+                <Button type="primary" disabled={!blueprint.enable} onClick={() => onTrigger()}>
                   Collect Data
                 </Button>
               </Flex>
@@ -232,7 +192,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             <Button
               type="primary"
               onClick={() =>
-                handleUpdate({
+                onUpdate({
                   plan: !validRawPlan(rawPlan) ? JSON.parse(rawPlan) : JSON.stringify([[]], null, '  '),
                 })
               }
@@ -241,14 +201,6 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             </Button>
           </div>
         </div>
-      )}
-      {type === 'name' && (
-        <UpdateNameDialog
-          name={blueprint.name}
-          operating={operating}
-          onCancel={handleCancel}
-          onSubmit={(name) => handleUpdate({ name })}
-        />
       )}
       {type === 'policy' && (
         <UpdatePolicyDialog
@@ -259,7 +211,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           timeAfter={blueprint.timeAfter}
           operating={operating}
           onCancel={handleCancel}
-          onSubmit={(payload) => handleUpdate(payload)}
+          onSubmit={onUpdate}
         />
       )}
       {type === 'add-connection' && (
@@ -267,7 +219,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           disabled={connections.map((cs) => `${cs.plugin}-${cs.connectionId}`)}
           onCancel={handleCancel}
           onSubmit={(connection) =>
-            handleUpdate({
+            onUpdate({
               connections: [...blueprint.connections, connection],
             })
           }

@@ -57,6 +57,7 @@ type ZentaoTaskData struct {
 	Bugs         map[int64]struct{}
 	AccountCache *AccountCache
 	ApiClient    *helper.ApiAsyncClient
+	HomePageURL  string
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOptions, error) {

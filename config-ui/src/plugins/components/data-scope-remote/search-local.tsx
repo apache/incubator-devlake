@@ -16,19 +16,45 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useReducer } from 'react';
 import { CheckCircleFilled, SearchOutlined } from '@ant-design/icons';
-import { Space, Tag, Button, Input, Modal, message } from 'antd';
-import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
-import { MillerColumnsSelect } from 'miller-columns-select';
-import { useDebounce } from 'ahooks';
+import { Space, Tag, Button, Input, Modal } from 'antd';
+import { useDebounce } from '@mints/hooks';
+import type { IDType } from '@mints/miller-columns';
+import { MillerColumns } from '@mints/miller-columns';
 
 import API from '@/api';
-import { Loading, Block, Message } from '@/components';
-import { IPluginConfig } from '@/types';
+import { Block, Loading, Message } from '@/components';
+import type { IPluginConfig } from '@/types';
 
-import * as T from './types';
 import * as S from './styled';
+
+type StateType = {
+  status: string;
+  scope: any[];
+};
+
+const reducer = (state: StateType, action: { type: string; payload?: Pick<Partial<StateType>, 'scope'> }) => {
+  switch (action.type) {
+    case 'LOADING':
+      return {
+        ...state,
+        status: 'loading',
+      };
+    case 'APPEND':
+      return {
+        ...state,
+        scope: [...state.scope, ...(action.payload?.scope ?? [])],
+      };
+    case 'DONE':
+      return {
+        ...state,
+        status: 'done',
+      };
+    default:
+      return state;
+  }
+};
 
 interface Props {
   mode: 'single' | 'multiple';
@@ -40,149 +66,85 @@ interface Props {
   onChange: (selectedScope: any[]) => void;
 }
 
-let canceling = false;
-
 export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
-  const [miller, setMiller] = useState<{
-    items: McsItem<T.ResItem>[];
-    loadedIds: ID[];
-    expandedIds: ID[];
-    errorId?: ID | null;
-    nextTokenMap: Record<ID, string>;
-  }>({
-    items: [],
-    loadedIds: [],
-    expandedIds: [],
-    nextTokenMap: {},
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const [{ status, scope }, dispatch] = useReducer(reducer, {
+    status: 'idle',
+    scope: [],
   });
 
-  const [open, setOpen] = useState(false);
-  const [status, setStatus] = useState('init');
+  const searchDebounce = useDebounce(search, { wait: 500 });
 
-  const [query, setQuery] = useState('');
-  const search = useDebounce(query, { wait: 500 });
+  const request = async (groupId?: string | number, params?: any) => {
+    const res = await API.scope.remote(plugin, connectionId, {
+      groupId: groupId ?? null,
+      pageToken: params?.nextPageToken,
+    });
 
-  const scopes = useMemo(
-    () =>
-      search
-        ? miller.items
-            .filter((it) => it.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
-            .filter((it) => it.type !== 'group')
-            .map((it) => ({
-              ...it,
-              parentId: null,
-            }))
-        : miller.items,
-    [search, miller.items],
-  );
+    return {
+      data: res.children.map((it) => ({
+        parentId: it.parentId,
+        id: it.id,
+        title: it.name ?? it.fullName,
+        canExpand: it.type === 'group',
+        original: it,
+      })),
+      hasMore: !!res.nextPageToken,
+      params: {
+        nextPageToken: res.nextPageToken,
+      },
+    };
+  };
 
-  const getItems = async ({
-    groupId,
-    currentPageToken,
-    loadAll,
-  }: {
-    groupId: ID | null;
-    currentPageToken?: string;
-    loadAll?: boolean;
-  }) => {
-    if (canceling) {
-      canceling = false;
-      setStatus('init');
-      return;
-    }
+  const handleRequestAll = async () => {
+    setOpen(false);
+    dispatch({ type: 'LOADING' });
 
-    let newItems: McsItem<T.ResItem>[] = [];
-    let nextPageToken = '';
-    let errorId: ID | null;
-
-    try {
+    const getData = async (groupId?: string | number, currentPageToken?: string) => {
       const res = await API.scope.remote(plugin, connectionId, {
-        groupId,
+        groupId: groupId ?? null,
         pageToken: currentPageToken,
       });
 
-      newItems = (res.children ?? []).map((it) => ({
-        ...it,
-        title: it.name,
+      const data = res.children.map((it) => ({
+        parentId: it.parentId,
+        id: it.id,
+        title: it.name ?? it.fullName,
+        canExpand: it.type === 'group',
+        original: it,
       }));
+      dispatch({ type: 'APPEND', payload: { scope: data } });
 
-      nextPageToken = res.nextPageToken;
-    } catch (err: any) {
-      errorId = groupId;
-      message.error(err.response.data.message);
-    }
-
-    if (nextPageToken) {
-      setMiller((m) => ({
-        ...m,
-        items: [...m.items, ...newItems],
-        expandedIds: [...m.expandedIds, groupId ?? 'root'],
-        nextTokenMap: {
-          ...m.nextTokenMap,
-          [`${groupId ? groupId : 'root'}`]: nextPageToken,
-        },
-      }));
-
-      if (loadAll) {
-        await getItems({ groupId, currentPageToken: nextPageToken, loadAll });
+      if (res.nextPageToken) {
+        await getData(groupId, res.nextPageToken);
       }
-    } else {
-      setMiller((m) => ({
-        ...m,
-        items: [...m.items, ...newItems],
-        expandedIds: [...m.expandedIds, groupId ?? 'root'],
-        loadedIds: [...m.loadedIds, groupId ?? 'root'],
-        errorId,
-      }));
 
-      const groupItems = newItems.filter((it) => it.type === 'group');
+      await Promise.all(data.filter((it) => it.canExpand).map((it) => getData(it.id)));
+    };
 
-      if (loadAll && groupItems.length) {
-        groupItems.forEach(async (it) => await getItems({ groupId: it.id, loadAll: true }));
-      }
-    }
+    await getData();
+
+    dispatch({ type: 'DONE' });
   };
 
-  useEffect(() => {
-    getItems({ groupId: null });
-  }, []);
-
-  useEffect(() => {
-    if (
-      miller.items.length &&
-      !miller.items.filter((it) => it.type === 'group' && !miller.loadedIds.includes(it.id)).length
-    ) {
-      setStatus('loaded');
-    }
-  }, [miller]);
-
-  const handleLoadAllScopes = async () => {
-    setOpen(false);
-    setStatus('loading');
-
-    if (!miller.loadedIds.includes('root')) {
-      await getItems({
-        groupId: null,
-        currentPageToken: miller.nextTokenMap['root'],
-        loadAll: true,
-      });
-    }
-
-    const noLoadedItems = miller.items.filter((it) => it.type === 'group' && !miller.loadedIds.includes(it.id));
-    if (noLoadedItems.length) {
-      noLoadedItems.forEach(async (it) => {
-        await getItems({
-          groupId: it.id,
-          currentPageToken: miller.nextTokenMap[it.id],
-          loadAll: true,
-        });
-      });
-    }
-  };
-
-  const handleCancelLoadAllScopes = () => {
-    setStatus('cancel');
-    canceling = true;
+  const millerColumnsProps = {
+    bordered: true,
+    theme: {
+      colorPrimary: '#7497f7',
+      borderColor: '#dbe4fd',
+    },
+    columnHeight: 300,
+    mode,
+    renderTitle: (id?: IDType) =>
+      !id &&
+      config.millerColumn?.firstColumnTitle && <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>,
+    renderLoading: () => <Loading size={20} style={{ padding: '4px 12px' }} />,
+    selectable: true,
+    disabledIds: disabledScope.map((it) => it.id),
+    selectedIds: selectedScope.map((it) => it.id),
+    onSelectedIds: (_: IDType[], data?: any) => onChange(data ?? []),
   };
 
   return (
@@ -206,62 +168,56 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
         </Space>
       </Block>
       <Block>
-        {(status === 'loading' || status === 'cancel') && (
+        {status === 'loading' && (
           <S.JobLoad>
             <Loading style={{ marginRight: 8 }} size={20} />
-            Loading: <span className="count">{miller.items.length}</span> scopes found
-            <Button style={{ marginLeft: 8 }} loading={status === 'cancel'} onClick={handleCancelLoadAllScopes}>
-              Cancel
-            </Button>
+            Loading: <span className="count">{scope.filter((sc) => !sc.canExpand).length}</span> scopes found
           </S.JobLoad>
         )}
 
-        {status === 'loaded' && (
+        {status === 'done' && (
           <S.JobLoad>
             <CheckCircleFilled style={{ color: '#4DB764' }} />
-            <span className="count">{miller.items.length}</span> scopes found
+            <span className="count">{scope.filter((sc) => !sc.canExpand).length}</span> scopes found
           </S.JobLoad>
         )}
 
-        {status === 'init' && (
+        {status === 'idle' && (
           <S.JobLoad>
-            <Button type="primary" disabled={!miller.items.length} onClick={() => setOpen(true)}>
+            <Button type="primary" onClick={() => setOpen(true)}>
               Load all scopes to search by keywords
             </Button>
           </S.JobLoad>
         )}
       </Block>
       <Block>
-        {status === 'loaded' && (
-          <Input prefix={<SearchOutlined />} value={query} onChange={(e) => setQuery(e.target.value)} />
+        {status === 'idle' ? (
+          <MillerColumns
+            {...millerColumnsProps}
+            request={request}
+            columnCount={config.millerColumn?.columnCount ?? 1}
+          />
+        ) : (
+          <>
+            <Input prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} />
+            <MillerColumns
+              {...millerColumnsProps}
+              loading={status === 'loading'}
+              items={
+                searchDebounce
+                  ? scope
+                      .filter((it) => it.title.includes(searchDebounce) && !it.canExpand)
+                      .map((it) => ({
+                        ...it,
+                        parentId: null,
+                      }))
+                  : scope
+              }
+            />
+          </>
         )}
-        <MillerColumnsSelect
-          mode={mode}
-          items={scopes}
-          columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
-          columnHeight={300}
-          getCanExpand={(it) => it.type === 'group'}
-          getHasMore={(id) => !miller.loadedIds.includes(id ?? 'root')}
-          getHasError={(id) => id === miller.errorId}
-          onExpand={(id: McsID) => getItems({ groupId: id })}
-          onScroll={(id: McsID | null) =>
-            getItems({ groupId: id, currentPageToken: miller.nextTokenMap[id ?? 'root'] })
-          }
-          renderTitle={(column: McsColumn) =>
-            !column.parentId &&
-            config.millerColumn?.firstColumnTitle && (
-              <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>
-            )
-          }
-          renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-          renderError={() => <span style={{ color: 'red' }}>Something Error</span>}
-          disabledIds={(disabledScope ?? []).map((it) => it.id)}
-          selectedIds={selectedScope.map((it) => it.id)}
-          onSelectItemIds={(selectedIds: ID[]) => onChange(miller.items.filter((it) => selectedIds.includes(it.id)))}
-          expandedIds={miller.expandedIds}
-        />
       </Block>
-      <Modal open={open} centered onOk={handleLoadAllScopes} onCancel={() => setOpen(false)}>
+      <Modal open={open} centered onOk={handleRequestAll} onCancel={() => setOpen(false)}>
         <Message content={`This operation may take a long time, as it iterates through all the ${config.title}.`} />
       </Modal>
     </>

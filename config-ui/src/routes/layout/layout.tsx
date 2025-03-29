@@ -17,14 +17,15 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Layout as AntdLayout, Menu, Divider } from 'antd';
 
-import { PageLoading, Logo, ExternalLink } from '@/components';
-import { init, selectError, selectStatus } from '@/features';
+import { Logo, ExternalLink } from '@/components';
+import { selectOnboard } from '@/features/onboard';
+import { selectVersion } from '@/features/version';
 import { OnboardCard } from '@/routes/onboard/components';
-import { useAppDispatch, useAppSelector } from '@/hooks';
+import { useAppSelector } from '@/hooks';
 
 import { menuItems, menuItemsMatch, headerItems } from './config';
 
@@ -36,18 +37,11 @@ export const Layout = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
-
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  const dispatch = useAppDispatch();
-  const status = useAppSelector(selectStatus);
-  const error = useAppSelector(selectError);
-
-  useEffect(() => {
-    dispatch(init(plugins));
-  }, []);
+  const { initial } = useAppSelector(selectOnboard);
+  const version = useAppSelector(selectVersion);
 
   useEffect(() => {
     const curMenuItem = menuItemsMatch[pathname];
@@ -75,12 +69,8 @@ export const Layout = () => {
     return curMenuItem?.label ?? '';
   }, [pathname]);
 
-  if (['idle', 'loading'].includes(status)) {
-    return <PageLoading />;
-  }
-
-  if (status === 'failed') {
-    throw error.message;
+  if (!initial) {
+    return <Navigate to="/onboard" />;
   }
 
   return (
@@ -123,6 +113,15 @@ export const Layout = () => {
             background: 'transparent',
           }}
         >
+<<<<<<< HEAD
+          {headerItems.map((item, i, arr) => (
+            <ExternalLink key={item.label} link={item.link} style={{ display: 'flex', alignItems: 'center' }}>
+              {item.icon}
+              <span style={{ marginLeft: 4 }}>{item.label}</span>
+              {i !== arr.length - 1 && <Divider type="vertical" />}
+            </ExternalLink>
+          ))}
+=======
           {headerItems
             .filter((item) =>
               import.meta.env.DEVLAKE_COPYRIGHT_HIDE ? !['Dashboards', 'GitHub', 'Slack'].includes(item.label) : true,
@@ -134,17 +133,16 @@ export const Layout = () => {
                 {i !== arr.length - 1 && <Divider type="vertical" />}
               </ExternalLink>
             ))}
+>>>>>>> main
         </Header>
         <Content style={{ overflowY: 'auto' }}>
-          <div style={{ padding: 24, margin: '0 auto', maxWidth: 1280 }}>
+          <div style={{ padding: 24, margin: '0 auto', maxWidth: 1280, minWidth: 960 }}>
             <OnboardCard style={{ marginBottom: 32 }} />
             <Outlet />
           </div>
-          {!import.meta.env.DEVLAKE_COPYRIGHT_HIDE && (
-            <Footer>
-              <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
-            </Footer>
-          )}
+          <Footer>
+            <p style={{ textAlign: 'center' }}>Apache 2.0 License</p>
+          </Footer>
         </Content>
       </AntdLayout>
     </AntdLayout>

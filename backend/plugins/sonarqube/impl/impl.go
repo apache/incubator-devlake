@@ -128,29 +128,37 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, errors.Default.Wrap(err, "unable to get Sonarqube connection by the given connection ID")
 	}
 
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get Sonarqube API client instance")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to get Sonarqube API client instance")
+		}
+		apiClient = newApiClient
 	}
 	taskData := &tasks.SonarqubeTaskData{
 		Options:       op,
 		ApiClient:     apiClient,
 		TaskStartTime: time.Now(),
 	}
-	// even we have project in _tool_sonaqube_projects, we still need to collect project to update LastAnalysisDate
-	var apiProject *models.SonarqubeApiProject
-	apiProject, err = api.GetApiProject(op.ProjectKey, apiClient)
-	if err != nil {
-		return nil, err
+	if apiClient != nil {
+		// even we have project in _tool_sonarqube_projects, we still need to collect project to update LastAnalysisDate
+		var apiProject *models.SonarqubeApiProject
+		apiProject, err = api.GetApiProject(op.ProjectKey, apiClient)
+		if err != nil {
+			return nil, err
+		}
+		logger.Debug(fmt.Sprintf("Current project: %s", apiProject.ProjectKey))
+		scope := apiProject.ConvertApiScope()
+		scope.ConnectionId = op.ConnectionId
+
+		err = taskCtx.GetDal().CreateOrUpdate(&scope)
+		if err != nil {
+			return nil, err
+		}
+		taskData.LastAnalysisDate = scope.LastAnalysisDate.ToNullableTime()
 	}
-	logger.Debug(fmt.Sprintf("Current project: %s", apiProject.ProjectKey))
-	scope := apiProject.ConvertApiScope()
-	scope.ConnectionId = op.ConnectionId
-	err = taskCtx.GetDal().CreateOrUpdate(&scope)
-	if err != nil {
-		return nil, err
-	}
-	taskData.LastAnalysisDate = scope.LastAnalysisDate.ToNullableTime()
 
 	return taskData, nil
 }
@@ -162,6 +170,11 @@ func (p Sonarqube) RootPkgPath() string {
 
 func (p Sonarqube) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Sonarqube) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -209,8 +222,9 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 func (p Sonarqube) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Sonarqube) Close(taskCtx plugin.TaskContext) errors.Error {
@@ -218,6 +232,8 @@ func (p Sonarqube) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

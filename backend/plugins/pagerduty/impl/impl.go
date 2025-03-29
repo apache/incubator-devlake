@@ -109,14 +109,19 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, errors.Default.Wrap(err, "unable to get Pagerduty connection by the given connection ID")
 	}
 
-	client, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+	var asyncClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		client, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 
-	if err != nil {
-		return nil, err
-	}
-	asyncClient, err := helper.CreateAsyncApiClient(taskCtx, client, nil)
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		newAsyncClient, err := helper.CreateAsyncApiClient(taskCtx, client, nil)
+		if err != nil {
+			return nil, err
+		}
+		asyncClient = newAsyncClient
 	}
 	return &tasks.PagerDutyTaskData{
 		Options: op,
@@ -131,6 +136,11 @@ func (p PagerDuty) RootPkgPath() string {
 
 func (p PagerDuty) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p PagerDuty) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -174,8 +184,9 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 func (p PagerDuty) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p PagerDuty) Close(taskCtx plugin.TaskContext) errors.Error {

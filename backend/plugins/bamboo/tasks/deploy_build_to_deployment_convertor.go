@@ -105,7 +105,7 @@ func ConvertDeployBuildsToDeployments(taskCtx plugin.SubTaskContext) errors.Erro
 				},
 				DisplayTitle: name,
 			}
-			if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, input.Environment) != "" {
+			if data.RegexEnricher.ReturnNameIfMatchedList(devops.ENV_NAME_PATTERN, input.Environment) != "" {
 				deployment.Environment = devops.PRODUCTION
 			}
 			if input.FinishedDate != nil && input.ExecutedDate != nil {

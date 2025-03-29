@@ -21,7 +21,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -44,6 +43,7 @@ type WebhookDeploymentReq struct {
 	Result       string `mapstructure:"result"`
 	Environment  string `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
 	Name         string `mapstructure:"name"`
+	Url          string `mapstructure:"url"`
 	// DeploymentCommits is used for multiple commits in one deployment
 	DeploymentCommits []WebhookDeploymentCommitReq `mapstructure:"deploymentCommits" validate:"omitempty,dive"`
 	CreatedDate       *time.Time                   `mapstructure:"createdDate"`
@@ -160,19 +160,15 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 		request.Environment = devops.PRODUCTION
 	}
 	duration := float64(request.FinishedDate.Sub(*request.StartedDate).Milliseconds() / 1e3)
-	name := request.Name
-	if name == "" {
-		var commitShaList []string
-		for _, commit := range request.DeploymentCommits {
-			commitShaList = append(commitShaList, commit.CommitSha)
-		}
-		name = fmt.Sprintf(`deploy %s to %s`, strings.Join(commitShaList, ","), request.Environment)
-	}
 	createdDate := time.Now()
 	if request.CreatedDate != nil {
 		createdDate = *request.CreatedDate
 	} else if request.StartedDate != nil {
 		createdDate = *request.StartedDate
+	}
+	name := request.Name
+	if name == "" {
+		name = fmt.Sprintf(`deploy to %s at %s`, request.Environment, createdDate.Format(time.RFC3339))
 	}
 
 	// prepare deploymentCommits and deployment records
@@ -239,6 +235,7 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 	deployment.StartedDate = request.StartedDate
 	deployment.FinishedDate = request.FinishedDate
 	deployment.Result = request.Result
+	deployment.Url = request.Url
 	if err := tx.CreateOrUpdate(deployment); err != nil {
 		logger.Error(err, "failed to save deployment")
 		return err

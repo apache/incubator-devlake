@@ -21,13 +21,12 @@ import { CloseCircleOutlined } from '@ant-design/icons';
 import { Card, Space, Flex, Button } from 'antd';
 
 import { TipLayout } from '@/components';
-import { PATHS } from '@/config';
 
 export const Error = () => {
   const error = useRouteError() as Error;
 
   const navigate = useNavigate();
-  const handleResetError = () => navigate(PATHS.ROOT());
+  const handleResetError = () => navigate('/');
 
   return (
     <TipLayout>

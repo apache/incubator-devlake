@@ -15,10 +15,10 @@
 
 from typing import Iterable
 
+import pydevlake.domain_layer.code as code
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import GitRepository, GitPullRequest
 from pydevlake import Stream, DomainType, domain_id
-import pydevlake.domain_layer.code as code
 
 
 class GitPullRequests(Stream):
@@ -45,7 +45,8 @@ class GitPullRequests(Stream):
     def convert(self, pr: GitPullRequest, ctx):
         repo_id = ctx.scope.domain_id()
         # If the PR is from a fork, we forge a new repo ID for the base repo, but it doesn't correspond to a real repo
-        base_repo_id = domain_id(GitRepository, ctx.connection.id, pr.fork_repo_id) if pr.fork_repo_id is not None else repo_id
+        base_repo_id = domain_id(GitRepository, ctx.connection.id,
+                                 pr.fork_repo_id) if pr.fork_repo_id is not None else repo_id
 
         # Use the same status values as GitHub plugin
         status = None
@@ -78,3 +79,10 @@ class GitPullRequests(Stream):
             head_commit_sha=pr.source_commit_sha,
             base_commit_sha=pr.target_commit_sha
         )
+        if pr.labels is not None:
+            for label_dict in pr.labels:
+                if "name" in label_dict:
+                    yield code.PullRequestLabels(
+                        pull_request_id=pr.pull_request_id,
+                        label_name=label_dict["name"],
+                    )

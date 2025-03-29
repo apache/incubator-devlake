@@ -16,16 +16,17 @@
  *
  */
 
-import { useState, useContext, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Flex, Button } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
 import { Markdown } from '@/components';
+import { selectOnboard, previous, update } from '@/features/onboard';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { DataScopeRemote, getPluginScopeId } from '@/plugins';
 import { operator, formatTime } from '@/utils';
 
-import { Context } from './context';
 import * as S from './styled';
 
 export const Step3 = () => {
@@ -33,7 +34,8 @@ export const Step3 = () => {
   const [operating, setOperating] = useState(false);
   const [scopes, setScopes] = useState<any[]>([]);
 
-  const { step, records, done, projectName, plugin, setStep, setRecords } = useContext(Context);
+  const dispatch = useAppDispatch();
+  const { projectName, plugin, records } = useAppSelector(selectOnboard);
 
   useEffect(() => {
     fetch(`/onboard/step-3/${plugin}.md`)
@@ -51,7 +53,7 @@ export const Step3 = () => {
       return;
     }
 
-    const [success] = await operator(
+    const [success, res] = await operator(
       async () => {
         // 1. create a new project
         const { blueprint } = await API.project.create({
@@ -89,7 +91,7 @@ export const Step3 = () => {
         // 5. get current run pipeline
         const pipeline = await API.blueprint.pipelines(blueprint.id);
 
-        const newRecords = records.map((it) =>
+        return records.map((it) =>
           it.plugin !== plugin
             ? it
             : {
@@ -99,17 +101,6 @@ export const Step3 = () => {
                 scopeName: scopes[0]?.fullName ?? scopes[0].name,
               },
         );
-
-        setRecords(newRecords);
-
-        // 6. update store
-        await API.store.set('onboard', {
-          step: 4,
-          records: newRecords,
-          done,
-          projectName,
-          plugin,
-        });
       },
       {
         setOperating,
@@ -118,7 +109,7 @@ export const Step3 = () => {
     );
 
     if (success) {
-      setStep(step + 1);
+      dispatch(update({ records: res }));
     }
   };
 
@@ -142,7 +133,7 @@ export const Step3 = () => {
         <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 36 }} justify="space-between">
-        <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>
+        <Button ghost type="primary" loading={operating} onClick={() => dispatch(previous())}>
           Previous Step
         </Button>
         <Button type="primary" loading={operating} disabled={!scopes.length} onClick={handleSubmit}>

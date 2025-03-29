@@ -16,6 +16,7 @@
  *
  */
 
+import type { NavigateFunction } from 'react-router-dom';
 import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
 
@@ -34,18 +35,20 @@ export type RequestConfig = {
   headers?: Record<string, string>;
 };
 
-instance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const status = error.response?.status;
+export const setUpRequestInterceptor = (navigate: NavigateFunction) => {
+  instance.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const status = error.response?.status;
 
-    if (status === 428) {
-      window.location.replace('/db-migrate');
-    }
+      if (status === 428) {
+        navigate('/db-migrate');
+      }
 
-    return Promise.reject(error);
-  },
-);
+      return Promise.reject(error);
+    },
+  );
+};
 
 export const request = (path: string, config?: RequestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};

@@ -24,7 +24,6 @@ import { Flex, Popconfirm, Modal, Button } from 'antd';
 
 import API from '@/api';
 import { PageLoading, PageHeader, ExternalLink } from '@/components';
-import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { DataScopeSelect } from '@/plugins';
 import { operator } from '@/utils';
@@ -61,6 +60,13 @@ export const BlueprintConnectionDetailPage = () => {
       API.connection.get(plugin, connectionId),
     ]);
 
+    const scopeIds =
+      blueprint.connections
+        .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
+        ?.scopes?.map((sc: any) => sc.scopeId) ?? [];
+
+    const scopes = await Promise.all(scopeIds.map((scopeId) => API.scope.get(plugin, connectionId, scopeId)));
+
     return {
       blueprint,
       connection: {
@@ -69,10 +75,7 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopeIds:
-        blueprint.connections
-          .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
-          ?.scopes?.map((sc: any) => sc.scopeId) ?? [],
+      scopes,
     };
   }, [version, pname, bid]);
 
@@ -80,7 +83,7 @@ export const BlueprintConnectionDetailPage = () => {
     return <PageLoading />;
   }
 
-  const { blueprint, connection, scopeIds } = data;
+  const { blueprint, connection, scopes } = data;
 
   const handleShowDataScope = () => setOpen(true);
   const handleHideDataScope = () => setOpen(false);
@@ -92,7 +95,11 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
+<<<<<<< HEAD
+      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`, {
+=======
       navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprint.id), {
+>>>>>>> main
         state: {
           activeKey: 'status',
         },
@@ -125,7 +132,11 @@ export const BlueprintConnectionDetailPage = () => {
           </div>
         ),
         onCancel: () => {
+<<<<<<< HEAD
+          navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`, {
+=======
           navigate(pname ? PATHS.PROJECT(pname) : PATHS.BLUEPRINT(blueprint.id), {
+>>>>>>> main
             state: {
               tab: 'configuration',
             },
@@ -182,14 +193,14 @@ export const BlueprintConnectionDetailPage = () => {
       breadcrumbs={
         pname
           ? [
-              { name: 'Projects', path: PATHS.PROJECTS() },
-              { name: pname, path: PATHS.PROJECT(pname) },
+              { name: 'Projects', path: '/projects' },
+              { name: pname, path: `/projects/${pname}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
           : [
-              { name: 'Advanced', path: PATHS.BLUEPRINTS() },
-              { name: 'Blueprints', path: PATHS.BLUEPRINTS() },
-              { name: bid as any, path: PATHS.BLUEPRINT(bid as any) },
+              { name: 'Advanced', path: '/advanced/blueprints' },
+              { name: 'Blueprints', path: '/advanced/blueprints' },
+              { name: bid as any, path: `/advanced/blueprints/${bid}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
       }
@@ -202,7 +213,7 @@ export const BlueprintConnectionDetailPage = () => {
       <S.Top>
         <span>
           To manage the complete data scope and scope config for this connection, please{' '}
-          <ExternalLink link={PATHS.CONNECTION(connection.plugin, connection.id)}>
+          <ExternalLink link={`/connections/${connection.plugin}/${connection.id}`}>
             go to the connection detail page
           </ExternalLink>
           .
@@ -229,14 +240,14 @@ export const BlueprintConnectionDetailPage = () => {
             Manage Data Scope
           </Button>
         </Flex>
-        <BlueprintConnectionDetailTable plugin={plugin} connectionId={connectionId} scopeIds={scopeIds} />
+        <BlueprintConnectionDetailTable plugin={plugin} connectionId={connectionId} scopes={scopes} />
       </Flex>
       <Modal open={open} width={820} centered title="Manage Data Scope" footer={null} onCancel={handleHideDataScope}>
         <DataScopeSelect
           plugin={connection.plugin}
           connectionId={connection.id}
           showWarning
-          initialScope={scopeIds.map((id) => ({ id }))}
+          initialScope={scopes}
           onCancel={handleHideDataScope}
           onSubmit={handleChangeDataScope}
         />

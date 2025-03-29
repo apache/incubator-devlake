@@ -24,9 +24,9 @@ import dayjs from 'dayjs';
 
 import API from '@/api';
 import { PageHeader, Block, TextTooltip, IconButton } from '@/components';
-import { getCronOptions, cronPresets, getCron, PATHS } from '@/config';
-import { ConnectionName } from '@/features';
+import { getCronOptions, cronPresets, getCron } from '@/config';
 import { useRefreshData } from '@/hooks';
+import { ConnectionName } from '@/plugins';
 import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';
 
@@ -64,7 +64,7 @@ export const BlueprintHomePage = () => {
       name,
       mode,
       enable: true,
-      cronConfig: presets[0],
+      cronConfig: presets[1],
       isManual: false,
       skipOnFail: true,
     };
@@ -93,8 +93,8 @@ export const BlueprintHomePage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: PATHS.BLUEPRINTS() },
-        { name: 'Blueprints', path: PATHS.BLUEPRINTS() },
+        { name: 'Advanced', path: '/advanced/blueprints' },
+        { name: 'Blueprints', path: '/advanced/blueprints' },
       ]}
       description="This is a complete list of all Blueprints you have created, whether they belong to Projects or not."
     >
@@ -121,7 +121,15 @@ export const BlueprintHomePage = () => {
               title: 'Blueprint Name',
               key: 'name',
               render: (_, { id, name }) => (
+<<<<<<< HEAD
+                <Link
+                  to={`/advanced/blueprints/${id}`}
+                  state={{ activeKey: 'configuration' }}
+                  style={{ color: '#292b3f' }}
+                >
+=======
                 <Link to={PATHS.BLUEPRINT(id)} state={{ activeKey: 'configuration' }} style={{ color: '#292b3f' }}>
+>>>>>>> main
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
               ),
@@ -171,7 +179,7 @@ export const BlueprintHomePage = () => {
               key: 'project',
               render: (val) =>
                 val ? (
-                  <Link to={PATHS.PROJECT(val)}>
+                  <Link to={`/projects/${encodeURIComponent(val)}`}>
                     <TextTooltip content={val}>{val}</TextTooltip>
                   </Link>
                 ) : (
@@ -197,7 +205,11 @@ export const BlueprintHomePage = () => {
                   icon={<SettingOutlined />}
                   helptip="Blueprint Configuration"
                   onClick={() =>
+<<<<<<< HEAD
+                    navigate(`/advanced/blueprints/${val}`, {
+=======
                     navigate(PATHS.BLUEPRINT(val), {
+>>>>>>> main
                       state: {
                         activeKey: 'configuration',
                       },

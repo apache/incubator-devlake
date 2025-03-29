@@ -55,5 +55,9 @@ func All() []plugin.MigrationScript {
 		new(addIsDraftToPr),
 		new(changeIssueComponentType),
 		new(addIndexToGithubJobs),
+<<<<<<< HEAD
+		new(addEnvNameListToScopeConfig),
+=======
+>>>>>>> main
 	}
 }

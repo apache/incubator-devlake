@@ -40,6 +40,7 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
@@ -51,11 +52,13 @@ func MakeDataSourcePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	// needed for the connection to populate its access tokens
-	// if AppKey authentication method is selected
-	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-	if err != nil {
-		return nil, nil, err
+	if !skipCollectors {
+		// needed for the connection to populate its access tokens
+		// if AppKey authentication method is selected
+		_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)

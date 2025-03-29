@@ -55,7 +55,7 @@ func TestMakePlanV200(t *testing.T) {
 		&ticket.Board{DomainEntity: domainlayer.DomainEntity{Id: "github:GithubRepo:1:123"}, Name: "apache/incubator-devlake"},
 	}
 	github := new(mockplugin.CompositeDataSourcePluginBlueprintV200)
-	github.On("MakeDataSourcePipelinePlanV200", githubConnId, githubScopes).Return(githubOutputPlan, githubOutputScopes, nil)
+	github.On("MakeDataSourcePipelinePlanV200", githubConnId, githubScopes, false).Return(githubOutputPlan, githubOutputScopes, nil)
 
 	// mock dora plugin as a metric plugin
 	doraName := "TestMakePlanV200-dora"

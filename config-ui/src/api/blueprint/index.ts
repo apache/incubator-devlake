@@ -43,3 +43,5 @@ type TriggerQuery = {
 
 export const trigger = (id: ID, data: TriggerQuery = { skipCollectors: false, fullSync: false }) =>
   request(`/blueprints/${id}/trigger`, { method: 'post', data });
+
+export const connectionsTokenCheck = (id: ID) => request(`/blueprints/${id}/connections-token-check`);

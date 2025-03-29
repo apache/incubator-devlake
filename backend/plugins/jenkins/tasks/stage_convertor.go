@@ -152,8 +152,10 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				OriginalResult: body.Result,
 				OriginalStatus: body.Status,
 				CicdScopeId:    jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
-				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
-				Environment:    data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name),
+			}
+			if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
+				jenkinsTask.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name)
+				jenkinsTask.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.Name)
 			}
 			// if the task is not executed, set the result to default, so that it will not be calculated in the dora
 			if jenkinsTask.OriginalStatus == "NOT_EXECUTED" {

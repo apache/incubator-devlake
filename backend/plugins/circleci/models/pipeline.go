@@ -46,14 +46,14 @@ type CircleciVcs struct {
 }
 
 type CircleciPipeline struct {
-	ConnectionId      uint64              `gorm:"primaryKey;type:BIGINT" json:"connectionId" mapstructure:"connectionId"`
-	Id                string              `gorm:"primaryKey;type:varchar(100)" json:"id" mapstructure:"id"`
-	ProjectSlug       string              `gorm:"type:varchar(255)" json:"projectSlug" mapstructure:"projectSlug"`
-	UpdatedDate       *common.Iso8601Time `json:"updatedDate" mapstructure:"updatedDate"`
-	CreatedDate       *common.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
-	Number            int64               `json:"number" mapstructure:"number"` // pipeline number within the project?
-	TriggerParameters any                 `gorm:"serializer:json" json:"trigger_parameters" mapstructure:"triggerParameters"`
-	State             string              `gorm:"type:varchar(100)" json:"state" mapstructure:"state"`
+	ConnectionId      uint64              `gorm:"primaryKey;type:BIGINT" json:"connectionId"`
+	Id                string              `gorm:"primaryKey;type:varchar(100)" json:"id"`
+	ProjectSlug       string              `gorm:"type:varchar(255)" json:"project_slug"`
+	UpdatedDate       *common.Iso8601Time `json:"updated_at"`
+	CreatedDate       *common.Iso8601Time `json:"created_at"`
+	Number            int64               `json:"number"` // pipeline number within the project?
+	TriggerParameters any                 `gorm:"serializer:json" json:"trigger_parameters"`
+	State             string              `gorm:"type:varchar(100)" json:"state"`
 	Trigger           CircleciTrigger     `gorm:"serializer:json" json:"trigger"`
 	Vcs               CircleciVcs         `gorm:"serializer:json" json:"vcs"`
 	common.NoPKModel  `swaggerignore:"true" json:"-" mapstructure:"-"`

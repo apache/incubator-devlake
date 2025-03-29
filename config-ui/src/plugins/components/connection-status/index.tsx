@@ -54,7 +54,7 @@ export const ConnectionStatus = ({ connection }: Props) => {
 
   const dispatch = useAppDispatch();
 
-  const handleTest = () => operator(() => dispatch(testConnection(connection)).unwrap());
+  const handleTest = () => operator(() => dispatch(testConnection(connection)).unwrap(), { hideToast: true });
 
   return (
     <Wrapper>

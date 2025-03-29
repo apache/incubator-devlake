@@ -19,12 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"strings"
 )
 
 func init() {
@@ -44,7 +43,7 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 
 	// Do not extract createdUserAt if we are not using /users API
-	var skipCreatedUserAt = strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com")
+	//var skipCreatedUserAt = strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com")
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -55,10 +54,14 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
+			// Do not extract createdUserAt if we are not using /users API
+			// Why? I don't know, just refact this code, make it doesn't need api client.
+			var skipCreatedUserAt = strings.HasPrefix(row.Url, "https://gitlab.com")
+
 			results := make([]interface{}, 0)
-			var GitlabAccount *models.GitlabAccount
+			var gitlabAccount *models.GitlabAccount
 			if skipCreatedUserAt {
-				GitlabAccount = &models.GitlabAccount{
+				gitlabAccount = &models.GitlabAccount{
 					ConnectionId:    data.Options.ConnectionId,
 					GitlabId:        userRes.GitlabId,
 					Username:        userRes.Username,
@@ -70,7 +73,7 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 					Email:           userRes.Email,
 				}
 			} else {
-				GitlabAccount = &models.GitlabAccount{
+				gitlabAccount = &models.GitlabAccount{
 					ConnectionId:    data.Options.ConnectionId,
 					GitlabId:        userRes.GitlabId,
 					Username:        userRes.Username,
@@ -84,7 +87,7 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 			}
 
-			results = append(results, GitlabAccount)
+			results = append(results, gitlabAccount)
 
 			return results, nil
 		},

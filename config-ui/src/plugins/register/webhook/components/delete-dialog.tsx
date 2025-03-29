@@ -21,16 +21,15 @@ import { Modal } from 'antd';
 
 import { useAppDispatch } from '@/hooks';
 import { Message } from '@/components';
-import { removeWebhook } from '@/features';
+import { removeWebhook } from '@/features/connections';
 import { operator } from '@/utils';
 
 interface Props {
   initialId: ID;
   onCancel: () => void;
-  onSubmitAfter?: (id: ID) => void;
 }
 
-export const DeleteDialog = ({ initialId, onCancel, onSubmitAfter }: Props) => {
+export const DeleteDialog = ({ initialId, onCancel }: Props) => {
   const [operating, setOperating] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -41,7 +40,6 @@ export const DeleteDialog = ({ initialId, onCancel, onSubmitAfter }: Props) => {
     });
 
     if (success) {
-      onSubmitAfter?.(initialId);
       onCancel();
     }
   };

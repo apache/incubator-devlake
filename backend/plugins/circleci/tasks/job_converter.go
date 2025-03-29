@@ -86,8 +86,10 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
 					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
-				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
-				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
+			}
+			if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
+				task.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name)
+				task.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name)
 			}
 			if task.DurationSec == 0 {
 				task.DurationSec = userTool.DurationSec

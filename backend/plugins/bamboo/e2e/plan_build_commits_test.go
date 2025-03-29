@@ -29,20 +29,21 @@ import (
 )
 
 func TestBambooPlanBuildCommitsDataFlow(t *testing.T) {
-
 	var bamboo impl.Bamboo
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
-
+	dPattern := "(?i)release"
+	pPattern := "(?i)release"
 	taskData := &tasks.BambooOptions{
 		Options: &models.BambooOptions{
 			ConnectionId: 1,
 			PlanKey:      "TEST-PLA2",
 			BambooScopeConfig: &models.BambooScopeConfig{
-				DeploymentPattern: "(?i)compile",
-				ProductionPattern: "(?i)compile",
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
 			},
 		},
 		ApiClient: getFakeAPIClient(),
+		EndPoint:  getFakeAPIClient().GetEndpoint(),
 	}
 
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})

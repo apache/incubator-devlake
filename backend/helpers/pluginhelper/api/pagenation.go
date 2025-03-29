@@ -20,6 +20,8 @@ package api
 import (
 	"net/url"
 	"strconv"
+
+	"github.com/go-errors/errors"
 )
 
 const pageSize = 50
@@ -46,4 +48,26 @@ func GetLimitOffset(q url.Values, pageSizeKey, pageKey string) (limit int, offse
 	limit = size
 	offset = (page - 1) * limit
 	return limit, offset
+}
+
+func ParsePageParam(body map[string]interface{}, paramName string, defaultValue int) (int, error) {
+	value, exists := body[paramName]
+	if !exists {
+		return defaultValue, nil
+	}
+
+	switch v := value.(type) {
+	case int:
+		return v, nil
+	case float64:
+		return int(v), nil
+	case string:
+		parsedValue, err := strconv.Atoi(v)
+		if err != nil {
+			return 0, errors.New("invalid " + paramName + " value")
+		}
+		return parsedValue, nil
+	default:
+		return 0, errors.New(paramName + " must be int or string")
+	}
 }

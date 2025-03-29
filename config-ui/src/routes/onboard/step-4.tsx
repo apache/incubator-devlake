@@ -16,19 +16,19 @@
  *
  */
 
-import { useState, useContext, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo } from 'react';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { theme, Progress, Space, Button } from 'antd';
 import styled from 'styled-components';
 
 import API from '@/api';
 import { ExternalLink } from '@/components';
+import { selectOnboard, selectRecord, update } from '@/features/onboard';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { useAutoRefresh } from '@/hooks';
 import { operator } from '@/utils';
 
 import { Logs } from './components';
-import { Context } from './context';
 
 const Wrapper = styled.div`
   margin-top: 150px;
@@ -103,11 +103,9 @@ const getStatus = (data: any) => {
 export const Step4 = () => {
   const [operating, setOperating] = useState(false);
 
-  const navigate = useNavigate();
-
-  const { step, records, done, projectName, plugin, setRecords } = useContext(Context);
-
-  const record = useMemo(() => records.find((it) => it.plugin === plugin), [plugin, records]);
+  const dispatch = useAppDispatch();
+  const { plugin, records } = useAppSelector(selectOnboard);
+  const record = useAppSelector(selectRecord);
 
   const { data } = useAutoRefresh(
     async () => {
@@ -171,32 +169,12 @@ export const Step4 = () => {
     token: { green5, orange5, red5 },
   } = theme.useToken();
 
-  const handleFinish = async () => {
-    const [success] = await operator(
-      () =>
-        API.store.set('onboard', {
-          step,
-          records,
-          done: true,
-          projectName,
-          plugin,
-        }),
-      {
-        setOperating,
-      },
-    );
-
-    if (success) {
-      navigate('/');
-    }
-  };
-
   const handleRecollectData = async () => {
     if (!record) {
       return null;
     }
 
-    const [success] = await operator(
+    const [success, res] = await operator(
       async () => {
         // 1. re trigger this bulueprint
         await API.blueprint.trigger(record.blueprintId, { skipCollectors: false, fullSync: false });
@@ -204,7 +182,7 @@ export const Step4 = () => {
         // 2. get current run pipeline
         const pipeline = await API.blueprint.pipelines(record.blueprintId);
 
-        const newRecords = records.map((it) =>
+        return records.map((it) =>
           it.plugin !== plugin
             ? it
             : {
@@ -212,17 +190,6 @@ export const Step4 = () => {
                 pipelineId: pipeline.pipelines[0].id,
               },
         );
-
-        setRecords(newRecords);
-
-        // 3. update store
-        await API.store.set('onboard', {
-          step: 4,
-          records: newRecords,
-          done,
-          projectName,
-          plugin,
-        });
       },
       {
         setOperating,
@@ -230,6 +197,7 @@ export const Step4 = () => {
     );
 
     if (success) {
+      dispatch(update({ step: 4, records: res }));
     }
   };
 
@@ -261,7 +229,7 @@ export const Step4 = () => {
               <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
                 Check Dashboard
               </Button>
-              <Button loading={operating} onClick={handleFinish}>
+              <Button loading={operating} onClick={() => dispatch(update({ step: 4, done: true }))}>
                 Finish and Exit
               </Button>
             </Space>

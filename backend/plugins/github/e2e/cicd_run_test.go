@@ -32,6 +32,8 @@ import (
 
 func TestGithubCICDRunDataFlow(t *testing.T) {
 	var github impl.Github
+	dPattern := ""
+	pPattern := ""
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", github)
 	regexEnricher := helper.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "CodeQL.*")
@@ -40,6 +42,10 @@ func TestGithubCICDRunDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Name:         "panjf2000/ants",
 			GithubId:     134018330,
+			ScopeConfig: &models.GithubScopeConfig{
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
+			},
 		},
 		RegexEnricher: regexEnricher,
 	}

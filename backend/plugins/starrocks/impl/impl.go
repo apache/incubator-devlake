@@ -67,3 +67,7 @@ func (s StarRocks) Name() string {
 func (s StarRocks) RootPkgPath() string {
 	return "github.com/merico-dev/lake/plugins/starrocks"
 }
+
+func (s StarRocks) TestConnection(id uint64) errors.Error {
+	return nil
+}

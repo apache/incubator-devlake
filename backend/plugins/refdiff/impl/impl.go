@@ -110,3 +110,7 @@ func (p RefDiff) RootPkgPath() string {
 func (p RefDiff) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return nil
 }
+
+func (p RefDiff) TestConnection(id uint64) errors.Error {
+	return nil
+}

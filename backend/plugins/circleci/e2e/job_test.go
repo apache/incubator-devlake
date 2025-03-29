@@ -32,12 +32,17 @@ import (
 
 func TestCircleciJob(t *testing.T) {
 	var circleci impl.Circleci
-
+	dPattern := ""
+	pPattern := ""
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "circleci", circleci)
 	taskData := &tasks.CircleciTaskData{
 		Options: &tasks.CircleciOptions{
 			ConnectionId: 1,
 			ProjectSlug:  "github/coldgust/coldgust.github.io",
+			ScopeConfig: &models.CircleciScopeConfig{
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
+			},
 		},
 		RegexEnricher: api.NewRegexEnricher(),
 		Project: &models.CircleciProject{

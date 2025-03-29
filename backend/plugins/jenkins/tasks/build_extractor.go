@@ -81,6 +81,7 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				EstimatedDuration: body.EstimatedDuration,
 				Number:            body.Number,
 				Result:            body.Result,
+				Url:               body.Url,
 				Timestamp:         body.Timestamp,
 				Class:             class,
 				Building:          body.Building,

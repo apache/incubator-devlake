@@ -67,8 +67,9 @@ func (p Bamboo) ScopeConfig() dal.Tabler {
 func (p Bamboo) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Bamboo) GetTablesInfo() []dal.Tabler {
@@ -139,10 +140,16 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Bamboo connection by the given connection ID")
 	}
+	endPoint := connection.GetEndpoint()
 
-	apiClient, err := tasks.NewBambooApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get Bamboo API client instance")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewBambooApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to get Bamboo API client instance")
+		}
+		apiClient = newApiClient
 	}
 	if op.PlanKey != "" {
 		var scope *models.BambooPlan
@@ -153,11 +160,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		if err != nil {
 			return nil, err
 		}
-
 		op.ScopeConfigId = scope.ScopeConfigId
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find plan: %s", op.PlanKey))
-		}
 	}
 
 	if op.BambooScopeConfig == nil && op.ScopeConfigId != 0 {
@@ -176,18 +179,30 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		op.BambooScopeConfig = new(models.BambooScopeConfig)
 	}
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	if op.DeploymentPattern != nil {
+		if err := regexEnricher.TryAdd(devops.DEPLOYMENT, *op.DeploymentPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+		}
 	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	if op.ProductionPattern != nil {
+		if err := regexEnricher.TryAdd(devops.PRODUCTION, *op.ProductionPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+		}
 	}
-	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.EnvNamePattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	if len(op.BambooScopeConfig.EnvNameList) > 0 || (len(op.BambooScopeConfig.EnvNameList) == 0 && op.BambooScopeConfig.EnvNamePattern == "") {
+		if err = regexEnricher.TryAddList(devops.ENV_NAME_PATTERN, op.BambooScopeConfig.EnvNameList...); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNameList`")
+		}
+	} else {
+		if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.BambooScopeConfig.EnvNamePattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+		}
+
 	}
 	return &tasks.BambooOptions{
 		Options:       op,
 		ApiClient:     apiClient,
+		EndPoint:      endPoint,
 		RegexEnricher: regexEnricher,
 	}, nil
 }
@@ -199,6 +214,11 @@ func (p Bamboo) RootPkgPath() string {
 
 func (p Bamboo) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Bamboo) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -240,6 +260,12 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/search-remote-scopes": {
 			"GET": api.SearchRemoteScopes,
 		},
+		"connections/:connectionId/deployments": {
+			"GET": api.GetConnectionDeployments,
+		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
+		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
 			"PATCH":  api.PatchScope,
@@ -259,6 +285,8 @@ func (p Bamboo) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

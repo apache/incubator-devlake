@@ -18,5 +18,5 @@
 
 export * from './add-connection-dialog';
 export * from './advanced-editor';
-export * from './update-name-dialog';
+export * from './connection-check';
 export * from './update-policy-dialog';

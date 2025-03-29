@@ -102,6 +102,7 @@ type ApiBuildResponse struct {
 	Class             string    `json:"_class"`
 	Number            int64     `json:"number"`
 	Result            string    `json:"result"`
+	Url               string    `json:"url"`
 	Building          bool      `json:"building"`
 	Actions           []Action  `json:"actions"`
 	Duration          float64   `json:"duration"`

@@ -21,17 +21,29 @@ import { CheckCircleOutlined, CloseCircleOutlined, CaretRightOutlined } from '@a
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { theme, Form, Collapse, Input, Tag, Checkbox } from 'antd';
 
-import { HelpTooltip, ExternalLink } from '@/components';
+import { ShowMore, HelpTooltip, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
+import { CheckMatchedItems, Deployments } from '@/plugins';
+
+import { WorkflowRun } from './workflow-run';
 
 interface Props {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
   setHasError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const GitHubTransformation = ({ entities, transformation, setTransformation, setHasError }: Props) => {
+export const GitHubTransformation = ({
+  plugin,
+  connectionId,
+  entities,
+  transformation,
+  setTransformation,
+  setHasError,
+}: Props) => {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
@@ -40,7 +52,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
     } else {
       setUseCustom(false);
     }
-  }, [transformation]);
+  }, []);
 
   useEffect(() => {
     setHasError(useCustom && !transformation.deploymentPattern);
@@ -50,6 +62,12 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
     const checked = (e.target as HTMLInputElement).checked;
 
     if (!checked) {
+      setTransformation({
+        ...transformation,
+        deploymentPattern: undefined,
+        productionPattern: undefined,
+      });
+    } else {
       setTransformation({
         ...transformation,
         deploymentPattern: '',
@@ -77,6 +95,8 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
       style={{ background: token.colorBgContainer }}
       size="large"
       items={renderCollapseItems({
+        plugin,
+        connectionId,
         entities,
         panelStyle,
         transformation,
@@ -89,6 +109,8 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
 };
 
 const renderCollapseItems = ({
+  plugin,
+  connectionId,
   entities,
   panelStyle,
   transformation,
@@ -96,6 +118,8 @@ const renderCollapseItems = ({
   useCustom,
   onChangeUseCustom,
 }: {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   panelStyle: React.CSSProperties;
   transformation: any;
@@ -244,58 +268,65 @@ const renderCollapseItems = ({
             Convert a GitHub Deployment to a DevLake Deployment
           </Checkbox>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>If its environment name matches</span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="(?i)prod(.*)"
-              value={transformation.envNamePattern}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  envNamePattern: e.target.value,
-                })
-              }
+            <span>If its environment name</span>
+            <Deployments
+              style={{ margin: '0 4px' }}
+              plugin={plugin}
+              connectionId={connectionId}
+              transformation={transformation}
+              setTransformation={onChangeTransformation}
             />
             <span>, this deployment is a ‘Production Deployment’</span>
           </div>
           <Checkbox checked={useCustom} onChange={onChangeUseCustom}>
             Convert a GitHub workflow run as a DevLake Deployment when:
           </Checkbox>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>
-              The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
-            </span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
-              value={transformation.deploymentPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  deploymentPattern: e.target.value,
-                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                })
-              }
-            />
-            <i style={{ marginRight: 4, color: '#E34040' }}>*</i>
-            <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
-          </div>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>If the name or its branch’s name also matches</span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="prod(.*)"
-              value={transformation.productionPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  productionPattern: e.target.value,
-                })
-              }
-            />
-            <span>, this deployment is a ‘Production Deployment’</span>
-            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
-          </div>
+          {useCustom && (
+            <div style={{ paddingLeft: 28 }}>
+              <ShowMore
+                text={<p>Select this option only if you are not enabling GitHub Deployments.</p>}
+                btnText="See how to configure"
+              >
+                <WorkflowRun />
+              </ShowMore>
+              <div style={{ margin: '8px 0' }}>
+                <span>
+                  The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
+                </span>
+                <Input
+                  style={{ width: 180, margin: '0 8px' }}
+                  placeholder="(deploy|push-image)"
+                  value={transformation.deploymentPattern ?? ''}
+                  onChange={(e) =>
+                    onChangeTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                    })
+                  }
+                />
+                <i style={{ marginRight: 4, color: '#E34040' }}>*</i>
+                <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
+              </div>
+              <div style={{ margin: '8px 0' }}>
+                <span>If the name or its branch’s name also matches</span>
+                <Input
+                  style={{ width: 180, margin: '0 8px' }}
+                  placeholder="prod(.*)"
+                  value={transformation.productionPattern ?? ''}
+                  onChange={(e) =>
+                    onChangeTransformation({
+                      ...transformation,
+                      productionPattern: e.target.value,
+                    })
+                  }
+                />
+                <span>, this deployment is a ‘Production Deployment’</span>
+                <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
+              </div>
+              <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
+            </div>
+          )}
         </>
       ),
     },

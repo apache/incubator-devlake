@@ -20,6 +20,28 @@ import dayjs from 'dayjs';
 
 import { IPipelineStatus } from '@/types';
 
+const duration = (minute: number) => {
+  if (minute < 1) {
+    return '< 1m';
+  }
+
+  if (minute < 60) {
+    return `${minute}m`;
+  }
+
+  if (minute < 60 * 24) {
+    const hours = Math.floor(minute / 60);
+    const minutes = minute - hours * 60;
+    return `${hours}h${minutes !== 0 ? ` ${minutes}m` : ''}`;
+  }
+
+  const days = Math.floor(minute / (60 * 24));
+  const hours = Math.floor((minute - days * 60 * 24) / 60);
+  const minutes = minute - days * 60 * 24 - hours * 60;
+
+  return `${days}d${hours !== 0 ? ` ${hours}h` : ''}${minutes !== 0 ? ` ${minutes}m` : ''}`;
+};
+
 interface Props {
   status: IPipelineStatus;
   beganAt: string | null;
@@ -36,12 +58,12 @@ export const PipelineDuration = ({ status, beganAt, finishedAt }: Props) => {
       status,
     )
   ) {
-    return <span>{dayjs(beganAt).toNow(true)}</span>;
+    return <span>{duration(dayjs().diff(dayjs(beganAt), 'm'))}</span>;
   }
 
   if (!finishedAt) {
     return <span>-</span>;
   }
 
-  return <span>{dayjs(beganAt).from(finishedAt, true)}</span>;
+  return <span>{duration(dayjs(finishedAt).diff(dayjs(beganAt), 'm'))}</span>;
 };

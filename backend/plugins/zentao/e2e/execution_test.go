@@ -38,7 +38,8 @@ func TestZentaoExecutionDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectId:    192,
 		},
-		ApiClient: getFakeAPIClient(),
+		ApiClient:   getFakeAPIClient(),
+		HomePageURL: getFakeHomepage(),
 	}
 
 	// import raw data table

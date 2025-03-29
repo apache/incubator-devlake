@@ -98,9 +98,10 @@ func ConvertJobs(subtaskCtx plugin.SubTaskContext) (err errors.Error) {
 				},
 				CicdScopeId: projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
 			}
-			domainJob.Type = regexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabJob.Name)
-			domainJob.Environment = regexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabJob.Name)
-
+			if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
+				domainJob.Type = regexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabJob.Name)
+				domainJob.Environment = regexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabJob.Name)
+			}
 			return []interface{}{
 				domainJob,
 			}, nil

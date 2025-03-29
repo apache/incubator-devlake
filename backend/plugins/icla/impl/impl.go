@@ -71,9 +71,14 @@ func (p Icla) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		return nil, err
 	}
 
-	apiClient, err := errors.Convert01(tasks.NewIclaApiClient(taskCtx))
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := errors.Convert01(tasks.NewIclaApiClient(taskCtx))
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 
 	return &tasks.IclaTaskData{
@@ -99,11 +104,17 @@ func (p Icla) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return nil
 }
 
+func (p Icla) TestConnection(id uint64) errors.Error {
+	return nil
+}
+
 func (p Icla) Close(taskCtx plugin.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.IclaTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

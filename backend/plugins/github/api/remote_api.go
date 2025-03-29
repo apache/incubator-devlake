@@ -18,7 +18,10 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
+	goerrors "errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -90,6 +93,10 @@ func listGithubUserOrgs(
 	if err != nil {
 		return nil, nil, err
 	}
+	if orgsBody.StatusCode != http.StatusOK {
+		err := errors.Convert(tryToResolveErrorMessage(orgsBody))
+		return nil, nil, err
+	}
 	var orgs []org
 	if err := api.UnmarshalResponse(orgsBody, &orgs); err != nil {
 		return nil, nil, err
@@ -110,6 +117,29 @@ func listGithubUserOrgs(
 		}
 	}
 	return children, nextPage, nil
+}
+
+func tryToResolveErrorMessage(resp *http.Response) error {
+	if resp == nil {
+		return goerrors.New("nil response")
+	}
+	type Response struct {
+		Message          string `json:"message"`
+		DocumentationURL string `json:"documentation_url"`
+	}
+	resBody, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+	if len(resBody) == 0 {
+		return goerrors.New("empty response")
+	}
+	var respStruct Response
+	if err := json.Unmarshal(resBody, &respStruct); err != nil {
+		return err
+	}
+	return fmt.Errorf("response status code: %d, message: %s", resp.StatusCode, respStruct.Message)
 }
 
 func listGithubOrgRepos(
@@ -172,18 +202,25 @@ func listGithubAppInstalledRepos(
 	}
 	var appRepos GithubAppRepo
 	errors.Must(api.UnmarshalResponse(resApp, &appRepos))
-	processedOrgs := make(map[string]struct{})
 	for _, r := range appRepos.Repositories {
 		orgName := r.Owner.Login
-		if _, exists := processedOrgs[orgName]; !exists && orgName != "" {
+		if orgName != "" {
 			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
 				Type:     api.RAS_ENTRY_TYPE_SCOPE,
 				ParentId: &orgName,
 				Id:       fmt.Sprintf("%v", r.ID),
 				Name:     fmt.Sprintf("%v", r.Name),
 				FullName: fmt.Sprintf("%v", r.FullName),
+				Data: &models.GithubRepo{
+					GithubId:    r.ID,
+					Name:        r.Name,
+					FullName:    r.FullName,
+					HTMLUrl:     r.HTMLURL,
+					Description: r.Description,
+					OwnerId:     r.Owner.ID,
+					CloneUrl:    r.CloneURL,
+				},
 			})
-			processedOrgs[orgName] = struct{}{}
 		}
 	}
 	if len(appRepos.Repositories) == page.PerPage {

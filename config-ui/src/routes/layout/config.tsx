@@ -20,7 +20,6 @@ import {
   AppstoreOutlined,
   ProjectOutlined,
   ExperimentOutlined,
-  KeyOutlined,
   DashboardOutlined,
   FileSearchOutlined,
   ApiOutlined,
@@ -29,8 +28,6 @@ import {
 } from '@ant-design/icons';
 
 import { DOC_URL } from '@/release';
-
-const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
 
 type MenuItem = {
   key: string;
@@ -41,34 +38,29 @@ type MenuItem = {
 
 export const menuItems: MenuItem[] = [
   {
-    key: `${PATH_PREFIX}/projects`,
+    key: '/projects',
     label: 'Projects',
     icon: <ProjectOutlined />,
   },
   {
-    key: `${PATH_PREFIX}/connections`,
+    key: '/connections',
     label: 'Connections',
     icon: <AppstoreOutlined />,
   },
   {
-    key: `${PATH_PREFIX}/advanced`,
+    key: '/advanced',
     label: 'Advanced',
     icon: <ExperimentOutlined />,
     children: [
       {
-        key: `${PATH_PREFIX}/advanced/blueprints`,
-        label: 'Blueprints',
+        key: '/advanced/keys',
+        label: 'API Keys',
       },
       {
-        key: `${PATH_PREFIX}/advanced/pipelines`,
-        label: 'Pipelines',
+        key: '/advanced/pipelines',
+        label: 'Pipeline Results',
       },
     ],
-  },
-  {
-    key: `${PATH_PREFIX}/keys`,
-    label: 'API Keys',
-    icon: <KeyOutlined />,
   },
 ];
 

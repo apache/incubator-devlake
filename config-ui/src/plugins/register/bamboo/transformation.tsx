@@ -20,16 +20,21 @@ import { useState, useEffect } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { theme, Collapse, Tag, Input, Checkbox } from 'antd';
 
-import { ExternalLink, HelpTooltip } from '@/components';
+import { ShowMore, ExternalLink, HelpTooltip } from '@/components';
+import { Deployments, CheckMatchedItems } from '@/plugins';
 import { DOC_URL } from '@/release';
 
+import { WorkflowRun } from './workflow-run';
+
 interface Props {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const BambooTransformation = ({ entities, transformation, setTransformation }: Props) => {
+export const BambooTransformation = ({ plugin, connectionId, entities, transformation, setTransformation }: Props) => {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
@@ -38,12 +43,18 @@ export const BambooTransformation = ({ entities, transformation, setTransformati
     } else {
       setUseCustom(false);
     }
-  }, [transformation]);
+  }, []);
 
   const handleChangeUseCustom = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
 
     if (!checked) {
+      setTransformation({
+        ...transformation,
+        deploymentPattern: undefined,
+        productionPattern: undefined,
+      });
+    } else {
       setTransformation({
         ...transformation,
         deploymentPattern: '',
@@ -71,6 +82,8 @@ export const BambooTransformation = ({ entities, transformation, setTransformati
       style={{ background: token.colorBgContainer }}
       size="large"
       items={renderCollapseItems({
+        plugin,
+        connectionId,
         entities,
         panelStyle,
         transformation,
@@ -83,6 +96,8 @@ export const BambooTransformation = ({ entities, transformation, setTransformati
 };
 
 const renderCollapseItems = ({
+  plugin,
+  connectionId,
   entities,
   panelStyle,
   transformation,
@@ -90,6 +105,8 @@ const renderCollapseItems = ({
   useCustom,
   onChangeUseCustom,
 }: {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   panelStyle: React.CSSProperties;
   transformation: any;
@@ -118,56 +135,63 @@ const renderCollapseItems = ({
             Convert a Bamboo Deployment to a DevLake Deployment
           </Checkbox>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>If its environment name matches</span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="(?i)prod(.*)"
-              value={transformation.envNamePattern}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  envNamePattern: e.target.value,
-                })
-              }
+            <span>If the environment</span>
+            <Deployments
+              plugin={plugin}
+              connectionId={connectionId}
+              transformation={transformation}
+              setTransformation={onChangeTransformation}
             />
             <span>, this deployment is a ‘Production Deployment’</span>
           </div>
           <Checkbox checked={useCustom} onChange={onChangeUseCustom}>
-            Convert a Bamboo Plan Build to a DevLake Deployment when its name or one of its job builds’ names
+            Convert a Bamboo Plan Build to a DevLake Deployment when:
           </Checkbox>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>matches</span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
-              value={transformation.deploymentPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  deploymentPattern: e.target.value,
-                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                })
-              }
-            />
-            <span>.</span>
-            <HelpTooltip content="View your Bamboo Builds: https://confluence.atlassian.com/bamboo/viewing-a-plan-s-build-information-289276861.html" />
-          </div>
-          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
-            <span>If the name also matches</span>
-            <Input
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="prod(.*)"
-              value={transformation.productionPattern ?? ''}
-              onChange={(e) =>
-                onChangeTransformation({
-                  ...transformation,
-                  productionPattern: e.target.value,
-                })
-              }
-            />
-            <span>, this Deployment is a ‘Production Deployment’</span>
-            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
-          </div>
+          {useCustom && (
+            <div style={{ paddingLeft: 28 }}>
+              <ShowMore
+                text={<p>Select this option only if you are not enabling Bamboo Deployments</p>}
+                btnText="See how to configure"
+              >
+                <WorkflowRun />
+              </ShowMore>
+              <div style={{ margin: '8px 0' }}>
+                <span>The name of the plan or one of its jobs matches</span>
+                <Input
+                  style={{ width: 180, margin: '0 8px' }}
+                  placeholder="(?i)(deploy|push-image)"
+                  value={transformation.deploymentPattern ?? ''}
+                  onChange={(e) =>
+                    onChangeTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                    })
+                  }
+                />
+                <span>.</span>
+                <HelpTooltip content="View your Bamboo Builds: https://confluence.atlassian.com/bamboo/viewing-a-plan-s-build-information-289276861.html" />
+              </div>
+              <div style={{ margin: '8px 0' }}>
+                <span>If the name also matches</span>
+                <Input
+                  style={{ width: 180, margin: '0 8px' }}
+                  placeholder="(?i)(prod|release)"
+                  disabled={!transformation.deploymentPattern}
+                  value={transformation.productionPattern ?? ''}
+                  onChange={(e) =>
+                    onChangeTransformation({
+                      ...transformation,
+                      productionPattern: e.target.value,
+                    })
+                  }
+                />
+                <span>, this deployment will be regarded as a ‘Production Deployment’</span>
+                <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
+              </div>
+              <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
+            </div>
+          )}
         </>
       ),
     },

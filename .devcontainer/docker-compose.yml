@@ -1,0 +1,64 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '3.8'
+services:
+  devcontainer:
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace
+    networks:
+      - default
+    command: sleep infinity
+  mysql:
+    image: mysql:8
+    volumes:
+      - mysql-storage:/var/lib/mysql
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: lake
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
+      TZ: UTC
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --skip-log-bin
+    networks:
+      - default
+  grafana:
+    image: devlake.docker.scarf.sh/apache/devlake-dashboard:latest
+    ports:
+      - 3002:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
+      GF_USERS_DEFAULT_THEME: "light"
+      MYSQL_URL: mysql:3306
+      MYSQL_DATABASE: lake
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
+      TZ: UTC
+    restart: always
+    depends_on:
+      - mysql
+    networks:
+      - default
+
+volumes:
+  mysql-storage:
+  grafana-storage:

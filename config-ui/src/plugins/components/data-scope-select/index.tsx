@@ -16,18 +16,19 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RedoOutlined, PlusOutlined } from '@ant-design/icons';
-import { Flex, Select, Button } from 'antd';
-import { useDebounce } from 'ahooks';
-import type { McsItem } from 'miller-columns-select';
-import MillerColumnsSelect from 'miller-columns-select';
+import { Flex, Button, Input, Space, Tag } from 'antd';
+import { useRequest } from '@mints/hooks';
+import type { IDType } from '@mints/miller-columns';
+import { MillerColumns } from '@mints/miller-columns';
+import { useDebounce } from '@mints/hooks';
 
 import API from '@/api';
 import { PATHS } from '@/config';
 import { Loading, Block, ExternalLink, Message } from '@/components';
-import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
+import type { IDataScope } from '@/types';
 
 interface Props {
   plugin: string;
@@ -46,141 +47,174 @@ export const DataScopeSelect = ({
   onSubmit,
   onCancel,
 }: Props) => {
-  const [loading, setLoading] = useState(false);
-  const [query, setQuery] = useState('');
-  const [items, setItems] = useState<McsItem<{ data: any }>[]>([]);
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
-  // const [selectedItems, setSelecteItems] = useState<any>([]);
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [total, setTotal] = useState(0);
+  const [selectedScope, setSelectedScope] = useState<
+    Array<{
+      id: ID;
+      name: string;
+    }>
+  >([]);
+  const [search, setSearch] = useState('');
+  const [version, setVersion] = useState(0);
+
+  const searchDebounce = useDebounce(search, { wait: 500 });
 
   useEffect(() => {
-    setSelectedIds((initialScope ?? []).map((sc) => sc.id));
+    setSelectedIds((initialScope ?? []).map((it) => getPluginScopeId(plugin, it.scope)));
+    setSelectedScope(
+      (initialScope ?? []).map((it) => ({
+        id: getPluginScopeId(plugin, it.scope),
+        name: it.scope.fullName ?? it.scope.name,
+      })),
+    );
   }, []);
 
-  const getDataScope = async (page: number) => {
-    if (page === 1) {
-      setLoading(true);
+  const { loading, data } = useRequest(async () => {
+    if (!searchDebounce) {
+      return [];
     }
+    const res = await API.scope.list(plugin, connectionId, {
+      page: 1,
+      pageSize: 50,
+      searchTerm: searchDebounce,
+    });
 
-    const res = await API.scope.list(plugin, connectionId, { page, pageSize });
-    setItems((items) => [
-      ...items,
-      ...res.scopes.map((sc) => ({
-        parentId: null,
-        id: getPluginScopeId(plugin, sc.scope),
-        title: sc.scope.fullName ?? sc.scope.name,
-        data: sc.scope,
-      })),
-    ]);
+    return res.scopes.map((it) => ({
+      parentId: null,
+      id: getPluginScopeId(plugin, it.scope),
+      title: it.scope.fullName ?? it.scope.name,
+      canExpand: false,
+      original: it,
+    }));
+  }, [plugin, connectionId, searchDebounce, version]);
 
-    setTotal(res.count);
-    setLoading(false);
-  };
+  const request = useCallback(
+    async (_?: string | number, params?: any) => {
+      const res = await API.scope.list(plugin, connectionId, {
+        page: params?.page ?? 1,
+        pageSize: 20,
+        searchTerm: searchDebounce,
+      });
 
-  useEffect(() => {
-    getDataScope(page);
-  }, [page]);
-
-  const search = useDebounce(query, { wait: 500 });
-
-  const { ready, data } = useRefreshData(
-    async () => await API.scope.list(plugin, connectionId, { searchTerm: search }),
-    [search],
+      return {
+        data: res.scopes.map((it) => ({
+          parentId: null,
+          id: getPluginScopeId(plugin, it.scope),
+          title: it.scope.fullName ?? it.scope.name,
+          canExpand: false,
+          original: it,
+        })),
+        hasMore: res.count > (params?.page ?? 1) * 20,
+        params: {
+          page: (params?.page ?? 1) + 1,
+        },
+      };
+    },
+    [plugin, connectionId],
   );
-
-  const searchOptions = useMemo(
-    () =>
-      data?.scopes.map((sc) => ({
-        label: sc.scope.fullName ?? sc.scope.name,
-        value: getPluginScopeId(plugin, sc.scope),
-      })) ?? [],
-    [data],
-  );
-
-  const handleScroll = () => setPage(page + 1);
 
   const handleSubmit = () => onSubmit?.(selectedIds);
 
-  const handleRefresh = () => {
-    setQuery('');
-    setItems([]);
-    getDataScope(1);
+  const millerColumnsProps = {
+    bordered: true,
+    theme: {
+      colorPrimary: '#7497f7',
+      borderColor: '#dbe4fd',
+    },
+    columnHeight: 200,
+    renderLoading: () => <Loading size={20} style={{ padding: '4px 12px' }} />,
+    renderNoData: () => (
+      <Flex style={{ height: '100%' }} justify="center" align="center">
+        <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
+          <Button type="primary" icon={<PlusOutlined />}>
+            Add Data Scope
+          </Button>
+        </ExternalLink>
+      </Flex>
+    ),
+    selectable: true,
+    selectedIds,
+    onSelectedIds: (
+      ids: IDType[],
+      data?: Array<{
+        scope: IDataScope;
+      }>,
+    ) => {
+      setSelectedIds(ids);
+      setSelectedScope(
+        (data ?? []).map((it) => ({
+          id: getPluginScopeId(plugin, it.scope),
+          name: it.scope.fullName ?? it.scope.name,
+        })),
+      );
+    },
   };
 
   return (
     <Block
       title="Select Data Scope"
       description={
-        items.length ? (
-          <>
-            Select the data scope in this Connection that you wish to associate with this Project. If you wish to add
-            more Data Scope to this Connection, please{' '}
-            <ExternalLink link={`/connections/${plugin}/${connectionId}`}>go to the Connection page</ExternalLink>.
-          </>
-        ) : (
-          <>
-            There is no Data Scope in this connection yet, please{' '}
-            <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
-              add Data Scope and manage their Scope Configs
-            </ExternalLink>{' '}
-            first.
-          </>
-        )
+        <>
+          If no Data Scope appears in the dropdown list, please{' '}
+          <ExternalLink link={`/connections/${plugin}/${connectionId}`}>add one to this connection</ExternalLink> first.
+        </>
       }
       required
     >
-      {loading ? (
-        <Loading />
-      ) : items.length ? (
-        <Flex vertical gap="middle">
-          {showWarning ? (
-            <Message
-              style={{ marginBottom: 24 }}
-              content={
-                <>
-                  Unchecking Data Scope below will only remove it from the current Project and will not delete the
-                  historical data. If you would like to delete the data of Data Scope, please{' '}
-                  <ExternalLink link={`/connections/${plugin}/${connectionId}`}>go to the Connection page</ExternalLink>
-                  .
-                </>
-              }
-            />
-          ) : (
-            <Flex>
-              <Button type="primary" icon={<RedoOutlined />} onClick={handleRefresh}>
-                Refresh Data Scope
-              </Button>
-            </Flex>
-          )}
-          <Select
-            filterOption={false}
-            loading={!ready}
-            showSearch
-            mode="multiple"
-            options={searchOptions}
-            value={selectedIds}
-            onChange={(value) => setSelectedIds(value)}
-            onSearch={(value) => setQuery(value)}
+      <Flex vertical gap="middle">
+        {showWarning ? (
+          <Message
+            style={{ marginBottom: 24 }}
+            content={
+              <>
+                Unchecking Data Scope below will only remove it from the current Project and will not delete the
+                historical data. If you would like to delete the data of Data Scope, please{' '}
+                <ExternalLink link={`/connections/${plugin}/${connectionId}`}>go to the Connection page</ExternalLink>.
+              </>
+            }
           />
-          <MillerColumnsSelect
-            showSelectAll
-            columnCount={1}
-            columnHeight={200}
-            items={items}
-            getHasMore={() => items.length < total}
-            onScroll={handleScroll}
-            selectedIds={selectedIds}
-            onSelectItemIds={setSelectedIds}
-          />
-          <Flex justify="flex-end" gap="small">
-            <Button onClick={onCancel}>Cancel</Button>
-            <Button type="primary" disabled={!selectedIds.length} onClick={handleSubmit}>
-              Save
+        ) : (
+          <Flex>
+            <Button type="primary" icon={<RedoOutlined />} onClick={() => setVersion(version + 1)}>
+              Refresh Data Scope
             </Button>
           </Flex>
+        )}
+        <Space wrap>
+          {selectedScope.length ? (
+            selectedScope.map(({ id, name }) => {
+              return (
+                <Tag
+                  key={id}
+                  color="blue"
+                  closable
+                  onClose={() => setSelectedIds(selectedIds.filter((it) => it !== id))}
+                >
+                  {name}
+                </Tag>
+              );
+            })
+          ) : (
+            <span>Please select scope...</span>
+          )}
+        </Space>
+        <div>
+          <Input.Search value={search} onChange={(e) => setSearch(e.target.value)} />
+          {searchDebounce ? (
+            <MillerColumns {...millerColumnsProps} loading={loading} items={data ?? []} />
+          ) : (
+            <MillerColumns {...millerColumnsProps} request={request} rootId={version} />
+          )}
+        </div>
+        <Flex justify="flex-end" gap="small">
+          <Button onClick={onCancel}>Cancel</Button>
+          <Button type="primary" disabled={!selectedIds.length} onClick={handleSubmit}>
+            Save
+          </Button>
         </Flex>
+<<<<<<< HEAD
+      </Flex>
+=======
       ) : (
         <Flex>
           <ExternalLink link={PATHS.CONNECTION(plugin, connectionId)}>
@@ -190,6 +224,7 @@ export const DataScopeSelect = ({
           </ExternalLink>
         </Flex>
       )}
+>>>>>>> main
     </Block>
   );
 };

@@ -110,3 +110,7 @@ func (p Customize) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		},
 	}
 }
+
+func (p Customize) TestConnection(id uint64) errors.Error {
+	return nil
+}

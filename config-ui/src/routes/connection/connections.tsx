@@ -22,9 +22,8 @@ import { theme, Badge, Modal } from 'antd';
 import { chunk } from 'lodash';
 
 import { selectPlugins, selectAllConnections, selectWebhooks } from '@/features/connections';
-import { PATHS } from '@/config';
 import { useAppSelector } from '@/hooks';
-import { getPluginConfig, ConnectionList, ConnectionForm } from '@/plugins';
+import { getPluginConfig, ConnectionName, ConnectionList, ConnectionFormModal } from '@/plugins';
 
 import * as S from './styled';
 
@@ -71,7 +70,7 @@ export const Connections = () => {
   };
 
   const handleSuccessAfter = async (plugin: string, id: ID) => {
-    navigate(PATHS.CONNECTION(plugin, id));
+    navigate(`/connections/${plugin}/${id}`);
   };
 
   return (
@@ -156,12 +155,7 @@ export const Connections = () => {
           open
           width={820}
           centered
-          title={
-            <S.ModalTitle>
-              <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
-              <span className="name">Manage Connections: {pluginConfig.name}</span>
-            </S.ModalTitle>
-          }
+          title={<ConnectionName plugin={plugin} customName={(pluginName) => `Manage Connections: ${pluginName}`} />}
           footer={null}
           onCancel={handleHideDialog}
         >
@@ -169,24 +163,12 @@ export const Connections = () => {
         </Modal>
       )}
       {type === 'form' && pluginConfig && (
-        <Modal
+        <ConnectionFormModal
+          plugin={pluginConfig.plugin}
           open
-          width={820}
-          centered
-          title={
-            <S.ModalTitle>
-              <span className="icon">{pluginConfig.icon({ color: colorPrimary })}</span>
-              <span className="name">Manage Connections: {pluginConfig.name}</span>
-            </S.ModalTitle>
-          }
-          footer={null}
           onCancel={handleHideDialog}
-        >
-          <ConnectionForm
-            plugin={pluginConfig.plugin}
-            onSuccess={(id) => handleSuccessAfter(pluginConfig.plugin, id)}
-          />
-        </Modal>
+          onSuccess={(id) => handleSuccessAfter(pluginConfig.plugin, id)}
+        />
       )}
     </S.Wrapper>
   );

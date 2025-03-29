@@ -107,9 +107,14 @@ func (p AE) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]inter
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error getting connection for AE plugin")
 	}
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 	return &tasks.AeTaskData{
 		Options:   &op,
@@ -123,6 +128,11 @@ func (p AE) RootPkgPath() string {
 
 func (p AE) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p AE) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p AE) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -150,6 +160,8 @@ func (p AE) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

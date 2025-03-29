@@ -62,8 +62,10 @@ func ExtractRuns(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			githubRun.RepoId = repoId
 			githubRun.ConnectionId = data.Options.ConnectionId
-			githubRun.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubRun.Name)
-			githubRun.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubRun.Name, githubRun.HeadBranch)
+			if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
+				githubRun.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubRun.Name)
+				githubRun.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubRun.Name, githubRun.HeadBranch)
+			}
 			return []interface{}{githubRun}, nil
 		},
 	})

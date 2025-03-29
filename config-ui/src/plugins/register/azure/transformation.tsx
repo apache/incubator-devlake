@@ -19,16 +19,21 @@
 import { CaretRightOutlined } from '@ant-design/icons';
 import { theme, Collapse, Tag, Input } from 'antd';
 
-import { ExternalLink, HelpTooltip } from '@/components';
+import { ShowMore, ExternalLink, HelpTooltip } from '@/components';
+import { CheckMatchedItems } from '@/plugins';
 import { DOC_URL } from '@/release';
 
+import { WorkflowRun } from './workflow-run';
+
 interface Props {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const AzureTransformation = ({ entities, transformation, setTransformation }: Props) => {
+export const AzureTransformation = ({ plugin, connectionId, entities, transformation, setTransformation }: Props) => {
   const { token } = theme.useToken();
 
   const panelStyle: React.CSSProperties = {
@@ -46,6 +51,8 @@ export const AzureTransformation = ({ entities, transformation, setTransformatio
       style={{ background: token.colorBgContainer }}
       size="large"
       items={renderCollapseItems({
+        plugin,
+        connectionId,
         entities,
         panelStyle,
         transformation,
@@ -56,11 +63,15 @@ export const AzureTransformation = ({ entities, transformation, setTransformatio
 };
 
 const renderCollapseItems = ({
+  plugin,
+  connectionId,
   entities,
   panelStyle,
   transformation,
   onChangeTransformation,
 }: {
+  plugin: string;
+  connectionId: ID;
   entities: string[];
   panelStyle: React.CSSProperties;
   transformation: any;
@@ -79,10 +90,12 @@ const renderCollapseItems = ({
               DORA
             </Tag>
           </h3>
-          <p style={{ marginBottom: 16 }}>
-            Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-            <ExternalLink link={DOC_URL.PLUGIN.AZUREDEVOPS.TRANSFORMATION}>Learn more</ExternalLink>
-          </p>
+          <ShowMore
+            text={<p>Use Regular Expression to define Deployments to measure DORA metrics.</p>}
+            btnText="See how to configure"
+          >
+            <WorkflowRun />
+          </ShowMore>
           <div>Convert a Azure Pipeline Run as a DevLake Deployment when: </div>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
             <span>
@@ -90,7 +103,7 @@ const renderCollapseItems = ({
             </span>
             <Input
               style={{ width: 200, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
+              placeholder="(?i)(deploy|push-image)"
               value={transformation.deploymentPattern ?? ''}
               onChange={(e) =>
                 onChangeTransformation({
@@ -107,7 +120,7 @@ const renderCollapseItems = ({
             <span>If the name also matches</span>
             <Input
               style={{ width: 200, margin: '0 8px' }}
-              placeholder="prod(.*)"
+              placeholder="(?i)(prod|release)"
               value={transformation.productionPattern ?? ''}
               onChange={(e) =>
                 onChangeTransformation({
@@ -119,6 +132,7 @@ const renderCollapseItems = ({
             <span>, this Deployment is a ‘Production Deployment’</span>
             <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
           </div>
+          <CheckMatchedItems plugin={plugin} connectionId={connectionId} transformation={transformation} />
         </>
       ),
     },

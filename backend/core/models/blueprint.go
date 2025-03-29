@@ -85,6 +85,15 @@ func (BlueprintScope) TableName() string {
 type TriggerSyncPolicy struct {
 	SkipCollectors bool `json:"skipCollectors"`
 	FullSync       bool `json:"fullSync"`
+<<<<<<< HEAD
+=======
+}
+
+type SyncPolicy struct {
+	SkipOnFail bool       `json:"skipOnFail"`
+	TimeAfter  *time.Time `json:"timeAfter"`
+	TriggerSyncPolicy
+>>>>>>> main
 }
 
 type SyncPolicy struct {
@@ -92,3 +101,12 @@ type SyncPolicy struct {
 	TimeAfter  *time.Time `json:"timeAfter"`
 	TriggerSyncPolicy
 }
+
+type ConnectionTokenCheckResult struct {
+	PluginName   string `json:"pluginName" mapstructure:"pluginName"`
+	ConnectionID uint64 `json:"connectionId" mapstructure:"connectionId"`
+	Success      bool   `json:"success" mapstructure:"success"`
+	Message      string `json:"message" mapstructure:"message"`
+}
+
+type ApiBlueprintConnectionTokenCheck []ConnectionTokenCheckResult

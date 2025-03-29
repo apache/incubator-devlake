@@ -116,9 +116,14 @@ func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error getting connection for Trello plugin")
 	}
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, err
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.CreateApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, err
+		}
+		apiClient = newApiClient
 	}
 	return &tasks.TrelloTaskData{
 		Options:   &op,
@@ -144,6 +149,11 @@ func (p Trello) Scope() plugin.ToolLayerScope {
 
 func (p Trello) ScopeConfig() dal.Tabler {
 	return &models.TrelloScopeConfig{}
+}
+
+func (p Trello) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -198,8 +208,9 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 func (p Trello) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Trello) Close(taskCtx plugin.TaskContext) errors.Error {
@@ -207,6 +218,8 @@ func (p Trello) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

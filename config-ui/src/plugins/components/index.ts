@@ -16,12 +16,15 @@
  *
  */
 
+export * from './check-matched-items';
 export * from './connection-form';
 export * from './connection-list';
+export * from './connection-name';
 export * from './connection-select';
 export * from './connection-status';
 export * from './data-scope-remote';
 export * from './data-scope-select';
+export * from './deployments';
 export * from './plugin-name';
 export * from './scope-config';
 export * from './scope-config-form';

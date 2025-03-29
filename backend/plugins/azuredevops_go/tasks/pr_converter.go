@@ -38,7 +38,7 @@ var ConvertApiPullRequestsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Add domain layer PullRequest according to Azure DevOps Pull Requests",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{
 		models.AzuredevopsPullRequest{}.TableName(),
 	},

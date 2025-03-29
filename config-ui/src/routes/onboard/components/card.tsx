@@ -16,14 +16,14 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CloseOutlined, LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { theme, Card, Flex, Progress, Space, Button, Modal } from 'antd';
 
 import API from '@/api';
-import { useRefreshData, useAutoRefresh } from '@/hooks';
-import { operator } from '@/utils';
+import { selectOnboard, selectRecord, done as doneFuc } from '@/features/onboard';
+import { useAppDispatch, useAppSelector, useAutoRefresh } from '@/hooks';
 
 import { DashboardURLMap } from '../step-4';
 
@@ -32,10 +32,11 @@ interface Props {
 }
 
 export const OnboardCard = ({ style }: Props) => {
-  const [oeprating, setOperating] = useState(false);
-  const [version, setVersion] = useState(0);
-
   const navigate = useNavigate();
+
+  const dispatch = useAppDispatch();
+  const { step, plugin, done } = useAppSelector(selectOnboard);
+  const record = useAppSelector(selectRecord);
 
   const {
     token: { green5, orange5, red5 },
@@ -43,13 +44,9 @@ export const OnboardCard = ({ style }: Props) => {
 
   const [modal, contextHolder] = Modal.useModal();
 
-  const { ready, data } = useRefreshData(() => API.store.get('onboard'), [version]);
-
-  const record = useMemo(() => (data ? data.records.find((it: any) => it.plugin === data.plugin) : null), [data]);
-
   const tasksRes = useAutoRefresh(
     async () => {
-      if ((data && data.done) || !record) {
+      if (done || !record) {
         return;
       }
 
@@ -64,7 +61,7 @@ export const OnboardCard = ({ style }: Props) => {
   );
 
   const status = useMemo(() => {
-    if (!data || data.step !== 4) {
+    if (step !== 4) {
       return 'prepare';
     }
 
@@ -83,30 +80,21 @@ export const OnboardCard = ({ style }: Props) => {
       default:
         return 'running';
     }
-  }, [data, tasksRes]);
+  }, [step, tasksRes]);
 
   const handleClose = async () => {
     modal.confirm({
       width: 600,
       title: 'Permanently close this entry?',
       content: 'You will not be able to get back to the onboarding session again.',
-      okButtonProps: {
-        loading: oeprating,
-      },
       okText: 'Confirm',
-      onOk: async () => {
-        const [success] = await operator(() => API.store.set('onboard', { ...data, done: true }), {
-          setOperating,
-        });
-
-        if (success) {
-          setVersion(version + 1);
-        }
+      onOk() {
+        dispatch(doneFuc());
       },
     });
   };
 
-  if (!ready || !data || data.done) {
+  if (done) {
     return null;
   }
 
@@ -115,7 +103,7 @@ export const OnboardCard = ({ style }: Props) => {
       <Flex style={{ paddingRight: 50 }} align="center" justify="space-between">
         <Flex align="center">
           {status === 'prepare' && (
-            <Progress type="circle" size={30} format={() => `${data.step}/3`} percent={(data.step / 3) * 100} />
+            <Progress type="circle" size={30} format={() => `${step}/3`} percent={(step / 3) * 100} />
           )}
           {status === 'running' && <LoadingOutlined />}
           {status === 'success' && <CheckCircleFilled style={{ color: green5 }} />}
@@ -157,7 +145,7 @@ export const OnboardCard = ({ style }: Props) => {
         )}
         {status === 'success' && (
           <Space>
-            <Button type="primary" onClick={() => window.open(DashboardURLMap[data.plugin])}>
+            <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
               Check Dashboard
             </Button>
             <Button onClick={handleClose}>Finish</Button>
@@ -168,7 +156,7 @@ export const OnboardCard = ({ style }: Props) => {
             <Button type="primary" onClick={() => navigate('/onboard')}>
               Details
             </Button>
-            <Button onClick={() => window.open(DashboardURLMap[data.plugin])}>Check Dashboard</Button>
+            <Button onClick={() => window.open(DashboardURLMap[plugin])}>Check Dashboard</Button>
           </Space>
         )}
       </Flex>

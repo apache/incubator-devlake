@@ -89,8 +89,9 @@ func (p Circleci) SubTaskMetas() []plugin.SubTaskMeta {
 func (p Circleci) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
@@ -109,9 +110,14 @@ func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 		return nil, errors.Default.Wrap(err, "unable to get Circleci connection by the given connection ID")
 	}
 
-	apiClient, err := tasks.NewCircleciApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get Circleci API client instance")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		newApiClient, err := tasks.NewCircleciApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to get Circleci API client instance")
+		}
+		apiClient = newApiClient
 	}
 	project := &models.CircleciProject{}
 	err = taskCtx.GetDal().First(project, dal.Where("slug = ?", op.ProjectSlug))
@@ -147,11 +153,15 @@ func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 		op.ScopeConfig = new(models.CircleciScopeConfig)
 	}
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	if op.ScopeConfig.DeploymentPattern != nil {
+		if err := regexEnricher.TryAdd(devops.DEPLOYMENT, *op.ScopeConfig.DeploymentPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+		}
 	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
-		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	if op.ScopeConfig.ProductionPattern != nil {
+		if err := regexEnricher.TryAdd(devops.PRODUCTION, *op.ScopeConfig.ProductionPattern); err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+		}
 	}
 	taskData.RegexEnricher = regexEnricher
 	return taskData, nil
@@ -164,6 +174,11 @@ func (p Circleci) RootPkgPath() string {
 
 func (p Circleci) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Circleci) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -202,6 +217,9 @@ func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
+		"connections/:connectionId/transform-to-deployments": {
+			"POST": api.GetConnectionTransformToDeployments,
+		},
 		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
@@ -218,6 +236,8 @@ func (p Circleci) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

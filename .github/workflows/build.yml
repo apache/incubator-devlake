@@ -26,6 +26,8 @@ on:
     branches:
       - main
       - release-*
+      - feat-*
+      - bugfix-*
 
 jobs:
   build-and-push-builder:
@@ -122,7 +124,7 @@ jobs:
     steps:
       - name: Get build timestamp
         id: ts
-        run: echo "timestamp=$(date '+%y%m%d_%H%M')" >> $GITHUB_OUTPUT
+        run: echo "timestamp=$(date '+%y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
   build-and-push-devlake:
     needs: [build-devlake, build-and-push-base, get-timestamp]
     name: Build and Push devlake image

@@ -20,13 +20,16 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/spf13/cast"
+
+	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
-	"net/http"
 )
 
 type TestConnectionResult struct {
@@ -180,4 +183,88 @@ func (pa *pluginAPI) PatchConnection(input *plugin.ApiResourceInput) (*plugin.Ap
 
 func (pa *pluginAPI) DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return pa.connhelper.Delete(pa.connType.New(), input)
+}
+
+func (pa *pluginAPI) GetConnectionTransformToDeployments(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	db := basicRes.GetDal()
+	connectionId := input.Params["connectionId"]
+	deploymentPattern := input.Body["deploymentPattern"]
+	productionPattern := input.Body["productionPattern"]
+	page, err := api.ParsePageParam(input.Body, "page", 1)
+	if err != nil {
+		return nil, errors.Default.New("invalid page value")
+	}
+	pageSize, err := api.ParsePageParam(input.Body, "pageSize", 10)
+	if err != nil {
+		return nil, errors.Default.New("invalid pageSize value")
+	}
+
+	cursor, err := db.RawCursor(`
+		SELECT DISTINCT id, name, url, start_time
+		FROM(
+			SELECT id, name, url, start_time
+			FROM _tool_azuredevops_builds
+      		WHERE connection_id = ?
+		    	AND (name REGEXP ?)
+    			AND (? = '' OR name REGEXP ?)
+    		UNION
+			SELECT b.id, b.name, b.url, b.start_time
+			FROM _tool_azuredevops_jobs j
+			LEFT JOIN _tool_azuredevops_builds b on CONCAT('azuredevops:Build:', b.connection_id, ':', b.id) = j.build_id
+			WHERE j.connection_id = ?
+			    AND (j.name REGEXP ?)
+    			AND (? = '' OR j.name REGEXP ?)
+		) AS t
+		ORDER BY start_time DESC
+	`, connectionId, deploymentPattern, productionPattern, productionPattern, connectionId, deploymentPattern, productionPattern, productionPattern)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error on get")
+	}
+	defer cursor.Close()
+
+	type selectFileds struct {
+		Id   int
+		Name string
+		URL  string
+	}
+	type transformedFields struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	}
+	var allRuns []transformedFields
+	for cursor.Next() {
+		sf := &selectFileds{}
+		err = db.Fetch(cursor, sf)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error on fetch")
+		}
+		// Directly transform and append to allRuns
+		transformed := transformedFields{
+			Name: fmt.Sprintf("#%d - %s", sf.Id, sf.Name),
+			URL:  sf.URL,
+		}
+		allRuns = append(allRuns, transformed)
+	}
+	// Calculate total count
+	totalCount := len(allRuns)
+
+	// Paginate in memory
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	if start > totalCount {
+		start = totalCount
+	}
+	if end > totalCount {
+		end = totalCount
+	}
+	pagedRuns := allRuns[start:end]
+
+	// Return result containing paged runs and total count
+	result := map[string]interface{}{
+		"total": totalCount,
+		"data":  pagedRuns,
+	}
+	return &plugin.ApiResourceOutput{
+		Body: result,
+	}, nil
 }

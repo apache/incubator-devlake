@@ -45,11 +45,12 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body := res.Convert()
 			body.ConnectionId = data.Options.ConnectionId
 			body.PlanKey = data.Options.PlanKey
-			body.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.PlanName)
-			body.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, body.PlanName)
-
+			if data.Options.DeploymentPattern != nil || data.Options.ProductionPattern != nil {
+				body.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.PlanName)
+				body.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.PlanName)
+			}
 			var url string
-			homepage, errGetHomePage := getBambooHomePage(body.LinkHref)
+			homepage, errGetHomePage := GetBambooHomePage(body.LinkHref)
 			if errGetHomePage != nil {
 				logger.Warn(errGetHomePage, "get bamboo home")
 			} else {

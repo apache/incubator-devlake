@@ -21,6 +21,7 @@ const URLS = {
   ADVANCED_MODE: {
     EXAMPLES: 'https://devlake.apache.org/docs/Configuration/AdvancedMode/#examples',
   },
+  DATA_ENTITIES: 'https://devlake.apache.org/docs/Overview/KeyConcepts#data-entities',
   DORA: 'https://devlake.apache.org/docs/DORA/',
   PLUGIN: {
     AZUREDEVOPS: {
@@ -50,10 +51,10 @@ const URLS = {
         'https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional',
     },
     BITBUCKET_SERVER: {
-      BASIS: 'https://devlake.apache.org/docs/Configuration/BitBucket-Server',
-      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/BitBucket-Server#fixed-rate-limit-optional',
+      BASIS: 'https://devlake.apache.org/docs/Configuration/BitBucketServer',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/BitBucketServer#fixed-rate-limit-optional',
       TRANSFORMATION:
-        'https://devlake.apache.org/docs/Configuration/BitBucket-Server#step-3---adding-transformation-rules-optional',
+        'https://devlake.apache.org/docs/Configuration/BitBucketServer#step-3---adding-transformation-rules-optional',
     },
     CIRCLECI: {
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/CircleCI#fixed-rate-limit-optional',

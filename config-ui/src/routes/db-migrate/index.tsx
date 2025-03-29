@@ -23,7 +23,6 @@ import { useNavigate } from 'react-router-dom';
 
 import API from '@/api';
 import { TipLayout } from '@/components';
-import { PATHS } from '@/config';
 import { operator } from '@/utils';
 
 export const DBMigrate = () => {
@@ -37,7 +36,7 @@ export const DBMigrate = () => {
     });
 
     if (success) {
-      navigate(PATHS.ROOT());
+      navigate('/');
     }
   };
 

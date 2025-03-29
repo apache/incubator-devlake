@@ -16,20 +16,28 @@
  *
  */
 
+<<<<<<< HEAD
+import { useState, useEffect, useMemo } from 'react';
+=======
 import { useState, useContext, useEffect, useMemo } from 'react';
+>>>>>>> main
 import { Link } from 'react-router-dom';
 import { Flex, Button, Tooltip } from 'antd';
 
 import API from '@/api';
 import { Markdown } from '@/components';
+<<<<<<< HEAD
+import { selectOnboard, previous, update } from '@/features/onboard';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+=======
 import { PATHS } from '@/config';
+>>>>>>> main
 import { getPluginConfig } from '@/plugins';
 import { ConnectionToken } from '@/plugins/components/connection-form/fields/token';
 import { ConnectionUsername } from '@/plugins/components/connection-form/fields/username';
 import { ConnectionPassword } from '@/plugins/components/connection-form/fields/password';
 import { operator } from '@/utils';
 
-import { Context } from './context';
 import * as S from './styled';
 
 const paramsMap: Record<string, any> = {
@@ -48,12 +56,12 @@ const paramsMap: Record<string, any> = {
 
 export const Step2 = () => {
   const [QA, setQA] = useState('');
-  const [operating, setOperating] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testStaus, setTestStatus] = useState(false);
   const [payload, setPayload] = useState<any>({});
 
-  const { step, records, done, projectName, plugin, setStep, setRecords } = useContext(Context);
+  const dispatch = useAppDispatch();
+  const { plugin, records } = useAppSelector(selectOnboard);
 
   const config = useMemo(() => getPluginConfig(plugin as string), [plugin]);
 
@@ -91,38 +99,17 @@ export const Step2 = () => {
       return;
     }
 
-    const [success] = await operator(
-      async () => {
-        const connection = await API.connection.create(plugin, {
-          name: `${plugin}-${Date.now()}`,
-          ...paramsMap[plugin],
-          ...payload,
-        });
+    const connection = await API.connection.create(plugin, {
+      name: `${plugin}-${Date.now()}`,
+      ...paramsMap[plugin],
+      ...payload,
+    });
 
-        const newRecords = [
-          ...records,
-          { plugin, connectionId: connection.id, blueprintId: '', pipelineId: '', scopeName: '' },
-        ];
-
-        setRecords(newRecords);
-
-        await API.store.set('onboard', {
-          step: 3,
-          records: newRecords,
-          done,
-          projectName,
-          plugin,
-        });
-      },
-      {
-        setOperating,
-        hideToast: true,
-      },
+    dispatch(
+      update({
+        records: [...records, { plugin, connectionId: connection.id, blueprintId: '', pipelineId: '', scopeName: '' }],
+      }),
     );
-
-    if (success) {
-      setStep(step + 1);
-    }
   };
 
   if (!plugin) {
@@ -146,7 +133,11 @@ export const Step2 = () => {
               subLabel={
                 <p>
                   Create a personal access token in {platformNames[plugin]}. For self-managed {config.name}, please skip the onboarding
+<<<<<<< HEAD
+                  and configure via <Link to={'/connections'}>Data Connections</Link>.
+=======
                   and configure via <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
+>>>>>>> main
                 </p>
               }
               initialValue=""
@@ -211,10 +202,10 @@ export const Step2 = () => {
         <Markdown className="qa">{QA}</Markdown>
       </S.StepContent>
       <Flex style={{ marginTop: 36 }} justify="space-between">
-        <Button ghost type="primary" loading={operating} onClick={() => setStep(step - 1)}>
+        <Button ghost type="primary" onClick={() => dispatch(previous())}>
           Previous Step
         </Button>
-        <Button type="primary" loading={operating} disabled={!testStaus} onClick={handleSubmit}>
+        <Button type="primary" disabled={!testStaus} onClick={handleSubmit}>
           Next Step
         </Button>
       </Flex>

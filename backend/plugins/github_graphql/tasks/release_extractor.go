@@ -55,12 +55,23 @@ func ExtractReleases(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
+<<<<<<< HEAD
+			if release.IsDraft {
+				return nil, nil
+			}
+			var results []interface{}
+			githubRelease, err := convertGitHubRelease(release, data.Options.ConnectionId, data.Options.GithubId)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+=======
 
 			var results []interface{}
 			githubRelease, err := convertGitHubRelease(release, data.Options.ConnectionId, data.Options.GithubId)
 			if err != nil {
 				return nil, errors.Convert(err)
 			}
+>>>>>>> main
 			results = append(results, githubRelease)
 
 			return results, nil

@@ -1,0 +1,2295 @@
+connection_id,github_id,repo_id,number,state,title,body,priority,type,std_type,author_id,author_name,assignee_id,assignee_name,milestone_id,lead_time_minutes,url,closed_at,github_created_at,github_updated_at,severity,component
+1,346842831,134018330,5,closed," chinese  <-p.freeSignal  chinese ","""Hi,\r\n     chinese ， chinese  `<-p.freeSignal`  chinese 。  chinese ，freeSignal  chinese ， chinese  `putWorker`  chinese  `p.freeSignal <- sig{}`\r\n\r\n chinese \r\n```\r\nfunc (p *Pool) getWorker() *Worker {\r\n\tvar w *Worker\r\n\twaiting := false\r\n\r\n\tp.lock.Lock()\r\n\tidleWorkers := p.workers\r\n\tn := len(idleWorkers) - 1\r\n\tif n < 0 { //  chinese  pool chinese worker chinese \r\n\t\twaiting = p.Running() >= p.Cap()\r\n\t} else { //  chinese pool chinese worker\r\n\t\t<-p.freeSignal      \r\n\t\tw = idleWorkers[n]  \r\n\t\tidleWorkers[n] = nil\r\n\t\tp.workers = idleWorkers[:n]\r\n\t}\r\n\tp.lock.Unlock()\r\n\r\n\r\nfunc (p *Pool) Release() error {\r\n\tp.once.Do(func() { //  chinese \r\n\t\tp.release <- sig{}\r\n\t\tp.lock.Lock()\r\n\t\tidleWorkers := p.workers\r\n\t\tfor i, w := range idleWorkers {\r\n\t\t\t<-p.freeSignal\r\n\t\t\tw.task <- nil\r\n\t\t\tidleWorkers[i] = nil\r\n\t\t}\r\n\t\tp.workers = nil\r\n\t\tp.lock.Unlock()\r\n\t})\r\n\treturn nil\r\n}\r\n\r\n```\r\n\r\n chinese  `<-p.freeSignal`，  chinese putWorker chinese ？ chinese  putWorker chinese ， chinese ， chinese  idleWorkers  chinese worker chinese \r\n\r\n chinese ？ chinese """,,,,8605102,pathbox,0,,7856149,2182,https://github.com/panjf2000/ants/issues/5,2018-08-03T15:32:00.000+00:00,2018-08-02T03:09:57.000+00:00,2018-08-10T04:06:36.000+00:00,,
+1,347255859,134018330,6,closed," chinese bug","""func (p *Pool) getWorker() *Worker   chinese  199 chinese  \r\n chinese ，  chinese \r\n\r\n\tp.lock.Unlock()\r\n\t\t<-p.freeSignal\r\n\t\tp.lock.Lock()""",,bug,,13118848,lovelly,0,,7856149,1786,https://github.com/panjf2000/ants/issues/6,2018-08-04T10:18:41.000+00:00,2018-08-03T04:32:28.000+00:00,2018-08-04T10:18:41.000+00:00,,
+1,348630179,134018330,7,closed," chinese ",""" chinese ， chinese 。 chinese ants chinese ， chinese 。 chinese \r\n![image](https://user-images.githubusercontent.com/4555057/43823431-98384444-9b21-11e8-880c-7458b931734a.png)\r\n chinese periodicallyPurge chinese \r\n![image](https://user-images.githubusercontent.com/4555057/43823534-e3c624a8-9b21-11e8-96c6-512e3e08db22.png)\r\n\r\n###  chinese \r\n\r\n chinese n==0 chinese \r\n```\r\nif n > 0 {\r\n\tn++\r\n\tp.workers = idleWorkers[n:]\r\n}\r\n```\r\n\r\n\r\n###  chinese \r\n```\r\npackage main\r\n\r\nimport (\r\n\t\""github.com/panjf2000/ants\""\r\n\t\""fmt\""\r\n\t\""time\""\r\n\t\""strconv\""\r\n)\r\n\r\nfunc main() {\r\n\r\n\tpool,err := ants.NewPool(100000)\r\n\r\n\tif err != nil {\r\n\t\tpanic(err)\r\n\t}\r\n\r\n\tfor i:=0;i<10000;i++{\r\n\t\tpool.Submit(\r\n\t\t\tfunc() error {\r\n\t\t\t\ttime.Sleep(1 * time.Millisecond)\r\n\t\t\t\tfmt.Println(strconv.Itoa(i))\r\n\t\t\t\treturn nil\r\n\t\t\t})\r\n\t}\r\n\r\n\tfor{\r\n\t\tpool.Submit(\r\n\t\t\tfunc() error {\r\n\t\t\t\ttime.Sleep(10 * time.Millisecond)\r\n\t\t\treturn nil\r\n\t\t})\r\n\t\ttime.Sleep(1 * time.Millisecond)\r\n\t}\r\n}\r\n```""",,bug,,4555057,huiwq1990,0,,7856149,2602,https://github.com/panjf2000/ants/issues/7,2018-08-10T04:06:04.000+00:00,2018-08-08T08:43:15.000+00:00,2018-08-10T04:06:04.000+00:00,,
+1,356703393,134018330,10,closed," chinese worker chinese ",""" chinese cpu chinese ？""",,,,11763614,Moonlight-Zhao,0,,7856149,36198,https://github.com/panjf2000/ants/issues/10,2018-09-29T11:45:00.000+00:00,2018-09-04T08:26:55.000+00:00,2018-09-29T11:45:00.000+00:00,,
+1,364361014,134018330,12,closed," chinese ， chinese tag chinese ",""" chinese dep chinese ， chinese ants chinese ， chinese tag chinese 。 chinese tag 3.6 chinese ed55924 chinese ，git chinese af376f1b chinese ， chinese 5 chinese ， chinese ， chinese tag chinese 。（ chinese ）""",,,,29452204,edcismybrother,0,,7856149,1293,https://github.com/panjf2000/ants/issues/12,2018-09-28T06:05:58.000+00:00,2018-09-27T08:32:25.000+00:00,2019-04-21T08:19:58.000+00:00,,
+1,381941219,134018330,17,closed," chinese ",""" chinese package chinese ， chinese Release chinese ：\r\n\r\n`\r\n\t// Release Closed this pool.\r\n\tfunc (p *PoolWithFunc) Release() error {\r\n\t\tp.once.Do(func() {\r\n\t\t\tp.release <- sig{}\r\n\t\t\tp.lock.Lock()\r\n\t\t\tidleWorkers := p.workers\r\n\t\t\tfor i, w := range idleWorkers {\r\n\t\t\t\tw.args <- nil\r\n\t\t\t\tidleWorkers[i] = nil\r\n\t\t\t}\r\n\t\t\tp.workers = nil\r\n\t\t\tp.lock.Unlock()\r\n\t\t})\r\n\t\treturn nil\r\n\t}\r\n`\r\n\r\nrelease chinese ， chinese worker chinese ？\r\n chinese worker\r\n\r\n chinese ，release chinese worker chinese \r\n\r\n chinese ：\r\n\r\nReSize(0) \r\n\r\n chinese ？\r\n""",,,,7931755,zplzpl,0,,7856149,103594,https://github.com/panjf2000/ants/issues/17,2019-01-29T07:24:37.000+00:00,2018-11-18T08:50:31.000+00:00,2019-01-29T07:24:37.000+00:00,,
+1,382039050,134018330,18,closed,go chinese ,""" chinese ， chinese ， chinese go chinese ， chinese ， chinese 。\"" chinese ： GOMAXPROCS sets the maximum number of CPUs that can be executing simultaneously。 chinese cpu chinese ， chinese ， chinese ?， chinese ?， chinese ?， chinese ?\""""",,,,13944100,LinuxForYQH,0,,7856149,20213,https://github.com/panjf2000/ants/issues/18,2018-12-03T03:53:50.000+00:00,2018-11-19T02:59:53.000+00:00,2018-12-03T03:53:50.000+00:00,,
+1,382574800,134018330,20,closed," chinese ","""#""",,,,5668717,kklinan,0,,7856149,95398,https://github.com/panjf2000/ants/issues/20,2019-01-25T15:34:03.000+00:00,2018-11-20T09:36:02.000+00:00,2019-01-25T15:34:03.000+00:00,,
+1,388907811,134018330,21,closed,Benchmark  chinese  Semaphore  chinese ？,""" chinese  benchmark，Semaphore  chinese \r\n\r\n```bash\r\n$ go test -bench .\r\ngoos: darwin\r\ngoarch: amd64\r\npkg: github.com/panjf2000/ants\r\nBenchmarkGoroutineWithFunc-4   \t       1\t3445631705 ns/op\r\nBenchmarkSemaphoreWithFunc-4   \t       1\t1037219073 ns/op\r\nBenchmarkAntsPoolWithFunc-4    \t       1\t1138053222 ns/op\r\nBenchmarkGoroutine-4           \t       2\t 731850771 ns/op\r\nBenchmarkSemaphore-4           \t       2\t 914855967 ns/op\r\nBenchmarkAntsPool-4            \t       1\t1094379445 ns/op\r\nPASS\r\nok  \tgithub.com/panjf2000/ants\t33.173s\r\n```\r\n chinese  Ants  chinese ？""",,,,720086,huangjunwen,0,,7856149,8392,https://github.com/panjf2000/ants/issues/21,2018-12-14T06:01:07.000+00:00,2018-12-08T10:08:17.000+00:00,2018-12-14T06:01:07.000+00:00,,
+1,401277739,134018330,22,closed," chinese  worker  chinese   PanicHandler ？",""" chinese  Pool  chinese  PanicHandler， chinese  worker  chinese  recover  chinese  PanicHandler   chinese 。 chinese  panic  chinese 。""",,,,8923413,choleraehyq,0,,7856149,1174,https://github.com/panjf2000/ants/issues/22,2019-01-22T05:41:34.000+00:00,2019-01-21T10:06:56.000+00:00,2019-01-22T05:41:34.000+00:00,,
+1,402513849,134018330,24,closed," chinese ","""`Pool.Submit` chinese `PoolWithFunc.Server` chinese ， chinese worker， chinese 。 chinese ， chinese 。""",,,,5044825,tenfyzhong,0,,7856149,300032,https://github.com/panjf2000/ants/issues/24,2019-08-20T10:56:30.000+00:00,2019-01-24T02:24:13.000+00:00,2019-08-20T10:56:30.000+00:00,,
+1,405951301,134018330,25,closed,use example errors,"""./antstest.go:37:14: cannot use syncCalculateSum (type func()) as type ants.f in argument to ants.Submit\r\n./antstest.go:45:35: cannot use func literal (type func(interface {})) as type ants.pf in argument to ants.NewPoolWithFunc\r\n""",,,,5244267,jiashiwen,0,,7856149,3088,https://github.com/panjf2000/ants/issues/25,2019-02-04T09:11:52.000+00:00,2019-02-02T05:43:38.000+00:00,2019-02-04T09:11:52.000+00:00,,
+1,413968505,134018330,26,closed,running chinese cap chinese ,"""running chinese cap chinese incRuning chinese ,  chinese running chinese cap chinese ?\r\n`func (p *Pool) retrieveWorker() *Worker {\r\n\tvar w *Worker\r\n\r\n\tp.lock.Lock()\r\n\tidleWorkers := p.workers\r\n\tn := len(idleWorkers) - 1\r\n\tif n >= 0 {\r\n\t\tw = idleWorkers[n]\r\n\t\tidleWorkers[n] = nil\r\n\t\tp.workers = idleWorkers[:n]\r\n\t\tp.lock.Unlock()\r\n\t} else if p.Running() < p.Cap() {\r\n\t\tp.lock.Unlock()\r\n\t\tif cacheWorker := p.workerCache.Get(); cacheWorker != nil {\r\n\t\t\tw = cacheWorker.(*Worker)\r\n\t\t} else {\r\n\t\t\tw = &Worker{\r\n\t\t\t\tpool: p,\r\n\t\t\t\ttask: make(chan func(), workerChanCap),\r\n\t\t\t}\r\n\t\t}\r\n\t\tw.run()`""",,,,10361713,Ainiroad,0,,7856149,21872,https://github.com/panjf2000/ants/issues/26,2019-03-12T12:01:57.000+00:00,2019-02-25T07:29:33.000+00:00,2019-03-12T12:01:57.000+00:00,,
+1,419183961,134018330,27,closed," chinese goroutine chinese ， chinese ",""" chinese goroutine chinese ， chinese \r\n chinese ？\r\n\r\nwebsocket server\r\nhttps://github.com/im-ai/pushm/blob/master/learn/goroutine/goroutinepoolwebsocket.go\r\n\r\nwebsocket cient\r\nhttps://github.com/im-ai/pushm/blob/master/learn/goroutine/goroutinepoolwebsocketclient.go\r\n""",,,,38367404,liliang8858,0,,7856149,37496,https://github.com/panjf2000/ants/issues/27,2019-04-05T14:05:20.000+00:00,2019-03-10T13:08:52.000+00:00,2019-04-05T14:05:20.000+00:00,,
+1,419268851,134018330,28,closed,cap  chinese  running  chinese ,""" chinese  Playground  chinese  https://play.golang.org/p/D94YUU3FnX6\r\natomic  chinese ， chinese ， chinese   chinese ， chinese   chinese ， chinese   chinese ， chinese \r\n chinese  #26  chinese """,,,,29243953,naiba,0,,7856149,237002,https://github.com/panjf2000/ants/issues/28,2019-08-22T16:27:37.000+00:00,2019-03-11T02:24:41.000+00:00,2019-08-22T16:27:37.000+00:00,,
+1,424634533,134018330,29,closed," chinese ",""" chinese ， chinese 👍\r\n\r\nhttps://github.com/panjf2000/ants/blob/master/pool.go#L124  chinese ,  chinese ?\r\n""",,,,8509898,prprprus,0,,7856149,999,https://github.com/panjf2000/ants/issues/29,2019-03-25T09:32:11.000+00:00,2019-03-24T16:52:21.000+00:00,2019-03-25T09:45:05.000+00:00,,
+1,429972115,134018330,31,closed,Add go.mod,"""""",,,,48135919,tsatke,0,,7856149,3474,https://github.com/panjf2000/ants/issues/31,2019-04-08T09:45:31.000+00:00,2019-04-05T23:50:36.000+00:00,2019-10-17T03:12:19.000+00:00,,
+1,433564955,134018330,32,closed," chinese ， chinese (0.0.x) chinese ？",""" chinese ， chinese 。\r\n\r\n chinese \r\n\r\n chinese ， chinese 。""",,,,7931755,zplzpl,0,,7856149,7440,https://github.com/panjf2000/ants/issues/32,2019-04-21T07:16:26.000+00:00,2019-04-16T03:16:02.000+00:00,2019-04-21T07:16:26.000+00:00,,
+1,434069015,134018330,33,closed,support semantic versioning.,""" chinese tag chinese semantic versioning，vX.Y.Z。go modules chinese 。\r\nhttps://semver.org/\r\nhttps://research.swtch.com/vgo-import""",,,,1284892,jjeffcaii,0,,7856149,6090,https://github.com/panjf2000/ants/issues/33,2019-04-21T08:25:20.000+00:00,2019-04-17T02:55:11.000+00:00,2019-04-21T08:25:20.000+00:00,,
+1,435486645,134018330,34,closed,Important announcement about <ants> from author !!!,"""**Dear users of `ants`:**\r\nI am apologetically telling you that I have to dump all tags which already presents in `ants` repository.\r\n\r\nThe reason why I'm doing so is to standardize the version management with `Semantic Versioning`, which will make a formal and clear dependency management in go, for go modules, godep, or glide, etc. So I decide to start over the tag sequence, you could find more details in [Semantic Versioning](https://semver.org/) and [Semantic Import Versioning](https://research.swtch.com/vgo-import), related issue: #32, #33 (very thankful to @jjeffcaii and @zplzpl who provided the suggestions about it).\r\n\r\nI ought to apologize for the bothers brought by this change, the arch-criminal who leads to this issue would be my lack of concept about `Semantic Versioning`, I will spend more times learning the knowledge afterwards. \r\n\r\nOnce again, sorry for your costs in this change and thanks for your support to `ants`! \r\n\r\n*Have fun!*\r\n\r\n**Best regards,\r\nAndy Pan**\r\n""",,,,7496278,panjf2000,0,,7856149,23484,https://github.com/panjf2000/ants/issues/34,2019-05-07T15:35:08.000+00:00,2019-04-21T08:10:28.000+00:00,2019-05-07T15:35:08.000+00:00,,
+1,461280653,134018330,35,closed,worker exit on panic,""" chinese PanicHandler chinese 。\r\n1. chinese PanicHandler chinese ， chinese panic, chinese 。\r\n2. chinese PanicHandler， chinese worker chinese ， chinese pool chinese 。""",,,,38849208,king526,0,,7856149,74481,https://github.com/panjf2000/ants/issues/35,2019-08-17T20:33:10.000+00:00,2019-06-27T03:11:49.000+00:00,2019-08-17T20:33:10.000+00:00,,
+1,462631417,134018330,37,closed," chinese 。。。",""" chinese  3.9.9， chinese ， chinese ， chinese  1.0.0。 chinese 。 chinese """,,,,8923413,choleraehyq,0,,7856149,140,https://github.com/panjf2000/ants/issues/37,2019-07-01T12:37:55.000+00:00,2019-07-01T10:17:15.000+00:00,2019-07-02T10:17:31.000+00:00,,
+1,472125082,134018330,38,closed,retrieveWorker chinese revertWorker chinese ,"""func (p *Pool) retrieveWorker() *Worker {\r\n\tvar w *Worker\r\n\r\n\t**p.lock.Lock()**\r\n\tidleWorkers := p.workers\r\n\tn := len(idleWorkers) - 1\r\n\tif n >= 0 {\r\n\t\tw = idleWorkers[n]\r\n\t\tidleWorkers[n] = nil\r\n\t\tp.workers = idleWorkers[:n]\r\n\t\tp.lock.Unlock()\r\n\t} else if p.Running() < p.Cap() {\r\n\t\tp.lock.Unlock()\r\n\t\tif cacheWorker := p.workerCache.Get(); cacheWorker != nil {\r\n\t\t\tw = cacheWorker.(*Worker)\r\n\t\t} else {\r\n\t\t\tw = &Worker{\r\n\t\t\t\tpool: p,\r\n\t\t\t\ttask: make(chan func(), workerChanCap),\r\n\t\t\t}\r\n\t\t}\r\n\t\tw.run()\r\n\t} else {\r\n\t\tfor {\r\n\t\t\t**p.cond.Wait()** \r\n\t\t\tl := len(p.workers) - 1\r\n\t\t\tif l < 0 {\r\n\t\t\t\tcontinue\r\n\t\t\t}\r\n\t\t\tw = p.workers[l]\r\n\t\t\tp.workers[l] = nil\r\n\t\t\tp.workers = p.workers[:l]\r\n\t\t\tbreak\r\n\t\t}\r\n\t\t**p.lock.Unlock()**\r\n\t}\r\n\treturn w\r\n}\r\n\r\n// revertWorker puts a worker back into free pool, recycling the goroutines.\r\nfunc (p *Pool) revertWorker(worker *Worker) bool {\r\n\tif CLOSED == atomic.LoadInt32(&p.release) {\r\n\t\treturn false\r\n\t}\r\n\tworker.recycleTime = time.Now()\r\n\t**p.lock.Lock()** //  chinese \r\n\tp.workers = append(p.workers, worker)\r\n\t// Notify the invoker stuck in 'retrieveWorker()' of there is an available worker in the worker queue.\r\n\tp.cond.Signal()\r\n\t**p.lock.Unlock()**\r\n\treturn true\r\n}\r\n""",,,,1290360,wwjiang,0,,7856149,67,https://github.com/panjf2000/ants/issues/38,2019-07-24T08:40:01.000+00:00,2019-07-24T07:32:58.000+00:00,2019-07-24T08:40:01.000+00:00,,
+1,483164833,134018330,42,closed," chinese ， chinese  functional options  chinese ",""" chinese \r\n chinese  functional options， chinese \r\n```\r\nants.NewPool(10)\r\n```\r\n chinese ， chinese  option， chinese ， chinese  options  chinese 。 chinese  option， chinese \r\n```\r\nants.NewPool(10, ants.WithNonblocking(true))\r\n```\r\n chinese 。\r\n\r\n chinese  Option  chinese ， chinese ， chinese 。\r\n chinese  functional options  chinese  rob pike  chinese  https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html""",,,,8923413,choleraehyq,0,,7856149,732,https://github.com/panjf2000/ants/issues/42,2019-08-21T14:32:51.000+00:00,2019-08-21T02:20:08.000+00:00,2019-08-21T14:32:51.000+00:00,,
+1,483736247,134018330,43,closed,1.3.0  chinese ,"""Pool  chinese （PanicHandler  chinese ） chinese ， chinese ， chinese 。""",,,,8923413,choleraehyq,0,,7856149,652,https://github.com/panjf2000/ants/issues/43,2019-08-22T13:22:10.000+00:00,2019-08-22T02:29:34.000+00:00,2019-08-22T13:22:10.000+00:00,,
+1,484311063,134018330,44,closed,1.1.1 -> 1.2.0  chinese ,"""Pool.Release  chinese """,,,,8923413,choleraehyq,0,,7856149,3068,https://github.com/panjf2000/ants/issues/44,2019-08-25T06:36:14.000+00:00,2019-08-23T03:27:38.000+00:00,2019-08-25T06:36:14.000+00:00,,
+1,1968983219,384111310,6365,OPEN,[Bug][GitHub] DevLake should handle and report errors relating to PAT without authorized access to an organization. ,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+I have successfully configured a GitHub connection (classic PAT, GraphQL on). From that connection, I have repos directly owned in my account along with access to two organizations that are part of our corporate infrastructure. One of those organizations is configured to required explicit authorization for the PAT
+
+When trying to create data scopes using that connection, DevLake is unable to list repos for the organization when the PAT is not authorized for access. The UX shows a spinner that runs for ever.
+
+What happens in Add Data Scope:
+![Screenshot 2023-10-30 at 9 39 09 AM](https://github.com/apache/incubator-devlake/assets/53875715/178dbd50-4d22-48de-bf1a-b4b572b97e78)
+
+Where PAT authorization occurs:
+![Screenshot 2023-10-30 at 11 26 18 AM](https://github.com/apache/incubator-devlake/assets/53875715/0e3057a4-b535-4ecc-a8e3-9f93c0539c23)
+
+
+### What do you expect to happen
+
+There should be an error message indicating the PAT is not authorized for access.
+
+### How to reproduce
+
+1. Create an GitHub connection using classic PAT, GraphQL on
+2. There should be an organization that requires explicit authorization for the PAT and the PAT should not be authorized for it
+3. Try to Add a new Data Scope for the GitHub connection, then select the organization that requires authorization
+4. Observe that the repositories list on the right side of the pane does not complete loading.
+
+
+### Anything else
+
+This reproduces every time.
+
+Here is the error message when trying to use an unauthorized PAT from the CLI:
+`~ % curl -H ""Authorization: token TOKEN"" -X GET ""https://api.github.com/orgs/ORG/repos""
+
+{
+  ""message"": ""Resource protected by organization SAML enforcement. You must grant your Personal Access token access to this organization."",
+  ""documentation_url"": ""https://docs.github.com/articles/authenticating-to-a-github-organization-with-saml-single-sign-on/""
+}
+`
+`
+
+
+### Version
+
+Apache 2.0 License v0.18.1-beta2
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,53875715,bobwilkinson20,61080,klesh,0,,https://github.com/apache/incubator-devlake/issues/6365,,2023-10-30T18:31:32.000+00:00,2024-08-08T05:43:39.000+00:00,,
+1,1982046660,384111310,6411,CLOSED,[Bug][Config UI] Blueprint detail page shows TypeError: Cannot read properties of undefined (reading 'length'),"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+When i try to view details of blueprint, the system show error
+
+![image](https://github.com/apache/incubator-devlake/assets/23387404/a1ba641d-85ec-46b1-9be4-5888c499f1d6)
+
+
+### What do you expect to happen
+
+View Details of the blueprint 
+
+### How to reproduce
+
+Go to Advance option in the left side-bar and select details on the blueprint.
+
+### Anything else
+
+The problem occur when i try to enter a blueprint details in advance option.
+
+### Version
+
+v.0.18.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,Stale",,23387404,felipesbs,0,,0,396308,https://github.com/apache/incubator-devlake/issues/6411,2024-08-09T00:19:20.000+00:00,2023-11-07T19:11:04.000+00:00,2024-08-09T00:19:20.000+00:00,,
+1,2197057021,384111310,7194,CLOSED,[Bug][Gitlab] Error during fetching from GitLab ,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Fetching from Gitlab sometimes crashes with the following error:
+```
+time=""2024-03-17 00:02:45"" level=info msg="" [pipeline service] [pipeline #111] [task #634] [extractApiMergeRequestsNotes] get data from _raw_gitlab_api_merge_request_notes where params={\""ConnectionId\"":1,\""ProjectId\"":1328} and got 3112""
+time=""2024-03-17 00:02:51"" level=info msg="" [pipeline service] [pipeline #111] [task #634] [extractApiMergeRequestsNotes] finished records: 1""
+time=""2024-03-17 00:02:58"" level=info msg="" [pipeline service] [pipeline #111] [task #634] [extractApiMergeRequestsNotes] finished records: 500""
+time=""2024-03-17 00:03:00"" level=info msg="" [pipeline service] [pipeline #111] [task #634] [extractApiMergeRequestsNotes] finished records: 1000""
+time=""2024-03-17 00:03:03"" level=info msg="" [pipeline service] [pipeline #111] [task #634] [extractApiMergeRequestsNotes] finished records: 1500""
+time=""2024-03-17 00:03:03"" level=info msg="" [pipeline service] [pipeline #111] [task #634] [extractApiMergeRequestsNotes] finished records: 2000""
+time=""2024-03-17 00:03:06"" level=info msg="" [pipeline service] [pipeline #111] [task #634] [extractApiMergeRequestsNotes] finished records: 3000""
+time=""2024-03-17 00:03:09"" level=error msg="" [pipeline service] [pipeline #111] [task #634] subtask extractApiMergeRequestsNotes ended unexpectedly\n\tWraps: (2) Error 1213 (40001): Deadlock found when trying to get lock; try restarting transaction (500)\n\tWraps: (3) Error 1213 (40001): Deadlock found when trying to get lock; try restarting transaction\n\tError types: (1) *hintdetail.withDetail (2) *hintdetail.withDetail (3) *mysql.MySQLError""
+```
+
+### What do you expect to happen
+
+It should not crash.
+
+### How to reproduce
+
+I don't know why it happens. Currently, I have this error only for one project.
+
+### Anything else
+
+_No response_
+
+### Version
+
+v0.20.0-beta10
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p2,Stale",,16511436,antoniomuso,61080,klesh,0,206810,https://github.com/apache/incubator-devlake/issues/7194,2024-08-11T00:21:32.000+00:00,2024-03-20T09:30:40.000+00:00,2024-08-11T00:21:32.000+00:00,,
+1,2247924809,384111310,7342,CLOSED,[Bug][Azure DevOps] subtask collectAzuredevopsBuilds ended unexpectedly ,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+```
+time=""2024-04-17 09:58:17"" level=error msg="" [pipeline service] [pipeline #1] [task #2] [collectAzuredevopsBuilds] ERROR: DataError: (raised as a result of Query-invoked autoflush; consider using a session.no_autoflush block if this flush is occurring prematurely)""
+time=""2024-04-17 09:58:17"" level=error msg="" [pipeline service] [pipeline #1] [task #2] [collectAzuredevopsBuilds] (MySQLdb.DataError) (1406, \""Data too long for column 'url' at row 1\"")""
+time=""2024-04-17 09:58:17"" level=error msg="" [pipeline service] [pipeline #1] [task #2] [collectAzuredevopsBuilds] [SQL: INSERT INTO _raw_azuredevops_builds (params, data, url, input, created_at) VALUES (%!!(MISSING)s(MISSING), %!!(MISSING)s(MISSING), %!!(MISSING)s(MISSING), %!!(MISSING)s(MISSING), %!!(MISSING)s(MISSING))]""
+```
+
+### What do you expect to happen
+
+The pipeline runs without an error.
+
+### How to reproduce
+
+I checked it on my private Azure DevOps project.
+But flow was standard: Create project; configure data connection; run collect data
+I've used python plugin
+
+### Anything else
+
+every run
+
+### Version
+
+v1.0.0-beta1, v1.0.0-beta4
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1,Stale",,25585421,ichuniaiev,0,,0,166445,https://github.com/apache/incubator-devlake/issues/7342,2024-08-11T00:21:30.000+00:00,2024-04-17T10:15:51.000+00:00,2024-08-11T00:21:31.000+00:00,,
+1,2314068292,384111310,7503,CLOSED,[Bug][Scope Config] Only the first 10 items are inheriting the scope config,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Created a new project, added 100 data scopes from existing github connection in it:
+
+![image](https://github.com/apache/incubator-devlake/assets/15024405/f27d79ae-4915-4fc7-85a3-85018c92b06f)
+
+However, only the first 10 are inheriting the scope config, all other 90 are showing N/A for scope config:
+
+![image](https://github.com/apache/incubator-devlake/assets/15024405/8f5845b5-261c-456d-a82f-f461d6e38f30)
+
+
+
+
+### What do you expect to happen
+
+All scopes have a valid scope config in it
+
+### How to reproduce
+
+- Add a github connection with lots of repo (ours have more than 1000)
+- Add a scope config to add repos in the connection
+- Create new project
+- Add 100 repos to the data scope
+
+### Anything else
+
+We're troubleshooting why we are not seeing any numbers/data in DORA grafana charts, and we arrived at this situation.
+
+### Version
+
+1.0.0-beta6
+
+### Are you willing to submit PR?
+
+- [X] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1,Stale",,15024405,slaterx,0,,0,116629,https://github.com/apache/incubator-devlake/issues/7503,2024-08-13T00:20:15.000+00:00,2024-05-24T00:30:53.000+00:00,2024-08-13T00:20:15.000+00:00,,
+1,2322152523,384111310,7534,CLOSED,"[Bug][Jira] A issue has been deleted in Jira，but devlake didnot delete it in devlake mysql，so when execute config-ui collect data ,the issue still exist","### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Devlake seems not sync Jira issue  status
+
+### What do you expect to happen
+
+devlake sync the deleted issue status
+
+### How to reproduce
+
+Delete a issue in Jira，then execute collect in config-ui，see the data in Grafana
+
+### Anything else
+
+_No response_
+
+### Version
+
+v0.21.0
+
+### Are you willing to submit PR?
+
+- [X] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,Stale",,110436814,Challen-V,0,,0,106510,https://github.com/apache/incubator-devlake/issues/7534,2024-08-11T00:21:28.000+00:00,2024-05-29T01:10:49.000+00:00,2024-08-11T00:21:29.000+00:00,,
+1,2332359503,384111310,7563,CLOSED,[Bug][CircleCI] CircleCI regex is not working to collect data,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+When configuring the scope config the regex is not working
+
+![image](https://github.com/apache/incubator-devlake/assets/343307/2e5ffbb4-5ac0-42c3-b292-2bf0469073b0)
+
+
+### What do you expect to happen
+
+It should collect data and show in DORA metrics.
+
+### How to reproduce
+
+Go to - project - connections - scope config - transformations 
+
+![image](https://github.com/apache/incubator-devlake/assets/343307/d71fd0c0-7637-4e9e-a972-6a70e0b32068)
+
+No data collected when run.
+![image](https://github.com/apache/incubator-devlake/assets/343307/5aa9785f-61f6-4e25-a14b-a6c89c5fd30d)
+
+
+### Anything else
+
+This is present since the installation.
+
+### Version
+
+v0.21.0@ac4f7fe
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,devops,severity/p1,Stale",,343307,chrisolido,61080,klesh,0,100707,https://github.com/apache/incubator-devlake/issues/7563,2024-08-13T00:20:13.000+00:00,2024-06-04T01:52:15.000+00:00,2024-08-13T00:20:14.000+00:00,,
+1,2339711164,384111310,7586,OPEN,[Bug][SonarQube] subtask convertIssueCodeBlocks ended unexpectedly,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+when running scraping I get this error:
+
+`subtask convertIssueCodeBlocks ended unexpectedly Wraps: (2) error adding result to batch (500) Wraps: (3) Error 1406 (22001): Data too long for column 'component' at row 209 (500) Wraps: (4) Error 1406 (22001): Data too long for column 'component' at row 209 Error types: (1) *hintdetail.withDetail (2) *hintdetail.withDetail (3) *hintdetail.withDetail (4) *mysql.MySQLError`
+
+### What do you expect to happen
+
+The process should end without an error.
+
+### How to reproduce
+
+Add SonarQube project and run.
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.0-beta10
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,93664973,klemen-df,0,,0,,https://github.com/apache/incubator-devlake/issues/7586,,2024-06-07T06:44:30.000+00:00,2024-08-13T00:20:12.000+00:00,,
+1,2366854743,384111310,7655,OPEN,[Bug][Devlake][GitHub] GitHub app connection data source usability issues,"### Search before asking
+
+- [x] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Creating a GitHub App connection isn't working as expected. 
+1. No organizations or repositories are found 'naturally' after the connection is created
+2. Can't multiselect to add repositories when they are specified into the datasources search 
+
+![Image](https://github.com/user-attachments/assets/f4a2aa92-38af-48c8-aa4b-b6f34896b864)
+![Image](https://github.com/user-attachments/assets/ea3cae2c-6e86-4cc8-9f7e-a914635b58a8)
+![Image](https://github.com/user-attachments/assets/6510a14b-8836-4b28-a3f1-804ea0067346)
+![Image](https://github.com/user-attachments/assets/a5d3dc25-a083-4ddc-8951-cfe4fe599382)
+![Image](https://github.com/user-attachments/assets/207a6333-fa2f-4a7f-bac5-3178ab4e38ae)
+
+
+
+### What do you expect to happen
+
+I would expect that the repositories in the organization where the app has been installed would auto populate and I could select multiples to add as a data source.  
+
+### How to reproduce
+
+1. Configure a GitHub App as a connection
+2. Add data sources - no 
+
+
+
+### Anything else
+
+I was able to reproduce this behavior with a GitHub app installed into an organization and my personal account. 
+
+I'm willing to take a crack at a PR if it's not a massive thing. I'll spend some time setting up a debugger and seeing if I can get more info. Might need someone more skilled than me (cough cough copilot) to fix this. 
+
+I also tested this with the v0.21.0@ac4f7fe and it's reproducible there. 
+
+Here's the error message formatted nicely: 
+
+```
+level=error msg=""HTTP 400 error
+    caused by: attached stack trace
+     -- stack trace:
+        | github.com/apache/incubator-devlake/helpers/pluginhelper/api.(*DsScopeApiHelper[...]).PutMultiple
+        | /app/helpers/pluginhelper/api/ds_scope_api_helper.go:114  
+        | github.com/apache/incubator-devlake/plugins/github/api.PutScopes  
+        | /app/plugins/github/api/scope_api.go:42
+        | github.com/apache/incubator-devlake/server/api.handlePluginCall.func1
+        | /app/server/api/router.go:135
+        | github.com/gin-gonic/gin.(*Context).Next
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+        | github.com/apache/incubator-devlake/server/api.OAuth2ProxyAuthentication.func1
+        | /app/server/api/middlewares.go:95
+        | github.com/gin-gonic/gin.(*Context).Next
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+        | github.com/apache/incubator-devlake/server/api.RestAuthentication.func1
+        | /app/server/api/middlewares.go:117
+        | github.com/gin-gonic/gin.(*Context).Next
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+        | github.com/gin-gonic/gin.CustomRecoveryWithWriter.func1
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/recovery.go:102
+        | github.com/gin-gonic/gin.(*Context).Next
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+        | github.com/gin-gonic/gin.LoggerWithConfig.func1
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/logger.go:240
+        | github.com/gin-gonic/gin.(*Context).Next
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+        | github.com/gin-gonic/gin.(*Engine).handleHTTPRequest
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:620
+        | github.com/gin-gonic/gin.(*Engine).ServeHTTP
+        | /go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:576
+        | net/http.serverHandler.ServeHTTP
+        | /usr/local/go/src/net/http/server.go:2936
+        | net/http.(*conn).serve
+        | /usr/local/go/src/net/http/server.go:1995
+        | runtime.goexit
+        | /usr/local/go/src/runtime/asm_arm64.s:1172
+    Wraps: (2) invalid data row (400)
+    Error types: (1) *withstack.withStack (2) *errutil.leafError""
+```
+
+### Version
+
+v1.0.0-beta11@15c4c09
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [x] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/config-ui,severity/p1",,3590100,petercort,0,,0,,https://github.com/apache/incubator-devlake/issues/7655,,2024-06-21T16:17:04.000+00:00,2024-08-09T10:27:43.000+00:00,,
+1,2383640995,384111310,7688,OPEN,[Bug][Webhook] Can't associate an existing webhook with a project,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Can't associate an existing webhook with a project, opposed to what mentioned in the docs.
+
+### What do you expect to happen
+
+When creating a wehbhook (not from within the Project screen), to be able to associate it with any project I want.
+
+### How to reproduce
+
+1. Login to devlake
+2. Connections > Webhook > Add a Webhook
+3. Give it a name, click ""Generate POST URL""
+4. Navigate to Projects > choose any existing project
+5. Navigate to ""Webhooks"" tab
+6. No ""Select Existing Webhooks""
+
+### Anything else
+
+Documentation says it is possible: https://devlake.apache.org/docs/Configuration/webhook#step-3---use-webhook-in-a-project
+
+Screenshot from my system:
+![Screenshot 2024-07-01 at 14 53 05](https://github.com/apache/incubator-devlake/assets/168529559/3ba86188-6800-4a2f-b8bc-b1b6a0e69b41)
+
+
+
+### Version
+
+v1.0-beta1@60faf14
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,168529559,tomerc-everc,0,,0,,https://github.com/apache/incubator-devlake/issues/7688,,2024-07-01T11:54:16.000+00:00,2024-08-09T10:26:13.000+00:00,,
+1,2389461799,384111310,7694,OPEN,[BUG].[REFDIFF].[PLUGIN] - 'SELECT * FROM refs ORDER BY created_date desc' taking too long,"              Hey @warren830, @abeizn !
+
+Maybe I am having a problem with this change. Check it out:
+
+1. I'm working with 2k+ repositories;
+2. The refs table has 1GB+ (1.4MM records);
+3. There is no rows with data on the created_date column;
+4. I'm running Devlake on **v1.0-beta1** version
+
+The problem is:
+1. refdiff_task_data.go [lines 128 to 132] selects all values ordering by 'created_date' column which is not indexed;
+2. **The 'SELECT * FROM `refs` ORDER BY created_date desc' is taking too long (15+ minutes) to complete and a simple (5 repositories) Azure DevOps extraction takes an hour to complete.**
+
+Is there anything I can do to improve/optimize this behaviour?
+
+_Originally posted by @alexander-bloss in https://github.com/apache/incubator-devlake/issues/1474#issuecomment-2207222757_
+            ",,"type/bug,severity/p1",,169174758,alexander-bloss,0,,0,,https://github.com/apache/incubator-devlake/issues/7694,,2024-07-03T20:58:20.000+00:00,2024-08-09T10:28:07.000+00:00,,
+1,2397053908,384111310,7708,OPEN,[Feature][Jira issue changelogs] Add customized jira account fields to table.accounts,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar feature requirement.
+
+
+### Use case
+
+As a PM, 
+1. I used the `original_from_value` and `original_to_value` of the field where `field_name = assignee` in the `issues.changelogs` to measure who has contributed to a Jira issue during the whole lifecycle.
+![image](https://github.com/apache/incubator-devlake/assets/14050754/68a8db74-7b00-45eb-bd68-f950d9411627)
+
+3. I also use another customized Jira issue field (whose `jira_field_type` = `jira_account`), for example, `reporter`, to manage the contributors of Jira issues. 
+And I want to measure the contribution by Jira issue reporters.
+
+Here comes the problem:
+When I get the `original_from_value` and `original_to_value` of the field where `field_name = reporter`. The values are `reporter's names`, not their IDs that I could join the `accounts` table for full user profile.
+
+### Description
+
+## To Do
+1. Other Jira issue fields whose `jira_field_type` = `jira_account` in table `issue_changelogs` should be written into table `accounts`.
+   - There's a Jira API to judge if a field is `jira_account`. tmpFromAccountId/tmpToAccountId
+4. Other Jira issue fields whose `jira_field_type` = `jira_account` in table `issue_changelogs` should be stored in the form of `accounts.id`, not `name`.
+
+### Related issues
+
+_No response_
+
+### Are you willing to submit a PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"pr-type/feature-development,type/feature-request,improvement",,14050754,Startrekzky,5844806,d4x1,0,,https://github.com/apache/incubator-devlake/issues/7708,,2024-07-09T03:56:50.000+00:00,2024-07-17T11:31:45.000+00:00,,
+1,2400751918,384111310,7715,CLOSED,[Bug][Sonarcloud] Error 1406 (22001): Data too long for column 'project_key' at row 1,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+When running:
+
+`SonarQube:Xyyyzzz_xyyyzzz.data-service.device-parameters-manager_AY51PdzPWFjHTJF4SDr_`
+
+I received
+
+`subtask convertIssues ended unexpectedly Wraps: (2) Error 1406 (22001): Data too long for column 'project_key' at row 1 (500) Wraps: (3) Error 1406 (22001): Data too long for column 'project_key' at row 1 Error types: (1) *hintdetail.withDetail (2) *hintdetail.withDetail (3) *mysql.MySQLError`
+
+### What do you expect to happen
+
+Sonarcloud task should run succesfully
+
+### How to reproduce
+
+Integrate sonarcloud and run task
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.1-beta1
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,93664973,klemen-df,61080,klesh,0,50341,https://github.com/apache/incubator-devlake/issues/7715,2024-08-14T12:23:07.000+00:00,2024-07-10T13:21:34.000+00:00,2024-08-14T12:23:07.000+00:00,,
+1,2405248778,384111310,7732,OPEN,[Bug][GitLab] Sometimes Project data are automatically deleted. ,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Sometimes project data are automatically deleted, and I don't know why this happens. In the logs, there isn't information about it.
+
+### What do you expect to happen
+
+I expect project data should not be deleted at random.
+
+### How to reproduce
+
+I don't know how to reproduce it. It happened to me for a project that only has a GitLab repository. If I try to do a `Collect Data in Full Refresh Mode` but it does not fix the problem. The only way I found to fix it is by going to the ""sync policy"" option and resetting the Time Range,  after a `Collect Data in Full Refresh Mode` it works.
+
+### Anything else
+
+_No response_
+
+### Version
+
+v0.21.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,16511436,antoniomuso,0,,0,,https://github.com/apache/incubator-devlake/issues/7732,,2024-07-12T10:22:44.000+00:00,2024-07-29T13:24:29.000+00:00,,
+1,2409459713,384111310,7739,OPEN,[Bug][cicd_pipelines] Fix pipelines with Github,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Hi @here
+Guys a question since I am currently seeing an error in devlake that is not bringing me all the pipelines that are running or have run in my repo. The account in github enterprise In github it tells me that I have 384 workflow runs but in devlake in the cicd_pipeline table it only brings me 289 records.
+Has anyone had this error?
+![image-2](https://github.com/user-attachments/assets/09e379f5-8c18-49ef-9dbb-0cfa45976656)
+![image-3](https://github.com/user-attachments/assets/9496f3ca-530f-4b48-83ef-ad4d37ebe54b)
+
+
+
+### What do you expect to happen
+
+Have all pipelines that visualize in Gtihub
+
+### How to reproduce
+
+You can try to run this command in your database `SELECT * FROM cicd_pipelines` and show that the number is different.
+
+### Anything else
+
+_No response_
+
+### Version
+
+v.18.0,v.19.0,v.20.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,devops,severity/p0",,2723396,daviddsp,0,,0,,https://github.com/apache/incubator-devlake/issues/7739,,2024-07-15T19:25:01.000+00:00,2024-08-05T11:00:30.000+00:00,,
+1,2410287163,384111310,7742,OPEN,[Bug][Gitlab]  v1.0.1-beta2 Data Time Range not working,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Gitlab, Data Time Range, v1.0.1-beta1 is working , but v1.0.1-beta2 not working.
+
+### What do you expect to happen
+
+v1.0.1-beta2 will collect all commits
+![image](https://github.com/user-attachments/assets/69c80986-dd6b-4d57-971e-66078b54e564)
+![image](https://github.com/user-attachments/assets/92b29b48-aeeb-4c6e-8403-4bba5391b7a5)
+
+### How to reproduce
+
+1、Upgrade to version v1.0.1-beta2
+2、Set Time Range to 2024-06-01
+3、Collect Data
+4、Select commits table 
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.1-beta2
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,170903986,xlqbyy,61080,klesh,0,,https://github.com/apache/incubator-devlake/issues/7742,,2024-07-16T06:04:18.000+00:00,2024-07-29T09:24:37.000+00:00,,
+1,2410846812,384111310,7750,CLOSED,[Bug][CircleCI Plugin] Only collecting first page of API responses,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+When running a data collection for a CircleCI connection, data only appears to be collected from the past <24 hours, irrespective of what `Time Range` is set to. Same behaviour observed in 'full refresh mode' & normal data collection.
+
+Seemed to have slightly differing behaviour each time I tried - when [originally raised on Slack](https://devlake-io.slack.com/archives/C03APJ20VM4/p1720800396443109) only the last ~3 hours of data was collected, however when reproducing again to raise this issue, seems to now have data from the past ~24 hours.
+
+E.g. time frequency set to start of the year, then checking the `_tool_circleci_workflow` table:
+
+![Screenshot 2024-07-16 at 10 34 16](https://github.com/user-attachments/assets/97298c9e-ad62-4035-b306-b67ae9ad676c)
+![Screenshot 2024-07-16 at 11 36 54](https://github.com/user-attachments/assets/17ee063d-622a-47fc-93e0-cc0a4b4e5d65)
+
+Only 18 workflows are identified, the earliest of which occurring at `2024-07-15 10:29:09.000`. I would expect to see many more rows dating back to `2024-01-01`.  
+
+CircleCI pipeline task logs:
+
+```time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] start executing task: 99""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] start plugin""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [api async client] creating scheduler for api \""https://circleci.com/api/\"", number of workers: 13, 10000 reqs / 1h0m0s (interval: 360ms)""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] total step: 9""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask convertProjects""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [convertProjects] finished records: 1""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 1 / 9""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask collectPipelines""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectPipelines] collect pipelines""
+time=""2024-07-16 09:34:23"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectPipelines] start api collection""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectPipelines] finished records: 1""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectPipelines] end api collection without error""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 2 / 9""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask extractPipelines""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [extractPipelines] get data from _raw_circleci_api_pipelines where params={\""ConnectionId\"":1,\""ProjectSlug\"":\""gh/SylveraIO/web-app-mono\""} and got 20""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [extractPipelines] finished records: 1""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 3 / 9""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask collectWorkflows""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectWorkflows] collect workflows""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectWorkflows] start api collection""
+time=""2024-07-16 09:34:25"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectWorkflows] finished records: 1""
+time=""2024-07-16 09:34:28"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectWorkflows] finished records: 10""
+time=""2024-07-16 09:34:31"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectWorkflows] finished records: 19""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectWorkflows] end api collection without error""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 4 / 9""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask extractWorkflows""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [extractWorkflows] get data from _raw_circleci_api_workflows where params={\""ConnectionId\"":1,\""ProjectSlug\"":\""gh/SylveraIO/web-app-mono\""} and got 18""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [extractWorkflows] finished records: 1""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 5 / 9""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask collectJobs""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectJobs] collect jobs""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectJobs] start api collection""
+time=""2024-07-16 09:34:32"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectJobs] finished records: 1""
+time=""2024-07-16 09:34:35"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectJobs] finished records: 10""
+time=""2024-07-16 09:34:38"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [collectJobs] end api collection without error""
+time=""2024-07-16 09:34:38"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 6 / 9""
+time=""2024-07-16 09:34:38"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask extractJobs""
+time=""2024-07-16 09:34:38"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [extractJobs] get data from _raw_circleci_api_jobs where params={\""ConnectionId\"":1,\""ProjectSlug\"":\""gh/SylveraIO/web-app-mono\""} and got 162""
+time=""2024-07-16 09:34:38"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [extractJobs] finished records: 1""
+time=""2024-07-16 09:34:38"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 7 / 9""
+time=""2024-07-16 09:34:38"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask convertJobs""
+time=""2024-07-16 09:34:38"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [convertJobs] finished records: 1""
+time=""2024-07-16 09:34:39"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 8 / 9""
+time=""2024-07-16 09:34:39"" level=info msg="" [pipeline service] [pipeline #12] [task #99] executing subtask convertWorkflows""
+time=""2024-07-16 09:34:39"" level=info msg="" [pipeline service] [pipeline #12] [task #99] [convertWorkflows] finished records: 1""
+time=""2024-07-16 09:34:39"" level=info msg="" [pipeline service] [pipeline #12] [task #99] finished step: 9 / 9""
+```
+
+Also have Github and Jira data connections running within the same pipeline, and data is pulled through as expected for both of these plugins.
+
+EDIT: What is actually happening is only 20 pipelines are being collected from the CircleCI API response (ie. the first page). This then has a knock-on effect throughout the workflows and jobs tables. 
+
+### What do you expect to happen
+
+Data is collected from the full specified time range, e.g. starting from `2024-01-01` (or whenever specified). 
+
+### How to reproduce
+
+1. Configure a CircleCI connection using the plugin
+2. Associate this to a project
+3. Set a time range (or leave as default for 6 months)
+4. Run a data collection (either normally in or full refresh)
+5. Check the `_tools_circleci_workflows`, `_tools_circleci_pipelines` or `_tools_circleci_jobs` tables for expected row count, and earliest `started_at` or `created_at` timestamp (see below)
+
+### Anything else
+
+As an aside (but potentially related) - I notice there are discrepancies between the column names across the three CircleCI tool tables, e.g. 
+
+- On `_tools_circleci_workflows` - `created_at` is the timestamp the workflow was triggered in CircleCI. There is no other column which could represent the start of the workflow in CircleCI.
+- On `_tools_circleci_jobs` - `created_at` is the timestamp the row was created in the DevLake DB, and `started_at` is the CircleCI timestamp.
+- On `_tools_circleci_pipelines` - `created_at` is again the timestamp  of DevLake DB creation. There is `created_date`, but this always seems to be `NULL`. As with the workflows table, there doesn't appear to be any column which represents the starting timestamp in CircleCI.
+
+### Version
+
+v1.0.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/plugins,severity/p1",,65220492,Nickcw6,0,,0,13244,https://github.com/apache/incubator-devlake/issues/7750,2024-07-25T15:41:03.000+00:00,2024-07-16T10:56:39.000+00:00,2024-07-25T15:41:03.000+00:00,,
+1,2411054853,384111310,7751,CLOSED,[Bug][Config UI] AxiosError: Request failed with status code 502,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+When I try to access Config UI using http://localhost:4000, I get the AxiosError: Request failed with status code 502 error
+
+### What do you expect to happen
+
+I want to view Config UI dashboard
+
+### How to reproduce
+
+None
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/config-ui,severity/p1",,120357983,harivignesh-git,0,,0,959,https://github.com/apache/incubator-devlake/issues/7751,2024-07-17T04:47:31.000+00:00,2024-07-16T12:47:36.000+00:00,2024-07-19T23:22:04.000+00:00,,
+1,2412125481,384111310,7752,OPEN,[Bug][Gitlab] Component and File-Level Metrics not displaying,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+I'm having some trouble with the ""Component and File-Level Metrics"" dashboard, none of the ""file dimension"" metrics are displaying properly. 
+![Screenshot from 2024-07-16 16-07-13](https://github.com/user-attachments/assets/b13569bc-909d-4970-b877-e04bc6063143)
+
+In particular (I suspect the other metrics are having similar issues) the SQL query for files with maximum number of authors is erroring out, the Grafana pod logs give this error:
+```
+logger=tsdb.mysql endpoint=queryData pluginId=mysql dsName=mysql dsUID=P430005175C4C7810 uname=admin t=2024-07-15T17:32:42.710897017Z level=error msg=""Query error"" error=""Error 3995 (HY000): Character set 'binary' cannot be used in conjunction with 'utf8mb4_unicode_ci' in call to regexp_like.""
+```
+
+Going to the ""explore"" tab and manually querying:
+```
+SELECT * FROM commits 
+```
+doesn't show any file_path column, which looks important for this dashboard.
+
+### What do you expect to happen
+
+The ""file dimension"" metrics are displayed in the dashboard.
+
+### How to reproduce
+
+- Deploy DevLake v1.0.1-beta2 using docker-compose.
+- Setup a project with a Gitlab connection scoped to one repository.
+- Open the ""Component and File-Level Metrics"" dashboard.
+
+
+### Anything else
+
+I saw this bug on both v1.0.0 and v1.0.1-beta2. I asked about it in slack and was told to open an issue here.
+
+### Version
+
+v1.0.1-beta2
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p2",,151061035,SiliconSatchel,0,,0,,https://github.com/apache/incubator-devlake/issues/7752,,2024-07-16T22:10:53.000+00:00,2024-07-20T01:25:20.000+00:00,,
+1,2413195336,384111310,7758,OPEN,[Feature][Framework] Reminder before token is expired,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar feature requirement.
+
+
+### Use case
+
+I have a GitLab connection using a PAT(personal access token), every GitLab PAT has an expired date.
+If my token is expired,  my project failed to sync data, then I update the connection, sync again.
+
+I want to receive an alert before my project failed to sync because of expired tokens.
+
+### Description
+
+Get alerts before my projects are going to fail.
+
+### Related issues
+
+_No response_
+
+### Are you willing to submit a PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"pr-type/feature-development,type/feature-request,component/framework",,5844806,d4x1,0,,0,,https://github.com/apache/incubator-devlake/issues/7758,,2024-07-17T10:06:01.000+00:00,2024-07-17T10:55:16.000+00:00,,
+1,2418265045,384111310,7765,OPEN,[Question][Data Models] Code Quality / Testing,"<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the ""License""); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an ""AS IS"" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+## Question
+
+Hi all,
+
+I have a question I hope you can help me with.
+I see from the roadmap over https://devlake.apache.org/docs/Overview/Roadmap/ that Code Quality / Testing is on the roadmap.
+Could you maybe explain these data models a bit more and how you plan on getting / ingesting this data?
+And your vision and idea behind that is, what you want to measure and how ?
+
+Background:
+I want to see if it is possible to measure code coverage and quality metrics next to build time and correlate them.
+We have some long ci build pipelines and are curious if we can fine tune the number of tests vs times, or at least gain insights in them at best and maybe split them up or so. 
+We have the feeling this can be better in balance at least.
+
+I initially thought of using the webhook for this, but I now found out that the webhooks really are hooked into data models (which makes sense). 
+I am not sure if you are thinking about adding a generic webook data model, so that special use cases can or extra data can be added ?
+
+So long story short, can you maybe explain the vision and idea behind the Code Quality / Testing data model ?
+
+Also awsome work on this project so far !",,type/question,,46605489,martynvdijke,0,,0,,https://github.com/apache/incubator-devlake/issues/7765,,2024-07-19T07:33:29.000+00:00,2024-07-30T10:53:43.000+00:00,,
+1,2418390815,384111310,7766,CLOSED,[Bug][Pagerduty] The PagerDuty connection is pulling incident data but this is not being reflected in metrics.,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Hi Everyone, The PagerDuty connection is pulling incident data but this is not being reflected in metrics.
+Devlake is running on v1.0.0-beta11.
+The PagerDuty connection is pulling incident data but this is not being reflected in metrics. Where configured Jira data is acting as an incident count but from PagerDuty it is possible to see incidents in DevLake but these are not impacting the counts.
+
+### What do you expect to happen
+
+Hi Everyone, The PagerDuty connection is pulling incident data but this is not being reflected in metrics.
+Devlake is running on v1.0.0-beta11.
+The PagerDuty connection is pulling incident data but this is not being reflected in metrics. Where configured Jira data is acting as an incident count but from PagerDuty it is possible to see incidents in DevLake but these are not impacting the counts.
+
+### How to reproduce
+
+Hi Everyone, I deployed the devlake and added pagerduty data connection.
+Added the dashboards in grafana. 
+
+### Anything else
+
+Hi Everyone, The PagerDuty connection is pulling incident data but this is not being reflected in metrics.
+Devlake is running on v1.0.0-beta11.
+The PagerDuty connection is pulling incident data but this is not being reflected in metrics. Where configured Jira data is acting as an incident count but from PagerDuty it is possible to see incidents in DevLake but these are not impacting the counts.
+
+### Version
+
+v1.0.0-beta11
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,devops,severity/p1",,29087906,Puvendhan,0,,0,8368,https://github.com/apache/incubator-devlake/issues/7766,2024-07-25T04:15:25.000+00:00,2024-07-19T08:46:48.000+00:00,2024-08-13T08:49:37.000+00:00,,
+1,2422552004,384111310,7771,OPEN,[Bug][Framework] Projects shouldn't be deleted if it has any connections.,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+I have a project with some connections, and pipelie is running. And I delete this project successfully.
+
+
+
+### What do you expect to happen
+
+Projects should NOT be deleted if it has any connections or running pipeliens.
+
+### How to reproduce
+
+1. create a new project.
+2. add a connection.
+3. collect data.
+4. delete this project.
+
+
+### Anything else
+
+_No response_
+
+### Version
+
+main
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/framework,severity/p1",,5844806,d4x1,0,,0,,https://github.com/apache/incubator-devlake/issues/7771,,2024-07-22T10:45:16.000+00:00,2024-07-23T11:21:40.000+00:00,,
+1,2422764743,384111310,7772,CLOSED,[Bug][pagerduty] DevLake does not collect PagerDuty incidents,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+DevLake does not collect PagerDuty incidents.
+![Screenshot 2024-07-22 at 15 51 05](https://github.com/user-attachments/assets/75f2c13a-db36-4951-b800-1338ec9ca465)
+
+![Screenshot 2024-07-22 at 15 53 14](https://github.com/user-attachments/assets/fe5763c7-3785-4de9-98f1-bb82134c11d6)
+
+
+### What do you expect to happen
+
+When pipelines run successfully, they must update the `issues` table in the database, but the table is empty
+
+```
+mysql> SELECT * FROM issues;
+Empty set (0.00 sec)
+```
+
+
+### How to reproduce
+
+1. Install a fresh DevLake instance with version v1.0.1-beta3 (or v1.0.1.*)
+2. Create a project by adding a PagerDuty connection/scope. Your PagerDuty service must have incidents.
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.1-beta3
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p0",,46712946,hayk96,0,,0,1347,https://github.com/apache/incubator-devlake/issues/7772,2024-07-23T11:01:12.000+00:00,2024-07-22T12:33:47.000+00:00,2024-07-30T02:19:22.000+00:00,,
+1,2424964737,384111310,7775,CLOSED,[Feature][PR metrics] Add key timestamps to the `project_pr_metrics` table,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar feature requirement.
+
+
+### Use case
+
+I can easily get `pr_coding_time`, `pr_pick_time` and other metrics in the `project_pr_metrics`. However, when I want to:
+- debug these metrics
+- OR customize metrics such as `first_comment_time` - `first_commit_authored_date`, or `deploy_time` - `last_comment_date`
+it'll be hard for us to do so.
+
+### Description
+
+To do:
+
+Add the following timestamp fields to the project_pr_metrics table:
+
+- [ ] first_commit_authored_date
+- [ ] pr_created_date (ignore if it already exists)
+- [ ] first_comment_date
+- [ ] pr_merged_date (ignore if it already exists)
+- [ ] pr_deployed_date
+
+Please order the fields in the table according to the PR lifecycle.
+
+
+### Related issues
+
+_No response_
+
+### Are you willing to submit a PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/feature-request,improvement",,14050754,Startrekzky,101256042,abeizn,0,11405,https://github.com/apache/incubator-devlake/issues/7775,2024-07-31T09:36:48.000+00:00,2024-07-23T11:31:12.000+00:00,2024-07-31T09:36:49.000+00:00,,
+1,2427433855,384111310,7781,CLOSED,[Feature][GitHub] Hide 'enable GraphQL' in the GitHub connection configuration,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar feature requirement.
+
+
+### Use case
+
+Since the GitHub RESTful APIs are unstable and extremely slow, it's highly recommended to remove the GitHub `enable GraphQL` option from the GitHub connection configuration page.
+
+### Description
+
+_No response_
+
+### Related issues
+
+_No response_
+
+### Are you willing to submit a PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/feature-request,component/config-ui,improvement",,14050754,Startrekzky,0,,0,1282,https://github.com/apache/incubator-devlake/issues/7781,2024-07-25T09:37:39.000+00:00,2024-07-24T12:15:26.000+00:00,2024-07-25T09:37:40.000+00:00,,
+1,2430199609,384111310,7788,OPEN,[Question][AzureDevOps] Pipeline run retention,"Hi - The ADO project I'm working with has a pipeline rention policy of 3 previous runs. When running the data collection in DevLake, any runs that have expired or been deleted from ADO are removed, which leads to the DORA dashboard having no/less data.
+
+Is there any way for me to configure DevLake to retain any pipeline metrics even if the actual pipeline run in ADO has been removed? Thanks for your help.",,"type/question,devops",,150379690,benjaminrmoss,0,,0,,https://github.com/apache/incubator-devlake/issues/7788,,2024-07-25T14:52:36.000+00:00,2024-07-30T10:56:42.000+00:00,,
+1,2437579211,384111310,7795,CLOSED,[Bug][GitHub] Pipeline run fails due to x509: certificate issue ,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+GitHub connection from Config UI successfully tested but when pipelines are executed they fails with below error in one of the stages.
+
+`attached stack trace -- stack trace: | github.com/apache/incubator-devlake/core/runner.RunTask.func1 | /app/core/runner/run_task.go:73 | runtime.gopanic | /usr/local/go/src/runtime/panic.go:884 | [...repeated from below...] Wraps: (2) run task failed with panic (github.com/apache/incubator-devlake/helpers/pluginhelper/api.CreateAsyncGraphqlClient:71) Wraps: (3) attached stack trace -- stack trace: | github.com/apache/incubator-devlake/plugins/github_graphql/impl.GithubGraphql.PrepareTaskData.func1 | /app/plugins/github_graphql/impl/impl.go:223 | github.com/apache/incubator-devlake/helpers/pluginhelper/api.CreateAsyncGraphqlClient | /app/helpers/pluginhelper/api/graphql_async_client.go:69 | github.com/apache/incubator-devlake/plugins/github_graphql/impl.GithubGraphql.PrepareTaskData | /app/plugins/github_graphql/impl/impl.go:220 | github.com/apache/incubator-devlake/core/runner.RunPluginSubTasks | /app/core/runner/run_task.go:246 | github.com/apache/incubator-devlake/core/runner.RunPluginTask | /app/core/runner/run_task.go:163 | github.com/apache/incubator-devlake/core/runner.RunTask | /app/core/runner/run_task.go:137 | github.com/apache/incubator-devlake/server/services.runTaskStandalone | /app/server/services/task_runner.go:113 | github.com/apache/incubator-devlake/server/services.RunTasksStandalone.func1 | /app/server/services/task.go:187 | runtime.goexit | /usr/local/go/src/runtime/asm_amd64.s:1598 Wraps: (4) Post ""https://api.github.com/graphql"": tls: failed to verify certificate: x509: certificate signed by unknown authority Wraps: (5) Post ""https://api.github.com/graphql"" Wraps: (6) tls: failed to verify certificate Wraps: (7) x509: certificate signed by unknown authority Error types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.withPrefix (5) *url.Error (6) *tls.CertificateVerificationError (7) x509.UnknownAuthorityError`
+
+### What do you expect to happen
+
+Pipeline execution should have completed successfully. 
+
+
+### How to reproduce
+
+1) Spin up the devlake using docker-compose on an on-prem Ubuntu 22x VM
+2) Add the GitHub connection, provide the required details and PAT key, successfully test the GitHub connection
+3) Create a project that has the GitHub connection and the required repo scope
+4) Run the pipeline
+
+### Anything else
+
+Currently moved to the latest version v1.0.1-beta4 but pipeline executions are blocked due to X509 certificate issue.
+Note: The earlier version that was setup using v1.0.0-beta11 with the same GitHub configuration, PAT key and repo scope, the pipelines completed successfully.
+
+The IN_SECURE_SKIP_VERIFY is set to true.
+
+### Version
+
+v1.0.1-beta4
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/config-ui,severity/p0",,73107830,sprathod369,0,,0,1271,https://github.com/apache/incubator-devlake/issues/7795,2024-07-31T08:27:22.000+00:00,2024-07-30T11:15:45.000+00:00,2024-07-31T08:27:22.000+00:00,,
+1,2438181087,384111310,7797,CLOSED,[Bug][CircleCI Plugin] CircleCI pipelines collected from before time range,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+When collecting CircleCI pipelines, the time range specified in the sync policy has no effect on the data collected - pipelines are collected from before the specified date.
+
+E.g. Sync policy settings set to collect from 1st June 2024:
+![Screenshot 2024-07-30 at 16 34 46](https://github.com/user-attachments/assets/610cf176-34ed-4a08-b457-3496837c26a5)
+
+![Screenshot 2024-07-30 at 16 53 41](https://github.com/user-attachments/assets/1bc898e1-8424-4de0-9612-999a6d39a7d6)
+
+Excerpt of `data` JSON blob from top row - has `created_date` and `updated_date` of 1st Feb 2024 (ie. 180 days ago from todays date - 2024-07-30):
+
+```
+{
+    ""id"" : ""eae60b4c-7dcc-4293-8b00-45f18a494881"",
+    ""updated_at"" : ""2024-02-01T14:11:31.988Z"",
+    ""created_at"" : ""2024-02-01T14:11:31.988Z"",
+    ...
+    ""trigger"" : {
+      ""received_at"" : ""2024-02-01T14:11:31.481Z"",
+      ""type"" : ""webhook"",
+    ...
+    },
+    ...
+  }
+```
+
+
+
+
+### What do you expect to happen
+
+No CircleCI pipelines, workflows or jobs are collected from before the time range start point.
+
+### How to reproduce
+
+1. Set the time frame to a date before any CircleCI data retention period ends (e.g. if retention period is 90 days, set this to 30 days - see below).
+2. Run the DevLake pipeline
+3. Sort the `_raw_circleci_api_pipelines` table by the `created_at` JSON property of the `data` column:
+```
+SELECT *
+FROM _raw_circleci_api_pipelines
+ORDER BY STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(CONVERT(data USING utf8mb4), '$.created_at')), '%Y-%m-%dT%H:%i:%s.%fZ') ASC;
+```
+4. Compare the `created_at` property to that set in the sync policy time range.
+
+### Anything else
+
+This is in part due to the recent pagination fix on the plugin (#7770) - the pagination works but as the CircleCI API does not offer any date range pagination controls, the collector now loops through the pages until `next_page_token` is `null`, which is whenever the data retention limit is hit for the account (e.g. for me it is 180 days, but could be less/more, see [here](https://support.circleci.com/hc/en-us/articles/5645222646939-Data-retention-policy)).
+
+When subsequently attempting to collect the relevant workflows & jobs for the pipeline, this will return a 404 and error the DevLake pipeline for any data points that fall outside of the data retention range in a race condition vs. CircleCI cleaning up build data:
+
+```
+subtask collectWorkflows ended unexpectedly Wraps: (2) Retry exceeded 3 times calling /v2/pipeline/6b7c4513-56bd-4e0c-ad72-d562df7513b1/workflow. The last error was: Http DoAsync error calling [method:GET path:/v2/pipeline/6b7c4513-56bd-4e0c-ad72-d562df7513b1/workflow query:map[]]. Response: {:message ""Pipeline not found""} (404) Error types: (1) *hintdetail.withDetail (2) *errors.errorString
+```
+
+
+There needs to be an additional check that the `created_at` property of the returned pipelines is not before the specified time range starting point. 
+
+### Version
+
+44c3ecb8194d008dd4e3914bb534d2a26eeefdae
+
+### Are you willing to submit PR?
+
+- [X] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/plugins,pr-type/bug-fix,severity/p1",,65220492,Nickcw6,0,,0,22478,https://github.com/apache/incubator-devlake/issues/7797,2024-08-15T06:40:06.000+00:00,2024-07-30T16:01:23.000+00:00,2024-08-15T06:40:06.000+00:00,,
+1,2440609155,384111310,7808,CLOSED,Difficulty Backing Up MySQL database on localhost(HELM),"## Question
+So I've downloaded devlake onto my local machine using Helm, and I have a database deployed on my localhost on port 3306. I plan on reinstalling devlake onto a server and am trying to do mysqldump but I'm having many authentication errors.
+
+When I do:
+mysqldump -u merico -p merico lake > db.sql
+
+I get this error:
+mysqldump: Got error: 1045: Access denied for user 'merico'@'localhost' (using password: YES) when trying to connect
+
+Am I doing the right command, is it something else with the password authentication? Please help.",,type/question,,130409883,amokkapati,0,,0,1477,https://github.com/apache/incubator-devlake/issues/7808,2024-08-01T18:42:35.000+00:00,2024-07-31T18:04:57.000+00:00,2024-08-01T18:42:35.000+00:00,,
+1,2442616597,384111310,7821,OPEN,[Bug][devLake config UI] secure PAT is exposed in network tab  ,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Secure PAT token exposed in network tab for request [http://localhost:4000/api/plugins/gitlab/connections/1/scopes?page=1&pageSize=10&blueprints=true](http://localhost:4000/api/plugins/gitlab/connections/1/scopes?page=1&pageSize=10&blueprints=true)
+
+![Selection_585](https://github.com/user-attachments/assets/d2299ac8-9861-4d59-a72f-fe828536a81d)
+
+
+### What do you expect to happen
+
+PAT should not be exposed
+
+### How to reproduce
+
+Explore network tab on connection settings page.
+ 
+http://localhost:4000/api/plugins/gitlab/connections/1/scopes?page=1&pageSize=10&blueprints=true
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,pr-type/bug-fix,component/config-ui,severity/p1",,81688942,yurii-chikh-vitech,0,,0,,https://github.com/apache/incubator-devlake/issues/7821,,2024-08-01T14:24:18.000+00:00,2024-08-01T14:30:30.000+00:00,,
+1,2444133299,384111310,7822,CLOSED,[Bug][Grafana] Dashboard visualization error,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+The Grafanas' panels return the following errors:  
+`Error 1146 (42S02): Table 'lake.project_incident_deployment_relationships' doesn't exist`
+
+---
+**DevLake version:** 1.0.1-beta4
+**Dashboard:** [DORA](https://github.com/apache/incubator-devlake/blob/main/grafana/dashboards/DORA.json)
+**Panels:** Change Failure Rate, Failed Deployment Recovery Time
+**Connections I use:** GitLab and PagerDuty
+
+### What do you expect to happen
+
+I expect to see proper visualizations in all panels
+
+### How to reproduce
+
+1. Deploy DevLake v1.0.1-beta4 via Helm and add two connections GitLab and PagerDuty
+2. Add a project from DevLake UI that will contain both connections (GitLab and PagerDuty)
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.1-beta4
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1,component/ext",,46712946,hayk96,0,,0,10162,https://github.com/apache/incubator-devlake/issues/7822,2024-08-09T07:25:54.000+00:00,2024-08-02T06:03:20.000+00:00,2024-08-09T07:25:54.000+00:00,,
+1,2444873877,384111310,7826,OPEN,"[Bug][Jira] issues disappearing from dataset, progressive load issue?","### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+We have noticed in some of our graphs that sometimes we see a complete picture, and other times we're only seeing some fraction of the relevant jira issues.
+In both cases this seems to impact jira projects that I know have quite a lot of issues, in once case >10k in the last year or so
+When this was first brought up, I triggered a full-refresh , which did not seem to fix it, but then seemingly after another couple of 'normal' refreshes the issues did re-populate the db.
+However now a couple of days later they've gone again. it seems mostly that I'm left with small numbers of issues from back at the begining of 2023, which makes me think maybe something is emptying out the previous data, kicking off process to work through re-import but then failing for some unknown reason.
+
+### What do you expect to happen
+
+I expected the jira issues to consistently be present, they're still in jira under the board filter etc. So there is no obvious reason that they should disspear from devlake
+
+### How to reproduce
+
+hard to say at this time. I'd suggest a long lived jira project with thousands of issues spread over several months is a good place to start. I guess run repeated refresh cycles and see if the data population in devlake is changing between them in ways it should not.
+
+### Anything else
+
+so far i've seen this happen for 2 specific projects (out of about 25 that we sync. though it's possible that the same issue happens else wehre it's just less obvious in a graph.
+not sure if it matters but some of our pipelines are alson syncing quite a few azure devops repos, so the project pipeline iself can take >6 hours to run.
+I tried looking in the container logs but did not spot anything that looked like an error.
+I'm happy to try running with additional debug or whatever if it would be helpful to assist in understanging this issue better.
+
+Obviously it rather undermines the business faith in the graphs to have them suddenly underreporting by hundreds of missing jira issues.
+
+### Version
+
+v1-custom
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,134490293,wouldd,61080,klesh,0,,https://github.com/apache/incubator-devlake/issues/7826,,2024-08-02T12:36:15.000+00:00,2024-08-13T04:36:46.000+00:00,,
+1,2448114522,384111310,7833,CLOSED,"[Bug][devLake:UI] Error: Request failed with status code 502 , while login to devLake","### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+It was configured last week and it has been working fine till yesterday, when i try to log in, i am getting a 502 error since morning.I did not modify anything. 
+
+### What do you expect to happen
+
+I don't know why suddenly getting this error
+
+### How to reproduce
+
+when i try access datalake from browser i.e <IP.address:4000> i am getting below ereor
+![image](https://github.com/user-attachments/assets/21b517e9-e368-4cff-805b-416f1a0b82ef)
+
+Even i click on continue , it is not moving.
+
+### Anything else
+
+_No response_
+
+### Version
+
+V1.0.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p0",,85116605,ravisanrjy,0,,0,5719,https://github.com/apache/incubator-devlake/issues/7833,2024-08-09T09:08:00.000+00:00,2024-08-05T09:48:25.000+00:00,2024-08-09T09:08:00.000+00:00,,
+1,2449268658,384111310,7836,OPEN,[Bug][Devlake] unexpected end of JSON when adding more than 31 repositories as data scope to Azure-DevOps Connection,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Hi There!
+
+Dear Team,
+
+I am having this issue when trying to add more than 31 repositories as data scope to an Azure-DevOps Data Connection.
+
+The error is this:
+`level=error msg=""HTTP 400 error\n\tcaused by: error patching the blueprint (400)\n\tWraps: (2)\n\tWraps: (3) unexpected end of JSON input\n\tWraps: (4) unexpected end of JSON input\n\tError types: (1) *hintdetail.withDetail (2) *hintdetail.withDetail (3) *hintdetail.withDetail (4) *json.SyntaxError""`
+
+![image](https://github.com/user-attachments/assets/3c5e4a13-ab37-44aa-b8fb-9ec2a6b616b1)
+
+I have one project, that project has an Azure-DevOps Data Connection, that Data Connection has already 31 repositories added as data scope but when I tried to add one more repository, I got the error mentioned before.
+
+![image](https://github.com/user-attachments/assets/ea801c6f-129d-48e5-8b66-bb7d896fc18b)
+
+
+### What do you expect to happen
+
+The repository is added as data scope for an Azure-DevOps data connection.
+
+### How to reproduce
+
+Add more than 31 repositories as data scope to an Azure-DevOps Data Connection.
+
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,pr-type/bug-fix,component/config-ui,severity/p1",,36556727,Leniyou,0,,0,,https://github.com/apache/incubator-devlake/issues/7836,,2024-08-05T19:00:15.000+00:00,2024-08-06T07:00:25.000+00:00,,
+1,2449875228,384111310,7839,CLOSED,[Bug][Backend] fatal error: concurrent map writes,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+When I run `make godev`, sometimes this error will appear:
+```
+fatal error: concurrent map writes
+
+goroutine 725 [running]:
+github.com/apache/incubator-devlake/helpers/pluginhelper/api.(*DsRemoteApiProxyHelper[...]).getApiClient(0x327b55bc0, 0x140016bea80?)
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/helpers/pluginhelper/api/ds_remote_api_proxy_api.go:82 +0x1d4
+github.com/apache/incubator-devlake/helpers/pluginhelper/api.(*DsRemoteApiProxyHelper[...]).prepare(0x327b48160, 0x14002db13d8)
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/helpers/pluginhelper/api/ds_remote_api_proxy_api.go:57 +0x50
+github.com/apache/incubator-devlake/helpers/pluginhelper/api.(*DsRemoteApiProxyHelper[...]).Proxy(0x105667480?, 0x140016ca4b0?)
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/helpers/pluginhelper/api/ds_remote_api_proxy_api.go:91 +0x3c
+github.com/apache/incubator-devlake/plugins/jira/api.Proxy(0x0?)
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/plugins/jira/api/remote_api.go:161 +0x38
+github.com/apache/incubator-devlake/server/api.registerPluginEndpoints.handlePluginCall.func1(0x140011de100)
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/server/api/router.go:141 +0x284
+github.com/gin-gonic/gin.(*Context).Next(...)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+github.com/apache/incubator-devlake/server/api.OAuth2ProxyAuthentication.func1(0x140011de100)
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/server/api/middlewares.go:95 +0x134
+github.com/gin-gonic/gin.(*Context).Next(...)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+github.com/apache/incubator-devlake/server/api.RestAuthentication.func1(0x140011de100)
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/server/api/middlewares.go:117 +0x26c
+github.com/gin-gonic/gin.(*Context).Next(...)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+github.com/gin-gonic/gin.CustomRecoveryWithWriter.func1(0x140011de100)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/recovery.go:102 +0x84
+github.com/gin-gonic/gin.(*Context).Next(...)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+github.com/gin-gonic/gin.LoggerWithConfig.func1(0x140011de100)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/logger.go:240 +0xb4
+github.com/gin-gonic/gin.(*Context).Next(...)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174
+github.com/gin-gonic/gin.(*Engine).handleHTTPRequest(0x140011481a0, 0x140011de100)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:620 +0x518
+github.com/gin-gonic/gin.(*Engine).ServeHTTP(0x140011481a0, {0x1058bc7c8, 0x14001870620}, 0x140026c19e0)
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:576 +0x174
+net/http.serverHandler.ServeHTTP({0x140016ca360?}, {0x1058bc7c8?, 0x14001870620?}, 0x6?)
+        /opt/homebrew/opt/go/libexec/src/net/http/server.go:3142 +0xbc
+net/http.(*conn).serve(0x14000f818c0, {0x1058c2238, 0x140015744e0})
+        /opt/homebrew/opt/go/libexec/src/net/http/server.go:2044 +0x508
+created by net/http.(*Server).Serve in goroutine 1
+        /opt/homebrew/opt/go/libexec/src/net/http/server.go:3290 +0x3f0
+
+goroutine 1 [IO wait]:
+internal/poll.runtime_pollWait(0x12da96af8, 0x72)
+        /opt/homebrew/opt/go/libexec/src/runtime/netpoll.go:345 +0xa0
+internal/poll.(*pollDesc).wait(0x14001150d80?, 0x8?, 0x0)
+        /opt/homebrew/opt/go/libexec/src/internal/poll/fd_poll_runtime.go:84 +0x28
+internal/poll.(*pollDesc).waitRead(...)
+        /opt/homebrew/opt/go/libexec/src/internal/poll/fd_poll_runtime.go:89
+internal/poll.(*FD).Accept(0x14001150d80)
+        /opt/homebrew/opt/go/libexec/src/internal/poll/fd_unix.go:611 +0x250
+net.(*netFD).accept(0x14001150d80)
+        /opt/homebrew/opt/go/libexec/src/net/fd_unix.go:172 +0x28
+net.(*TCPListener).accept(0x14000344ea0)
+        /opt/homebrew/opt/go/libexec/src/net/tcpsock_posix.go:159 +0x28
+net.(*TCPListener).Accept(0x14000344ea0)
+        /opt/homebrew/opt/go/libexec/src/net/tcpsock.go:327 +0x2c
+net/http.(*Server).Serve(0x140017b6870, {0x1058bd560, 0x14000344ea0})
+        /opt/homebrew/opt/go/libexec/src/net/http/server.go:3260 +0x2a8
+net/http.(*Server).ListenAndServe(0x140017b6870)
+        /opt/homebrew/opt/go/libexec/src/net/http/server.go:3189 +0x84
+net/http.ListenAndServe(...)
+        /opt/homebrew/opt/go/libexec/src/net/http/server.go:3443
+github.com/gin-gonic/gin.(*Engine).Run(0x140011481a0, {0x14000f45ec8, 0x1, 0x1})
+        /Users/{my_username}/Code/go/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:386 +0x1b0
+github.com/apache/incubator-devlake/server/api.RunApiServer(0x140011481a0)
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/server/api/api.go:176 +0xbc
+github.com/apache/incubator-devlake/server/api.CreateAndRunApiServer()
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/server/api/api.go:74 +0x78
+main.main()
+        /Users/{my_username}/Code/go/src/github.com/apache/incubator-devlake/backend/server/main.go:33 +0x38
+
+```
+
+### What do you expect to happen
+
+run `make godev`, start backend service successfully.
+
+### How to reproduce
+
+I cannot repoduce it today, but it does exist.
+
+### Anything else
+
+_No response_
+
+### Version
+
+main
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,pr-type/bug-fix,severity/p1",,5844806,d4x1,0,,0,4301,https://github.com/apache/incubator-devlake/issues/7839,2024-08-09T03:28:46.000+00:00,2024-08-06T03:47:45.000+00:00,2024-08-09T03:28:46.000+00:00,,
+1,2450330187,384111310,7842,CLOSED,[Bug][gitextractor] Error running pipeline beta5,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Moved from beta4 to beta5. All bitbucket and github repos when step gitextractor starts - fails now. 
+
+`attached stack trace -- stack trace: | github.com/apache/incubator-devlake/server/services.runPipeline | /app/server/services/pipeline_runner.go:79 | [...repeated from below...] Wraps: (2) Error running pipeline 261. Wraps: (3) attached stack trace -- stack trace: | github.com/apache/incubator-devlake/server/services.RunTasksStandalone | /app/server/services/task.go:217 | github.com/apache/incubator-devlake/server/services.(*pipelineRunner).runPipelineStandalone.func1 | /app/server/services/pipeline_runner.go:42 | github.com/apache/incubator-devlake/core/runner.runPipelineTasks | /app/core/runner/run_pipeline.go:90 | github.com/apache/incubator-devlake/core/runner.RunPipeline | /app/core/runner/run_pipeline.go:54 | github.com/apache/incubator-devlake/server/services.(*pipelineRunner).runPipelineStandalone | /app/server/services/pipeline_runner.go:38 | github.com/apache/incubator-devlake/server/services.runPipeline | /app/server/services/pipeline_runner.go:76 | github.com/apache/incubator-devlake/server/services.RunPipelineInQueue.func1 | /app/server/services/pipeline.go:347 | runtime.goexit | /usr/local/go/src/runtime/asm_amd64.s:1598 Wraps: (4) attached stack trace | -- stack trace: | | github.com/apache/incubator-devlake/server/services.RunTasksStandalone.func1 | | /app/server/services/task.go:189 | Wraps: (2) Error running task 26893. | Wraps: (3) attached stack trace | -- stack trace: | | github.com/apache/incubator-devlake/core/runner.RunPluginSubTasks | | /app/core/runner/run_task.go:329 | | github.com/apache/incubator-devlake/core/runner.RunPluginTask | | /app/core/runner/run_task.go:163 | | github.com/apache/incubator-devlake/core/runner.RunTask | | /app/core/runner/run_task.go:137 | | github.com/apache/incubator-devlake/server/services.runTaskStandalone | | /app/server/services/task_runner.go:113 | | github.com/apache/incubator-devlake/server/services.RunTasksStandalone.func1 | | /app/server/services/task.go:187 | Wraps: (4) subtask Clone Git Repo ended unexpectedly | Wraps: (5) attached stack trace | -- stack trace: | | github.com/apache/incubator-devlake/plugins/gitextractor/parser.(*GitcliCloner).execGitCloneCommand | | /app/plugins/gitextractor/parser/clone_gitcli.go:144 | | [...repeated from below...] | Wraps: (6) failed to fetch all branches from the remote server | Wraps: (7) attached stack trace | -- stack trace: | | github.com/apache/incubator-devlake/plugins/gitextractor/parser.(*GitcliCloner).execCommand | | /app/plugins/gitextractor/parser/clone_gitcli.go:238 | | github.com/apache/incubator-devlake/plugins/gitextractor/parser.(*GitcliCloner).execGitCommandIn | | /app/plugins/gitextractor/parser/clone_gitcli.go:227 | | github.com/apache/incubator-devlake/plugins/gitextractor/parser.(*GitcliCloner).execGitCloneCommand | | /app/plugins/gitextractor/parser/clone_gitcli.go:143 | | github.com/apache/incubator-devlake/plugins/gitextractor/parser.(*GitcliCloner).CloneRepo | | /app/plugins/gitextractor/parser/clone_gitcli.go:92 | | github.com/apache/incubator-devlake/plugins/gitextractor/tasks.CloneGitRepo | | /app/plugins/gitextractor/tasks/repo_cloner.go:57 | | github.com/apache/incubator-devlake/core/runner.runSubtask | | /app/core/runner/run_task.go:405 | | github.com/apache/incubator-devlake/core/runner.RunPluginSubTasks | | /app/core/runner/run_task.go:327 | | github.com/apache/incubator-devlake/core/runner.RunPluginTask | | /app/core/runner/run_task.go:163 | | github.com/apache/incubator-devlake/core/runner.RunTask | | /app/core/runner/run_task.go:137 | | github.com/apache/incubator-devlake/server/services.runTaskStandalone | | /app/server/services/task_runner.go:113 | | github.com/apache/incubator-devlake/server/services.RunTasksStandalone.func1 | | /app/server/services/task.go:187 | | runtime.goexit | | /usr/local/go/src/runtime/asm_amd64.s:1598 | Wraps: (8) git cmd [git fetch --depth=1 origin -c http.sslVerify=false] in /tmp/gitextractor2334407235 failed: error: unknown switch `c' | | usage: git fetch [<options>] [<repository> [<refspec>...]] | | or: git fetch [<options>] <group> | | or: git fetch --multiple [<options>] [(<repository> | <group>)...] | | or: git fetch --all [<options>] | | | | -v, --verbose be more verbose | | -q, --quiet be more quiet | | --all fetch from all remotes | | --set-upstream set upstream for git pull/fetch | | -a, --append append to .git/FETCH_HEAD instead of overwriting | | --upload-pack <path> path to upload pack on remote end | | -f, --force force overwrite of local reference | | -m, --multiple fetch from multiple remotes | | -t, --tags fetch all tags and associated objects | | -n do not fetch all tags (--no-tags) | | -j, --jobs <n> number of submodules fetched in parallel | | -p, --prune prune remote-tracking branches no longer on remote | | -P, --prune-tags prune local tags no longer on remote and clobber changed tags | | --recurse-submodules[=<on-demand>] | | control recursive fetching of submodules | | --dry-run dry run | | --write-fetch-head write fetched references to the FETCH_HEAD file | | -k, --keep keep downloaded pack | | -u, --update-head-ok allow updating of HEAD ref | | --progress force progress reporting | | --depth <depth> deepen history of shallow clone | | --shallow-since <time> | | deepen history of shallow repository based on time | | --shallow-exclude <revision> | | deepen history of shallow clone, excluding rev | | --deepen <n> deepen history of shallow clone | | --unshallow convert to a complete repository | | --update-shallow accept refs that update .git/shallow | | --refmap <refmap> specify fetch refmap | | -o, --server-option <server-specific> | | option to transmit | | -4, --ipv4 use IPv4 addresses only | | -6, --ipv6 use IPv6 addresses only | | --negotiation-tip <revision> | | report that we have only objects reachable from this object | | --filter <args> object filtering | | --auto-maintenance run 'maintenance --auto' after fetching | | --auto-gc run 'maintenance --auto' after fetching | | --show-forced-updates | | check for forced-updates on all updated branches | | --write-commit-graph write the commit-graph after fetching | | --stdin accept refspecs from stdin | Error types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.withPrefix (5) *withstack.withStack (6) *errutil.withPrefix (7) *withstack.withStack (8) *errutil.leafError Error types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.leafError`
+
+### What do you expect to happen
+
+Extract of git info should be successful.  
+
+### How to reproduce
+
+Move from beta4 to beta5
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.1-beta5@ebddfe3
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/plugins,severity/p0",,36191570,Capone1983,5844806,d4x1,0,1606,https://github.com/apache/incubator-devlake/issues/7842,2024-08-07T11:42:53.000+00:00,2024-08-06T08:56:52.000+00:00,2024-08-07T13:27:03.000+00:00,,
+1,2450949251,384111310,7851,CLOSED,[Bug][Github] Pull Requests not being updated,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+I'm having some issues with getting Pull Requests using Github datasource. There are pull requests that aren't being updated completely. I noticed this when PRs that were already merged still didn't have the `merged_date` and `closed_date` fields filled in and the `status` was still OPEN.
+I already have tried using the blueprint in advanced and default mode.
+I'm using GraphQL Github api.
+
+**EDIT:**
+All the pull requests were updated only when I run a collect data in Full Refresh mode
+
+
+### What do you expect to happen
+
+All Pull Requests being successfully updated
+
+### How to reproduce
+
+Create a blueprint on normal or advanced mode and check for next executions if all the pull requests are being updated.
+
+### Anything else
+
+Part of the logs of the stage
+```
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [api async client] creating scheduler for api \""https://api.github.com/\"", number of workers: 20, 14500 reqs / 1h0m0s (interval: 248.275862ms)""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] github graphql init success with remaining 12500/12500 and will reset at 2024-08-01 13:32:19 +0000 UTC""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] total step: 17""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] executing subtask Collect Pull Requests""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Pull Requests] start graphql collection""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Pull Requests] get data from _raw_github_graphql_prs where params={\""ConnectionId\"":1,\""Name\"":\""XXX\""} and got 39""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Pull Requests] existing data parser return ErrFinishCollect, but skip. rawId: #1""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Pull Requests] finished records: 1""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Pull Requests] existing data parser return ErrFinishCollect, but skip. rawId: #2""
+time=""2024-08-01 12:32:19"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Pull Requests] existing data parser return ErrFinishCollect, but skip. rawId: #3""
+time=""2024-08-01 12:32:20"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Pull Requests] collector finish by parser, rawId: #25942""
+time=""2024-08-01 12:32:20"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Pull Requests] ended api collection without error""
+time=""2024-08-01 12:32:20"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] finished step: 1 / 17""
+time=""2024-08-01 12:32:20"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] executing subtask Extract Pull Requests""
+time=""2024-08-01 12:32:20"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Extract Pull Requests] get data from _raw_github_graphql_prs where params={\""ConnectionId\"":1,\""Name\"":\""XXX\""} and got 40""
+time=""2024-08-01 12:32:21"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Extract Pull Requests] finished records: 1""
+time=""2024-08-01 12:32:21"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] finished step: 2 / 17""
+time=""2024-08-01 12:32:21"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] executing subtask Collect Users""
+time=""2024-08-01 12:32:21"" level=info msg="" [pipeline service] [pipeline #36] [task #3456] [Collect Users] start graphql collection""
+```
+
+### Version
+
+v1.0.1-beta5
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/plugins,pr-type/bug-fix,severity/p1",,19962665,caioq,61080,klesh,0,11280,https://github.com/apache/incubator-devlake/issues/7851,2024-08-14T09:51:56.000+00:00,2024-08-06T13:51:19.000+00:00,2024-08-14T09:51:56.000+00:00,,
+1,2451564947,384111310,7852,CLOSED,[Bug][Sonarcube] Data too long for column 'component' at row 12 ,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+SonarCube scan fails the pipeline scan of a project.
+
+`attached stack trace -- stack trace: | github.com/apache/incubator-devlake/server/services.runPipeline | /app/server/services/pipeline_runner.go:79 | [...repeated from below...] Wraps: (2) Error running pipeline 14. Wraps: (3) attached stack trace -- stack trace: | github.com/apache/incubator-devlake/server/services.RunTasksStandalone | /app/server/services/task.go:217 | github.com/apache/incubator-devlake/server/services.(*pipelineRunner).runPipelineStandalone.func1 | /app/server/services/pipeline_runner.go:42 | github.com/apache/incubator-devlake/core/runner.runPipelineTasks | /app/core/runner/run_pipeline.go:90 | github.com/apache/incubator-devlake/core/runner.RunPipeline | /app/core/runner/run_pipeline.go:54 | github.com/apache/incubator-devlake/server/services.(*pipelineRunner).runPipelineStandalone | /app/server/services/pipeline_runner.go:38 | github.com/apache/incubator-devlake/server/services.runPipeline | /app/server/services/pipeline_runner.go:76 | github.com/apache/incubator-devlake/server/services.RunPipelineInQueue.func1 | /app/server/services/pipeline.go:347 | runtime.goexit | /usr/local/go/src/runtime/asm_amd64.s:1598 Wraps: (4) attached stack trace | -- stack trace: | | github.com/apache/incubator-devlake/server/services.RunTasksStandalone.func1 | | /app/server/services/task.go:189 | Wraps: (2) Error running task 870. | Wraps: (3) attached stack trace | -- stack trace: | | github.com/apache/incubator-devlake/core/runner.RunPluginSubTasks | | /app/core/runner/run_task.go:329 | | [...repeated from below...] | Wraps: (4) subtask convertIssueCodeBlocks ended unexpectedly | Wraps: (5) attached stack trace | -- stack trace: | | github.com/apache/incubator-devlake/impls/dalgorm.(*Dalgorm).convertGormError | | /app/impls/dalgorm/dalgorm.go:523 | | github.com/apache/incubator-devlake/impls/dalgorm.(*Dalgorm).CreateOrUpdate | | /app/impls/dalgorm/dalgorm.go:265 | | github.com/apache/incubator-devlake/helpers/pluginhelper/api.(*BatchSave).flushWithoutLocking | | /app/helpers/pluginhelper/api/batch_save.go:131 | | github.com/apache/incubator-devlake/helpers/pluginhelper/api.(*BatchSave).Close | | /app/helpers/pluginhelper/api/batch_save.go:147 | | github.com/apache/incubator-devlake/helpers/pluginhelper/api.(*BatchSaveDivider).Close | | /app/helpers/pluginhelper/api/batch_save_divider.go:102 | | github.com/apache/incubator-devlake/helpers/pluginhelper/api.(*DataConverter).Execute | | /app/helpers/pluginhelper/api/data_convertor.go:131 | | github.com/apache/incubator-devlake/plugins/sonarqube/tasks.ConvertIssueCodeBlocks | | /app/plugins/sonarqube/tasks/issue_code_blocks_convertor.go:77 | | github.com/apache/incubator-devlake/core/runner.runSubtask | | /app/core/runner/run_task.go:405 | | github.com/apache/incubator-devlake/core/runner.RunPluginSubTasks | | /app/core/runner/run_task.go:327 | | github.com/apache/incubator-devlake/core/runner.RunPluginTask | | /app/core/runner/run_task.go:163 | | github.com/apache/incubator-devlake/core/runner.RunTask | | /app/core/runner/run_task.go:137 | | github.com/apache/incubator-devlake/server/services.runTaskStandalone | | /app/server/services/task_runner.go:113 | | github.com/apache/incubator-devlake/server/services.RunTasksStandalone.func1 | | /app/server/services/task.go:187 | | runtime.goexit | | /usr/local/go/src/runtime/asm_amd64.s:1598 | Wraps: (6) Error 1406 (22001): Data too long for column 'component' at row 12 (500) | Wraps: (7) Error 1406 (22001): Data too long for column 'component' at row 12 | Error types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.withPrefix (5) *withstack.withStack (6) *errutil.withPrefix (7) *mysql.MySQLError Error types: (1) *withstack.withStack (2) *errutil.withPrefix (3) *withstack.withStack (4) *errutil.leafError`
+
+### What do you expect to happen
+
+Scan the project in Sonarcube
+
+### How to reproduce
+
+Install v1.0.1-beta4@483c93e 
+add sonarcube connection and have a project with large java folder structure. 
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.1-beta4@483c93e 
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,pr-type/bug-fix",,36191570,Capone1983,0,,0,11085,https://github.com/apache/incubator-devlake/issues/7852,2024-08-14T12:23:07.000+00:00,2024-08-06T19:37:59.000+00:00,2024-08-14T12:23:07.000+00:00,,
+1,2453152140,384111310,7862,OPEN,[Bug][Github] Table 'pull_request_assignees' & 'pull_request_reviewers' has no user data from Github,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Under Github dashboard thats provided in-built with Devlake Grafana, we have a requirement of creating panels which have PR assignee and PR reviewer data. However to create these panels, the reference tables 'pull_request_assignees' & 'pull_request_reviewers' has no user data in Devlake's MySQL DB. Can anybody check why this is and does Devlake fail to pull this data from Github ?
+
+### What do you expect to happen
+
+Assignee and Reviewer data should reflect in those respective tables in Devlake's MySQL DB so it can be used to create panel in Grafana
+
+### How to reproduce
+
+Login to Devlake MySQL DB
+Look for tables  'pull_request_assignees' & 'pull_request_reviewers' 
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.0@44f3dea
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,99123517,lokeshmandhare,5844806,d4x1,0,,https://github.com/apache/incubator-devlake/issues/7862,,2024-08-07T10:35:37.000+00:00,2024-08-13T12:27:12.000+00:00,,
+1,2453984480,384111310,7864,CLOSED,Question about RDS Devlake,"Hi I'm trying to connect a MySQL RDS instance to use as the database in my docker-compose file for Devlake. It is not able to work though, can you guide me through the full setup.",,type/question,,130409883,amokkapati,0,,0,7437,https://github.com/apache/incubator-devlake/issues/7864,2024-08-12T21:27:05.000+00:00,2024-08-07T17:29:58.000+00:00,2024-08-12T21:27:05.000+00:00,,
+1,2460376369,384111310,7873,CLOSED,[Question][DORA] About the logic of ‘Median Lead Time for Changes‘,"<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the ""License""); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an ""AS IS"" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+## Question
+I had some questions about this calculation logic when using devlake for DORA metrics calculations.  
+    https://devlake.apache.org/docs/Metrics/LeadTimeForChanges
+This document describes the calculation of 'Median Lead Time for Changes' using PR cycle time. However, the example only mentions the case where one PR corresponds to one deployment.  
+My question is if we have multiple PRs in one deployment, should all of them be calculated in Lead Time for Changes.  
+For example i have multiple PRs in one deployment:  PR1 (commit1,commit2), PR2 (commit3,commit4), PR3 (commit5)
+'Lead Time for Change' should calculate the time cover all **commit1.... ...commit5** or **Median(PR1,PR2,PR3 to deploy)**
+
+## Screenshots
+If applicable, add screenshots to help explain.
+
+## Additional context
+Add any other context here.
+",,"type/question,devops",,26057736,DevYoungHulk,0,,0,2463,https://github.com/apache/incubator-devlake/issues/7873,2024-08-14T01:42:12.000+00:00,2024-08-12T08:39:10.000+00:00,2024-08-14T01:42:12.000+00:00,,
+1,2461490602,384111310,7876,OPEN,[Feature][Azure DevOps Go] Add TFVC Repository Support in DevLake Plugin for Azure DevOps Go,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar feature requirement.
+
+
+### Use case
+
+As a DevOps engineer, I want to have the opportunity to add TFVC repositories in the DevLake plugin for Azure DevOps in order to calculate DORA metrics for my project.
+
+### Description
+
+Acceptance Criteria:
+- The DevLake plugin should support the integration of TFVC repositories from Azure DevOps.
+- The plugin should be able to extract relevant data from TFVC repositories to calculate DORA metrics
+- The integration process should be as seamless as the current Git repository integration, on how to configure and use TFVC repositories in the plugin.
+- The plugin should support multiple TFVC branches and correctly map the data to corresponding metrics.
+- Ensure compatibility with existing Azure DevOps API endpoints specific to TFVC.
+- Consider any differences in data structure or API interactions between Git and TFVC repositories.
+
+### Related issues
+
+_No response_
+
+### Are you willing to submit a PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/feature-request,component/plugins,improvement",,1582780,artrout,0,,0,,https://github.com/apache/incubator-devlake/issues/7876,,2024-08-12T16:59:39.000+00:00,2024-08-12T17:02:44.000+00:00,,
+1,2461925595,384111310,7877,CLOSED,[Question]Getting file info,"I'm trying to create a custom metric for GitHub relating to files that were updated during commits. I don't see any tables within my lake database that have information about files, I only see commit sha information. How do I access/group by file name?",,type/question,,130409883,amokkapati,0,,0,1154,https://github.com/apache/incubator-devlake/issues/7877,2024-08-13T16:43:08.000+00:00,2024-08-12T21:28:19.000+00:00,2024-08-13T16:43:08.000+00:00,,
+1,2462718935,384111310,7886,CLOSED,[Bug][TimeAfter] Bug title The timeAfter parameter in the DevLake sync API isn't functioning as expected.,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+The timeAfter parameter in the DevLake sync API isn't functioning as expected; it's using the time range configured in the config-ui instead.
+
+ex:
+
+```
+curl -X 'POST'   'http://localhost:4001/api/rest/blueprints/4/trigger'   -H 'accept: application/json'   -H 'Content-Type: application/json'   -H 'Authorization: Bearer <token>'   -d '{
+  ""fullSync"": true,
+  ""skipCollectors"": false,
+  ""skipOnFail"": false,
+  ""timeAfter"": ""2024-08-11T05:00:00Z""
+}'
+```
+
+### What do you expect to happen
+
+The timeAfter value provided in the API parameter should take precedence over the default timeRange in DevLake.
+
+### How to reproduce
+
+```
+curl -X 'POST' \
+  'http://localhost:4001/api/rest/blueprints/4/trigger' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer <token>' \
+  -d '{
+    ""fullSync"": true,
+    ""skipCollectors"": false,
+    ""skipOnFail"": false,
+    ""timeAfter"": ""2024-08-11T05:00:00Z""
+  }'
+```
+
+**Monitor the sync process and observe whether it respects the timeAfter parameter you provided.
+Verify if the sync is using the time range from the config-ui instead.**
+
+## Expected Behaviour
+**The sync process should respect the timeAfter parameter provided in the API call and use ""2024-08-11T05:00:00Z"" as the starting point.**
+
+## Actual Behavior
+**The sync process ignores the timeAfter parameter and uses the time range configured in the config-ui.**
+
+
+### Anything else
+
+_No response_
+
+### Version
+
+v0.17.0-beta2
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/config-ui,severity/p1",,157007124,SushmitaMahapatra23,5844806,d4x1,0,75,https://github.com/apache/incubator-devlake/issues/7886,2024-08-13T09:36:54.000+00:00,2024-08-13T08:21:43.000+00:00,2024-08-14T06:46:25.000+00:00,,
+1,2462789930,384111310,7887,OPEN,[Feature][Config UI] Support favorites in project list,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar feature requirement.
+
+
+### Use case
+
+I have many projects, and I cannot find my project quickly , so I want to pin some project at the top of the project list.
+A sperated favorite list may help too.
+
+### Description
+
+_No response_
+
+### Related issues
+
+_No response_
+
+### Are you willing to submit a PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/feature-request,component/config-ui,improvement",,5844806,d4x1,0,,0,,https://github.com/apache/incubator-devlake/issues/7887,,2024-08-13T08:56:22.000+00:00,2024-08-13T08:59:06.000+00:00,,
+1,2462873646,384111310,7889,OPEN,[Bug][CircleCI] Regex Matches Workflows but Fails to Match Jobs,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+When configuring the scope configuration, the regex works when matching on workflows, but it does not work for jobs.
+
+
+### What do you expect to happen
+
+It should collect data and show in DORA metrics. 
+
+### How to reproduce
+
+Go to - project - connections - scope config - transformations
+
+<img width=""966"" alt=""Screenshot 2024-08-13 at 11 25 16"" src=""https://github.com/user-attachments/assets/f5815d69-ea33-4c03-a2e5-9ab754266d1e"">
+
+
+Verify in _tool_circleci_jobs
+
+<img width=""1014"" alt=""Screenshot 2024-08-13 at 11 35 25"" src=""https://github.com/user-attachments/assets/8813fa0e-b915-4dc1-9d56-72cae63c3a47"">
+
+
+Verify in cicd_deployments 
+
+
+<img width=""858"" alt=""Screenshot 2024-08-13 at 11 20 40"" src=""https://github.com/user-attachments/assets/62008df2-bf46-4225-8225-2e8d71a18958"">
+
+
+### Anything else
+
+Waiting on Bug Fix Release: Merged but Not Yet Released
+
+https://github.com/apache/incubator-devlake/pull/7770
+
+### Version
+
+v1.0.1-beta6
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,devops,component/config-ui,severity/p1",,64405806,MattiasSvenssonQred,0,,0,,https://github.com/apache/incubator-devlake/issues/7889,,2024-08-13T09:33:25.000+00:00,2024-08-16T15:08:57.000+00:00,,
+1,2463328667,384111310,7891,OPEN,[Feature][Webhook] Allow cleanup for (deployment/incident) data collected by a webhook,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar feature requirement.
+
+
+### Use case
+
+In ""Full Refresh Mode,"" all previously collected data is removed to facilitate a fresh start. However it doesn't remove deployment/incident data collected by a webhook linked to a project. Users need a way to reset those data without deleting the webhook or the project itself. It might be necessary in different cases: If there is some data inconsistency after a migration/upgrade or if for any reason project should be reset totally.
+
+### Description
+
+This feature should enable users to clean up all data associated with a specific webhook. The feature must accept the webhook ID as input and remove all related entries in the database. This feature should be accessible from the GUI, allowing users to easily initiate the cleanup process without needing to interact with the backend directly.
+
+Based on my research, the data generated by a webhook is stored in the following tables and can be filtered for a given webhook by using the queries described below:
+
+- cicd_deployments:` SELECT * FROM cicd_deployments WHERE id LIKE 'webhook%'`
+- cicd_deployment_commits: `SELECT * FROM cicd_deployment_commits WHERE id LIKE 'webhook%'`
+- project_pr_metrics: `SELECT *  FROM project_pr_metrics WHERE deployment_commit_id LIKE 'webhook%'`
+
+Please note that this list may not be exhaustive, as I do not have full visibility into the project's internals. Additional steps may be required to ensure a complete cleanup process.
+
+Adding an option to selectively clean up only deployments or incidents, providing users with more control over the data they wish to remove can be considered also.
+
+### Related issues
+
+_No response_
+
+### Are you willing to submit a PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/feature-request,improvement",,45147385,beratio,5844806,d4x1,0,,https://github.com/apache/incubator-devlake/issues/7891,,2024-08-13T13:14:48.000+00:00,2024-08-14T07:20:21.000+00:00,,
+1,2463784924,384111310,7892,CLOSED,[Question] Including the gitextractor and customize plugin in new GHE blueprint,How would I format a blueprint file so that it include both of these plugins to collect filenames from GHE commits?,,type/question,,130409883,amokkapati,0,,0,203,https://github.com/apache/incubator-devlake/issues/7892,2024-08-13T20:07:48.000+00:00,2024-08-13T16:44:08.000+00:00,2024-08-13T20:07:48.000+00:00,,
+1,2464134719,384111310,7893,OPEN,[Question]How do I modify this so that it records file names that were updated during git commits/pull requests,"[
+  [
+    {
+      ""plugin"": ""org"",
+      ""subtasks"": [
+        ""setProjectMapping""
+      ],
+      ""options"": {
+        ""projectMappings"": [
+          {
+            ""projectName"": ""GHEDev"",
+            ""scopes"": [
+              {
+                ""rowId"": ""github:GithubRepo:1:7345"",
+                ""table"": ""repos""
+              },
+              {
+                ""rowId"": ""github:GithubRepo:1:7345"",
+                ""table"": ""cicd_scopes""
+              },
+              {
+                ""rowId"": ""github:GithubRepo:1:7345"",
+                ""table"": ""boards""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      ""plugin"": ""github"",
+      ""subtasks"": [
+        ""Convert Releases"",
+        ""Convert Repos"",
+        ""Extract Comments"",
+        ""Extract Events"",
+        ""Extract Issues"",
+        ""Extract Milestones"",
+        ""Extract PR Review Comments"",
+        ""Extract Pull Requests"",
+        ""Extract Users"",
+        ""Extract Workflow Runs"",
+        ""Convert Issue Assignees"",
+        ""Convert Issue Comments"",
+        ""Convert Issue Labels"",
+        ""Convert Issues"",
+        ""Convert Milestones"",
+        ""Convert PR Labels"",
+        ""Convert Pull Requests"",
+        ""Convert Workflow Runs"",
+        ""Enrich PR Issues"",
+        ""Convert PR Issues"",
+        ""Extract Jobs"",
+        ""Extract PR Commits"",
+        ""Extract PR Reviews"",
+        ""Convert Jobs"",
+        ""Convert PR Comments"",
+        ""Convert PR Commits"",
+        ""Convert PR Reviews"",
+        ""Extract User Org"",
+        ""Convert Users""
+      ],
+      ""options"": {
+        ""connectionId"": 1,
+        ""fullName"": ""INFServices/terraform-base"",
+        ""githubId"": 7345,
+        ""name"": ""INFServices/terraform-base""
+      }
+    },
+    {
+      ""plugin"": ""dora"",
+      ""subtasks"": [
+        ""generateDeployments"",
+        ""generateDeploymentCommits"",
+        ""enrichPrevSuccessDeploymentCommits""
+      ],
+      ""options"": {
+        ""projectName"": ""GHEDev""
+      }
+    },
+    {
+      ""plugin"": ""refdiff"",
+      ""subtasks"": [
+        ""calculateDeploymentCommitsDiff""
+      ],
+      ""options"": {
+        ""projectName"": ""GHEDev""
+      }
+    },
+    {
+      ""plugin"": ""dora"",
+      ""subtasks"": [
+        ""calculateChangeLeadTime"",
+        ""ConnectIncidentToDeployment""
+      ],
+      ""options"": {
+        ""projectName"": ""GHEDev""
+      }
+    }
+  ]
+]",,"type/question,component/plugins",,130409883,amokkapati,0,,0,,https://github.com/apache/incubator-devlake/issues/7893,,2024-08-13T20:09:56.000+00:00,2024-08-13T22:28:39.000+00:00,,
+1,2465211348,384111310,7896,OPEN,[Bug][Framework] fields are empty in table `_devlake_subtasks`,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+I want to statisticize the subtasks' time cost from table `_devlake_subtasks`.
+
+
+
+
+
+### What do you expect to happen
+
+I found some subtasks' fields are empty or null.
+
+![image](https://github.com/user-attachments/assets/933d5a32-dcba-4b44-842e-6b9222674e4f)
+
+### How to reproduce
+
+run sql `select * FROM _devlake_subtasks where began_at is null  order by number asc LIMIT  100`.
+
+### Anything else
+
+_No response_
+
+### Version
+
+main
+
+### Are you willing to submit PR?
+
+- [X] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/framework,severity/p1",,5844806,d4x1,101256042,abeizn,0,,https://github.com/apache/incubator-devlake/issues/7896,,2024-08-14T08:26:35.000+00:00,2024-08-15T07:11:41.000+00:00,,
+1,2466809175,384111310,7899,OPEN,[Bug][Grafana] Monthly Deployment SQL Filter,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+I filtered on the ""Last 2 days"" drop down in the Grafana dashboard and didn't see any metrics related to my application.
+
+### What do you expect to happen
+
+I would expect to see metrics related to my application regardless of the time frame selected.
+
+### How to reproduce
+
+1. Make one or more commits in a new month
+2. Wait at least three days into the month
+3. Select the ""Last 2 days"" filter in the Grafana dashboard
+
+Important: The last two days should not overlap the beginning or end of a month. Make sure the ""Last 2 days"" are in the middle of the month.
+
+### Anything else
+
+I'm not sure if this is a bug or a design decision.
+
+The SQL query appears to use the `BETWEEN` keyword in place of the `$__timeFilter` function. This results in the query looking something like this:
+
+```sql
+SELECT 
+	cm.month, 
+	case when d.deployment_count is null then 0 else d.deployment_count end as deployment_count
+FROM 
+	calendar_months cm
+	LEFT JOIN _deployments d on cm.month = d.month
+	WHERE cm.month_timestamp BETWEEN '2024-07-09T15:15:33.784Z' AND '2024-07-11T15:15:33.784Z'
+	ORDER BY cm.month;
+```
+
+The `calendar_months` table appears to be truncating the `month_timestamp` column, so the `WHERE` clause doesn't catch anything.
+
+Here's the full SQL query:
+
+```sql
+-- Metric 1: Number of deployments per month
+with
+  _deployments as (
+    -- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.
+    SELECT
+      date_format(deployment_finished_date, '%y/%m') as month,
+      count(cicd_deployment_id) as deployment_count
+    FROM
+      (
+        SELECT
+          cdc.cicd_deployment_id,
+          max(cdc.finished_date) as deployment_finished_date
+        FROM
+          cicd_deployment_commits cdc
+          JOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id
+          and pm.`table` = 'cicd_scopes'
+        WHERE
+          pm.project_name in ($project)
+          and cdc.result = 'SUCCESS'
+          and cdc.environment = 'PRODUCTION'
+        GROUP BY
+          1
+        HAVING
+          $__timeFilter (max(cdc.finished_date))
+      ) _production_deployments
+    GROUP BY
+      1
+  )
+SELECT
+  cm.month,
+  case
+    when d.deployment_count is null then 0
+    else d.deployment_count
+  end as deployment_count
+FROM
+  calendar_months cm
+  LEFT JOIN _deployments d on cm.month = d.month
+WHERE
+  $__timeFilter (cm.month_timestamp)
+```
+
+### Version
+
+v0.19.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,38387673,jeffschaper,0,,0,,https://github.com/apache/incubator-devlake/issues/7899,,2024-08-14T20:54:23.000+00:00,2024-08-14T20:59:46.000+00:00,,
+1,2469538845,384111310,7908,OPEN,Unable to access config-ui after resetting the admin password in Grafana,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+I installed using the docker-compose.yaml file hosted in github. I forgot my admin password to login to grafana. I logged into the grafana docker container and used the grafana-cli to reset the admin password. When I tried to access http://localhost:4000, I get a sign-in dialog. I tried entering the admin credentials, but the dialog doesn't go away. I was expecting to see the config-ui. I am able to login as admin to grafana from http://localhost:4000/grafana url, but I am no longer able to access to config-ui.
+
+### What do you expect to happen
+
+I expected to see the config-ui from which I could access or create the connections. Instead I see a signin dialog.
+
+### How to reproduce
+
+SSH to the grafana docker container:
+```docker exec -it devlake-grafana-1 /bin/bash```
+
+Execute the following command:
+```grafana-cli admin reset-admin-password admin```
+
+After that navigate to http://localhost:4000 and I see a signin dialog instead of the config-ui. Try entering the admin credentials and the dialog comes back. Try accessing http://localhost:4000/projects or http://localhost:4000/blueprints and the same dialog comes back.
+
+### Anything else
+
+_No response_
+
+### Version
+
+v1.0.0
+
+### Are you willing to submit PR?
+
+- [ ] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,component/config-ui,severity/p0",,8757490,adityai,0,,0,,https://github.com/apache/incubator-devlake/issues/7908,,2024-08-16T05:51:25.000+00:00,2024-08-16T05:54:10.000+00:00,,
+1,2472462635,384111310,7911,OPEN,[Bug][jira] field_id is empty in issue_changelogs,"### Search before asking
+
+- [X] I had searched in the [issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue) and found no similar issues.
+
+
+### What happened
+
+Jira plugin's issue_changelog_convertor doesn't fill `field_id`
+
+### What do you expect to happen
+
+fill `field_id` value
+
+### How to reproduce
+
+Check the data in `issue_changelogs` table
+
+### Anything else
+
+_No response_
+
+### Version
+
+5de490899c39b6a7e468d5ec6390b20de5e1e5b9
+
+### Are you willing to submit PR?
+
+- [X] Yes I am willing to submit a PR!
+
+### Code of Conduct
+
+- [X] I agree to follow this project's [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
+",,"type/bug,severity/p1",,24732569,usharerose,0,,0,,https://github.com/apache/incubator-devlake/issues/7911,,2024-08-19T05:01:57.000+00:00,2024-08-19T05:04:58.000+00:00,,
+1,2472720305,384111310,7915,OPEN,[Question][Module Name] Question title,"[2024/08/19 08:01:45] [main.go:54] invalid configuration:
+  missing setting: cookie-secret
+  provider missing setting: client-id
+  missing setting: client-secret or client-secret-file
+  missing setting for email validation: email-domain or authenticated-emails-file required.
+      use email-domain=* to authorize all email addresses",,type/question,,30136869,zhangshenghai,0,,0,,https://github.com/apache/incubator-devlake/issues/7915,,2024-08-19T08:04:05.000+00:00,2024-08-19T08:05:57.000+00:00,,

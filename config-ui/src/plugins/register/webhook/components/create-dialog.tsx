@@ -22,7 +22,7 @@ import { Modal, Input } from 'antd';
 
 import { useAppDispatch } from '@/hooks';
 import { Block, CopyText, ExternalLink } from '@/components';
-import { addWebhook } from '@/features';
+import { addWebhook } from '@/features/connections';
 import { operator } from '@/utils';
 
 import { transformURI } from './utils';

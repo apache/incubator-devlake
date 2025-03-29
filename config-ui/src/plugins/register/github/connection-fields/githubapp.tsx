@@ -139,12 +139,13 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
 
   return (
     <Block
-      title="Github App settings"
+      title="GitHub App Settings"
       description={
         <>
-          Input information about your Github App{' '}
+          GitHub App token expires every hour. To collect large resposities, please choose the GitHub Access Token to
+          authenticate.{' '}
           <ExternalLink link="https://docs.github.com/en/apps/maintaining-github-apps/modifying-a-github-app-registration#navigating-to-your-github-app-settings">
-            Learn how to create a github app
+            Learn how to create a GitHub App
           </ExternalLink>
         </>
       }

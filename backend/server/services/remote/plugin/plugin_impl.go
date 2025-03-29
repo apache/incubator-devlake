@@ -230,6 +230,11 @@ func (p *remotePluginImpl) ApiResources() map[string]map[string]plugin.ApiResour
 	return p.resources
 }
 
+func (p *remotePluginImpl) TestConnection(id uint64) errors.Error {
+	_, err := p.resources["connections/:connectionId/test"]["POST"](api.GenerateTestingConnectionApiResourceInput(id))
+	return err
+}
+
 func (p *remotePluginImpl) OpenApiSpec() string {
 	return p.openApiSpec
 }

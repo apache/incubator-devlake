@@ -60,12 +60,21 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciWorkflow)
+<<<<<<< HEAD
+			// Skip if CreatedDate is null or empty string - still enters into the `_tool_circleci_workflows` table with null values
+			if userTool.CreatedDate.ToNullableTime() == nil {
+				logger.Info("CreatedDate is null or empty string in the CircleCI API response for %s", userTool.PipelineId)
+				return []interface{}{}, nil
+			}
+			createdAt := userTool.CreatedDate.ToTime()
+=======
 			// Skip if CreatedAt is null or empty string - still enters into the `_tool_circleci_workflows` table with null values
 			if userTool.CreatedAt.ToNullableTime() == nil {
 				logger.Info("CreatedAt is null or empty string in the CircleCI API response for %s", userTool.PipelineId)
 				return []interface{}{}, nil
 			}
 			createdAt := userTool.CreatedAt.ToTime()
+>>>>>>> main
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getWorkflowIdGen().Generate(data.Options.ConnectionId, userTool.Id),
@@ -75,7 +84,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  &createdAt,
-					FinishedDate: userTool.StoppedAt.ToNullableTime(),
+					FinishedDate: userTool.StoppedDate.ToNullableTime(),
 				},
 				CicdScopeId: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
 				// reference: https://circleci.com/docs/api/v2/index.html#operation/getWorkflowById
@@ -89,9 +98,11 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
 					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
-				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
-				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
 				DisplayTitle: fmt.Sprintf("%s#%d", userTool.Name, userTool.PipelineNumber),
+			}
+			if data.Options.ScopeConfig.DeploymentPattern != nil || data.Options.ScopeConfig.ProductionPattern != nil {
+				pipeline.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name)
+				pipeline.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name)
 			}
 			result := make([]interface{}, 0, 2)
 			result = append(result, pipeline)

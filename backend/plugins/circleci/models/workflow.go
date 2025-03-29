@@ -33,8 +33,8 @@ type CircleciWorkflow struct {
 	Status         string              `gorm:"type:varchar(100)" json:"status"`
 	StartedBy      string              `gorm:"type:varchar(100)" json:"started_by"`
 	PipelineNumber int64               `json:"pipeline_number"`
-	CreatedAt      *common.Iso8601Time `json:"created_at"`
-	StoppedAt      *common.Iso8601Time `json:"stopped_at"`
+	CreatedDate    *common.Iso8601Time `json:"created_at"`
+	StoppedDate    *common.Iso8601Time `json:"stopped_at"`
 	DurationSec    float64             `json:"duration_sec"`
 
 	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`

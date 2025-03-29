@@ -63,6 +63,7 @@ func (p Webhook) GetTablesInfo() []dal.Tabler {
 func (p Webhook) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	_ []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
 	return api.MakeDataSourcePipelinePlanV200(connectionId)
 }
@@ -74,6 +75,10 @@ func (p Webhook) RootPkgPath() string {
 
 func (p Webhook) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Webhook) TestConnection(id uint64) errors.Error {
+	return nil
 }
 
 func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

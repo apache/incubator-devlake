@@ -72,6 +72,7 @@ type DataSourcePluginBlueprintV200 interface {
 	MakeDataSourcePipelinePlanV200(
 		connectionId uint64,
 		scopes []*models.BlueprintScope,
+		skipCollectors bool,
 	) (models.PipelinePlan, []Scope, errors.Error)
 }
 
@@ -90,6 +91,16 @@ type MetricPluginBlueprintV200 interface {
 // ProjectMapper is implemented by the plugin org, which binding project and scopes
 type ProjectMapper interface {
 	MapProject(projectName string, scopes []Scope) (models.PipelinePlan, errors.Error)
+}
+
+type ProjectTokenCheckerConnection struct {
+	PluginName   string
+	ConnectionId uint64
+}
+
+// ProjectTokenChecker is implemented by the plugin org, which generate a task tp check all connection's tokens
+type ProjectTokenChecker interface {
+	MakePipeline(skipCollectors bool, projectName string, scopes []ProjectTokenCheckerConnection) (models.PipelinePlan, errors.Error)
 }
 
 // CompositeDataSourcePluginBlueprintV200 is for unit test

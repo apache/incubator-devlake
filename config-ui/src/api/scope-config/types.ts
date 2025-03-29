@@ -22,3 +22,8 @@ export type ICheck = {
     name: string;
   }>;
 };
+
+export type ITransform2deployments = {
+  name: string;
+  url: string;
+};

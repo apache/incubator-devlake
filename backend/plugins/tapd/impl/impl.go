@@ -105,6 +105,7 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 		&models.TapdBugCustomFieldValue{},
 		&models.TapdScopeConfig{},
 		&models.TapdWorkitemType{},
+		&models.TapdLifeTime{},
 	}
 }
 
@@ -181,6 +182,8 @@ func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.EnrichStoryCustomFieldMeta,
 		tasks.EnrichBugCustomFieldMeta,
 		tasks.EnrichTaskCustomFieldMeta,
+		tasks.CollectLifeTimesMeta,
+		tasks.ExtractLifeTimesMeta,
 	}
 }
 
@@ -204,9 +207,14 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	if connection.RateLimitPerHour == 0 {
 		connection.RateLimitPerHour = 3600
 	}
-	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to create tapd api client")
+	var apiClient *helper.ApiAsyncClient
+	syncPolicy := taskCtx.SyncPolicy()
+	if !syncPolicy.SkipCollectors {
+		tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "failed to create tapd api client")
+		}
+		apiClient = tapdApiClient
 	}
 
 	if op.WorkspaceId != 0 {
@@ -238,7 +246,7 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	op.CstZone = cstZone
 	taskData := &tasks.TapdTaskData{
 		Options:    op,
-		ApiClient:  tapdApiClient,
+		ApiClient:  apiClient,
 		Connection: connection,
 	}
 	return taskData, nil
@@ -247,8 +255,9 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 func (p Tapd) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
+	skipCollectors bool,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, skipCollectors)
 }
 
 func (p Tapd) RootPkgPath() string {
@@ -257,6 +266,11 @@ func (p Tapd) RootPkgPath() string {
 
 func (p Tapd) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (p Tapd) TestConnection(id uint64) errors.Error {
+	_, err := api.TestExistingConnection(helper.GenerateTestingConnectionApiResourceInput(id))
+	return err
 }
 
 func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -314,6 +328,8 @@ func (p Tapd) Close(taskCtx plugin.TaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
-	data.ApiClient.Release()
+	if data != nil && data.ApiClient != nil {
+		data.ApiClient.Release()
+	}
 	return nil
 }

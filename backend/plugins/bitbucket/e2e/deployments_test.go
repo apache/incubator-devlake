@@ -31,14 +31,15 @@ import (
 func TestDeloymentsDataFlow(t *testing.T) {
 	var bitbucket impl.Bitbucket
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", bitbucket)
-
+	dPattern := ""
+	pPattern := ""
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
 			FullName:     "likyh/likyhphp",
 			BitbucketScopeConfig: &models.BitbucketScopeConfig{
-				DeploymentPattern: "",
-				ProductionPattern: "",
+				DeploymentPattern: &dPattern,
+				ProductionPattern: &pPattern,
 			},
 		},
 	}

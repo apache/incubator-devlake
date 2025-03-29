@@ -36,6 +36,10 @@ class Stream:
         return [self.collector, self.extractor, self.convertor]
 
     @property
+    def subtasks_without_collector(self):
+        return [self.extractor, self.convertor]
+
+    @property
     def name(self):
         return type(self).__name__.lower()
 
