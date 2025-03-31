@@ -77,3 +77,4 @@ notifications:
   commits: commits@devlake.apache.org
   issues:  dev@devlake.apache.org
   pullrequests: commits@devlake.apache.org
+  discussions: dev@devlake.apache.org
