@@ -35,5 +35,6 @@ func All() []plugin.MigrationScript {
 		new(addConnIdToLabels),
 		new(addCompanyIdToConnection),
 		new(updateScopeConfig20250305),
+		new(addLifetimeTables),
 	}
 }
