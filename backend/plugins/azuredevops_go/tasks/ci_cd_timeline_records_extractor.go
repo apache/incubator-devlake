@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -67,7 +68,7 @@ func ExtractApiTimelineTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				BuildId:      input.AzuredevopsId,
 				ParentId:     recordApi.ParentId,
 				Type:         "",
-				Name:         recordApi.Name,
+				Name:         recordApi.Name[:255],
 				StartTime:    recordApi.StartTime,
 				FinishTime:   recordApi.FinishTime,
 				State:        recordApi.State,
