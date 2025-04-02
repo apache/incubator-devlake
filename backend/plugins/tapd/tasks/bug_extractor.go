@@ -20,12 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractBugs
@@ -48,6 +51,11 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	customStatusMap := getStatusMapping(data)
 	stdTypeMappings := getStdTypeMappings(data)
+	// get due date field
+	dueDateField := "due"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.BugDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.BugDueDateField
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -60,7 +68,10 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := bugBody.Bug
-
+			err = errors.Convert(toolL.SetAllFields(row.Data))
+			if err != nil {
+				return nil, err
+			}
 			toolL.Status = statusLanguageMap[toolL.Status]
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "BUG"
@@ -77,6 +88,8 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 			if strings.Contains(toolL.CurrentOwner, ";") {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}
+			loc, _ := time.LoadLocation("Asia/Shanghai")
+			toolL.DueDate, _ = utils.GetTimeFieldFromMap(toolL.AllFields, dueDateField, loc)
 			workSpaceBug := &models.TapdWorkSpaceBug{
 				ConnectionId: data.Options.ConnectionId,
 				WorkspaceId:  toolL.WorkspaceId,

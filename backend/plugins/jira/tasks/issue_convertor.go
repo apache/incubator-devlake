@@ -41,6 +41,7 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 }
 
 func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	logger := subtaskCtx.GetLogger()
 	data := subtaskCtx.GetData().(*JiraTaskData)
 	db := subtaskCtx.GetDal()
 	mappings, err := getTypeMappings(data, db)
@@ -119,9 +120,11 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 				UpdatedDate:             &jiraIssue.Updated,
 				LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
 				TimeSpentMinutes:        jiraIssue.SpentMinutes,
+				TimeRemainingMinutes:    &jiraIssue.RemainingEstimateMinutes,
 				OriginalProject:         jiraIssue.ProjectName,
 				Component:               jiraIssue.Components,
 				IsSubtask:               jiraIssue.Subtask,
+				DueDate:                 jiraIssue.DueDate,
 			}
 			if jiraIssue.CreatorAccountId != "" {
 				issue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId)
@@ -161,6 +164,26 @@ func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 
 	if err != nil {
 		return err
+	}
+
+	if !converter.IsIncremental() {
+		logger.Debug("deleting outdated records for board_issues, issue_assignees and issues")
+		dalWhere := dal.Where("_raw_data_table in ? AND _raw_data_params = ?",
+			[]string{"_raw_jira_api_issues", "_raw_jira_api_epics"},
+			converter.GetRawDataParams(),
+		)
+		if err := db.Delete(ticket.Issue{}, dalWhere); err != nil {
+			logger.Error(err, "delete issues")
+			return err
+		}
+		if err := db.Delete(ticket.IssueAssignee{}, dalWhere); err != nil {
+			logger.Error(err, "delete issue_assignees")
+			return err
+		}
+		if err := db.Delete(ticket.BoardIssue{}, dalWhere); err != nil {
+			logger.Error(err, "delete board_issues")
+			return err
+		}
 	}
 
 	return converter.Execute()

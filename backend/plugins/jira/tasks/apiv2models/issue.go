@@ -136,7 +136,7 @@ type Issue struct {
 			Total    int `json:"total"`
 		} `json:"aggregateprogress"`
 		Environment interface{} `json:"environment"`
-		Duedate     interface{} `json:"duedate"`
+		Duedate     string      `json:"duedate"` // yyyy-MM-dd
 		Progress    struct {
 			Progress int `json:"progress"`
 			Total    int `json:"total"`
