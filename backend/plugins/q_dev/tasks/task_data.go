@@ -15,24 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package tasks
 
 import (
-	"encoding/json"
-
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-type AzuredevopsScopeConfig struct {
-	archived.ScopeConfig
-
-	ConnectionId      uint64
-	Name              string
-	DeploymentPattern string          `mapstructure:"deploymentPattern" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	ProductionPattern string          `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
-	Refdiff           json.RawMessage `gorm:"type:json"`
+type QDevApiParams struct {
+	ConnectionId uint64 `json:"connectionId"`
 }
 
-func (t AzuredevopsScopeConfig) TableName() string {
-	return "_tool_azuredevops_go_scope_configs"
+type QDevOptions struct {
+	ConnectionId uint64 `json:"connectionId"`
+	S3Prefix     string `json:"s3Prefix"`
 }
+
+type QDevTaskData struct {
+	Options  *QDevOptions
+	S3Client *QDevS3Client
+}
+
+type QDevS3Client struct {
+	S3     *s3.S3
+	Bucket string
+}
+
+func (client *QDevS3Client) Close() {
+	// S3客户端不需要特别关闭操作
+} 
