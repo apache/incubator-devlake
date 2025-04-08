@@ -42,6 +42,13 @@ var ExtractApiBuildRecordsMeta = plugin.SubTaskMeta{
 	},
 }
 
+func truncateString(s string, maxLength int) string {
+	if len(s) > maxLength {
+		return s[:maxLength]
+	}
+	return s
+}
+
 func ExtractApiTimelineTasks(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawTimelineRecordTable)
 
@@ -68,7 +75,7 @@ func ExtractApiTimelineTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				BuildId:      input.AzuredevopsId,
 				ParentId:     recordApi.ParentId,
 				Type:         "",
-				Name:         recordApi.Name[:255],
+				Name:         truncateString(recordApi.Name, 255),
 				StartTime:    recordApi.StartTime,
 				FinishTime:   recordApi.FinishTime,
 				State:        recordApi.State,
