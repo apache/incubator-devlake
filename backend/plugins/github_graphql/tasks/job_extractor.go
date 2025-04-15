@@ -51,50 +51,42 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_GRAPHQL_JOBS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			checkSuite := &GraphqlQueryCheckSuite{}
-			err := errors.Convert(json.Unmarshal(row.Data, checkSuite))
+			checkRun := &GraphqlQueryCheckRun{}
+			err := errors.Convert(json.Unmarshal(row.Data, checkRun))
 			if err != nil {
 				return nil, err
 			}
 			results := make([]interface{}, 0, 1)
-			for _, checkRun := range checkSuite.CheckSuite.CheckRuns.Nodes {
-				paramsBytes, err := json.Marshal(checkRun.Steps.Nodes)
-				if err != nil {
-					taskCtx.GetLogger().Error(err, `Marshal checkRun.Steps.Nodes fail and ignore`)
-				}
-				githubJob := &models.GithubJob{
-					ConnectionId: data.Options.ConnectionId,
-					RunID:        checkSuite.CheckSuite.WorkflowRun.DatabaseId,
-					RepoId:       data.Options.GithubId,
-					ID:           checkRun.DatabaseId,
-					NodeID:       checkRun.Id,
-					HTMLURL:      checkRun.DetailsUrl,
-					Status:       strings.ToUpper(checkRun.Status),
-					Conclusion:   strings.ToUpper(checkRun.Conclusion),
-					StartedAt:    checkRun.StartedAt,
-					CompletedAt:  checkRun.CompletedAt,
-					Name:         checkRun.Name,
-					Steps:        paramsBytes,
-					Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, checkRun.Name),
-					Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, checkRun.Name),
-					// these columns can not fill by graphql
-					//HeadSha:       ``,  // use _tool_github_runs
-					//RunURL:        ``,
-					//CheckRunURL:   ``,
-					//Labels:        ``, // not in use
-					//RunnerID:      ``, // not in use
-					//RunnerName:    ``, // not in use
-					//RunnerGroupID: ``, // not in use
-				}
-				results = append(results, githubJob)
-			}
-			return results, nil
 
+			paramsBytes, marshalError := json.Marshal(checkRun.Steps.Nodes)
+			err = errors.Convert(marshalError)
+			if err != nil {
+				taskCtx.GetLogger().Error(err, `Marshal checkRun.Steps.Nodes failed`)
+			}
+			githubJob := &models.GithubJob{
+				ConnectionId: data.Options.ConnectionId,
+				RunID:        checkRun.DatabaseId,
+				RepoId:       data.Options.GithubId,
+				ID:           checkRun.DatabaseId,
+				NodeID:       checkRun.Id,
+				HTMLURL:      checkRun.DetailsUrl,
+				Status:       strings.ToUpper(checkRun.Status),
+				Conclusion:   strings.ToUpper(checkRun.Conclusion),
+				StartedAt:    checkRun.StartedAt,
+				CompletedAt:  checkRun.CompletedAt,
+				Name:         checkRun.Name,
+				Steps:        paramsBytes,
+				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, checkRun.Name),
+				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, checkRun.Name),
+			}
+			results = append(results, githubJob)
+
+			return results, nil
 		},
 	})
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return extractor.Execute()
