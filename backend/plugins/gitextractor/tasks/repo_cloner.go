@@ -39,7 +39,7 @@ var CloneGitRepoMeta = plugin.SubTaskMeta{
 func CloneGitRepo(subTaskCtx plugin.SubTaskContext) errors.Error {
 	taskData, ok := subTaskCtx.GetData().(*parser.GitExtractorTaskData)
 	if !ok {
-		subTaskCtx.GetLogger().Error("git repo reference not found on context")
+		subTaskCtx.GetLogger().Error(nil, "git repo reference not found on context")
 		return errors.Default.New("git repo reference not found on context")
 	}
 	op := taskData.Options
