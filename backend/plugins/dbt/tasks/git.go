@@ -18,9 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"os"
+	"os/exec"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"os/exec"
 )
 
 func Git(taskCtx plugin.SubTaskContext) errors.Error {
