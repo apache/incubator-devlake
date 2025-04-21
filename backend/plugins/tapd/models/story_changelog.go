@@ -49,6 +49,9 @@ type TapdStoryChangelogItemRes struct {
 	ValueAfter        json.RawMessage `json:"value_after"`
 	IterationIdFrom   int64
 	IterationIdTo     int64
+	IsStepChange      bool   `json:"is_step_change"`
+	Step              string `json:"step"`
+	StepAlias         string `json:"step_alias"`
 	common.NoPKModel
 }
 

@@ -23,6 +23,7 @@ github:
     issues: true
     projects: false
     wiki: false
+    discussions: true
   labels:
     - user-friendly
     - open-source
@@ -61,16 +62,11 @@ github:
         dismiss_stale_reviews: true
         require_code_owner_reviews: false
         required_approving_review_count: 1
-    release-v0.11:
-      whatever: Just a placeholder to make it in protection
-    release-v0.12:
-      whatever: Just a placeholder to make it in protection
-    release-v0.13:
-      whatever: Just a placeholder to make it in protection
-    release-v0.14:
-      whatever: Just a placeholder to make it in protection
-    release-v0.15:
-      whatever: Just a placeholder to make it in protection
+    release-v0.11: {}
+    release-v0.12: {}
+    release-v0.13: {}
+    release-v0.14: {}
+    release-v0.15: {}
   # The triage role allows people to assign, edit, and close issues and pull requests,
   # without giving them write access to the code.
   collaborators:
@@ -81,3 +77,4 @@ notifications:
   commits: commits@devlake.apache.org
   issues:  dev@devlake.apache.org
   pullrequests: commits@devlake.apache.org
+  discussions: dev@devlake.apache.org

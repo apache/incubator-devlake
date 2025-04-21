@@ -20,12 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractTasks
@@ -50,6 +53,11 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}
 	stdTypeMappings := getStdTypeMappings(data)
+	// get due date field
+	dueDateField := "due"
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.TaskDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.TaskDueDateField
+	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -63,7 +71,10 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := taskBody.Task
-
+			err = errors.Convert(toolL.SetAllFields(row.Data))
+			if err != nil {
+				return nil, err
+			}
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "TASK"
 			toolL.StdType = stdTypeMappings[toolL.Type]
@@ -105,6 +116,8 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 					results = append(results, toolLIssueLabel)
 				}
 			}
+			loc, _ := time.LoadLocation("Asia/Shanghai")
+			toolL.DueDate, _ = utils.GetTimeFieldFromMap(toolL.AllFields, dueDateField, loc)
 			return results, nil
 		},
 	})
