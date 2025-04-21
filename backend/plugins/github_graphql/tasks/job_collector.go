@@ -55,36 +55,38 @@ type GraphqlQueryCheckSuite struct {
 				EndCursor   string `graphql:"endCursor"`
 				HasNextPage bool   `graphql:"hasNextPage"`
 			}
-			Nodes []struct {
-				Id          string
-				Name        string
-				DetailsUrl  string
-				DatabaseId  int
-				Status      string
-				StartedAt   *time.Time
-				Conclusion  string
-				CompletedAt *time.Time
-				//ExternalId   string
-				//Url          string
-				//Title        interface{}
-				//Text         interface{}
-				//Summary      interface{}
-
-				Steps struct {
-					TotalCount int
-					Nodes      []struct {
-						CompletedAt         *time.Time `json:"completed_at"`
-						Conclusion          string     `json:"conclusion"`
-						Name                string     `json:"name"`
-						Number              int        `json:"number"`
-						SecondsToCompletion int        `json:"seconds_to_completion"`
-						StartedAt           *time.Time `json:"started_at"`
-						Status              string     `json:"status"`
-					}
-				} `graphql:"steps(first: 50)"`
-			}
+			Nodes []GraphqlQueryCheckRun
 		} `graphql:"checkRuns(first: $pageSize, after: $skipCursor)"`
 	} `graphql:"... on CheckSuite"`
+}
+
+type GraphqlQueryCheckRun struct {
+	Id          string
+	Name        string
+	DetailsUrl  string
+	DatabaseId  int
+	Status      string
+	StartedAt   *time.Time
+	Conclusion  string
+	CompletedAt *time.Time
+	//ExternalId   string
+	//Url          string
+	//Title        interface{}
+	//Text         interface{}
+	//Summary      interface{}
+
+	Steps struct {
+		TotalCount int
+		Nodes      []struct {
+			CompletedAt         *time.Time `json:"completed_at"`
+			Conclusion          string     `json:"conclusion"`
+			Name                string     `json:"name"`
+			Number              int        `json:"number"`
+			SecondsToCompletion int        `json:"seconds_to_completion"`
+			StartedAt           *time.Time `json:"started_at"`
+			Status              string     `json:"status"`
+		}
+	} `graphql:"steps(first: 50)"`
 }
 
 type SimpleWorkflowRun struct {
