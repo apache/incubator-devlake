@@ -135,5 +135,6 @@ func All() []plugin.MigrationScript {
 		new(addIsChildToCicdPipeline),
 		new(addCqIssueImpacts),
 		new(addDueDateToIssues),
+		new(createQaTables),
 	}
 }
