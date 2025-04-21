@@ -76,6 +76,12 @@ export const PipelineTable = ({ loading, dataSource, pagination }: Props) => {
             align: 'center',
           },
           {
+            title: 'Blueprint Name',
+            dataIndex: 'name',
+            key: 'name',
+            align: 'center',
+          },
+          {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
