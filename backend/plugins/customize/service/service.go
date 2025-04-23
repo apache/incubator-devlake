@@ -156,6 +156,7 @@ func (s *Service) getCustomizedFields(table string) ([]models.CustomizedField, e
 // issue could exist in multiple boards, so we should only delete an old records when it doesn't belong to another board
 func (s *Service) ImportIssue(boardId string, file io.ReadCloser, incremental bool) errors.Error {
 	if !incremental {
+		// not delete accounts data since account may be referenced by others
 		err := s.dal.Delete(
 			&ticket.Issue{},
 			dal.Where("id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
@@ -262,22 +263,53 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 	}
 }
 
+// createOrUpdateAccount creates or updates an account based on the provided name.
+// It returns the account ID and an error if any occurred.
+func (s *Service) createOrUpdateAccount(accountName string, rawDataParams string) (string, errors.Error) {
+	if accountName == "" {
+		return "", nil // Return empty ID if name is empty, no error needed here.
+	}
+	now := time.Now()
+	accountId := fmt.Sprintf("csv:CsvAccount:0:%s", accountName)
+	account := &crossdomain.Account{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: accountId,
+			NoPKModel: common.NoPKModel{
+				RawDataOrigin: common.RawDataOrigin{
+					RawDataParams: rawDataParams,
+				},
+			},
+		},
+		FullName:    accountName,
+		UserName:    accountName,
+		CreatedDate: &now,
+	}
+	err := s.dal.CreateOrUpdate(account)
+	if err != nil {
+		return "", errors.Default.Wrap(err, fmt.Sprintf("failed to create or update account for %s", accountName))
+	}
+	return accountId, nil
+}
+
 // issueHandlerFactory returns a handler that save record into `issues`, `board_issues` and `issue_labels` table
 func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
 		var err errors.Error
 		var id string
-		if record["id"] == nil {
+		idValue, ok := record["id"]
+		if !ok || idValue == nil {
 			return errors.Default.New("record without id")
 		}
-		id, _ = record["id"].(string)
-		if id == "" {
-			return errors.Default.New("empty id")
+		id, ok = idValue.(string)
+		if !ok || id == "" {
+			return errors.Default.New("invalid or empty id")
 		}
-		if record["labels"] != nil {
-			labels, ok := record["labels"].(string)
+
+		// Handle labels
+		if labelsValue, ok := record["labels"]; ok && labelsValue != nil {
+			labels, ok := labelsValue.(string)
 			if !ok {
-				return errors.Default.New("labels is not string")
+				return errors.Default.New("labels field is not a string")
 			}
 			var issueLabels []*ticket.IssueLabel
 			appearedLabels := make(map[string]struct{}) // record the labels that have appeared
@@ -307,15 +339,66 @@ func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(rec
 				}
 			}
 		}
-		delete(record, "labels")
+		delete(record, "labels") // Remove labels from record map as it's handled
+
+		// Handle creator and assignee accounts
+		rawDataParamsValue, ok := record["_raw_data_params"]
+		if !ok {
+			// This should ideally not happen as it's set in importCSV, but good to check
+			return errors.Default.New("_raw_data_params missing from record")
+		}
+		rawDataParams, ok := rawDataParamsValue.(string)
+		if !ok {
+			return errors.Default.New("_raw_data_params is not a string")
+		}
+
+		// Handle creator
+		var creatorName string
+		if creatorNameValue, ok := record["creator_name"]; ok && creatorNameValue != nil {
+			creatorName, ok = creatorNameValue.(string)
+			if !ok {
+				return errors.Default.New("creator_name is not a string")
+			}
+		}
+		creatorId, err := s.createOrUpdateAccount(creatorName, rawDataParams)
+		if err != nil {
+			return err
+		}
+		if creatorId != "" {
+			record["creator_id"] = creatorId
+		}
+
+		// Handle assignee
+		var assigneeName string
+		if assigneeNameValue, ok := record["assignee_name"]; ok && assigneeNameValue != nil {
+			assigneeName, ok = assigneeNameValue.(string)
+			if !ok {
+				return errors.Default.New("assignee_name is not a string")
+			}
+		}
+		assigneeId, err := s.createOrUpdateAccount(assigneeName, rawDataParams)
+		if err != nil {
+			return err
+		}
+		if assigneeId != "" {
+			record["assignee_id"] = assigneeId
+		}
+
+		// Handle issues
 		err = s.dal.CreateWithMap(&ticket.Issue{}, record)
 		if err != nil {
 			return err
 		}
-		return s.dal.CreateOrUpdate(&ticket.BoardIssue{
+
+		// Handle board_issues
+		err = s.dal.CreateOrUpdate(&ticket.BoardIssue{
 			BoardId: boardId,
 			IssueId: id,
 		})
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 }
 
