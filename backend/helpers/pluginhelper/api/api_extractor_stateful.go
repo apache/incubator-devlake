@@ -124,7 +124,8 @@ func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error running DB query")
 	}
-	logger.Info("get data from %s where params=%s and got %d", table, params, count)
+	logger.Info("get data from %s where params=%s and got %d with clauses %+v", table, params, count, clauses)
+
 	defer cursor.Close()
 	// batch save divider
 	divider := NewBatchSaveDivider(extractor.SubTaskContext, extractor.GetBatchSize(), table, params)
@@ -182,6 +183,9 @@ func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 			}
 		}
 		extractor.IncProgress(1)
+	}
+	if err := cursor.Err(); err != nil {
+		return errors.Default.Wrap(err, "error occurred during database cursor iteration in StatefulApiExtractor")
 	}
 
 	// save the last batches
