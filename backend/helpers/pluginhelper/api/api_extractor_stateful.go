@@ -102,7 +102,9 @@ func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 	if !db.HasTable(table) {
 		return nil
 	}
+
 	clauses := []dal.Clause{
+		dal.Select("id"),
 		dal.From(table),
 		dal.Where("params = ?", params),
 		dal.Orderby("id ASC"),
@@ -116,17 +118,36 @@ func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 	}
 	clauses = append(clauses, dal.Where("created_at < ? ", extractor.GetUntil()))
 
+	// first get total count for progress tracking
 	count, err := db.Count(clauses...)
 	if err != nil {
-		return errors.Default.Wrap(err, "error getting count of clauses")
-	}
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return errors.Default.Wrap(err, "error running DB query")
+		return errors.Default.Wrap(err, "error getting count of records")
 	}
 	logger.Info("get data from %s where params=%s and got %d with clauses %+v", table, params, count, clauses)
 
+	// get cursor for IDs only
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return errors.Default.Wrap(err, "error running DB query for IDs")
+	}
 	defer cursor.Close()
+
+	// collect all IDs
+	var ids []uint64
+	for cursor.Next() {
+		var row struct {
+			ID uint64 `gorm:"column:id"`
+		}
+		err = db.Fetch(cursor, &row)
+		if err != nil {
+			return errors.Default.Wrap(err, "error fetching ID")
+		}
+		ids = append(ids, row.ID)
+	}
+	if err := cursor.Err(); err != nil {
+		return errors.Default.Wrap(err, "error during ID cursor iteration")
+	}
+
 	// batch save divider
 	divider := NewBatchSaveDivider(extractor.SubTaskContext, extractor.GetBatchSize(), table, params)
 	divider.SetIncrementalMode(extractor.IsIncremental())
@@ -134,17 +155,20 @@ func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 	// progress
 	extractor.SetProgress(0, -1)
 	ctx := extractor.GetContext()
-	// iterate all rows
-	for cursor.Next() {
+
+	// process each record individually by ID
+	for _, id := range ids {
 		select {
 		case <-ctx.Done():
 			return errors.Convert(ctx.Err())
 		default:
 		}
+
+		// load full record by ID
 		row := &RawData{}
-		err = db.Fetch(cursor, row)
+		err := db.First(row, dal.From(table), dal.Where("id = ?", id))
 		if err != nil {
-			return errors.Default.Wrap(err, "error fetching row")
+			return errors.Default.Wrap(err, "error loading full row by ID")
 		}
 
 		body := new(InputType)
@@ -164,6 +188,7 @@ func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 		if err != nil {
 			return errors.Default.Wrap(err, "error calling plugin Extract implementation")
 		}
+
 		for _, result := range results {
 			// get the batch operator for the specific type
 			batch, err := divider.ForType(reflect.TypeOf(result))
@@ -184,16 +209,13 @@ func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 		}
 		extractor.IncProgress(1)
 	}
-	if err := cursor.Err(); err != nil {
-		return errors.Default.Wrap(err, "error occurred during database cursor iteration in StatefulApiExtractor")
-	}
 
 	// save the last batches
 	err = divider.Close()
 	if err != nil {
 		return err
 	}
-	// save the incremantal state
+	// save the incremental state
 	return extractor.SubtaskStateManager.Close()
 }
 
