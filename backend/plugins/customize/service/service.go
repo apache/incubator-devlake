@@ -485,7 +485,7 @@ func (s *Service) qaTestCaseHandler(qaProjectId string) func(record map[string]i
 				apiCreateTimeStr, _ := getStringField(record, "api_create_time", false)
 				apiCreatorId, _ := getStringField(record, "api_creator_id", false)
 				apiCreateTime, _ := common.ConvertStringToTime(apiCreateTimeStr)
-				s.dal.CreateOrUpdate(&qa.QaApi{
+				err = s.dal.CreateOrUpdate(&qa.QaApi{
 					DomainEntityExtended: domainlayer.DomainEntityExtended{
 						Id: apiId,
 					},
@@ -494,6 +494,9 @@ func (s *Service) qaTestCaseHandler(qaProjectId string) func(record map[string]i
 					CreatorId:   apiCreatorId,
 					QaProjectId: qaProjectId,
 				})
+				if err != nil {
+					return err
+				}
 				record["target_id"] = apiId
 			}
 		}
