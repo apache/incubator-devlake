@@ -100,6 +100,7 @@ func (h *Handlers) ImportQaTestCases(input *plugin.ApiResourceInput) (*plugin.Ap
 // @Accept       multipart/form-data
 // @Param        qaProjectId formData string true "the ID of the QA project"
 // @Param        file formData file true "select file to upload"
+// @Param        incremental formData bool false "incremental update"
 // @Produce      json
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"

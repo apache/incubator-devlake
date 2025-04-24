@@ -34,3 +34,7 @@ type QaTestCaseExecution struct {
 	CreatorId    string    `gorm:"type:varchar(255);comment:Executor ID"`
 	Status       string    `gorm:"type:varchar(255);comment:Test execution status | PENDING | IN_PROGRESS | SUCCESS | FAILED"` // enum, using string
 }
+
+func (QaTestCaseExecution) TableName() string {
+	return "qa_test_case_executions"
+}

@@ -422,104 +422,111 @@ func (s *Service) issueCommitHandler(record map[string]interface{}) errors.Error
 func (s *Service) ImportQaApis(qaProjectId string, file io.ReadCloser, incremental bool) errors.Error {
 	if !incremental {
 		// delete old data associated with this qaProjectId
-		err := s.dal.Delete(&qa.QaApi{}, dal.Where("_raw_data_params = ?", qaProjectId))
+		err := s.dal.Delete(&qa.QaApi{}, dal.Where("qa_project_id = ?", qaProjectId))
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_apis for qaProjectId %s", qaProjectId))
 		}
 	}
-	return s.importCSV(file, qaProjectId, s.qaApiHandler)
+	return s.importCSV(file, qaProjectId, s.qaApiHandler(qaProjectId))
 }
 
 // qaApiHandler saves a record into the `qa_apis` table
-func (s *Service) qaApiHandler(record map[string]interface{}) errors.Error {
-	return s.dal.CreateWithMap(&qa.QaApi{}, record)
+func (s *Service) qaApiHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaApi{}, record)
+	}
 }
 
 // ImportQaTestCases imports csv file to the table `qa_test_cases`
 func (s *Service) ImportQaTestCases(qaProjectId string, file io.ReadCloser, incremental bool) errors.Error {
 	if !incremental {
 		// delete old data associated with this qaProjectId
-		err := s.dal.Delete(&qa.QaTestCase{}, dal.Where("_raw_data_params = ?", qaProjectId))
+		err := s.dal.Delete(&qa.QaTestCase{}, dal.Where("qa_project_id = ?", qaProjectId))
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_cases for qaProjectId %s", qaProjectId))
 		}
+		// using ImportQaApis to delete data in qa_apis
+		// never delete data in qa_projects
 	}
-	return s.importCSV(file, qaProjectId, s.qaTestCaseHandler)
+	return s.importCSV(file, qaProjectId, s.qaTestCaseHandler(qaProjectId))
 }
 
 // qaTestCaseHandler saves a record into the `qa_test_cases` table
-func (s *Service) qaTestCaseHandler(record map[string]interface{}) errors.Error {
-	testCaseType, err := getStringField(record, "type", true)
-	if err != nil {
-		return err
-	}
-	// import qa_projects
-	qaProjectId, err := getStringField(record, "qa_project_id", true)
-	if err != nil {
-		return err
-	}
-	qaProjectName, err := getStringField(record, "qa_project_name", true)
-	if err != nil {
-		return err
-	}
-	err = s.dal.CreateOrUpdate(&qa.QaProject{
-		DomainEntityExtended: domainlayer.DomainEntityExtended{
-			Id: qaProjectId,
-		},
-		Name: qaProjectName,
-	})
-	if err != nil {
-		return err
-	}
-	delete(record, "qa_project_name")
-	// import qa_apis
-	if testCaseType == "api" {
-		apiId, err := getStringField(record, "api_id", false)
+func (s *Service) qaTestCaseHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		testCaseType, err := getStringField(record, "type", true)
 		if err != nil {
 			return err
 		}
-		if apiId != "" {
-			apiName, _ := getStringField(record, "api_name", false)
-			apiCreateTimeStr, _ := getStringField(record, "api_create_time", false)
-			apiCreatorId, _ := getStringField(record, "api_creator_id", false)
-			apiCreateTime, _ := common.ConvertStringToTime(apiCreateTimeStr)
-			s.dal.CreateOrUpdate(&qa.QaApi{
-				DomainEntityExtended: domainlayer.DomainEntityExtended{
-					Id: apiId,
-				},
-				Name:        apiName,
-				CreateTime:  apiCreateTime,
-				CreatorId:   apiCreatorId,
-				QaProjectId: qaProjectId,
-			})
-			record["target_id"] = apiId
+		// import qa_projects
+		qaProjectName, err := getStringField(record, "qa_project_name", true)
+		if err != nil {
+			return err
 		}
+		err = s.dal.CreateOrUpdate(&qa.QaProject{
+			DomainEntityExtended: domainlayer.DomainEntityExtended{
+				Id: qaProjectId,
+			},
+			Name: qaProjectName,
+		})
+		if err != nil {
+			return err
+		}
+		delete(record, "qa_project_name")
+		// import qa_apis
+		if testCaseType == "api" {
+			apiId, err := getStringField(record, "api_id", false)
+			if err != nil {
+				return err
+			}
+			if apiId != "" {
+				apiName, _ := getStringField(record, "api_name", false)
+				apiCreateTimeStr, _ := getStringField(record, "api_create_time", false)
+				apiCreatorId, _ := getStringField(record, "api_creator_id", false)
+				apiCreateTime, _ := common.ConvertStringToTime(apiCreateTimeStr)
+				s.dal.CreateOrUpdate(&qa.QaApi{
+					DomainEntityExtended: domainlayer.DomainEntityExtended{
+						Id: apiId,
+					},
+					Name:        apiName,
+					CreateTime:  apiCreateTime,
+					CreatorId:   apiCreatorId,
+					QaProjectId: qaProjectId,
+				})
+				record["target_id"] = apiId
+			}
+		}
+		// remove fields
+		delete(record, "api_id")
+		delete(record, "api_name")
+		delete(record, "api_create_time")
+		delete(record, "api_creator_id")
+
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaTestCase{}, record)
 	}
-	// remove fields
-	delete(record, "api_id")
-	delete(record, "api_name")
-	delete(record, "api_create_time")
-	delete(record, "api_creator_id")
-	// Assuming qa.QaTestCase model exists and CreateWithMap is suitable
-	return s.dal.CreateWithMap(&qa.QaTestCase{}, record)
 }
 
 // ImportQaTestCaseExecutions imports csv file to the table `qa_test_case_executions`
 func (s *Service) ImportQaTestCaseExecutions(qaProjectId string, file io.ReadCloser, incremental bool) errors.Error {
 	if !incremental {
 		// delete old data associated with this qaProjectId
-		err := s.dal.Delete(&qa.QaTestCaseExecution{}, dal.Where("_raw_data_params = ?", qaProjectId))
+		err := s.dal.Delete(&qa.QaTestCaseExecution{}, dal.Where("qa_project_id = ?", qaProjectId))
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_case_executions for qaProjectId %s", qaProjectId))
 		}
 	}
-	return s.importCSV(file, qaProjectId, s.qaTestCaseExecutionHandler)
+	return s.importCSV(file, qaProjectId, s.qaTestCaseExecutionHandler(qaProjectId))
 }
 
 // qaTestCaseExecutionHandler saves a record into the `qa_test_case_executions` table
-func (s *Service) qaTestCaseExecutionHandler(record map[string]interface{}) errors.Error {
+func (s *Service) qaTestCaseExecutionHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
 	// Assuming qa.QaTestCaseExecution model exists and CreateWithMap is suitable
-	return s.dal.CreateWithMap(&qa.QaTestCaseExecution{}, record)
+	return func(record map[string]interface{}) errors.Error {
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaTestCaseExecution{}, record)
+	}
 }
 
 // issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commits` table
