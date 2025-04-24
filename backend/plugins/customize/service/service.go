@@ -291,26 +291,46 @@ func (s *Service) createOrUpdateAccount(accountName string, rawDataParams string
 	return accountId, nil
 }
 
+// getStringField extracts a string field from a record map.
+// If required is true, it returns an error if the field is missing, nil, empty, or not a string.
+// If required is false, it returns an empty string without error if the field is missing or nil,
+// but returns an error if the field exists and is not a string.
+func getStringField(record map[string]interface{}, fieldName string, required bool) (string, errors.Error) {
+	value, ok := record[fieldName]
+	if !ok || value == nil {
+		if required {
+			return "", errors.Default.New(fmt.Sprintf("record without required field %s", fieldName))
+		}
+		return "", nil // Field missing or nil, but not required
+	}
+
+	strValue, ok := value.(string)
+	if !ok {
+		return "", errors.Default.New(fmt.Sprintf("%s is not a string", fieldName))
+	}
+
+	if required && strValue == "" {
+		return "", errors.Default.New(fmt.Sprintf("invalid or empty required field %s", fieldName))
+	}
+
+	return strValue, nil
+}
+
 // issueHandlerFactory returns a handler that save record into `issues`, `board_issues` and `issue_labels` table
 func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
 		var err errors.Error
-		var id string
-		idValue, ok := record["id"]
-		if !ok || idValue == nil {
-			return errors.Default.New("record without id")
-		}
-		id, ok = idValue.(string)
-		if !ok || id == "" {
-			return errors.Default.New("invalid or empty id")
+		id, err := getStringField(record, "id", true)
+		if err != nil {
+			return err
 		}
 
 		// Handle labels
-		if labelsValue, ok := record["labels"]; ok && labelsValue != nil {
-			labels, ok := labelsValue.(string)
-			if !ok {
-				return errors.Default.New("labels field is not a string")
-			}
+		labels, err := getStringField(record, "labels", false)
+		if err != nil {
+			return err
+		}
+		if labels != "" {
 			var issueLabels []*ticket.IssueLabel
 			appearedLabels := make(map[string]struct{}) // record the labels that have appeared
 			for _, label := range strings.Split(labels, ",") {
@@ -342,23 +362,16 @@ func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(rec
 		delete(record, "labels") // Remove labels from record map as it's handled
 
 		// Handle creator and assignee accounts
-		rawDataParamsValue, ok := record["_raw_data_params"]
-		if !ok {
+		rawDataParams, err := getStringField(record, "_raw_data_params", true)
+		if err != nil {
 			// This should ideally not happen as it's set in importCSV, but good to check
-			return errors.Default.New("_raw_data_params missing from record")
-		}
-		rawDataParams, ok := rawDataParamsValue.(string)
-		if !ok {
-			return errors.Default.New("_raw_data_params is not a string")
+			return err
 		}
 
 		// Handle creator
-		var creatorName string
-		if creatorNameValue, ok := record["creator_name"]; ok && creatorNameValue != nil {
-			creatorName, ok = creatorNameValue.(string)
-			if !ok {
-				return errors.Default.New("creator_name is not a string")
-			}
+		creatorName, err := getStringField(record, "creator_name", false)
+		if err != nil {
+			return err
 		}
 		creatorId, err := s.createOrUpdateAccount(creatorName, rawDataParams)
 		if err != nil {
@@ -369,12 +382,9 @@ func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(rec
 		}
 
 		// Handle assignee
-		var assigneeName string
-		if assigneeNameValue, ok := record["assignee_name"]; ok && assigneeNameValue != nil {
-			assigneeName, ok = assigneeNameValue.(string)
-			if !ok {
-				return errors.Default.New("assignee_name is not a string")
-			}
+		assigneeName, err := getStringField(record, "assignee_name", false)
+		if err != nil {
+			return err
 		}
 		assigneeId, err := s.createOrUpdateAccount(assigneeName, rawDataParams)
 		if err != nil {
