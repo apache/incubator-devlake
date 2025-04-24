@@ -26,3 +26,7 @@ type QaProject struct {
 	domainlayer.DomainEntityExtended
 	Name string `gorm:"type:varchar(255);comment:Project name"`
 }
+
+func (QaProject) TableName() string {
+	return "qa_projects"
+}

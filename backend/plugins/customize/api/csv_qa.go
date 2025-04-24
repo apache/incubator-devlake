@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"encoding/csv"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -32,6 +31,7 @@ import (
 // @Accept       multipart/form-data
 // @Param        qaProjectId formData string true "the ID of the QA project"
 // @Param        file formData file true "select file to upload"
+// @Param        incremental formData bool false "incremental import"
 // @Produce      json
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
@@ -45,20 +45,17 @@ func (h *Handlers) ImportQaApis(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	// nolint
 	defer file.Close()
 
+	incremental := false
+	if input.Request.FormValue("incremental") == "true" {
+		incremental = true
+	}
+
 	qaProjectId := strings.TrimSpace(input.Request.FormValue("qaProjectId"))
 	if qaProjectId == "" {
 		return nil, errors.BadInput.New("empty qaProjectId")
 	}
 
-	reader := csv.NewReader(file)
-	_, err2 := reader.ReadAll() // records, err2 := reader.ReadAll()
-	if err2 != nil {
-		return nil, errors.Convert(err2)
-	}
-
-	// TODO: Call service layer function to import QA APIs
-	// Example: return nil, h.svc.ImportQaApis(qaProjectId, records) // records contains the CSV data
-	return nil, errors.Default.New("ImportQaApis not implemented yet") // Placeholder - Replace with actual service call
+	return nil, h.svc.ImportQaApis(qaProjectId, file, incremental)
 
 }
 
@@ -69,6 +66,7 @@ func (h *Handlers) ImportQaApis(input *plugin.ApiResourceInput) (*plugin.ApiReso
 // @Accept       multipart/form-data
 // @Param        qaProjectId formData string true "the ID of the QA project"
 // @Param        file formData file true "select file to upload"
+// @Param        incremental formData bool false "incremental update"
 // @Produce      json
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
@@ -82,20 +80,17 @@ func (h *Handlers) ImportQaTestCases(input *plugin.ApiResourceInput) (*plugin.Ap
 	// nolint
 	defer file.Close()
 
+	incremental := false
+	if input.Request.FormValue("incremental") == "true" {
+		incremental = true
+	}
+
 	qaProjectId := strings.TrimSpace(input.Request.FormValue("qaProjectId"))
 	if qaProjectId == "" {
 		return nil, errors.BadInput.New("empty qaProjectId")
 	}
 
-	reader := csv.NewReader(file)
-	_, err2 := reader.ReadAll()
-	if err2 != nil {
-		return nil, errors.Convert(err2)
-	}
-
-	// TODO: Call service layer function to import QA Test Cases
-	// Example: return nil, h.svc.ImportQaTestCases(qaProjectId, records) // records contains the CSV data
-	return nil, errors.Default.New("ImportQaTestCases not implemented yet") // Placeholder - Replace with actual service call
+	return nil, h.svc.ImportQaTestCases(qaProjectId, file, incremental) // records contains the CSV data
 }
 
 // ImportQaTestCaseExecutions accepts a CSV file, parses and saves it to the database
@@ -118,18 +113,15 @@ func (h *Handlers) ImportQaTestCaseExecutions(input *plugin.ApiResourceInput) (*
 	// nolint
 	defer file.Close()
 
+	incremental := false
+	if input.Request.FormValue("incremental") == "true" {
+		incremental = true
+	}
+
 	qaProjectId := strings.TrimSpace(input.Request.FormValue("qaProjectId"))
 	if qaProjectId == "" {
 		return nil, errors.BadInput.New("empty qaProjectId")
 	}
 
-	reader := csv.NewReader(file)
-	_, err2 := reader.ReadAll()
-	if err2 != nil {
-		return nil, errors.Convert(err2)
-	}
-
-	// TODO: Call service layer function to import QA Test Case Executions
-	// Example: return nil, h.svc.ImportQaTestCaseExecutions(qaProjectId, records) // records contains the CSV data
-	return nil, errors.Default.New("ImportQaTestCaseExecutions not implemented yet") // Placeholder - Replace with actual service call
+	return nil, h.svc.ImportQaTestCaseExecutions(qaProjectId, file, incremental)
 }

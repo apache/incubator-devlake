@@ -31,3 +31,7 @@ type QaApi struct {
 	CreatorId   string    `gorm:"type:varchar(255);comment:Creator ID"`
 	QaProjectId string    `gorm:"type:varchar(255);index;comment:Project ID"`
 }
+
+func (QaApi) TableName() string {
+	return "qa_apis"
+}

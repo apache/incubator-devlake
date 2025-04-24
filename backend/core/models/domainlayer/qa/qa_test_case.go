@@ -33,3 +33,7 @@ type QaTestCase struct {
 	TargetId    string    `gorm:"type:varchar(255);comment:Valid only when type = api, represents qa_api_id"` // nullable in image, using string
 	QaProjectId string    `gorm:"type:varchar(255);index;comment:Project ID"`
 }
+
+func (qaTestCase *QaTestCase) TableName() string {
+	return "qa_test_cases"
+}

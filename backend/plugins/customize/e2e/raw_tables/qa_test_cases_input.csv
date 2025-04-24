@@ -1,0 +1,4 @@
+id,name,create_time,creator_id,type,qa_project_id,qa_project_name,api_id,api_name,api_create_time,api_creator_id
+tc-1,Test Case 1,2023-02-01T10:00:00.000+00:00,user-a,functional,test-qa-project-id,Test Project,,,,
+tc-2,Test Case 2 API,2023-02-02T11:00:00.000+00:00,user-b,api,test-qa-project-id,Test Project,api-1,Get User Info,2023-01-01T10:00:00.000+00:00,user-1
+tc-3,Test Case 3,2023-02-03T12:00:00.000+00:00,user-a,functional,test-qa-project-id,Test Project,,,,
