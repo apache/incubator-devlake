@@ -21,6 +21,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestService_checkFieldName(t *testing.T) {
@@ -71,6 +73,119 @@ func TestService_checkFieldName(t *testing.T) {
 			got := nameChecker.MatchString(tt.args)
 			if got != tt.want {
 				t.Errorf("got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetStringField(t *testing.T) {
+	testCases := []struct {
+		name        string
+		record      map[string]interface{}
+		fieldName   string
+		required    bool
+		expectValue string
+		expectError bool
+		errorMsg    string
+	}{
+		// Required field tests
+		{
+			name:        "Required field exists and valid",
+			record:      map[string]interface{}{"id": "123"},
+			fieldName:   "id",
+			required:    true,
+			expectValue: "123",
+			expectError: false,
+		},
+		{
+			name:        "Required field exists but empty",
+			record:      map[string]interface{}{"id": ""},
+			fieldName:   "id",
+			required:    true,
+			expectValue: "",
+			expectError: true,
+			errorMsg:    "invalid or empty required field id",
+		},
+		{
+			name:        "Required field exists but wrong type",
+			record:      map[string]interface{}{"id": 123},
+			fieldName:   "id",
+			required:    true,
+			expectValue: "",
+			expectError: true,
+			errorMsg:    "id is not a string",
+		},
+		{
+			name:        "Required field missing",
+			record:      map[string]interface{}{"name": "test"},
+			fieldName:   "id",
+			required:    true,
+			expectValue: "",
+			expectError: true,
+			errorMsg:    "record without required field id",
+		},
+		{
+			name:        "Required field nil",
+			record:      map[string]interface{}{"id": nil},
+			fieldName:   "id",
+			required:    true,
+			expectValue: "",
+			expectError: true,
+			errorMsg:    "record without required field id",
+		},
+		// Optional field tests
+		{
+			name:        "Optional field exists and valid",
+			record:      map[string]interface{}{"label": "bug"},
+			fieldName:   "label",
+			required:    false,
+			expectValue: "bug",
+			expectError: false,
+		},
+		{
+			name:        "Optional field exists but empty",
+			record:      map[string]interface{}{"label": ""},
+			fieldName:   "label",
+			required:    false,
+			expectValue: "",
+			expectError: false,
+		},
+		{
+			name:        "Optional field exists but wrong type",
+			record:      map[string]interface{}{"label": 123},
+			fieldName:   "label",
+			required:    false,
+			expectValue: "",
+			expectError: true,
+			errorMsg:    "label is not a string",
+		},
+		{
+			name:        "Optional field missing",
+			record:      map[string]interface{}{"name": "test"},
+			fieldName:   "label",
+			required:    false,
+			expectValue: "",
+			expectError: false,
+		},
+		{
+			name:        "Optional field nil",
+			record:      map[string]interface{}{"label": nil},
+			fieldName:   "label",
+			required:    false,
+			expectValue: "",
+			expectError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			value, err := getStringField(tc.record, tc.fieldName, tc.required)
+			assert.Equal(t, tc.expectValue, value)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tc.errorMsg)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}
