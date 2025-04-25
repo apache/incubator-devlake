@@ -21,6 +21,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
@@ -33,8 +34,9 @@ func TestImportQaTestCasesDataFlow(t *testing.T) {
 
 	// Flush the relevant tables
 	dataflowTester.FlushTabler(&qa.QaTestCase{})
-	dataflowTester.FlushTabler(&qa.QaProject{}) // qaTestCaseHandler also creates/updates QaProject
-	dataflowTester.FlushTabler(&qa.QaApi{})     // qaTestCaseHandler also creates/updates QaApi for API test cases
+	dataflowTester.FlushTabler(&qa.QaProject{})        // qaTestCaseHandler also creates/updates QaProject
+	dataflowTester.FlushTabler(&qa.QaApi{})            // qaTestCaseHandler also creates/updates QaApi for API test cases
+	dataflowTester.FlushTabler(&crossdomain.Account{}) // qaTestCaseHandler also creates/updates Account for API test cases
 
 	// Create a new service instance
 	svc := service.NewService(dataflowTester.Dal)
@@ -48,11 +50,12 @@ func TestImportQaTestCasesDataFlow(t *testing.T) {
 	}
 	defer qaTestCasesFile.Close()
 
-	// Define a dummy qaProjectId
+	// Define dummy qaProjectId and qaProjectName
 	qaProjectId := "test-qa-project-id"
+	qaProjectName := "Test QA Project"
 
 	// Import data from the CSV file
-	err = svc.ImportQaTestCases(qaProjectId, qaTestCasesFile, false) // Use false for initial import
+	err = svc.ImportQaTestCases(qaProjectId, qaProjectName, qaTestCasesFile, false) // Use false for initial import
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +82,7 @@ func TestImportQaTestCasesDataFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer qaTestCasesIncrementalFile.Close()
-	err = svc.ImportQaTestCases(qaProjectId, qaTestCasesIncrementalFile, true) // Use true for incremental import
+	err = svc.ImportQaTestCases(qaProjectId, qaProjectName, qaTestCasesIncrementalFile, true) // Use true for incremental import
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,14 +108,12 @@ func TestImportQaTestCasesDataFlow(t *testing.T) {
 			"name",
 		})
 	dataflowTester.VerifyTableWithRawData(
-		&qa.QaApi{},
-		"snapshot_tables/qa_apis_output_from_qa_test_cases.csv",
+		&crossdomain.Account{},
+		"snapshot_tables/accounts_from_qa_test_cases.csv",
 		[]string{
 			"id",
-			"name",
-			"create_time",
-			"creator_id",
-			"qa_project_id",
+			"full_name",
+			"user_name",
 		},
 	)
 }

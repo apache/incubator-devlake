@@ -21,6 +21,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
@@ -33,6 +34,7 @@ func TestImportQaTestCaseExecutionsDataFlow(t *testing.T) {
 
 	// Flush the relevant table
 	dataflowTester.FlushTabler(&qa.QaTestCaseExecution{})
+	dataflowTester.FlushTabler(&crossdomain.Account{})
 
 	// Create a new service instance
 	svc := service.NewService(dataflowTester.Dal)
@@ -71,6 +73,15 @@ func TestImportQaTestCaseExecutionsDataFlow(t *testing.T) {
 			"creator_id",
 			"status",
 		})
+	dataflowTester.VerifyTableWithRawData(
+		&crossdomain.Account{},
+		"snapshot_tables/accounts_from_qa_test_case_executions_output.csv",
+		[]string{
+			"id",
+			"full_name",
+			"user_name",
+		},
+	)
 
 	// Add incremental import test
 	qaTestCaseExecutionsIncrementalFile, err := os.Open("raw_tables/qa_test_case_executions_input_incremental.csv")
@@ -95,4 +106,14 @@ func TestImportQaTestCaseExecutionsDataFlow(t *testing.T) {
 			"creator_id",
 			"status",
 		})
+
+	dataflowTester.VerifyTableWithRawData(
+		&crossdomain.Account{},
+		"snapshot_tables/accounts_from_qa_test_case_executions_output_incremental.csv",
+		[]string{
+			"id",
+			"full_name",
+			"user_name",
+		},
+	)
 }

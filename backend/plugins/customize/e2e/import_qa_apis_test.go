@@ -21,6 +21,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
@@ -33,6 +34,7 @@ func TestImportQaApisDataFlow(t *testing.T) {
 
 	// Flush the qa_apis table
 	dataflowTester.FlushTabler(&qa.QaApi{})
+	dataflowTester.FlushTabler(&crossdomain.Account{})
 
 	// Create a new service instance
 	svc := service.NewService(dataflowTester.Dal)
@@ -69,6 +71,14 @@ func TestImportQaApisDataFlow(t *testing.T) {
 			"qa_project_id",
 		})
 
+	dataflowTester.VerifyTableWithRawData(
+		&crossdomain.Account{},
+		"snapshot_tables/accounts_from_qa_apis_output.csv",
+		[]string{
+			"id",
+			"full_name",
+			"user_name",
+		})
 	// Add incremental import test if needed, similar to import_issues_test.go
 	qaApisIncrementalFile, err := os.Open("raw_tables/qa_apis_input_incremental.csv")
 	if err != nil {
@@ -89,4 +99,13 @@ func TestImportQaApisDataFlow(t *testing.T) {
 			"creator_id",
 			"qa_project_id",
 		})
+	dataflowTester.VerifyTableWithRawData(
+		&crossdomain.Account{},
+		"snapshot_tables/accounts_from_qa_apis_incremental_output.csv",
+		[]string{
+			"id",
+			"full_name",
+			"user_name",
+		},
+	)
 }

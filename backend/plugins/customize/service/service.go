@@ -433,13 +433,24 @@ func (s *Service) ImportQaApis(qaProjectId string, file io.ReadCloser, increment
 // qaApiHandler saves a record into the `qa_apis` table
 func (s *Service) qaApiHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
+		creatorName, err := getStringField(record, "creator_name", false)
+		if err != nil {
+			return err
+		}
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			if creatorId != "" {
+				record["creator_id"] = creatorId
+			}
+		}
+		delete(record, "creator_name")
 		record["qa_project_id"] = qaProjectId
 		return s.dal.CreateWithMap(&qa.QaApi{}, record)
 	}
 }
 
 // ImportQaTestCases imports csv file to the table `qa_test_cases`
-func (s *Service) ImportQaTestCases(qaProjectId string, file io.ReadCloser, incremental bool) errors.Error {
+func (s *Service) ImportQaTestCases(qaProjectId, qaProjectName string, file io.ReadCloser, incremental bool) errors.Error {
 	if !incremental {
 		// delete old data associated with this qaProjectId
 		err := s.dal.Delete(&qa.QaTestCase{}, dal.Where("qa_project_id = ?", qaProjectId))
@@ -449,63 +460,29 @@ func (s *Service) ImportQaTestCases(qaProjectId string, file io.ReadCloser, incr
 		// using ImportQaApis to delete data in qa_apis
 		// never delete data in qa_projects
 	}
+	// create or update qa_projects
+	err := s.dal.CreateOrUpdate(&qa.QaProject{
+		DomainEntityExtended: domainlayer.DomainEntityExtended{
+			Id: qaProjectId,
+		},
+		Name: qaProjectName,
+	})
+	if err != nil {
+		return err
+	}
 	return s.importCSV(file, qaProjectId, s.qaTestCaseHandler(qaProjectId))
 }
 
 // qaTestCaseHandler saves a record into the `qa_test_cases` table
 func (s *Service) qaTestCaseHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
-		testCaseType, err := getStringField(record, "type", true)
-		if err != nil {
-			return err
-		}
-		// import qa_projects
-		qaProjectName, err := getStringField(record, "qa_project_name", true)
-		if err != nil {
-			return err
-		}
-		err = s.dal.CreateOrUpdate(&qa.QaProject{
-			DomainEntityExtended: domainlayer.DomainEntityExtended{
-				Id: qaProjectId,
-			},
-			Name: qaProjectName,
-		})
-		if err != nil {
-			return err
-		}
-		delete(record, "qa_project_name")
-		// import qa_apis
-		if testCaseType == "api" {
-			apiId, err := getStringField(record, "api_id", false)
-			if err != nil {
-				return err
-			}
-			if apiId != "" {
-				apiName, _ := getStringField(record, "api_name", false)
-				apiCreateTimeStr, _ := getStringField(record, "api_create_time", false)
-				apiCreatorId, _ := getStringField(record, "api_creator_id", false)
-				apiCreateTime, _ := common.ConvertStringToTime(apiCreateTimeStr)
-				err = s.dal.CreateOrUpdate(&qa.QaApi{
-					DomainEntityExtended: domainlayer.DomainEntityExtended{
-						Id: apiId,
-					},
-					Name:        apiName,
-					CreateTime:  apiCreateTime,
-					CreatorId:   apiCreatorId,
-					QaProjectId: qaProjectId,
-				})
-				if err != nil {
-					return err
-				}
-				record["target_id"] = apiId
-			}
+		creatorName, _ := getStringField(record, "creator_name", false)
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			record["creator_id"] = creatorId
 		}
 		// remove fields
-		delete(record, "api_id")
-		delete(record, "api_name")
-		delete(record, "api_create_time")
-		delete(record, "api_creator_id")
-
+		delete(record, "creator_name")
 		record["qa_project_id"] = qaProjectId
 		return s.dal.CreateWithMap(&qa.QaTestCase{}, record)
 	}
@@ -527,6 +504,12 @@ func (s *Service) ImportQaTestCaseExecutions(qaProjectId string, file io.ReadClo
 func (s *Service) qaTestCaseExecutionHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
 	// Assuming qa.QaTestCaseExecution model exists and CreateWithMap is suitable
 	return func(record map[string]interface{}) errors.Error {
+		creatorName, _ := getStringField(record, "creator_name", false)
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			record["creator_id"] = creatorId
+		}
+		delete(record, "creator_name")
 		record["qa_project_id"] = qaProjectId
 		return s.dal.CreateWithMap(&qa.QaTestCaseExecution{}, record)
 	}

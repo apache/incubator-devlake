@@ -1,4 +1,4 @@
-id,name,create_time,creator_id,qa_project_id
-api-1,Get User Info,2023-01-01T10:00:00.000+00:00,user-1,test-qa-project-id
-api-2,Create Order,2023-01-02T11:00:00.000+00:00,user-2,test-qa-project-id
-api-3,Delete Item,2023-01-03T12:00:00.000+00:00,user-1,test-qa-project-id
+id,name,create_time,creator_name
+api-1,Get User Info,2023-01-01T10:00:00.000+00:00,user-1
+api-2,Create Order,2023-01-02T11:00:00.000+00:00,user-2
+api-3,Delete Item,2023-01-03T12:00:00.000+00:00,user-1

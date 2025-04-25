@@ -1,3 +1,3 @@
-id,name,create_time,creator_id,qa_project_id
-api-4,Update Profile,2023-01-04T13:00:00.000+00:00,user-3,test-qa-project-id
-api-1,Get User Info Updated,2023-01-05T14:00:00.000+00:00,user-1,test-qa-project-id
+id,name,create_time,creator_name
+api-4,Update Profile,2023-01-04T13:00:00.000+00:00,user-3
+api-1,Get User Info Updated,2023-01-05T14:00:00.000+00:00,user-1

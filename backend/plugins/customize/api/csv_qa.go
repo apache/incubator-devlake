@@ -65,6 +65,7 @@ func (h *Handlers) ImportQaApis(input *plugin.ApiResourceInput) (*plugin.ApiReso
 // @Tags 		 plugins/customize
 // @Accept       multipart/form-data
 // @Param        qaProjectId formData string true "the ID of the QA project"
+// @Param        qaProjectName formData string true "the name of the QA project"
 // @Param        file formData file true "select file to upload"
 // @Param        incremental formData bool false "incremental update"
 // @Produce      json
@@ -89,8 +90,11 @@ func (h *Handlers) ImportQaTestCases(input *plugin.ApiResourceInput) (*plugin.Ap
 	if qaProjectId == "" {
 		return nil, errors.BadInput.New("empty qaProjectId")
 	}
-
-	return nil, h.svc.ImportQaTestCases(qaProjectId, file, incremental) // records contains the CSV data
+	qaProjectName := strings.TrimSpace(input.Request.FormValue("qaProjectName"))
+	if qaProjectName == "" {
+		return nil, errors.BadInput.New("empty qaProjectName")
+	}
+	return nil, h.svc.ImportQaTestCases(qaProjectId, qaProjectName, file, incremental) // records contains the CSV data
 }
 
 // ImportQaTestCaseExecutions accepts a CSV file, parses and saves it to the database
