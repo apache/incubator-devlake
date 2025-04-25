@@ -21,6 +21,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
@@ -37,6 +38,7 @@ func TestImportIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.CustomizedField{})
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+	dataflowTester.FlushTabler(&crossdomain.Account{})
 	svc := service.NewService(dataflowTester.Dal)
 	err := svc.CreateField(&models.CustomizedField{
 		TbName:      "issues",
@@ -172,4 +174,13 @@ func TestImportIssueDataFlow(t *testing.T) {
 			"board_id",
 			"issue_id",
 		})
+	dataflowTester.VerifyTableWithRawData(
+		&crossdomain.Account{},
+		"snapshot_tables/accounts.csv",
+		[]string{
+			"id",
+			"full_name",
+			"user_name",
+		},
+	)
 }

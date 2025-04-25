@@ -18,9 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"os"
+	"os/exec"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"os/exec"
 )
 
 func Git(taskCtx plugin.SubTaskContext) errors.Error {
@@ -29,7 +31,16 @@ func Git(taskCtx plugin.SubTaskContext) errors.Error {
 	if data.Options.ProjectGitURL == "" {
 		return nil
 	}
-	cmd := exec.Command("git", "clone", data.Options.ProjectGitURL)
+
+	// clean ProjectPath
+	err := os.RemoveAll(data.Options.ProjectPath)
+	if err != nil {
+		logger.Error(err, "cleanup before clone dbt project failed")
+		return errors.Convert(err)
+	}
+
+	// git clone from ProjectGitURL into ProjectPath
+	cmd := exec.Command("git", "clone", data.Options.ProjectGitURL, data.Options.ProjectPath)
 	logger.Info("start clone dbt project: %v", cmd)
 	out, err := cmd.CombinedOutput()
 	if err != nil {

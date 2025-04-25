@@ -31,7 +31,7 @@ type TapdOptions struct {
 	PageSize      uint64                  `json:"pageSize,omitempty" mapstructure:"pageSize,omitempty"`
 	CstZone       *time.Location          `json:"cstZone,omitempty" mapstructure:"cstZone,omitempty"`
 	ScopeConfigId uint64                  `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
-	ScopeConfig   *models.TapdScopeConfig `json:"scopeConfig,omitempty" mapstructure:"pageSize,omitempty"`
+	ScopeConfig   *models.TapdScopeConfig `json:"scopeConfig,omitempty" mapstructure:"scopeConfig,omitempty"`
 }
 
 type TapdTaskData struct {
