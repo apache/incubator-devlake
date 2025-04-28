@@ -125,27 +125,11 @@ func (extractor *StatefulApiExtractor[InputType]) Execute() errors.Error {
 	}
 	logger.Info("get data from %s where params=%s and got %d with clauses %+v", table, params, count, clauses)
 
-	// get cursor for IDs only
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return errors.Default.Wrap(err, "error running DB query for IDs")
-	}
-	defer cursor.Close()
-
-	// collect all IDs
+	// get all IDs
 	var ids []uint64
-	for cursor.Next() {
-		var row struct {
-			ID uint64 `gorm:"column:id"`
-		}
-		err = db.Fetch(cursor, &row)
-		if err != nil {
-			return errors.Default.Wrap(err, "error fetching ID")
-		}
-		ids = append(ids, row.ID)
-	}
-	if err := cursor.Err(); err != nil {
-		return errors.Default.Wrap(err, "error during ID cursor iteration")
+	err = db.Pluck("id", &ids, clauses...)
+	if err != nil {
+		return errors.Default.Wrap(err, "error getting IDs")
 	}
 
 	// batch save divider
