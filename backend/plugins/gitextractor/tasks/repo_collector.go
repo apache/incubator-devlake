@@ -84,10 +84,12 @@ func CollectGitDiffLines(subTaskCtx plugin.SubTaskContext) errors.Error {
 func getGitRepo(subTaskCtx plugin.SubTaskContext) parser.RepoCollector {
 	taskData, ok := subTaskCtx.GetData().(*parser.GitExtractorTaskData)
 	if !ok {
-		panic("git repo reference not found on context")
+		subTaskCtx.GetLogger().Error(nil, "git repo reference not found on context")
+		return nil
 	}
 	if taskData.GitRepo == nil {
-		panic("git repo is empty, please check subtask: clone repo")
+		subTaskCtx.GetLogger().Error(nil, "git repo is empty, skipping Collect Commits subtask")
+		return nil
 	}
 	return taskData.GitRepo
 }

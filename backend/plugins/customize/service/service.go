@@ -29,9 +29,10 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
-	"github.com/apache/incubator-devlake/plugins/customize/models"
+	customizeModels "github.com/apache/incubator-devlake/plugins/customize/models"
 )
 
 // Service wraps database operations
@@ -45,9 +46,9 @@ func NewService(dal dal.Dal) *Service {
 }
 
 // GetFields returns all the fields of the table
-func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Error) {
+func (s *Service) GetFields(table string) ([]customizeModels.CustomizedField, errors.Error) {
 	// the customized fields created before v0.16.0 were not recorded in the table `_tool_customized_field`, we should take care of them
-	columns, err := s.dal.GetColumns(&models.Table{Name: table}, func(columnMeta dal.ColumnMeta) bool {
+	columns, err := s.dal.GetColumns(&customizeModels.Table{Name: table}, func(columnMeta dal.ColumnMeta) bool {
 		return true
 	})
 	if err != nil {
@@ -57,16 +58,16 @@ func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Erro
 	if err != nil {
 		return nil, err
 	}
-	fieldMap := make(map[string]models.CustomizedField)
+	fieldMap := make(map[string]customizeModels.CustomizedField)
 	for _, f := range ff {
 		fieldMap[f.ColumnName] = f
 	}
-	var result []models.CustomizedField
+	var result []customizeModels.CustomizedField
 	for _, col := range columns {
 		// original fields
 		if !strings.HasPrefix(col.Name(), "x_") {
 			dataType, _ := col.ColumnType()
-			result = append(result, models.CustomizedField{
+			result = append(result, customizeModels.CustomizedField{
 				TbName:     table,
 				ColumnName: col.Name(),
 				DataType:   dal.ColumnType(dataType),
@@ -76,7 +77,7 @@ func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Erro
 			if field, ok := fieldMap[col.Name()]; ok {
 				result = append(result, field)
 			} else {
-				result = append(result, models.CustomizedField{
+				result = append(result, customizeModels.CustomizedField{
 					ColumnName: col.Name(),
 					DataType:   dal.Varchar,
 				})
@@ -110,7 +111,7 @@ func (s *Service) checkField(table, field string) (bool, errors.Error) {
 }
 
 // CreateField creates a new column for the table cf.TbName and creates a new record in the table `_tool_customized_fields`
-func (s *Service) CreateField(cf *models.CustomizedField) errors.Error {
+func (s *Service) CreateField(cf *customizeModels.CustomizedField) errors.Error {
 	exists, err := s.checkField(cf.TbName, cf.ColumnName)
 	if err != nil {
 		return err
@@ -142,12 +143,12 @@ func (s *Service) DeleteField(table, field string) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "DropColumn error")
 	}
-	return s.dal.Delete(&models.CustomizedField{}, dal.Where("tb_name = ? AND column_name = ?", table, field))
+	return s.dal.Delete(&customizeModels.CustomizedField{}, dal.Where("tb_name = ? AND column_name = ?", table, field))
 }
 
 // getCustomizedFields returns all the customized fields definitions of the table
-func (s *Service) getCustomizedFields(table string) ([]models.CustomizedField, errors.Error) {
-	var result []models.CustomizedField
+func (s *Service) getCustomizedFields(table string) ([]customizeModels.CustomizedField, errors.Error) {
+	var result []customizeModels.CustomizedField
 	err := s.dal.All(&result, dal.Where("tb_name = ?", table))
 	return result, err
 }
@@ -415,6 +416,103 @@ func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(rec
 // issueCommitHandler save record into `issue_commits` table
 func (s *Service) issueCommitHandler(record map[string]interface{}) errors.Error {
 	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
+}
+
+// ImportQaApis imports csv file to the table `qa_apis`
+func (s *Service) ImportQaApis(qaProjectId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old data associated with this qaProjectId
+		err := s.dal.Delete(&qa.QaApi{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_apis for qaProjectId %s", qaProjectId))
+		}
+	}
+	return s.importCSV(file, qaProjectId, s.qaApiHandler(qaProjectId))
+}
+
+// qaApiHandler saves a record into the `qa_apis` table
+func (s *Service) qaApiHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		creatorName, err := getStringField(record, "creator_name", false)
+		if err != nil {
+			return err
+		}
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			if creatorId != "" {
+				record["creator_id"] = creatorId
+			}
+		}
+		delete(record, "creator_name")
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaApi{}, record)
+	}
+}
+
+// ImportQaTestCases imports csv file to the table `qa_test_cases`
+func (s *Service) ImportQaTestCases(qaProjectId, qaProjectName string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old data associated with this qaProjectId
+		err := s.dal.Delete(&qa.QaTestCase{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_cases for qaProjectId %s", qaProjectId))
+		}
+		// using ImportQaApis to delete data in qa_apis
+		// never delete data in qa_projects
+	}
+	// create or update qa_projects
+	err := s.dal.CreateOrUpdate(&qa.QaProject{
+		DomainEntityExtended: domainlayer.DomainEntityExtended{
+			Id: qaProjectId,
+		},
+		Name: qaProjectName,
+	})
+	if err != nil {
+		return err
+	}
+	return s.importCSV(file, qaProjectId, s.qaTestCaseHandler(qaProjectId))
+}
+
+// qaTestCaseHandler saves a record into the `qa_test_cases` table
+func (s *Service) qaTestCaseHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		creatorName, _ := getStringField(record, "creator_name", false)
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			record["creator_id"] = creatorId
+		}
+		// remove fields
+		delete(record, "creator_name")
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaTestCase{}, record)
+	}
+}
+
+// ImportQaTestCaseExecutions imports csv file to the table `qa_test_case_executions`
+func (s *Service) ImportQaTestCaseExecutions(qaProjectId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old data associated with this qaProjectId
+		err := s.dal.Delete(&qa.QaTestCaseExecution{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_case_executions for qaProjectId %s", qaProjectId))
+		}
+	}
+	return s.importCSV(file, qaProjectId, s.qaTestCaseExecutionHandler(qaProjectId))
+}
+
+// qaTestCaseExecutionHandler saves a record into the `qa_test_case_executions` table
+func (s *Service) qaTestCaseExecutionHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
+	// Assuming qa.QaTestCaseExecution model exists and CreateWithMap is suitable
+	return func(record map[string]interface{}) errors.Error {
+		creatorName, _ := getStringField(record, "creator_name", false)
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			record["creator_id"] = creatorId
+		}
+		delete(record, "creator_name")
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaTestCaseExecution{}, record)
+	}
 }
 
 // issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commits` table
