@@ -29,14 +29,13 @@ var PluginEntry impl.Dora //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "dora"}
-
-	projectName := cmd.Flags().StringP("projectName", "p", "", "project name")
-	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
+	projectName := cmd.Flags().StringP("projectName", "n", "", "project name")
+	_ = cmd.MarkFlagRequired("projectName")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"projectName": *projectName,
-		}, *timeAfter)
+		}, "dora")
 	}
 	runner.RunCmd(cmd)
 }
