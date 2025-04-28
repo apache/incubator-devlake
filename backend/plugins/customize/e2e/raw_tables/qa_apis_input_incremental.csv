@@ -1,0 +1,3 @@
+id,name,path,method,create_time,creator_name
+api-4,Update Profile,/profiles/{id},PUT,2023-01-04T13:00:00.000+00:00,user-3
+api-1,Get User Info Updated,/users/{id},GET,2023-01-05T14:00:00.000+00:00,user-1
