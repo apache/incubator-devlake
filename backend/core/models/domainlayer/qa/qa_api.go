@@ -27,6 +27,8 @@ import (
 type QaApi struct {
 	domainlayer.DomainEntityExtended
 	Name        string    `gorm:"type:varchar(255);comment:API name"`
+	Path        string    `gorm:"type:varchar(255);comment:API path"`
+	Method      string    `gorm:"type:varchar(255);comment:API method"`
 	CreateTime  time.Time `gorm:"comment:API creation time"`
 	CreatorId   string    `gorm:"type:varchar(255);comment:Creator ID"`
 	QaProjectId string    `gorm:"type:varchar(255);index;comment:Project ID"`

@@ -73,7 +73,7 @@ func TestImportQaTestCasesDataFlow(t *testing.T) {
 			"creator_id",
 			"type",
 			"qa_project_id",
-			"target_id",
+			"qa_api_id",
 		})
 
 	// Add incremental import test
@@ -96,7 +96,7 @@ func TestImportQaTestCasesDataFlow(t *testing.T) {
 			"creator_id",
 			"type",
 			"qa_project_id",
-			"target_id",
+			"qa_api_id",
 		})
 
 	// verify qa_projects and qa_apis

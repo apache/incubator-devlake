@@ -66,6 +66,8 @@ func TestImportQaApisDataFlow(t *testing.T) {
 		[]string{
 			"id",
 			"name",
+			"path",
+			"method",
 			"create_time",
 			"creator_id",
 			"qa_project_id",
@@ -95,6 +97,8 @@ func TestImportQaApisDataFlow(t *testing.T) {
 		[]string{
 			"id",
 			"name",
+			"path",
+			"method",
 			"create_time",
 			"creator_id",
 			"qa_project_id",

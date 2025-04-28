@@ -48,6 +48,8 @@ type QaProject struct {
 type QaApi struct {
 	archived.DomainEntityExtended
 	Name        string    `gorm:"type:varchar(255);comment:API name"`
+	Path        string    `gorm:"type:varchar(255);comment:API path"`
+	Method      string    `gorm:"type:varchar(255);comment:API method"`
 	CreateTime  time.Time `gorm:"comment:API creation time"`
 	CreatorId   string    `gorm:"type:varchar(255);comment:Creator ID"`
 	QaProjectId string    `gorm:"type:varchar(255);index;comment:Project ID"`
@@ -60,7 +62,7 @@ type QaTestCase struct {
 	CreateTime  time.Time `gorm:"comment:Test case creation time"`
 	CreatorId   string    `gorm:"type:varchar(255);comment:Creator ID"`
 	Type        string    `gorm:"type:varchar(255);comment:Test case type | functional | api"`                // enum in image, using string
-	TargetId    string    `gorm:"type:varchar(255);comment:Valid only when type = api, represents qa_api_id"` // nullable in image, using string
+	QaApiId     string    `gorm:"type:varchar(255);comment:Valid only when type = api, represents qa_api_id"` // nullable in image, using string
 	QaProjectId string    `gorm:"type:varchar(255);index;comment:Project ID"`
 }
 
