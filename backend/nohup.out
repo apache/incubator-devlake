@@ -30,3 +30,4 @@ time="2025-04-07 14:34:34" level=info msg=" [pipeline service] get lock and wait
 [GIN] 2025/04/07 - 14:34:46 | 200 |     7.56475ms |             ::1 | GET      "/projects?page=1&pageSize=20"
 [GIN] 2025/04/07 - 14:34:48 | 200 |   13.217625ms |             ::1 | GET      "/blueprints?type=ALL&page=1&pageSize=20"
 [GIN] 2025/04/07 - 14:34:49 | 200 |   29.253292ms |             ::1 | GET      "/pipelines?page=1&pageSize=20"
+make: *** [run] Hangup: 1
