@@ -1,0 +1,5 @@
+id,name,path,method,create_time,creator_id,qa_project_id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+api-1,Get User Info Updated,/users/{id},GET,2023-01-05T14:00:00.000+00:00,csv:CsvAccount:0:user-1,test-qa-project-id,test-qa-project-id,,,
+api-2,Create Order,/orders,POST,2023-01-02T11:00:00.000+00:00,csv:CsvAccount:0:user-2,test-qa-project-id,test-qa-project-id,,,
+api-3,Delete Item,/items/{id},DELETE,2023-01-03T12:00:00.000+00:00,csv:CsvAccount:0:user-1,test-qa-project-id,test-qa-project-id,,,
+api-4,Update Profile,/profiles/{id},PUT,2023-01-04T13:00:00.000+00:00,csv:CsvAccount:0:user-3,test-qa-project-id,test-qa-project-id,,,

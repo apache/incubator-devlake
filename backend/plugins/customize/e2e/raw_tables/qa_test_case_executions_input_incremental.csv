@@ -1,0 +1,3 @@
+id,qa_test_case_id,create_time,start_time,finish_time,creator_name,status
+exec-4,tc-3,2023-03-03T10:00:00.000+00:00,2023-03-03T10:01:00.000+00:00,2023-03-03T10:05:00.000+00:00,user-c,SUCCESS
+exec-1,tc-1,2023-03-04T10:00:00.000+00:00,2023-03-04T10:01:00.000+00:00,2023-03-04T10:06:00.000+00:00,user-a,FAILED
