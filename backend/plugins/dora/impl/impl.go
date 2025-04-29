@@ -20,7 +20,6 @@ package impl
 import (
 	"encoding/json"
 
-	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -32,21 +31,17 @@ import (
 // make sure interface is implemented
 var _ interface {
 	plugin.PluginMeta
-	plugin.PluginInit
 	plugin.PluginTask
-	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMetric
 	plugin.PluginMigration
-	// plugin.MetricPluginBlueprintV200
+	plugin.MetricPluginBlueprintV200
 } = (*Dora)(nil)
 
 type Dora struct{}
 
 func (p Dora) Description() string {
 	return "collect some Dora data"
-}
-
-func (p Dora) Init(br context.BasicRes) errors.Error {
-	return nil
 }
 
 func (p Dora) Dashboards() []plugin.GrafanaDashboard {
@@ -175,8 +170,4 @@ func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.
 		},
 	}
 	return plan, nil
-}
-
-func (p Dora) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
-	return map[string]map[string]plugin.ApiResourceHandler{}
 }
