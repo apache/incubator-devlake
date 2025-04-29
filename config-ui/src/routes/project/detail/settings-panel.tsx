@@ -216,7 +216,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
         onOk={handleDelete}
       >
         <S.DialogBody>
-          <Message content="This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in this Connection." />
+          <Message content="This operation cannot be undone. Deleting this project will remove all associated project settings and data. This action does not delete any data connections or the data collected through them." />
         </S.DialogBody>
       </Modal>
     </Flex>

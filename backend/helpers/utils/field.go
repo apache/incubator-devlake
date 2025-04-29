@@ -25,7 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// GetTimeFeildFromMap retrieves a time field from a map.
+// GetTimeFieldFromMap retrieves a time field from a map.
 // allFields: A map containing all fields.
 // fieldName: The name of the field to retrieve.
 // loc: The timezone location.
@@ -33,7 +33,7 @@ import (
 //
 //	*time.Time: A pointer to the time.Time if the field exists and can be converted to time.Time.
 //	error: An error if the field does not exist or an error occurs.
-func GetTimeFeildFromMap(allFields map[string]interface{}, fieldName string, loc *time.Location) (*time.Time, error) {
+func GetTimeFieldFromMap(allFields map[string]interface{}, fieldName string, loc *time.Location) (*time.Time, error) {
 	val, ok := allFields[fieldName]
 	if !ok {
 		return nil, fmt.Errorf("Field %s not found", fieldName)
@@ -41,7 +41,8 @@ func GetTimeFeildFromMap(allFields map[string]interface{}, fieldName string, loc
 	var temp time.Time
 	switch v := val.(type) {
 	case string:
-		if v == "" || v == "null" {
+		if v == "" || v == "null" || v == "{}" {
+			// In Zentao, the field `deadline`'s value may be "{}".
 			return nil, nil
 		}
 		// If value is a string with the format yyyy-MM-dd, use loc to parse it

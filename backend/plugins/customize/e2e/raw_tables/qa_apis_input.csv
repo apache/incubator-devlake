@@ -1,0 +1,4 @@
+id,name,path,method,create_time,creator_name
+api-1,Get User Info,/users/{id},GET,2023-01-01T10:00:00.000+00:00,user-1
+api-2,Create Order,/orders,POST,2023-01-02T11:00:00.000+00:00,user-2
+api-3,Delete Item,/items/{id},DELETE,2023-01-03T12:00:00.000+00:00,user-1

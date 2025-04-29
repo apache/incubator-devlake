@@ -241,6 +241,10 @@ type Rows interface {
 	// ColumnTypes returns column information such as column type, length,
 	// and nullable. Some information may not be available from some drivers.
 	ColumnTypes() ([]*sql.ColumnType, error)
+
+	// Err returns the error, if any, that was encountered during iteration.
+	// Err may be called after an explicit or implicit Close method.
+	Err() error
 }
 
 // GetColumnNames returns table Column Names in database

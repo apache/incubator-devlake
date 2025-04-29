@@ -55,6 +55,11 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 
 			storyChangelog.ConnectionId = data.Options.ConnectionId
 			for _, fc := range storyChangelog.FieldChanges {
+				if fc.IsStepChange {
+					// ignore step change
+					// https://github.com/apache/incubator-devlake/issues/8355#issuecomment-2756726463
+					continue
+				}
 				var item models.TapdStoryChangelogItem
 				var valueAfterMap interface{}
 				var valueBeforeMap interface{}

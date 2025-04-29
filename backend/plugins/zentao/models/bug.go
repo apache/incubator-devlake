@@ -56,7 +56,7 @@ func (a *ApiAccount) UnmarshalJSON(data []byte) error {
 }
 
 type ZentaoBugRes struct {
-	AllFeilds      map[string]interface{} `json:"-"`
+	AllFields      map[string]interface{} `json:"-"`
 	ID             int64                  `json:"id"`
 	Project        int64                  `json:"project"`
 	Product        int64                  `json:"product"`
@@ -94,7 +94,7 @@ type ZentaoBugRes struct {
 	OpenedBuild    string                 `json:"openedBuild"`
 	AssignedTo     *ApiAccount            `json:"assignedTo"`
 	AssignedDate   *common.Iso8601Time    `json:"assignedDate"`
-	Deadline       *common.CSTTime        `json:"deadline"`
+	Deadline       interface{}            `json:"deadline"`
 	ResolvedBy     *ApiAccount            `json:"resolvedBy"`
 	Resolution     string                 `json:"resolution"`
 	ResolvedBuild  string                 `json:"resolvedBuild"`
@@ -129,7 +129,7 @@ func (i *ZentaoBugRes) SetAllFeilds(raw json.RawMessage) error {
 	if err := json.Unmarshal(raw, &allFeilds); err != nil {
 		return err
 	}
-	i.AllFeilds = allFeilds
+	i.AllFields = allFeilds
 	return nil
 }
 
@@ -175,7 +175,7 @@ type ZentaoBug struct {
 	AssignedToId   int64
 	AssignedToName string
 	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
-	Deadline       *common.CSTTime     `json:"deadline"`
+	Deadline       string              `json:"deadline"`
 	ResolvedById   int64
 	Resolution     string              `json:"resolution"`
 	ResolvedBuild  string              `json:"resolvedBuild"`

@@ -23,6 +23,7 @@ github:
     issues: true
     projects: false
     wiki: false
+    discussions: true
   labels:
     - user-friendly
     - open-source
@@ -76,3 +77,4 @@ notifications:
   commits: commits@devlake.apache.org
   issues:  dev@devlake.apache.org
   pullrequests: commits@devlake.apache.org
+  discussions: dev@devlake.apache.org

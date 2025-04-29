@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,6 +40,13 @@ var ExtractApiBuildRecordsMeta = plugin.SubTaskMeta{
 	ProductTables: []string{
 		models.AzuredevopsTimelineRecord{}.TableName(),
 	},
+}
+
+func truncateString(s string, maxLength int) string {
+	if len(s) > maxLength {
+		return s[:maxLength]
+	}
+	return s
 }
 
 func ExtractApiTimelineTasks(taskCtx plugin.SubTaskContext) errors.Error {
@@ -67,7 +75,7 @@ func ExtractApiTimelineTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				BuildId:      input.AzuredevopsId,
 				ParentId:     recordApi.ParentId,
 				Type:         "",
-				Name:         recordApi.Name,
+				Name:         truncateString(recordApi.Name, 255),
 				StartTime:    recordApi.StartTime,
 				FinishTime:   recordApi.FinishTime,
 				State:        recordApi.State,

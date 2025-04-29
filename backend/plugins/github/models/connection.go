@@ -20,11 +20,12 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/utils"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/utils"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -121,16 +122,18 @@ func (connection *GithubConnection) MergeFromRequest(target *GithubConnection, b
 	if err := helper.DecodeMapStruct(body, &modifiedConnection, true); err != nil {
 		return err
 	}
-	return connection.Merge(target, &modifiedConnection)
+	return connection.Merge(target, &modifiedConnection, body)
 }
 
-func (connection *GithubConnection) Merge(existed, modified *GithubConnection) error {
+func (connection *GithubConnection) Merge(existed, modified *GithubConnection, body map[string]interface{}) error {
 	// There are many kinds of update, we just update all fields simply.
 	existedTokenStr := existed.Token
 	existSecretKey := existed.SecretKey
 
 	existed.Name = modified.Name
-	existed.EnableGraphql = modified.EnableGraphql
+	if _, ok := body["enableGraphql"]; ok {
+		existed.EnableGraphql = modified.EnableGraphql
+	}
 	existed.AppId = modified.AppId
 	existed.SecretKey = modified.SecretKey
 	existed.InstallationID = modified.InstallationID
