@@ -36,13 +36,13 @@ var _ interface {
 	plugin.PluginTask
 	plugin.PluginApi
 	plugin.PluginMigration
-	// plugin.CloseablePluginTask
+	// plugin.MetricPluginBlueprintV200
 } = (*Dora)(nil)
 
 type Dora struct{}
 
 func (p Dora) Description() string {
-	return "Domain layer plugin for calculating DORA metrics"
+	return "collect some Dora data"
 }
 
 func (p Dora) Init(br context.BasicRes) errors.Error {
@@ -93,16 +93,16 @@ func (p Dora) Settings() interface{} {
 }
 
 func (p Dora) SubTaskMetas() []plugin.SubTaskMeta {
-	// Start with just the tasks we know exist
-	metas := []plugin.SubTaskMeta{
+	return []plugin.SubTaskMeta{
+		tasks.DeploymentGeneratorMeta,
+		tasks.DeploymentCommitsGeneratorMeta,
+		tasks.EnrichPrevSuccessDeploymentCommitMeta,
+		tasks.EnrichTaskEnvMeta,
 		tasks.CalculateChangeLeadTimeMeta,
-		tasks.CalculateIssueLeadTimeMeta, // Our new task
+		tasks.CalculateIssueLeadTimeMeta,
+		tasks.IssuesToIncidentsMeta,
+		tasks.ConnectIncidentToDeploymentMeta,
 	}
-
-	// Add the other existing metas without changing their names
-	// This keeps the existing functionality intact
-
-	return metas
 }
 
 func (p Dora) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
