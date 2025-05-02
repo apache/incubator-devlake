@@ -48,7 +48,7 @@ jobs:
         with:
           context: ./backend
           push: true
-          file: ./Dockerfile
+          file: ./backend/Dockerfile
           tags: |
             ${{ env.ECR }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}
             ${{ env.ECR }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
