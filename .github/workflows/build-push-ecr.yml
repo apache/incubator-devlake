@@ -83,9 +83,9 @@ jobs:
       - name: Build and push container image
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
-          context: ./frontend
+          context: ./config-ui
           push: true
-          file: ./frontend/Dockerfile
+          file: ./config-ui/Dockerfile
           tags: |
             ${{ env.ECR }}/${{ env.IMAGE_NAME_CONFIG_UI }}:${{ env.LATEST_TAG }}
             ${{ env.ECR }}/${{ env.IMAGE_NAME_CONFIG_UI }}:${{ env.COMMIT_TAG }}
