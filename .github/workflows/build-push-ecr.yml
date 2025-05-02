@@ -51,8 +51,8 @@ jobs:
           push: true
           file: ./backend/Dockerfile
           tags: |
-            ${{ env.ECR }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}
-            ${{ env.ECR }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
+            ${{ env.ECR }}/${{ env.IMAGE_NAME_SERVER }}:${{ env.LATEST_TAG }}
+            ${{ env.ECR }}/${{ env.IMAGE_NAME_SERVER }}:${{ env.COMMIT_TAG }}
           platforms: linux/amd64
           build-args: |
             TAG=${{ github.ref_name }}
@@ -87,8 +87,8 @@ jobs:
           push: true
           file: ./frontend/Dockerfile
           tags: |
-            ${{ env.ECR }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}
-            ${{ env.ECR }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
+            ${{ env.ECR }}/${{ env.IMAGE_NAME_CONFIG_UI }}:${{ env.LATEST_TAG }}
+            ${{ env.ECR }}/${{ env.IMAGE_NAME_CONFIG_UI }}:${{ env.COMMIT_TAG }}
           platforms: linux/amd64
           build-args: |
             TAG=${{ github.ref_name }}
