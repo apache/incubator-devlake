@@ -13,7 +13,7 @@ permissions:
   contents: read # Required for checkout
 
 env:
-  LATEST_TAG: latest
+  LATEST_TAG: v1.0.2-beta4
   COMMIT_TAG: ${{ github.sha }}
   AWS_REGION: us-east-1
   IAM_ROLE_ARN: arn:aws:iam::130726505375:role/github-actions-ecr
