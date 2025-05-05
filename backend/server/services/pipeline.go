@@ -20,13 +20,14 @@ package services
 import (
 	"context"
 	"fmt"
-	"golang.org/x/sync/errgroup"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/spf13/cast"
 
@@ -107,7 +108,9 @@ func pipelineServiceInit() {
 		pipelineMaxParallel = 10000
 	}
 	// run pipeline with independent goroutine
-	go RunPipelineInQueue(pipelineMaxParallel)
+	if cfg.GetBool("CONSUME_PIPELINES") {
+		go RunPipelineInQueue(pipelineMaxParallel)
+	}
 }
 
 func markInterruptedPipelineAs(status string) {
