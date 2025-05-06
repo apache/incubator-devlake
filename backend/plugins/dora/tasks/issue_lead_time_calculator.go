@@ -36,26 +36,26 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	rawChgs := jiraModels.JiraIssueChangelogs{}.TableName()      // "_tool_jira_issue_changelogs"
 	rawIss := jiraModels.JiraIssue{}.TableName()                 // "_tool_jira_issues"
 
-	// 3) build the SQL (now a var, not const) and scope by project_key only
-	sqlStmt := `
-SELECT
-  c.issue_id                                                      AS issue_id,
-  MIN(CASE WHEN i.to_value = 'In Progress' THEN c.created END)     AS first_in_progress,
-  MIN(CASE WHEN i.to_value IN ('Done','Closed') THEN c.created END) AS first_done
-FROM ` + rawItems + ` i
-JOIN ` + rawChgs + ` c
-  ON i.connection_id = c.connection_id
- AND i.changelog_id  = c.changelog_id
-JOIN ` + rawIss + ` u
-  ON c.connection_id = u.connection_id
- AND c.issue_id      = u.id
-WHERE i.field       = 'status'
-  AND u.project_key = ?
-GROUP BY c.issue_id
-`
-
+	// 3) build the SQL query, filter out null timestamps in-HAVING
+	query := `
+		SELECT
+		c.issue_id AS issue_id,
+		MIN(CASE WHEN i.to_string = 'In Progress' THEN c.created END) AS first_in_progress,
+		MIN(CASE WHEN i.to_string IN ('Done','Closed') THEN c.created END) AS first_done
+		FROM ` + rawItems + ` i
+		JOIN ` + rawChgs + ` c
+		ON i.connection_id = c.connection_id
+		AND i.changelog_id  = c.changelog_id
+		JOIN ` + rawIss + ` u
+		ON c.connection_id = u.connection_id
+		AND c.issue_id      = u.id
+		WHERE i.field       = 'status'
+		AND u.project_key = ?
+		GROUP BY c.issue_id
+		HAVING first_in_progress IS NOT NULL AND first_done IS NOT NULL
+		`
 	// 4) execute & stream
-	rows, err := db.RawCursor(sqlStmt, data.Options.ProjectName)
+	rows, err := db.RawCursor(query, data.Options.ProjectName)
 	if err != nil {
 		return errors.Default.Wrap(err, "running lead time aggregation query")
 	}
