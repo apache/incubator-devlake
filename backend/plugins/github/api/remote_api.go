@@ -47,7 +47,7 @@ func listGithubRemoteScopes(
 	}
 
 	if connection.AuthMethod == plugin.AUTH_METHOD_APPKEY {
-		return listGithubAppInstalledRepos(apiClient, page)
+		return listGithubAppInstalledRepos(apiClient, groupId, page)
 	}
 	if groupId == "" {
 		return listGithubUserOrgs(apiClient, page)
@@ -154,6 +154,7 @@ func listGithubOrgRepos(
 
 func listGithubAppInstalledRepos(
 	apiClient plugin.ApiClient,
+	org string,
 	page GithubRemotePagination,
 ) (
 	children []dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo],
@@ -170,20 +171,25 @@ func listGithubAppInstalledRepos(
 	if err != nil {
 		return nil, nil, err
 	}
-	var appRepos GithubAppRepo
+	var appRepos GithubAppRepoResult
 	errors.Must(api.UnmarshalResponse(resApp, &appRepos))
 	processedOrgs := make(map[string]struct{})
 	for _, r := range appRepos.Repositories {
 		orgName := r.Owner.Login
-		if _, exists := processedOrgs[orgName]; !exists && orgName != "" {
+		// Return only the unique orgs when org is not selected
+		if _, exists := processedOrgs[orgName]; !exists && orgName != "" && org == "" {
 			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
-				Type:     api.RAS_ENTRY_TYPE_SCOPE,
-				ParentId: &orgName,
-				Id:       fmt.Sprintf("%v", r.ID),
-				Name:     fmt.Sprintf("%v", r.Name),
-				FullName: fmt.Sprintf("%v", r.FullName),
+				Type:     api.RAS_ENTRY_TYPE_GROUP,
+				ParentId: nil,
+				Id:       fmt.Sprintf("%v", orgName),
+				Name:     fmt.Sprintf("%v", orgName),
+				FullName: fmt.Sprintf("%v", orgName),
 			})
 			processedOrgs[orgName] = struct{}{}
+		}
+		// Return only repos when org is selected
+		if org != "" {
+			children = append(children, toGithubAppRepoModel(&r))
 		}
 	}
 	if len(appRepos.Repositories) == page.PerPage {
@@ -228,6 +234,28 @@ func searchGithubRepos(
 }
 
 func toRepoModel(r *repo) dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo] {
+	parentId := fmt.Sprintf("%v", r.Owner.Login)
+	return dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
+		Type:     api.RAS_ENTRY_TYPE_SCOPE,
+		ParentId: &parentId,
+		Id:       fmt.Sprintf("%v", r.ID),
+		Name:     fmt.Sprintf("%v", r.Name),
+		FullName: fmt.Sprintf("%v", r.FullName),
+		Data: &models.GithubRepo{
+			GithubId:    r.ID,
+			Name:        r.Name,
+			FullName:    r.FullName,
+			HTMLUrl:     r.HTMLURL,
+			Description: r.Description,
+			OwnerId:     r.Owner.ID,
+			CloneUrl:    r.CloneURL,
+			CreatedDate: r.CreatedAt,
+			UpdatedDate: r.UpdatedAt,
+		},
+	}
+}
+
+func toGithubAppRepoModel(r *GithubAppRepo) dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo] {
 	parentId := fmt.Sprintf("%v", r.Owner.Login)
 	return dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo]{
 		Type:     api.RAS_ENTRY_TYPE_SCOPE,
