@@ -2,19 +2,15 @@ package models
 
 import (
 	"time"
-
-	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 // IssueLeadTimeMetric tracks lead time for issues from in-progress to done
 type IssueLeadTimeMetric struct {
-	common.NoPKModel `json:"-" gorm:"primaryKey;autoIncrement:false"`
-
 	ProjectName string `json:"projectName" gorm:"primaryKey;type:varchar(255)"`
 	IssueId     string `json:"issueId" gorm:"primaryKey;type:varchar(255)"`
 
-	FirstInProgressDate *time.Time `json:"firstInProgressDate"`
-	FirstDoneDate       *time.Time `json:"firstDoneDate"`
+	InProgressDate *time.Time `json:"InProgressDate"`
+	DoneDate       *time.Time `json:"DoneDate"`
 
 	// Lead time in minutes from first 'In Progress' to first 'Done'
 	InProgressToDoneMinutes *int64 `json:"inProgressToDoneMinutes"`

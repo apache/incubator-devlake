@@ -11,8 +11,8 @@ import (
 type issueLeadTimeMetric struct {
 	ProjectName             string `gorm:"primaryKey;type:varchar(255)"`
 	IssueId                 string `gorm:"primaryKey;type:varchar(255)"`
-	FirstInProgressDate     *time.Time
-	FirstDoneDate           *time.Time
+	InProgressDate          *time.Time
+	DoneDate                *time.Time
 	InProgressToDoneMinutes *int64
 }
 

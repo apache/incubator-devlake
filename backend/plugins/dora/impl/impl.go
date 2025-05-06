@@ -163,6 +163,7 @@ func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.
 				},
 				Subtasks: []string{
 					"calculateChangeLeadTime",
+					"calculateIssueLeadTime",
 					tasks.IssuesToIncidentsMeta.Name,
 					"ConnectIncidentToDeployment",
 				},
