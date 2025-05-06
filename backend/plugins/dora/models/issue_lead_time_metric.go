@@ -6,8 +6,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// IssueLeadTimeMetric stores the calculated lead time from the first 'In Progress' status
-// to the first 'Done' status for a specific issue.
+// IssueLeadTimeMetric tracks lead time for issues from in-progress to done
 type IssueLeadTimeMetric struct {
 	common.NoPKModel `json:"-" gorm:"primaryKey;autoIncrement:false"`
 
@@ -21,7 +20,7 @@ type IssueLeadTimeMetric struct {
 	InProgressToDoneMinutes *int64 `json:"inProgressToDoneMinutes"`
 }
 
-// TableName specifies the database table name for this model.
+// TableName specifies the database table name
 func (IssueLeadTimeMetric) TableName() string {
 	return "_tool_dora_issue_lead_time_metrics"
 }
