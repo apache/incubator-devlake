@@ -46,7 +46,9 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		SELECT
 		c.issue_id AS issue_id,
 		MIN(CASE WHEN i.to_string = 'In Progress' THEN c.created END) AS in_progress_timestamp,
-		MAX(CASE WHEN i.to_string IN ('Done','Closed') THEN c.created END) AS done_timestamp
+		MAX(CASE WHEN i.to_string IN ('Done','Closed') 
+			AND i.from_string NOT IN ('Done','Closed') 
+			THEN c.created END) AS done_timestamp
 		FROM ` + rawItems + ` i
 		JOIN ` + rawChgs + ` c
 		ON i.connection_id = c.connection_id
