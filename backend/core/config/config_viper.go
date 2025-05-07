@@ -106,6 +106,7 @@ func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("SWAGGER_DOCS_DIR", "resources/swagger")
 	v.SetDefault("RESUME_PIPELINES", true)
 	v.SetDefault("CORS_ALLOW_ORIGIN", "*")
+	v.SetDefault("CONSUME_PIPELINES", true)
 }
 
 func init() {

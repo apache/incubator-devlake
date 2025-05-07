@@ -23,10 +23,10 @@ import (
 
 type TapdStoryCategory struct {
 	ConnectionId uint64          `gorm:"primaryKey"`
-	Id           uint64          `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
+	Id           int64           `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
 	Name         string          `json:"name" gorm:"type:varchar(255)"`
 	Description  string          `json:"description"`
-	ParentId     uint64          `json:"parent_id,string"`
+	ParentId     int64           `json:"parent_id,string"`
 	Created      *common.CSTTime `json:"created"`
 	Modified     *common.CSTTime `json:"modified"`
 	common.NoPKModel

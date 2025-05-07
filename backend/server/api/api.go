@@ -118,6 +118,7 @@ func SetupApiServer(router *gin.Engine) {
 	// Required for `/projects/hello%20%2F%20world` to be parsed properly with `/projects/:projectName`
 	// end up with `name = "hello / world"`
 	router.UseRawPath = true
+	// router.UnescapePathValues = false
 
 	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {

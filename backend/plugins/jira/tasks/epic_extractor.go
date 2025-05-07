@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -39,12 +37,12 @@ var ExtractEpicsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 
-func ExtractEpics(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*JiraTaskData)
-	db := taskCtx.GetDal()
+func ExtractEpics(subtaskCtx plugin.SubTaskContext) errors.Error {
+	data := subtaskCtx.GetData().(*JiraTaskData)
+	db := subtaskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
-	logger := taskCtx.GetLogger()
+	logger := subtaskCtx.GetLogger()
 	logger.Info("extract external epic Issues, connection_id=%d, board_id=%d", connectionId, boardId)
 	mappings, err := getTypeMappings(data, db)
 	if err != nil {
@@ -54,21 +52,40 @@ func ExtractEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
+
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[apiv2models.Issue]{
+		SubtaskCommonArgs: &api.SubtaskCommonArgs{
+			SubTaskContext: subtaskCtx,
+			Table:          RAW_EPIC_TABLE,
 			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			Table: RAW_EPIC_TABLE,
+			SubtaskConfig: map[string]any{
+				"typeMappings":    mappings,
+				"storyPointField": data.Options.ScopeConfig.StoryPointField,
+			},
 		},
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			apiIssue := &apiv2models.Issue{}
-			err = errors.Convert(json.Unmarshal(row.Data, apiIssue))
-			if err != nil {
-				return nil, err
+		BeforeExtract: func(apiIssue *apiv2models.Issue, stateManager *api.SubtaskStateManager) errors.Error {
+			if stateManager.IsIncremental() {
+				err := db.Delete(
+					&models.JiraIssueLabel{},
+					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, apiIssue.ID),
+				)
+				if err != nil {
+					return err
+				}
+				err = db.Delete(
+					&models.JiraIssueRelationship{},
+					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, apiIssue.ID),
+				)
+				if err != nil {
+					return err
+				}
 			}
+			return nil
+		},
+		Extract: func(apiIssue *apiv2models.Issue, row *api.RawData) ([]interface{}, errors.Error) {
 			return extractIssues(data, mappings, apiIssue, row, userFieldMap)
 		},
 	})

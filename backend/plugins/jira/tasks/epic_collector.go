@@ -78,6 +78,9 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Info("got user's timezone: %v", loc.String())
 	}
 	jql := "ORDER BY created ASC"
+	if apiCollector.GetSince() != nil {
+		jql = buildJQL(*apiCollector.GetSince(), loc)
+	}
 
 	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
@@ -90,7 +93,7 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 			for _, e := range reqData.Input.([]interface{}) {
 				epicKeys = append(epicKeys, *e.(*string))
 			}
-			localJQL := fmt.Sprintf("issue in (%s) %s", strings.Join(epicKeys, ","), jql)
+			localJQL := fmt.Sprintf("issue in (%s) and %s", strings.Join(epicKeys, ","), jql)
 			query.Set("jql", localJQL)
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
@@ -130,12 +133,12 @@ func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (api.Ite
 		dal.Join(`
 			LEFT JOIN _tool_jira_board_issues bi ON (
 			i.connection_id = bi.connection_id
-			AND 
+			AND
 			i.issue_id = bi.issue_id
 		)`),
 		dal.Where(`
 			i.connection_id = ?
-			AND 
+			AND
 			bi.board_id = ?
 			AND
 			i.epic_key != ''
