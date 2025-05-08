@@ -362,6 +362,9 @@ func getProjectName(pipeline *models.Pipeline) (string, errors.Error) {
 		return "", errors.Default.New("pipeline is nil")
 	}
 	blueprintId := pipeline.BlueprintId
+	if blueprintId == 0 {
+		return "", nil
+	}
 	dbBlueprint := &models.Blueprint{}
 	err := db.First(dbBlueprint, dal.Where("id = ?", blueprintId))
 	if err != nil {
