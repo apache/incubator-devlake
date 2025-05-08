@@ -46,9 +46,7 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		SELECT
 		c.issue_id AS issue_id,
 		MIN(CASE WHEN i.to_string = 'In Progress' THEN c.created END) AS in_progress_timestamp,
-		MAX(CASE WHEN i.to_string IN ('Done','Closed') 
-			AND i.from_string IN ('In Progress', 'In Review', 'Implementing', 'In Development')
-			THEN c.created END) AS done_timestamp
+		u.resolution_date AS done_timestamp
 		FROM ` + rawItems + ` i
 		JOIN ` + rawChgs + ` c
 		ON i.connection_id = c.connection_id
@@ -64,8 +62,9 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		AND pm.table = 'boards'
 		WHERE i.field         = 'status'
 		AND pm.project_name = ?
-		GROUP BY c.issue_id
-		HAVING in_progress_timestamp IS NOT NULL AND done_timestamp IS NOT NULL
+		AND u.resolution_date IS NOT NULL
+		GROUP BY c.issue_id, u.resolution_date
+		HAVING in_progress_timestamp IS NOT NULL
 		`
 	logger.Info(fmt.Sprintf("Executing SQL query for DevLake project: %s", data.Options.ProjectName))
 
