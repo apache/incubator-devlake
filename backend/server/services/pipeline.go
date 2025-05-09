@@ -292,6 +292,14 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 		if err != nil {
 			panic(err)
 		}
+
+		// Notify that the pipeline has started
+		go func(pipelineId uint64) {
+			if notifyErr := NotifyExternal(pipelineId); notifyErr != nil {
+				globalPipelineLog.Error(notifyErr, "failed to send pipeline started notification for pipeline #%d", pipelineId)
+			}
+		}(pipeline.ID)
+
 		return
 	}
 	if tx.IsErrorNotFound(err) {
@@ -362,6 +370,10 @@ func getProjectName(pipeline *models.Pipeline) (string, errors.Error) {
 		return "", errors.Default.New("pipeline is nil")
 	}
 	blueprintId := pipeline.BlueprintId
+	if blueprintId == 0 {
+		// skip get project name if pipeline is not bound to a blueprint
+		return "", nil
+	}
 	dbBlueprint := &models.Blueprint{}
 	err := db.First(dbBlueprint, dal.Where("id = ?", blueprintId))
 	if err != nil {
