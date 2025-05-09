@@ -110,6 +110,14 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 	// update tasks state
 	errors.Must(tx.Update(dbPipeline))
 	dbPipeline.Labels = newPipeline.Labels
+
+	// Notify that the pipeline has been created
+	go func(pipelineId uint64) {
+		if notifyErr := NotifyExternal(pipelineId); notifyErr != nil {
+			globalPipelineLog.Error(notifyErr, "failed to send pipeline created notification for pipeline #%d", pipelineId)
+		}
+	}(dbPipeline.ID)
+
 	return dbPipeline, nil
 }
 
