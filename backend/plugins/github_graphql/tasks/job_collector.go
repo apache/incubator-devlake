@@ -93,6 +93,13 @@ type SimpleWorkflowRun struct {
 	CheckSuiteNodeID string
 }
 
+// DbCheckRun is used to store additional fields (like RunId) required for database storage
+// and application logic, while embedding the GraphqlQueryCheckRun struct for API data.
+type DbCheckRun struct {
+	RunId int // WorkflowRunId, required for DORA calculation
+	*GraphqlQueryCheckRun
+}
+
 var CollectJobsMeta = plugin.SubTaskMeta{
 	Name:             "Collect Job Runs",
 	EntryPoint:       CollectJobs,
@@ -188,15 +195,20 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
 			query := queryWrapper.(*GraphqlQueryCheckRunWrapper)
 			for _, node := range query.Node {
+				runId := node.CheckSuite.WorkflowRun.DatabaseId
 				for _, checkRun := range node.CheckSuite.CheckRuns.Nodes {
-					updatedAt := checkRun.StartedAt
-					if checkRun.CompletedAt != nil {
-						updatedAt = checkRun.CompletedAt
+					dbCheckRun := &DbCheckRun{
+						RunId:                runId,
+						GraphqlQueryCheckRun: &checkRun,
+					}
+					updatedAt := dbCheckRun.StartedAt
+					if dbCheckRun.CompletedAt != nil {
+						updatedAt = dbCheckRun.CompletedAt
 					}
 					if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(*updatedAt) {
 						return messages, helper.ErrFinishCollect
 					}
-					messages = append(messages, errors.Must1(json.Marshal(checkRun)))
+					messages = append(messages, errors.Must1(json.Marshal(dbCheckRun)))
 				}
 			}
 			return
