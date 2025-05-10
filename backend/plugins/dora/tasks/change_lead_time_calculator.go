@@ -233,6 +233,15 @@ func getDeploymentCommit(mergeSha string, projectName string, db dal.Dal) (*devo
 	return deploymentCommits[0], nil
 }
 
+// CalculateInProgressToDoneLeadTime is a placeholder function to calculate lead time.
+// TODO: Implement the actual calculation logic.
+func CalculateInProgressToDoneLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
+	logger := taskCtx.GetLogger()
+	logger.Info("Placeholder function CalculateInProgressToDoneLeadTime called.")
+	// Later, add logic here to calculate lead time from 'in progress' to 'done' statuses for issues/tickets.
+	return nil // Return nil for now, indicating success
+}
+
 func computeTimeSpan(start, end *time.Time) *int64 {
 	if start == nil || end == nil {
 		return nil
