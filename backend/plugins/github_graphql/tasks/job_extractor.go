@@ -51,7 +51,7 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_GRAPHQL_JOBS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			checkRun := &GraphqlQueryCheckRun{}
+			checkRun := &DbCheckRun{}
 			err := errors.Convert(json.Unmarshal(row.Data, checkRun))
 			if err != nil {
 				return nil, err
@@ -65,7 +65,7 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			githubJob := &models.GithubJob{
 				ConnectionId: data.Options.ConnectionId,
-				RunID:        checkRun.DatabaseId,
+				RunID:        checkRun.RunId,
 				RepoId:       data.Options.GithubId,
 				ID:           checkRun.DatabaseId,
 				NodeID:       checkRun.Id,
