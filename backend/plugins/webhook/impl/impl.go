@@ -90,6 +90,9 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		"connections/:connectionId/deployments": {
 			"POST": api.PostDeployments,
 		},
+		"connections/:connectionId/pull_requests": {
+			"POST": api.PostPullRequests,
+		},
 		"connections/:connectionId/issues": {
 			"POST": api.PostIssue,
 		},
@@ -98,6 +101,9 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		},
 		":connectionId/deployments": {
 			"POST": api.PostDeployments,
+		},
+		":connectionId/pull_requests": {
+			"POST": api.PostPullRequests,
 		},
 		":connectionId/issues": {
 			"POST": api.PostIssue,
@@ -112,6 +118,9 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		},
 		"connections/by-name/:connectionName/deployments": {
 			"POST": api.PostDeploymentsByName,
+		},
+		"connections/by-name/:connectionName/pull_requests": {
+			"POST": api.PostPullRequestsByName,
 		},
 		"connections/by-name/:connectionName/issues": {
 			"POST": api.PostIssueByName,

@@ -10,7 +10,7 @@ require (
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/go-playground/validator/v10 v10.19.0
-	github.com/gocarina/gocsv v0.0.0-20220707092902-b9da1f06c77e
+	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v5 v5.6.0 // indirect
 	github.com/lib/pq v1.10.2
@@ -128,5 +128,7 @@ require (
 	github.com/rogpeppe/go-internal v1.11.0
 	golang.org/x/mod v0.17.0
 )
+
+replace github.com/chenzhuoyu/iasm => github.com/cloudwego/iasm v0.2.0
 
 //replace github.com/apache/incubator-devlake => ./
