@@ -94,6 +94,17 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
             .
           </p>
         </Block>
+        <Block title="Pull Requests">
+          <h5>Post to register/update a pull_request</h5>
+          <CopyText content={URI.postPullRequestsEndpoint} />
+          <p>
+            See the{' '}
+            <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#pull_requests">
+              full payload schema
+            </ExternalLink>
+            .
+          </p>
+        </Block>
         <Block
           title="API Key"
           description="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."

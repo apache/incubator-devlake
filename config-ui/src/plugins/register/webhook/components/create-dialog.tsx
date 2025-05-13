@@ -44,6 +44,7 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
     postIssuesEndpoint: '',
     closeIssuesEndpoint: '',
     postDeploymentsCurl: '',
+    postPullRequestsEndpoint: '',
     apiKey: '',
   });
 
@@ -55,7 +56,7 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
     const [success, res] = await operator(
       async () => {
         const {
-          webhook: { id, postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint },
+          webhook: { id, postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint, postPullRequestsEndpoint },
           apiKey,
         } = await dispatch(addWebhook({ name })).unwrap();
 
@@ -65,6 +66,7 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
           postIssuesEndpoint,
           closeIssuesEndpoint,
           postPipelineDeployTaskEndpoint,
+          postPullRequestsEndpoint,
         };
       },
       {
@@ -146,6 +148,17 @@ export const CreateDialog = ({ open, onCancel, onSubmitAfter }: Props) => {
             <p>
               See the{' '}
               <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#deployment">
+                full payload schema
+              </ExternalLink>
+              .
+            </p>
+          </Block>
+          <Block title="Pull Requests">
+            <h5>Post to register a pull request</h5>
+            <CopyText content={record.postPullRequestsEndpoint} />
+            <p>
+              See the{' '}
+              <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#pull_requests">
                 full payload schema
               </ExternalLink>
               .
