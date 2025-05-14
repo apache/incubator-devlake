@@ -20,29 +20,28 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
-	"net/http"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func CreateApiClient(taskCtx plugin.TaskContext, connection *models.AzuredevopsConnection) (*api.ApiAsyncClient, errors.Error) {
-	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+func NewQDevS3Client(taskCtx plugin.TaskContext, connection *models.QDevConnection) (*QDevS3Client, errors.Error) {
+	// 创建AWS session
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(connection.Region),
+		Credentials: credentials.NewStaticCredentials(connection.AccessKeyId, connection.SecretAccessKey, ""),
+	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 
-	rateLimiter := &api.ApiRateLimitCalculator{
-		UserRateLimitPerHour: connection.GetRateLimitPerHour(),
-		Method:               http.MethodGet,
-		DynamicRateLimit:     nil,
-	}
-	asyncApiClient, err := api.CreateAsyncApiClient(
-		taskCtx,
-		apiClient,
-		rateLimiter,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return asyncApiClient, nil
-}
+	// 创建S3服务客户端
+	s3Client := s3.New(sess)
+	
+	return &QDevS3Client{
+		S3:     s3Client,
+		Bucket: connection.Bucket,
+	}, nil
+} 

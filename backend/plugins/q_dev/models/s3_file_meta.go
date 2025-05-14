@@ -18,27 +18,21 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type AzuredevopsCommit struct {
+// QDevS3FileMeta 存储S3文件的元数据信息
+type QDevS3FileMeta struct {
 	common.NoPKModel
-
-	Sha            string `gorm:"primaryKey;type:varchar(40)"`
-	Message        string
-	AuthorName     string
-	AuthorEmail    string
-	AuthoredDate   *time.Time
-	CommitterName  string
-	CommitterEmail string
-	CommittedDate  *time.Time
-	WebUrl         string
-	Additions      int
-	Deletions      int
-	Edit           int
+	ConnectionId  uint64     `gorm:"primaryKey"`
+	FileName      string     `gorm:"primaryKey;type:varchar(255)"`
+	S3Path        string     `gorm:"type:varchar(512)" json:"s3Path"`
+	Processed     bool       `gorm:"default:false"`
+	ProcessedTime *time.Time `gorm:"default:null"`
 }
 
-func (AzuredevopsCommit) TableName() string {
-	return "_tool_azuredevops_go_commits"
+func (QDevS3FileMeta) TableName() string {
+	return "_tool_q_dev_s3_file_meta"
 }
