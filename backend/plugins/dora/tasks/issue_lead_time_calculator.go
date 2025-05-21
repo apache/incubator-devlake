@@ -41,30 +41,70 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	rawChgs := jiraModels.JiraIssueChangelogs{}.TableName()      // "_tool_jira_issue_changelogs"
 	rawIss := jiraModels.JiraIssue{}.TableName()                 // "_tool_jira_issues"
 
-	// 3) build the SQL query, filter out null timestamps
+	// 3) build the SQL query that calculates actual working time
 	query := `
-		SELECT
-		c.issue_id AS issue_id,
-		MIN(CASE WHEN i.to_string = 'In Progress' THEN c.created END) AS in_progress_timestamp,
-		u.resolution_date AS done_timestamp
+		WITH status_changes AS (
+		SELECT 
+			c.issue_id AS issue_id,
+			c.created AS change_date,
+			i.from_string AS from_status,
+			i.to_string AS to_status,
+			LEAD(c.created) OVER (PARTITION BY c.issue_id ORDER BY c.created) AS next_change_date,
+			u.resolution_date AS resolution_date,
+			u.summary AS issue_summary,
+			u.issue_key AS issue_key
 		FROM ` + rawItems + ` i
 		JOIN ` + rawChgs + ` c
-		ON i.connection_id = c.connection_id
-		AND i.changelog_id  = c.changelog_id
+			ON i.connection_id = c.connection_id
+			AND i.changelog_id = c.changelog_id
 		JOIN ` + rawIss + ` u
-		ON c.connection_id = u.connection_id
-		AND c.issue_id      = u.issue_id
+			ON c.connection_id = u.connection_id
+			AND c.issue_id = u.issue_id
 		JOIN _tool_jira_board_issues bi
-		ON u.connection_id = bi.connection_id
-		AND u.issue_id = bi.issue_id
+			ON u.connection_id = bi.connection_id
+			AND u.issue_id = bi.issue_id
 		JOIN project_mapping pm
-		ON pm.row_id = CONCAT('jira:JiraBoard:', bi.connection_id, ':', bi.board_id)
-		AND pm.table = 'boards'
-		WHERE i.field         = 'status'
-		AND pm.project_name = ?
-		AND u.resolution_date IS NOT NULL
-		GROUP BY c.issue_id, u.resolution_date
-		HAVING in_progress_timestamp IS NOT NULL
+			ON pm.row_id = CONCAT('jira:JiraBoard:', bi.connection_id, ':', bi.board_id)
+			AND pm.table = 'boards'
+		WHERE i.field = 'status'
+			AND pm.project_name = ?
+			AND u.resolution_date IS NOT NULL
+		),
+		active_periods AS (
+		SELECT
+			issue_id,
+			issue_key,
+			issue_summary,
+			change_date AS start_time,
+			next_change_date AS end_time,
+			to_status,
+			from_status,
+			resolution_date,
+			CASE 
+			-- Count time in active development states (case insensitive)
+			WHEN UPPER(to_status) IN ('IN PROGRESS', 'IN REVIEW', 'DEV COMPLETE') THEN 
+				TIMESTAMPDIFF(MINUTE, change_date, next_change_date)
+			-- All blocked states count as 0 minutes
+			WHEN UPPER(to_status) IN ('BLOCKED', 'BLOCKED / PAUSED', 'PAUSED') THEN 0
+			-- Done states count as 0 active minutes
+			WHEN UPPER(to_status) IN ('DONE', 'READY TO DEPLOY', 'RELEASED') THEN 0
+			-- Todo states count as 0 active minutes
+			WHEN UPPER(to_status) IN ('TO DO', 'TODO', 'OPEN', 'READY FOR DEV') THEN 0
+			-- Other states count as 0 for active work time
+			ELSE 0
+			END AS active_minutes
+		FROM status_changes
+		WHERE next_change_date IS NOT NULL
+		)
+		SELECT
+		issue_id,
+		issue_key,
+		MIN(start_time) AS first_status_change,
+		resolution_date AS done_timestamp,
+		SUM(active_minutes) AS in_progress_to_done_minutes
+		FROM active_periods
+		GROUP BY issue_id, issue_key, resolution_date
+		HAVING SUM(active_minutes) > 0
 		`
 	logger.Info(fmt.Sprintf("Executing SQL query for DevLake project: %s", data.Options.ProjectName))
 
