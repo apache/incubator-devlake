@@ -41,7 +41,7 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	rawChgs := jiraModels.JiraIssueChangelogs{}.TableName()      // "_tool_jira_issue_changelogs"
 	rawIss := jiraModels.JiraIssue{}.TableName()                 // "_tool_jira_issues"
 
-	// 3) build the SQL query that calculates actual working time
+	// 3) build the SQL query with direct in_progress_to_done_minutes calculation
 	query := `
 		WITH status_changes AS (
 		SELECT 
@@ -51,7 +51,6 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			i.to_string AS to_status,
 			LEAD(c.created) OVER (PARTITION BY c.issue_id ORDER BY c.created) AS next_change_date,
 			u.resolution_date AS resolution_date,
-			u.summary AS issue_summary,
 			u.issue_key AS issue_key
 		FROM ` + rawItems + ` i
 		JOIN ` + rawChgs + ` c
@@ -74,7 +73,6 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		SELECT
 			issue_id,
 			issue_key,
-			issue_summary,
 			change_date AS start_time,
 			next_change_date AS end_time,
 			to_status,
@@ -99,12 +97,12 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		SELECT
 		issue_id,
 		issue_key,
-		MIN(start_time) AS first_status_change,
-		resolution_date AS done_timestamp,
+		MIN(CASE WHEN UPPER(to_status) IN ('IN PROGRESS', 'IN REVIEW', 'DEV COMPLETE') THEN start_time END) AS first_active_time,
+		resolution_date AS done_time,
 		SUM(active_minutes) AS in_progress_to_done_minutes
 		FROM active_periods
 		GROUP BY issue_id, issue_key, resolution_date
-		HAVING SUM(active_minutes) > 0
+		HAVING SUM(active_minutes) > 0 AND first_active_time IS NOT NULL
 		`
 	logger.Info(fmt.Sprintf("Executing SQL query for DevLake project: %s", data.Options.ProjectName))
 
@@ -119,34 +117,38 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	rowCount := 0
 	for rows.Next() {
 		var (
-			rawIssueID    uint64
-			rawInProgress sql.NullTime
-			rawDone       sql.NullTime
+			rawIssueID        uint64
+			rawIssueKey       string
+			rawFirstActive    sql.NullTime
+			rawDone           sql.NullTime
+			calculatedMinutes int64
 		)
-		if scanErr := rows.Scan(&rawIssueID, &rawInProgress, &rawDone); scanErr != nil {
+		if scanErr := rows.Scan(&rawIssueID, &rawIssueKey, &rawFirstActive, &rawDone, &calculatedMinutes); scanErr != nil {
 			logger.Error(scanErr, "")
 			return errors.Default.Wrap(scanErr, "scanning lead time row")
 		}
 		// skip if null
-		if !rawInProgress.Valid || !rawDone.Valid {
+		if !rawFirstActive.Valid || !rawDone.Valid {
 			logger.Debug(fmt.Sprintf("Skipping row with null timestamp: issueID=%d", rawIssueID))
 			continue
 		}
-		start := rawInProgress.Time
-		end := rawDone.Time
-		mins := int64(end.Sub(start).Minutes())
-		if mins < 0 {
-			logger.Info(fmt.Sprintf("Skipping row with negative lead time: issueID=%d", rawIssueID))
+
+		// We already calculated the minutes in SQL, just use them directly
+		if calculatedMinutes <= 0 {
+			logger.Info(fmt.Sprintf("Skipping row with zero or negative lead time: issueID=%d", rawIssueID))
 			continue
 		}
 
-		// 5) upsert
+		start := rawFirstActive.Time
+		end := rawDone.Time
+
+		// 5) upsert directly with the calculated minutes
 		metric := &models.IssueLeadTimeMetric{
 			ProjectName:             data.Options.ProjectName,
 			IssueId:                 strconv.FormatUint(rawIssueID, 10),
 			InProgressDate:          &start,
 			DoneDate:                &end,
-			InProgressToDoneMinutes: &mins,
+			InProgressToDoneMinutes: &calculatedMinutes,
 		}
 		logger.Debug(fmt.Sprintf("Upserting metric: projectName=%s, issueId=%s, minutes=%d",
 			metric.ProjectName, metric.IssueId, *metric.InProgressToDoneMinutes))
