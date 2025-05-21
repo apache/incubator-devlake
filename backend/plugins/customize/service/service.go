@@ -453,11 +453,21 @@ func (s *Service) qaApiHandler(qaProjectId string) func(record map[string]interf
 func (s *Service) ImportQaTestCases(qaProjectId, qaProjectName string, file io.ReadCloser, incremental bool) errors.Error {
 	if !incremental {
 		// delete old data associated with this qaProjectId
+		// delete qa_test_cases
 		err := s.dal.Delete(&qa.QaTestCase{}, dal.Where("qa_project_id = ?", qaProjectId))
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_cases for qaProjectId %s", qaProjectId))
 		}
-		// using ImportQaApis to delete data in qa_apis
+		// delete qa_apis
+		err = s.dal.Delete(&qa.QaApi{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_apis for qaProjectId %s", qaProjectId))
+		}
+		// delete qa_test_case_executions
+		err = s.dal.Delete(&qa.QaTestCaseExecution{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_case_executions for qaProjectId %s", qaProjectId))
+		}
 		// never delete data in qa_projects
 	}
 	// create or update qa_projects

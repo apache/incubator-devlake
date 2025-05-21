@@ -38,12 +38,18 @@ export const ProjectHomePage = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   const nameRef = useRef(null);
   const connectionRef = useRef(null);
   const configRef = useRef(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { ready, data } = useRefreshData(() => API.project.list({ page, pageSize }), [version, page, pageSize]);
+  const { ready, data } = useRefreshData(
+    () => API.project.list({ page, pageSize, ...(searchKeyword.trim() && { keyword: searchKeyword.trim() }) }),
+    [version, page, pageSize, searchKeyword]
+  );
 
   const navigate = useNavigate();
 
@@ -98,12 +104,35 @@ export const ProjectHomePage = () => {
     if (success) {
       handleHideDialog();
       setVersion((v) => v + 1);
+      setPage(1);
+      setSearchKeyword('');
+      setInputValue('');
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setInputValue(value);
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      setSearchKeyword(value.trim());
+      setPage(1);
+      setVersion((v) => v + 1);
+    }, 500);
   };
 
   return (
     <PageHeader breadcrumbs={[{ name: 'Projects', path: PATHS.PROJECTS() }]}>
-      <Flex style={{ marginBottom: 16 }} justify="flex-end">
+      <Flex style={{ marginBottom: 16, width: '100%' }} justify="flex-end" align="center">
+        <Input
+          placeholder="Search project ..."
+          style={{ width: 300, marginRight: 12 }}
+          value={inputValue}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
         <Button type="primary" icon={<PlusOutlined />} onClick={handleShowDialog}>
           New Project
         </Button>

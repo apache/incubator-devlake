@@ -23,7 +23,7 @@ import (
 )
 
 type PipelineNotificationParam struct {
-	ProjectName string
+	ProjectName string // can be an empty string, if pipeline is created and triggered by API
 	PipelineID  uint64
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
