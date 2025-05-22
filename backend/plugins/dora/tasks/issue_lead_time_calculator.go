@@ -41,7 +41,7 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	rawChgs := jiraModels.JiraIssueChangelogs{}.TableName()      // "_tool_jira_issue_changelogs"
 	rawIss := jiraModels.JiraIssue{}.TableName()                 // "_tool_jira_issues"
 
-	// 3) build the SQL query, filter out null timestamps
+	// 3) build the SQL query, filter out null timestamps and use only latest resolution per issue
 	query := `
 		SELECT
 		c.issue_id AS issue_id,
@@ -63,6 +63,12 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		WHERE i.field         = 'status'
 		AND pm.project_name = ?
 		AND u.resolution_date IS NOT NULL
+		AND u.resolution_date = (
+			SELECT MAX(u2.resolution_date) 
+			FROM ` + rawIss + ` u2 
+			WHERE u2.connection_id = u.connection_id 
+			AND u2.issue_id = u.issue_id
+		)
 		GROUP BY c.issue_id, u.resolution_date
 		HAVING in_progress_timestamp IS NOT NULL
 		`
@@ -77,6 +83,7 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	defer rows.Close()
 
 	rowCount := 0
+	logger.Info("Starting to process SQL query results...")
 	for rows.Next() {
 		var (
 			rawIssueID    uint64
@@ -87,6 +94,7 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			logger.Error(scanErr, "")
 			return errors.Default.Wrap(scanErr, "scanning lead time row")
 		}
+		logger.Info(fmt.Sprintf("Scanned row: issueID=%d, inProgress=%v, done=%v", rawIssueID, rawInProgress, rawDone))
 		// skip if null
 		if !rawInProgress.Valid || !rawDone.Valid {
 			logger.Debug(fmt.Sprintf("Skipping row with null timestamp: issueID=%d", rawIssueID))
@@ -108,13 +116,14 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			DoneDate:                &end,
 			InProgressToDoneMinutes: &mins,
 		}
-		logger.Debug(fmt.Sprintf("Upserting metric: projectName=%s, issueId=%s, minutes=%d",
+		logger.Info(fmt.Sprintf("About to upsert metric: projectName=%s, issueId=%s, minutes=%d",
 			metric.ProjectName, metric.IssueId, *metric.InProgressToDoneMinutes))
 
 		if upsertErr := db.CreateOrUpdate(metric); upsertErr != nil {
-			logger.Error(upsertErr, "")
+			logger.Error(upsertErr, fmt.Sprintf("Failed to upsert metric for issueId=%s", metric.IssueId))
 			return errors.Default.Wrap(upsertErr, "upserting issue lead time metric")
 		}
+		logger.Info(fmt.Sprintf("Successfully upserted metric for issueId=%s", metric.IssueId))
 		rowCount++
 	}
 
