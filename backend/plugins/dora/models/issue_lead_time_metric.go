@@ -8,7 +8,6 @@ import (
 type IssueLeadTimeMetric struct {
 	ProjectName    string     `json:"projectName" gorm:"primaryKey;type:varchar(255)"`
 	IssueId        string     `json:"issueId" gorm:"primaryKey;type:varchar(255)"`
-	IssueKey       string     `json:"issueKey" gorm:"primaryKey;type:varchar(255)"`
 	InProgressDate *time.Time `json:"InProgressDate"`
 	DoneDate       *time.Time `json:"DoneDate"`
 

@@ -102,18 +102,20 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 
 		// 5) upsert
-		metric := &models.IssueLeadTimeMetric{
+		// Create a temporary struct without IssueKey for database storage
+		metricForDb := &models.IssueLeadTimeMetric{
 			ProjectName:             data.Options.ProjectName,
 			IssueId:                 strconv.FormatUint(rawIssueID, 10),
-			IssueKey:                rawIssueKey,
 			InProgressDate:          &start,
 			DoneDate:                &end,
 			InProgressToDoneMinutes: &mins,
 		}
-		logger.Debug(fmt.Sprintf("Upserting metric: projectName=%s, issueId=%s, issueKey=%s, minutes=%d",
-			metric.ProjectName, metric.IssueId, metric.IssueKey, *metric.InProgressToDoneMinutes))
 
-		if upsertErr := db.CreateOrUpdate(metric); upsertErr != nil {
+		// Still log the issue key for debugging purposes
+		logger.Debug(fmt.Sprintf("Upserting metric: projectName=%s, issueId=%s, issueKey=%s, minutes=%d",
+			metricForDb.ProjectName, metricForDb.IssueId, rawIssueKey, *metricForDb.InProgressToDoneMinutes))
+
+		if upsertErr := db.CreateOrUpdate(metricForDb); upsertErr != nil {
 			logger.Error(upsertErr, "")
 			return errors.Default.Wrap(upsertErr, "upserting issue lead time metric")
 		}
