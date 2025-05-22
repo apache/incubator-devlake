@@ -41,12 +41,12 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	rawChgs := jiraModels.JiraIssueChangelogs{}.TableName()      // "_tool_jira_issue_changelogs"
 	rawIss := jiraModels.JiraIssue{}.TableName()                 // "_tool_jira_issues"
 
-	// 3) build the SQL query to get first "In Progress" to resolution date and include issue_key
+	// 3) build the SQL query to get first "In Progress" to resolution date
 	query := `
 		SELECT
 			c.issue_id AS issue_id,
 			u.issue_key AS issue_key,
-			MIN(CASE WHEN i.to_string = 'In Progress' THEN c.created END) AS in_progress_timestamp,
+			MIN(CASE WHEN UPPER(i.to_string) IN ('IN PROGRESS') THEN c.created END) AS in_progress_timestamp,
 			u.resolution_date AS done_timestamp
 		FROM ` + rawItems + ` i
 		JOIN ` + rawChgs + ` c
