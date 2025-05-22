@@ -41,32 +41,32 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	rawChgs := jiraModels.JiraIssueChangelogs{}.TableName()      // "_tool_jira_issue_changelogs"
 	rawIss := jiraModels.JiraIssue{}.TableName()                 // "_tool_jira_issues"
 
-	// 3) build the SQL query to get first "In Progress" to resolution date
+	// 3) build the SQL query, filter out null timestamps
 	query := `
 		SELECT
-			c.issue_id AS issue_id,
-			u.issue_key AS issue_key,
-			MIN(CASE WHEN UPPER(i.to_string) IN ('IN PROGRESS') THEN c.created END) AS in_progress_timestamp,
-			u.resolution_date AS done_timestamp
+		c.issue_id AS issue_id,
+		MIN(CASE WHEN UPPER(TRIM(i.to_string)) IN ('IN PROGRESS', 'INPROGRESS') THEN c.created END) AS in_progress_timestamp,
+		u.resolution_date AS done_timestamp
 		FROM ` + rawItems + ` i
 		JOIN ` + rawChgs + ` c
-			ON i.connection_id = c.connection_id
-			AND i.changelog_id = c.changelog_id
+		ON i.connection_id = c.connection_id
+		AND i.changelog_id  = c.changelog_id
 		JOIN ` + rawIss + ` u
-			ON c.connection_id = u.connection_id
-			AND c.issue_id = u.issue_id
+		ON c.connection_id = u.connection_id
+		AND c.issue_id      = u.issue_id
 		JOIN _tool_jira_board_issues bi
-			ON u.connection_id = bi.connection_id
-			AND u.issue_id = bi.issue_id
+		ON u.connection_id = bi.connection_id
+		AND u.issue_id = bi.issue_id
 		JOIN project_mapping pm
-			ON pm.row_id = CONCAT('jira:JiraBoard:', bi.connection_id, ':', bi.board_id)
-			AND pm.table = 'boards'
-		WHERE i.field = 'status'
-			AND pm.project_name = ?
-			AND u.resolution_date IS NOT NULL
-		GROUP BY c.issue_id, u.issue_key, u.resolution_date
+		ON pm.row_id = CONCAT('jira:JiraBoard:', bi.connection_id, ':', bi.board_id)
+		AND pm.table = 'boards'
+		WHERE i.field         = 'status'
+		AND pm.project_name = ?
+		AND u.resolution_date IS NOT NULL
+		GROUP BY c.issue_id, u.resolution_date
 		HAVING in_progress_timestamp IS NOT NULL
-	`
+		`
+	logger.Info(fmt.Sprintf("Executing SQL query for DevLake project: %s", data.Options.ProjectName))
 
 	// 4) execute & stream
 	rows, err := db.RawCursor(query, data.Options.ProjectName)
@@ -80,42 +80,38 @@ func CalculateIssueLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	for rows.Next() {
 		var (
 			rawIssueID    uint64
-			rawIssueKey   string
 			rawInProgress sql.NullTime
 			rawDone       sql.NullTime
 		)
-		if scanErr := rows.Scan(&rawIssueID, &rawIssueKey, &rawInProgress, &rawDone); scanErr != nil {
+		if scanErr := rows.Scan(&rawIssueID, &rawInProgress, &rawDone); scanErr != nil {
 			logger.Error(scanErr, "")
 			return errors.Default.Wrap(scanErr, "scanning lead time row")
 		}
 		// skip if null
 		if !rawInProgress.Valid || !rawDone.Valid {
-			logger.Debug(fmt.Sprintf("Skipping row with null timestamp: issueID=%d, issueKey=%s", rawIssueID, rawIssueKey))
+			logger.Debug(fmt.Sprintf("Skipping row with null timestamp: issueID=%d", rawIssueID))
 			continue
 		}
 		start := rawInProgress.Time
 		end := rawDone.Time
 		mins := int64(end.Sub(start).Minutes())
 		if mins < 0 {
-			logger.Info(fmt.Sprintf("Skipping row with negative lead time: issueID=%d, issueKey=%s", rawIssueID, rawIssueKey))
+			logger.Info(fmt.Sprintf("Skipping row with negative lead time: issueID=%d", rawIssueID))
 			continue
 		}
 
 		// 5) upsert
-		// Create a temporary struct without IssueKey for database storage
-		metricForDb := &models.IssueLeadTimeMetric{
+		metric := &models.IssueLeadTimeMetric{
 			ProjectName:             data.Options.ProjectName,
 			IssueId:                 strconv.FormatUint(rawIssueID, 10),
 			InProgressDate:          &start,
 			DoneDate:                &end,
 			InProgressToDoneMinutes: &mins,
 		}
+		logger.Debug(fmt.Sprintf("Upserting metric: projectName=%s, issueId=%s, minutes=%d",
+			metric.ProjectName, metric.IssueId, *metric.InProgressToDoneMinutes))
 
-		// Still log the issue key for debugging purposes
-		logger.Debug(fmt.Sprintf("Upserting metric: projectName=%s, issueId=%s, issueKey=%s, minutes=%d",
-			metricForDb.ProjectName, metricForDb.IssueId, rawIssueKey, *metricForDb.InProgressToDoneMinutes))
-
-		if upsertErr := db.CreateOrUpdate(metricForDb); upsertErr != nil {
+		if upsertErr := db.CreateOrUpdate(metric); upsertErr != nil {
 			logger.Error(upsertErr, "")
 			return errors.Default.Wrap(upsertErr, "upserting issue lead time metric")
 		}
