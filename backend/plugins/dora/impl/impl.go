@@ -94,6 +94,7 @@ func (p Dora) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.EnrichPrevSuccessDeploymentCommitMeta,
 		tasks.EnrichTaskEnvMeta,
 		tasks.CalculateChangeLeadTimeMeta,
+		tasks.CalculateIssueLeadTimeMeta,
 		tasks.IssuesToIncidentsMeta,
 		tasks.ConnectIncidentToDeploymentMeta,
 	}
@@ -115,7 +116,9 @@ func (p Dora) RootPkgPath() string {
 }
 
 func (p Dora) MigrationScripts() []plugin.MigrationScript {
-	return migrationscripts.All()
+	return []plugin.MigrationScript{
+		migrationscripts.DoraMigrationScript,
+	}
 }
 
 func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (coreModels.PipelinePlan, errors.Error) {
@@ -160,6 +163,7 @@ func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.
 				},
 				Subtasks: []string{
 					"calculateChangeLeadTime",
+					"calculateIssueLeadTime",
 					tasks.IssuesToIncidentsMeta.Name,
 					"ConnectIncidentToDeployment",
 				},
