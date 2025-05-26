@@ -76,13 +76,13 @@ func GenerateDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			noneSkippedResult,
 		),
 	}
-	if data.Options.ScopeId != nil {
+	if data.ScopeId != "" {
 		clauses = append(clauses,
-			dal.Where("p.cicd_scope_id = ?", data.Options.ScopeId),
+			dal.Where("p.cicd_scope_id = ?", data.ScopeId),
 		)
 		// Clear previous results from the cicd_scope_id
 		deleteSql := `DELETE FROM cicd_deployments WHERE cicd_scope_id = ? and subtask_name = ?;`
-		err := db.Exec(deleteSql, data.Options.ScopeId, DORAGenerateDeployment)
+		err := db.Exec(deleteSql, data.ScopeId, DORAGenerateDeployment)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous deployments")
 		}

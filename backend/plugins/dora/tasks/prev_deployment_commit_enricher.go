@@ -61,9 +61,9 @@ func EnrichPrevSuccessDeploymentCommit(taskCtx plugin.SubTaskContext) errors.Err
 			devops.RESULT_SUCCESS,
 		),
 	}
-	if data.Options.ScopeId != nil {
+	if data.ScopeId != "" {
 		clauses = append(clauses,
-			dal.Where("dc.cicd_scope_id = ?", data.Options.ScopeId),
+			dal.Where("dc.cicd_scope_id = ?", data.ScopeId),
 			dal.Orderby("dc.repo_url, dc.environment, dc.finished_date"),
 		)
 	} else {
