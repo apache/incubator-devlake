@@ -17,27 +17,25 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-		new(increaseProjectKeyLength),
-		new(addOrgToConn),
-		new(addIssueImpacts),
-		new(extendSonarqubeFieldSize),
-	}
+var _ plugin.MigrationScript = (*extendSonarqubeFieldSize)(nil)
+
+type extendSonarqubeFieldSize struct{}
+
+func (script *extendSonarqubeFieldSize) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	return db.ModifyColumnType("_tool_sonarqube_file_metrics", "file_name", "varchar(2000)")
+}
+
+func (*extendSonarqubeFieldSize) Version() uint64 {
+	return 20250527000000
+}
+
+func (*extendSonarqubeFieldSize) Name() string {
+	return "extend field size for sonarqube file metrics"
 }
