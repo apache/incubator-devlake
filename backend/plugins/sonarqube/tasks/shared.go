@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"hash"
@@ -76,6 +77,12 @@ type Paging struct {
 func generateId(hashCodeBlock hash.Hash, entity *models.SonarqubeIssueCodeBlock) {
 	hashCodeBlock.Write([]byte(fmt.Sprintf("%s-%s-%d-%d-%d-%d-%s", entity.IssueKey, entity.Component, entity.StartLine, entity.EndLine, entity.StartOffset, entity.EndOffset, entity.Msg)))
 	entity.Id = hex.EncodeToString(hashCodeBlock.Sum(nil))
+}
+
+func hashString(input string) string {
+	h := sha1.New()
+	h.Write([]byte(input))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 func convertTimeToMinutes(timeStr string) int {
