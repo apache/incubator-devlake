@@ -15,27 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# Q Developer 插件
+# Q Developer Plugin
 
-本插件用于从AWS S3获取AWS Q Developer的使用数据，并进行处理和分析。
+This plugin is used to retrieve AWS Q Developer usage data from AWS S3, and process and analyze it.
 
-## 功能
+## Features
 
-- 从AWS S3指定前缀下获取CSV文件
-- 解析CSV文件中的用户使用数据
-- 按用户聚合数据，计算各项指标
+- Retrieve CSV files from a specified prefix in AWS S3
+- Parse user usage data from CSV files
+- Aggregate data by user and calculate various metrics
 
-## 配置
+## Configuration
 
-配置项包括：
+Configuration items include:
 
-1. AWS访问密钥ID
-2. AWS秘钥
-3. AWS区域
-4. S3桶名称
-5. 速率限制(每小时)
+1. AWS Access Key ID
+2. AWS Secret Key
+3. AWS Region
+4. S3 Bucket Name
+5. Rate Limit (per hour)
 
-通过下面的curl可以创建connection
+You can create a connection using the following curl command:
 ```bash
 curl 'http://localhost:8080/plugins/q_dev/connections' \
 --header 'Content-Type: application/json' \
@@ -48,38 +48,38 @@ curl 'http://localhost:8080/plugins/q_dev/connections' \
     "rateLimitPerHour": 20000
 }'
 ```
-请将以下占位符替换为实际值：
-<YOUR_ACCESS_KEY_ID>：您的 AWS 访问密钥 ID
-<YOUR_SECRET_ACCESS_KEY>：您的 AWS 访问密钥
-<YOUR_S3_BUCKET_NAME>：您要使用的 S3 存储桶名称
-<AWS_REGION>: 您要使用的 S3 所在的区域
+Please replace the following placeholders with actual values:
+<YOUR_ACCESS_KEY_ID>: Your AWS access key ID
+<YOUR_SECRET_ACCESS_KEY>: Your AWS secret access key
+<YOUR_S3_BUCKET_NAME>: The S3 bucket name you want to use
+<AWS_REGION>: The region where your S3 bucket is located
 
-通过下面的curl可以获取所有的connection
+You can get all connections using the following curl command:
 ```bash
- curl Get 'http://localhost:8080/plugins/q_dev/connections'
+curl Get 'http://localhost:8080/plugins/q_dev/connections'
 ```
 
-## 数据流程
+## Data Flow
 
-插件包含以下任务：
+The plugin includes the following tasks:
 
-1. `collectQDevS3Files`: 从S3收集文件元数据信息，不下载文件内容
-2. `extractQDevS3Data`: 使用S3文件元数据，下载CSV数据并解析存储到数据库
-3. `convertQDevUserMetrics`: 将用户数据转换为聚合指标，计算平均值和总值
+1. `collectQDevS3Files`: Collects file metadata information from S3, without downloading file content
+2. `extractQDevS3Data`: Uses S3 file metadata to download CSV data and parse it into the database
+3. `convertQDevUserMetrics`: Converts user data into aggregated metrics, calculating averages and totals
 
-## 数据表
+## Data Tables
 
-- `_tool_q_dev_connections`: 存储AWS S3连接信息
-- `_tool_q_dev_s3_file_meta`: 存储S3文件元数据
-- `_tool_q_dev_user_data`: 存储从CSV文件中解析的用户数据
-- `_tool_q_dev_user_metrics`: 存储聚合后的用户指标
+- `_tool_q_dev_connections`: Stores AWS S3 connection information
+- `_tool_q_dev_s3_file_meta`: Stores S3 file metadata
+- `_tool_q_dev_user_data`: Stores user data parsed from CSV files
+- `_tool_q_dev_user_metrics`: Stores aggregated user metrics
 
-## 数据收集配置
-收集数据步骤
-1. 在Config UI页面上选择左侧的`Advanced Mode`，点击`Blueprints`，
-2. 新建Blueprint
-3. ![img.png](img.png) 点击右侧齿轮
-4. 在`JSON Configuration`粘贴如下JSON配置：
+## Data Collection Configuration
+Steps to collect data:
+1. On the Config UI page, select `Advanced Mode` on the left, click `Blueprints`
+2. Create a new Blueprint
+3. ![img.png](img.png) Click the gear icon on the right
+4. Paste the following JSON configuration into `JSON Configuration`:
 
 ```json
 [
