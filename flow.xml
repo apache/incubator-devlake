@@ -1,0 +1,135 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.0.16">
+  <diagram id="q_dev_flow" name="Q Developer Plugin Flow">
+    <mxGraphModel dx="1434" dy="761" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="AWS S3 存储桶&#xa;(CSV文件)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="120" y="80" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="Q Dev 插件配置&#xa;- AWS访问密钥&#xa;- AWS区域&#xa;- S3桶名称&#xa;- 速率限制" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="320" y="80" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ZvXdKlqrSqJXEKfplItG-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="4" target="8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="320" />
+              <mxPoint x="310" y="320" />
+              <mxPoint x="310" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4" value="任务1:&amp;nbsp;&lt;div&gt;collectQDevS3Files&lt;br&gt;收集S3文件元数据&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="120" y="240" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="任务2:&amp;nbsp;&lt;div&gt;extractQDevS3Data&lt;br&gt;下载并解析CSV数据&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="360" y="240" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6" value="任务3: convertQDevUserMetrics&#xa;聚合计算用户指标" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="600" y="240" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7" value="_tool_q_dev_connections&#xa;(存储AWS S3连接信息)" style="shape=internalStorage;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="120" y="380" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="8" value="_tool_q_dev_s3_file_meta&#xa;(存储S3文件元数据)" style="shape=internalStorage;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="120" y="490" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9" value="_tool_q_dev_user_data&#xa;(存储解析的用户数据)" style="shape=internalStorage;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="360" y="380" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="_tool_q_dev_user_metrics&#xa;(存储聚合后的用户指标)" style="shape=internalStorage;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="600" y="380" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="2" target="3" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="430" as="sourcePoint" />
+            <mxPoint x="450" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="12" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="3" target="4" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="430" as="sourcePoint" />
+            <mxPoint x="450" y="380" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="400" y="200" />
+              <mxPoint x="200" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="13" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="4" target="5" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="430" as="sourcePoint" />
+            <mxPoint x="450" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="14" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="5" target="6" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="430" as="sourcePoint" />
+            <mxPoint x="490" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="16" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="5" target="9" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="430" as="sourcePoint" />
+            <mxPoint x="490" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="17" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="6" target="10" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="480" y="430" as="sourcePoint" />
+            <mxPoint x="530" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="18" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;" parent="1" source="4" target="7" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="430" as="sourcePoint" />
+            <mxPoint x="450" y="380" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="200" y="320" />
+              <mxPoint x="200" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="19" value="先读取" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="200" y="340" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="20" value="写入" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="310" y="460" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="写入" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="440" y="350" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="写入" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="680" y="350" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="23" value="数据流" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="280" y="270" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="24" value="数据流" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="520" y="270" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="25" value="AWS Q Developer 插件数据流程" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="280" y="30" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="26" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="600" y="80" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="27" value="处理任务" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="630" y="80" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="28" value="" style="shape=internalStorage;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="600" y="110" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="29" value="数据表" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="630" y="110" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="30" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=5;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="600" y="140" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="31" value="数据源" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="630" y="140" width="60" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,690 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 100,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "Daily AI code interaction trends across all users",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "sum"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date as time,\n  SUM(inline_chat_acceptance_event_count) as 'Accepted Suggestions',\n  SUM(inline_chat_dismissal_event_count) as 'Dismissed Suggestions',\n  SUM(inline_chat_rejection_event_count) as 'Rejected Suggestions',\n  SUM(inline_chat_total_event_count) as 'Total Suggestions'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Daily AI Suggestion Interactions",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Daily AI code line changes across all users",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "sum"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date as time,\n  SUM(inline_chat_accepted_line_additions) as 'Accepted Line Additions',\n  SUM(inline_chat_accepted_line_deletions) as 'Accepted Line Deletions',\n  SUM(inline_chat_dismissed_line_additions) as 'Dismissed Line Additions',\n  SUM(inline_chat_dismissed_line_deletions) as 'Dismissed Line Deletions',\n  SUM(inline_chat_rejected_line_additions) as 'Rejected Line Additions',\n  SUM(inline_chat_rejected_line_deletions) as 'Rejected Line Deletions',\n  SUM(inline_ai_code_lines) as 'Total AI Code Lines'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Daily AI Code Line Changes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Code review metrics over time",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "sum"],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date as time,\n  SUM(code_review_findings_count) as 'Code Review Findings',\n  SUM(code_review_succeeded_event_count) as 'Code Review Succeeded Events'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Code Review Metrics",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Daily acceptance rate of AI suggestions",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date as time,\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Acceptance Rate'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Daily AI Suggestion Acceptance Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Top users by AI code interaction metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "filterable": true
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Acceptance Rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "gradient-gauge"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 6,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Total Events"
+          }
+        ]
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  user_id,\n  SUM(inline_chat_total_event_count) as 'Total Events',\n  SUM(inline_chat_acceptance_event_count) as 'Accepted Events',\n  SUM(inline_chat_dismissal_event_count) as 'Dismissed Events',\n  SUM(inline_chat_rejection_event_count) as 'Rejected Events',\n  SUM(inline_ai_code_lines) as 'AI Code Lines',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Acceptance Rate',\n  MIN(date) as 'First Activity',\n  MAX(date) as 'Last Activity'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY user_id\nORDER BY SUM(inline_chat_total_event_count) DESC\nLIMIT 20",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Top Users by AI Interaction (Top 20)",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Distribution of AI suggestion types across users",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 7,
+      "options": {
+        "displayLabels": ["percent"],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "values": ["value"]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": ["sum"],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  'Accepted' as category,\n  SUM(inline_chat_acceptance_event_count) as value\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nUNION ALL\nSELECT\n  'Dismissed' as category,\n  SUM(inline_chat_dismissal_event_count) as value\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nUNION ALL\nSELECT\n  'Rejected' as category,\n  SUM(inline_chat_rejection_event_count) as value\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "AI Suggestion Response Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Weekly trends in AI code interactions",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 8,
+      "options": {
+        "barWidth": 0.6,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_FORMAT(date, '%Y-%U') as time,\n  SUM(inline_chat_acceptance_event_count) as 'Accepted',\n  SUM(inline_chat_dismissal_event_count) as 'Dismissed',\n  SUM(inline_chat_rejection_event_count) as 'Rejected'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY DATE_FORMAT(date, '%Y-%U')\nORDER BY time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Weekly AI Suggestion Responses",
+      "type": "barchart"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": ["q_dev", "user_data"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "Q Dev User Data Dashboard",
+  "uid": "qdev_user_data",
+  "version": 1
+}
