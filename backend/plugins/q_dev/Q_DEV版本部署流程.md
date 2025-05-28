@@ -1,16 +1,20 @@
-> **Think:**
-> 我需要将这个DevLake开发环境部署文档翻译成中文。我将保持原文档的结构，但翻译所有内容到中文。
->
-> 文档主要包括以下部分：
-> 1. 环境要求
-> 2. 如何设置开发环境
-> 3. 克隆仓库
-> 4. 安装插件依赖
-> 5. 配置环境变量
-> 6. 启动MySQL和Grafana容器
-> 7. 运行devlake和config-ui
->
-> 我会逐部分翻译，保持专有名词如Docker、Golang、MySQL、Grafana等不变，同时保持命令行和代码部分不变。
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 
 # DevLake开发环境部署指南
 

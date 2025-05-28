@@ -20,12 +20,12 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 // QDevS3FileMeta 存储S3文件的元数据信息
 type QDevS3FileMeta struct {
-	common.NoPKModel
+	archived.NoPKModel
 	ConnectionId  uint64     `gorm:"primaryKey"`
 	FileName      string     `gorm:"primaryKey;type:varchar(255)"`
 	S3Path        string     `gorm:"type:varchar(512)" json:"s3Path"`

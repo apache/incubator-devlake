@@ -20,12 +20,12 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 // QDevUserData 存储从CSV中提取的原始数据
 type QDevUserData struct {
-	common.Model
+	archived.Model
 	ConnectionId                      uint64    `gorm:"primaryKey"`
 	UserId                            string    `gorm:"index" json:"userId"`
 	Date                              time.Time `gorm:"index" json:"date"`

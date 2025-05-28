@@ -18,13 +18,13 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"time"
 )
 
 // QDevUserMetrics 存储按用户聚合的指标数据
 type QDevUserMetrics struct {
-	common.NoPKModel
+	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
 	UserId       string `gorm:"primaryKey"`
 	FirstDate    time.Time
