@@ -15,31 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/q_dev/models/migrationscripts/archived"
+	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type initTables struct{}
-
-func (*initTables) Name() string {
-	return "Init schema for Q Developer plugin"
+// QDevS3FileMeta 存储S3文件的元数据信息
+type QDevS3FileMeta struct {
+	common.NoPKModel
+	ConnectionId  uint64     `gorm:"primaryKey"`
+	FileName      string     `gorm:"primaryKey;type:varchar(255)"`
+	S3Path        string     `gorm:"type:varchar(512)" json:"s3Path"`
+	Processed     bool       `gorm:"default:false"`
+	ProcessedTime *time.Time `gorm:"default:null"`
 }
 
-func (*initTables) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.QDevConnection{},
-		&archived.QDevUserData{},
-		&archived.QDevUserMetrics{},
-		&archived.QDevS3FileMeta{},
-	)
-}
-
-func (*initTables) Version() uint64 {
-	return 20250319
+func (QDevS3FileMeta) TableName() string {
+	return "_tool_q_dev_s3_file_meta"
 }
