@@ -42,4 +42,4 @@ type QDevS3Client struct {
 
 func (client *QDevS3Client) Close() {
 	// S3客户端不需要特别关闭操作
-} 
+}

@@ -30,14 +30,14 @@ func (*modifyFileMetaTable) Name() string {
 
 func (*modifyFileMetaTable) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	
+
 	// 修改 processed_time 列允许为 NULL
 	sql := "ALTER TABLE _tool_q_dev_s3_file_meta MODIFY processed_time DATETIME NULL"
 	err := db.Exec(sql)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to modify processed_time column")
 	}
-	
+
 	return nil
 }
 

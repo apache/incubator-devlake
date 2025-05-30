@@ -39,9 +39,9 @@ func NewQDevS3Client(taskCtx plugin.TaskContext, connection *models.QDevConnecti
 
 	// 创建S3服务客户端
 	s3Client := s3.New(sess)
-	
+
 	return &QDevS3Client{
 		S3:     s3Client,
 		Bucket: connection.Bucket,
 	}, nil
-} 
+}

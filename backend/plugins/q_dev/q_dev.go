@@ -40,4 +40,4 @@ func main() {
 		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
-} 
+}
