@@ -395,6 +395,26 @@ func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(rec
 			record["assignee_id"] = assigneeId
 		}
 
+		// Handle sprint_ids
+		sprintIds, err := getStringField(record, "sprint_ids", false)
+		if err != nil {
+			return err
+		}
+		sprints := strings.Split(strings.TrimSpace(sprintIds), ",")
+		for _, sprintId := range sprints {
+			sprintId = strings.TrimSpace(sprintId)
+			if sprintId != "" {
+				err = s.dal.CreateOrUpdate(&ticket.SprintIssue{
+					SprintId: sprintId,
+					IssueId:  id,
+				})
+				if err != nil {
+					return err
+				}
+			}
+		}
+		delete(record, "sprint_ids")
+
 		// Handle issues
 		err = s.dal.CreateWithMap(&ticket.Issue{}, record)
 		if err != nil {
@@ -538,4 +558,137 @@ func (s *Service) issueRepoCommitHandler(record map[string]interface{}) errors.E
 	delete(record, "repo_name")
 	delete(record, "repo_url")
 	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
+}
+
+// ImportSprint imports csv file into the table `sprints`
+func (s *Service) ImportSprint(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		err := s.dal.Delete(
+			&ticket.Sprint{},
+			dal.Where("id IN (SELECT sprint_id FROM board_sprints WHERE board_id=? AND sprint_id NOT IN (SELECT sprint_id FROM board_sprints WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return s.importCSV(file, boardId, s.sprintHandler(boardId))
+}
+
+// sprintHandler saves a record into the `sprints` table
+func (s *Service) sprintHandler(boardId string) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		id, err := getStringField(record, "id", true)
+		if err != nil {
+			return err
+		}
+		record["original_board_id"] = boardId
+		err = s.dal.CreateWithMap(&ticket.Sprint{}, record)
+		if err != nil {
+			return err
+		}
+
+		// Create board_sprint relation
+		return s.dal.CreateOrUpdate(&ticket.BoardSprint{
+			BoardId:  boardId,
+			SprintId: id,
+		})
+	}
+}
+
+// ImportIssueChangelog imports csv file into the table `issue_changelogs`
+func (s *Service) ImportIssueChangelog(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		err := s.dal.Delete(
+			&ticket.IssueChangelogs{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return s.importCSV(file, boardId, s.issueChangelogHandler)
+}
+
+// issueChangelogHandler saves a record into the `issue_changelogs` table
+func (s *Service) issueChangelogHandler(record map[string]interface{}) errors.Error {
+	// create account
+	authorName, err := getStringField(record, "author_name", false)
+	if err != nil {
+		return err
+	}
+	rawDataParams, err := getStringField(record, "_raw_data_params", true)
+	if err != nil {
+		return err
+	}
+	if authorName != "" {
+		authorId, err := s.createOrUpdateAccount(authorName, rawDataParams)
+		if err != nil {
+			return err
+		}
+		record["author_id"] = authorId
+	}
+	// set field_id = field_name
+	fieldName, err := getStringField(record, "field_name", true)
+	if err != nil {
+		return err
+	}
+	record["field_id"] = fieldName
+	// handle assignee
+	if fieldName == "assignee" {
+		originalFromValue, err := getStringField(record, "original_from_value", false)
+		if err != nil {
+			return err
+		}
+		originalToValue, err := getStringField(record, "original_to_value", false)
+		if err != nil {
+			return err
+		}
+		fromId, err := s.createOrUpdateAccount(originalFromValue, rawDataParams)
+		if err != nil {
+			return err
+		}
+		record["original_from_value"] = fromId
+		toId, err := s.createOrUpdateAccount(originalToValue, rawDataParams)
+		if err != nil {
+			return err
+		}
+		record["original_to_value"] = toId
+	}
+	return s.dal.CreateWithMap(&ticket.IssueChangelogs{}, record)
+}
+
+// ImportIssueWorklog imports csv file into the table `issue_worklogs`
+func (s *Service) ImportIssueWorklog(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		err := s.dal.Delete(
+			&ticket.IssueWorklog{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return s.importCSV(file, boardId, s.issueWorklogHandler)
+}
+
+// issueWorklogHandler saves a record into the `issue_worklogs` table
+func (s *Service) issueWorklogHandler(record map[string]interface{}) errors.Error {
+	// create account
+	authorName, err := getStringField(record, "author_name", false)
+	if err != nil {
+		return err
+	}
+	if authorName != "" {
+		rawDataParams, err := getStringField(record, "_raw_data_params", true)
+		if err != nil {
+			return err
+		}
+		authorId, err := s.createOrUpdateAccount(authorName, rawDataParams)
+		if err != nil {
+			return err
+		}
+		record["author_id"] = authorId
+	}
+	delete(record, "author_name")
+	return s.dal.CreateWithMap(&ticket.IssueWorklog{}, record)
 }

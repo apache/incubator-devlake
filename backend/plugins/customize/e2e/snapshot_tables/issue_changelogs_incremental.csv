@@ -1,0 +1,11 @@
+id,issue_id,author_id,field_name,original_from_value,original_to_value,created_date,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+changelog1,issue1,user1,status,Open,In Progress,2023-01-01T10:00:00.000+00:00,TEST_BOARD,,,
+changelog10,issue3,user1,status,Open,In Progress,2023-01-10T10:00:00.000+00:00,TEST_BOARD,,,
+changelog2,issue1,user2,assignee,csv:CsvAccount:0:user1,csv:CsvAccount:0:user2,2023-01-02T10:00:00.000+00:00,TEST_BOARD,,,
+changelog3,issue1,user3,Sprint,Sprint1,"Sprint2,Sprint3",2023-01-03T10:00:00.000+00:00,TEST_BOARD,,,
+changelog4,issue2,user1,status,In Progress,Done,2023-01-04T10:00:00.000+00:00,TEST_BOARD,,,
+changelog5,issue2,user4,assignee,csv:CsvAccount:0:user3,csv:CsvAccount:0:user4,2023-01-05T10:00:00.000+00:00,TEST_BOARD,,,
+changelog6,issue2,user2,Sprint,"Sprint2,Sprint3",Sprint4,2023-01-06T10:00:00.000+00:00,TEST_BOARD,,,
+changelog7,issue1,user3,status,Done,Reopened,2023-01-07T10:00:00.000+00:00,TEST_BOARD,,,
+changelog8,issue1,user5,assignee,csv:CsvAccount:0:user2,csv:CsvAccount:0:user5,2023-01-08T10:00:00.000+00:00,TEST_BOARD,,,
+changelog9,issue1,user4,Sprint,Sprint3,"Sprint4,Sprint5",2023-01-09T10:00:00.000+00:00,TEST_BOARD,,,
