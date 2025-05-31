@@ -15,18 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"time"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addDoraBenchmark),
-		new(fixDoraBenchmarkMetric),
-		new(adddoraBenchmark2023),
-		new(addIssueLeadTimeMetricsTable),
-	}
+// IssueLeadTimeMetric tracks lead time for issues from in-progress to done
+type IssueLeadTimeMetric struct {
+	ProjectName    string     `json:"projectName" gorm:"primaryKey;type:varchar(255)"`
+	IssueId        string     `json:"issueId" gorm:"primaryKey;type:varchar(255)"`
+	InProgressDate *time.Time `json:"InProgressDate"`
+	DoneDate       *time.Time `json:"DoneDate"`
+
+	// Lead time in minutes from first 'In Progress' to first 'Done'
+	InProgressToDoneMinutes *int64 `json:"inProgressToDoneMinutes"`
+}
+
+// TableName specifies the database table name
+func (IssueLeadTimeMetric) TableName() string {
+	return "_tool_dora_issue_lead_time_metrics"
 }
