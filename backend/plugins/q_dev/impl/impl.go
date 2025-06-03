@@ -80,6 +80,7 @@ func (p QDev) ScopeConfig() dal.Tabler {
 func (p QDev) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectQDevS3FilesMeta,
+		tasks.ExtractQDevS3DataMeta,
 	}
 }
 
