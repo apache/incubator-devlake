@@ -62,6 +62,7 @@ type GithubApiPullRequest struct {
 	GithubCreatedAt common.Iso8601Time     `json:"created_at"`
 	GithubUpdatedAt common.Iso8601Time     `json:"updated_at"`
 	MergeCommitSha  string                 `json:"merge_commit_sha"`
+	Draft           bool                   `json:"draft"`
 	Head            struct {
 		Ref  string         `json:"ref"`
 		Sha  string         `json:"sha"`
@@ -182,6 +183,7 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId 
 		BaseCommitSha:   pull.Base.Sha,
 		HeadRef:         pull.Head.Ref,
 		HeadCommitSha:   pull.Head.Sha,
+		IsDraft:         pull.Draft,
 	}
 	if pull.Head.Repo != nil {
 		githubPull.HeadRepoId = pull.Head.Repo.GithubId
