@@ -1,0 +1,4 @@
+id,issue_id,author_id,time_spent_minutes,started_date,logged_date,comment,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+worklog1,ISSUE-1,csv:CsvAccount:0:Alice,30,2023-01-01T10:00:00.000+00:00,2022-07-17T07:15:55.959+00:00,Initial work,TEST_BOARD,,,
+worklog2,ISSUE-1,csv:CsvAccount:0:Bob,45,2023-01-02T11:00:00.000+00:00,2022-07-18T08:20:30.123+00:00,Follow up,TEST_BOARD,,,
+worklog3,ISSUE-2,csv:CsvAccount:0:Alice,60,2023-01-03T09:00:00.000+00:00,2022-07-19T09:45:15.456+00:00,Task completion,TEST_BOARD,,,

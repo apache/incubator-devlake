@@ -1,0 +1,4 @@
+id,issue_id,author_name,time_spent_minutes,started_date,logged_date,comment
+worklog1,ISSUE-1,Alice,30,2023-01-01 10:00:00+00:00,2022-07-17 07:15:55.959+00:00,"Initial work"
+worklog2,ISSUE-1,Bob,45,2023-01-02 11:00:00+00:00,2022-07-18 08:20:30.123+00:00,"Follow up"
+worklog3,ISSUE-2,Alice,60,2023-01-03 09:00:00+00:00,2022-07-19 09:45:15.456+00:00,"Task completion"
