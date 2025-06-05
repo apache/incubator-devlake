@@ -105,6 +105,7 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 		&models.TapdBugCustomFieldValue{},
 		&models.TapdScopeConfig{},
 		&models.TapdWorkitemType{},
+		&models.TapdLifeTime{},
 	}
 }
 
@@ -181,6 +182,8 @@ func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.EnrichStoryCustomFieldMeta,
 		tasks.EnrichBugCustomFieldMeta,
 		tasks.EnrichTaskCustomFieldMeta,
+		tasks.CollectLifeTimesMeta,
+		tasks.ExtractLifeTimesMeta,
 	}
 }
 
