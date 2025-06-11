@@ -129,4 +129,6 @@ require (
 	golang.org/x/mod v0.17.0
 )
 
+replace github.com/chenzhuoyu/iasm => github.com/cloudwego/iasm v0.2.0
+
 //replace github.com/apache/incubator-devlake => ./

@@ -20,9 +20,8 @@ import { IWebhook } from '@/types';
 
 export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
   return {
-    postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }' -d '{
+    postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
+      }' -d '{
       "issueKey":"DLK-1234",
       "title":"an incident from DLK",
       "type":"INCIDENT",
@@ -31,12 +30,10 @@ export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) 
       "createdDate":"2020-01-01T12:00:00+00:00",
       "updatedDate":"2020-01-01T12:00:00+00:00"
     }'`,
-    closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }'`,
-    postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }' -d '{
+    closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
+      }'`,
+    postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
+      }' -d '{
       "id": "Required. This will be the unique ID of the deployment",
       "startedDate": "2023-01-01T12:00:00+00:00",
       "finishedDate": "2023-01-01T12:00:00+00:00",
@@ -52,5 +49,26 @@ export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) 
         }
       ]
     }'`,
+    postPullRequestsEndpoint: `curl ${prefix}${webhook.postPullRequestsEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
+      }' -d '{
+      "id": "Required. This will be the unique ID of the pull request",
+      "baseRepoId": "your-repo-id",
+      "headRepoId": "your-repo-id",
+      "status": "MERGED",
+      "originalStatus": "OPEN",
+      "displayTitle": "Feature: Add new functionality",
+      "description": "This PR adds new features",
+      "url": "https://github.com/org/repo/pull/1",
+      "pullRequestKey": 1,
+      "createdDate": "2025-02-20T16:17:36Z",
+      "mergedDate": "2025-02-20T17:17:36Z",
+      "closedDate": null,
+      "mergeCommitSha": "bf0a79c57dff8f5f1f393de315ee5105a535e059",
+      "headRef": "your-branch-name",
+      "baseRef": "main",
+      "baseCommitSha": "e73325c2c9863f42ea25871cbfaeebcb8edcf604",
+      "headCommitSha": "b22f772f1197edfafd4cc5fe679a2d299ec12837",
+      "isDraft": false
+    }`,
   };
 };
