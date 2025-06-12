@@ -15,29 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"time"
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-		new(increaseProjectKeyLength),
-		new(addOrgToConn),
-		new(addIssueImpacts),
-		new(extendSonarqubeFieldSize),
-	}
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+)
+
+// QDevS3FileMeta 存储S3文件的元数据信息
+type QDevS3FileMeta struct {
+	archived.NoPKModel
+	ConnectionId  uint64     `gorm:"primaryKey"`
+	FileName      string     `gorm:"primaryKey;type:varchar(255)"`
+	S3Path        string     `gorm:"type:varchar(512)" json:"s3Path"`
+	Processed     bool       `gorm:"default:false"`
+	ProcessedTime *time.Time `gorm:"default:null"`
+}
+
+func (QDevS3FileMeta) TableName() string {
+	return "_tool_q_dev_s3_file_meta"
 }

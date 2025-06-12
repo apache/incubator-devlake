@@ -17,27 +17,14 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/plugin"
+)
 
-// All return all the migration scripts
+// All return all migration scripts
 func All() []plugin.MigrationScript {
 	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-		new(increaseProjectKeyLength),
-		new(addOrgToConn),
-		new(addIssueImpacts),
-		new(extendSonarqubeFieldSize),
+		new(initTables),
+		new(modifyFileMetaTable),
 	}
 }

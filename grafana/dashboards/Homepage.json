@@ -40,7 +40,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "# Welcome\n\n  - Dashboards are grouped by use cases and data sources.\n  - All data is queried from <a href=\"https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema\" target=\"_blank\">here</a>. You can go to the 'Explore' page on the left menu to play around.\n  - You can always make your own dashboard based on the <a href=\"https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema\" target=\"_blank\">domain layer schema</a>, SQL exmaples in <a href=\"https://devlake.apache.org/docs/Metrics\" target=\"_blank\">engineering metrics</a>, and <a href=\"https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide\" target=\"_blank\">dashboard manuals</a>.\n",
+        "content": "# Welcome\n\n  - Dashboards are grouped by use cases and data sources.\n  - All data is queried from <a href=\"https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema\" target=\"_blank\">here</a>. You can go to the 'Explore' page on the left menu to play around.\n  - You can always make your own dashboard based on the <a href=\"https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema\" target=\"_blank\">domain layer schema</a>, SQL examples in <a href=\"https://devlake.apache.org/docs/Metrics\" target=\"_blank\">engineering metrics</a>, and <a href=\"https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide\" target=\"_blank\">dashboard manuals</a>.\n",
         "mode": "markdown"
       },
       "pluginVersion": "9.5.15",

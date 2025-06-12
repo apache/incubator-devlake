@@ -17,27 +17,30 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-		new(increaseProjectKeyLength),
-		new(addOrgToConn),
-		new(addIssueImpacts),
-		new(extendSonarqubeFieldSize),
+type modifyFileMetaTable struct{}
+
+func (*modifyFileMetaTable) Name() string {
+	return "Modify QDevS3FileMeta table to allow NULL processed_time"
+}
+
+func (*modifyFileMetaTable) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+
+	// 修改 processed_time 列允许为 NULL
+	sql := "ALTER TABLE _tool_q_dev_s3_file_meta MODIFY processed_time DATETIME NULL"
+	err := db.Exec(sql)
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to modify processed_time column")
 	}
+
+	return nil
+}
+
+func (*modifyFileMetaTable) Version() uint64 {
+	return 20250320
 }

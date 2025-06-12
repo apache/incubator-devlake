@@ -15,33 +15,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package codequality
+package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-var _ plugin.Scope = (*CqProject)(nil)
+func NewQDevS3Client(taskCtx plugin.TaskContext, connection *models.QDevConnection) (*QDevS3Client, errors.Error) {
+	// 创建AWS session
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(connection.Region),
+		Credentials: credentials.NewStaticCredentials(connection.AccessKeyId, connection.SecretAccessKey, ""),
+	})
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
 
-type CqProject struct {
-	domainlayer.DomainEntityExtended
-	Name             string `gorm:"type:varchar(2000)"`
-	Qualifier        string `gorm:"type:varchar(255)"`
-	Visibility       string `gorm:"type:varchar(64)"`
-	LastAnalysisDate *common.Iso8601Time
-	CommitSha        string `gorm:"type:varchar(128)"`
-}
+	// 创建S3服务客户端
+	s3Client := s3.New(sess)
 
-func (CqProject) TableName() string {
-	return "cq_projects"
-}
-
-func (s *CqProject) ScopeId() string {
-	return s.Id
-}
-
-func (s *CqProject) ScopeName() string {
-	return s.Name
+	return &QDevS3Client{
+		S3:     s3Client,
+		Bucket: connection.Bucket,
+	}, nil
 }

@@ -41,7 +41,7 @@ func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			fileMetrics := &models.SonarqubeFileMetrics{
 				ConnectionId:   data.Options.ConnectionId,
-				FileMetricsKey: body.Key,
+				FileMetricsKey: hashString(body.Key), // hash the key to make it suitable as mysql index
 				FileName:       body.Name,
 				FilePath:       body.Path,
 				FileLanguage:   body.Language,

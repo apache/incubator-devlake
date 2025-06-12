@@ -15,29 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package api
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/go-playground/validator/v10"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-		new(increaseProjectKeyLength),
-		new(addOrgToConn),
-		new(addIssueImpacts),
-		new(extendSonarqubeFieldSize),
-	}
+var vld *validator.Validate
+var connectionHelper *api.ConnectionApiHelper
+var basicRes context.BasicRes
+
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+	basicRes = br
+	vld = validator.New()
+	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+		p.Name(),
+	)
 }

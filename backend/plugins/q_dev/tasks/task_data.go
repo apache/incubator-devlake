@@ -15,29 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package tasks
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/aws/aws-sdk-go/service/s3"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-		new(increaseProjectKeyLength),
-		new(addOrgToConn),
-		new(addIssueImpacts),
-		new(extendSonarqubeFieldSize),
-	}
+type QDevApiParams struct {
+	ConnectionId uint64 `json:"connectionId"`
+}
+
+type QDevOptions struct {
+	ConnectionId uint64 `json:"connectionId"`
+	S3Prefix     string `json:"s3Prefix"`
+}
+
+type QDevTaskData struct {
+	Options  *QDevOptions
+	S3Client *QDevS3Client
+}
+
+type QDevS3Client struct {
+	S3     *s3.S3
+	Bucket string
+}
+
+func (client *QDevS3Client) Close() {
+	// S3客户端不需要特别关闭操作
 }
