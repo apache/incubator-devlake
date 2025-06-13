@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_TASK_SCENARIOS_TABLE = "teambition_api_task_scenarios"
@@ -32,7 +33,7 @@ const RAW_TASK_SCENARIOS_TABLE = "teambition_api_task_scenarios"
 var _ plugin.SubTaskEntryPoint = CollectTaskScenarios
 
 var CollectTaskScenariosMeta = plugin.SubTaskMeta{
-	Name:             "collect task flow status",
+	Name:             "collect task scenario",
 	EntryPoint:       CollectTaskScenarios,
 	EnabledByDefault: true,
 	Description:      "collect teambition task flow scenarios",

@@ -53,7 +53,7 @@ func MakeDataSourcePipelinePlanV200(
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopeDetails []*srvhelper.ScopeDetail[models.TeambitionProject, srvhelper.NoScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.TeambitionProject, models.TeambitionScopeConfig],
 	connection *models.TeambitionConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
@@ -85,7 +85,7 @@ func makePipelinePlanV200(
 }
 
 func makeScopesV200(
-	scopeDetails []*srvhelper.ScopeDetail[models.TeambitionProject, srvhelper.NoScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.TeambitionProject, models.TeambitionScopeConfig],
 	connection *models.TeambitionConnection,
 ) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0, len(scopeDetails))
