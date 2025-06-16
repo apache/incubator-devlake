@@ -3,6 +3,7 @@ module github.com/apache/incubator-devlake
 go 1.20
 
 require (
+	github.com/aws/aws-sdk-go v1.55.6
 	github.com/cockroachdb/errors v1.11.1
 	github.com/gin-contrib/cors v1.6.0
 	github.com/gin-gonic/gin v1.9.1
@@ -79,6 +80,7 @@ require (
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
@@ -126,5 +128,7 @@ require (
 	github.com/rogpeppe/go-internal v1.11.0
 	golang.org/x/mod v0.17.0
 )
+
+replace github.com/chenzhuoyu/iasm => github.com/cloudwego/iasm v0.2.0
 
 //replace github.com/apache/incubator-devlake => ./

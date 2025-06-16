@@ -25,7 +25,7 @@ type SonarqubeFileMetrics struct {
 	ConnectionId             uint64 `gorm:"primaryKey"`
 	FileMetricsKey           string `gorm:"primaryKey;type:varchar(500)"`
 	ProjectKey               string `gorm:"index"`
-	FileName                 string
+	FileName                 string `gorm:"type:varchar(2000)"`
 	FilePath                 string
 	FileLanguage             string
 	CodeSmells               int

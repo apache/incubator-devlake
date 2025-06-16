@@ -27,7 +27,7 @@ var _ plugin.Scope = (*CqProject)(nil)
 
 type CqProject struct {
 	domainlayer.DomainEntityExtended
-	Name             string `gorm:"type:varchar(255)"`
+	Name             string `gorm:"type:varchar(2000)"`
 	Qualifier        string `gorm:"type:varchar(255)"`
 	Visibility       string `gorm:"type:varchar(64)"`
 	LastAnalysisDate *common.Iso8601Time

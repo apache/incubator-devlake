@@ -38,5 +38,6 @@ func All() []plugin.MigrationScript {
 		new(increaseProjectKeyLength),
 		new(addOrgToConn),
 		new(addIssueImpacts),
+		new(extendSonarqubeFieldSize),
 	}
 }
