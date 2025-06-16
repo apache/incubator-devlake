@@ -25,8 +25,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-const pluginName = "teambition"
-
 var vld *validator.Validate
 var dsHelper *api.DsHelper[models.TeambitionConnection, models.TeambitionProject, models.TeambitionScopeConfig]
 var basicRes context.BasicRes

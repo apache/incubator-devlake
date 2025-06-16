@@ -66,7 +66,10 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:         fmt.Sprintf("https://www.teambition.com/project/%s", userTool.Id),
 				CreatedDate: userTool.Created.ToNullableTime(),
 			}
-			db.CreateOrUpdate(board)
+			err := db.CreateOrUpdate(board)
+			if err != nil {
+				return nil, err
+			}
 			return []interface{}{
 				board,
 			}, nil

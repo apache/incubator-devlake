@@ -30,7 +30,7 @@ import (
 
 type TeambitionPagination struct {
 	PageToken string `json:"pageToken"`
-	PageSize  int `json:"pageSize"`
+	PageSize  int    `json:"pageSize"`
 }
 
 func queryTeambitionProjects(
@@ -46,16 +46,16 @@ func queryTeambitionProjects(
 		page.PageSize = 50
 	}
 	res, err := apiClient.Get("v3/project/query", url.Values{
-		"name": {keyword},
-		"pageSize":   {fmt.Sprintf("%v", page.PageSize)},
-		"pageToken":   {page.PageToken},
+		"name":      {keyword},
+		"pageSize":  {fmt.Sprintf("%v", page.PageSize)},
+		"pageToken": {page.PageToken},
 	}, nil)
 	if err != nil {
 		return
 	}
 	resBody := struct {
-		Result []models.TeambitionProject `json:"result"`
-		NextPageToken string `json:"nextPageToken"`
+		Result        []models.TeambitionProject `json:"result"`
+		NextPageToken string                     `json:"nextPageToken"`
 	}{}
 	err = api.UnmarshalResponse(res, &resBody)
 	if err != nil {
@@ -108,13 +108,12 @@ func searchTeambitionRemoteProjects(
 		PageSize: params.PageSize,
 	}
 	children, _, err = queryTeambitionProjects(apiClient, params.Search, page)
-	return 
+	return
 }
 
 type Entry = dsmodels.DsRemoteApiScopeListEntry[models.TeambitionProject]
 type Node struct {
 	entry    *Entry
-	children Children
 }
 type Children []*Node
 
@@ -126,20 +125,6 @@ func (a Children) Less(i, j int) bool {
 	return a[i].entry.Name < a[j].entry.Name
 }
 func (a Children) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-
-func generateFullNames(node *Node, prefix string) {
-	for _, child := range node.children {
-		child.entry.FullName = prefix + child.entry.Name
-		if child.entry.Type == api.RAS_ENTRY_TYPE_GROUP {
-			generateFullNames(child, child.entry.FullName+" / ")
-		}
-	}
-}
-
-func toStringPointer(v any) *string {
-	s := fmt.Sprintf("%v", v)
-	return &s
-}
 
 // RemoteScopes list all available scope for users
 // @Summary list all available scope for users

@@ -22,8 +22,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-func (w TeambitionProject) ConvertApiScope() plugin.ToolLayerScope {
-	return w
+func (t TeambitionProject) ConvertApiScope() plugin.ToolLayerScope {
+	return t
 }
 
 type TeambitionProject struct {
