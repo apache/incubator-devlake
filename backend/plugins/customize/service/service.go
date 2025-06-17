@@ -283,7 +283,7 @@ func (s *Service) createOrUpdateAccount(accountName string, rawDataParams string
 		},
 		FullName:    accountName,
 		UserName:    accountName,
-		CreatedDate: &now,
+		CreatedDate: &now, // FIXME: will update created_date if already exists. to debug, using created_at instead
 	}
 	err := s.dal.CreateOrUpdate(account)
 	if err != nil {
@@ -566,6 +566,13 @@ func (s *Service) ImportSprint(boardId string, file io.ReadCloser, incremental b
 		err := s.dal.Delete(
 			&ticket.Sprint{},
 			dal.Where("id IN (SELECT sprint_id FROM board_sprints WHERE board_id=? AND sprint_id NOT IN (SELECT sprint_id FROM board_sprints WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+		err = s.dal.Delete(
+			&ticket.BoardSprint{},
+			dal.Where("board_id = ?", boardId),
 		)
 		if err != nil {
 			return err
