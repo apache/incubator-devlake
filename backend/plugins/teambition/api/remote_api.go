@@ -113,7 +113,7 @@ func searchTeambitionRemoteProjects(
 
 type Entry = dsmodels.DsRemoteApiScopeListEntry[models.TeambitionProject]
 type Node struct {
-	entry    *Entry
+	entry *Entry
 }
 type Children []*Node
 

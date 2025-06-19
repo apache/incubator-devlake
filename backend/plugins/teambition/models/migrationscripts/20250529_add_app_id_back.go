@@ -49,6 +49,7 @@ type teambitionScopeConfig20250529 struct {
 func (t teambitionScopeConfig20250529) TableName() string {
 	return "_tool_teambition_scope_configs"
 }
+
 type addAppIdBack struct{}
 
 func (*addAppIdBack) Up(basicRes context.BasicRes) errors.Error {

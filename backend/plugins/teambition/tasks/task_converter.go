@@ -123,9 +123,6 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				case "application.risk":
 					issue.Type = ticket.INCIDENT
 				}
-				if issue.Type == "" && scenario.Name != "" {
-					issue.Type = strings.ToUpper(scenario.Name)
-				}
 			}
 
 			result := make([]interface{}, 0, 3)
