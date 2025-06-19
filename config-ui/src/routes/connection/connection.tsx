@@ -227,7 +227,7 @@ export const Connection = () => {
           await API.scope.remove(plugin, connectionId, id, false);
           successCount++;
         } catch (err: any) {
-          const scopeName = scopeMap.get(id) || 'Unknown';
+          const scopeName = scopeMap.get(String(id)) || 'Unknown';
           const message = err?.response?.data?.message || 'Unknown error';
           newErrors.push({
             id,
