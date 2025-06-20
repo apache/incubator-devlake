@@ -22,10 +22,12 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-var _ plugin.ToolLayerScope = (*TeambitionProject)(nil)
+func (t TeambitionProject) ConvertApiScope() plugin.ToolLayerScope {
+	return t
+}
 
 type TeambitionProject struct {
-	common.Scope
+	common.Scope   `mapstructure:",squash"`
 	Id             string                         `gorm:"primaryKey;type:varchar(100)" json:"id"`
 	Name           string                         `gorm:"type:varchar(255)" json:"name"`
 	Logo           string                         `gorm:"type:varchar(255)" json:"logo"`
@@ -87,4 +89,12 @@ type TeambitionApiParams struct {
 	ConnectionId   uint64
 	OrganizationId string
 	ProjectId      string
+}
+
+type TeambitionProjectsResponse struct {
+	Status int `json:"status"`
+	Data   []struct {
+		TeambitionProject `json:"Workspace"`
+	} `json:"data"`
+	Info string `json:"info"`
 }

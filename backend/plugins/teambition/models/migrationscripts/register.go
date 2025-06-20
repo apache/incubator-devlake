@@ -25,5 +25,6 @@ func All() []plugin.MigrationScript {
 		new(addInitTables),
 		new(reCreateTeambitionConnections),
 		new(addScopeConfigId),
+		new(addAppIdBack),
 	}
 }

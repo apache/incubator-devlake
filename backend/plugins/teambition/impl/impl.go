@@ -39,8 +39,10 @@ var _ interface {
 	plugin.PluginInit
 	plugin.PluginTask
 	plugin.PluginApi
-	plugin.CloseablePluginTask
+	plugin.PluginModel
 	plugin.PluginSource
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
 } = (*Teambition)(nil)
 
 type Teambition struct{}
@@ -72,6 +74,7 @@ func (p Teambition) GetTablesInfo() []dal.Tabler {
 		&models.TeambitionProject{},
 		&models.TeambitionTaskFlowStatus{},
 		&models.TeambitionTaskScenario{},
+		&models.TeambitionScopeConfig{},
 	}
 }
 
@@ -179,6 +182,30 @@ func (p Teambition) ApiResources() map[string]map[string]plugin.ApiResourceHandl
 		},
 		"connections/:connectionId/test": {
 			"POST": api.TestExistingConnection,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopes,
+			"PUT": api.PutScopes,
+		},
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
+			"PATCH":  api.PatchScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
+		},
+		"connections/:connectionId/scope-configs": {
+			"POST": api.PostScopeConfig,
+			"GET":  api.GetScopeConfigList,
+		},
+		"connections/:connectionId/scopes/:scopeId": {
+			"GET":    api.GetScope,
+			"PATCH":  api.PatchScope,
+			"DELETE": api.DeleteScope,
 		},
 	}
 }

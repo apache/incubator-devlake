@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -101,25 +99,6 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
-}
-
-func getStdTypeMappings(data *TeambitionTaskData) map[string]string {
-	stdTypeMappings := make(map[string]string)
-	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
-		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
-	}
-	return stdTypeMappings
-}
-
-func getStatusMapping(data *TeambitionTaskData) map[string]string {
-	statusMapping := make(map[string]string)
-	mapping := data.Options.TransformationRules.StatusMappings
-	for std, orig := range mapping {
-		for _, v := range orig {
-			statusMapping[v] = std
-		}
-	}
-	return statusMapping
 }
 
 func FindAccountById(db dal.Dal, accountId string) (*models.TeambitionAccount, errors.Error) {
