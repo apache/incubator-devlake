@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -97,36 +98,30 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				issue.OriginalProject = p.Name
 			}
 
-			stdStatusMappings := getStatusMapping(data)
 			if taskflowstatus, err := FindTaskFlowStatusById(db, userTool.TfsId); err == nil {
 				issue.OriginalStatus = taskflowstatus.Name
-				if v, ok := stdStatusMappings[taskflowstatus.Name]; ok {
-					issue.Status = v
-				} else {
-					switch taskflowstatus.Kind {
-					case "start":
-						issue.Status = ticket.TODO
-					case "unset":
-						issue.Status = ticket.IN_PROGRESS
-					case "end":
-						issue.Status = ticket.DONE
-					}
+				switch strings.ToUpper(taskflowstatus.Kind) {
+				case "START":
+					issue.Status = ticket.TODO
+				case "UNSET":
+					issue.Status = ticket.IN_PROGRESS
+				case "END":
+					issue.Status = ticket.DONE
+				}
+				if issue.Status == "" {
+					issue.Status = strings.ToUpper(taskflowstatus.Kind)
 				}
 			}
-			stdTypeMappings := getStdTypeMappings(data)
+
 			if scenario, err := FindTaskScenarioById(db, userTool.SfcId); err == nil {
 				issue.OriginalType = scenario.Name
-				if v, ok := stdTypeMappings[scenario.Name]; ok {
-					issue.Type = v
-				} else {
-					switch scenario.Source {
-					case "application.bug":
-						issue.Type = ticket.BUG
-					case "application.story":
-						issue.Type = ticket.REQUIREMENT
-					case "application.risk":
-						issue.Type = ticket.INCIDENT
-					}
+				switch scenario.Source {
+				case "application.bug":
+					issue.Type = ticket.BUG
+				case "application.story":
+					issue.Type = ticket.REQUIREMENT
+				case "application.risk":
+					issue.Type = ticket.INCIDENT
 				}
 			}
 

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -49,7 +50,7 @@ func ExtractTaskTags(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				Id:           userRes.Id,
 				Name:         userRes.Name,
-				ProjectId:    userRes.ProjectId,
+				ProjectId:    data.Options.ProjectId,
 				IsArchived:   userRes.IsArchived,
 				Updated:      userRes.Updated,
 				Created:      userRes.Created,

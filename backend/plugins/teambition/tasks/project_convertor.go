@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,11 +28,10 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
-	"reflect"
 )
 
 var ConvertProjectsMeta = plugin.SubTaskMeta{
-	Name:             "convertAccounts",
+	Name:             "convertProjects",
 	EntryPoint:       ConvertProjects,
 	EnabledByDefault: true,
 	Description:      "convert teambition projects",
@@ -56,7 +57,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.TeambitionProject)
-			account := &ticket.Board{
+			board := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
@@ -65,9 +66,12 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:         fmt.Sprintf("https://www.teambition.com/project/%s", userTool.Id),
 				CreatedDate: userTool.Created.ToNullableTime(),
 			}
-
+			err := db.CreateOrUpdate(board)
+			if err != nil {
+				return nil, err
+			}
 			return []interface{}{
-				account,
+				board,
 			}, nil
 		},
 	})
@@ -75,6 +79,5 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-
 	return converter.Execute()
 }
