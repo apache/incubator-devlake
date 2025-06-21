@@ -245,6 +245,7 @@ export const Connection = () => {
     setOperating(false);
     setVersion((v) => v + 1);
     setScopeIds([]);
+    setPage(1)
   };
 
 
