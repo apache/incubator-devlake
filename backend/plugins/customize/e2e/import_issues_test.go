@@ -39,6 +39,7 @@ func TestImportIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
 	dataflowTester.FlushTabler(&crossdomain.Account{})
+	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 	svc := service.NewService(dataflowTester.Dal)
 	err := svc.CreateField(&models.CustomizedField{
 		TbName:      "issues",
@@ -181,6 +182,15 @@ func TestImportIssueDataFlow(t *testing.T) {
 			"id",
 			"full_name",
 			"user_name",
+		},
+	)
+
+	dataflowTester.VerifyTableWithRawData(
+		&ticket.SprintIssue{},
+		"snapshot_tables/sprint_issues.csv",
+		[]string{
+			"sprint_id",
+			"issue_id",
 		},
 	)
 }

@@ -1,0 +1,7 @@
+id,issue_id,author_id,field_name,original_from_value,original_to_value,created_date
+changelog1,issue1,user1,status,Open,In Progress,2023-01-01 10:00:00+00:00
+changelog2,issue1,user2,assignee,user1,user2,2023-01-02 10:00:00+00:00
+changelog3,issue1,user3,Sprint,Sprint1,"Sprint2,Sprint3",2023-01-03 10:00:00+00:00
+changelog4,issue2,user1,status,In Progress,Done,2023-01-04 10:00:00+00:00
+changelog5,issue2,user4,assignee,user3,user4,2023-01-05 10:00:00+00:00
+changelog6,issue2,user2,Sprint,"Sprint2,Sprint3",Sprint4,2023-01-06 10:00:00+00:00
