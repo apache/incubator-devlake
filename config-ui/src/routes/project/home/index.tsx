@@ -34,7 +34,7 @@ import { IBlueprint } from '@/types';
 export const ProjectHomePage = () => {
   const [version, setVersion] = useState(1);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
@@ -226,7 +226,12 @@ export const ProjectHomePage = () => {
           current: page,
           pageSize,
           total,
-          onChange: setPage,
+          onChange: ((newPage: number, newPageSize: number) => {
+            setPage(newPage);
+            if (newPageSize !== pageSize) {
+              setPageSize(newPageSize);
+            }
+          }) as (newPage: number) => void,
         }}
       />
       <Modal

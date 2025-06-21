@@ -33,7 +33,7 @@ import * as S from './styled';
 export const ApiKeys = () => {
   const [version, setVersion] = useState(1);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20);
   const [operating, setOperating] = useState(false);
   const [modal, setModal] = useState<'create' | 'show' | 'delete'>();
   const [currentId, setCurrentId] = useState<string>();
@@ -155,7 +155,12 @@ export const ApiKeys = () => {
           current: page,
           pageSize,
           total,
-          onChange: setPage,
+          onChange: ((newPage: number, newPageSize: number) => {
+            setPage(newPage);
+            if (newPageSize !== pageSize) {
+              setPageSize(newPageSize);
+            }
+          }) as (newPage: number) => void,
         }}
       />
       {modal === 'create' && (

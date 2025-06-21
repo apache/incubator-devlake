@@ -26,7 +26,7 @@ import { PipelineTable } from './components';
 
 export const Pipelines = () => {
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20);
 
   const { ready, data } = useRefreshData(() => API.pipeline.list({ page, pageSize }), [page, pageSize]);
 
@@ -46,7 +46,12 @@ export const Pipelines = () => {
           current: page,
           pageSize,
           total,
-          onChange: setPage,
+          onChange: ((newPage: number, newPageSize: number) => {
+            setPage(newPage);
+            if (newPageSize !== pageSize) {
+              setPageSize(newPageSize);
+            }
+          }) as (newPage: number) => void,
         }}
       />
     </PageHeader>
