@@ -52,6 +52,8 @@ export const Connection = () => {
     | 'associateScopeConfig'
     | 'deleteConnectionFailed'
     | 'deleteDataScopeFailed'
+    | 'deleteSelectedScopes'
+    | 'confirmDeleteSelectedScopes'
   >();
   const [operating, setOperating] = useState(false);
   const [version, setVersion] = useState(1);
@@ -61,6 +63,9 @@ export const Connection = () => {
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [conflict, setConflict] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
+  const [bulkDeleteProgress, setBulkDeleteProgress] = useState({ completed: 0, total: 0 });
+  const [bulkDeleteErrors, setBulkDeleteErrors] = useState<{ id: ID; reason: string }[]>([]);
+  const [bulkDeleteSuccessCount, setBulkDeleteSuccessCount] = useState(0);
 
   const { plugin, id } = useParams() as { plugin: string; id: string };
   const connectionId = +id;
@@ -204,6 +209,46 @@ export const Connection = () => {
     setScopeIds(scopeIds);
   };
 
+  const handleBulkDeleteScopes = async () => {
+    setType('deleteSelectedScopes');
+    setBulkDeleteProgress({ completed: 0, total: scopeIds.length });
+    setBulkDeleteErrors([]);
+    setBulkDeleteSuccessCount(0);
+    setOperating(true);
+
+    let completed = 0;
+    let successCount = 0;
+    const newErrors: { id: ID; reason: string }[] = [];
+
+    const scopeMap = new Map(dataSource.map((s) => [s.id, s.name]));
+    await Promise.all(
+      scopeIds.map(async (id) => {
+        try {
+          await API.scope.remove(plugin, connectionId, id, false);
+          successCount++;
+        } catch (err: any) {
+          const scopeName = scopeMap.get(String(id)) || 'Unknown';
+          const message = err?.response?.data?.message || 'Unknown error';
+          newErrors.push({
+            id,
+            reason: `${scopeName} - ${message}`,
+          });
+        } finally {
+          completed++;
+          setBulkDeleteProgress({ completed, total: scopeIds.length });
+        }
+      }),
+    );
+
+    setBulkDeleteErrors(newErrors);
+    setBulkDeleteSuccessCount(successCount);
+    setOperating(false);
+    setVersion((v) => v + 1);
+    setScopeIds([]);
+    setPage(1)
+  };
+
+
   const handleAssociateScopeConfig = async (trId: ID) => {
     const [success] = await operator(
       () =>
@@ -268,6 +313,16 @@ export const Connection = () => {
               onClick={() => handleShowScopeConfigSelectDialog(scopeIds)}
             >
               Associate Scope Config
+            </Button>
+          )}
+          {dataSource.length > 0 && (
+            <Button style={{ marginLeft: 8 }}
+              danger
+              type="primary"
+              disabled={!scopeIds.length}
+              icon={<DeleteOutlined />}
+              onClick={() => setType('confirmDeleteSelectedScopes')}>
+              Delete Data Scope
             </Button>
           )}
         </div>
@@ -519,6 +574,86 @@ export const Connection = () => {
                 ))}
               </ul>
             </>
+          )}
+        </Modal>
+      )}
+      {type === 'confirmDeleteSelectedScopes' && (
+        <Modal
+          open
+          width={720}
+          centered
+          title="Are you sure you want to delete selected Data Scopes?"
+          okText="Yes, Delete"
+          cancelText="Cancel"
+          okButtonProps={{ danger: true }}
+          onCancel={handleHideDialog}
+          onOk={() => {
+            handleBulkDeleteScopes();
+          }}
+        >
+          <Message content="This operation cannot be undone. All selected scopes and their historical data will be permanently removed." />
+          <div style={{ marginTop: 12 }}>
+            <div>You are about to delete <strong>{scopeIds.length}</strong> data scopes:</div>
+            <ul style={{ marginTop: 8, paddingLeft: 20 }}>
+              {scopeIds.slice(0, 5).map((id) => {
+                const scope = dataSource.find((s) => s.id === id);
+                return (
+                  <li key={id}>
+                    {scope?.name || `Scope ID ${id}`}
+                  </li>
+                );
+              })}
+              {scopeIds.length > 5 && (
+                <li>...and {scopeIds.length - 5} more</li>
+              )}
+            </ul>
+          </div>
+        </Modal>
+      )}
+      {type === 'deleteSelectedScopes' && (
+        <Modal
+          open
+          width={820}
+          centered
+          title="Delete Selected Data Scopes"
+          okText="Ok"
+          okButtonProps={{ loading: operating }}
+          cancelButtonProps={{ style: { display: 'none' } }}
+          onOk={handleHideDialog}
+        >
+          <Message
+            content="This will delete all selected data scopes. This operation cannot be undone. If any scope fails to delete, it will be listed below after the operation."
+          />
+
+          <div style={{ marginTop: 16, fontWeight: 500 }}>
+            Progress: {bulkDeleteProgress.completed}/{bulkDeleteProgress.total}
+          </div>
+
+          {bulkDeleteProgress.completed === bulkDeleteProgress.total && (
+            <div style={{ marginTop: 24 }}>
+              <div style={{ fontWeight: 'bold', marginBottom: 8 }}>Summary:</div>
+              <div style={{ marginLeft: 16 }}>
+                <div>
+                  Successful deletions: <strong>{bulkDeleteSuccessCount}</strong>
+                </div>
+                <div>
+                  Failed deletions: <strong>{bulkDeleteErrors.length}</strong>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {bulkDeleteErrors.length > 0 && (
+            <div style={{ marginTop: 24 }}>
+              <div style={{ fontWeight: 'bold', marginBottom: 8 }}>Failed Deletions:</div>
+              <ul style={{ marginLeft: 24, paddingLeft: 16, borderLeft: '3px solid red' }}>
+                {bulkDeleteErrors.map(({ id, reason }) => (
+                  <li key={id} style={{ marginBottom: 8 }}>
+                    {reason}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </Modal>
       )}
