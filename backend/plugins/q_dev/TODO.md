@@ -10,7 +10,7 @@
 
 ## Phase 2: Identity Center Client Implementation
 
-- [ ] Task 2.1: Create Identity Client
+- [x] Task 2.1: Create Identity Client
 
 ## Phase 3: Enhanced Data Extraction
 
