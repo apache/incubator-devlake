@@ -2,8 +2,8 @@
 
 ## Phase 1: Database Schema and Model Updates
 
-- [ ] Task 1.1: Create Database Migration
-- [ ] Task 1.2: Update Migration Registry
+- [x] Task 1.1: Create Database Migration
+- [x] Task 1.2: Update Migration Registry
 - [ ] Task 1.3: Update Connection Model
 - [ ] Task 1.4: Update User Data Model
 - [ ] Task 1.5: Update User Metrics Model
