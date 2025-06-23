@@ -6,7 +6,7 @@
 - [x] Task 1.2: Update Migration Registry
 - [x] Task 1.3: Update Connection Model
 - [x] Task 1.4: Update User Data Model
-- [ ] Task 1.5: Update User Metrics Model
+- [x] Task 1.5: Update User Metrics Model
 
 ## Phase 2: Identity Center Client Implementation
 
