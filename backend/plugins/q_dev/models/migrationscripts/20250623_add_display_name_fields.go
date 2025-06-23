@@ -46,7 +46,7 @@ func (*addDisplayNameFields) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addDisplayNameFields) Version() uint64 {
-	return 20240623000001
+	return 20250623000001
 }
 
 func (*addDisplayNameFields) Name() string {
