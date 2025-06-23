@@ -30,25 +30,37 @@ type addDisplayNameFields struct{}
 func (*addDisplayNameFields) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	
-	// Add Identity Center fields to connections table
-	err := db.Exec("ALTER TABLE _tool_q_dev_connections ADD COLUMN identity_store_id VARCHAR(255)")
+	// Add Identity Center fields to connections table (with existence check)
+	err := db.Exec(`
+		ALTER TABLE _tool_q_dev_connections 
+		ADD COLUMN IF NOT EXISTS identity_store_id VARCHAR(255)
+	`)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to add identity_store_id column to _tool_q_dev_connections table")
 	}
 	
-	err = db.Exec("ALTER TABLE _tool_q_dev_connections ADD COLUMN identity_store_region VARCHAR(255)")
+	err = db.Exec(`
+		ALTER TABLE _tool_q_dev_connections 
+		ADD COLUMN IF NOT EXISTS identity_store_region VARCHAR(255)
+	`)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to add identity_store_region column to _tool_q_dev_connections table")
 	}
 	
-	// Add display_name column to user_data table
-	err = db.Exec("ALTER TABLE _tool_q_dev_user_data ADD COLUMN display_name VARCHAR(255)")
+	// Add display_name column to user_data table (with existence check)
+	err = db.Exec(`
+		ALTER TABLE _tool_q_dev_user_data 
+		ADD COLUMN IF NOT EXISTS display_name VARCHAR(255)
+	`)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to add display_name column to _tool_q_dev_user_data table")
 	}
 	
-	// Add display_name column to user_metrics table
-	err = db.Exec("ALTER TABLE _tool_q_dev_user_metrics ADD COLUMN display_name VARCHAR(255)")
+	// Add display_name column to user_metrics table (with existence check)
+	err = db.Exec(`
+		ALTER TABLE _tool_q_dev_user_metrics 
+		ADD COLUMN IF NOT EXISTS display_name VARCHAR(255)
+	`)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to add display_name column to _tool_q_dev_user_metrics table")
 	}
