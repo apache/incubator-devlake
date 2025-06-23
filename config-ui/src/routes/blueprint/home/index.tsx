@@ -36,7 +36,7 @@ export const BlueprintHomePage = () => {
   const [version, setVersion] = useState(1);
   const [type, setType] = useState('all');
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [mode, setMode] = useState(IBPMode.NORMAL);
@@ -212,7 +212,12 @@ export const BlueprintHomePage = () => {
             current: page,
             pageSize,
             total,
-            onChange: setPage,
+            onChange: ((newPage: number, newPageSize: number) => {
+              setPage(newPage);
+              if (newPageSize !== pageSize) {
+                setPageSize(newPageSize);
+              }
+            }) as (newPage: number) => void,
           }}
         />
       </Flex>
