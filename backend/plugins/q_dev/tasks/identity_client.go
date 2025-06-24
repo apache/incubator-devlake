@@ -72,7 +72,7 @@ func NewQDevIdentityClient(connection *models.QDevConnection) (*QDevIdentityClie
 func (client *QDevIdentityClient) ResolveUserDisplayName(userId string) (string, error) {
 	input := &identitystore.DescribeUserInput{
 		IdentityStoreId: aws.String(client.StoreId),
-		UserId:         aws.String(userId),
+		UserId:          aws.String(userId),
 	}
 
 	result, err := client.IdentityStore.DescribeUser(input)

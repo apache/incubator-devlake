@@ -29,20 +29,20 @@ type addDisplayNameFields struct{}
 
 func (*addDisplayNameFields) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	
+
 	// Add Identity Center fields to connections table
 	// Ignore error if column already exists (MySQL error 1060)
-	db.Exec("ALTER TABLE _tool_q_dev_connections ADD COLUMN identity_store_id VARCHAR(255)")
-	db.Exec("ALTER TABLE _tool_q_dev_connections ADD COLUMN identity_store_region VARCHAR(255)")
-	
+	_ = db.Exec("ALTER TABLE _tool_q_dev_connections ADD COLUMN identity_store_id VARCHAR(255)")
+	_ = db.Exec("ALTER TABLE _tool_q_dev_connections ADD COLUMN identity_store_region VARCHAR(255)")
+
 	// Add display_name column to user_data table
 	// Ignore error if column already exists (MySQL error 1060)
-	db.Exec("ALTER TABLE _tool_q_dev_user_data ADD COLUMN display_name VARCHAR(255)")
-	
+	_ = db.Exec("ALTER TABLE _tool_q_dev_user_data ADD COLUMN display_name VARCHAR(255)")
+
 	// Add display_name column to user_metrics table
 	// Ignore error if column already exists (MySQL error 1060)
-	db.Exec("ALTER TABLE _tool_q_dev_user_metrics ADD COLUMN display_name VARCHAR(255)")
-	
+	_ = db.Exec("ALTER TABLE _tool_q_dev_user_metrics ADD COLUMN display_name VARCHAR(255)")
+
 	return nil
 }
 

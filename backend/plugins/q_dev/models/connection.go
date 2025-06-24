@@ -34,7 +34,7 @@ type QDevConn struct {
 	Bucket string `mapstructure:"bucket" json:"bucket"`
 	// RateLimitPerHour limits the API requests sent to AWS
 	RateLimitPerHour int `mapstructure:"rateLimitPerHour" json:"rateLimitPerHour"`
-	
+
 	// Required fields for IAM Identity Center
 	// IdentityStoreId for AWS IAM Identity Center (required for user display names)
 	IdentityStoreId string `mapstructure:"identityStoreId" json:"identityStoreId"`

@@ -36,12 +36,12 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 验证连接参数 (enhanced validation)
 	if err := validateConnection(connection); err != nil {
 		return nil, errors.BadInput.Wrap(err, "connection validation failed")
 	}
-	
+
 	// 保存到数据库
 	err = connectionHelper.Create(connection, input)
 	if err != nil {
@@ -59,12 +59,12 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err := (&models.QDevConnection{}).MergeFromRequest(connection, input.Body); err != nil {
 		return nil, errors.Convert(err)
 	}
-	
+
 	// 验证更新后的连接参数 (enhanced validation)
 	if err := validateConnection(connection); err != nil {
 		return nil, errors.BadInput.Wrap(err, "connection validation failed")
 	}
-	
+
 	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
 		return nil, err
 	}
