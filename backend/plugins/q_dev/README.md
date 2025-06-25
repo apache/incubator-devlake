@@ -17,12 +17,13 @@ limitations under the License.
 
 # Q Developer Plugin
 
-This plugin is used to retrieve AWS Q Developer usage data from AWS S3, and process and analyze it.
+This plugin is used to retrieve AWS Q Developer usage data from AWS S3, process and analyze it, and resolve user display names through AWS IAM Identity Center.
 
 ## Features
 
 - Retrieve CSV files from a specified prefix in AWS S3
 - Parse user usage data from CSV files
+- Resolve user UUIDs to human-readable display names via AWS IAM Identity Center
 - Aggregate data by user and calculate various metrics
 
 ## Configuration
@@ -34,6 +35,8 @@ Configuration items include:
 3. AWS Region
 4. S3 Bucket Name
 5. Rate Limit (per hour)
+6. IAM Identity Center Store ID
+7. IAM Identity Center Region
 
 You can create a connection using the following curl command:
 ```bash
@@ -45,6 +48,8 @@ curl 'http://localhost:8080/plugins/q_dev/connections' \
     "secretAccessKey": "<YOUR_SECRET_ACCESS_KEY>",
     "region": "<AWS_REGION>",
     "bucket": "<YOUR_S3_BUCKET_NAME>",
+    "identityStoreId": "<YOUR_IDENTITY_STORE_ID>",
+    "identityStoreRegion": "<YOUR_IDENTITY_CENTER_REGION>",
     "rateLimitPerHour": 20000
 }'
 ```
@@ -53,6 +58,8 @@ Please replace the following placeholders with actual values:
 <YOUR_SECRET_ACCESS_KEY>: Your AWS secret access key
 <YOUR_S3_BUCKET_NAME>: The S3 bucket name you want to use
 <AWS_REGION>: The region where your S3 bucket is located
+<YOUR_IDENTITY_STORE_ID>: Your IAM Identity Center Store ID (format: d-xxxxxxxxxx)
+<YOUR_IDENTITY_CENTER_REGION>: The region where your Identity Center is deployed
 
 You can get all connections using the following curl command:
 ```bash
@@ -64,7 +71,7 @@ curl Get 'http://localhost:8080/plugins/q_dev/connections'
 The plugin includes the following tasks:
 
 1. `collectQDevS3Files`: Collects file metadata information from S3, without downloading file content
-2. `extractQDevS3Data`: Uses S3 file metadata to download CSV data and parse it into the database
+2. `extractQDevS3Data`: Uses S3 file metadata to download CSV data, parse it into the database, and resolve user display names via Identity Center
 3. `convertQDevUserMetrics`: Converts user data into aggregated metrics, calculating averages and totals
 
 ## Data Tables
@@ -73,6 +80,8 @@ The plugin includes the following tasks:
 - `_tool_q_dev_s3_file_meta`: Stores S3 file metadata
 - `_tool_q_dev_user_data`: Stores user data parsed from CSV files
 - `_tool_q_dev_user_metrics`: Stores aggregated user metrics
+
+Note: `_tool_q_dev_user_data` and `_tool_q_dev_user_metrics` tables now include `display_name` fields for human-readable user identification.
 
 ## Data Collection Configuration
 Steps to collect data:

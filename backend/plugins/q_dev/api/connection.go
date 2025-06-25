@@ -28,7 +28,7 @@ import (
 
 // 连接项目的CRUD API
 
-// PostConnections 创建新连接
+// PostConnections 创建新连接 (enhanced with Identity Store validation)
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// 创建连接
 	connection := &models.QDevConnection{}
@@ -36,7 +36,12 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	// 验证
+
+	// 验证连接参数 (enhanced validation)
+	if err := validateConnection(connection); err != nil {
+		return nil, errors.BadInput.Wrap(err, "connection validation failed")
+	}
+
 	// 保存到数据库
 	err = connectionHelper.Create(connection, input)
 	if err != nil {
@@ -45,7 +50,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil
 }
 
-// PatchConnection 更新现有连接
+// PatchConnection 更新现有连接 (enhanced with Identity Store validation)
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.QDevConnection{}
 	if err := connectionHelper.First(&connection, input.Params); err != nil {
@@ -54,6 +59,12 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err := (&models.QDevConnection{}).MergeFromRequest(connection, input.Body); err != nil {
 		return nil, errors.Convert(err)
 	}
+
+	// 验证更新后的连接参数 (enhanced validation)
+	if err := validateConnection(connection); err != nil {
+		return nil, errors.BadInput.Wrap(err, "connection validation failed")
+	}
+
 	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
 		return nil, err
 	}
@@ -93,4 +104,39 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, err
+}
+
+// validateConnection validates connection parameters including Identity Store fields
+func validateConnection(connection *models.QDevConnection) error {
+	// Validate AWS credentials
+	if connection.AccessKeyId == "" {
+		return errors.Default.New("AccessKeyId is required")
+	}
+	if connection.SecretAccessKey == "" {
+		return errors.Default.New("SecretAccessKey is required")
+	}
+	if connection.Region == "" {
+		return errors.Default.New("Region is required")
+	}
+	if connection.Bucket == "" {
+		return errors.Default.New("Bucket is required")
+	}
+
+	// Validate Identity Store fields (now required)
+	if connection.IdentityStoreId == "" {
+		return errors.Default.New("IdentityStoreId is required")
+	}
+	if connection.IdentityStoreRegion == "" {
+		return errors.Default.New("IdentityStoreRegion is required")
+	}
+
+	// Validate rate limit
+	if connection.RateLimitPerHour < 0 {
+		return errors.Default.New("RateLimitPerHour must be positive")
+	}
+	if connection.RateLimitPerHour == 0 {
+		connection.RateLimitPerHour = 20000 // Set default value
+	}
+
+	return nil
 }

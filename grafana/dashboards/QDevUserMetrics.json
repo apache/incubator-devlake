@@ -158,7 +158,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  user_id,\n  total_inline_chat_total_event_count as 'Total Events'\nFROM lake._tool_q_dev_user_metrics\nORDER BY total_inline_chat_total_event_count DESC\nLIMIT 10",
+          "rawSql": "SELECT\n  COALESCE(display_name, user_id) as 'User',\n  total_inline_chat_total_event_count as 'Total Events'\nFROM lake._tool_q_dev_user_metrics\nORDER BY total_inline_chat_total_event_count DESC\nLIMIT 10",
           "refId": "A",
           "select": [
             [
@@ -249,7 +249,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  user_id,\n  acceptance_rate\nFROM lake._tool_q_dev_user_metrics\nWHERE total_inline_chat_total_event_count > 10\nORDER BY acceptance_rate DESC\nLIMIT 10",
+          "rawSql": "SELECT\n  COALESCE(display_name, user_id) as 'User',\n  acceptance_rate\nFROM lake._tool_q_dev_user_metrics\nWHERE total_inline_chat_total_event_count > 10\nORDER BY acceptance_rate DESC\nLIMIT 10",
           "refId": "A",
           "select": [
             [
@@ -352,7 +352,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  user_id,\n  first_date,\n  last_date,\n  total_days,\n  total_inline_chat_total_event_count as 'Total Events',\n  total_inline_chat_acceptance_event_count as 'Accepted Events',\n  total_inline_chat_dismissal_event_count as 'Dismissed Events',\n  total_inline_chat_rejection_event_count as 'Rejected Events',\n  total_inline_ai_code_lines as 'AI Code Lines',\n  acceptance_rate\nFROM lake._tool_q_dev_user_metrics\nORDER BY total_inline_chat_total_event_count DESC",
+          "rawSql": "SELECT\n  COALESCE(display_name, user_id) as 'User',\n  first_date,\n  last_date,\n  total_days,\n  total_inline_chat_total_event_count as 'Total Events',\n  total_inline_chat_acceptance_event_count as 'Accepted Events',\n  total_inline_chat_dismissal_event_count as 'Dismissed Events',\n  total_inline_chat_rejection_event_count as 'Rejected Events',\n  total_inline_ai_code_lines as 'AI Code Lines',\n  acceptance_rate\nFROM lake._tool_q_dev_user_metrics\nORDER BY total_inline_chat_total_event_count DESC",
           "refId": "A",
           "select": [
             [
@@ -675,7 +675,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  user_id,\n  total_code_review_findings_count as 'Total Findings',\n  total_code_review_succeeded_event_count as 'Succeeded Events',\n  avg_code_review_findings_count as 'Avg Findings per Day',\n  avg_code_review_succeeded_event_count as 'Avg Succeeded Events per Day'\nFROM lake._tool_q_dev_user_metrics\nWHERE total_code_review_findings_count > 0\nORDER BY total_code_review_findings_count DESC",
+          "rawSql": "SELECT\n  COALESCE(display_name, user_id) as 'User',\n  total_code_review_findings_count as 'Total Findings',\n  total_code_review_succeeded_event_count as 'Succeeded Events',\n  avg_code_review_findings_count as 'Avg Findings per Day',\n  avg_code_review_succeeded_event_count as 'Avg Succeeded Events per Day'\nFROM lake._tool_q_dev_user_metrics\nWHERE total_code_review_findings_count > 0\nORDER BY total_code_review_findings_count DESC",
           "refId": "A",
           "select": [
             [

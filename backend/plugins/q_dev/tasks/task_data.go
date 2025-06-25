@@ -31,8 +31,9 @@ type QDevOptions struct {
 }
 
 type QDevTaskData struct {
-	Options  *QDevOptions
-	S3Client *QDevS3Client
+	Options        *QDevOptions
+	S3Client       *QDevS3Client
+	IdentityClient *QDevIdentityClient // New field for Identity Center client
 }
 
 type QDevS3Client struct {

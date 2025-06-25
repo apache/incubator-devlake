@@ -59,6 +59,19 @@ Update the following variables in the `.env` file:
 - `DB_URL`: Replace `mysql:3306` with `127.0.0.1:3306`
 - `DISABLED_REMOTE_PLUGINS`: Set to `True`
 
+### Q Developer Plugin Configuration
+The Q Developer plugin requires AWS credentials with access to both S3 and IAM Identity Center:
+
+**Required AWS Permissions:**
+- S3: `s3:GetObject`, `s3:ListBucket` for the Q Developer data bucket
+- Identity Center: `identitystore:DescribeUser` for user display name resolution
+
+**Required Configuration Fields:**
+- AWS Access Key ID and Secret Access Key
+- S3 bucket name and region
+- IAM Identity Center Store ID (format: `d-xxxxxxxxxx`)
+- IAM Identity Center region
+
 ### Start MySQL and Grafana Containers
 
 Make sure the Docker daemon is running before this step.

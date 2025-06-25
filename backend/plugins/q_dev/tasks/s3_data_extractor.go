@@ -95,6 +95,9 @@ func ExtractQDevS3Data(taskCtx plugin.SubTaskContext) errors.Error {
 func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadCloser, fileMeta *models.QDevS3FileMeta) errors.Error {
 	defer reader.Close()
 
+	// Get task data to access Identity Client
+	data := taskCtx.GetData().(*QDevTaskData)
+
 	csvReader := csv.NewReader(reader)
 	// 使用默认的逗号分隔符，不需要设置 Comma
 	csvReader.LazyQuotes = true    // 允许非标准引号处理
@@ -117,8 +120,8 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 			return errors.Convert(err)
 		}
 
-		// 创建用户数据对象
-		userData, err := createUserData(headers, record, fileMeta)
+		// 创建用户数据对象 (updated to include display name resolution)
+		userData, err := createUserDataWithDisplayName(headers, record, fileMeta, data.IdentityClient)
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to create user data")
 		}
@@ -133,8 +136,13 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 	return nil
 }
 
-// 从CSV记录创建用户数据对象
-func createUserData(headers []string, record []string, fileMeta *models.QDevS3FileMeta) (*models.QDevUserData, errors.Error) {
+// UserDisplayNameResolver interface for resolving user display names
+type UserDisplayNameResolver interface {
+	ResolveUserDisplayName(userId string) (string, error)
+}
+
+// 从CSV记录创建用户数据对象 (enhanced with display name resolution)
+func createUserDataWithDisplayName(headers []string, record []string, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver) (*models.QDevUserData, errors.Error) {
 	userData := &models.QDevUserData{
 		ConnectionId: fileMeta.ConnectionId,
 	}
@@ -165,6 +173,9 @@ func createUserData(headers []string, record []string, fileMeta *models.QDevS3Fi
 		return nil, errors.Default.New("UserId not found in CSV record")
 	}
 
+	// 设置DisplayName (new functionality)
+	userData.DisplayName = resolveDisplayName(userData.UserId, identityClient)
+
 	// 设置Date
 	dateStr, ok := fieldMap["Date"]
 	if !ok {
@@ -194,6 +205,29 @@ func createUserData(headers []string, record []string, fileMeta *models.QDevS3Fi
 	userData.Inline_SuggestionsCount = parseInt(fieldMap, "Inline_SuggestionsCount")
 
 	return userData, nil
+}
+
+// resolveDisplayName resolves user ID to display name using Identity Client
+func resolveDisplayName(userId string, identityClient UserDisplayNameResolver) string {
+	// If no identity client available, use userId as fallback
+	if identityClient == nil {
+		return userId
+	}
+
+	// Try to resolve display name
+	displayName, err := identityClient.ResolveUserDisplayName(userId)
+	if err != nil {
+		// Log error but continue with userId as fallback
+		fmt.Printf("Failed to resolve display name for user %s: %v\n", userId, err)
+		return userId
+	}
+
+	// If display name is empty, use userId as fallback
+	if displayName == "" {
+		return userId
+	}
+
+	return displayName
 }
 
 // 解析日期

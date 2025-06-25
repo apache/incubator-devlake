@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -28,7 +29,7 @@ import (
 
 var _ plugin.SubTaskEntryPoint = ConvertQDevUserMetrics
 
-// ConvertQDevUserMetrics 按用户聚合指标
+// ConvertQDevUserMetrics 按用户聚合指标 (enhanced with display name support)
 func ConvertQDevUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*QDevTaskData)
 	db := taskCtx.GetDal()
@@ -42,8 +43,8 @@ func ConvertQDevUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Default.Wrap(err, "failed to delete previous user metrics")
 	}
 
-	// 聚合数据
-	userDataMap := make(map[string]*UserMetricsAggregation)
+	// 聚合数据 (updated to include display name)
+	userDataMap := make(map[string]*UserMetricsAggregationWithDisplayName)
 
 	cursor, err := db.Cursor(
 		dal.From(&models.QDevUserData{}),
@@ -67,9 +68,17 @@ func ConvertQDevUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		// 获取或创建用户聚合
 		aggregation, ok := userDataMap[userData.UserId]
 		if !ok {
-			aggregation = &UserMetricsAggregation{
+			// Resolve display name for new user (new functionality)
+			displayName := resolveDisplayNameForAggregation(userData.UserId, data.IdentityClient)
+			// If user data already has display name, use it; otherwise use resolved name
+			if userData.DisplayName != "" {
+				displayName = userData.DisplayName
+			}
+
+			aggregation = &UserMetricsAggregationWithDisplayName{
 				ConnectionId: userData.ConnectionId,
 				UserId:       userData.UserId,
+				DisplayName:  displayName, // New field
 				FirstDate:    userData.Date,
 				LastDate:     userData.Date,
 				DataCount:    0,
@@ -106,53 +115,8 @@ func ConvertQDevUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// 计算每个用户的平均指标和总天数
 	for _, aggregation := range userDataMap {
-		// 创建指标记录
-		metrics := &models.QDevUserMetrics{
-			ConnectionId: aggregation.ConnectionId,
-			UserId:       aggregation.UserId,
-			FirstDate:    aggregation.FirstDate,
-			LastDate:     aggregation.LastDate,
-		}
-
-		// 计算总天数
-		metrics.TotalDays = int(math.Round(aggregation.LastDate.Sub(aggregation.FirstDate).Hours()/24)) + 1
-
-		// 设置总计指标
-		metrics.TotalCodeReview_FindingsCount = aggregation.TotalCodeReview_FindingsCount
-		metrics.TotalCodeReview_SucceededEventCount = aggregation.TotalCodeReview_SucceededEventCount
-		metrics.TotalInlineChat_AcceptanceEventCount = aggregation.TotalInlineChat_AcceptanceEventCount
-		metrics.TotalInlineChat_AcceptedLineAdditions = aggregation.TotalInlineChat_AcceptedLineAdditions
-		metrics.TotalInlineChat_AcceptedLineDeletions = aggregation.TotalInlineChat_AcceptedLineDeletions
-		metrics.TotalInlineChat_DismissalEventCount = aggregation.TotalInlineChat_DismissalEventCount
-		metrics.TotalInlineChat_DismissedLineAdditions = aggregation.TotalInlineChat_DismissedLineAdditions
-		metrics.TotalInlineChat_DismissedLineDeletions = aggregation.TotalInlineChat_DismissedLineDeletions
-		metrics.TotalInlineChat_RejectedLineAdditions = aggregation.TotalInlineChat_RejectedLineAdditions
-		metrics.TotalInlineChat_RejectedLineDeletions = aggregation.TotalInlineChat_RejectedLineDeletions
-		metrics.TotalInlineChat_RejectionEventCount = aggregation.TotalInlineChat_RejectionEventCount
-		metrics.TotalInlineChat_TotalEventCount = aggregation.TotalInlineChat_TotalEventCount
-		metrics.TotalInline_AICodeLines = aggregation.TotalInline_AICodeLines
-		metrics.TotalInline_AcceptanceCount = aggregation.TotalInline_AcceptanceCount
-		metrics.TotalInline_SuggestionsCount = aggregation.TotalInline_SuggestionsCount
-
-		// 计算平均值指标
-		if metrics.TotalDays > 0 {
-			metrics.AvgCodeReview_FindingsCount = float64(aggregation.TotalCodeReview_FindingsCount) / float64(metrics.TotalDays)
-			metrics.AvgCodeReview_SucceededEventCount = float64(aggregation.TotalCodeReview_SucceededEventCount) / float64(metrics.TotalDays)
-			metrics.AvgInlineChat_AcceptanceEventCount = float64(aggregation.TotalInlineChat_AcceptanceEventCount) / float64(metrics.TotalDays)
-			metrics.AvgInlineChat_TotalEventCount = float64(aggregation.TotalInlineChat_TotalEventCount) / float64(metrics.TotalDays)
-			metrics.AvgInline_AICodeLines = float64(aggregation.TotalInline_AICodeLines) / float64(metrics.TotalDays)
-			metrics.AvgInline_AcceptanceCount = float64(aggregation.TotalInline_AcceptanceCount) / float64(metrics.TotalDays)
-			metrics.AvgInline_SuggestionsCount = float64(aggregation.TotalInline_SuggestionsCount) / float64(metrics.TotalDays)
-		}
-
-		// 计算接受率
-		totalEvents := aggregation.TotalInlineChat_AcceptanceEventCount +
-			aggregation.TotalInlineChat_DismissalEventCount +
-			aggregation.TotalInlineChat_RejectionEventCount
-
-		if totalEvents > 0 {
-			metrics.AcceptanceRate = float64(aggregation.TotalInlineChat_AcceptanceEventCount) / float64(totalEvents)
-		}
+		// 创建指标记录 (updated to use new method)
+		metrics := aggregation.ToUserMetrics()
 
 		// 存储聚合指标
 		err = db.Create(metrics)
@@ -166,10 +130,11 @@ func ConvertQDevUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	return nil
 }
 
-// UserMetricsAggregation 聚合过程中用于保存用户指标的结构
-type UserMetricsAggregation struct {
+// UserMetricsAggregationWithDisplayName 聚合过程中用于保存用户指标的结构 (enhanced with display name)
+type UserMetricsAggregationWithDisplayName struct {
 	ConnectionId                           uint64
 	UserId                                 string
+	DisplayName                            string // New field for display name
 	FirstDate                              time.Time
 	LastDate                               time.Time
 	DataCount                              int
@@ -188,6 +153,82 @@ type UserMetricsAggregation struct {
 	TotalInline_AICodeLines                int
 	TotalInline_AcceptanceCount            int
 	TotalInline_SuggestionsCount           int
+}
+
+// ToUserMetrics converts aggregation data to QDevUserMetrics model
+func (aggregation *UserMetricsAggregationWithDisplayName) ToUserMetrics() *models.QDevUserMetrics {
+	metrics := &models.QDevUserMetrics{
+		ConnectionId: aggregation.ConnectionId,
+		UserId:       aggregation.UserId,
+		DisplayName:  aggregation.DisplayName, // New field
+		FirstDate:    aggregation.FirstDate,
+		LastDate:     aggregation.LastDate,
+	}
+
+	// 计算总天数
+	metrics.TotalDays = int(math.Round(aggregation.LastDate.Sub(aggregation.FirstDate).Hours()/24)) + 1
+
+	// 设置总计指标
+	metrics.TotalCodeReview_FindingsCount = aggregation.TotalCodeReview_FindingsCount
+	metrics.TotalCodeReview_SucceededEventCount = aggregation.TotalCodeReview_SucceededEventCount
+	metrics.TotalInlineChat_AcceptanceEventCount = aggregation.TotalInlineChat_AcceptanceEventCount
+	metrics.TotalInlineChat_AcceptedLineAdditions = aggregation.TotalInlineChat_AcceptedLineAdditions
+	metrics.TotalInlineChat_AcceptedLineDeletions = aggregation.TotalInlineChat_AcceptedLineDeletions
+	metrics.TotalInlineChat_DismissalEventCount = aggregation.TotalInlineChat_DismissalEventCount
+	metrics.TotalInlineChat_DismissedLineAdditions = aggregation.TotalInlineChat_DismissedLineAdditions
+	metrics.TotalInlineChat_DismissedLineDeletions = aggregation.TotalInlineChat_DismissedLineDeletions
+	metrics.TotalInlineChat_RejectedLineAdditions = aggregation.TotalInlineChat_RejectedLineAdditions
+	metrics.TotalInlineChat_RejectedLineDeletions = aggregation.TotalInlineChat_RejectedLineDeletions
+	metrics.TotalInlineChat_RejectionEventCount = aggregation.TotalInlineChat_RejectionEventCount
+	metrics.TotalInlineChat_TotalEventCount = aggregation.TotalInlineChat_TotalEventCount
+	metrics.TotalInline_AICodeLines = aggregation.TotalInline_AICodeLines
+	metrics.TotalInline_AcceptanceCount = aggregation.TotalInline_AcceptanceCount
+	metrics.TotalInline_SuggestionsCount = aggregation.TotalInline_SuggestionsCount
+
+	// 计算平均值指标
+	if metrics.TotalDays > 0 {
+		metrics.AvgCodeReview_FindingsCount = float64(aggregation.TotalCodeReview_FindingsCount) / float64(metrics.TotalDays)
+		metrics.AvgCodeReview_SucceededEventCount = float64(aggregation.TotalCodeReview_SucceededEventCount) / float64(metrics.TotalDays)
+		metrics.AvgInlineChat_AcceptanceEventCount = float64(aggregation.TotalInlineChat_AcceptanceEventCount) / float64(metrics.TotalDays)
+		metrics.AvgInlineChat_TotalEventCount = float64(aggregation.TotalInlineChat_TotalEventCount) / float64(metrics.TotalDays)
+		metrics.AvgInline_AICodeLines = float64(aggregation.TotalInline_AICodeLines) / float64(metrics.TotalDays)
+		metrics.AvgInline_AcceptanceCount = float64(aggregation.TotalInline_AcceptanceCount) / float64(metrics.TotalDays)
+		metrics.AvgInline_SuggestionsCount = float64(aggregation.TotalInline_SuggestionsCount) / float64(metrics.TotalDays)
+	}
+
+	// 计算接受率
+	totalEvents := aggregation.TotalInlineChat_AcceptanceEventCount +
+		aggregation.TotalInlineChat_DismissalEventCount +
+		aggregation.TotalInlineChat_RejectionEventCount
+
+	if totalEvents > 0 {
+		metrics.AcceptanceRate = float64(aggregation.TotalInlineChat_AcceptanceEventCount) / float64(totalEvents)
+	}
+
+	return metrics
+}
+
+// resolveDisplayNameForAggregation resolves display name for user metrics aggregation
+func resolveDisplayNameForAggregation(userId string, identityClient UserDisplayNameResolver) string {
+	// If no identity client available, use userId as fallback
+	if identityClient == nil {
+		return userId
+	}
+
+	// Try to resolve display name
+	displayName, err := identityClient.ResolveUserDisplayName(userId)
+	if err != nil {
+		// Log error but continue with userId as fallback
+		fmt.Printf("Failed to resolve display name for user %s during aggregation: %v\n", userId, err)
+		return userId
+	}
+
+	// If display name is empty, use userId as fallback
+	if displayName == "" {
+		return userId
+	}
+
+	return displayName
 }
 
 var ConvertQDevUserMetricsMeta = plugin.SubTaskMeta{

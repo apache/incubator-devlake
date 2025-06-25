@@ -102,15 +102,23 @@ func (p QDev) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		return nil, err
 	}
 
-	// 创建S3客户端，替代API客户端
+	// Create S3 client
 	s3Client, err := tasks.NewQDevS3Client(taskCtx, connection)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create Identity client (new)
+	identityClient, identityErr := tasks.NewQDevIdentityClient(connection)
+	if identityErr != nil {
+		taskCtx.GetLogger().Warn(identityErr, "Failed to create identity client, proceeding without user name resolution")
+		identityClient = nil
+	}
+
 	return &tasks.QDevTaskData{
-		Options:  &op,
-		S3Client: s3Client,
+		Options:        &op,
+		S3Client:       s3Client,
+		IdentityClient: identityClient,
 	}, nil
 }
 

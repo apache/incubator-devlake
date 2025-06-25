@@ -480,7 +480,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  user_id,\n  SUM(inline_chat_total_event_count) as 'Total Events',\n  SUM(inline_chat_acceptance_event_count) as 'Accepted Events',\n  SUM(inline_chat_dismissal_event_count) as 'Dismissed Events',\n  SUM(inline_chat_rejection_event_count) as 'Rejected Events',\n  SUM(inline_ai_code_lines) as 'AI Code Lines',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Acceptance Rate',\n  MIN(date) as 'First Activity',\n  MAX(date) as 'Last Activity'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY user_id\nORDER BY SUM(inline_chat_total_event_count) DESC\nLIMIT 20",
+          "rawSql": "SELECT\n  COALESCE(display_name, user_id) as 'User',\n  SUM(inline_chat_total_event_count) as 'Total Events',\n  SUM(inline_chat_acceptance_event_count) as 'Accepted Events',\n  SUM(inline_chat_dismissal_event_count) as 'Dismissed Events',\n  SUM(inline_chat_rejection_event_count) as 'Rejected Events',\n  SUM(inline_ai_code_lines) as 'AI Code Lines',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Acceptance Rate',\n  MIN(date) as 'First Activity',\n  MAX(date) as 'Last Activity'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY user_id, display_name\nORDER BY SUM(inline_chat_total_event_count) DESC\nLIMIT 20",
           "refId": "A",
           "select": [
             [

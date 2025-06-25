@@ -28,6 +28,7 @@ type QDevUserMetrics struct {
 	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
 	UserId       string `gorm:"primaryKey"`
+	DisplayName  string `gorm:"type:varchar(255)" json:"displayName"` // New field for user display name
 	FirstDate    time.Time
 	LastDate     time.Time
 	TotalDays    int
