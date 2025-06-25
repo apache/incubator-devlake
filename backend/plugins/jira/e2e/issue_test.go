@@ -237,6 +237,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"assignee_name",
 			"severity",
 			"component",
+			"fix_versions",
 			"original_project",
 			"due_date",
 		},
@@ -317,6 +318,7 @@ func TestIssueSubtaskWithoutMapping(t *testing.T) {
 			"assignee_name",
 			"severity",
 			"component",
+			"fix_versions",
 			"original_project",
 		},
 	)
@@ -454,6 +456,7 @@ func TestIssueCustomizeDueDate(t *testing.T) {
 			"assignee_name",
 			"severity",
 			"component",
+			"fix_versions",
 			"original_project",
 			"due_date",
 		},
