@@ -34,7 +34,7 @@ type ScopeDetail api.ScopeDetail[models.TeambitionProject, models.TeambitionScop
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scope body PutScopesReqBody true "json"
-// @Success 200  {object} []models.teambitionRepo
+// @Success 200  {object} []models.TeambitionProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/teambition/connections/{connectionId}/scopes [PUT]
@@ -49,8 +49,8 @@ func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
-// @Param scope body models.teambitionRepo true "json"
-// @Success 200  {object} models.teambitionRepo
+// @Param scope body models.TeambitionProject true "json"
+// @Success 200  {object} models.TeambitionProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/teambition/connections/{connectionId}/scopes/{scopeId} [PATCH]
@@ -97,7 +97,7 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
-// @Success 200  {object} models.teambitionRepo
+// @Success 200  {object} models.TeambitionProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 409  {object} srvhelper.DsRefs "References exist to this scope"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
