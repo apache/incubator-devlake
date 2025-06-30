@@ -44,6 +44,7 @@ import (
 	starrocks "github.com/apache/incubator-devlake/plugins/starrocks/impl"
 	tapd "github.com/apache/incubator-devlake/plugins/tapd/impl"
 	teambition "github.com/apache/incubator-devlake/plugins/teambition/impl"
+	testmo "github.com/apache/incubator-devlake/plugins/testmo/impl"
 	trello "github.com/apache/incubator-devlake/plugins/trello/impl"
 	webhook "github.com/apache/incubator-devlake/plugins/webhook/impl"
 	zentao "github.com/apache/incubator-devlake/plugins/zentao/impl"
@@ -82,6 +83,7 @@ func loadGoPlugins() []plugin.PluginMeta {
 		starrocks.StarRocks{},
 		tapd.Tapd{},
 		teambition.Teambition{},
+		testmo.Testmo{},
 		trello.Trello{},
 		webhook.Webhook{},
 		zentao.Zentao{},
