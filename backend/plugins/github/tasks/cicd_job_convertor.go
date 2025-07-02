@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"reflect"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -87,10 +86,11 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*models.GithubJob)
 
-			createdAt := time.Now()
-			if line.StartedAt != nil {
-				createdAt = *line.StartedAt
+			// Skip jobs with no started_at value (workaround for https://github.com/apache/incubator-devlake/issues/8442)
+			if line.StartedAt == nil {
+				return nil, nil
 			}
+			createdAt := *line.StartedAt
 			domainJob := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, line.RunID,
 					line.ID)},
