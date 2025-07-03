@@ -158,6 +158,19 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, apiIssue *apiv2mo
 	if issue.StdType == "" {
 		issue.StdType = strings.ToUpper(issue.Type)
 	}
+	
+	// AGENDRIX: Check if this is a Bug issue with Blocker custom field - mark as INCIDENT for DORA metrics
+	if issue.Type == "Bug" {
+		if customField, exists := apiIssue.Fields.AllFields["customfield_10070"]; exists {
+			if customFieldMap, ok := customField.(map[string]interface{}); ok {
+				if value, valueExists := customFieldMap["value"]; valueExists {
+					if valueStr, isString := value.(string); isString && valueStr == "Blocker" {
+						issue.StdType = "INCIDENT"
+					}
+				}
+			}
+		}
+	}
 	issue.StdStatus = getStdStatus(issue.StatusKey)
 	if value, ok := mappings.StandardStatusMappings[issue.Type][issue.StatusKey]; ok {
 		issue.StdStatus = value.StandardStatus
