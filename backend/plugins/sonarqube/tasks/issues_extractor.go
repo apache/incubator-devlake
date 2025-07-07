@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
@@ -81,7 +82,7 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			codeBlockInIssue := &models.SonarqubeIssueCodeBlock{
 				ConnectionId: data.Options.ConnectionId,
 				IssueKey:     sonarqubeIssue.IssueKey,
-				Component:    sonarqubeIssue.Component,
+				Component:    utils.Substr(sonarqubeIssue.Component, 0, 500),
 				Msg:          sonarqubeIssue.Message,
 				StartLine:    sonarqubeIssue.StartLine,
 				EndLine:      sonarqubeIssue.EndLine,
