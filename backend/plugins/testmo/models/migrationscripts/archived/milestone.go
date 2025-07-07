@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type TestmoMilestone struct {
@@ -36,7 +36,7 @@ type TestmoMilestone struct {
 	TestmoUpdatedAt *time.Time `json:"updated_at"`
 	CompletedAt     *time.Time `json:"completed_at"`
 
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TestmoMilestone) TableName() string {

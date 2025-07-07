@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type TestmoTest struct {
@@ -45,7 +45,7 @@ type TestmoTest struct {
 	TestmoCreatedAt *time.Time `json:"created_at"`
 	TestmoUpdatedAt *time.Time `json:"updated_at"`
 
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TestmoTest) TableName() string {

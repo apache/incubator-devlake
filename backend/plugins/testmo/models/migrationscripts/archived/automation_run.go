@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type TestmoAutomationRun struct {
@@ -81,7 +81,7 @@ type TestmoAutomationRun struct {
 	CompletedAt     *time.Time `json:"completed_at"`
 	CompletedBy     *uint64    `json:"completed_by"`
 
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TestmoAutomationRun) TableName() string {

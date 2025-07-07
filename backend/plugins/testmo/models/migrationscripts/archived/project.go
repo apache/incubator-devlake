@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type TestmoProject struct {
@@ -41,7 +41,7 @@ type TestmoProject struct {
 	AutomationRunActiveCount     uint64 `json:"automation_run_active_count"`
 	AutomationRunCompletedCount  uint64 `json:"automation_run_completed_count"`
 
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (TestmoProject) TableName() string {

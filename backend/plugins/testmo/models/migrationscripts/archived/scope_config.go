@@ -18,11 +18,11 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type TestmoScopeConfig struct {
-	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	archived.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
 
 	// Patterns to identify test types
 	AcceptanceTestPattern string `mapstructure:"acceptanceTestPattern" json:"acceptanceTestPattern" gorm:"type:varchar(255)"`
