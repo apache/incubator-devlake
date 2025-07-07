@@ -51,6 +51,7 @@ import (
 	starrocks "github.com/apache/incubator-devlake/plugins/starrocks/impl"
 	tapd "github.com/apache/incubator-devlake/plugins/tapd/impl"
 	teambition "github.com/apache/incubator-devlake/plugins/teambition/impl"
+	testmo "github.com/apache/incubator-devlake/plugins/testmo/impl"
 	trello "github.com/apache/incubator-devlake/plugins/trello/impl"
 	webhook "github.com/apache/incubator-devlake/plugins/webhook/impl"
 	zentao "github.com/apache/incubator-devlake/plugins/zentao/impl"
@@ -86,6 +87,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("starrocks", starrocks.StarRocks{}.GetTablesInfo)
 	checker.FeedIn("tapd/models", tapd.Tapd{}.GetTablesInfo)
 	checker.FeedIn("teambition/models", teambition.Teambition{}.GetTablesInfo)
+	checker.FeedIn("testmo/models", testmo.Testmo{}.GetTablesInfo)
 	checker.FeedIn("trello/models", trello.Trello{}.GetTablesInfo)
 	checker.FeedIn("webhook/models", webhook.Webhook{}.GetTablesInfo)
 	checker.FeedIn("zentao/models", zentao.Zentao{}.GetTablesInfo)
