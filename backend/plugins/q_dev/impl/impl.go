@@ -52,7 +52,6 @@ func (p QDev) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.QDevConnection{},
 		&models.QDevUserData{},
-		&models.QDevUserMetrics{},
 		&models.QDevS3FileMeta{},
 	}
 }
@@ -81,7 +80,6 @@ func (p QDev) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectQDevS3FilesMeta,
 		tasks.ExtractQDevS3DataMeta,
-		tasks.ConvertQDevUserMetricsMeta,
 	}
 }
 

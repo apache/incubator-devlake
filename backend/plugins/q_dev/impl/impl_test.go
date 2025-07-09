@@ -27,19 +27,19 @@ import (
 
 func TestQDev_BasicPluginMethods(t *testing.T) {
 	plugin := &QDev{}
-	
+
 	assert.Equal(t, "q_dev", plugin.Name())
 	assert.Equal(t, "To collect and enrich data from AWS Q Developer usage metrics", plugin.Description())
 	assert.Equal(t, "github.com/apache/incubator-devlake/plugins/q_dev", plugin.RootPkgPath())
-	
+
 	// Test table info
 	tables := plugin.GetTablesInfo()
-	assert.Len(t, tables, 4)
-	
+	assert.Len(t, tables, 3)
+
 	// Test subtask metas
 	subtasks := plugin.SubTaskMetas()
-	assert.Len(t, subtasks, 3)
-	
+	assert.Len(t, subtasks, 2)
+
 	// Test API resources
 	apiResources := plugin.ApiResources()
 	assert.NotEmpty(t, apiResources)
@@ -62,11 +62,11 @@ func TestQDev_TaskDataStructure(t *testing.T) {
 			Region:  "us-west-2",
 		},
 	}
-	
+
 	assert.NotNil(t, taskData.Options)
 	assert.NotNil(t, taskData.S3Client)
 	assert.NotNil(t, taskData.IdentityClient)
-	
+
 	assert.Equal(t, uint64(1), taskData.Options.ConnectionId)
 	assert.Equal(t, "test/", taskData.Options.S3Prefix)
 	assert.Equal(t, "test-bucket", taskData.S3Client.Bucket)
@@ -85,7 +85,7 @@ func TestQDev_TaskDataWithoutIdentityClient(t *testing.T) {
 		},
 		IdentityClient: nil, // No identity client
 	}
-	
+
 	assert.NotNil(t, taskData.Options)
 	assert.NotNil(t, taskData.S3Client)
 	assert.Nil(t, taskData.IdentityClient)
