@@ -26,25 +26,55 @@ import (
 // QDevUserData 存储从CSV中提取的原始数据
 type QDevUserData struct {
 	common.Model
-	ConnectionId                      uint64    `gorm:"primaryKey"`
-	UserId                            string    `gorm:"index" json:"userId"`
-	Date                              time.Time `gorm:"index" json:"date"`
-	DisplayName                       string    `gorm:"type:varchar(255)" json:"displayName"` // New field for user display name
-	CodeReview_FindingsCount          int
-	CodeReview_SucceededEventCount    int
-	InlineChat_AcceptanceEventCount   int
-	InlineChat_AcceptedLineAdditions  int
-	InlineChat_AcceptedLineDeletions  int
-	InlineChat_DismissalEventCount    int
-	InlineChat_DismissedLineAdditions int
-	InlineChat_DismissedLineDeletions int
-	InlineChat_RejectedLineAdditions  int
-	InlineChat_RejectedLineDeletions  int
-	InlineChat_RejectionEventCount    int
-	InlineChat_TotalEventCount        int
-	Inline_AICodeLines                int
-	Inline_AcceptanceCount            int
-	Inline_SuggestionsCount           int
+	ConnectionId uint64    `gorm:"primaryKey"`
+	UserId       string    `gorm:"index" json:"userId"`
+	Date         time.Time `gorm:"index" json:"date"`
+	DisplayName  string    `gorm:"type:varchar(255)" json:"displayName"` // New field for user display name
+
+	CodeReview_FindingsCount             int
+	CodeReview_SucceededEventCount       int
+	InlineChat_AcceptanceEventCount      int
+	InlineChat_AcceptedLineAdditions     int
+	InlineChat_AcceptedLineDeletions     int
+	InlineChat_DismissalEventCount       int
+	InlineChat_DismissedLineAdditions    int
+	InlineChat_DismissedLineDeletions    int
+	InlineChat_RejectedLineAdditions     int
+	InlineChat_RejectedLineDeletions     int
+	InlineChat_RejectionEventCount       int
+	InlineChat_TotalEventCount           int
+	Inline_AICodeLines                   int
+	Inline_AcceptanceCount               int
+	Inline_SuggestionsCount              int
+	Chat_AICodeLines                     int
+	Chat_MessagesInteracted              int
+	Chat_MessagesSent                    int
+	CodeFix_AcceptanceEventCount         int
+	CodeFix_AcceptedLines                int
+	CodeFix_GeneratedLines               int
+	CodeFix_GenerationEventCount         int
+	CodeReview_FailedEventCount          int
+	Dev_AcceptanceEventCount             int
+	Dev_AcceptedLines                    int
+	Dev_GeneratedLines                   int
+	Dev_GenerationEventCount             int
+	DocGeneration_AcceptedFileUpdates    int
+	DocGeneration_AcceptedFilesCreations int
+	DocGeneration_AcceptedLineAdditions  int
+	DocGeneration_AcceptedLineUpdates    int
+	DocGeneration_EventCount             int
+	DocGeneration_RejectedFileCreations  int
+	DocGeneration_RejectedFileUpdates    int
+	DocGeneration_RejectedLineAdditions  int
+	DocGeneration_RejectedLineUpdates    int
+	TestGeneration_AcceptedLines         int
+	TestGeneration_AcceptedTests         int
+	TestGeneration_EventCount            int
+	TestGeneration_GeneratedLines        int
+	TestGeneration_GeneratedTests        int
+	Transformation_EventCount            int
+	Transformation_LinesGenerated        int
+	Transformation_LinesIngested         int
 }
 
 func (QDevUserData) TableName() string {

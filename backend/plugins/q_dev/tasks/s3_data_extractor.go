@@ -20,16 +20,17 @@ package tasks
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/q_dev/models"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"io"
-	"strconv"
-	"strings"
-	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractQDevS3Data
@@ -187,7 +188,7 @@ func createUserDataWithDisplayName(headers []string, record []string, fileMeta *
 		return nil, errors.Default.Wrap(err, "failed to parse date")
 	}
 
-	// 设置指标字段
+	// 设置所有指标字段
 	userData.CodeReview_FindingsCount = parseInt(fieldMap, "CodeReview_FindingsCount")
 	userData.CodeReview_SucceededEventCount = parseInt(fieldMap, "CodeReview_SucceededEventCount")
 	userData.InlineChat_AcceptanceEventCount = parseInt(fieldMap, "InlineChat_AcceptanceEventCount")
@@ -203,6 +204,35 @@ func createUserDataWithDisplayName(headers []string, record []string, fileMeta *
 	userData.Inline_AICodeLines = parseInt(fieldMap, "Inline_AICodeLines")
 	userData.Inline_AcceptanceCount = parseInt(fieldMap, "Inline_AcceptanceCount")
 	userData.Inline_SuggestionsCount = parseInt(fieldMap, "Inline_SuggestionsCount")
+	userData.Chat_AICodeLines = parseInt(fieldMap, "Chat_AICodeLines")
+	userData.Chat_MessagesInteracted = parseInt(fieldMap, "Chat_MessagesInteracted")
+	userData.Chat_MessagesSent = parseInt(fieldMap, "Chat_MessagesSent")
+	userData.CodeFix_AcceptanceEventCount = parseInt(fieldMap, "CodeFix_AcceptanceEventCount")
+	userData.CodeFix_AcceptedLines = parseInt(fieldMap, "CodeFix_AcceptedLines")
+	userData.CodeFix_GeneratedLines = parseInt(fieldMap, "CodeFix_GeneratedLines")
+	userData.CodeFix_GenerationEventCount = parseInt(fieldMap, "CodeFix_GenerationEventCount")
+	userData.CodeReview_FailedEventCount = parseInt(fieldMap, "CodeReview_FailedEventCount")
+	userData.Dev_AcceptanceEventCount = parseInt(fieldMap, "Dev_AcceptanceEventCount")
+	userData.Dev_AcceptedLines = parseInt(fieldMap, "Dev_AcceptedLines")
+	userData.Dev_GeneratedLines = parseInt(fieldMap, "Dev_GeneratedLines")
+	userData.Dev_GenerationEventCount = parseInt(fieldMap, "Dev_GenerationEventCount")
+	userData.DocGeneration_AcceptedFileUpdates = parseInt(fieldMap, "DocGeneration_AcceptedFileUpdates")
+	userData.DocGeneration_AcceptedFilesCreations = parseInt(fieldMap, "DocGeneration_AcceptedFilesCreations")
+	userData.DocGeneration_AcceptedLineAdditions = parseInt(fieldMap, "DocGeneration_AcceptedLineAdditions")
+	userData.DocGeneration_AcceptedLineUpdates = parseInt(fieldMap, "DocGeneration_AcceptedLineUpdates")
+	userData.DocGeneration_EventCount = parseInt(fieldMap, "DocGeneration_EventCount")
+	userData.DocGeneration_RejectedFileCreations = parseInt(fieldMap, "DocGeneration_RejectedFileCreations")
+	userData.DocGeneration_RejectedFileUpdates = parseInt(fieldMap, "DocGeneration_RejectedFileUpdates")
+	userData.DocGeneration_RejectedLineAdditions = parseInt(fieldMap, "DocGeneration_RejectedLineAdditions")
+	userData.DocGeneration_RejectedLineUpdates = parseInt(fieldMap, "DocGeneration_RejectedLineUpdates")
+	userData.TestGeneration_AcceptedLines = parseInt(fieldMap, "TestGeneration_AcceptedLines")
+	userData.TestGeneration_AcceptedTests = parseInt(fieldMap, "TestGeneration_AcceptedTests")
+	userData.TestGeneration_EventCount = parseInt(fieldMap, "TestGeneration_EventCount")
+	userData.TestGeneration_GeneratedLines = parseInt(fieldMap, "TestGeneration_GeneratedLines")
+	userData.TestGeneration_GeneratedTests = parseInt(fieldMap, "TestGeneration_GeneratedTests")
+	userData.Transformation_EventCount = parseInt(fieldMap, "Transformation_EventCount")
+	userData.Transformation_LinesGenerated = parseInt(fieldMap, "Transformation_LinesGenerated")
+	userData.Transformation_LinesIngested = parseInt(fieldMap, "Transformation_LinesIngested")
 
 	return userData, nil
 }
