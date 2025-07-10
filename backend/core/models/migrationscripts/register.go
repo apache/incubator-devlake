@@ -138,5 +138,6 @@ func All() []plugin.MigrationScript {
 		new(createQaTables),
 		new(increaseCqIssueComponentLength),
 		new(extendFieldSizeForCq),
+		new(addIssueFixVerion),
 	}
 }
