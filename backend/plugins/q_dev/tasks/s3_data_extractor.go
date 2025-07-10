@@ -71,19 +71,28 @@ func ExtractQDevS3Data(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Convert(err)
 		}
 
-		// 处理CSV文件
-		err = processCSVData(taskCtx, db, getResult.Body, fileMeta)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("failed to process CSV file %s", fileMeta.FileName))
+		// Use a transaction to process the file and update its status
+		tx := db.Begin()
+		csvErr := processCSVData(taskCtx, tx, getResult.Body, fileMeta)
+		if csvErr != nil {
+			tx.Rollback()
+			return errors.Default.Wrap(csvErr, fmt.Sprintf("failed to process CSV file %s", fileMeta.FileName))
 		}
 
-		// 更新文件处理状态
+		// Update file processing status within the same transaction
 		fileMeta.Processed = true
 		now := time.Now()
 		fileMeta.ProcessedTime = &now
-		err = db.Update(fileMeta)
+		err = tx.Update(fileMeta)
 		if err != nil {
+			tx.Rollback()
 			return errors.Default.Wrap(err, "failed to update file metadata")
+		}
+		
+		// Commit the transaction
+		err = tx.Commit()
+		if err != nil {
+			return errors.Default.Wrap(err, "failed to commit transaction")
 		}
 
 		taskCtx.IncProgress(1)
@@ -127,7 +136,7 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 			return errors.Default.Wrap(err, "failed to create user data")
 		}
 
-		// 保存到数据库
+		// Save to database - no need to check for duplicates since we're processing each file only once
 		err = db.Create(userData)
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to save user data")

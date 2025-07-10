@@ -18,13 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/q_dev/models"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = CollectQDevS3Files
@@ -43,12 +44,6 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 
 	taskCtx.SetProgress(0, -1)
 
-	// 清空以前的元数据记录
-	err := db.Delete(&models.QDevS3FileMeta{}, dal.Where("connection_id = ?", data.Options.ConnectionId))
-	if err != nil {
-		return errors.Default.Wrap(err, "failed to clean previous file metadata")
-	}
-
 	for {
 		input := &s3.ListObjectsV2Input{
 			Bucket:            aws.String(data.S3Client.Bucket),
@@ -63,12 +58,31 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 
 		// 处理每个CSV文件
 		for _, object := range result.Contents {
-			// 只处理CSV文件
+			// Only process CSV files
 			if !strings.HasSuffix(*object.Key, ".csv") {
+				taskCtx.GetLogger().Debug("Skipping non-CSV file: %s", *object.Key)
 				continue
 			}
 
-			// 保存文件元数据
+			// Check if this file already exists in our database
+			existingFile := &models.QDevS3FileMeta{}
+			err = db.First(existingFile, dal.Where("connection_id = ? AND s3_path = ?",
+				data.Options.ConnectionId, *object.Key))
+
+			if err == nil {
+				// File already exists in database, skip it if it's already processed
+				if existingFile.Processed {
+					taskCtx.GetLogger().Debug("Skipping already processed file: %s", *object.Key)
+					continue
+				}
+				// Otherwise, we'll keep the existing record (which is still marked as unprocessed)
+				taskCtx.GetLogger().Debug("Found existing unprocessed file: %s", *object.Key)
+				continue
+			} else if !db.IsErrorNotFound(err) {
+				return errors.Default.Wrap(err, "failed to query existing file metadata")
+			}
+
+			// This is a new file, save its metadata
 			fileMeta := &models.QDevS3FileMeta{
 				ConnectionId: data.Options.ConnectionId,
 				FileName:     *object.Key,
