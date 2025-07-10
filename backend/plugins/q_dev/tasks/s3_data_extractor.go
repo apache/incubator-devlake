@@ -75,7 +75,9 @@ func ExtractQDevS3Data(taskCtx plugin.SubTaskContext) errors.Error {
 		tx := db.Begin()
 		csvErr := processCSVData(taskCtx, tx, getResult.Body, fileMeta)
 		if csvErr != nil {
-			tx.Rollback()
+			if rollbackErr := tx.Rollback(); rollbackErr != nil {
+				taskCtx.GetLogger().Error(rollbackErr, "failed to rollback transaction")
+			}
 			return errors.Default.Wrap(csvErr, fmt.Sprintf("failed to process CSV file %s", fileMeta.FileName))
 		}
 
@@ -85,10 +87,12 @@ func ExtractQDevS3Data(taskCtx plugin.SubTaskContext) errors.Error {
 		fileMeta.ProcessedTime = &now
 		err = tx.Update(fileMeta)
 		if err != nil {
-			tx.Rollback()
+			if rollbackErr := tx.Rollback(); rollbackErr != nil {
+				taskCtx.GetLogger().Error(rollbackErr, "failed to rollback transaction")
+			}
 			return errors.Default.Wrap(err, "failed to update file metadata")
 		}
-		
+
 		// Commit the transaction
 		err = tx.Commit()
 		if err != nil {
