@@ -27,5 +27,6 @@ func All() []plugin.MigrationScript {
 		new(initTables),
 		new(modifyFileMetaTable),
 		new(addDisplayNameFields),
+		new(addMissingMetrics),
 	}
 }
