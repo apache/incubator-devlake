@@ -72,7 +72,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(DISTINCT user_id) as 'Active Users',\n  SUM(inline_ai_code_lines) as 'Accepted Lines (Inline Suggestion)',\n  SUM(inline_acceptance_count) as 'Accepted Count (Inline Suggestion)',\n  SUM(inline_suggestions_count) as 'Total Count (Inline Suggestion)',\n  SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) as 'Acceptance Rate (Inline Suggestion)',\n  SUM(code_review_findings_count) as 'Findings (Code Review)',\n  SUM(inline_chat_acceptance_event_count) as 'Accepted Events (Inline Chat)',\n  SUM(inline_chat_total_event_count) as 'Total Events (Inline Chat)',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Acceptance Rate (Inline Chat)'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)",
+          "rawSql": "SELECT\n  COUNT(DISTINCT user_id) as 'Active Users',\n  SUM(chat_ai_code_lines) as 'Accepted Lines (Chat)',\n  SUM(inline_ai_code_lines) as 'Accepted Lines (Inline Suggestion)',\n  SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) as 'Acceptance Rate (Inline Suggestion)',\n  SUM(code_review_findings_count) as 'Findings (Code Review)',\n  SUM(code_fix_accepted_lines) as 'Accepted Lines (Code Fix)',\n  SUM(code_fix_generation_event_count) / NULLIF(SUM(code_fix_acceptance_event_count), 0) as 'Acceptance Rate (Code Fix)',\n  SUM(transformation_lines_ingested) as 'Ingested Lines (Java Transform)',\n  SUM(transformation_lines_generated) as 'Generated Lines (Java Transform)',\n  SUM(inline_chat_accepted_line_additions) as 'Accepted Lines (Inline Chat)',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Acceptance Rate (Inline Chat)'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)",
           "refId": "A",
           "select": [
             [
@@ -201,7 +201,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(inline_ai_code_lines) as 'Inline Suggestion Accepted Lines',\n  SUM(inline_chat_accepted_line_additions) as 'Inline Chat Accepted Line Additions',\n  SUM(inline_chat_accepted_line_deletions) as 'Inline Chat Accepted Line Deletions',\n  SUM(inline_chat_dismissed_line_additions) as 'Inline Chat Dismissed Line Additions',\n  SUM(inline_chat_dismissed_line_deletions) as 'Inline Chat Dismissed Line Deletions',\n  SUM(inline_chat_rejected_line_additions) as 'Inline Chat Rejected Line Additions',\n  SUM(inline_chat_rejected_line_deletions) as 'Inline Chat Rejected Line Deletions'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT\n  date as time,\n  SUM(chat_ai_code_lines) as 'Chat Accepted Lines',\n  SUM(code_fix_accepted_lines) as 'Code Fix Accepted Lines',\n  SUM(code_fix_generated_lines) as 'Code Fix Generated Lines',\n  SUM(transformation_lines_ingested) as 'Java Transform Ingested Lines',\n  SUM(transformation_lines_generated) as 'Java Transform Generated Lines',\n  SUM(inline_ai_code_lines) as 'Inline Suggestion Accepted Lines',\n  SUM(inline_chat_accepted_line_additions) as 'Inline Chat Accepted Line Additions',\n  SUM(inline_chat_accepted_line_deletions) as 'Inline Chat Accepted Line Deletions',\n  SUM(inline_chat_dismissed_line_additions) as 'Inline Chat Dismissed Line Additions',\n  SUM(inline_chat_dismissed_line_deletions) as 'Inline Chat Dismissed Line Deletions',\n  SUM(inline_chat_rejected_line_additions) as 'Inline Chat Rejected Line Additions',\n  SUM(inline_chat_rejected_line_deletions) as 'Inline Chat Rejected Line Deletions'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
           "refId": "A",
           "select": [
             [
@@ -245,7 +245,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Daily AI code interaction trends across all users",
+      "description": "Daily AI interaction trends across all users",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -330,7 +330,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(inline_acceptance_count) as 'Inline Suggestion Accepted Suggestions',\n  SUM(inline_suggestions_count) as 'Inline Suggestion Count',\n  SUM(inline_chat_total_event_count) as 'Inline Chat Total Suggestions',\n  SUM(inline_chat_acceptance_event_count) as 'Inline Chat Accepted Suggestions',\n  SUM(inline_chat_dismissal_event_count) as 'Inline Chat Dismissed Suggestions',\n  SUM(inline_chat_rejection_event_count) as 'Inline Chat Rejected Suggestions'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT\n  date as time,\n  SUM(chat_messages_sent) as 'Chat Messages Sent',\n  SUM(code_fix_acceptance_event_count) as 'Code Fix Accepted Event Count',\n  SUM(code_fix_generation_event_count) as 'Code Fix Generated Event Count',\n  SUM(transformation_event_count) as 'Java Transform Event Count',\n  SUM(inline_acceptance_count) as 'Inline Suggestion Accepted Suggestions',\n  SUM(inline_suggestions_count) as 'Inline Suggestion Count',\n  SUM(inline_chat_total_event_count) as 'Inline Chat Total Suggestions',\n  SUM(inline_chat_acceptance_event_count) as 'Inline Chat Accepted Suggestions',\n  SUM(inline_chat_dismissal_event_count) as 'Inline Chat Dismissed Suggestions',\n  SUM(inline_chat_rejection_event_count) as 'Inline Chat Rejected Suggestions'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
           "refId": "A",
           "select": [
             [
@@ -369,7 +369,7 @@
           ]
         }
       ],
-      "title": "Daily AI Suggestion Interactions",
+      "title": "Daily AI Interactions",
       "type": "timeseries"
     },
     {
@@ -458,7 +458,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(code_review_findings_count) as 'Code Review Findings',\n  SUM(code_review_succeeded_event_count) as 'Code Review Succeeded Events'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT\n  date as time,\n  SUM(code_fix_acceptance_event_count) as 'Code Fix Accepted Event Count',\n  SUM(code_fix_generation_event_count) as 'Code Fix Generated Event Count',\n  SUM(code_review_findings_count) as 'Total Findings'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
           "refId": "A",
           "select": [
             [
@@ -470,6 +470,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -570,7 +587,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) as 'Inline Suggestions Acceptance Rate',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Inline Chat Acceptance Rate'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT\n  date as time,\n  SUM(code_fix_acceptance_event_count) / NULLIF(SUM(code_fix_generation_event_count), 0) as 'Code Fix',\n  SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) as 'Inline Suggestions',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Inline Chat'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
           "refId": "A",
           "select": [
             [
@@ -713,7 +730,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(display_name, user_id) as 'User',\n  SUM(inline_ai_code_lines) as 'Accepted Lines (Inline Suggestion)',\n  SUM(inline_acceptance_count) as 'Accepted Count (Inline Suggestion)',\n  SUM(inline_suggestions_count) as 'Total Count (Inline Suggestion)',\n  CONCAT(ROUND(SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) * 100, 2), '%') as 'Acceptance Rate (Inline Suggestion)',\n  SUM(code_review_findings_count) as 'Findings (Code Review)',\n  SUM(inline_chat_accepted_line_additions) as 'Accepted Line Additions (Inline Chat)',\n  SUM(inline_chat_accepted_line_deletions) as 'Accepted Line Deletions (Inline Chat)',\n  SUM(inline_chat_acceptance_event_count) as 'Accepted Events (Inline Chat)',\n  SUM(inline_chat_total_event_count) as 'Total Events (Inline Chat)',\n  CONCAT(ROUND(SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) * 100, 2), '%') as 'Acceptance Rate (Inline Chat)',\n  MIN(date) as 'First Activity',\n  MAX(date) as 'Last Activity'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY user_id, display_name\nORDER BY SUM(inline_ai_code_lines) DESC",
+          "rawSql": "SELECT\n  COALESCE(display_name, user_id) as 'User',\n  SUM(chat_ai_code_lines) as 'Accepted Lines (Chat)',\n  SUM(transformation_lines_ingested) as 'Lines Ingested (Java Transform)',\n  SUM(transformation_lines_generated) as 'Lines Generated (Java Transform)',\n  SUM(transformation_event_count) as 'Event Count (Java Transform)',\n  SUM(code_review_findings_count) as 'Findings (Code Review)',\n  SUM(code_fix_accepted_lines) as 'Accepted Lines (Code Fix)',\n  SUM(code_fix_generated_lines) as 'Generated Lines (Code Fix)',\n  SUM(code_fix_acceptance_event_count) as 'Accepted Count (Code Fix)',\n  SUM(code_fix_generation_event_count) as 'Generated Count (Code Fix)',\n  CONCAT(ROUND(SUM(code_fix_acceptance_event_count) / NULLIF(SUM(code_fix_generation_event_count), 0) * 100, 2), '%') as 'Acceptance Rate (Code Fix)',\n  SUM(inline_ai_code_lines) as 'Accepted Lines (Inline Suggestion)',\n  SUM(inline_acceptance_count) as 'Accepted Count (Inline Suggestion)',\n  SUM(inline_suggestions_count) as 'Total Count (Inline Suggestion)',\n  CONCAT(ROUND(SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) * 100, 2), '%') as 'Acceptance Rate (Inline Suggestion)',\n  SUM(inline_chat_accepted_line_additions) as 'Accepted Line Additions (Inline Chat)',\n  SUM(inline_chat_accepted_line_deletions) as 'Accepted Line Deletions (Inline Chat)',\n  SUM(inline_chat_acceptance_event_count) as 'Accepted Events (Inline Chat)',\n  SUM(inline_chat_total_event_count) as 'Total Events (Inline Chat)',\n  CONCAT(ROUND(SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) * 100, 2), '%') as 'Acceptance Rate (Inline Chat)',\n  MIN(date) as 'First Activity',\n  MAX(date) as 'Last Activity'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY user_id, display_name\nORDER BY SUM(inline_ai_code_lines) DESC",
           "refId": "A",
           "select": [
             [
@@ -754,216 +771,6 @@
       ],
       "title": "User Interactions",
       "type": "table"
-    },
-    {
-      "datasource": "mysql",
-      "description": "Distribution of AI suggestion types across users",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 40
-      },
-      "id": 7,
-      "options": {
-        "displayLabels": [
-          "percent"
-        ],
-        "legend": {
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true,
-          "values": [
-            "value"
-          ]
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.2",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  'Accepted' as category,\n  SUM(inline_chat_acceptance_event_count) as value\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nUNION ALL\nSELECT\n  'Dismissed' as category,\n  SUM(inline_chat_dismissal_event_count) as value\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nUNION ALL\nSELECT\n  'Rejected' as category,\n  SUM(inline_chat_rejection_event_count) as value\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Inline Chat Response Distribution",
-      "type": "piechart"
-    },
-    {
-      "datasource": "mysql",
-      "description": "Weekly trends in AI code interactions",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 40
-      },
-      "id": 8,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.6,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "11.6.2",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_FORMAT(date, '%Y-%U') as metric,\n  MIN(date) as time,\n  SUM(inline_chat_acceptance_event_count) as 'Accepted',\n  SUM(inline_chat_dismissal_event_count) as 'Dismissed',\n  SUM(inline_chat_rejection_event_count) as 'Rejected'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY DATE_FORMAT(date, '%Y-%U')\nORDER BY time",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Weekly Inline Chat Responses",
-      "type": "barchart"
     }
   ],
   "preload": false,
