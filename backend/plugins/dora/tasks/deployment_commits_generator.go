@@ -103,11 +103,11 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			noneSkippedResult,
 		),
 	}
-	if data.Options.ScopeId != nil {
-		clauses = append(clauses, dal.Where(`p.cicd_scope_id = ?`, data.Options.ScopeId))
+	if data.ScopeId != "" {
+		clauses = append(clauses, dal.Where(`p.cicd_scope_id = ?`, data.ScopeId))
 		// Clear previous results from the project
 		deleteSql := `DELETE FROM cicd_deployment_commits WHERE cicd_scope_id = ? and subtask_name = ?;`
-		err := db.Exec(deleteSql, data.Options.ScopeId, DORAGenerateDeploymentCommits)
+		err := db.Exec(deleteSql, data.ScopeId, DORAGenerateDeploymentCommits)
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
 		}
