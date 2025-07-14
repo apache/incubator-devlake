@@ -40,6 +40,15 @@ func (m *MockIdentityClient) ResolveUserDisplayName(userId string) (string, erro
 // Ensure MockIdentityClient implements UserDisplayNameResolver
 var _ UserDisplayNameResolver = (*MockIdentityClient)(nil)
 
+// MockLogger is a mock implementation of the logger interface for testing
+type MockLogger struct {
+	mock.Mock
+}
+
+func (m *MockLogger) Debug(format string, args ...interface{}) {
+	m.Called(format, args)
+}
+
 func TestCreateUserDataWithDisplayName_Success(t *testing.T) {
 	headers := []string{"UserId", "Date", "CodeReview_FindingsCount", "Inline_AcceptanceCount"}
 	record := []string{"user-123", "2025-06-23", "5", "10"}
@@ -50,7 +59,12 @@ func TestCreateUserDataWithDisplayName_Success(t *testing.T) {
 	mockIdentityClient := &MockIdentityClient{}
 	mockIdentityClient.On("ResolveUserDisplayName", "user-123").Return("John Doe", nil)
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, mockIdentityClient)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, mockIdentityClient)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userData)
@@ -73,7 +87,13 @@ func TestCreateUserDataWithDisplayName_FallbackToUUID(t *testing.T) {
 	mockIdentityClient := &MockIdentityClient{}
 	mockIdentityClient.On("ResolveUserDisplayName", "user-456").Return("user-456", assert.AnError)
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, mockIdentityClient)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Failed to resolve display name for user %s: %v", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, mockIdentityClient)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userData)
@@ -90,7 +110,12 @@ func TestCreateUserDataWithDisplayName_NoIdentityClient(t *testing.T) {
 		ConnectionId: 1,
 	}
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, nil)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, nil)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userData)
@@ -108,7 +133,12 @@ func TestCreateUserDataWithDisplayName_EmptyDisplayName(t *testing.T) {
 	mockIdentityClient := &MockIdentityClient{}
 	mockIdentityClient.On("ResolveUserDisplayName", "user-empty").Return("", nil)
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, mockIdentityClient)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, mockIdentityClient)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userData)
@@ -138,7 +168,12 @@ func TestCreateUserDataWithDisplayName_AllExistingMetrics(t *testing.T) {
 	mockIdentityClient := &MockIdentityClient{}
 	mockIdentityClient.On("ResolveUserDisplayName", "test-user").Return("Test User", nil)
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, mockIdentityClient)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, mockIdentityClient)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userData)
@@ -201,7 +236,12 @@ func TestCreateUserDataWithDisplayName_AllNewMetrics(t *testing.T) {
 	mockIdentityClient := &MockIdentityClient{}
 	mockIdentityClient.On("ResolveUserDisplayName", "test-user").Return("Test User", nil)
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, mockIdentityClient)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, mockIdentityClient)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userData)
@@ -256,7 +296,12 @@ func TestCreateUserDataWithDisplayName_MissingMetrics(t *testing.T) {
 	mockIdentityClient := &MockIdentityClient{}
 	mockIdentityClient.On("ResolveUserDisplayName", "test-user").Return("Test User", nil)
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, mockIdentityClient)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, mockIdentityClient)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userData)
@@ -289,7 +334,12 @@ func TestCreateUserDataWithDisplayName_InvalidMetricValues(t *testing.T) {
 	mockIdentityClient := &MockIdentityClient{}
 	mockIdentityClient.On("ResolveUserDisplayName", "test-user").Return("Test User", nil)
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, mockIdentityClient)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, mockIdentityClient)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userData)
@@ -312,7 +362,12 @@ func TestCreateUserDataWithDisplayName_MissingUserId(t *testing.T) {
 		ConnectionId: 1,
 	}
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, nil)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, nil)
 
 	assert.Error(t, err)
 	assert.Nil(t, userData)
@@ -326,7 +381,12 @@ func TestCreateUserDataWithDisplayName_MissingDate(t *testing.T) {
 		ConnectionId: 1,
 	}
 
-	userData, err := createUserDataWithDisplayName(headers, record, fileMeta, nil)
+	mockLogger := &MockLogger{}
+	// Add expectations for Debug calls
+	mockLogger.On("Debug", "Mapping header[%d]: '%s' -> '%s'", mock.Anything).Return()
+	mockLogger.On("Debug", "Also adding trimmed header: '%s'", mock.Anything).Return()
+
+	userData, err := createUserDataWithDisplayName(mockLogger, headers, record, fileMeta, nil)
 
 	assert.Error(t, err)
 	assert.Nil(t, userData)
