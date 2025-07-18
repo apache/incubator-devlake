@@ -1,0 +1,7 @@
+id,issue_id,author_id,field_name,original_from_value,original_to_value,created_date,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+changelog1,issue1,user1,status,Open,In Progress,2023-01-01T10:00:00.000+00:00,TEST_BOARD,,,
+changelog2,issue1,user2,assignee,csv:CsvAccount:0:user1,csv:CsvAccount:0:user2,2023-01-02T10:00:00.000+00:00,TEST_BOARD,,,
+changelog3,issue1,user3,Sprint,Sprint1,"Sprint2,Sprint3",2023-01-03T10:00:00.000+00:00,TEST_BOARD,,,
+changelog4,issue2,user1,status,In Progress,Done,2023-01-04T10:00:00.000+00:00,TEST_BOARD,,,
+changelog5,issue2,user4,assignee,csv:CsvAccount:0:user3,csv:CsvAccount:0:user4,2023-01-05T10:00:00.000+00:00,TEST_BOARD,,,
+changelog6,issue2,user2,Sprint,"Sprint2,Sprint3",Sprint4,2023-01-06T10:00:00.000+00:00,TEST_BOARD,,,
