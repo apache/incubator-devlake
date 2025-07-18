@@ -193,7 +193,7 @@ func (h *Handlers) ImportIssueChangelog(input *plugin.ApiResourceInput) (*plugin
 // @Accept       multipart/form-data
 // @Param        boardId formData string true "the ID of the board"
 // @Param        file formData file true "select file to upload"
-// @Param        incremental formData boolean false "Whether to do incremental sync (default false
+// @Param        incremental formData boolean false "Whether to do incremental sync (default false)"
 // @Produce      json
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
