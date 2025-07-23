@@ -77,11 +77,26 @@ func makeDataSourcePipelinePlanV200(
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
 	for i, scopeDetail := range scopeDetails {
-		repo, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		bitbucketRepo, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		stage := plan[i]
 		if stage == nil {
 			stage = coreModels.PipelineStage{}
 		}
+		task, err := helper.MakePipelinePlanTask(
+			"bitbucket_server",
+			subtaskMetas,
+			scopeConfig.Entities,
+			tasks.BitbucketServerOptions{
+				ConnectionId: bitbucketRepo.ConnectionId,
+				FullName:     bitbucketRepo.BitbucketId,
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		stage = append(stage, task)
+
 		// refdiff
 		if scopeConfig != nil && scopeConfig.Refdiff != nil {
 			// add a new task to next stage
@@ -90,7 +105,7 @@ func makeDataSourcePipelinePlanV200(
 				plan = append(plan, nil)
 			}
 			refdiffOp := scopeConfig.Refdiff
-			refdiffOp["repoId"] = didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, repo.BitbucketId)
+			refdiffOp["repoId"] = didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, bitbucketRepo.BitbucketId)
 			plan[j] = coreModels.PipelineStage{
 				{
 					Plugin:  "refdiff",
@@ -99,33 +114,9 @@ func makeDataSourcePipelinePlanV200(
 			}
 			scopeConfig.Refdiff = nil
 		}
-
-		// construct task options for bitbucket
-		op := &tasks.BitbucketServerOptions{
-			ConnectionId: repo.ConnectionId,
-			FullName:     repo.BitbucketId,
-		}
-		options, err := tasks.EncodeTaskOptions(op)
-		if err != nil {
-			return nil, err
-		}
-
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
-		if err != nil {
-			return nil, err
-		}
-		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "bitbucket_server",
-			Subtasks: subtasks,
-			Options:  options,
-		})
-		if err != nil {
-			return nil, err
-		}
-
 		// add gitex stage
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
-			cloneUrl, err := errors.Convert01(url.Parse(repo.CloneUrl))
+			cloneUrl, err := errors.Convert01(url.Parse(bitbucketRepo.CloneUrl))
 			if err != nil {
 				return nil, err
 			}
@@ -133,10 +124,11 @@ func makeDataSourcePipelinePlanV200(
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"name":   repo.BitbucketId,
-					"repoId": didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, repo.BitbucketId),
-					"proxy":  connection.Proxy,
+					"url":      cloneUrl.String(),
+					"name":     bitbucketRepo.BitbucketId,
+					"fullName": bitbucketRepo.BitbucketId,
+					"repoId":   didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, bitbucketRepo.BitbucketId),
+					"proxy":    connection.Proxy,
 				},
 			})
 
