@@ -20,7 +20,7 @@ package models
 import (
 	"testing"
 	"time"
-	
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,59 +28,59 @@ func TestQDevUserDataAllMetrics(t *testing.T) {
 	// Create a test user data object with all metrics
 	userData := &QDevUserData{
 		ConnectionId: 1,
-		UserId: "test-user-id",
-		Date: time.Now(),
-		DisplayName: "Test User",
-		
+		UserId:       "test-user-id",
+		Date:         time.Now(),
+		DisplayName:  "Test User",
+
 		// Set values for existing metrics
-		CodeReview_FindingsCount: 10,
-		CodeReview_SucceededEventCount: 11,
-		InlineChat_AcceptanceEventCount: 12,
-		InlineChat_AcceptedLineAdditions: 13,
-		InlineChat_AcceptedLineDeletions: 14,
-		InlineChat_DismissalEventCount: 15,
+		CodeReview_FindingsCount:          10,
+		CodeReview_SucceededEventCount:    11,
+		InlineChat_AcceptanceEventCount:   12,
+		InlineChat_AcceptedLineAdditions:  13,
+		InlineChat_AcceptedLineDeletions:  14,
+		InlineChat_DismissalEventCount:    15,
 		InlineChat_DismissedLineAdditions: 16,
 		InlineChat_DismissedLineDeletions: 17,
-		InlineChat_RejectedLineAdditions: 18,
-		InlineChat_RejectedLineDeletions: 19,
-		InlineChat_RejectionEventCount: 20,
-		InlineChat_TotalEventCount: 21,
-		Inline_AICodeLines: 22,
-		Inline_AcceptanceCount: 23,
-		Inline_SuggestionsCount: 24,
-		
+		InlineChat_RejectedLineAdditions:  18,
+		InlineChat_RejectedLineDeletions:  19,
+		InlineChat_RejectionEventCount:    20,
+		InlineChat_TotalEventCount:        21,
+		Inline_AICodeLines:                22,
+		Inline_AcceptanceCount:            23,
+		Inline_SuggestionsCount:           24,
+
 		// Set values for new metrics
-		Chat_AICodeLines: 25,
-		Chat_MessagesInteracted: 26,
-		Chat_MessagesSent: 27,
-		CodeFix_AcceptanceEventCount: 28,
-		CodeFix_AcceptedLines: 29,
-		CodeFix_GeneratedLines: 30,
-		CodeFix_GenerationEventCount: 31,
-		CodeReview_FailedEventCount: 32,
-		Dev_AcceptanceEventCount: 33,
-		Dev_AcceptedLines: 34,
-		Dev_GeneratedLines: 35,
-		Dev_GenerationEventCount: 36,
-		DocGeneration_AcceptedFileUpdates: 37,
+		Chat_AICodeLines:                     25,
+		Chat_MessagesInteracted:              26,
+		Chat_MessagesSent:                    27,
+		CodeFix_AcceptanceEventCount:         28,
+		CodeFix_AcceptedLines:                29,
+		CodeFix_GeneratedLines:               30,
+		CodeFix_GenerationEventCount:         31,
+		CodeReview_FailedEventCount:          32,
+		Dev_AcceptanceEventCount:             33,
+		Dev_AcceptedLines:                    34,
+		Dev_GeneratedLines:                   35,
+		Dev_GenerationEventCount:             36,
+		DocGeneration_AcceptedFileUpdates:    37,
 		DocGeneration_AcceptedFilesCreations: 38,
-		DocGeneration_AcceptedLineAdditions: 39,
-		DocGeneration_AcceptedLineUpdates: 40,
-		DocGeneration_EventCount: 41,
-		DocGeneration_RejectedFileCreations: 42,
-		DocGeneration_RejectedFileUpdates: 43,
-		DocGeneration_RejectedLineAdditions: 44,
-		DocGeneration_RejectedLineUpdates: 45,
-		TestGeneration_AcceptedLines: 46,
-		TestGeneration_AcceptedTests: 47,
-		TestGeneration_EventCount: 48,
-		TestGeneration_GeneratedLines: 49,
-		TestGeneration_GeneratedTests: 50,
-		Transformation_EventCount: 51,
-		Transformation_LinesGenerated: 52,
-		Transformation_LinesIngested: 53,
+		DocGeneration_AcceptedLineAdditions:  39,
+		DocGeneration_AcceptedLineUpdates:    40,
+		DocGeneration_EventCount:             41,
+		DocGeneration_RejectedFileCreations:  42,
+		DocGeneration_RejectedFileUpdates:    43,
+		DocGeneration_RejectedLineAdditions:  44,
+		DocGeneration_RejectedLineUpdates:    45,
+		TestGeneration_AcceptedLines:         46,
+		TestGeneration_AcceptedTests:         47,
+		TestGeneration_EventCount:            48,
+		TestGeneration_GeneratedLines:        49,
+		TestGeneration_GeneratedTests:        50,
+		Transformation_EventCount:            51,
+		Transformation_LinesGenerated:        52,
+		Transformation_LinesIngested:         53,
 	}
-	
+
 	// Verify that all metrics are accessible
 	// Existing metrics
 	assert.Equal(t, 10, userData.CodeReview_FindingsCount)
@@ -98,7 +98,7 @@ func TestQDevUserDataAllMetrics(t *testing.T) {
 	assert.Equal(t, 22, userData.Inline_AICodeLines)
 	assert.Equal(t, 23, userData.Inline_AcceptanceCount)
 	assert.Equal(t, 24, userData.Inline_SuggestionsCount)
-	
+
 	// New metrics
 	assert.Equal(t, 25, userData.Chat_AICodeLines)
 	assert.Equal(t, 26, userData.Chat_MessagesInteracted)
