@@ -92,7 +92,6 @@ func (p Testmo) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractAutomationRunsMeta,
 		tasks.CollectTestsMeta,
 		tasks.ExtractTestsMeta,
-		tasks.ConvertProjectsMeta,
 		tasks.ConvertAutomationRunsMeta,
 		tasks.ConvertTestsMeta,
 	}

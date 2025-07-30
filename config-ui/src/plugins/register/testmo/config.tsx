@@ -24,6 +24,7 @@ export const TestmoConfig: IPluginConfig = {
   plugin: 'testmo',
   name: 'Testmo',
   icon: ({ color }) => <Icon fill={color} />,
+  isBeta: true,
   sort: 160,
   connection: {
     docLink: 'https://devlake.apache.org/docs/Configuration/Testmo',
@@ -62,4 +63,4 @@ export const TestmoConfig: IPluginConfig = {
     entities: ['TEST', 'TESTCASE', 'TESTRESULT'],
     transformation: {},
   },
-}
+};
