@@ -35,6 +35,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\//, ''),
       },
+      '/grafana': {
+        target: 'http://localhost:3002/',
+        changeOrigin: true,
+      },
     },
   },
 
