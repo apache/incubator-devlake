@@ -27,6 +27,7 @@ import (
 type TestmoOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ProjectId    uint64 `json:"projectId"`
+	Name         string `json:"name"`
 	ScopeConfig  *models.TestmoScopeConfig
 
 	// Time filter

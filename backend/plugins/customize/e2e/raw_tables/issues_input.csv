@@ -1,4 +1,4 @@
-id,url,issue_key,title,original_type,original_status,created_date,resolution_date,story_point,priority,severity,original_estimate_minutes,time_spent_minutes,component,epic_key,creator_name,assignee_name,x_int,x_time,x_varchar,x_float,labels
-csv:1,https://api.bitbucket.org/2.0/repositories/thenicetgp/lake/issues/1,1,issue test,BUG,new,2022-07-17 07:15:55.959+00:00,NULL,0,major,,0,0,,,tgp,klesh,10,2022-09-15 15:27:56,world,8,NULL
-csv:10,https://api.bitbucket.org/2.0/repositories/thenicetgp/lake/issues/10,10,issue test007,BUG,new,2022-08-12 13:43:00.783+00:00,NULL,0,trivial,,0,0,,,tgp,warren,30,2022-09-15 15:27:56,abc,24590,hello worlds
-csv:11,https://api.bitbucket.org/2.0/repositories/thenicetgp/lake/issues/11,11,issue test011,REQUIREMENT,new,2022-08-10 13:44:46.508+00:00,NULL,0,major,,0,0,,,tgp,abeizn,1,2022-09-15 15:27:56,NULL,0.00014,NULL
+id,url,issue_key,title,original_type,original_status,created_date,resolution_date,story_point,priority,severity,original_estimate_minutes,time_spent_minutes,component,epic_key,creator_name,assignee_name,x_int,x_time,x_varchar,x_float,labels,sprint_ids
+csv:1,https://api.bitbucket.org/2.0/repositories/thenicetgp/lake/issues/1,1,issue test,BUG,new,2022-07-17 07:15:55.959+00:00,NULL,0,major,,0,0,,,tgp,klesh,10,2022-09-15 15:27:56,world,8,NULL,"101,102"
+csv:10,https://api.bitbucket.org/2.0/repositories/thenicetgp/lake/issues/10,10,issue test007,BUG,new,2022-08-12 13:43:00.783+00:00,NULL,0,trivial,,0,0,,,tgp,warren,30,2022-09-15 15:27:56,abc,24590,hello worlds,101
+csv:11,https://api.bitbucket.org/2.0/repositories/thenicetgp/lake/issues/11,11,issue test011,REQUIREMENT,new,2022-08-10 13:44:46.508+00:00,NULL,0,major,,0,0,,,tgp,abeizn,1,2022-09-15 15:27:56,NULL,0.00014,NULL,102

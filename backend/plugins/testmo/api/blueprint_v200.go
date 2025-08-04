@@ -69,6 +69,7 @@ func makePipelinePlanV200(
 			tasks.TestmoOptions{
 				ConnectionId: connection.ID,
 				ProjectId:    scope.Id,
+				Name:         scope.Name,
 				ScopeConfig:  scopeConfig,
 			},
 		)
