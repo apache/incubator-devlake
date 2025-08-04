@@ -73,6 +73,7 @@ func ExtractIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
 			SubtaskConfig: map[string]any{
 				"typeMappings":    mappings,
 				"storyPointField": data.Options.ScopeConfig.StoryPointField,
+				"dueDateField":    data.Options.ScopeConfig.DueDateField,
 			},
 		},
 		BeforeExtract: func(apiIssue *apiv2models.Issue, stateManager *api.SubtaskStateManager) errors.Error {
