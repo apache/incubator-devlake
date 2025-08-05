@@ -293,13 +293,6 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 			panic(err)
 		}
 
-		// Notify that the pipeline has started
-		go func(pipelineId uint64) {
-			if notifyErr := NotifyExternal(pipelineId); notifyErr != nil {
-				globalPipelineLog.Error(notifyErr, "failed to send pipeline started notification for pipeline #%d", pipelineId)
-			}
-		}(pipeline.ID)
-
 		return
 	}
 	if tx.IsErrorNotFound(err) {
@@ -357,6 +350,11 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 				globalPipelineLog.Info("finish pipeline #%d, now runningParallelLabels is %s", pipelineId, runningParallelLabels)
 			}()
 			globalPipelineLog.Info("run pipeline, %d, now running runningParallelLabels are %s", pipelineId, runningParallelLabels)
+			// Notify that the pipeline has started
+			err = NotifyExternal(pipelineId)
+			if err != nil {
+				globalPipelineLog.Error(err, "failed to send pipeline started notification for pipeline #%d", pipelineId)
+			}
 			err = runPipeline(pipelineId)
 			if err != nil {
 				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)
