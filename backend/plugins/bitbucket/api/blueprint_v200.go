@@ -82,7 +82,6 @@ func makeDataSourcePipelinePlanV200(
 		if stage == nil {
 			stage = coreModels.PipelineStage{}
 		}
-		// construct task options for Jira
 		task, err := helper.MakePipelinePlanTask(
 			"bitbucket",
 			subtaskMetas,

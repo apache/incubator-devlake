@@ -119,7 +119,7 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 
 	// 读取标头
 	headers, err := csvReader.Read()
-	fmt.Printf("headers: %+v\n", headers)
+	taskCtx.GetLogger().Debug("CSV headers: %+v", headers)
 	if err != nil {
 		return errors.Convert(err)
 	}
@@ -135,7 +135,7 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 		}
 
 		// 创建用户数据对象 (updated to include display name resolution)
-		userData, err := createUserDataWithDisplayName(headers, record, fileMeta, data.IdentityClient)
+		userData, err := createUserDataWithDisplayName(taskCtx.GetLogger(), headers, record, fileMeta, data.IdentityClient)
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to create user data")
 		}
@@ -156,7 +156,9 @@ type UserDisplayNameResolver interface {
 }
 
 // 从CSV记录创建用户数据对象 (enhanced with display name resolution)
-func createUserDataWithDisplayName(headers []string, record []string, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver) (*models.QDevUserData, errors.Error) {
+func createUserDataWithDisplayName(logger interface {
+	Debug(format string, a ...interface{})
+}, headers []string, record []string, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver) (*models.QDevUserData, errors.Error) {
 	userData := &models.QDevUserData{
 		ConnectionId: fileMeta.ConnectionId,
 	}
@@ -165,13 +167,12 @@ func createUserDataWithDisplayName(headers []string, record []string, fileMeta *
 	fieldMap := make(map[string]string)
 	for i, header := range headers {
 		if i < len(record) {
-			// 打印每个header和对应的值，帮助调试
-			fmt.Printf("Mapping header[%d]: '%s' -> '%s'\n", i, header, record[i])
+			logger.Debug("Mapping header[%d]: '%s' -> '%s'", i, header, record[i])
 			fieldMap[header] = record[i]
 			// 同时添加去除空格的版本
 			trimmedHeader := strings.TrimSpace(header)
 			if trimmedHeader != header {
-				fmt.Printf("Also adding trimmed header: '%s'\n", trimmedHeader)
+				logger.Debug("Also adding trimmed header: '%s'", trimmedHeader)
 				fieldMap[trimmedHeader] = record[i]
 			}
 		}
@@ -188,7 +189,7 @@ func createUserDataWithDisplayName(headers []string, record []string, fileMeta *
 	}
 
 	// 设置DisplayName (new functionality)
-	userData.DisplayName = resolveDisplayName(userData.UserId, identityClient)
+	userData.DisplayName = resolveDisplayName(logger, userData.UserId, identityClient)
 
 	// 设置Date
 	dateStr, ok := fieldMap["Date"]
@@ -251,7 +252,9 @@ func createUserDataWithDisplayName(headers []string, record []string, fileMeta *
 }
 
 // resolveDisplayName resolves user ID to display name using Identity Client
-func resolveDisplayName(userId string, identityClient UserDisplayNameResolver) string {
+func resolveDisplayName(logger interface {
+	Debug(format string, a ...interface{})
+}, userId string, identityClient UserDisplayNameResolver) string {
 	// If no identity client available, use userId as fallback
 	if identityClient == nil {
 		return userId
@@ -261,7 +264,7 @@ func resolveDisplayName(userId string, identityClient UserDisplayNameResolver) s
 	displayName, err := identityClient.ResolveUserDisplayName(userId)
 	if err != nil {
 		// Log error but continue with userId as fallback
-		fmt.Printf("Failed to resolve display name for user %s: %v\n", userId, err)
+		logger.Debug("Failed to resolve display name for user %s: %v", userId, err)
 		return userId
 	}
 

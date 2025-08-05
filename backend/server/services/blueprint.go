@@ -221,6 +221,9 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
+	if blueprint.SyncPolicy.TimeAfter != nil && blueprint.SyncPolicy.TimeAfter.IsZero() {
+		blueprint.SyncPolicy.TimeAfter = nil
+	}
 
 	blueprint, err = saveBlueprint(blueprint)
 	if err != nil {

@@ -231,11 +231,11 @@ func TestConnectionSanitization_PreservesIdentityStore(t *testing.T) {
 
 	// Secret should be sanitized
 	assert.NotEqual(t, "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", sanitized.SecretAccessKey)
-	
+
 	// Identity Store fields should be preserved
 	assert.Equal(t, "d-1234567890", sanitized.IdentityStoreId)
 	assert.Equal(t, "us-west-2", sanitized.IdentityStoreRegion)
-	
+
 	// Other fields should be preserved
 	assert.Equal(t, "AKIAIOSFODNN7EXAMPLE", sanitized.AccessKeyId)
 	assert.Equal(t, "us-east-1", sanitized.Region)
