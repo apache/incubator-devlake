@@ -50,15 +50,15 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect gitlab users")
-
-	// it means we can not use /members/all to get the data
+	options := taskCtx.GetData().(*GitlabTaskData).Options
 	urlTemplate := "/projects/{{ .Params.ProjectId }}/members/all"
 	if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "v13.11") < 0 {
+		// it means we can not use /members/all to get the data
 		urlTemplate = "/projects/{{ .Params.ProjectId }}/members/"
 	}
 
-	// Collect all users if endpoint is private gitlab instance
-	if !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com") && !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://jihulab.com") {
+	// Collect all users if endpoint is private gitlab instance and GITLAB_SERVER_COLLECT_ALL_USERS
+	if !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com") && !strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://jihulab.com") && options.CollectAllUsers {
 		urlTemplate = "/users"
 	}
 
