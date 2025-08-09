@@ -23,5 +23,6 @@ func All() []plugin.MigrationScript {
 	return []plugin.MigrationScript{
 		new(addInitTables),
 		new(addScopeConfigIdToProjects),
+		new(replaceTestsWithRuns),
 	}
 }
