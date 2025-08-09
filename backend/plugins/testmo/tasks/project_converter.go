@@ -18,28 +18,32 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	testmoModels "github.com/apache/incubator-devlake/plugins/testmo/models"
 )
 
-var ConvertAutomationRunsMeta = plugin.SubTaskMeta{
-	Name:             "convertAutomationRuns",
-	EntryPoint:       ConvertAutomationRuns,
+var ConvertProjectsMeta = plugin.SubTaskMeta{
+	Name:             "convertProjects",
+	EntryPoint:       ConvertProjects,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table testmo_automation_runs into domain layer table test_suites",
+	Description:      "Convert tool layer table testmo_projects into domain layer table qa_projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
-func ConvertAutomationRuns(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*TestmoTaskData)
 	db := taskCtx.GetDal()
 
-	cursor, err := db.Cursor(dal.From(&testmoModels.TestmoAutomationRun{}), dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId))
+	cursor, err := db.Cursor(dal.From(&testmoModels.TestmoProject{}), dal.Where("connection_id = ? AND id = ?", data.Options.ConnectionId, data.Options.ProjectId))
 	if err != nil {
 		return err
 	}
@@ -52,13 +56,27 @@ func ConvertAutomationRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_AUTOMATION_RUN_TABLE,
+			Table: RAW_PROJECT_TABLE,
 		},
-		InputRowType: reflect.TypeOf(testmoModels.TestmoAutomationRun{}),
+		InputRowType: reflect.TypeOf(testmoModels.TestmoProject{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
+			project := inputRow.(*testmoModels.TestmoProject)
 
-			return []interface{}{}, nil
+			// Convert to domain layer QA project
+			projectName := project.Name
+			if projectName == "" {
+				projectName = fmt.Sprintf("Project %d", project.Id)
+			}
+
+			qaProject := &qa.QaProject{
+				DomainEntityExtended: domainlayer.DomainEntityExtended{
+					Id: didgen.NewDomainIdGenerator(&testmoModels.TestmoProject{}).Generate(data.Options.ConnectionId, project.Id),
+				},
+				Name: projectName,
+			}
+
+			return []interface{}{qaProject}, nil
 		},
 	})
 
