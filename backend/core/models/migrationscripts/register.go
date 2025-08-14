@@ -139,5 +139,6 @@ func All() []plugin.MigrationScript {
 		new(increaseCqIssueComponentLength),
 		new(extendFieldSizeForCq),
 		new(addIssueFixVerion),
+		new(addPipelinePriority),
 	}
 }
