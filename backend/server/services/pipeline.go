@@ -273,7 +273,7 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 		dal.Groupby("id"),
 		dal.Having("count(_devlake_pipeline_labels.name)=0"),
 		dal.Select("id"),
-		dal.Orderby("id ASC"),
+		dal.Orderby("priority DESC, id ASC"),
 		dal.Limit(1),
 	)
 	if err == nil {

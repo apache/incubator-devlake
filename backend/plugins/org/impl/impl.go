@@ -61,6 +61,7 @@ func (p Org) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.ConnectUserAccountsExactMeta,
 		tasks.SetProjectMappingMeta,
+		tasks.SleepMeta,
 	}
 }
 

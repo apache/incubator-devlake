@@ -22,6 +22,7 @@ import "github.com/apache/incubator-devlake/core/plugin"
 type Options struct {
 	ConnectionId    uint64           `json:"connectionId"`
 	ProjectMappings []ProjectMapping `json:"projectMappings"`
+	SleepSeconds    uint64           `json:"sleepSeconds"`
 }
 
 // ProjectMapping represents the relations between project and scopes
