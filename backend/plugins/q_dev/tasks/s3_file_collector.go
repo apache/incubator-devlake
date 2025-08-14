@@ -28,6 +28,21 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
+// normalizeS3Prefix ensures the prefix ends with "/" if it's not empty
+func normalizeS3Prefix(prefix string) string {
+	if prefix != "" && !strings.HasSuffix(prefix, "/") {
+		return prefix + "/"
+	}
+	return prefix
+}
+
+// isCSVFile checks if the given S3 object key represents a CSV file
+func isCSVFile(key string) bool {
+	return strings.HasSuffix(key, ".csv")
+}
+
+
+
 var _ plugin.SubTaskEntryPoint = CollectQDevS3Files
 
 // CollectQDevS3Files 收集S3文件元数据
@@ -37,10 +52,7 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// 列出指定前缀下的所有对象
 	var continuationToken *string
-	prefix := data.Options.S3Prefix
-	if prefix != "" && !strings.HasSuffix(prefix, "/") {
-		prefix = prefix + "/"
-	}
+	prefix := normalizeS3Prefix(data.Options.S3Prefix)
 
 	taskCtx.SetProgress(0, -1)
 	csvFilesFound := 0
@@ -60,7 +72,7 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 		// 处理每个CSV文件
 		for _, object := range result.Contents {
 			// Only process CSV files
-			if !strings.HasSuffix(*object.Key, ".csv") {
+			if !isCSVFile(*object.Key) {
 				taskCtx.GetLogger().Debug("Skipping non-CSV file: %s", *object.Key)
 				continue
 			}
