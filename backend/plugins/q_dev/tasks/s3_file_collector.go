@@ -137,8 +137,6 @@ func collectS3FilesCore(
 	return nil
 }
 
-
-
 var _ plugin.SubTaskEntryPoint = CollectQDevS3Files
 
 // CollectQDevS3Files 收集S3文件元数据
