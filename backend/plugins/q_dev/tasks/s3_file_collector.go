@@ -43,6 +43,7 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	taskCtx.SetProgress(0, -1)
+	csvFilesFound := 0
 
 	for {
 		input := &s3.ListObjectsV2Input{
@@ -63,6 +64,8 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 				taskCtx.GetLogger().Debug("Skipping non-CSV file: %s", *object.Key)
 				continue
 			}
+
+			csvFilesFound++
 
 			// Check if this file already exists in our database
 			existingFile := &models.QDevS3FileMeta{}
@@ -104,6 +107,11 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 
 		continuationToken = result.NextContinuationToken
+	}
+
+	// Check if no CSV files were found
+	if csvFilesFound == 0 {
+		return errors.BadInput.New("no CSV files found in S3 path. Please verify the S3 bucket and prefix configuration")
 	}
 
 	return nil
