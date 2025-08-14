@@ -41,79 +41,87 @@ func isCSVFile(key string) bool {
 	return strings.HasSuffix(key, ".csv")
 }
 
+// S3ListObjectsFunc defines the callback for listing S3 objects
+type S3ListObjectsFunc func(input *s3.ListObjectsV2Input) (*s3.ListObjectsV2Output, error)
 
+// FindFileMetaFunc defines the callback for finding existing file metadata
+type FindFileMetaFunc func(connectionId uint64, s3Path string) (*models.QDevS3FileMeta, error)
 
-var _ plugin.SubTaskEntryPoint = CollectQDevS3Files
+// SaveFileMetaFunc defines the callback for saving file metadata
+type SaveFileMetaFunc func(fileMeta *models.QDevS3FileMeta) error
 
-// CollectQDevS3Files 收集S3文件元数据
-func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*QDevTaskData)
-	db := taskCtx.GetDal()
+// ProgressFunc defines the callback for progress tracking
+type ProgressFunc func(increment int)
 
-	// 列出指定前缀下的所有对象
+// LogFunc defines the callback for logging
+type LogFunc func(format string, args ...interface{})
+
+// collectS3FilesCore contains the core logic for collecting S3 files
+func collectS3FilesCore(
+	bucket, prefix string,
+	connectionId uint64,
+	listObjects S3ListObjectsFunc,
+	findFileMeta FindFileMetaFunc,
+	saveFileMeta SaveFileMetaFunc,
+	progress ProgressFunc,
+	logDebug LogFunc,
+) error {
+	// List all objects under the specified prefix
 	var continuationToken *string
-	prefix := normalizeS3Prefix(data.Options.S3Prefix)
-
-	taskCtx.SetProgress(0, -1)
+	normalizedPrefix := normalizeS3Prefix(prefix)
 	csvFilesFound := 0
 
 	for {
 		input := &s3.ListObjectsV2Input{
-			Bucket:            aws.String(data.S3Client.Bucket),
-			Prefix:            aws.String(prefix),
+			Bucket:            aws.String(bucket),
+			Prefix:            aws.String(normalizedPrefix),
 			ContinuationToken: continuationToken,
 		}
 
-		result, err := data.S3Client.S3.ListObjectsV2(input)
+		result, err := listObjects(input)
 		if err != nil {
-			return errors.Convert(err)
+			return err
 		}
 
-		// 处理每个CSV文件
+		// Process each CSV file
 		for _, object := range result.Contents {
 			// Only process CSV files
 			if !isCSVFile(*object.Key) {
-				taskCtx.GetLogger().Debug("Skipping non-CSV file: %s", *object.Key)
+				logDebug("Skipping non-CSV file: %s", *object.Key)
 				continue
 			}
 
 			csvFilesFound++
 
 			// Check if this file already exists in our database
-			existingFile := &models.QDevS3FileMeta{}
-			err = db.First(existingFile, dal.Where("connection_id = ? AND s3_path = ?",
-				data.Options.ConnectionId, *object.Key))
-
+			existingFile, err := findFileMeta(connectionId, *object.Key)
 			if err == nil {
 				// File already exists in database, skip it if it's already processed
 				if existingFile.Processed {
-					taskCtx.GetLogger().Debug("Skipping already processed file: %s", *object.Key)
+					logDebug("Skipping already processed file: %s", *object.Key)
 					continue
 				}
 				// Otherwise, we'll keep the existing record (which is still marked as unprocessed)
-				taskCtx.GetLogger().Debug("Found existing unprocessed file: %s", *object.Key)
+				logDebug("Found existing unprocessed file: %s", *object.Key)
 				continue
-			} else if !db.IsErrorNotFound(err) {
-				return errors.Default.Wrap(err, "failed to query existing file metadata")
 			}
 
 			// This is a new file, save its metadata
 			fileMeta := &models.QDevS3FileMeta{
-				ConnectionId: data.Options.ConnectionId,
+				ConnectionId: connectionId,
 				FileName:     *object.Key,
 				S3Path:       *object.Key,
 				Processed:    false,
 			}
 
-			err = db.Create(fileMeta)
-			if err != nil {
-				return errors.Default.Wrap(err, "failed to create file metadata")
+			if err := saveFileMeta(fileMeta); err != nil {
+				return err
 			}
 
-			taskCtx.IncProgress(1)
+			progress(1)
 		}
 
-		// 如果没有更多对象，退出循环
+		// If there are no more objects, exit the loop
 		if !*result.IsTruncated {
 			break
 		}
@@ -127,6 +135,65 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return nil
+}
+
+
+
+var _ plugin.SubTaskEntryPoint = CollectQDevS3Files
+
+// CollectQDevS3Files 收集S3文件元数据
+func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
+	data := taskCtx.GetData().(*QDevTaskData)
+	db := taskCtx.GetDal()
+
+	taskCtx.SetProgress(0, -1)
+
+	// Define callback functions
+	listObjects := func(input *s3.ListObjectsV2Input) (*s3.ListObjectsV2Output, error) {
+		return data.S3Client.S3.ListObjectsV2(input)
+	}
+
+	findFileMeta := func(connectionId uint64, s3Path string) (*models.QDevS3FileMeta, error) {
+		existingFile := &models.QDevS3FileMeta{}
+		err := db.First(existingFile, dal.Where("connection_id = ? AND s3_path = ?", connectionId, s3Path))
+		if err != nil {
+			if db.IsErrorNotFound(err) {
+				return nil, err
+			}
+			return nil, errors.Default.Wrap(err, "failed to query existing file metadata")
+		}
+		return existingFile, nil
+	}
+
+	saveFileMeta := func(fileMeta *models.QDevS3FileMeta) error {
+		err := db.Create(fileMeta)
+		if err != nil {
+			return errors.Default.Wrap(err, "failed to create file metadata")
+		}
+		return nil
+	}
+
+	progress := func(increment int) {
+		taskCtx.IncProgress(increment)
+	}
+
+	logDebug := func(format string, args ...interface{}) {
+		taskCtx.GetLogger().Debug(format, args...)
+	}
+
+	// Call the core function
+	err := collectS3FilesCore(
+		data.S3Client.Bucket,
+		data.Options.S3Prefix,
+		data.Options.ConnectionId,
+		listObjects,
+		findFileMeta,
+		saveFileMeta,
+		progress,
+		logDebug,
+	)
+
+	return errors.Convert(err)
 }
 
 var CollectQDevS3FilesMeta = plugin.SubTaskMeta{
