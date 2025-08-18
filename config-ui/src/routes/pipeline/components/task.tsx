@@ -86,9 +86,6 @@ export const PipelineTask = ({ task }: Props) => {
       case ['bamboo'].includes(config.plugin):
         name = `${name}:${options.planKey}`;
         break;
-      case ['testmo'].includes(config.plugin):
-        name = `${name}:${options.name}`;
-        break;
       case ['azuredevops_go'].includes(config.plugin):
         name = `ado:${options.name}`;
         break;

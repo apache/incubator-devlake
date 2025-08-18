@@ -168,7 +168,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  count(distinct ar.id) as value\nfrom _tool_testmo_automation_runs ar\nwhere \n  $__timeFilter(ar.testmo_created_at)\n  and ar.connection_id in (${connection_id})",
+          "rawSql": "select \n  count(*) as value\nfrom (\n  select distinct ar.id, ar.connection_id, ar.testmo_created_at from _tool_testmo_automation_runs ar\n  union all\n  select distinct r.id, r.connection_id, r.testmo_created_at from _tool_testmo_runs r\n) combined\nwhere \n  $__timeFilter(combined.testmo_created_at)\n  and combined.connection_id in (${connection_id})",
           "refId": "A"
         }
       ],
@@ -237,7 +237,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  count(distinct case when ar.status = 2 then ar.id else null end) * 1.0 / \n  count(distinct ar.id) as value\nfrom _tool_testmo_automation_runs ar\nwhere \n  $__timeFilter(ar.testmo_created_at)\n  and ar.connection_id in (${connection_id})",
+          "rawSql": "select \n  count(case when combined.status in (1, 2) then 1 else null end) * 1.0 / \n  count(*) as value\nfrom (\n  select ar.id, ar.connection_id, ar.testmo_created_at, ar.status from _tool_testmo_automation_runs ar\n  union all\n  select r.id, r.connection_id, r.testmo_created_at, r.status from _tool_testmo_runs r\n) combined\nwhere \n  $__timeFilter(combined.testmo_created_at)\n  and combined.connection_id in (${connection_id})",
           "refId": "A"
         }
       ],
@@ -372,7 +372,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE(ar.testmo_created_at) as time,\n  count(distinct case when ar.status = 2 then ar.id else null end) as \"Passed Tests\",\n  count(distinct case when ar.status = 1 then ar.id else null end) as \"Failed Tests\",\n  count(distinct case when ar.status = 0 then ar.id else null end) as \"Skipped Tests\"\nFROM _tool_testmo_automation_runs ar\nwhere \n  $__timeFilter(ar.testmo_created_at)\n  and ar.connection_id in (${connection_id})\ngroup by DATE(ar.testmo_created_at)\norder by time",
+          "rawSql": "SELECT\n  DATE(combined.testmo_created_at) as time,\n  count(case when combined.status = 1 then 1 else null end) as \"Passed Tests\",\n  count(case when combined.status = 2 then 1 else null end) as \"Failed Tests\",\n  count(case when combined.status not in (1,2) then 1 else null end) as \"Other Tests\"\nFROM (\n  select ar.id, ar.connection_id, ar.testmo_created_at, ar.status from _tool_testmo_automation_runs ar\n  union all\n  select r.id, r.connection_id, r.testmo_created_at, r.status from _tool_testmo_runs r\n) combined\nwhere \n  $__timeFilter(combined.testmo_created_at)\n  and combined.connection_id in (${connection_id})\ngroup by DATE(combined.testmo_created_at)\norder by time",
           "refId": "A"
         }
       ],
@@ -381,7 +381,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Total number of test cases available",
+      "description": "Total number of Testmo runs (new data source)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -392,7 +392,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "green",
                 "value": null
               }
             ]
@@ -431,11 +431,11 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  count(distinct t.id) as value\nfrom _tool_testmo_tests t\nwhere \n  t.connection_id in (${connection_id})",
+          "rawSql": "select \n  count(distinct r.id) as value\nfrom _tool_testmo_runs r\nwhere \n  $__timeFilter(r.testmo_created_at)\n  and r.connection_id in (${connection_id})",
           "refId": "A"
         }
       ],
-      "title": "Total Test Cases",
+      "title": "Testmo Runs",
       "type": "stat"
     },
     {
@@ -509,63 +509,67 @@
     },
     {
       "datasource": "mysql",
-      "description": "Distribution of test results",
+      "description": "Daily count of test runs from the new runs data source",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Number of Runs",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 8,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
-          "mappings": []
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "decimals": 0
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Passed"
+              "options": "Test Runs"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "green"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Failed"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "red"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Skipped"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "yellow"
+                  "fixedColor": "purple"
                 }
               }
             ]
@@ -581,17 +585,12 @@
       "id": 121,
       "options": {
         "legend": {
+          "calcs": [
+            "sum"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
         },
         "tooltip": {
           "mode": "single",
@@ -601,17 +600,17 @@
       "targets": [
         {
           "datasource": "mysql",
-          "format": "table",
+          "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  case \n    when ar.status = 0 then 'Skipped'\n    when ar.status = 1 then 'Failed' \n    when ar.status = 2 then 'Passed'\n    else 'Unknown'\n  end as metric,\n  count(distinct ar.id) as value\nfrom _tool_testmo_automation_runs ar\nwhere \n  $__timeFilter(ar.testmo_created_at)\n  and ar.connection_id in (${connection_id})\ngroup by ar.status\norder by value desc",
+          "rawSql": "SELECT\n  DATE(r.testmo_created_at) as time,\n  count(*) as \"Test Runs\"\nFROM _tool_testmo_runs r\nwhere \n  $__timeFilter(r.testmo_created_at)\n  and r.connection_id in (${connection_id})\ngroup by DATE(r.testmo_created_at)\norder by time",
           "refId": "A"
         }
       ],
-      "title": "Test Results Distribution",
-      "type": "piechart"
+      "title": "Daily Test Runs",
+      "type": "timeseries"
     },
     {
       "datasource": "mysql",
@@ -690,7 +689,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \n  p.name as metric,\n  count(distinct ar.id) as \"Test Runs\"\nfrom _tool_testmo_automation_runs ar\n  join _tool_testmo_projects p on ar.project_id = p.id\nwhere \n  $__timeFilter(ar.testmo_created_at)\n  and ar.connection_id in (${connection_id})\ngroup by p.name\norder by count(distinct ar.id) desc\nlimit 10",
+          "rawSql": "select \n  p.name as metric,\n  count(*) as \"Test Runs\"\nfrom (\n  select ar.id, ar.connection_id, ar.testmo_created_at, ar.project_id from _tool_testmo_automation_runs ar\n  union all\n  select r.id, r.connection_id, r.testmo_created_at, r.project_id from _tool_testmo_runs r\n) combined\n  join _tool_testmo_projects p on combined.project_id = p.id and combined.connection_id = p.connection_id\nwhere \n  $__timeFilter(combined.testmo_created_at)\n  and combined.connection_id in (${connection_id})\ngroup by p.name\norder by count(*) desc\nlimit 10",
           "refId": "A"
         }
       ],
@@ -803,7 +802,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE(ar.testmo_created_at) as time,\n  count(distinct case when ar.status = 2 then ar.id else null end) * 1.0 / \n  count(distinct ar.id) as \"Success Rate\"\nFROM _tool_testmo_automation_runs ar\nwhere \n  $__timeFilter(ar.testmo_created_at)\n  and ar.connection_id in (${connection_id})\ngroup by DATE(ar.testmo_created_at)\norder by time",
+          "rawSql": "SELECT\n  DATE(combined.testmo_created_at) as time,\n  count(case when combined.status in (1, 2) then 1 else null end) * 1.0 / \n  count(*) as \"Success Rate\"\nFROM (\n  select ar.id, ar.connection_id, ar.testmo_created_at, ar.status from _tool_testmo_automation_runs ar\n  union all\n  select r.id, r.connection_id, r.testmo_created_at, r.status from _tool_testmo_runs r\n) combined\nwhere \n  $__timeFilter(combined.testmo_created_at)\n  and combined.connection_id in (${connection_id})\ngroup by DATE(combined.testmo_created_at)\norder by time",
           "refId": "A"
         }
       ],
@@ -897,6 +896,134 @@
     },
     {
       "datasource": "mysql",
+      "description": "Comparison between automation runs and regular test runs over time",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Number of Runs",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 8,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Automation Runs"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Test Runs"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 131,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE(ar.testmo_created_at) as time,\n  count(distinct ar.id) as \"Automation Runs\"\nFROM _tool_testmo_automation_runs ar\nwhere \n  $__timeFilter(ar.testmo_created_at)\n  and ar.connection_id in (${connection_id})\ngroup by DATE(ar.testmo_created_at)\norder by time",
+          "refId": "A"
+        },
+        {
+          "datasource": "mysql",
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE(r.testmo_created_at) as time,\n  count(distinct r.id) as \"Test Runs\"\nFROM _tool_testmo_runs r\nwhere \n  $__timeFilter(r.testmo_created_at)\n  and r.connection_id in (${connection_id})\ngroup by DATE(r.testmo_created_at)\norder by time",
+          "refId": "B"
+        }
+      ],
+      "title": "Automation Runs vs Test Runs Comparison",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
       "description": "Test runs that take the longest time to execute",
       "fieldConfig": {
         "defaults": {
@@ -971,7 +1098,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 29
       },
       "id": 125,
       "options": {
@@ -994,7 +1121,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \n  ar.id as \"Test Run ID\",\n  p.name as \"Project\",\n  ar.name as \"Test Name\",\n  case \n    when ar.status = 0 then 'Skipped'\n    when ar.status = 1 then 'Failed' \n    when ar.status = 2 then 'Passed'\n    else 'Unknown'\n  end as \"Status\",\n  ar.testmo_created_at as \"Created Date\"\nfrom _tool_testmo_automation_runs ar\n  join _tool_testmo_projects p on ar.project_id = p.id\nwhere \n  $__timeFilter(ar.testmo_created_at)\n  and ar.connection_id in (${connection_id})\norder by ar.testmo_created_at desc\nlimit 20",
+          "rawSql": "select \n  combined.id as \"Test Run ID\",\n  p.name as \"Project\",\n  combined.name as \"Test Name\",\n  combined.status_name as \"Status\",\n  combined.testmo_created_at as \"Created Date\",\n  combined.source as \"Source\"\nfrom (\n  select ar.id, ar.connection_id, ar.testmo_created_at, ar.project_id, ar.name, \n         case when ar.status = 1 then 'Failed' when ar.status = 2 then 'Passed' else 'Other' end as status_name,\n         'Automation Run' as source\n  from _tool_testmo_automation_runs ar\n  union all\n  select r.id, r.connection_id, r.testmo_created_at, r.project_id, r.name, r.status_name, 'Test Run' as source\n  from _tool_testmo_runs r\n) combined\n  join _tool_testmo_projects p on combined.project_id = p.id and combined.connection_id = p.connection_id\nwhere \n  $__timeFilter(combined.testmo_created_at)\n  and combined.connection_id in (${connection_id})\norder by combined.testmo_created_at desc\nlimit 20",
           "refId": "A"
         }
       ],
@@ -1010,7 +1137,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 35
       },
       "id": 130,
       "options": {

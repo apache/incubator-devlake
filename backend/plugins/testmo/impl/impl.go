@@ -69,7 +69,7 @@ func (p Testmo) GetTablesInfo() []dal.Tabler {
 		&models.TestmoProject{},
 		&models.TestmoScopeConfig{},
 		&models.TestmoAutomationRun{},
-		&models.TestmoTest{},
+		&models.TestmoRun{},
 		&models.TestmoMilestone{},
 	}
 }
@@ -90,10 +90,11 @@ func (p Testmo) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractMilestonesMeta,
 		tasks.CollectAutomationRunsMeta,
 		tasks.ExtractAutomationRunsMeta,
-		tasks.CollectTestsMeta,
-		tasks.ExtractTestsMeta,
+		tasks.CollectRunsMeta,
+		tasks.ExtractRunsMeta,
+		tasks.ConvertProjectsMeta,
 		tasks.ConvertAutomationRunsMeta,
-		tasks.ConvertTestsMeta,
+		tasks.ConvertRunsMeta,
 	}
 }
 
