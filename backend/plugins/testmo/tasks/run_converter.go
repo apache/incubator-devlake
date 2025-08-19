@@ -30,19 +30,19 @@ import (
 	testmoModels "github.com/apache/incubator-devlake/plugins/testmo/models"
 )
 
-var ConvertTestsMeta = plugin.SubTaskMeta{
-	Name:             "convertTests",
-	EntryPoint:       ConvertTests,
+var ConvertRunsMeta = plugin.SubTaskMeta{
+	Name:             "convertRuns",
+	EntryPoint:       ConvertRuns,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table testmo_tests into domain layer table test_cases",
+	Description:      "Convert tool layer table testmo_runs into domain layer table test_cases",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
-func ConvertTests(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*TestmoTaskData)
 	db := taskCtx.GetDal()
 
-	cursor, err := db.Cursor(dal.From(&testmoModels.TestmoTest{}), dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId))
+	cursor, err := db.Cursor(dal.From(&testmoModels.TestmoRun{}), dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId))
 	if err != nil {
 		return err
 	}
@@ -55,43 +55,43 @@ func ConvertTests(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_TEST_TABLE,
+			Table: RAW_RUN_TABLE,
 		},
-		InputRowType: reflect.TypeOf(testmoModels.TestmoTest{}),
+		InputRowType: reflect.TypeOf(testmoModels.TestmoRun{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			test := inputRow.(*testmoModels.TestmoTest)
+			run := inputRow.(*testmoModels.TestmoRun)
 
-			// Convert to domain layer QA test case
+			// Convert to domain layer QA test case (treating runs as test cases)
 			qaTestCase := &qa.QaTestCase{
 				DomainEntityExtended: domainlayer.DomainEntityExtended{
-					Id: didgen.NewDomainIdGenerator(&testmoModels.TestmoTest{}).Generate(data.Options.ConnectionId, test.Id),
+					Id: didgen.NewDomainIdGenerator(&testmoModels.TestmoRun{}).Generate(data.Options.ConnectionId, run.Id),
 				},
-				Name:        test.Name,
-				Type:        getTestType(test),
-				QaProjectId: didgen.NewDomainIdGenerator(&testmoModels.TestmoAutomationRun{}).Generate(data.Options.ConnectionId, test.AutomationRunId),
+				Name:        run.Name,
+				Type:        getRunType(run),
+				QaProjectId: didgen.NewDomainIdGenerator(&testmoModels.TestmoProject{}).Generate(data.Options.ConnectionId, run.ProjectId),
 			}
 
-			if test.TestmoCreatedAt != nil {
-				qaTestCase.CreateTime = *test.TestmoCreatedAt
+			if run.TestmoCreatedAt != nil && !run.TestmoCreatedAt.IsZero() {
+				qaTestCase.CreateTime = *run.TestmoCreatedAt
 			}
 
 			// Create test case execution
 			qaExecution := &qa.QaTestCaseExecution{
 				DomainEntityExtended: domainlayer.DomainEntityExtended{
-					Id: didgen.NewDomainIdGenerator(&testmoModels.TestmoTest{}).Generate(data.Options.ConnectionId, test.Id) + ":execution",
+					Id: didgen.NewDomainIdGenerator(&testmoModels.TestmoRun{}).Generate(data.Options.ConnectionId, run.Id) + ":execution",
 				},
-				QaProjectId:  didgen.NewDomainIdGenerator(&testmoModels.TestmoAutomationRun{}).Generate(data.Options.ConnectionId, test.AutomationRunId),
-				QaTestCaseId: didgen.NewDomainIdGenerator(&testmoModels.TestmoTest{}).Generate(data.Options.ConnectionId, test.Id),
-				Status:       convertTestStatus(test.Status),
+				QaProjectId:  didgen.NewDomainIdGenerator(&testmoModels.TestmoProject{}).Generate(data.Options.ConnectionId, run.ProjectId),
+				QaTestCaseId: didgen.NewDomainIdGenerator(&testmoModels.TestmoRun{}).Generate(data.Options.ConnectionId, run.Id),
+				Status:       convertRunStatus(run.Status),
 			}
 
-			if test.TestmoCreatedAt != nil {
-				qaExecution.CreateTime = *test.TestmoCreatedAt
-				qaExecution.StartTime = *test.TestmoCreatedAt
+			if run.TestmoCreatedAt != nil && !run.TestmoCreatedAt.IsZero() {
+				qaExecution.CreateTime = *run.TestmoCreatedAt
+				qaExecution.StartTime = *run.TestmoCreatedAt
 			}
-			if test.TestmoUpdatedAt != nil {
-				qaExecution.FinishTime = *test.TestmoUpdatedAt
+			if run.TestmoUpdatedAt != nil && !run.TestmoUpdatedAt.IsZero() {
+				qaExecution.FinishTime = *run.TestmoUpdatedAt
 			}
 
 			return []interface{}{qaTestCase, qaExecution}, nil
@@ -105,8 +105,8 @@ func ConvertTests(taskCtx plugin.SubTaskContext) errors.Error {
 	return converter.Execute()
 }
 
-func convertTestStatus(status int32) string {
-	// Testmo status mapping - this may need adjustment based on actual Testmo status values
+func convertRunStatus(status int32) string {
+	// Testmo run status mapping
 	switch status {
 	case 1:
 		return "SUCCESS"
@@ -119,12 +119,12 @@ func convertTestStatus(status int32) string {
 	}
 }
 
-func getTestType(test *testmoModels.TestmoTest) string {
-	if test.IsAcceptanceTest {
+func getRunType(run *testmoModels.TestmoRun) string {
+	if run.IsAcceptanceTest {
 		return "functional"
 	}
-	if test.IsSmokeTest {
-		return "functional"
+	if run.IsSmokeTest {
+		return "smoke"
 	}
 	return "functional"
 }
