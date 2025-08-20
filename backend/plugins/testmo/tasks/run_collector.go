@@ -18,47 +18,53 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	testmoModels "github.com/apache/incubator-devlake/plugins/testmo/models"
 )
 
-var ConvertAutomationRunsMeta = plugin.SubTaskMeta{
-	Name:             "convertAutomationRuns",
-	EntryPoint:       ConvertAutomationRuns,
+const RAW_RUN_TABLE = "testmo_runs"
+
+var CollectRunsMeta = plugin.SubTaskMeta{
+	Name:             "collectRuns",
+	EntryPoint:       CollectRuns,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table testmo_automation_runs into domain layer table test_suites",
+	Description:      "Collect runs data from Testmo api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
-func ConvertAutomationRuns(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*TestmoTaskData)
-	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
+	logger.Info("collecting runs")
 
-	cursor, err := db.Cursor(dal.From(&testmoModels.TestmoAutomationRun{}), dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId))
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TestmoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_AUTOMATION_RUN_TABLE,
+			Table: RAW_RUN_TABLE,
 		},
-		InputRowType: reflect.TypeOf(testmoModels.TestmoAutomationRun{}),
-		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-
-			return []interface{}{}, nil
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Incremental: false,
+		UrlTemplate: "projects/{{ .Params.ProjectId }}/runs",
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
+			query := url.Values{}
+			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
+			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
+			return query, nil
+		},
+		GetTotalPages: GetTotalPagesFromResponse,
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+			return GetRawMessageFromResponse(res)
 		},
 	})
 
@@ -66,5 +72,5 @@ func ConvertAutomationRuns(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return converter.Execute()
+	return collector.Execute()
 }
