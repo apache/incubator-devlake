@@ -21,8 +21,9 @@ import { useNavigate } from 'react-router-dom';
 import { theme, Badge, Modal } from 'antd';
 import { chunk } from 'lodash';
 
-import { useAppSelector } from '@/app/hook';
 import { selectPlugins, selectAllConnections, selectWebhooks } from '@/features/connections';
+import { PATHS } from '@/config';
+import { useAppSelector } from '@/hooks';
 import { getPluginConfig, ConnectionList, ConnectionForm } from '@/plugins';
 
 import * as S from './styled';
@@ -70,7 +71,7 @@ export const Connections = () => {
   };
 
   const handleSuccessAfter = async (plugin: string, id: ID) => {
-    navigate(`/connections/${plugin}/${id}`);
+    navigate(PATHS.CONNECTION(plugin, id));
   };
 
   return (
@@ -89,6 +90,7 @@ export const Connections = () => {
           const connectionCount = connections.filter((cs) => cs.plugin === plugin).length;
           return (
             <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
+              {pluginConfig.isBeta && <span className="beta">Beta</span>}
               <span className="logo">{pluginConfig.icon({ color: colorPrimary })}</span>
               <span className="name">{pluginConfig.name}</span>
               <span className="count">
@@ -109,6 +111,7 @@ export const Connections = () => {
           const connectionCount = connections.filter((cs) => cs.plugin === plugin).length;
           return (
             <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
+              {pluginConfig.isBeta && <span className="beta">Beta</span>}
               <span className="logo">{pluginConfig.icon({ color: colorPrimary })}</span>
               <span className="name">{pluginConfig.name}</span>
               <span className="count">

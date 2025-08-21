@@ -167,8 +167,12 @@ type Dal interface {
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
 	// RenameColumn renames column name for specified table
 	RenameColumn(table, oldColumnName, newColumnName string) errors.Error
-	// DropIndexes drops all specified tables
+	// ModifyColumnType modifies column type
+	ModifyColumnType(table, columnName, columnType string) errors.Error
+	// DropIndexes drops indexes by their name
 	DropIndexes(table string, indexes ...string) errors.Error
+	// DropIndex drops the index of specified column names
+	DropIndex(table string, columnNames ...string) errors.Error
 	// Dialect returns the dialect of current database
 	Dialect() string
 	// Session creates a new manual session for special scenarios
@@ -237,6 +241,10 @@ type Rows interface {
 	// ColumnTypes returns column information such as column type, length,
 	// and nullable. Some information may not be available from some drivers.
 	ColumnTypes() ([]*sql.ColumnType, error)
+
+	// Err returns the error, if any, that was encountered during iteration.
+	// Err may be called after an explicit or implicit Close method.
+	Err() error
 }
 
 // GetColumnNames returns table Column Names in database

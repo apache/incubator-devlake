@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 )
 
@@ -39,6 +40,8 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&code.PullRequestComment{},
 		&code.PullRequestCommit{},
 		&code.PullRequestLabel{},
+		&code.PullRequestReviewer{},
+		&code.PullRequestAssignee{},
 		&code.Ref{},
 		&code.CommitsDiff{},
 		&code.RefCommit{},
@@ -51,6 +54,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&codequality.CqFileMetrics{},
 		&codequality.CqIssueCodeBlock{},
 		&codequality.CqIssue{},
+		&codequality.CqIssueImpact{},
 		&codequality.CqProject{},
 		// crossdomain
 		&crossdomain.Account{},
@@ -58,7 +62,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&crossdomain.IssueCommit{},
 		&crossdomain.IssueRepoCommit{},
 		&crossdomain.ProjectMapping{},
-		&crossdomain.ProjectIssueMetric{},
+		&crossdomain.ProjectIncidentDeploymentRelationship{},
 		&crossdomain.ProjectPrMetric{},
 		&crossdomain.PullRequestIssue{},
 		&crossdomain.RefsIssuesDiffs{},
@@ -73,6 +77,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&devops.CiCDPipelineCommit{},
 		&devops.CicdScope{},
 		&devops.CICDDeployment{},
+		&devops.CicdRelease{},
 		// didgen no table
 		// ticket
 		&ticket.Board{},
@@ -88,5 +93,12 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&ticket.IssueAssignee{},
 		&ticket.IssueRelationship{},
 		&ticket.IssueCustomArrayField{},
+		&ticket.Incident{},
+		&ticket.IncidentAssignee{},
+		// qa
+		&qa.QaProject{},
+		&qa.QaApi{},
+		&qa.QaTestCase{},
+		&qa.QaTestCaseExecution{},
 	}
 }

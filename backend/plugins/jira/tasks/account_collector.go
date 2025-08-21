@@ -19,9 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -45,10 +47,15 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect account")
+	connectionId := strconv.FormatUint(data.Options.ConnectionId, 10)
+	boardId := strconv.FormatUint(data.Options.BoardId, 10)
 	cursor, err := db.Cursor(
 		dal.Select("account_id"),
 		dal.From("_tool_jira_accounts"),
-		dal.Where("account_id != ? AND connection_id = ?", "", data.Options.ConnectionId),
+		dal.Where("account_id != ? AND _raw_data_params = ?",
+			"",
+			fmt.Sprintf("{\"ConnectionId\":%s,\"BoardId\":%s}", connectionId, boardId),
+		),
 	)
 	if err != nil {
 		return err

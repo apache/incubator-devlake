@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/spf13/cast"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -34,7 +35,7 @@ func init() {
 }
 
 var ConvertPullRequestIssuesMeta = plugin.SubTaskMeta{
-	Name:             "convertPullRequestIssues",
+	Name:             "Convert PR Issues",
 	EntryPoint:       ConvertPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_issues into domain layer table pull_request_issues",
@@ -80,7 +81,7 @@ func ConvertPullRequestIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			pullRequestIssue := &crossdomain.PullRequestIssue{
 				PullRequestId:  prIdGen.Generate(data.Options.ConnectionId, githubPrIssue.PullRequestId),
 				IssueId:        issueIdGen.Generate(data.Options.ConnectionId, githubPrIssue.IssueId),
-				IssueKey:       githubPrIssue.IssueNumber,
+				IssueKey:       cast.ToString(githubPrIssue.IssueNumber),
 				PullRequestKey: githubPrIssue.PullRequestNumber,
 			}
 			return []interface{}{

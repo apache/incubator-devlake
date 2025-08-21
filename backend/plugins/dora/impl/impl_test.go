@@ -19,6 +19,7 @@ package impl
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/plugins/dora/tasks"
 	"testing"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -60,6 +61,7 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 				Plugin: "dora",
 				Subtasks: []string{
 					"calculateChangeLeadTime",
+					tasks.IssuesToIncidentsMeta.Name,
 					"ConnectIncidentToDeployment",
 				},
 				Options: map[string]interface{}{"projectName": projectName},

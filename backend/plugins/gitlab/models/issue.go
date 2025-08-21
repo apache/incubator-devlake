@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type GitlabIssue struct {
@@ -38,15 +39,15 @@ type GitlabIssue struct {
 	CreatorName     string `gorm:"type:varchar(255)"`
 	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
-	LeadTimeMinutes uint
+	LeadTimeMinutes *uint
 	Url             string `gorm:"type:varchar(255)"`
 	ClosedAt        *time.Time
 	GitlabCreatedAt time.Time
 	GitlabUpdatedAt time.Time `gorm:"index"`
 	Severity        string    `gorm:"type:varchar(255)"`
-	Component       string    `gorm:"type:varchar(255)"`
-	TimeEstimate    int64
-	TotalTimeSpent  int64
+	Component       string    `gorm:"type:text"`
+	TimeEstimate    *int64
+	TotalTimeSpent  *int64
 	common.NoPKModel
 }
 

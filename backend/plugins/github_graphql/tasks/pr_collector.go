@@ -18,26 +18,27 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+	"reflect"
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
 )
 
 const RAW_PRS_TABLE = "github_graphql_prs"
 
+// GraphqlQueryPrWrapper is a wrapper for collecting new PRs since the previous collection
 type GraphqlQueryPrWrapper struct {
 	RateLimit struct {
 		Cost int
 	}
-	// now it orderBy UPDATED_AT and use cursor pagination
-	// It may miss some PRs updated when collection.
-	// Because these missed PRs will be collected on next, But it's not enough.
-	// So Next Millstone(0.17) we should change it to filter by CREATE_AT + collect detail
 	Repository struct {
 		PullRequests struct {
 			PageInfo   *api.GraphqlQueryPageInfo
@@ -47,11 +48,22 @@ type GraphqlQueryPrWrapper struct {
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
+// GraphqlQueryPrDetailWrapper is a wrapper for refetching OPEN PRs from the database to update the details
+type GraphqlQueryPrDetailWrapper struct {
+	RateLimit struct {
+		Cost int
+	}
+	Repository struct {
+		PullRequests []GraphqlQueryPr `graphql:"pullRequest(number: $number)" graphql-extend:"true"`
+	} `graphql:"repository(owner: $owner, name: $name)"`
+}
+
 type GraphqlQueryPr struct {
 	DatabaseId int
 	Number     int
 	State      string
 	Title      string
+	IsDraft    bool
 	Body       string
 	Url        string
 	Labels     struct {
@@ -85,6 +97,33 @@ type GraphqlQueryPr struct {
 		TotalCount graphql.Int
 		Nodes      []GraphqlQueryReview `graphql:"nodes"`
 	} `graphql:"reviews(first: 100)"`
+	Additions      int
+	Deletions      int
+	MergedBy       *GraphqlInlineAccountQuery
+	ReviewRequests struct {
+		Nodes []ReviewRequestNode `graphql:"nodes"`
+	} `graphql:"reviewRequests(first: 10)"`
+}
+
+type ReviewRequestNode struct {
+	RequestedReviewer RequestedReviewer `graphql:"requestedReviewer"`
+}
+
+type RequestedReviewer struct {
+	User User `graphql:"... on User"`
+	Team Team `graphql:"... on Team"`
+}
+
+type User struct {
+	Id    int    `graphql:"databaseId"`
+	Login string `graphql:"login"`
+	Name  string `graphql:"name"`
+}
+
+type Team struct {
+	Id   int    `graphql:"databaseId"`
+	Name string `graphql:"name"`
+	Slug string `graphql:"slug"`
 }
 
 type GraphqlQueryReview struct {
@@ -118,7 +157,7 @@ type GraphqlQueryCommit struct {
 }
 
 var CollectPrsMeta = plugin.SubTaskMeta{
-	Name:             "CollectPrs",
+	Name:             "Collect Pull Requests",
 	EntryPoint:       CollectPrs,
 	EnabledByDefault: true,
 	Description:      "Collect Pr data from GithubGraphql api, supports both timeFilter and diffSync.",
@@ -130,7 +169,7 @@ var _ plugin.SubTaskEntryPoint = CollectPrs
 func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*tasks.GithubTaskData)
 	var err errors.Error
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: tasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -142,7 +181,9 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitGraphQLCollector(api.GraphqlCollectorArgs{
+	// collect new PRs since the previous run
+	since := apiCollector.GetSince()
+	err = apiCollector.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      10,
 		/*
@@ -166,20 +207,77 @@ func CollectPrs(taskCtx plugin.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryPrWrapper)
 			return query.Repository.PullRequests.PageInfo, nil
 		},
-		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
-			query := iQuery.(*GraphqlQueryPrWrapper)
+		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
+			query := queryWrapper.(*GraphqlQueryPrWrapper)
 			prs := query.Repository.PullRequests.Prs
 			for _, rawL := range prs {
-				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.CreatedAt) {
-					return nil, api.ErrFinishCollect
+				if since != nil && since.After(rawL.UpdatedAt) {
+					return messages, api.ErrFinishCollect
 				}
+				messages = append(messages, errors.Must1(json.Marshal(rawL)))
 			}
-			return nil, nil
+			return
 		},
 	})
 	if err != nil {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	// refetch(refresh) for existing PRs in the database that are still OPEN
+	db := taskCtx.GetDal()
+	cursor, err := db.Cursor(
+		dal.From(models.GithubPullRequest{}.TableName()),
+		dal.Where("state = ? AND repo_id = ? AND connection_id=?", "OPEN", data.Options.GithubId, data.Options.ConnectionId),
+	)
+	if err != nil {
+		return err
+	}
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.GithubPullRequest{}))
+	if err != nil {
+		return err
+	}
+	prUpdatedAt := make(map[int]time.Time)
+	err = apiCollector.InitGraphQLCollector(api.GraphqlCollectorArgs{
+		GraphqlClient: data.GraphqlClient,
+		Input:         iterator,
+		InputStep:     100,
+		Incremental:   true,
+		BuildQuery: func(reqData *api.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+			query := &GraphqlQueryPrDetailWrapper{}
+			if reqData == nil {
+				return query, map[string]interface{}{}, nil
+			}
+			ownerName := strings.Split(data.Options.Name, "/")
+			inputPrs := reqData.Input.([]interface{})
+			outputPrs := []map[string]interface{}{}
+			for _, i := range inputPrs {
+				inputPr := i.(*models.GithubPullRequest)
+				outputPrs = append(outputPrs, map[string]interface{}{
+					`number`: graphql.Int(inputPr.Number),
+				})
+				prUpdatedAt[inputPr.Number] = inputPr.GithubUpdatedAt
+			}
+			variables := map[string]interface{}{
+				"pullRequest": outputPrs,
+				"owner":       graphql.String(ownerName[0]),
+				"name":        graphql.String(ownerName[1]),
+			}
+			return query, variables, nil
+		},
+		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
+			query := queryWrapper.(*GraphqlQueryPrDetailWrapper)
+			prs := query.Repository.PullRequests
+			for _, rawL := range prs {
+				if rawL.UpdatedAt.After(prUpdatedAt[rawL.Number]) {
+					messages = append(messages, errors.Must1(json.Marshal(rawL)))
+				}
+			}
+			return
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	return apiCollector.Execute()
 }

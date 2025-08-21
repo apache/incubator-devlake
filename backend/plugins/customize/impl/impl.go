@@ -108,5 +108,23 @@ func (p Customize) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"csvfiles/issue_repo_commits.csv": {
 			"POST": handlers.ImportIssueRepoCommit,
 		},
+		"csvfiles/issue_changelogs.csv": {
+			"POST": handlers.ImportIssueChangelog,
+		},
+		"csvfiles/issue_worklogs.csv": {
+			"POST": handlers.ImportIssueWorklog,
+		},
+		"csvfiles/sprints.csv": {
+			"POST": handlers.ImportSprint,
+		},
+		"csvfiles/qa_apis.csv": {
+			"POST": handlers.ImportQaApis,
+		},
+		"csvfiles/qa_test_cases.csv": {
+			"POST": handlers.ImportQaTestCases,
+		},
+		"csvfiles/qa_test_case_executions.csv": {
+			"POST": handlers.ImportQaTestCaseExecutions,
+		},
 	}
 }

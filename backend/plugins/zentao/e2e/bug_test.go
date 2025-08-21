@@ -66,6 +66,7 @@ func TestZentaoBugDataFlow(t *testing.T) {
 	// verify conversion
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
 	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
@@ -80,5 +81,50 @@ func TestZentaoBugDataFlow(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(ticket.IssueAssignee{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/bug_issue_assignees.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+}
+
+func TestZentaoBugCustomizeDueDate(t *testing.T) {
+	var zentao impl.Zentao
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "zentao", zentao)
+
+	taskData := &tasks.ZentaoTaskData{
+		Options: &tasks.ZentaoOptions{
+			ConnectionId: 1,
+			ProjectId:    1,
+			ScopeConfig: &models.ZentaoScopeConfig{
+				TypeMappings: map[string]string{
+					"codeerror": "CODE_ERROR",
+				},
+				BugStatusMappings: map[string]string{
+					"active": ticket.DONE,
+				},
+				BugDueDateField: "closedDate",
+			},
+		},
+		Bugs:         map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
+		ApiClient:    getFakeAPIClient(),
+	}
+
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_zentao_api_bugs_for_due_date.csv",
+		"_raw_zentao_api_bugs")
+
+	// verify extraction
+	dataflowTester.FlushTabler(&models.ZentaoBug{})
+	dataflowTester.Subtask(tasks.ExtractBugMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.ZentaoBug{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_zentao_bugs_for_due_date.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.FlushTabler(&ticket.Issue{})
+	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
+
+	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
+		CSVRelPath:   "./snapshot_tables/issues_bug_for_due_date.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"original_project"},
 	})
 }

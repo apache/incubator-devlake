@@ -88,7 +88,10 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"DELETE": api.DeleteConnection,
 		},
 		"connections/:connectionId/deployments": {
-			"POST": api.PostDeploymentCicdTask,
+			"POST": api.PostDeployments,
+		},
+		"connections/:connectionId/pull_requests": {
+			"POST": api.PostPullRequests,
 		},
 		"connections/:connectionId/issues": {
 			"POST": api.PostIssue,
@@ -97,13 +100,33 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"POST": api.CloseIssue,
 		},
 		":connectionId/deployments": {
-			"POST": api.PostDeploymentCicdTask,
+			"POST": api.PostDeployments,
+		},
+		":connectionId/pull_requests": {
+			"POST": api.PostPullRequests,
 		},
 		":connectionId/issues": {
 			"POST": api.PostIssue,
 		},
 		":connectionId/issue/:issueKey/close": {
 			"POST": api.CloseIssue,
+		},
+		"connections/by-name/:connectionName": {
+			"GET":    api.GetConnectionByName,
+			"PATCH":  api.PatchConnectionByName,
+			"DELETE": api.DeleteConnectionByName,
+		},
+		"connections/by-name/:connectionName/deployments": {
+			"POST": api.PostDeploymentsByName,
+		},
+		"connections/by-name/:connectionName/pull_requests": {
+			"POST": api.PostPullRequestsByName,
+		},
+		"connections/by-name/:connectionName/issues": {
+			"POST": api.PostIssueByName,
+		},
+		"connections/by-name/:connectionName/issue/:issueKey/close": {
+			"POST": api.CloseIssueByName,
 		},
 	}
 }

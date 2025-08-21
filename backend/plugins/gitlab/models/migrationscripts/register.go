@@ -41,9 +41,16 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(addProjectArchived),
 		new(addDeployment),
+		new(addUserCreationAt20231120),
 		new(addEnvNamePattern),
 		new(addQueuedDuration20231129),
 		new(modifyDeploymentMessageType),
 		new(addTimeToGitlabPipelineProject),
+		new(modifyDeploymentCommitTitle),
+		new(addWebUrlToGitlabPipelineProject),
+		new(addGitlabAssignee),
+		new(addGitlabAssigneeAndReviewerPrimaryKey),
+		new(changeIssueComponentType),
+		new(addIsChildToPipelines240906),
 	}
 }

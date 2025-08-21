@@ -23,6 +23,10 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
+const (
+	PipelineSourceParentPipeline = "parent_pipeline"
+)
+
 type GitlabPipeline struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
@@ -33,7 +37,7 @@ type GitlabPipeline struct {
 	Sha            string `gorm:"type:varchar(255)"`
 	WebUrl         string `gorm:"type:varchar(255)"`
 	Duration       int
-	QueuedDuration float64
+	QueuedDuration *float64
 
 	GitlabCreatedAt *time.Time
 	GitlabUpdatedAt *time.Time
@@ -45,8 +49,14 @@ type GitlabPipeline struct {
 	Environment string `gorm:"type:varchar(255)"`
 
 	IsDetailRequired bool
+	Source           string
 
 	common.NoPKModel
+}
+
+func (gitlabPipeline GitlabPipeline) GenerateIsChild() bool {
+	return gitlabPipeline.Source == PipelineSourceParentPipeline
+
 }
 
 func (GitlabPipeline) TableName() string {
@@ -58,10 +68,13 @@ type GitlabPipelineProject struct {
 	PipelineId      int    `gorm:"primaryKey"`
 	ProjectId       int    `gorm:"primaryKey"`
 	Ref             string `gorm:"type:varchar(255)"`
+	WebUrl          string
 	Sha             string `gorm:"type:varchar(255)"`
 	GitlabCreatedAt *time.Time
 	GitlabUpdatedAt *time.Time
 	common.NoPKModel
+
+	Source string
 }
 
 func (GitlabPipelineProject) TableName() string {

@@ -25,10 +25,12 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"reflect"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -43,9 +45,13 @@ import (
 
 // ErrIgnoreAndContinue is a error which should be ignored
 var (
-	ErrIgnoreAndContinue                  = errors.Default.New("ignore and continue")
-	ErrEmptyResponse                      = errors.Default.New("empty response")
-	_                    plugin.ApiClient = (*ApiClient)(nil)
+	ErrIgnoreAndContinue                      = errors.Default.New("ignore and continue")
+	ErrEmptyResponse                          = errors.Default.New("empty response")
+	ErrRedirectionNotAllowed                  = errors.BadInput.New("redirection is not allowed")
+	ErrInvalidURL                             = errors.Default.New("Invalid URL")
+	ErrInvalidCIDR                            = errors.Default.New("Invalid CIDR")
+	ErrHostNotAllowed                         = errors.Default.New("Host is not allowed")
+	_                        plugin.ApiClient = (*ApiClient)(nil)
 )
 
 // ApiClient is designed for simple api requests
@@ -56,6 +62,7 @@ type ApiClient struct {
 	data       map[string]interface{}
 	data_mutex sync.Mutex
 
+	authFunc      plugin.ApiClientBeforeRequest
 	beforeRequest plugin.ApiClientBeforeRequest
 	afterResponse plugin.ApiClientAfterResponse
 	ctx           gocontext.Context
@@ -86,21 +93,10 @@ func NewApiClientFromConnection(
 
 	// if connection requires authorization
 	if authenticator, ok := connection.(plugin.ApiAuthenticator); ok {
-		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
+		apiClient.SetAuthFunction(func(req *http.Request) errors.Error {
 			return authenticator.SetupAuthentication(req)
 		})
 	}
-
-	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
-		if res.StatusCode >= 400 {
-			bytes, err := io.ReadAll(res.Body)
-			if err != nil {
-				return errors.BadInput.Wrap(err, fmt.Sprintf("request failed with status code %d", res.StatusCode))
-			}
-			return errors.BadInput.New(fmt.Sprintf("request failed with status code %d, body: %s", res.StatusCode, string(bytes)))
-		}
-		return nil
-	})
 
 	return apiClient, nil
 }
@@ -114,6 +110,18 @@ func NewApiClient(
 	proxy string,
 	br context.BasicRes,
 ) (*ApiClient, errors.Error) {
+	cfg := br.GetConfigReader()
+	log := br.GetLogger()
+
+	// endpoint blacklist
+	endpointCidrBlacklist := cfg.GetString("ENDPOINT_CIDR_BLACKLIST")
+	if endpointCidrBlacklist != "" {
+		err := checkCidrBlacklist(endpointCidrBlacklist, endpoint, log)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	apiClient := &ApiClient{}
 	apiClient.Setup(
 		endpoint,
@@ -124,16 +132,13 @@ func NewApiClient(
 	apiClient.client.Transport = &http.Transport{}
 
 	// set insecureSkipVerify
-	insecureSkipVerify, err := utils.StrToBoolOr(br.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to parse IN_SECURE_SKIP_VERIFY")
-	}
+	insecureSkipVerify := cfg.GetBool("IN_SECURE_SKIP_VERIFY")
 	if insecureSkipVerify {
 		apiClient.client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
 	if proxy != "" {
-		err = apiClient.SetProxy(proxy)
+		err := apiClient.SetProxy(proxy)
 		if err != nil {
 			return nil, errors.Convert(err)
 		}
@@ -168,6 +173,14 @@ func NewApiClient(
 		}
 	}
 	apiClient.SetContext(ctx)
+
+	// apply global security settings
+	forbidRedirection := cfg.GetBool("FORBID_REDIRECTION")
+	if forbidRedirection {
+		apiClient.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return ErrRedirectionNotAllowed
+		}
+	}
 
 	return apiClient, nil
 }
@@ -241,6 +254,16 @@ func (apiClient *ApiClient) GetBeforeFunction() plugin.ApiClientBeforeRequest {
 // SetBeforeFunction will set beforeResponseFunction
 func (apiClient *ApiClient) SetBeforeFunction(callback plugin.ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
+}
+
+// GetAuthFunction
+func (apiClient *ApiClient) GetAuthFunction() plugin.ApiClientBeforeRequest {
+	return apiClient.authFunc
+}
+
+// SetAuthFunction
+func (apiClient *ApiClient) SetAuthFunction(callback plugin.ApiClientBeforeRequest) {
+	apiClient.authFunc = callback
 }
 
 // GetAfterFunction return afterResponseFunction
@@ -333,6 +356,14 @@ func (apiClient *ApiClient) Do(
 	}
 
 	var res *http.Response
+	// authFunc
+	if apiClient.authFunc != nil {
+		err = apiClient.authFunc(req)
+		if err != nil {
+			apiClient.logError(err, "[api-client] authFunc returned error for %s", req.URL.String())
+			return nil, err
+		}
+	}
 	// before send
 	if apiClient.beforeRequest != nil {
 		err = apiClient.beforeRequest(req)
@@ -394,7 +425,11 @@ func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	}
 	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {
-		return errors.Default.New(fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
+		statusCode := res.StatusCode
+		if statusCode == http.StatusUnauthorized || statusCode == http.StatusForbidden {
+			statusCode = http.StatusBadRequest // to avoid Basic Auth Dialog poping up
+		}
+		return errors.HttpStatus(statusCode).Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 	return nil
 }
@@ -463,4 +498,36 @@ func RemoveStartingSlashFromPath(relativePath string) string {
 		return relativePath[i:]
 	}
 	return relativePath
+}
+
+func checkCidrBlacklist(blacklist, endpoint string, log log.Logger) errors.Error {
+	// only if blacklist is given and the host of the endpoint is an IP address
+	parsedEp, err := url.Parse(endpoint)
+	if err != nil {
+		return ErrInvalidURL
+	}
+	endpointHost := parsedEp.Hostname()
+	if endpointHost == "" {
+		return ErrInvalidURL
+	}
+	endpointIp := net.ParseIP(endpointHost)
+	if endpointIp != nil {
+		// check if the IP is in the blacklist
+		cidrs := strings.Split(blacklist, ",")
+		for _, cidr := range cidrs {
+			// CIDR format : 10.0.0.1/24
+			// check the net.ParseCIDR for details
+			cidr = strings.TrimSpace(cidr)
+			_, ipnet, err := net.ParseCIDR(cidr)
+			if err != nil {
+				// the CIDR is invalid
+				log.Error(err, "Invalid CIDR", "cidr", cidr)
+				return ErrInvalidCIDR
+			}
+			if ipnet.Contains(endpointIp) {
+				return ErrHostNotAllowed
+			}
+		}
+	}
+	return nil
 }

@@ -185,7 +185,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.EnvNamePattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
 	}
-	return &tasks.BambooTaskData{
+	return &tasks.BambooOptions{
 		Options:       op,
 		ApiClient:     apiClient,
 		RegexEnricher: regexEnricher,
@@ -222,14 +222,14 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.UpdateScopeConfig,
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
+			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
+			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
 			"GET": api.GetScopeLatestSyncState,
@@ -242,17 +242,20 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
-			"PATCH":  api.UpdateScope,
+			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
+		},
 	}
 }
 
 func (p Bamboo) Close(taskCtx plugin.TaskContext) errors.Error {
-	data, ok := taskCtx.GetData().(*tasks.BambooTaskData)
+	data, ok := taskCtx.GetData().(*tasks.BambooOptions)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}

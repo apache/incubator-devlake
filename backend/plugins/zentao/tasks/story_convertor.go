@@ -70,7 +70,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoStory)
-
+			originalEstimateMinutes := int64(toolEntity.Estimate) * 60
 			domainEntity := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: storyIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
@@ -89,8 +89,8 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:                     convertIssueURL(toolEntity.Url, "story", toolEntity.ID),
 				OriginalProject:         getOriginalProject(data),
 				Status:                  toolEntity.StdStatus,
-				OriginalEstimateMinutes: int64(toolEntity.Estimate) * 60,
-				StoryPoint:              toolEntity.Estimate,
+				OriginalEstimateMinutes: &originalEstimateMinutes,
+				StoryPoint:              &toolEntity.Estimate,
 			}
 			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
 				domainEntity.Type = mappingType
@@ -103,6 +103,9 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			if toolEntity.AssignedToId != 0 {
 				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
+			}
+			if toolEntity.DueDate != nil {
+				domainEntity.DueDate = toolEntity.DueDate
 			}
 			if domainEntity.OriginalStatus == "closed-closed" {
 				domainEntity.OriginalStatus = "closed"
@@ -117,8 +120,11 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, issueAssignee)
 			}
 
-			if toolEntity.ClosedDate != nil {
-				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
+			closedDate := toolEntity.ClosedDate
+			openedDate := toolEntity.OpenedDate
+			if closedDate != nil && closedDate.ToTime().After(openedDate.ToTime()) {
+				temp := uint(closedDate.ToNullableTime().Sub(openedDate.ToTime()).Minutes())
+				domainEntity.LeadTimeMinutes = &temp
 			}
 
 			domainBoardIssue := &ticket.BoardIssue{

@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
@@ -81,7 +82,7 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			codeBlockInIssue := &models.SonarqubeIssueCodeBlock{
 				ConnectionId: data.Options.ConnectionId,
 				IssueKey:     sonarqubeIssue.IssueKey,
-				Component:    sonarqubeIssue.Component,
+				Component:    utils.Substr(sonarqubeIssue.Component, 0, 500),
 				Msg:          sonarqubeIssue.Message,
 				StartLine:    sonarqubeIssue.StartLine,
 				EndLine:      sonarqubeIssue.EndLine,
@@ -106,6 +107,16 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 					generateId(hashCodeBlock, codeBlock)
 					results = append(results, codeBlock)
 				}
+			}
+
+			for _, v := range body.Impacts {
+				impact := &models.SonarqubeIssueImpact{
+					ConnectionId:    data.Options.ConnectionId,
+					IssueKey:        sonarqubeIssue.IssueKey,
+					SoftwareQuality: v.SoftwareQuality,
+					Severity:        v.Severity,
+				}
+				results = append(results, impact)
 			}
 			return results, nil
 		},
@@ -151,6 +162,10 @@ type IssuesResponse struct {
 	Type              string              `json:"type"`
 	Scope             string              `json:"scope"`
 	QuickFixAvailable bool                `json:"quickFixAvailable"`
+	Impacts           []struct {
+		SoftwareQuality string `json:"softwareQuality"`
+		Severity        string `json:"severity"`
+	} `json:"impacts"`
 }
 
 type flow struct {

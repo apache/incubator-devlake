@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -41,7 +42,7 @@ func ExtractAdditionalFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			fileMetrics := &models.SonarqubeAdditionalFileMetrics{
 				ConnectionId:   data.Options.ConnectionId,
-				FileMetricsKey: body.Key,
+				FileMetricsKey: hashString(body.Key),
 			}
 			err = setAdditionalMetrics(fileMetrics, body.Measures)
 			return []interface{}{fileMetrics}, err

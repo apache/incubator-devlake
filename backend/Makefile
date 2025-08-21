@@ -17,8 +17,8 @@
 # https://stackoverflow.com/questions/920413/make-error-missing-separator
 # https://tutorialedge.net/golang/makefiles-for-go-developers/
 
-SHA ?= $(shell git show -s --format=%h)
-TAG ?= $(shell git tag --points-at HEAD)
+SHA ?= $(shell if [ -d .git ]; then git show -s --format=%h; else echo "unknown_sha"; fi)
+TAG ?= $(shell if [ -d .git ]; then git tag --points-at HEAD; else echo "local_build"; fi)
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 PYTHON_DIR ?= "./python"
@@ -27,10 +27,15 @@ PYTHON_DIR ?= "./python"
 all: build
 
 go-dep:
-	go install github.com/vektra/mockery/v2@v2.20.0
+	go install github.com/vektra/mockery/v2@v2.43.0
 	go install github.com/swaggo/swag/cmd/swag@v1.16.1
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
-	go install github.com/atombender/go-jsonschema/cmd/gojsonschema@latest
+
+go-dev-tools:
+	# go install github.com/atombender/go-jsonschema/cmd/gojsonschema@latest
+	go install golang.org/x/tools/cmd/goimports@latest
+	go install golang.org/x/tools/gopls@latest
+	go install github.com/go-delve/delve/cmd/dlv@latest
 
 python-dep:
 	pip install -r python/requirements.txt
@@ -42,6 +47,9 @@ swag: mock
 
 build-plugin:
 	scripts/build-plugins.sh
+
+build-plugin-debug:
+	DEVLAKE_DEBUG=1 scripts/build-plugins.sh
 
 build-server: swag
 	VERSION=$(VERSION) scripts/build-server.sh

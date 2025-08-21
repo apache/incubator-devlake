@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -25,11 +27,10 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"reflect"
 )
 
 var ConvertCommitsMeta = plugin.SubTaskMeta{
-	Name:             "convertCommits",
+	Name:             "Convert Commits",
 	EntryPoint:       ConvertCommits,
 	EnabledByDefault: false,
 	Required:         false,

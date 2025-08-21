@@ -35,7 +35,7 @@ func init() {
 }
 
 var ConvertPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "convertPullRequests",
+	Name:             "Convert Pull Requests",
 	EntryPoint:       ConvertPullRequests,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequests data from Github api",
@@ -102,6 +102,11 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				BaseCommitSha:  pr.BaseCommitSha,
 				HeadRef:        pr.HeadRef,
 				HeadCommitSha:  pr.HeadCommitSha,
+				Additions:      pr.Additions,
+				Deletions:      pr.Deletions,
+				MergedByName:   pr.MergedByName,
+				MergedById:     accountIdGen.Generate(data.Options.ConnectionId, pr.MergedById),
+				IsDraft:        pr.IsDraft,
 			}
 			if pr.State == "open" || pr.State == "OPEN" {
 				domainPr.Status = code.OPEN

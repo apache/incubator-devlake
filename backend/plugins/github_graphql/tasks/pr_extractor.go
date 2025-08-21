@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -32,7 +31,7 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractPrs
 
 var ExtractPrsMeta = plugin.SubTaskMeta{
-	Name:             "extractPrs",
+	Name:             "Extract Pull Requests",
 	EntryPoint:       ExtractPrs,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
@@ -53,7 +52,6 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}
 	if config != nil && len(config.PrComponent) > 0 {
-		fmt.Println("config.PrComponent1", config.PrComponent)
 		labelComponentRegex, err = errors.Convert01(regexp.Compile(config.PrComponent))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
@@ -69,82 +67,85 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_PRS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			apiPr := &GraphqlQueryPrWrapper{}
-			err := errors.Convert(json.Unmarshal(row.Data, apiPr))
+			rawL := &GraphqlQueryPr{}
+			err := errors.Convert(json.Unmarshal(row.Data, rawL))
 			if err != nil {
 				return nil, err
 			}
 
-			prs := apiPr.Repository.PullRequests.Prs
 			results := make([]interface{}, 0, 1)
-			for _, rawL := range prs {
-				githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Options.GithubId)
+			githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Options.GithubId)
+			if err != nil {
+				return nil, err
+			}
+			extractGraphqlPreAccount(&results, rawL.Author, data.Options.GithubId, data.Options.ConnectionId)
+			for _, label := range rawL.Labels.Nodes {
+				results = append(results, &models.GithubPrLabel{
+					ConnectionId: data.Options.ConnectionId,
+					PullId:       githubPr.GithubId,
+					LabelName:    label.Name,
+				})
+				// if pr.Type has not been set and prType is set in .env, process the below
+				if labelTypeRegex != nil && labelTypeRegex.MatchString(label.Name) {
+					githubPr.Type = label.Name
+				}
+				// if pr.Component has not been set and prComponent is set in .env, process
+				if labelComponentRegex != nil && labelComponentRegex.MatchString(label.Name) {
+					githubPr.Component = label.Name
+
+				}
+			}
+			results = append(results, githubPr)
+
+			for _, apiPullRequestReview := range rawL.Reviews.Nodes {
+				if apiPullRequestReview.State != "PENDING" {
+					githubPrReview := &models.GithubPrReview{
+						ConnectionId:   data.Options.ConnectionId,
+						GithubId:       apiPullRequestReview.DatabaseId,
+						Body:           apiPullRequestReview.Body,
+						State:          apiPullRequestReview.State,
+						CommitSha:      apiPullRequestReview.Commit.Oid,
+						GithubSubmitAt: apiPullRequestReview.SubmittedAt,
+
+						PullRequestId: githubPr.GithubId,
+					}
+
+					if apiPullRequestReview.Author != nil {
+						githubPrReview.AuthorUserId = apiPullRequestReview.Author.Id
+						githubPrReview.AuthorUsername = apiPullRequestReview.Author.Login
+						extractGraphqlPreAccount(&results, apiPullRequestReview.Author, data.Options.GithubId, data.Options.ConnectionId)
+					}
+
+					results = append(results, githubPrReview)
+				}
+			}
+			for _, apiReviewRequests := range rawL.ReviewRequests.Nodes {
+				githubReviewRequests := &models.GithubReviewer{
+					ConnectionId:  data.Options.ConnectionId,
+					PullRequestId: githubPr.GithubId,
+					ReviewerId:    apiReviewRequests.RequestedReviewer.User.Id,
+					Username:      apiReviewRequests.RequestedReviewer.User.Login,
+				}
+				results = append(results, githubReviewRequests)
+			}
+
+			for _, apiPullRequestCommit := range rawL.Commits.Nodes {
+				githubCommit, err := convertPullRequestCommit(apiPullRequestCommit)
 				if err != nil {
 					return nil, err
 				}
-				extractGraphqlPreAccount(&results, rawL.Author, data.Options.GithubId, data.Options.ConnectionId)
-				for _, label := range rawL.Labels.Nodes {
-					results = append(results, &models.GithubPrLabel{
-						ConnectionId: data.Options.ConnectionId,
-						PullId:       githubPr.GithubId,
-						LabelName:    label.Name,
-					})
-					// if pr.Type has not been set and prType is set in .env, process the below
-					if labelTypeRegex != nil && labelTypeRegex.MatchString(label.Name) {
-						githubPr.Type = label.Name
-					}
-					// if pr.Component has not been set and prComponent is set in .env, process
-					if labelComponentRegex != nil && labelComponentRegex.MatchString(label.Name) {
-						githubPr.Component = label.Name
+				results = append(results, githubCommit)
 
-					}
+				githubPullRequestCommit := &models.GithubPrCommit{
+					ConnectionId:       data.Options.ConnectionId,
+					CommitSha:          apiPullRequestCommit.Commit.Oid,
+					PullRequestId:      githubPr.GithubId,
+					CommitAuthorName:   githubCommit.AuthorName,
+					CommitAuthorEmail:  githubCommit.AuthorEmail,
+					CommitAuthoredDate: githubCommit.AuthoredDate,
 				}
-				results = append(results, githubPr)
-
-				for _, apiPullRequestReview := range rawL.Reviews.Nodes {
-					if apiPullRequestReview.State != "PENDING" {
-						githubPrReview := &models.GithubPrReview{
-							ConnectionId:   data.Options.ConnectionId,
-							GithubId:       apiPullRequestReview.DatabaseId,
-							Body:           apiPullRequestReview.Body,
-							State:          apiPullRequestReview.State,
-							CommitSha:      apiPullRequestReview.Commit.Oid,
-							GithubSubmitAt: apiPullRequestReview.SubmittedAt,
-
-							PullRequestId: githubPr.GithubId,
-						}
-
-						if apiPullRequestReview.Author != nil {
-							githubPrReview.AuthorUserId = apiPullRequestReview.Author.Id
-							githubPrReview.AuthorUsername = apiPullRequestReview.Author.Login
-							extractGraphqlPreAccount(&results, apiPullRequestReview.Author, data.Options.GithubId, data.Options.ConnectionId)
-						}
-
-						results = append(results, githubPrReview)
-					}
-				}
-
-				for _, apiPullRequestCommit := range rawL.Commits.Nodes {
-					githubCommit, err := convertPullRequestCommit(apiPullRequestCommit)
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, githubCommit)
-
-					githubPullRequestCommit := &models.GithubPrCommit{
-						ConnectionId:       data.Options.ConnectionId,
-						CommitSha:          apiPullRequestCommit.Commit.Oid,
-						PullRequestId:      githubPr.GithubId,
-						CommitAuthorName:   githubCommit.AuthorName,
-						CommitAuthorEmail:  githubCommit.AuthorEmail,
-						CommitAuthoredDate: githubCommit.AuthoredDate,
-					}
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, githubPullRequestCommit)
-					extractGraphqlPreAccount(&results, apiPullRequestCommit.Commit.Author.User, data.Options.GithubId, data.Options.ConnectionId)
-				}
+				results = append(results, githubPullRequestCommit)
+				extractGraphqlPreAccount(&results, apiPullRequestCommit.Commit.Author.User, data.Options.GithubId, data.Options.ConnectionId)
 			}
 			return results, nil
 		},
@@ -157,7 +158,7 @@ func ExtractPrs(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*models.GithubPullRequest, errors.Error) {
+func convertGithubPullRequest(pull *GraphqlQueryPr, connId uint64, repoId int) (*models.GithubPullRequest, errors.Error) {
 	githubPull := &models.GithubPullRequest{
 		ConnectionId:    connId,
 		GithubId:        pull.DatabaseId,
@@ -175,6 +176,13 @@ func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*
 		BaseCommitSha:   pull.BaseRefOid,
 		HeadRef:         pull.HeadRefName,
 		HeadCommitSha:   pull.HeadRefOid,
+		Additions:       pull.Additions,
+		Deletions:       pull.Deletions,
+		IsDraft:         pull.IsDraft,
+	}
+	if pull.MergedBy != nil {
+		githubPull.MergedByName = pull.MergedBy.Login
+		githubPull.MergedById = pull.MergedBy.Id
 	}
 	if pull.MergeCommit != nil {
 		githubPull.MergeCommitSha = pull.MergeCommit.Oid

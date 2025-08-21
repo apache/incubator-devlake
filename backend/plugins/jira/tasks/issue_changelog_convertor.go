@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -52,13 +51,13 @@ type IssueChangelogItemResult struct {
 	Created           time.Time
 }
 
-func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*JiraTaskData)
+func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
+	data := subtaskCtx.GetData().(*JiraTaskData)
+	db := subtaskCtx.GetDal()
+	logger := subtaskCtx.GetLogger()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
-	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDal()
-	logger.Info("covert changelog")
+
 	var allStatus []models.JiraStatus
 	err := db.All(&allStatus, dal.Where("connection_id = ?", connectionId))
 	if err != nil {
@@ -68,43 +67,49 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	for _, v := range allStatus {
 		statusMap[v.ID] = v
 	}
-	// select all changelogs belongs to the board
-	clauses := []dal.Clause{
-		dal.Select("_tool_jira_issue_changelog_items.*, _tool_jira_issue_changelogs.issue_id, author_account_id, author_display_name, created"),
-		dal.From("_tool_jira_issue_changelog_items"),
-		dal.Join(`left join _tool_jira_issue_changelogs on (
-			_tool_jira_issue_changelogs.connection_id = _tool_jira_issue_changelog_items.connection_id
-			AND _tool_jira_issue_changelogs.changelog_id = _tool_jira_issue_changelog_items.changelog_id
-		)`),
-		dal.Join(`left join _tool_jira_board_issues on (
-			_tool_jira_board_issues.connection_id = _tool_jira_issue_changelogs.connection_id
-			AND _tool_jira_board_issues.issue_id = _tool_jira_issue_changelogs.issue_id
-		)`),
-		dal.Where("_tool_jira_issue_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
-	}
-	cursor, err := db.Cursor(clauses...)
+
+	issueFieldMap, err := getIssueFieldMap(db, connectionId, logger)
 	if err != nil {
-		logger.Error(err, "")
 		return err
 	}
-	defer cursor.Close()
+
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	sprintIdGenerator := didgen.NewDomainIdGenerator(&models.JiraSprint{})
 	changelogIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssueChangelogItems{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
+
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[IssueChangelogItemResult]{
+		SubtaskCommonArgs: &api.SubtaskCommonArgs{
+			SubTaskContext: subtaskCtx,
+			Table:          RAW_ISSUE_TABLE,
 			Params: JiraApiParams{
-				ConnectionId: connectionId,
-				BoardId:      boardId,
+				ConnectionId: data.Options.ConnectionId,
+				BoardId:      data.Options.BoardId,
 			},
-			Table: RAW_CHANGELOG_TABLE,
 		},
-		InputRowType: reflect.TypeOf(IssueChangelogItemResult{}),
-		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			row := inputRow.(*IssueChangelogItemResult)
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.Select("_tool_jira_issue_changelog_items.*, _tool_jira_issue_changelogs.issue_id, author_account_id, author_display_name, created"),
+				dal.From("_tool_jira_issue_changelog_items"),
+				dal.Join(`left join _tool_jira_issue_changelogs on (
+					_tool_jira_issue_changelogs.connection_id = _tool_jira_issue_changelog_items.connection_id
+					AND _tool_jira_issue_changelogs.changelog_id = _tool_jira_issue_changelog_items.changelog_id
+				)`),
+				dal.Join(`left join _tool_jira_board_issues on (
+					_tool_jira_board_issues.connection_id = _tool_jira_issue_changelogs.connection_id
+					AND _tool_jira_board_issues.issue_id = _tool_jira_issue_changelogs.issue_id
+				)`),
+				dal.Where("_tool_jira_issue_changelog_items.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("_tool_jira_issue_changelog_items.created_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(row *IssueChangelogItemResult) ([]interface{}, errors.Error) {
 			changelog := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{Id: changelogIdGenerator.Generate(
 					row.ConnectionId,
@@ -120,15 +125,15 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalToValue:   row.ToString,
 				CreatedDate:       row.Created,
 			}
-			if row.Field == "assignee" {
-				if row.ToValue != "" {
-					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
-				}
+			switch row.Field {
+			case "assignee", "reporter":
 				if row.FromValue != "" {
 					changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
 				}
-			}
-			if row.Field == "Sprint" {
+				if row.ToValue != "" {
+					changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
+				}
+			case "Sprint":
 				changelog.OriginalFromValue, err = convertIds(row.FromValue, connectionId, sprintIdGenerator)
 				if err != nil {
 					return nil, err
@@ -137,8 +142,7 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 				if err != nil {
 					return nil, err
 				}
-			}
-			if row.Field == "status" {
+			case "status":
 				if fromStatus, ok := statusMap[row.FromValue]; ok {
 					changelog.OriginalFromValue = fromStatus.Name
 					changelog.FromValue = getStdStatus(fromStatus.StatusCategory)
@@ -147,12 +151,22 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 					changelog.OriginalToValue = toStatus.Name
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
+			default:
+				if v, ok := issueFieldMap[row.Field]; ok && v.SchemaType == "user" {
+					if row.FromValue != "" {
+						changelog.OriginalFromValue = accountIdGen.Generate(connectionId, row.FromValue)
+					}
+					if row.ToValue != "" {
+						changelog.OriginalToValue = accountIdGen.Generate(connectionId, row.ToValue)
+					}
+				}
 			}
 			return []interface{}{changelog}, nil
+
 		},
 	})
+
 	if err != nil {
-		logger.Info(err.Error())
 		return err
 	}
 

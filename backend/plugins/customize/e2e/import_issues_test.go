@@ -21,6 +21,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
@@ -37,6 +38,8 @@ func TestImportIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.CustomizedField{})
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+	dataflowTester.FlushTabler(&crossdomain.Account{})
+	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 	svc := service.NewService(dataflowTester.Dal)
 	err := svc.CreateField(&models.CustomizedField{
 		TbName:      "issues",
@@ -89,7 +92,34 @@ func TestImportIssueDataFlow(t *testing.T) {
 		t.Fatal(err1)
 	}
 	defer issueFile.Close()
-	err = svc.ImportIssue(`{"ConnectionId":1,"Owner":"thenicetgp","Repo":"lake"}`, issueFile)
+	err = svc.ImportIssue("csv-board", issueFile, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	issueAppendToFile1, err2 := os.Open("raw_tables/issues_input_incremental.csv")
+	if err2 != nil {
+		t.Fatal(err2)
+	}
+	defer issueAppendToFile1.Close()
+	err = svc.ImportIssue("csv-board", issueAppendToFile1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	issueFile2, err3 := os.Open("raw_tables/issues_input2.csv")
+	if err3 != nil {
+		t.Fatal(err3)
+	}
+	defer issueFile2.Close()
+	err = svc.ImportIssue("csv-board2", issueFile2, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	issueToOverwriteFile2, err4 := os.Open("raw_tables/issues_input2_overwrite.csv")
+	if err4 != nil {
+		t.Fatal(err4)
+	}
+	defer issueToOverwriteFile2.Close()
+	err = svc.ImportIssue("csv-board2", issueToOverwriteFile2, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,4 +175,22 @@ func TestImportIssueDataFlow(t *testing.T) {
 			"board_id",
 			"issue_id",
 		})
+	dataflowTester.VerifyTableWithRawData(
+		&crossdomain.Account{},
+		"snapshot_tables/accounts.csv",
+		[]string{
+			"id",
+			"full_name",
+			"user_name",
+		},
+	)
+
+	dataflowTester.VerifyTableWithRawData(
+		&ticket.SprintIssue{},
+		"snapshot_tables/sprint_issues.csv",
+		[]string{
+			"sprint_id",
+			"issue_id",
+		},
+	)
 }

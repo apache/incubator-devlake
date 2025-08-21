@@ -21,7 +21,7 @@ import { isEqual, pick } from 'lodash';
 import { Flex, Alert, Button } from 'antd';
 
 import API from '@/api';
-import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { ExternalLink } from '@/components';
 import { addConnection, updateConnection } from '@/features';
 import { selectConnection } from '@/features/connections';
@@ -72,6 +72,8 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
               secretKey: isEqual(connection?.secretKey, values.secretKey) ? undefined : values.secretKey,
               proxy: isEqual(connection?.proxy, values.proxy) ? undefined : values.proxy,
               dbUrl: isEqual(connection?.dbUrl, values.dbUrl) ? undefined : values.dbUrl,
+              companyId: isEqual(connection?.companyId, values.companyId) ? undefined : values.companyId,
+              organization: isEqual(connection?.organization, values.organization) ? undefined : values.organization,
             })
           : API.connection.testOld(
               plugin,
@@ -87,6 +89,8 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
                 'tenantId',
                 'tenantType',
                 'dbUrl',
+                'companyId',
+                'organization',
               ]),
             ),
       {

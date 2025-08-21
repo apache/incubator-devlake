@@ -18,6 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"math"
+	"reflect"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"strconv"
-	"time"
 )
 
 func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
@@ -75,6 +77,7 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
 				OriginalStatus: toolL.Status,
+				DueDate:        toolL.DueDate,
 			}
 			var results []interface{}
 			if domainL.AssigneeName != "" {
@@ -87,7 +90,12 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, issueAssignee)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
-				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
+				durationInMinutes := domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes()
+				// we have found some issues' ResolutionDate is earlier than CreatedDate in tapd.
+				if durationInMinutes > 0 && durationInMinutes < math.MaxUint {
+					temp := uint(durationInMinutes)
+					domainL.LeadTimeMinutes = &temp
+				}
 			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, toolL.WorkspaceId),

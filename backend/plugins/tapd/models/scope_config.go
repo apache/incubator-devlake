@@ -25,6 +25,9 @@ type TapdScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
 	TypeMappings       map[string]string `mapstructure:"typeMappings,omitempty" json:"typeMappings" gorm:"serializer:json"`
 	StatusMappings     map[string]string `mapstructure:"statusMappings,omitempty" json:"statusMappings" gorm:"serializer:json"`
+	BugDueDateField    string            `mapstructure:"bugDueDateField,omitempty" json:"bugDueDateField" gorm:"column:bug_due_date_field"`
+	TaskDueDateField   string            `mapstructure:"taskDueDateField,omitempty" json:"taskDueDateField" gorm:"column:task_due_date_field"`
+	StoryDueDateField  string            `mapstructure:"storyDueDateField,omitempty" json:"storyDueDateField" gorm:"column:story_due_date_field"`
 }
 
 func (t TapdScopeConfig) TableName() string {

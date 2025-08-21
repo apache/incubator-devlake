@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -27,8 +28,12 @@ import (
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 )
 
+var createDbPipelineLock sync.Mutex
+
 // CreateDbPipeline returns a NewPipeline
 func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipeline, err errors.Error) {
+	createDbPipelineLock.Lock()
+	defer createDbPipelineLock.Unlock()
 	pipeline = &models.Pipeline{}
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	defer txHelper.End()
@@ -37,6 +42,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 		dal.LockTables{
 			{Table: "_devlake_pipelines", Exclusive: true},
 			{Table: "_devlake_pipeline_labels", Exclusive: true},
+			{Table: "_devlake_tasks", Exclusive: true},
 		},
 	))
 	if err != nil {
@@ -48,7 +54,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 			dal.From(&models.Pipeline{}),
 			dal.Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, models.PendingTaskStatus),
 		))
-		// some pipeline is ruunning , get the detail and output them.
+		// some pipeline is running, get the detail and output them.
 		if count > 0 {
 			return nil, errors.BadInput.New("there are pending pipelines of current blueprint already")
 		}
@@ -61,6 +67,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 		Message:       "",
 		SpentSeconds:  0,
 		Plan:          newPipeline.Plan,
+		Priority:      newPipeline.Priority,
 		SyncPolicy:    newPipeline.SyncPolicy,
 	}
 	if newPipeline.BlueprintId != 0 {
@@ -91,7 +98,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 				PipelineRow:  i + 1,
 				PipelineCol:  j + 1,
 			}
-			_ = errors.Must1(CreateTask(newTask))
+			_ = errors.Must1(createTask(newTask, tx))
 			// sync task state back to pipeline
 			dbPipeline.TotalTasks += 1
 		}
@@ -104,6 +111,14 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 	// update tasks state
 	errors.Must(tx.Update(dbPipeline))
 	dbPipeline.Labels = newPipeline.Labels
+
+	// Notify that the pipeline has been created
+	go func(pipelineId uint64) {
+		if notifyErr := NotifyExternal(pipelineId); notifyErr != nil {
+			globalPipelineLog.Error(notifyErr, "failed to send pipeline created notification for pipeline #%d", pipelineId)
+		}
+	}(dbPipeline.ID)
+
 	return dbPipeline, nil
 }
 

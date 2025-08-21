@@ -24,7 +24,11 @@ export const Title = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 36px;
+`;
+
+export const Description = styled.p`
+  margin-top: 12px;
+  margin-bottom: 16px;
 `;
 
 export const Content = styled.div``;

@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -35,7 +34,7 @@ func init() {
 }
 
 var ExtractDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "ExtractDeployment",
+	Name:             "Extract Deployments",
 	EntryPoint:       ExtractDeployment,
 	EnabledByDefault: true,
 	Description:      "Extract gitlab deployment from raw layer to tool layer",
@@ -44,16 +43,11 @@ var ExtractDeploymentMeta = plugin.SubTaskMeta{
 }
 
 func ExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_DEPLOYMENT)
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			deploymentResp := &GitlabDeploymentResp{}
-			err := errors.Convert(json.Unmarshal(row.Data, deploymentResp))
-			if err != nil {
-				return nil, err
-			}
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[GitlabDeploymentResp]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Extract: func(deploymentResp *GitlabDeploymentResp, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabDeployment := deploymentResp.toGitlabDeployment(data.Options.ConnectionId, data.Options.ProjectId)
 			return []interface{}{
 				gitlabDeployment,
@@ -70,7 +64,7 @@ func ExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 
 type GitlabDeploymentResp struct {
 	CreatedAt   time.Time                   `json:"created_at"`
-	UpdatedAt   time.Time                   `json:"updated_at"`
+	UpdatedAt   *time.Time                  `json:"updated_at"`
 	Status      string                      `json:"status"`
 	Deployable  GitlabDeploymentDeployable  `json:"deployable"`
 	Environment GitlabDeploymentEnvironment `json:"environment"`
@@ -147,13 +141,13 @@ func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64, gitlabId i
 }
 
 type GitlabDeploymentCommit struct {
-	AuthorEmail string    `json:"author_email"`
-	AuthorName  string    `json:"author_name"`
-	CreatedAt   time.Time `json:"created_at"`
-	ID          string    `json:"id"`
-	Message     string    `json:"message"`
-	ShortID     string    `json:"short_id"`
-	Title       string    `json:"title"`
+	AuthorEmail string     `json:"author_email"`
+	AuthorName  string     `json:"author_name"`
+	CreatedAt   *time.Time `json:"created_at"`
+	ID          string     `json:"id"`
+	Message     string     `json:"message"`
+	ShortID     string     `json:"short_id"`
+	Title       string     `json:"title"`
 }
 
 type GitlabDeploymentProject struct {
@@ -161,31 +155,31 @@ type GitlabDeploymentProject struct {
 }
 
 type GitlabDeploymentFullUser struct {
-	ID           int       `json:"id"`
-	Name         string    `json:"name"`
-	Username     string    `json:"username"`
-	State        string    `json:"state"`
-	AvatarURL    string    `json:"avatar_url"`
-	WebURL       string    `json:"web_url"`
-	CreatedAt    time.Time `json:"created_at"`
-	Bio          any       `json:"bio"`
-	Location     any       `json:"location"`
-	PublicEmail  string    `json:"public_email"`
-	Skype        string    `json:"skype"`
-	Linkedin     string    `json:"linkedin"`
-	Twitter      string    `json:"twitter"`
-	WebsiteURL   string    `json:"website_url"`
-	Organization string    `json:"organization"`
+	ID           int        `json:"id"`
+	Name         string     `json:"name"`
+	Username     string     `json:"username"`
+	State        string     `json:"state"`
+	AvatarURL    string     `json:"avatar_url"`
+	WebURL       string     `json:"web_url"`
+	CreatedAt    *time.Time `json:"created_at"`
+	Bio          any        `json:"bio"`
+	Location     any        `json:"location"`
+	PublicEmail  string     `json:"public_email"`
+	Skype        string     `json:"skype"`
+	Linkedin     string     `json:"linkedin"`
+	Twitter      string     `json:"twitter"`
+	WebsiteURL   string     `json:"website_url"`
+	Organization string     `json:"organization"`
 }
 
 type GitlabDeploymentPipeline struct {
-	CreatedAt time.Time `json:"created_at"`
-	ID        int       `json:"id"`
-	Ref       string    `json:"ref"`
-	Sha       string    `json:"sha"`
-	Status    string    `json:"status"`
-	UpdatedAt time.Time `json:"updated_at"`
-	WebURL    string    `json:"web_url"`
+	CreatedAt *time.Time `json:"created_at"`
+	ID        int        `json:"id"`
+	Ref       string     `json:"ref"`
+	Sha       string     `json:"sha"`
+	Status    string     `json:"status"`
+	UpdatedAt *time.Time `json:"updated_at"`
+	WebURL    string     `json:"web_url"`
 }
 
 type GitlabDeploymentDeployable struct {

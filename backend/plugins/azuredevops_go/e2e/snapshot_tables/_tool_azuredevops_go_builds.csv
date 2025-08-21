@@ -1,0 +1,8 @@
+connection_id,azuredevops_id,repository_id,status,result,name,source_branch,source_version,tags,queue_time,start_time,finish_time
+1,12,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,completed,succeeded,deploy_to_prod,refs/heads/main,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,[],2023-02-25T06:22:21.224+00:00,2023-02-25T06:22:32.810+00:00,2023-02-25T06:23:04.006+00:00
+1,13,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,completed,succeeded,deploy_to_prod,refs/heads/main,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,"[""first-tag"",""second-tag""]",2023-02-25T06:22:21.224+00:00,2023-02-25T06:22:32.810+00:00,2023-02-25T06:23:04.006+00:00
+1,14,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,completed,succeeded,label_regex_test,refs/heads/main,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,"[""prod"",""deploy""]",2023-02-25T06:22:21.224+00:00,2023-02-25T06:22:32.810+00:00,2023-02-25T06:23:04.006+00:00
+1,15,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,completed,succeeded,label_regex_test_pro,refs/heads/main,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,"[""d""]",2023-02-25T06:22:21.224+00:00,2023-02-25T06:22:32.810+00:00,2023-02-25T06:23:04.006+00:00
+1,16,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,inProgress,,label_regex_test_pro,refs/heads/main,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,"[""d""]",2023-02-25T06:22:21.224+00:00,2023-02-25T06:22:32.810+00:00,""
+1,17,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,notStarted,,label_regex_test_pro,refs/heads/main,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,"[""d""]",2023-02-25T06:22:21.224+00:00,"",""
+1,18,0d50ba13-f9ad-49b0-9b21-d29eda50ca33,completed,canceled,label_regex_test_pro,refs/heads/main,40c59264e73fc5e1a6cab192f1622d26b7bd5c2a,"[""d""]",2023-02-25T06:22:21.224+00:00,2023-02-25T06:22:25.224+00:00,2023-02-25T06:22:30.224+00:00

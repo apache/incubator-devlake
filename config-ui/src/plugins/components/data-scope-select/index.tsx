@@ -24,6 +24,7 @@ import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import API from '@/api';
+import { PATHS } from '@/config';
 import { Loading, Block, ExternalLink, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
@@ -59,9 +60,12 @@ export const DataScopeSelect = ({
   }, []);
 
   const getDataScope = async (page: number) => {
-    setLoading(true);
+    if (page === 1) {
+      setLoading(true);
+    }
+
     const res = await API.scope.list(plugin, connectionId, { page, pageSize });
-    setItems([
+    setItems((items) => [
       ...items,
       ...res.scopes.map((sc) => ({
         parentId: null,
@@ -70,9 +74,8 @@ export const DataScopeSelect = ({
         data: sc.scope,
       })),
     ]);
-    if (page === 1) {
-      setTotal(res.count);
-    }
+
+    setTotal(res.count);
     setLoading(false);
   };
 
@@ -82,13 +85,29 @@ export const DataScopeSelect = ({
 
   const search = useDebounce(query, { wait: 500 });
 
-  const { ready, data } = useRefreshData(() => API.scope.list(plugin, connectionId, { searchTerm: search }), [search]);
+  const { ready, data } = useRefreshData(
+    async () => await API.scope.list(plugin, connectionId, { searchTerm: search }),
+    [search],
+  );
 
-  const searchItems = useMemo(() => data?.scopes.map((sc) => sc.scope) ?? [], [data]);
+  const searchOptions = useMemo(
+    () =>
+      data?.scopes.map((sc) => ({
+        label: sc.scope.fullName ?? sc.scope.name,
+        value: getPluginScopeId(plugin, sc.scope),
+      })) ?? [],
+    [data],
+  );
 
   const handleScroll = () => setPage(page + 1);
 
   const handleSubmit = () => onSubmit?.(selectedIds);
+
+  const handleRefresh = () => {
+    setQuery('');
+    setItems([]);
+    getDataScope(1);
+  };
 
   return (
     <Block
@@ -130,16 +149,17 @@ export const DataScopeSelect = ({
             />
           ) : (
             <Flex>
-              <Button type="primary" icon={<RedoOutlined />}>
+              <Button type="primary" icon={<RedoOutlined />} onClick={handleRefresh}>
                 Refresh Data Scope
               </Button>
             </Flex>
           )}
           <Select
+            filterOption={false}
             loading={!ready}
             showSearch
             mode="multiple"
-            options={searchItems.map((it) => ({ label: it.fullName ?? it.name, value: getPluginScopeId(plugin, it) }))}
+            options={searchOptions}
             value={selectedIds}
             onChange={(value) => setSelectedIds(value)}
             onSearch={(value) => setQuery(value)}
@@ -163,7 +183,7 @@ export const DataScopeSelect = ({
         </Flex>
       ) : (
         <Flex>
-          <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
+          <ExternalLink link={PATHS.CONNECTION(plugin, connectionId)}>
             <Button type="primary" icon={<PlusOutlined />}>
               Add Data Scope
             </Button>

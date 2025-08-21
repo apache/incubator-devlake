@@ -25,6 +25,7 @@ import (
 type TapdConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
+	CompanyId             uint64 `gorm:"type:BIGINT" mapstructure:"companyId,string" json:"companyId,string" validate:"required"`
 }
 
 func (connection TapdConn) Sanitize() TapdConn {
@@ -45,4 +46,16 @@ func (TapdConnection) TableName() string {
 func (connection TapdConnection) Sanitize() TapdConnection {
 	connection.TapdConn = connection.TapdConn.Sanitize()
 	return connection
+}
+
+func (connection *TapdConnection) MergeFromRequest(target *TapdConnection, body map[string]interface{}) error {
+	password := target.Password
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedPassword := target.Password
+	if modifiedPassword == "" {
+		target.Password = password
+	}
+	return nil
 }

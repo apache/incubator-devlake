@@ -24,4 +24,5 @@ type ApiAccessTokenRequest struct {
 
 type ApiAccessTokenResponse struct {
 	Token string `json:"token"`
+	Error string `json:"error"`
 }

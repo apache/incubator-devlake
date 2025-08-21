@@ -38,8 +38,8 @@ export const transformConnection = (plugin: string, connection: IConnectionAPI):
     secretKey: connection.secretKey,
     dbUrl: connection.dbUrl,
     proxy: connection.proxy,
-    enableGraphql: connection.enableGraphql,
     rateLimitPerHour: connection.rateLimitPerHour,
+    organization: connection.organization,
   };
 };
 
@@ -50,6 +50,7 @@ export const transformWebhook = (connection: IWebhookAPI): IWebhook => {
     postIssuesEndpoint: connection.postIssuesEndpoint,
     closeIssuesEndpoint: connection.closeIssuesEndpoint,
     postPipelineDeployTaskEndpoint: connection.postPipelineDeployTaskEndpoint,
+    postPullRequestsEndpoint: connection.postPullRequestsEndpoint,
     apiKeyId: connection.apiKey.id,
   };
 };

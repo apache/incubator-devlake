@@ -19,41 +19,37 @@ header:
     copyright-owner: Apache Software Foundation
 
   paths-ignore:
-    - 'dist'
-    - 'licenses'
-    - '**/*.md'
-    - 'LICENSE'
-    - 'NOTICE'
-    - 'bin'
-    - 'logs'
-    - 'mocks'
-    - 'vendor'
-    - 'env.example'
-    - '**/*.log'
-    - '**/env.example'
-    - '**/*.csv'
-    - '**/*.json'
-    - '**/*.json.tmpl'
-    - '**/*.sql'
-    - '**/*.svg'
-    - '**/*.png'
-    - '.editorconfig'
-    - '**/.gitignore'
-    - '**/.helmignore'
-    - '**/.dockerignore'
-    - 'DISCLAIMER-WIP'
-    - 'DISCLAIMER'
-    - 'go.mod'
-    - 'go.sum'
-    - 'requirements.txt'
-    - '**/empty'
-    - '**/*.conf'
-    - 'deployment/helm/templates/_helpers.tpl'
-    - '**/poetry.lock'
-    - 'config-ui/.yarn/**/*'
-    - 'config-ui/.yarnrc.yml'
-    - 'config-ui/yarn.lock'
-
-
+    - "dist"
+    - "licenses"
+    - "LICENSE"
+    - "NOTICE"
+    - "bin"
+    - "logs"
+    - "mocks"
+    - "vendor"
+    - "**/*.log"
+    - "**/*.csv"
+    - "**/*.json"
+    - "**/*.json.tmpl"
+    - "**/*.sql"
+    - "**/*.svg"
+    - "**/*.png"
+    - ".editorconfig"
+    - "**/.gitignore"
+    - "**/.helmignore"
+    - "**/.dockerignore"
+    - "DISCLAIMER-WIP"
+    - "DISCLAIMER"
+    - "go.mod"
+    - "go.sum"
+    - "requirements.txt"
+    - "**/testdata/*.txt"
+    - "**/empty"
+    - "**/*.conf"
+    - "deployment/helm/templates/_helpers.tpl"
+    - "**/poetry.lock"
+    - "config-ui/.yarn/**/*"
+    - "config-ui/yarn.lock"
+    - ".github/ISSUE_TEMPLATE/*.md"
 
   comment: off-failure

@@ -132,6 +132,9 @@ func NewCsvStore(dir string) (*CsvStore, errors.Error) {
 	return s, nil
 }
 
+func (c *CsvStore) SetIncrementalMode(incrementalMode bool) {
+}
+
 func (c *CsvStore) RepoCommits(repoCommit *code.RepoCommit) errors.Error {
 	return c.repoCommitWriter.Write(repoCommit)
 }
@@ -189,6 +192,12 @@ func (c *CsvStore) Close() errors.Error {
 	}
 	if c.snapshotWriter != nil {
 		c.snapshotWriter.Close()
+	}
+	if c.commitFileComponentWriter != nil {
+		c.commitFileComponentWriter.Close()
+	}
+	if c.commitLineChangeWriter != nil {
+		c.commitLineChangeWriter.Close()
 	}
 	return nil
 }

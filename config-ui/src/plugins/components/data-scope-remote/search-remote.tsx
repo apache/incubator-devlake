@@ -18,20 +18,21 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
-import { Form, Space, Tag, Input, message } from 'antd';
+import { Space, Tag, Input, message } from 'antd';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 import { uniqBy } from 'lodash';
 
 import API from '@/api';
-import { Loading } from '@/components';
+import { Loading, Block } from '@/components';
 import { IPluginConfig } from '@/types';
 
 import * as T from './types';
 import * as S from './styled';
 
 interface Props {
+  mode: 'single' | 'multiple';
   plugin: string;
   connectionId: ID;
   config: IPluginConfig['dataScope'];
@@ -40,7 +41,7 @@ interface Props {
   onChange: (selectedScope: any[]) => void;
 }
 
-export const SearchRemote = ({ plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
+export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
   const [miller, setMiller] = useState<{
     items: McsItem<T.ResItem>[];
     loadedIds: ID[];
@@ -53,12 +54,14 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   });
 
   const [search, setSearch] = useState<{
+    loading: boolean;
     items: McsItem<T.ResItem>[];
     currentItems: McsItem<T.ResItem>[];
     query: string;
     page: number;
     total: number;
   }>({
+    loading: true,
     items: [],
     currentItems: [],
     query: '',
@@ -133,11 +136,12 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
 
     const newItems = (res.children ?? []).map((it) => ({
       ...it,
-      title: it.name,
+      title: it.fullName ?? it.name,
     }));
 
     setSearch((s) => ({
       ...s,
+      loading: false,
       items: [...allItems, ...newItems],
       currentItems: newItems,
       total: res.count,
@@ -149,8 +153,8 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   }, [searchDebounce, search.page]);
 
   return (
-    <Form layout="vertical">
-      <Form.Item label={config.title} required>
+    <>
+      <Block title={config.title} required>
         <Space wrap>
           {selectedScope.length ? (
             selectedScope.map((sc) => (
@@ -167,16 +171,17 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
             <span>Please select scope...</span>
           )}
         </Space>
-      </Form.Item>
-      <Form.Item>
+      </Block>
+      <Block>
         <Input
           prefix={<SearchOutlined />}
           placeholder={config.searchPlaceholder ?? 'Search'}
           value={search.query}
-          onChange={(e) => setSearch({ ...search, query: e.target.value })}
+          onChange={(e) => setSearch({ ...search, query: e.target.value, loading: true, currentItems: [] })}
         />
         {!searchDebounce ? (
           <MillerColumnsSelect
+            mode={mode}
             items={miller.items}
             columnCount={config.millerColumn?.columnCount ?? 1}
             columnHeight={300}
@@ -199,11 +204,12 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
           />
         ) : (
           <MillerColumnsSelect
+            mode={mode}
             items={search.currentItems}
             columnCount={1}
             columnHeight={300}
             getCanExpand={() => false}
-            getHasMore={() => search.total === 0}
+            getHasMore={() => search.loading}
             onScroll={() => setSearch({ ...search, page: search.page + 1 })}
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
             disabledIds={(disabledScope ?? []).map((it) => it.id)}
@@ -211,7 +217,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
             onSelectItemIds={(selectedIds: ID[]) => onChange(allItems.filter((it) => selectedIds.includes(it.id)))}
           />
         )}
-      </Form.Item>
-    </Form>
+      </Block>
+    </>
   );
 };

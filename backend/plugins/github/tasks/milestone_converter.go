@@ -36,7 +36,7 @@ func init() {
 }
 
 var ConvertMilestonesMeta = plugin.SubTaskMeta{
-	Name:             "convertMilestones",
+	Name:             "Convert Milestones",
 	EntryPoint:       ConvertMilestones,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_milestones into  domain layer table milestones",

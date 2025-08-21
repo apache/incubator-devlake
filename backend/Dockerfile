@@ -23,15 +23,15 @@
 #While incubation status is not necessarily a reflection of the completeness or stability of the code,
 #it does indicate that the project has yet to be fully endorsed by the ASF.
 
-FROM --platform=linux/amd64 debian:bullseye as debian-amd64
+FROM --platform=linux/amd64 debian:bookworm as debian-amd64
 RUN apt-get update
 RUN apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
 
-FROM --platform=linux/arm64 debian:bullseye as debian-arm64
+FROM --platform=linux/arm64 debian:bookworm as debian-arm64
 RUN apt-get update
 RUN apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
 
-FROM --platform=$BUILDPLATFORM golang:1.20.4-bullseye as builder
+FROM --platform=$BUILDPLATFORM golang:1.20.5-bookworm as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t mericodev/lake .
 ARG GOPROXY=
@@ -113,10 +113,10 @@ RUN cd /usr/local/deps/target/lib && \
     done
 
 
-FROM python:3.9-slim-bullseye as base
+FROM python:3.9-slim-bookworm as base
 
 RUN apt-get update && \
-    apt-get install -y python3-dev python3-pip tar curl libssh2-1 zlib1g libffi-dev default-libmysqlclient-dev libpq-dev tini && \
+    apt-get install -y python3-dev python3-pip tar pkg-config curl libssh2-1 zlib1g libffi-dev default-libmysqlclient-dev libpq-dev tini git openssh-client corkscrew && \
     apt-get clean && \
     rm -fr /usr/share/doc/* \
            /usr/share/info/* \
@@ -145,7 +145,8 @@ VOLUME /app/logs
 # Setup Python
 COPY python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
-    python3 -m pip install --no-cache -r python/requirements.txt
+    python3 -m pip install --no-cache -r python/requirements.txt && \
+    python3 -m pip install --upgrade pip
 
 # Setup Python Poetry package manager
 RUN curl -sSL https://install.python-poetry.org | python3 -

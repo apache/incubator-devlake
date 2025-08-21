@@ -26,7 +26,7 @@ type CqIssue struct {
 	domainlayer.DomainEntity
 	Rule                     string `gorm:"type:varchar(255)"`
 	Severity                 string `gorm:"type:varchar(100)"`
-	Component                string `gorm:"type:varchar(255)"`
+	Component                string
 	ProjectKey               string `gorm:"index;type:varchar(100)"` //domain project key
 	Line                     int
 	Status                   string `gorm:"type:varchar(20)"`
@@ -51,4 +51,15 @@ type CqIssue struct {
 
 func (CqIssue) TableName() string {
 	return "cq_issues"
+}
+
+type CqIssueImpact struct {
+	common.NoPKModel
+	CqIssueId       string `gorm:"primaryKey;type:varchar(255)"`
+	SoftwareQuality string `gorm:"primaryKey;type:varchar(255)"`
+	Severity        string `gorm:"type:varchar(100)"`
+}
+
+func (CqIssueImpact) TableName() string {
+	return "cq_issue_impacts"
 }

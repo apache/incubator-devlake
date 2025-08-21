@@ -25,6 +25,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/utils"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -115,11 +117,23 @@ func (connection GithubConnection) TableName() string {
 	return "_tool_github_connections"
 }
 
-func (connection *GithubConnection) Merge(existed, modified *GithubConnection) error {
+func (connection *GithubConnection) MergeFromRequest(target *GithubConnection, body map[string]interface{}) error {
+	modifiedConnection := GithubConnection{}
+	if err := helper.DecodeMapStruct(body, &modifiedConnection, true); err != nil {
+		return err
+	}
+	return connection.Merge(target, &modifiedConnection, body)
+}
+
+func (connection *GithubConnection) Merge(existed, modified *GithubConnection, body map[string]interface{}) error {
 	// There are many kinds of update, we just update all fields simply.
 	existedTokenStr := existed.Token
 	existSecretKey := existed.SecretKey
 
+	existed.Name = modified.Name
+	if _, ok := body["enableGraphql"]; ok {
+		existed.EnableGraphql = modified.EnableGraphql
+	}
 	existed.AppId = modified.AppId
 	existed.SecretKey = modified.SecretKey
 	existed.InstallationID = modified.InstallationID
@@ -287,6 +301,7 @@ func (conn *GithubConn) SanitizeToken(token string) string {
 	case GithubTokenTypeFineGrained:
 		prefixLen, showPrefixLen, hiddenLen = GithubTokenTypeFineGrainedPrefixLen, GithubTokenTypeFineGrainedShowPrefixLen, GithubTokenTypeFineGrainedHiddenLen
 	case GithubTokenTypeUnknown:
+		return utils.SanitizeString(token)
 	}
 	tokenLen := len(token)
 	if tokenLen >= prefixLen && prefixLen != 0 && hiddenLen != 0 {

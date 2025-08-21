@@ -18,12 +18,13 @@ limitations under the License.
 package task
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services"
-	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,12 +64,36 @@ func GetTaskByPipeline(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid pipeline ID format"))
 		return
 	}
-	tasks, err := services.GetTasksWithLastStatus(pipelineId, true)
+	tasks, err := services.GetTasksWithLastStatus(pipelineId, true, nil)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks"))
 		return
 	}
 	shared.ApiOutputSuccess(c, getTaskResponse{Tasks: tasks, Count: len(tasks)}, http.StatusOK)
+}
+
+// GetSubtasksByPipeline return most recent subtasks
+// @Summary Get subtasks, only the most recent subtasks will be returned
+// @Tags framework/tasks
+// @Accept application/json
+// @Param pipelineId path int true "pipelineId"
+// @Success 200  {object} models.SubTasksOuput
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /pipelines/{pipelineId}/subtasks [get]
+func GetSubtaskByPipeline(c *gin.Context) {
+	pipelineId, err := strconv.ParseUint(c.Param("pipelineId"), 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid pipeline ID format"))
+		return
+	}
+	subTasksOuput, err := services.GetSubTasksInfo(pipelineId, true, nil)
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks"))
+		return
+	}
+
+	shared.ApiOutputSuccess(c, subTasksOuput, http.StatusOK)
 }
 
 // RerunTask rerun the specified task.

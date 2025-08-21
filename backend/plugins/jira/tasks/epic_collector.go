@@ -42,13 +42,14 @@ var CollectEpicsMeta = plugin.SubTaskMeta{
 	Name:             "collectEpics",
 	EntryPoint:       CollectEpics,
 	EnabledByDefault: true,
-	Description:      "collect Jira epics from all boards, does not support either timeFilter or diffSync.",
+	Description:      "collect Jira epics from all boards, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 
 func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
+	logger := taskCtx.GetLogger()
 	batchSize := 100
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer && len(data.JiraServerInfo.VersionNumbers) == 3 && data.JiraServerInfo.VersionNumbers[0] <= 8 {
 		batchSize = 1
@@ -57,16 +58,31 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	jql := "ORDER BY created ASC"
-	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_EPIC_TABLE,
+
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: JiraApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			BoardId:      data.Options.BoardId,
 		},
+		Table: RAW_EPIC_TABLE,
+	})
+	if err != nil {
+		return err
+	}
+
+	loc, err := getTimeZone(taskCtx)
+	if err != nil {
+		logger.Info("failed to get timezone, err: %v", err)
+	} else {
+		logger.Info("got user's timezone: %v", loc.String())
+	}
+	jql := "ORDER BY created ASC"
+	if apiCollector.GetSince() != nil {
+		jql = buildJQL(*apiCollector.GetSince(), loc)
+	}
+
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: false,
@@ -77,7 +93,7 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 			for _, e := range reqData.Input.([]interface{}) {
 				epicKeys = append(epicKeys, *e.(*string))
 			}
-			localJQL := fmt.Sprintf("issue in (%s) %s", strings.Join(epicKeys, ","), jql)
+			localJQL := fmt.Sprintf("issue in (%s) and %s", strings.Join(epicKeys, ","), jql)
 			query.Set("jql", localJQL)
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
@@ -107,7 +123,7 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
+	return apiCollector.Execute()
 }
 
 func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (api.Iterator, errors.Error) {
@@ -117,12 +133,12 @@ func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (api.Ite
 		dal.Join(`
 			LEFT JOIN _tool_jira_board_issues bi ON (
 			i.connection_id = bi.connection_id
-			AND 
+			AND
 			i.issue_id = bi.issue_id
 		)`),
 		dal.Where(`
 			i.connection_id = ?
-			AND 
+			AND
 			bi.board_id = ?
 			AND
 			i.epic_key != ''

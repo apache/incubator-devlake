@@ -90,6 +90,8 @@ func (p Jenkins) Name() string {
 
 func (p Jenkins) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CollectApiJobsMeta,
+		tasks.ExtractApiJobsMeta,
 		tasks.ConvertJobsMeta,
 		tasks.CollectApiBuildsMeta,
 		tasks.ExtractApiBuildsMeta,
@@ -128,6 +130,8 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 	if err != nil {
 		return nil, err
 	}
+
+	op.ConnectionEndpoint = connection.Endpoint
 
 	err = EnrichOptions(taskCtx, op, apiClient)
 	if err != nil {
@@ -200,7 +204,7 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
+			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
@@ -213,6 +217,9 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }
@@ -230,9 +237,8 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	op *tasks.JenkinsOptions,
 	apiClient *helper.ApiAsyncClient) errors.Error {
 	jenkinsJob := &models.JenkinsJob{}
-	// If this is from BpV200, we should set JobFullName to scopeId
 	if op.JobFullName == "" {
-		op.JobFullName = op.ScopeId
+		op.JobFullName = op.FullName
 	}
 	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
 	op, err := tasks.ValidateTaskOptions(op)
@@ -254,6 +260,8 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
 		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
 		op.JobPath = job.Path
+		op.URL = job.URL
+		op.Class = job.Class
 		jenkinsJob := job.ToJenkinsJob()
 
 		jenkinsJob.ConnectionId = op.ConnectionId

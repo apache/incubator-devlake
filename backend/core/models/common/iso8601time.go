@@ -72,6 +72,10 @@ func init() {
 			Matcher: regexp.MustCompile(`[+-][\d]{2}-[\d]{2}$`),
 			Format:  "2006-01-02",
 		},
+		{
+			Matcher: regexp.MustCompile(`[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}$`),
+			Format:  "2006-01-02 15:04",
+		},
 	}
 }
 
@@ -97,6 +101,9 @@ func (jt Iso8601Time) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON FIXME ...
 func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 	timeString := string(b)
+	if timeString == `""` {
+		return nil
+	}
 	if timeString == "null" {
 		return nil
 	}
@@ -133,6 +140,16 @@ func ConvertStringToTime(timeString string) (t time.Time, err error) {
 		}
 	}
 	return time.Parse(time.RFC3339, timeString)
+}
+
+// ConvertStringToTimeInLoc converts a string to time.Time in the given location.
+func ConvertStringToTimeInLoc(timeString string, loc *time.Location) (t time.Time, err error) {
+	for _, formatItem := range DateTimeFormats {
+		if formatItem.Matcher.MatchString(timeString) {
+			return time.ParseInLocation(formatItem.Format, timeString, loc)
+		}
+	}
+	return time.ParseInLocation(time.RFC3339, timeString, loc)
 }
 
 // Iso8601TimeToTime FIXME ...

@@ -86,8 +86,8 @@ func makeDataSourcePipelinePlanV200(
 			subtaskMetas,
 			scopeConfig.Entities,
 			tasks.JenkinsOptions{
-				ConnectionId: jenkinsJob.ConnectionId,
-				ScopeId:      jenkinsJob.ScopeId(),
+				ConnectionId: connection.ID,
+				FullName:     jenkinsJob.FullName,
 			},
 		)
 		if err != nil {

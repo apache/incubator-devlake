@@ -1,0 +1,4 @@
+id,url,status,name,started_date,ended_date,completed_date,original_board_id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+SPRINT-1,http://example.com/sprint1,active,Sprint 1,2023-01-01T00:00:00.000+00:00,2023-01-14T00:00:00.000+00:00,2023-01-15T00:00:00.000+00:00,csv-board,csv-board,,,
+SPRINT-2,http://example.com/sprint2,active,Sprint 2,2023-02-01T00:00:00.000+00:00,2023-02-14T00:00:00.000+00:00,2023-02-15T00:00:00.000+00:00,csv-board,csv-board,,,
+SPRINT-3,http://example.com/sprint3,active,Sprint 3,2023-03-01T00:00:00.000+00:00,2023-03-14T00:00:00.000+00:00,2023-03-15T00:00:00.000+00:00,csv-board,csv-board,,,

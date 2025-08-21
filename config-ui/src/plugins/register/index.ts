@@ -18,9 +18,10 @@
 
 import { IPluginConfig } from '@/types';
 
-import { AzureConfig } from './azure';
+import { AzureConfig, AzureGoConfig } from './azure';
 import { BambooConfig } from './bamboo';
-import { BitBucketConfig } from './bitbucket';
+import { BitbucketConfig } from './bitbucket';
+import { BitbucketServerConfig } from './bitbucket-server';
 import { CircleCIConfig } from './circleci';
 import { GitHubConfig } from './github';
 import { GitLabConfig } from './gitlab';
@@ -32,11 +33,15 @@ import { TAPDConfig } from './tapd';
 import { WebhookConfig } from './webhook';
 import { ZenTaoConfig } from './zentao';
 import { OpsgenieConfig } from './opsgenie';
+import { TeambitionConfig } from './teambition';
+import { TestmoConfig } from './testmo';
 
 export const pluginConfigs: IPluginConfig[] = [
   AzureConfig,
+  AzureGoConfig,
   BambooConfig,
-  BitBucketConfig,
+  BitbucketConfig,
+  BitbucketServerConfig,
   CircleCIConfig,
   GitHubConfig,
   GitLabConfig,
@@ -45,7 +50,9 @@ export const pluginConfigs: IPluginConfig[] = [
   PagerDutyConfig,
   SonarQubeConfig,
   TAPDConfig,
+  TestmoConfig,
   ZenTaoConfig,
   WebhookConfig,
   OpsgenieConfig,
+  TeambitionConfig,
 ].sort((a, b) => a.sort - b.sort);

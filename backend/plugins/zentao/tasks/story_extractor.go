@@ -19,11 +19,13 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	helpers "github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
@@ -40,6 +42,11 @@ var ExtractStoryMeta = plugin.SubTaskMeta{
 func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	statusMappings := getStoryStatusMapping(data)
+	dueDateField := ""
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.StoryDueDateField != "" {
+		dueDateField = data.Options.ScopeConfig.StoryDueDateField
+	}
+
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -57,7 +64,6 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
-
 			data.Stories[res.ID] = struct{}{}
 			var results []interface{}
 			projectStory := &models.ZentaoProjectStory{
@@ -120,9 +126,17 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				NotifyEmail:      res.NotifyEmail,
 				URChanged:        res.URChanged,
 				Deleted:          res.Deleted,
-				PriOrder:         res.PriOrder,
+				PriOrder:         res.PriOrder.String(),
 				PlanTitle:        res.PlanTitle,
 				Url:              row.Url,
+			}
+			if dueDateField != "" {
+				err = res.SetAllFeilds(row.Data)
+				if err != nil {
+					return nil, errors.Default.WrapRaw(err)
+				}
+				loc, _ := time.LoadLocation("Asia/Shanghai")
+				story.DueDate, _ = helpers.GetTimeFieldFromMap(res.AllFields, dueDateField, loc)
 			}
 			if story.StdType == "" {
 				story.StdType = ticket.REQUIREMENT

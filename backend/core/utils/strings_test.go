@@ -119,3 +119,10 @@ func TestSanitizeString(t *testing.T) {
 		})
 	}
 }
+
+func TestSubstr(t *testing.T) {
+	assert.Equalf(t, "😂😂😂", Substr("😂😂😂a", 0, 3), "substr on utf8")
+	assert.Equalf(t, "c", Substr("😂😂c😂", 2, 1), "substr on lattin + unicode")
+	assert.Equalf(t, "abcde", Substr("abcde", 0, 100), "specified length greater than actual length")
+	assert.Equalf(t, "", Substr("abcde", 100, 100), "specified start greater than actual length")
+}

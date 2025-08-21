@@ -64,6 +64,10 @@ func NewScopeSrvHelper[
 	}
 }
 
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetPluginName() string {
+	return scopeSrv.pluginName
+}
+
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) Validate(scope *S) errors.Error {
 	connectionId := (*scope).ScopeConnectionId()
 	connectionCount := errors.Must1(scopeSrv.db.Count(dal.From(new(SC)), dal.Where("id = ?", connectionId)))
@@ -216,6 +220,9 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) getAllBlueprinsByScope(connectionId ui
 			scopeId,
 		),
 	))
+	for _, bp := range blueprints {
+		bp.Plan = nil
+	}
 	return blueprints
 }
 

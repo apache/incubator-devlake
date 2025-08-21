@@ -35,7 +35,7 @@ func init() {
 const RAW_COMMENTS_TABLE = "github_api_comments"
 
 var CollectApiCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiComments",
+	Name:             "Collect Comments",
 	EntryPoint:       CollectApiComments,
 	EnabledByDefault: true,
 	Description:      "Collect comments data from Github api, supports both timeFilter and diffSync.",
@@ -46,7 +46,7 @@ var CollectApiCommentsMeta = plugin.SubTaskMeta{
 
 func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
-	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -58,15 +58,15 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		UrlTemplate: "repos/{{ .Params.Name }}/issues/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if collectorWithState.Since != nil {
-				query.Set("since", collectorWithState.Since.String())
+			if apiCollector.GetSince() != nil {
+				query.Set("since", apiCollector.GetSince().String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -89,5 +89,5 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Default.Wrap(err, "error collecting github comments")
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

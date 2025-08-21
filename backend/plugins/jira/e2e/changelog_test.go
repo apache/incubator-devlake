@@ -38,6 +38,7 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 	}
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_changelogs.csv", "_raw_jira_api_issue_changelogs")
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_fields.csv", &models.JiraIssueField{})
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
 	dataflowTester.FlushTabler(&models.JiraAccount{})
@@ -68,6 +69,8 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 			"from_string",
 			"to_value",
 			"to_string",
+			"tmp_from_account_id",
+			"tmp_to_account_id",
 		),
 	)
 	dataflowTester.VerifyTable(
@@ -83,11 +86,36 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 			"timezone",
 		),
 	)
+
+	// import raw data: _raw_jira_api_issue_fields
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_fields.csv", "_raw_jira_api_issue_fields")
+	dataflowTester.FlushTabler(&models.JiraIssueField{})
+	dataflowTester.Subtask(tasks.ExtractIssueFieldsMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.JiraIssueField{},
+		"./snapshot_tables/_tool_jira_issue_fields.csv",
+		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"id",
+			"board_id",
+			"name",
+			"custom",
+			"orderable",
+			"navigable",
+			"searchable",
+			"schema_type",
+			"schema_items",
+			"schema_custom",
+			"schema_custom_id",
+			"sche_custom_system"),
+	)
+
 	// verify changelog conversion
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_changelogs.csv", &models.JiraIssueChangelogs{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_changelog_items.csv", &models.JiraIssueChangelogItems{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_statuses_for_changelog.csv", &models.JiraStatus{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_for_changelog.csv", &models.JiraBoardIssue{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_fields.csv", &models.JiraIssueField{})
 	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
 	dataflowTester.Subtask(tasks.ConvertIssueChangelogsMeta, taskData)
 	dataflowTester.VerifyTable(

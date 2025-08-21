@@ -65,7 +65,7 @@ func NewModelApiHelper[M dal.Tabler](
 
 func (self *ModelApiHelper[M]) Post(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	model := new(M)
-	err := utils.DecodeMapStruct(input.Body, model, false)
+	err := DecodeMapStruct(input.Body, model, false)
 	if err != nil {
 		return nil, err
 	}
@@ -130,31 +130,35 @@ func (self *ModelApiHelper[M]) BatchSanitize(models []*M) []*M {
 }
 
 type CustomMerge[M dal.Tabler] interface {
-	Merge(target, src *M) error
+	MergeFromRequest(target *M, body map[string]interface{}) error
 }
 
-func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+// PatchModel will get an "M" from database and try to merge update from request body
+// zeroFields decides whether "M" will be zeroed if "M" doesn't implement CustomMerge.
+func (self *ModelApiHelper[M]) PatchModel(input *plugin.ApiResourceInput, zeroFields bool) (*M, error) {
 	model, err := self.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
 	if v, ok := (interface{}(model)).(CustomMerge[M]); ok {
-		modifiedModel := new(M)
-		err = utils.DecodeMapStruct(input.Body, modifiedModel, true)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to decode map struct %s", self.modelName))
-		}
-		if err := v.Merge(model, modifiedModel); err != nil {
-			return nil, errors.Convert(err)
+		if err := v.MergeFromRequest(model, input.Body); err != nil {
+			return nil, err
 		}
 	} else {
-		err = utils.DecodeMapStruct(input.Body, model, true)
+		err = DecodeMapStruct(input.Body, model, zeroFields)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("faled to patch %s", self.modelName))
 		}
 	}
-	err = self.dalHelper.Update(model)
+	return model, nil
+}
+
+func (self *ModelApiHelper[M]) Patch(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	model, err := self.PatchModel(input, true)
 	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	if err := self.dalHelper.Update(model); err != nil {
 		return nil, err
 	}
 	model = self.Sanitize(model)
@@ -186,15 +190,21 @@ func (self *ModelApiHelper[M]) GetAll(input *plugin.ApiResourceInput) (*plugin.A
 	}, err
 }
 
-func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (self *ModelApiHelper[M]) PutMultipleCb(input *plugin.ApiResourceInput, beforeSave func(*M) errors.Error) (*plugin.ApiResourceOutput, errors.Error) {
 	var req struct {
 		Data []*M `json:"data"`
 	}
-	err := utils.DecodeMapStruct(input.Body, &req, false)
+	err := DecodeMapStruct(input.Body, &req, false)
 	if err != nil {
 		return nil, err
 	}
 	for i, item := range req.Data {
+		if beforeSave != nil {
+			err := beforeSave(item)
+			if err != nil {
+				return nil, err
+			}
+		}
 		err := self.dalHelper.CreateOrUpdate(item)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("failed to save item %d", i))
@@ -206,7 +216,7 @@ func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plu
 	}, nil
 }
 
-func parsePagination[P any](input *plugin.ApiResourceInput, query ...dal.Clause) (*P, errors.Error) {
+func parsePagination[P any](input *plugin.ApiResourceInput) (*P, errors.Error) {
 	if !input.Query.Has("page") {
 		input.Query.Set("page", "1")
 	}

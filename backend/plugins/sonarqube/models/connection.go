@@ -20,8 +20,9 @@ package models
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/utils"
 	"net/http"
+
+	"github.com/apache/incubator-devlake/core/utils"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -49,6 +50,7 @@ func (sat SonarqubeAccessToken) GetEncodedToken() string {
 type SonarqubeConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	SonarqubeAccessToken  `mapstructure:",squash"`
+	Organization          string `gorm:"serializer:json" json:"org" mapstructure:"org"`
 }
 
 func (connection SonarqubeConn) Sanitize() SonarqubeConn {
@@ -76,4 +78,37 @@ func (SonarqubeConnection) TableName() string {
 func (connection SonarqubeConnection) Sanitize() SonarqubeConnection {
 	connection.SonarqubeConn = connection.SonarqubeConn.Sanitize()
 	return connection
+}
+
+func (connection *SonarqubeConnection) MergeFromRequest(target *SonarqubeConnection, body map[string]interface{}) error {
+	token := target.Token
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+	modifiedToken := target.Token
+	if modifiedToken == "" || modifiedToken == utils.SanitizeString(token) {
+		target.Token = token
+	}
+	return nil
+}
+
+func (connection *SonarqubeConnection) IsCloud() bool {
+	return connection.Endpoint == "https://sonarcloud.io/api/"
+}
+
+const ORG = "org"
+
+func (connection *SonarqubeConn) PrepareApiClient(apiClient plugin.ApiClient) errors.Error {
+	apiClient.SetData(ORG, connection.Organization)
+	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
+		org := apiClient.GetData(ORG).(string)
+		if org != "" {
+			query := req.URL.Query()
+			query.Add("organization", org)
+			req.URL.RawQuery = query.Encode()
+		}
+		return nil
+	})
+
+	return nil
 }

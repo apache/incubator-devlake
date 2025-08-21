@@ -34,19 +34,20 @@ echo "Usage: "
 echo "  build all plugins:              $0 [golang build flags...]"
 echo "  build and keep specified plugins only: DEVLAKE_PLUGINS=github,jira $0 [golang build flags...]"
 
-
-if [ "$DEVLAKE_PLUGINS" = "none" ]; then
-    echo "skip building plugins" >&2
-    exit 0
-fi
-
 ROOT_DIR=$(dirname $(dirname "$0"))
 EXTRA=""
 PLUGIN_SRC_DIR=$ROOT_DIR/plugins
 PLUGIN_OUTPUT_DIR=${PLUGIN_DIR:-$ROOT_DIR/bin/plugins}
 
+
+rm -rf $PLUGIN_OUTPUT_DIR/*
+if [ "$DEVLAKE_PLUGINS" = "none" ]; then
+    echo "skip building plugins" >&2
+    exit 0
+fi
+
 if [ -n "$DEVLAKE_DEBUG" ]; then
-    EXTRA="-gcflags='all=-N -l'"
+    GCFLAGS=all=-N\ -l
 fi
 
 if [ -z "$DEVLAKE_PLUGINS" ]; then
@@ -61,13 +62,12 @@ else
 fi
 
 
-rm -rf $PLUGIN_OUTPUT_DIR/*
 
 PIDS=""
 for PLUG in $PLUGINS; do
     NAME=$(basename $PLUG)
-    echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so with args: $*"
-    go build -buildmode=plugin $EXTRA -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
+    echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so with args: $*  --gcflags="$GCFLAGS""
+    go build -buildmode=plugin --gcflags="$GCFLAGS" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
     PIDS="$PIDS $!"
     # avoid too many processes causing signal killed
     COUNT=$(echo "$PIDS" | wc -w)

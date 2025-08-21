@@ -91,6 +91,7 @@ func (p Zentao) GetTablesInfo() []dal.Tabler {
 		&models.ZentaoExecutionSummary{},
 		&models.ZentaoProductSummary{},
 		&models.ZentaoProjectStory{},
+		&models.ZentaoWorklog{},
 	}
 }
 
@@ -117,11 +118,14 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectDepartmentMeta,
 		tasks.ExtractDepartmentMeta,
-		tasks.ConvertDepartmentMeta,
 
-		// project
+		//project
 		tasks.CollectExecutionSummaryMeta,
 		tasks.ExtractExecutionSummaryMeta,
+
+		tasks.CollectExecutionSummaryDevMeta,
+		tasks.ExtractExecutionSummaryDevMeta,
+
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,
@@ -132,8 +136,7 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectTaskCommitsMeta,
 		tasks.ExtractTaskCommitsMeta,
-		tasks.CollectTaskRepoCommitsMeta,
-		tasks.ExtractTaskRepoCommitsMeta,
+		tasks.DBGetTaskRepoCommitsMeta,
 		tasks.ConvertTaskRepoCommitsMeta,
 
 		// product
@@ -148,18 +151,20 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectStoryCommitsMeta,
 		tasks.ExtractStoryCommitsMeta,
-		tasks.CollectStoryRepoCommitsMeta,
-		tasks.ExtractStoryRepoCommitsMeta,
+		tasks.DBGetStoryRepoCommitsMeta,
 		tasks.ConvertStoryRepoCommitsMeta,
 
 		tasks.CollectBugCommitsMeta,
 		tasks.ExtractBugCommitsMeta,
-		tasks.CollectBugRepoCommitsMeta,
-		tasks.ExtractBugRepoCommitsMeta,
+		tasks.DBGetBugRepoCommitsMeta,
 		tasks.ConvertBugRepoCommitsMeta,
 
 		tasks.DBGetChangelogMeta,
 		tasks.ConvertChangelogMeta,
+
+		tasks.CollectTaskWorklogsMeta,
+		tasks.ExtractTaskWorklogsMeta,
+		tasks.ConvertTaskWorklogsMeta,
 	}
 }
 
@@ -257,20 +262,20 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.TestExistingConnection,
 		},
 		"connections/:connectionId/scopes": {
-			"PUT": api.PutProjectScope,
-			"GET": api.GetProjectScopeList,
+			"PUT": api.PutScopes,
+			"GET": api.GetScopes,
 		},
 		"connections/:connectionId/scopes/:scopeId": {
-			"GET":    api.GetProjectScope,
-			"PATCH":  api.UpdateProjectScope,
+			"GET":    api.GetScope,
+			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteProjectScope,
 		},
 		"connections/:connectionId/scope-configs": {
-			"POST": api.CreateScopeConfig,
+			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.UpdateScopeConfig,
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
+			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
@@ -282,6 +287,9 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/proxy/*path": {
 			"GET": api.Proxy,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

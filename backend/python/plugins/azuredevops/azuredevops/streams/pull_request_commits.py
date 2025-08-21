@@ -15,17 +15,18 @@
 
 from typing import Iterable
 
+import pydevlake.domain_layer.code as code
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import GitPullRequest, GitPullRequestCommit, GitRepository
 from azuredevops.streams.pull_requests import GitPullRequests
 from pydevlake import Substream, DomainType
-import pydevlake.domain_layer.code as code
 
 
 class GitPullRequestCommits(Substream):
     tool_model = GitPullRequestCommit
     domain_types = [DomainType.CODE]
     parent_stream = GitPullRequests
+    domain_models = [code.PullRequestCommit]
 
     def should_run_on(self, scope: GitRepository) -> bool:
         return not scope.is_external()
@@ -33,9 +34,17 @@ class GitPullRequestCommits(Substream):
     def collect(self, state, context, parent: GitPullRequest) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
         azuredevops_api = AzureDevOpsAPI(context.connection)
-        response = azuredevops_api.git_repo_pull_request_commits(repo.org_id, repo.project_id, repo.id, parent.pull_request_id)
+        response = azuredevops_api.git_repo_pull_request_commits(repo.org_id, repo.project_id, repo.id,
+                                                                 parent.pull_request_id)
         for raw_commit in response:
             raw_commit["pull_request_id"] = parent.domain_id()
+            raw_commit["x_request_url"] = response.get_url_with_query_string()
+            raw_commit["x_request_input"] = {
+                "OrgId": repo.org_id,
+                "ProjectId": repo.project_id,
+                "RepoId": repo.id,
+                "PullRequestId": parent.pull_request_id,
+            }
             yield raw_commit, state
 
     def convert(self, commit: GitPullRequestCommit, context) -> Iterable[code.PullRequestCommit]:

@@ -18,12 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"os"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
 	"github.com/apache/incubator-devlake/plugins/customize/service"
-	"os"
-	"testing"
 )
 
 func TestImportIssueRepoCommitDataFlow(t *testing.T) {
@@ -33,18 +35,35 @@ func TestImportIssueRepoCommitDataFlow(t *testing.T) {
 	// create tables `issue_repo_commits` and `issue_commits`
 	dataflowTester.FlushTabler(&crossdomain.IssueRepoCommit{})
 	dataflowTester.FlushTabler(&crossdomain.IssueCommit{})
+	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+
+	dataflowTester.ImportCsvIntoTabler("raw_tables/issue_repo_commits_original.csv", &crossdomain.IssueRepoCommit{})
+	dataflowTester.ImportCsvIntoTabler("raw_tables/board_issues.csv", &ticket.BoardIssue{})
+
 	svc := service.NewService(dataflowTester.Dal)
 
-	f, err1 := os.Open("raw_tables/issue_repo_commits.csv")
+	issueRepoCommitsFile, err1 := os.Open("raw_tables/issue_repo_commits.csv")
 	if err1 != nil {
 		t.Fatal(err1)
 	}
-	defer f.Close()
+	defer issueRepoCommitsFile.Close()
 	// import data
-	err := svc.ImportIssueRepoCommit(`{"ConnectionId":1,"BoardId":8}`, f)
+	err := svc.ImportIssueRepoCommit("csv-board", issueRepoCommitsFile, false)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// import data incrementally
+	issueRepoCommitsIncrementalFile, err2 := os.Open("raw_tables/issue_repo_commits_incremental.csv")
+	if err2 != nil {
+		t.Fatal(err2)
+	}
+	defer issueRepoCommitsIncrementalFile.Close()
+	err = svc.ImportIssueRepoCommit("csv-board", issueRepoCommitsIncrementalFile, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	dataflowTester.VerifyTableWithRawData(
 		crossdomain.IssueRepoCommit{},
 		"snapshot_tables/issue_repo_commits.csv",
@@ -58,7 +77,7 @@ func TestImportIssueRepoCommitDataFlow(t *testing.T) {
 		})
 	dataflowTester.VerifyTableWithRawData(
 		crossdomain.IssueCommit{},
-		"snapshot_tables/issue_commits.csv",
+		"snapshot_tables/issue_commits_from_import_issue_repo_commit.csv",
 		[]string{
 			"issue_id",
 			"commit_sha",

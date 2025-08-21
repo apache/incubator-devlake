@@ -19,7 +19,10 @@
 import { IPipeline } from '@/types';
 import { request } from '@/utils';
 
-export const list = (): Promise<{ count: number; pipelines: IPipeline[] }> => request('/pipelines');
+import { SubTasksRes } from './types';
+
+export const list = (params: Pagination): Promise<{ count: number; pipelines: IPipeline[] }> =>
+  request('/pipelines', { data: params });
 
 export const get = (id: ID) => request(`/pipelines/${id}`);
 
@@ -36,3 +39,5 @@ export const rerun = (id: ID) =>
 export const log = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
 
 export const tasks = (id: ID) => request(`/pipelines/${id}/tasks`);
+
+export const subTasks = (id: ID): Promise<SubTasksRes> => request(`/pipelines/${id}/subtasks`);

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -39,6 +40,9 @@ var ConvertWorkflowsMeta = plugin.SubTaskMeta{
 
 func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKFLOW_TABLE)
+	logger := taskCtx.GetLogger()
+	logger.Info("convert workflows")
+
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.CircleciWorkflow{}),
@@ -56,10 +60,15 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.CircleciWorkflow)
+			// Skip if CreatedAt is null or empty string - still enters into the `_tool_circleci_workflows` table with null values
+			if userTool.CreatedAt.ToNullableTime() == nil {
+				logger.Info("CreatedAt is null or empty string in the CircleCI API response for %s", userTool.PipelineId)
+				return []interface{}{}, nil
+			}
 			createdAt := userTool.CreatedAt.ToTime()
 			pipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: getPipelineIdGen().Generate(data.Options.ConnectionId, userTool.Id),
+					Id: getWorkflowIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
 				Name:        userTool.Name,
 				DurationSec: userTool.DurationSec,
@@ -80,8 +89,9 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
 					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
-				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
-				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
+				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
+				Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
+				DisplayTitle: fmt.Sprintf("%s#%d", userTool.Name, userTool.PipelineNumber),
 			}
 			result := make([]interface{}, 0, 2)
 			result = append(result, pipeline)
@@ -91,11 +101,12 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 			if p, err := findPipelineById(db, userTool.PipelineId); err == nil {
 				if p.Vcs.Revision != "" {
 					result = append(result, &devops.CiCDPipelineCommit{
-						PipelineId: pipeline.Id,
-						CommitSha:  p.Vcs.Revision,
-						Branch:     p.Vcs.Branch,
-						RepoId:     p.Vcs.OriginRepositoryUrl,
-						RepoUrl:    p.Vcs.OriginRepositoryUrl,
+						PipelineId:   pipeline.Id,
+						CommitSha:    p.Vcs.Revision,
+						Branch:       p.Vcs.Branch,
+						RepoId:       p.Vcs.OriginRepositoryUrl,
+						RepoUrl:      p.Vcs.OriginRepositoryUrl,
+						DisplayTitle: pipeline.DisplayTitle,
 					})
 				}
 			}

@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/spf13/cast"
 	"strings"
 )
 
@@ -38,6 +39,7 @@ var ExtractTaskChangelogMeta = plugin.SubTaskMeta{
 
 func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE)
+	logger := taskCtx.GetLogger()
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -81,18 +83,19 @@ func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 						item.ConnectionId = data.Options.ConnectionId
 						item.ChangelogId = taskChangelog.Id
 						item.Field = k
-						item.ValueAfterParsed = v.(string)
-						switch valueBeforeMap.(type) {
+						item.ValueAfterParsed = cast.ToString(v)
+						switch v := valueBeforeMap.(type) {
 						case map[string]interface{}:
-							item.ValueBeforeParsed = valueBeforeMap.(map[string]interface{})[k].(string)
+							value := v[k]
+							item.ValueBeforeParsed = cast.ToString(value)
 						default:
-							item.ValueBeforeParsed = valueBeforeMap.(string)
+							item.ValueBeforeParsed = cast.ToString(valueBeforeMap)
 						}
 						results = append(results, &item)
 					}
 					err = convertUnicode(&item)
 					if err != nil {
-						return nil, err
+						logger.Error(err, "convert unicode: %s, err: %s", item, err)
 					}
 				default:
 					item.ConnectionId = data.Options.ConnectionId
@@ -103,7 +106,7 @@ func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				err = convertUnicode(&item)
 				if err != nil {
-					return nil, err
+					logger.Error(err, "convert unicode: %s, err: %s", item, err)
 				}
 				if item.Field == "iteration_id" {
 					iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)

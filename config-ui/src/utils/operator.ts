@@ -32,6 +32,7 @@ export type OperateConfig = {
  * @param config.setOperating -> Control the status of the request
  * @param config.formatMessage -> Show the message for the success
  * @param config.formatReason -> Show the reason for the failure
+ * @param config.hideToast -> Hide all the toast
  * @returns
  */
 export const operator = async <T>(request: () => Promise<T>, config?: OperateConfig): Promise<[boolean, any?]> => {
@@ -48,10 +49,7 @@ export const operator = async <T>(request: () => Promise<T>, config?: OperateCon
   } catch (err) {
     console.error('Operation failed.', err);
     const reason = formatReason?.(err) ?? (err as any).response?.data?.message ?? 'Operation failed.';
-    if (!config?.hideToast) {
-      message.error(reason);
-    }
-
+    message.error(reason);
     return [false, err];
   } finally {
     setOperating?.(false);

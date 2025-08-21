@@ -18,6 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"strconv"
-	"time"
 )
 
 func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
@@ -75,6 +76,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatorId:      getAccountIdGen().Generate(data.Options.ConnectionId, toolL.Creator),
 				CreatorName:    toolL.Creator,
 				AssigneeName:   toolL.Owner,
+				DueDate:        toolL.DueDate,
 			}
 			var results []interface{}
 			if domainL.AssigneeName != "" {
@@ -87,7 +89,8 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, issueAssignee)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
-				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
+				temp := uint(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
+				domainL.LeadTimeMinutes = &temp
 			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, toolL.WorkspaceId),

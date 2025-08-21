@@ -67,6 +67,32 @@ func (JiraConnection) TableName() string {
 	return "_tool_jira_connections"
 }
 
+func (connection *JiraConnection) MergeFromRequest(target *JiraConnection, body map[string]interface{}) error {
+	token := target.Token
+	password := target.Password
+	authMethod := target.AuthMethod
+
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+
+	modifiedToken := target.Token
+	modifiedPassword := target.Password
+	modifiedAuthMethod := target.AuthMethod
+
+	// maybe auth method has changed
+	if authMethod == modifiedAuthMethod {
+		if modifiedToken == "" || modifiedToken == utils.SanitizeString(token) {
+			target.Token = token
+		}
+		if modifiedPassword == "" || modifiedPassword == utils.SanitizeString(password) {
+			target.Password = password
+		}
+	}
+
+	return nil
+}
+
 func (connection JiraConnection) Sanitize() JiraConnection {
 	connection.JiraConn = connection.JiraConn.Sanitize()
 	return connection

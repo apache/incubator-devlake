@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -44,6 +45,12 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	tx := basicRes.GetDal().Begin()
 	err := connectionHelper.CreateWithTx(tx, connection, input)
 	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
+		if strings.Contains(err.Error(), "the connection name already exists (400)") {
+			return nil, errors.BadInput.New(fmt.Sprintf("A webhook with name %s already exists.", connection.Name))
+		}
 		return nil, err
 	}
 	logger.Info("connection: %+v", connection)
@@ -90,6 +97,24 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection}, nil
 }
 
+// PatchConnectionByName
+// @Summary patch webhook connection by name
+// @Description Patch webhook connection
+// @Tags plugins/webhook
+// @Param body body models.WebhookConnection true "json body"
+// @Success 200  {object} models.WebhookConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/by-name/{connectionName} [PATCH]
+func PatchConnectionByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.PatchByName(connection, input)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: connection}, nil
+}
+
 // DeleteConnection
 // @Summary delete a webhook connection
 // @Description Delete a webhook connection
@@ -100,7 +125,32 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, e := strconv.ParseInt(input.Params["connectionId"], 10, 64)
+	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	return deleteConnection(e, connectionId)
+}
+
+// DeleteConnectionByName
+// @Summary delete a webhook connection by name
+// @Description Delete a webhook connection
+// @Tags plugins/webhook
+// @Success 200  {object} models.WebhookConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/by-name/{connectionName} [DELETE]
+func DeleteConnectionByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.FirstByName(connection, input.Params)
+
+	if err != nil {
+		logger.Error(err, "query connection")
+		return nil, err
+	}
+
+	return deleteConnection(nil, connection.ConnectionId())
+}
+
+func deleteConnection(e error, connectionId uint64) (*plugin.ApiResourceOutput, errors.Error) {
 	if e != nil {
 		return nil, errors.BadInput.WrapRaw(e)
 	}
@@ -134,6 +184,7 @@ type WebhookConnectionResponse struct {
 	models.WebhookConnection
 	PostIssuesEndpoint             string             `json:"postIssuesEndpoint"`
 	CloseIssuesEndpoint            string             `json:"closeIssuesEndpoint"`
+	PostPullRequestsEndpoint       string             `json:"postPullRequestsEndpoint"`
 	PostPipelineTaskEndpoint       string             `json:"postPipelineTaskEndpoint"`
 	PostPipelineDeployTaskEndpoint string             `json:"postPipelineDeployTaskEndpoint"`
 	ClosePipelineEndpoint          string             `json:"closePipelineEndpoint"`
@@ -176,6 +227,24 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
+	return getConnection(err, connection)
+}
+
+// GetConnectionByName
+// @Summary get webhook connection detail by name
+// @Description Get webhook connection detail
+// @Tags plugins/webhook
+// @Success 200  {object} WebhookConnectionResponse
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/by-name/{connectionName} [GET]
+func GetConnectionByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.FirstByName(connection, input.Params)
+	return getConnection(err, connection)
+}
+
+func getConnection(err errors.Error, connection *models.WebhookConnection) (*plugin.ApiResourceOutput, errors.Error) {
 	if err != nil {
 		logger.Error(err, "query connection")
 		return nil, err
@@ -188,6 +257,7 @@ func formatConnection(connection *models.WebhookConnection, withApiKeyInfo bool)
 	response := &WebhookConnectionResponse{WebhookConnection: *connection}
 	response.PostIssuesEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/issues`, connection.ID)
 	response.CloseIssuesEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/issue/:issueKey/close`, connection.ID)
+	response.PostPullRequestsEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/pull_requests`, connection.ID)
 	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/cicd_tasks`, connection.ID)
 	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/deployments`, connection.ID)
 	response.ClosePipelineEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)

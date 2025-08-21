@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -33,7 +31,7 @@ func init() {
 }
 
 var ExtractApiPipelineDetailsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPipelineDetails",
+	Name:             "Extract Pipeline Details",
 	EntryPoint:       ExtractApiPipelineDetails,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipeline details data into tool layer table GitlabPipeline",
@@ -41,19 +39,12 @@ var ExtractApiPipelineDetailsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&CollectApiPipelineDetailsMeta},
 }
 
-func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_DETAILS_TABLE)
+func ExtractApiPipelineDetails(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_PIPELINE_DETAILS_TABLE)
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			// create gitlab commit
-			gitlabApiPipeline := &ApiPipeline{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiPipeline))
-			if err != nil {
-				return nil, err
-			}
-
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[ApiPipeline]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Extract: func(gitlabApiPipeline *ApiPipeline, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabPipeline := &models.GitlabPipeline{
 				GitlabId:        gitlabApiPipeline.Id,
 				ProjectId:       data.Options.ProjectId,
@@ -70,14 +61,10 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId:    data.Options.ConnectionId,
 				Type:            data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
 				Environment:     data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
-			}
-			if err != nil {
-				return nil, err
+				Source:          gitlabApiPipeline.Source,
 			}
 
-			results := make([]interface{}, 0, 1)
-			results = append(results, gitlabPipeline)
-			return results, nil
+			return []interface{}{gitlabPipeline}, nil
 		},
 	})
 	if err != nil {

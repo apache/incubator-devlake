@@ -18,6 +18,8 @@ limitations under the License.
 package code
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -41,6 +43,8 @@ type PullRequest struct {
 	AuthorName     string `gorm:"type:varchar(100)"`
 	//User		   domainUser.User `gorm:"foreignKey:AuthorId"`
 	AuthorId       string `gorm:"type:varchar(100)"`
+	MergedByName   string `gorm:"type:varchar(100)"`
+	MergedById     string `gorm:"type:varchar(100)"`
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
 	PullRequestKey int
 	CreatedDate    time.Time
@@ -53,8 +57,66 @@ type PullRequest struct {
 	BaseRef        string `gorm:"type:varchar(255)"`
 	BaseCommitSha  string `gorm:"type:varchar(40)"`
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
+	Additions      int
+	Deletions      int
+	IsDraft        bool
 }
 
 func (PullRequest) TableName() string {
 	return "pull_requests"
+}
+
+func (pr PullRequest) ConvertStatusToIncidentStatus() string {
+	switch pr.Status {
+	case OPEN:
+		return ticket.TODO
+	case CLOSED:
+		return ticket.OTHER
+	case MERGED:
+		return ticket.DONE
+	default:
+		return ticket.OTHER
+	}
+}
+
+func (pr PullRequest) ToIncident() (*ticket.Incident, error) {
+	incident := &ticket.Incident{
+		DomainEntity:            pr.DomainEntity,
+		Url:                     pr.Url,
+		IncidentKey:             fmt.Sprintf("%d", pr.PullRequestKey),
+		Title:                   pr.Title,
+		Description:             pr.Description,
+		Status:                  pr.ConvertStatusToIncidentStatus(),
+		OriginalStatus:          pr.OriginalStatus,
+		ResolutionDate:          pr.MergedDate,
+		CreatedDate:             &pr.CreatedDate,
+		OriginalEstimateMinutes: nil,
+		TimeSpentMinutes:        nil,
+		TimeRemainingMinutes:    nil,
+		CreatorId:               pr.AuthorId,
+		CreatorName:             pr.AuthorName,
+		ParentIncidentId:        pr.ParentPrId,
+		Priority:                "",
+		Severity:                "",
+		Urgency:                 "",
+		Component:               pr.Component,
+		OriginalProject:         "",
+		ScopeId:                 pr.BaseRepoId,
+		Table:                   "repos",
+		AssigneeId:              pr.AuthorId,
+		AssigneeName:            pr.AuthorName,
+	}
+
+	if pr.MergedDate != nil {
+		incident.UpdatedDate = pr.MergedDate
+	}
+	if incident.UpdatedDate == nil {
+		incident.UpdatedDate = pr.ClosedDate
+	}
+
+	if pr.MergedDate != nil {
+		temp := uint(pr.MergedDate.Sub(pr.CreatedDate).Minutes())
+		incident.LeadTimeMinutes = &temp
+	}
+	return incident, nil
 }

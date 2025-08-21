@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -36,30 +37,29 @@ var ExtractIssueChangelogsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 
-func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*JiraTaskData)
+func ExtractIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
+	data := subtaskCtx.GetData().(*JiraTaskData)
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
 	}
 	connectionId := data.Options.ConnectionId
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
+	userFieldMap, err := getUserFieldMap(subtaskCtx.GetDal(), connectionId, subtaskCtx.GetLogger())
+	if err != nil {
+		return err
+	}
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[apiv2models.Changelog]{
+		SubtaskCommonArgs: &api.SubtaskCommonArgs{
+			SubTaskContext: subtaskCtx,
+			Table:          RAW_CHANGELOG_TABLE,
 			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			Table: RAW_CHANGELOG_TABLE,
 		},
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+		Extract: func(changelog *apiv2models.Changelog, row *api.RawData) ([]interface{}, errors.Error) {
 			// process input
 			var input apiv2models.Input
 			err := errors.Convert(json.Unmarshal(row.Input, &input))
-			if err != nil {
-				return nil, err
-			}
-			var changelog apiv2models.Changelog
-			err = errors.Convert(json.Unmarshal(row.Data, &changelog))
 			if err != nil {
 				return nil, err
 			}
@@ -68,7 +68,7 @@ func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			cl, user := changelog.ToToolLayer(connectionId, input.IssueId, &input.UpdateTime)
 			// this is crucial for incremental update
 			cl.IssueUpdated = &input.UpdateTime
-			// collect changelog / user inforation
+			// collect changelog / user information
 			result = append(result, cl)
 			if user != nil {
 				result = append(result, user)
@@ -76,7 +76,8 @@ func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			// collect changelog_items
 			for _, item := range changelog.Items {
 				result = append(result, item.ToToolLayer(connectionId, changelog.ID))
-				for _, u := range item.ExtractUser(connectionId) {
+				extractedUsersFromChangelogItem := item.ExtractUser(connectionId, userFieldMap)
+				for _, u := range extractedUsersFromChangelogItem {
 					if u != nil && u.AccountId != "" {
 						result = append(result, u)
 					}

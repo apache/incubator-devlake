@@ -48,7 +48,7 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		/*
 			This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
@@ -77,11 +77,11 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Info("got user's timezone: %v", loc.String())
 	}
 	jql := "ORDER BY created ASC"
-	if collectorWithState.Since != nil {
-		jql = buildJQL(*collectorWithState.Since, loc)
+	if apiCollector.GetSince() != nil {
+		jql = buildJQL(*apiCollector.GetSince(), loc)
 	}
 
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient: data.ApiClient,
 		PageSize:  data.Options.PageSize,
 		/*
@@ -143,7 +143,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }
 
 // buildJQL build jql based on timeAfter and incremental mode

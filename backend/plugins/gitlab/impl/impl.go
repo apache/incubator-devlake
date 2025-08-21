@@ -98,6 +98,7 @@ func (p Gitlab) GetTablesInfo() []dal.Tabler {
 		&models.GitlabProject{},
 		&models.GitlabProjectCommit{},
 		&models.GitlabReviewer{},
+		&models.GitlabAssignee{},
 		&models.GitlabTag{},
 		&models.GitlabIssueAssignee{},
 		&models.GitlabScopeConfig{},
@@ -206,7 +207,11 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
 	}
-
+	cfg := taskCtx.GetConfigReader()
+	op.CollectAllUsers = true
+	if cfg.IsSet("GITLAB_SERVER_COLLECT_ALL_USERS") {
+		op.CollectAllUsers = cfg.GetBool("GITLAB_SERVER_COLLECT_ALL_USERS")
+	}
 	taskData := tasks.GitlabTaskData{
 		Options:       op,
 		ApiClient:     apiClient,
@@ -270,6 +275,9 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

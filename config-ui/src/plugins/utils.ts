@@ -33,6 +33,8 @@ export const getPluginScopeId = (plugin: string, scope: any) => {
       return `${scope.fullName}`;
     case 'bitbucket':
       return `${scope.bitbucketId}`;
+    case 'bitbucket_server':
+      return `${scope.bitbucketId}`;
     case 'sonarqube':
       return `${scope.projectKey}`;
     case 'bamboo':

@@ -21,6 +21,8 @@ import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
 
+import { Organization } from './connection-fields/organization';
+
 export const SonarQubeConfig: IPluginConfig = {
   plugin: 'sonarqube',
   name: 'SonarQube',
@@ -28,12 +30,31 @@ export const SonarQubeConfig: IPluginConfig = {
   sort: 11,
   connection: {
     docLink: DOC_URL.PLUGIN.SONARQUBE.BASIS,
+    initialValues: {
+      endpoint: 'https://sonarcloud.io/api/',
+    },
     fields: [
       'name',
       {
         key: 'endpoint',
-        subLabel: 'Provide the SonarQube instance API endpoint. E.g. http://<host>:<port>/api/',
+        multipleVersions: {
+          cloud: 'https://sonarcloud.io/api/',
+          server: ' ',
+        },
+        cloudName: 'SonarCloud',
+        subLabel: 'The URL should be `http://<sonarqube-host>:<port>/api/`',
       },
+      ({ type, initialValues, values, errors, setValues, setErrors }: any) => (
+        <Organization
+          key="organization"
+          type={type}
+          initialValues={initialValues}
+          values={values}
+          errors={errors}
+          setValues={setValues}
+          setErrors={setErrors}
+        />
+      ),
       'token',
       'proxy',
       {

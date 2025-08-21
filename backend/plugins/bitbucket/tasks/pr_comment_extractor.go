@@ -28,7 +28,7 @@ import (
 )
 
 var ExtractApiPrCommentsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPullRequestsComments",
+	Name:             "Extract PR Comments",
 	EntryPoint:       ExtractApiPullRequestsComments,
 	EnabledByDefault: true,
 	Required:         false,

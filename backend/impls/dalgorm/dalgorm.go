@@ -236,6 +236,20 @@ func (d *Dalgorm) Create(entity interface{}, clauses ...dal.Clause) errors.Error
 // CreateWithMap insert record to database
 func (d *Dalgorm) CreateWithMap(entity interface{}, record map[string]interface{}) errors.Error {
 	d.unwrapDynamic(&entity, nil)
+	if record != nil {
+		if id, ok := record["id"]; ok && id != nil {
+			var columns []string
+			for column := range record {
+				columns = append(columns, column)
+			}
+			return d.convertGormError(buildTx(d.db, nil).Model(entity).Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "id"}},
+				DoUpdates: clause.AssignmentColumns(columns),
+			}).Create(record).Error)
+		} else {
+			return d.convertGormError(buildTx(d.db, nil).Model(entity).Clauses(clause.OnConflict{UpdateAll: true}).Create(record).Error)
+		}
+	}
 	return d.convertGormError(buildTx(d.db, nil).Model(entity).Clauses(clause.OnConflict{UpdateAll: true}).Create(record).Error)
 }
 
@@ -358,6 +372,24 @@ func (d *Dalgorm) RenameColumn(table, oldColumnName, newColumnName string) error
 	)
 }
 
+// ModifyColumnType modify column type
+func (d *Dalgorm) ModifyColumnType(table, columnName, columnType string) errors.Error {
+	// work around the error `cached plan must not change result type` for postgres
+	// wrap in func(){} to make the linter happy
+	defer func() {
+		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
+	}()
+	query := "ALTER TABLE ? MODIFY COLUMN ? %s"
+	if d.db.Dialector.Name() == "postgres" {
+		query = "ALTER TABLE ? ALTER COLUMN ? TYPE %s"
+	}
+	return d.Exec(
+		fmt.Sprintf(query, columnType),
+		clause.Table{Name: table},
+		clause.Column{Name: columnName},
+	)
+}
+
 // AllTables returns all tables in the database
 func (d *Dalgorm) AllTables() ([]string, errors.Error) {
 	var tableSql string
@@ -427,6 +459,12 @@ func (d *Dalgorm) DropIndexes(table string, indexNames ...string) errors.Error {
 		}
 	}
 	return nil
+}
+
+// DropIndexes drops the index of specified columns
+func (d *Dalgorm) DropIndex(table string, columnNames ...string) errors.Error {
+	indexName := fmt.Sprintf("idx_%s_%s", table, strings.Join(columnNames, "_"))
+	return d.DropIndexes(table, indexName)
 }
 
 // Dialect returns the dialect of the database

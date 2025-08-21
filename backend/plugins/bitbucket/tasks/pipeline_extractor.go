@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -70,7 +71,7 @@ type BitbucketApiPipeline struct {
 }
 
 var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPipelines",
+	Name:             "Extract Pipelines",
 	EntryPoint:       ExtractApiPipelines,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipelines data into tool layer table BitbucketPipeline",
@@ -104,9 +105,6 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				BitbucketCompleteOn: common.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),
 				Type:                data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, bitbucketApiPipeline.Target.RefName),
 				Environment:         data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, bitbucketApiPipeline.Target.RefName),
-			}
-			if err != nil {
-				return nil, err
 			}
 			if bitbucketApiPipeline.State.Result != nil {
 				bitbucketPipeline.Result = bitbucketApiPipeline.State.Result.Name

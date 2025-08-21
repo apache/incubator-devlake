@@ -40,5 +40,7 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(addBuildNumberToPipelines),
 		new(reCreatBitBucketPipelineSteps),
+		new(addMergedByToPr),
+		new(changeIssueComponentType),
 	}
 }

@@ -29,7 +29,7 @@ const Wrapper = styled.div`
   }
 
   & > p {
-    margin-top: 0;
+    margin-top: 5px;
   }
 
   & + & {
@@ -42,7 +42,7 @@ interface Props {
   title?: React.ReactNode;
   description?: React.ReactNode;
   required?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export const Block = ({ style, title, description, required, children }: Props) => {

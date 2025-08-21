@@ -46,7 +46,7 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// state manager
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx:     taskCtx,
 		Options: data.Options,
 		Table:   RAW_TASK_COMMITS_TABLE,
@@ -64,8 +64,8 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("last_edited_date is not null and last_edited_date > ?", apiCollector.GetSince()))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -78,7 +78,7 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// collect task commits
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
 			Options: data.Options,
@@ -107,5 +107,5 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

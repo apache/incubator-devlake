@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -51,7 +49,7 @@ type ApiJob struct {
 }
 
 var ExtractApiJobsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiJobs",
+	Name:             "Extract Job Runs",
 	EntryPoint:       ExtractApiJobs,
 	EnabledByDefault: true,
 	Description:      "Extract raw GitlabJob data into tool layer table GitlabPipeline",
@@ -59,19 +57,12 @@ var ExtractApiJobsMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&CollectApiJobsMeta},
 }
 
-func ExtractApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
+func ExtractApiJobs(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_JOB_TABLE)
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			// create gitlab commit
-			gitlabApiJob := &ApiJob{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiJob))
-			if err != nil {
-				return nil, err
-			}
-
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[ApiJob]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Extract: func(gitlabApiJob *ApiJob, row *api.RawData) ([]interface{}, errors.Error) {
 			gitlabPipeline, err := convertJob(gitlabApiJob, data.Options.ProjectId)
 			if err != nil {
 				return nil, err

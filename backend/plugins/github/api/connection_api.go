@@ -78,7 +78,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 	testConnectionResult, err := testConnection(context.TODO(), conn)
 	if err != nil {
-		return nil, errors.Convert(err)
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }
@@ -92,6 +92,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/github/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	if _, ok := input.Body["enableGraphql"]; !ok {
+		input.Body["enableGraphql"] = true
+	}
 	return dsHelper.ConnApi.Post(input)
 }
 
@@ -344,18 +347,36 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 		for _, token := range tokens {
 			testGithubConn := conn
 			testGithubConn.Token = token
-			if tokenTestResult, err := testGithubConnAccessTokenAuth(ctx, testGithubConn); err != nil {
-				return nil, errors.Convert(err)
-			} else {
-				githubApiResponse.Tokens = append(githubApiResponse.Tokens, tokenTestResult)
-				if tokenTestResult.Success {
-					githubApiResponse.Success = tokenTestResult.Success
-					githubApiResponse.Message = tokenTestResult.Message
+			tokenTestResult, err := testGithubConnAccessTokenAuth(ctx, testGithubConn)
+			if err != nil {
+				// generate a failed message for current token
+				tokenTestResult = &GitHubTestConnResult{
+					AuthMethod:     models.AccessToken,
+					AppId:          testGithubConn.AppId,
+					InstallationID: testGithubConn.InstallationID,
+					Token:          testGithubConn.Sanitize().Token,
+					Success:        false,
+					Message:        err.Error(),
+					Login:          "",
+					Warning:        false,
+					Installations:  nil,
 				}
 			}
+			githubApiResponse.Tokens = append(githubApiResponse.Tokens, tokenTestResult)
 		}
 	} else {
 		return nil, errors.BadInput.New("invalid authentication method")
+	}
+
+	// resp.success is true by default
+	githubApiResponse.Success = true
+	githubApiResponse.Message = "success"
+	for _, token := range githubApiResponse.Tokens {
+		if !token.Success {
+			githubApiResponse.Success = false
+			githubApiResponse.Message = token.Message
+			githubApiResponse.Causes = append(githubApiResponse.Causes, token.Message)
+		}
 	}
 
 	return githubApiResponse, nil
@@ -365,18 +386,19 @@ func testExistingConnection(ctx context.Context, conn models.GithubConn) (*Githu
 // @Summary test github connection
 // @Description Test github Connection
 // @Tags plugins/github
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} GithubMultiTestConnResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/github/{connectionId}/test [POST]
+// @Router /plugins/github/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	testConnectionResult, testConnectionErr := testExistingConnection(context.TODO(), connection.GithubConn)
 	if testConnectionErr != nil {
-		return nil, testConnectionErr
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
 	}
 	return &plugin.ApiResourceOutput{Body: testConnectionResult, Status: http.StatusOK}, nil
 }

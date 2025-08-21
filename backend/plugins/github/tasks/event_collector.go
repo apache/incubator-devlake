@@ -46,7 +46,7 @@ type SimpleGithubApiEvents struct {
 }
 
 var CollectApiEventsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiEvents",
+	Name:             "Collect Events",
 	EntryPoint:       CollectApiEvents,
 	EnabledByDefault: true,
 	Description:      "Collect Events data from Github api, supports both timeFilter and diffSync.",

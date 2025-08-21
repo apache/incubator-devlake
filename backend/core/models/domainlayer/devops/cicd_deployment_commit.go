@@ -23,14 +23,17 @@ import (
 
 type CicdDeploymentCommit struct {
 	domainlayer.DomainEntity
-	CicdScopeId      string `gorm:"index;type:varchar(255)"`
-	CicdDeploymentId string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
-	Name             string `gorm:"type:varchar(255)"`
-	Result           string `gorm:"type:varchar(100)"`
-	Status           string `gorm:"type:varchar(100)"`
-	OriginalStatus   string `gorm:"type:varchar(100)"`
-	OriginalResult   string `gorm:"type:varchar(100)"`
-	Environment      string `gorm:"type:varchar(255)"`
+	CicdScopeId         string `gorm:"index;type:varchar(255)"`
+	CicdDeploymentId    string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
+	Name                string `gorm:"type:varchar(255)"`
+	DisplayTitle        string
+	Url                 string
+	Result              string `gorm:"type:varchar(100)"`
+	Status              string `gorm:"type:varchar(100)"`
+	OriginalStatus      string `gorm:"type:varchar(100)"`
+	OriginalResult      string `gorm:"type:varchar(100)"`
+	Environment         string `gorm:"type:varchar(255)"`
+	OriginalEnvironment string `gorm:"type:varchar(255)"`
 	TaskDatesInfo
 	DurationSec                   *float64
 	QueuedDurationSec             *float64
@@ -40,6 +43,7 @@ type CicdDeploymentCommit struct {
 	RepoId                        string `gorm:"type:varchar(255)"`
 	RepoUrl                       string `gorm:"index;not null"`
 	PrevSuccessDeploymentCommitId string `gorm:"type:varchar(255)"`
+	SubtaskName                   string `gorm:"type:varchar(255)"`
 }
 
 func (cicdDeploymentCommit CicdDeploymentCommit) TableName() string {
@@ -47,18 +51,23 @@ func (cicdDeploymentCommit CicdDeploymentCommit) TableName() string {
 }
 
 func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment {
+	return cicdDeploymentCommit.ToDeploymentWithCustomDisplayTitle(cicdDeploymentCommit.DisplayTitle)
+}
+
+func (cicdDeploymentCommit CicdDeploymentCommit) ToDeploymentWithCustomDisplayTitle(displayTitle string) *CICDDeployment {
 	return &CICDDeployment{
 		DomainEntity: domainlayer.DomainEntity{
 			Id:        cicdDeploymentCommit.CicdDeploymentId,
 			NoPKModel: cicdDeploymentCommit.DomainEntity.NoPKModel,
 		},
-		CicdScopeId:    cicdDeploymentCommit.CicdScopeId,
-		Name:           cicdDeploymentCommit.Name,
-		Result:         cicdDeploymentCommit.Result,
-		Status:         cicdDeploymentCommit.Status,
-		OriginalStatus: cicdDeploymentCommit.OriginalStatus,
-		OriginalResult: cicdDeploymentCommit.OriginalResult,
-		Environment:    cicdDeploymentCommit.Environment,
+		CicdScopeId:         cicdDeploymentCommit.CicdScopeId,
+		Name:                cicdDeploymentCommit.Name,
+		Result:              cicdDeploymentCommit.Result,
+		Status:              cicdDeploymentCommit.Status,
+		OriginalStatus:      cicdDeploymentCommit.OriginalStatus,
+		OriginalResult:      cicdDeploymentCommit.OriginalResult,
+		Environment:         cicdDeploymentCommit.Environment,
+		OriginalEnvironment: cicdDeploymentCommit.OriginalEnvironment,
 		TaskDatesInfo: TaskDatesInfo{
 			CreatedDate:  cicdDeploymentCommit.CreatedDate,
 			QueuedDate:   cicdDeploymentCommit.QueuedDate,
@@ -67,5 +76,7 @@ func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment 
 		},
 		QueuedDurationSec: cicdDeploymentCommit.QueuedDurationSec,
 		DurationSec:       cicdDeploymentCommit.DurationSec,
+		DisplayTitle:      displayTitle,
+		Url:               cicdDeploymentCommit.Url,
 	}
 }

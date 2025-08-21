@@ -19,9 +19,10 @@ package utils
 
 import (
 	"crypto/rand"
-	"github.com/apache/incubator-devlake/core/errors"
 	"math/big"
 	"strings"
+
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -80,4 +81,19 @@ func SanitizeString(s string) string {
 		prefixLen, suffixLen = 1, 1
 	}
 	return strings.Replace(s, s[prefixLen:strLen-suffixLen], strings.Repeat("*", strLen-prefixLen-suffixLen), -1)
+}
+
+// from https://stackoverflow.com/questions/12311033/extracting-substrings-in-go
+func Substr(input string, start int, length int) string {
+	asRunes := []rune(input)
+
+	if start >= len(asRunes) {
+		return ""
+	}
+
+	if start+length > len(asRunes) {
+		length = len(asRunes) - start
+	}
+
+	return string(asRunes[start : start+length])
 }

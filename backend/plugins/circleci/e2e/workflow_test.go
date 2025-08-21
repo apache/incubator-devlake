@@ -72,15 +72,7 @@ func TestCircleciWorkflow(t *testing.T) {
 		devops.CICDPipeline{},
 		e2ehelper.TableOptions{
 			CSVRelPath:   "./snapshot_tables/cicd_pipelines.csv",
-			IgnoreFields: []string{"finished_date", "created_date"},
-			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
-		},
-	)
-	dataflowTester.VerifyTableWithOptions(
-		devops.CiCDPipelineCommit{},
-		e2ehelper.TableOptions{
-			CSVRelPath:   "./snapshot_tables/cicd_pipeline_commits.csv",
-			IgnoreFields: []string{"finished_date"},
+			IgnoreFields: []string{"finished_date", "created_date", "is_child"},
 			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
 		},
 	)

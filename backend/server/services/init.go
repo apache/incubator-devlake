@@ -18,6 +18,7 @@ limitations under the License.
 package services
 
 import (
+	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/config"
@@ -42,7 +43,14 @@ var basicRes context.BasicRes
 var migrator plugin.Migrator
 var cronManager *cron.Cron
 var vld *validator.Validate
+var serviceStatus string
 
+const (
+	SERVICE_STATUS_INIT         = "initializing"
+	SERVICE_STATUS_WAIT_CONFIRM = "waiting for migration confirmation"
+	SERVICE_STATUS_MIGRATING    = "migrating"
+	SERVICE_STATUS_READY        = "ready"
+)
 const failToCreateCronJob = "created cron job failed"
 
 // InitResources creates resources needed by services module
@@ -50,6 +58,7 @@ func InitResources() {
 	var err error
 
 	// basic resources initialization
+	serviceStatus = SERVICE_STATUS_INIT
 	vld = validator.New()
 	basicRes = runner.CreateAppBasicRes()
 	cfg = basicRes.GetConfigReader()
@@ -61,7 +70,7 @@ func InitResources() {
 	if err != nil {
 		panic(err)
 	}
-	logger.Info("migration initialized")
+	logger.Info("migrator has been initialized")
 	migrator.Register(migrationscripts.All(), "Framework")
 }
 
@@ -75,60 +84,92 @@ func GetMigrator() plugin.Migrator {
 	return migrator
 }
 
+func registerPluginsMigrationScripts() {
+	// pull migration scripts from plugins to migrator
+	for _, pluginInst := range plugin.AllPlugins() {
+		if migratable, ok := pluginInst.(plugin.PluginMigration); ok {
+			logger.Info("register plugin:%s's migrations scripts", pluginInst.Name())
+			migrator.Register(migratable.MigrationScripts(), pluginInst.Name())
+		}
+	}
+}
+
+func InitExecuteMigration() {
+	// check if there are pending migration
+	logger.Info("has pending scripts? %v, FORCE_MIGRATION: %v", migrator.HasPendingScripts(), cfg.GetBool("FORCE_MIGRATION"))
+	if migrator.HasPendingScripts() {
+		if cfg.GetBool("FORCE_MIGRATION") {
+			errors.Must(ExecuteMigration())
+			logger.Info("db migration without confirmation")
+		} else {
+			serviceStatus = SERVICE_STATUS_WAIT_CONFIRM
+			logger.Info("db migration confirmation needed")
+		}
+	} else {
+		errors.Must(ExecuteMigration())
+		logger.Info("no db migration needed")
+	}
+}
+
 // Init the services module
+// Should not be called concurrently
 func Init() {
 	InitResources()
 
 	// lock the database to avoid multiple devlake instances from sharing the same one
 	lockDatabase()
 
-	var err error
 	// now, load the plugins
-	err = runner.LoadPlugins(basicRes)
-	if err != nil {
-		logger.Error(err, "failed to load plugins")
-		panic(err)
-	}
-
-	// pull migration scripts from plugins to migrator
-	for _, pluginInst := range plugin.AllPlugins() {
-		if migratable, ok := pluginInst.(plugin.PluginMigration); ok {
-			migrator.Register(migratable.MigrationScripts(), pluginInst.Name())
-		}
-	}
-
-	// check if there are pending migration
-	forceMigration := cfg.GetBool("FORCE_MIGRATION")
-	if !migrator.HasPendingScripts() || forceMigration {
-		err = ExecuteMigration()
-		if err != nil {
-			panic(err)
-		}
-	}
-	logger.Info("Db migration confirmation needed")
+	errors.Must(runner.LoadPlugins(basicRes))
+	logger.Info("all plugins have been loaded")
+	registerPluginsMigrationScripts()
 }
 
+func InjectCustomService(customPipelineNotifier PipelineNotificationService, customProjectService ProjectService) errors.Error {
+	if customPipelineNotifier != nil {
+		customPipelineNotificationService = customPipelineNotifier
+	}
+	if customProjectService != nil {
+		projectService = customProjectService
+	}
+	return nil
+}
+
+var statusLock sync.Mutex
+
 // ExecuteMigration executes all pending migration scripts and initialize services module
+// This might be called concurrently across multiple API requests
 func ExecuteMigration() errors.Error {
+	statusLock.Lock()
+	if serviceStatus == SERVICE_STATUS_MIGRATING {
+		statusLock.Unlock()
+		return errors.BadInput.New("There is a migration in progress.")
+	}
+	if serviceStatus == SERVICE_STATUS_READY {
+		statusLock.Unlock()
+		return nil
+	}
+	serviceStatus = SERVICE_STATUS_MIGRATING
+	statusLock.Unlock() // unlock to allow other API requests to check the status
 	// apply all pending migration scripts
 	err := migrator.Execute()
 	if err != nil {
+		logger.Error(err, "failed to execute migration")
 		return err
 	}
 
 	// cronjob for blueprint triggering
 	location := cron.WithLocation(time.UTC)
 	cronManager = cron.New(location)
-	if err != nil {
-		panic(err)
-	}
 
 	// initialize pipeline server, mainly to start the pipeline consuming process
 	pipelineServiceInit()
+	statusLock.Lock()
+	serviceStatus = SERVICE_STATUS_READY
+	statusLock.Unlock()
 	return nil
 }
 
-// MigrationRequireConfirmation returns if there were migration scripts waiting to be executed
-func MigrationRequireConfirmation() bool {
-	return migrator.HasPendingScripts()
+func CurrentStatus() string {
+	return serviceStatus
 }

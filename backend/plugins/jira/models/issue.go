@@ -38,8 +38,8 @@ type JiraIssue struct {
 	EpicKey                  string `gorm:"type:varchar(255)"`
 	StatusName               string `gorm:"type:varchar(255)"`
 	StatusKey                string `gorm:"type:varchar(255)"`
-	StoryPoint               float64
-	OriginalEstimateMinutes  int64  // user input?
+	StoryPoint               *float64
+	OriginalEstimateMinutes  *int64 // user input?
 	AggregateEstimateMinutes int64  // sum up of all subtasks?
 	RemainingEstimateMinutes int64  // could it be negative value?
 	CreatorAccountId         string `gorm:"type:varchar(255)"`
@@ -57,12 +57,17 @@ type JiraIssue struct {
 	ResolutionDate           *time.Time
 	Created                  time.Time
 	Updated                  time.Time `gorm:"index"`
-	SpentMinutes             int64
+	SpentMinutes             *int64
 	CommentTotal             int64
-	LeadTimeMinutes          uint
+	LeadTimeMinutes          *uint
 	StdType                  string `gorm:"type:varchar(255)"`
 	StdStatus                string `gorm:"type:varchar(255)"`
+	Components               string `gorm:"type:text"`
+	Subtask                  bool
 	ChangelogTotal           int
+	WorklogTotal             int
+	DueDate                  *time.Time
+	FixVersions              string `gorm:"type:text;column:fix_versions"`
 	common.NoPKModel
 }
 

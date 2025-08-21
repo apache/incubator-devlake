@@ -62,7 +62,11 @@ type Issue struct {
 				Three2X32 string `json:"32x32"`
 			} `json:"avatarUrls"`
 		} `json:"project"`
-		FixVersions        []interface{}       `json:"fixVersions"`
+		FixVersions []struct {
+			Self string `json:"self"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"fixVersions"`
 		Aggregatetimespent interface{}         `json:"aggregatetimespent"`
 		Resolution         interface{}         `json:"resolution"`
 		Resolutiondate     *common.Iso8601Time `json:"resolutiondate"`
@@ -112,6 +116,11 @@ type Issue struct {
 				Name      string `json:"name"`
 			} `json:"statusCategory"`
 		} `json:"status"`
+		Components []struct {
+			Self string `json:"self"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"components"`
 		Timeoriginalestimate *int64 `json:"timeoriginalestimate"`
 		Description          string `json:"description"`
 		Timetracking         *struct {
@@ -131,7 +140,7 @@ type Issue struct {
 			Total    int `json:"total"`
 		} `json:"aggregateprogress"`
 		Environment interface{} `json:"environment"`
-		Duedate     interface{} `json:"duedate"`
+		Duedate     string      `json:"duedate"` // yyyy-MM-dd
 		Progress    struct {
 			Progress int `json:"progress"`
 			Total    int `json:"total"`
@@ -222,7 +231,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		Self:               i.Self,
 		IconURL:            i.Fields.Issuetype.IconURL,
 		IssueKey:           i.Key,
-		StoryPoint:         workload,
+		StoryPoint:         &workload,
 		Summary:            i.Fields.Summary,
 		Description:        i.Fields.Description,
 		Type:               i.Fields.Issuetype.ID,
@@ -237,6 +246,9 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	if i.Changelog != nil {
 		result.ChangelogTotal = i.Changelog.Total
 	}
+	if i.Fields.Worklog != nil {
+		result.WorklogTotal = i.Fields.Worklog.Total
+	}
 	if i.Fields.Epic != nil {
 		result.EpicKey = i.Fields.Epic.Key
 	}
@@ -249,7 +261,8 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		result.PriorityName = i.Fields.Priority.Name
 	}
 	if i.Fields.Timeoriginalestimate != nil {
-		result.OriginalEstimateMinutes = *i.Fields.Timeoriginalestimate / 60
+		temp := *i.Fields.Timeoriginalestimate / 60
+		result.OriginalEstimateMinutes = &temp
 	}
 	if i.Fields.Aggregatetimeestimate != nil {
 		result.AggregateEstimateMinutes = *i.Fields.Aggregatetimeestimate / 60
@@ -266,7 +279,8 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		result.SprintName = i.Fields.Sprint.Name
 	}
 	if i.Fields.Timespent != nil {
-		result.SpentMinutes = *i.Fields.Timespent / 60
+		temp := *i.Fields.Timespent / 60
+		result.SpentMinutes = &temp
 	}
 	return result
 }
@@ -290,7 +304,7 @@ func (i *Issue) SetAllFields(raw json.RawMessage) errors.Error {
 	return nil
 }
 
-func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraIssueComment, []*models.JiraWorklog, []*models.JiraIssueChangelogs, []*models.JiraIssueChangelogItems, []*models.JiraAccount) {
+func (i Issue) ExtractEntities(connectionId uint64, userFieldMaps map[string]struct{}) ([]uint64, *models.JiraIssue, []*models.JiraIssueComment, []*models.JiraWorklog, []*models.JiraIssueChangelogs, []*models.JiraIssueChangelogItems, []*models.JiraAccount) {
 	issue := i.toToolLayer(connectionId)
 	var comments []*models.JiraIssueComment
 	var worklogs []*models.JiraWorklog
@@ -331,7 +345,7 @@ func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue
 			}
 			for _, item := range changelog.Items {
 				changelogItems = append(changelogItems, item.ToToolLayer(connectionId, changelog.ID))
-				users = append(users, item.ExtractUser(connectionId)...)
+				users = append(users, item.ExtractUser(connectionId, userFieldMaps)...)
 			}
 		}
 	}

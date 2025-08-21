@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 24,
+  "id": 40,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -43,7 +43,7 @@
         "content": "- Use Cases: This dashboard is to overview the Git and project management metrics.\n- Data Source Required: Jira + GitHub, or Jira + GitLab.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -104,19 +104,22 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.priority in ($priority) and\n  i.type = 'BUG' and\n  date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY;",
+          "rawSql": "select\n  count(distinct i.id)\nfrom\n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in (${project}) and\n  i.priority in (${priority}) and\n  i.type = 'BUG' and\n  date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH;",
           "refId": "A",
           "select": [
             [
@@ -128,6 +131,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -140,7 +160,7 @@
           ]
         }
       ],
-      "title": "Critical Defects Identified",
+      "title": "Critical Defects Identified [in $month]",
       "type": "stat"
     },
     {
@@ -151,6 +171,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -201,7 +222,9 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -213,6 +236,7 @@
           "valueSize": 12
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -223,12 +247,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _issues as(\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as defect_count\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  where\n    pm.project_name in ($project) and\n    i.priority in ($priority)\n    and i.type = 'BUG'\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  defect_count\nfrom _issues\norder by time asc\n",
+          "rawSql": "with _issues as(\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(distinct i.id) as defect_count\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  where\n    pm.project_name in (${project}) and\n    i.priority in (${priority})\n    and i.type = 'BUG'\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  defect_count\nfrom _issues\norder by time asc\n",
           "refId": "A",
           "select": [
             [
@@ -240,6 +265,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -279,12 +321,19 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 8,
         "w": 6,
         "x": 0,
         "y": 11
       },
       "id": 10,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Lead Time",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementLeadTime"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -297,18 +346,21 @@
           "fields": "/^value$/",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  avg(lead_time_minutes/1440) as value\r\nfrom issues i\r\n\tjoin board_issues bi on i.id = bi.issue_id\r\n\tjoin boards b on bi.board_id = b.id\r\n\tjoin project_mapping pm on b.id = pm.row_id\r\nwhere \r\n  pm.project_name in ($project) and\r\n  i.type in ($type)\r\n  and i.status = 'DONE'\r\n  and $__timeFilter(i.resolution_date)",
+          "rawSql": "select \r\n  avg(lead_time_minutes/1440) as value\r\nfrom issues i\r\n\tjoin board_issues bi on i.id = bi.issue_id\r\n\tjoin boards b on bi.board_id = b.id\r\n\tjoin project_mapping pm on b.id = pm.row_id\r\nwhere \r\n  pm.project_name in (${project}) and\r\n  i.type in (${type})\r\n  and i.status = 'DONE'\r\n  and i.resolution_date between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH;",
           "refId": "A",
           "select": [
             [
@@ -320,6 +372,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ca_analysis",
           "timeColumn": "create_time",
           "timeColumnType": "timestamp",
@@ -332,7 +401,7 @@
           ]
         }
       ],
-      "title": "Mean Issue Lead Time in Days [Issues Resolved in Select Time Range]",
+      "title": "Mean Issue Lead Time in Days [Issues Resolved in $month]",
       "type": "stat"
     },
     {
@@ -344,6 +413,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Lead Time(days)",
@@ -383,20 +453,29 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 8,
         "w": 18,
         "x": 6,
         "y": 11
       },
       "id": 23,
       "interval": "",
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Lead Time",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementLeadTime"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -408,6 +487,7 @@
           "valueSize": 12
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -422,7 +502,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.resolution_date), INTERVAL -DAY(date(i.resolution_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/1440) as issue_lead_time\n  FROM issues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  WHERE\n    pm.project_name in ($project)\n    and i.status = \"DONE\"\n    and $__timeFilter(i.resolution_date)\n    and i.resolution_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_lead_time as \"Mean Requirement Lead Time in Days\"\nFROM _issues\nORDER BY time",
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.resolution_date), INTERVAL -DAY(date(i.resolution_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/1440) as issue_lead_time\n  FROM issues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  WHERE\n    pm.project_name in (${project})\n    and i.status = \"DONE\"\n    and $__timeFilter(i.resolution_date)\n    and i.resolution_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_lead_time as \"Mean Requirement Lead Time in Days\"\nFROM _issues\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -481,7 +561,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 17
+        "y": 19
       },
       "id": 14,
       "options": {
@@ -496,19 +576,22 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(distinct author_name)\nfrom\n  commits c\n  join repo_commits rc on c.sha = rc.commit_sha\n  join project_mapping pm on rc.repo_id = pm.row_id\nwhere\n  date(authored_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY and\n    pm.project_name in ($project);",
+          "rawSql": "select\n  count(distinct author_name)\nfrom\n  commits c\n  join repo_commits rc on c.sha = rc.commit_sha\n  join project_mapping pm on rc.repo_id = pm.row_id and pm.table = 'repos' \nwhere\n  date(authored_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH\n  and pm.project_name in (${project})",
           "refId": "A",
           "select": [
             [
@@ -520,6 +603,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -532,7 +632,7 @@
           ]
         }
       ],
-      "title": "Number of Developers",
+      "title": "Number of Developers [in $month]",
       "type": "stat"
     },
     {
@@ -543,6 +643,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -584,7 +685,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 17
+        "y": 19
       },
       "id": 24,
       "options": {
@@ -593,7 +694,9 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -605,6 +708,7 @@
           "valueSize": 12
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -615,12 +719,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _developers as(\n  select\n    DATE_ADD(date(c.authored_date), INTERVAL -DAY(date(c.authored_date))+1 DAY) as time,\n    count(distinct author_name) as developer_count\n  from\n    commits c\n    join repo_commits rc on c.sha = rc.commit_sha\n    join project_mapping pm on rc.repo_id = pm.row_id\n  where\n    $__timeFilter(c.authored_date)\n    and c.authored_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in ($project)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  developer_count\nfrom _developers\norder by time asc",
+          "rawSql": "with _developers as(\n  select\n    DATE_ADD(date(c.authored_date), INTERVAL -DAY(date(c.authored_date))+1 DAY) as time,\n    count(distinct author_name) as developer_count\n  from\n    commits c\n    join repo_commits rc on c.sha = rc.commit_sha\n    join project_mapping pm on rc.repo_id = pm.row_id and pm.table = 'repos' \n  where\n    $__timeFilter(c.authored_date)\n    and c.authored_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n    and pm.project_name in (${project})\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  developer_count\nfrom _developers\norder by time asc",
           "refId": "A",
           "select": [
             [
@@ -632,6 +737,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -681,9 +803,16 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 25
+        "y": 27
       },
       "id": 6,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -696,19 +825,22 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    count(*) as num_issues_with_sprint_updated\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n    join issue_changelogs c on i.id = c.issue_id\n  where\n    pm.project_name in ($project) and\n    c.field_name = 'Sprint' and\n    c.original_from_value != '' and\n    c.original_to_value != '' and\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n),\n\n_total_num_issues as (\n  select\n    count(*) as total_num_issues\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  where\n    pm.project_name in ($project) and\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n)\n\nselect\n  now() as time,\n  100 - 100 * (select 1.0 * num_issues_with_sprint_updated from _num_issues_with_sprint_updated) / (select total_num_issues from _total_num_issues) as ratio;",
+          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    NULLIF(COUNT(DISTINCT i.id), 0) AS num_issues_with_sprint_updated\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n    join issue_changelogs c on i.id = c.issue_id\n  where\n    pm.project_name in (${project}) and\n    c.field_name = 'Sprint' and\n    c.original_from_value != '' and\n    c.original_to_value != '' and\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH\n),\n\n_total_num_issues as (\n  select\n    NULLIF(COUNT(distinct i.id), 0) as total_num_issues\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  where\n    pm.project_name in (${project}) and\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH\n)\n\nselect\n  now() as time,\n  100 - 100 * (select 1.0 * num_issues_with_sprint_updated from _num_issues_with_sprint_updated) / (select total_num_issues from _total_num_issues) as ratio;",
           "refId": "A",
           "select": [
             [
@@ -720,6 +852,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -732,7 +881,7 @@
           ]
         }
       ],
-      "title": "On-time Delivery",
+      "title": "On-time Delivery [in $month]",
       "type": "stat"
     },
     {
@@ -744,6 +893,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -757,6 +907,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 10,
@@ -795,17 +946,27 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 25
+        "y": 27
       },
       "id": 25,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Delivery Rate",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementDeliveryRate"
+        }
+      ],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -814,12 +975,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as num_issues_with_sprint_updated\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n    join issue_changelogs c on i.id = c.issue_id\n  where\n    pm.project_name in ($project) and\n    c.field_name = 'Sprint'\n    and c.original_from_value != '' \n    and c.original_to_value != ''\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n),\n\n_total_num_issues as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as total_num_issues\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  where\n    pm.project_name in ($project) and\n    $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  x.time,\n  100 - 100 * (1.0 * x.num_issues_with_sprint_updated / y.total_num_issues) as delivery_rate\nfrom \n  _num_issues_with_sprint_updated x \n  join _total_num_issues y on x.time = y.time",
+          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    NULLIF(COUNT(DISTINCT i.id), 0) AS num_issues_with_sprint_updated\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n    join issue_changelogs c on i.id = c.issue_id\n  where\n    pm.project_name in (${project}) and\n    c.field_name = 'Sprint'\n    and c.original_from_value != '' \n    and c.original_to_value != ''\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n),\n\n_total_num_issues as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    NULLIF(COUNT(distinct i.id), 0) as total_num_issues\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  where\n    pm.project_name in (${project}) and\n    $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  x.time,\n  100 - 100 * (1.0 * x.num_issues_with_sprint_updated / y.total_num_issues) as delivery_rate\nfrom \n  _num_issues_with_sprint_updated x \n  join _total_num_issues y on x.time = y.time",
           "refId": "A",
           "select": [
             [
@@ -831,6 +993,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -859,8 +1038,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "green",
@@ -875,9 +1053,16 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 33
+        "y": 35
       },
       "id": 4,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -890,19 +1075,22 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere\n  pr.merged_date is not null \n  and date(pr.merged_date) between\n    STR_TO_DATE('$month','%Y-%m-%d')\n  and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY \n  and pm.project_name in ($project);",
+          "rawSql": "select\n  count(distinct pr.id)\nfrom\n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere\n  pr.merged_date is not null \n  and date(pr.merged_date) between\n    STR_TO_DATE('$month','%Y-%m-%d')\n  and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH\n  and pm.project_name in (${project});",
           "refId": "A",
           "select": [
             [
@@ -914,6 +1102,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -926,7 +1131,7 @@
           ]
         }
       ],
-      "title": "PRs merged",
+      "title": "PRs merged [in $month]",
       "type": "stat"
     },
     {
@@ -938,6 +1143,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -963,8 +1169,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -979,16 +1184,25 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 33
+        "y": 35
       },
       "id": 26,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -1000,6 +1214,7 @@
           "valueSize": 12
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -1010,12 +1225,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _merged_prs as(\n  select\n    DATE_ADD(date(pr.merged_date), INTERVAL -DAY(date(pr.merged_date))+1 DAY) as time,\n    count(*) as pr_merged_count\n  from\n    pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  where\n    pm.project_name in ($project)\n    and pr.merged_date is not null\n    and $__timeFilter(pr.merged_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  pr_merged_count\nfrom _merged_prs\norder by time asc",
+          "rawSql": "with _merged_prs as(\n  select\n    DATE_ADD(date(pr.merged_date), INTERVAL -DAY(date(pr.merged_date))+1 DAY) as time,\n    count(distinct pr.id) as pr_merged_count\n  from\n    pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \n  where\n    pm.project_name in (${project})\n    and pr.merged_date is not null\n    and $__timeFilter(pr.merged_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  pr_merged_count\nfrom _merged_prs\norder by time asc",
           "refId": "A",
           "select": [
             [
@@ -1027,6 +1243,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1054,8 +1287,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "orange",
@@ -1075,9 +1307,16 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 41
+        "y": 43
       },
       "id": 16,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1090,19 +1329,22 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  100*sum(case when id in (select pull_request_id from pull_request_issues) then 1 else 0 end)/count(*) as unlinked_pr_rate\nfrom pull_requests pr\njoin project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere pm.project_name in ($project)",
+          "rawSql": "select \n  100*count(distinct case when pr.id in (select pull_request_id from pull_request_issues) then pr.id else null end)/count(distinct pr.id) as unlinked_pr_rate\nfrom pull_requests pr\njoin project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere \n  pm.project_name in (${project})\n  and date(pr.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH",
           "refId": "A",
           "select": [
             [
@@ -1114,6 +1356,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1126,7 +1385,7 @@
           ]
         }
       ],
-      "title": "Unlinked PRs %",
+      "title": "Unlinked PRs % [in $month]",
       "type": "stat"
     },
     {
@@ -1137,6 +1396,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1150,6 +1410,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 10,
@@ -1171,8 +1432,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1188,17 +1448,27 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 41
+        "y": 43
       },
       "id": 28,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Count",
+          "url": "https://devlake.apache.org/docs/Metrics/PRCount"
+        }
+      ],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1207,12 +1477,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n  100*sum(case when id in (select pull_request_id from pull_request_issues) then 1 else 0 end)/count(*) as unlinked_pr_rate\nfrom pull_requests pr\njoin project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere pm.project_name in ($project)\nand $__timeFilter(created_date)\nand created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time\n\n",
+          "rawSql": "select\n  DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n  100*count(distinct case when pr.id in (select pull_request_id from pull_request_issues) then pr.id else null end)/count(distinct pr.id) as unlinked_pr_rate\nfrom pull_requests pr\njoin project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere pm.project_name in (${project})\nand $__timeFilter(created_date)\nand created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time\n\n",
           "refId": "A",
           "select": [
             [
@@ -1224,6 +1495,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1251,8 +1539,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "green",
@@ -1268,7 +1555,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 49
+        "y": 51
       },
       "id": 12,
       "options": {
@@ -1283,19 +1570,22 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _commits_groupby_name_and_date as (\n  select\n    author_name,\n    date(authored_date) as _day,\n    count(*)\n  from\n    commits c\n    join repo_commits rc on c.sha = rc.commit_sha\n    join project_mapping pm on rc.repo_id = pm.row_id\n  where\n    pm.project_name in ($project) and\n    WEEKDAY(authored_date) between 0 and 4 and\n    date(authored_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n  group by\n  author_name, date(authored_date)\n)\n\nselect 100 * count(*) / (count(distinct author_name) * count(distinct _day))\nfrom _commits_groupby_name_and_date;",
+          "rawSql": "with _commits_groupby_name_and_date as (\n  select\n    author_name,\n    date(authored_date) as _day,\n    count(distinct c.sha)\n  from\n    commits c\n    join repo_commits rc on c.sha = rc.commit_sha\n    join project_mapping pm on rc.repo_id = pm.row_id\n  where\n    pm.project_name in (${project}) and\n    WEEKDAY(authored_date) between 0 and 4 and\n    date(authored_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH\n  group by\n  author_name, date(authored_date)\n)\n\nselect 100 * count(*) / (count(distinct author_name) * count(distinct _day))\nfrom _commits_groupby_name_and_date;",
           "refId": "A",
           "select": [
             [
@@ -1307,6 +1597,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1319,7 +1626,7 @@
           ]
         }
       ],
-      "title": "Coding Days %",
+      "title": "Coding Days % [in $month]",
       "type": "stat"
     },
     {
@@ -1330,6 +1637,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1343,6 +1651,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 10,
@@ -1364,8 +1673,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1381,17 +1689,20 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 49
+        "y": 51
       },
       "id": 29,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1400,12 +1711,13 @@
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _commits_groupby_name_and_date as (\n  select\n    author_name,\n    date(authored_date) as _day,\n    count(*)\n  from\n    commits c\n    join repo_commits rc on c.sha = rc.commit_sha\n    join project_mapping pm on rc.repo_id = pm.row_id\n  where\n    pm.project_name in ($project) and\n    (WEEKDAY(authored_date) between 0 and 4)\n    and $__timeFilter(authored_date)\n    and authored_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1,2\n)\n\nselect\n  DATE_ADD(_day, INTERVAL -DAY(_day)+1 DAY) as time,\n  100*count(*)/(count(distinct author_name) * count(distinct _day)) as working_days_percentatages_per_month\nfrom _commits_groupby_name_and_date\ngroup by time",
+          "rawSql": "with _commits_groupby_name_and_date as (\n  select\n    author_name,\n    date(authored_date) as _day,\n    count(distinct c.sha)\n  from\n    commits c\n    join repo_commits rc on c.sha = rc.commit_sha\n    join project_mapping pm on rc.repo_id = pm.row_id\n  where\n    pm.project_name in (${project}) and\n    (WEEKDAY(authored_date) between 0 and 4)\n    and $__timeFilter(authored_date)\n    and authored_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1,2\n)\n\nselect\n  DATE_ADD(_day, INTERVAL -DAY(_day)+1 DAY) as time,\n  100*count(*)/(count(distinct author_name) * count(distinct _day)) as working_days_percentatages_per_month\nfrom _commits_groupby_name_and_date\ngroup by time",
           "refId": "A",
           "select": [
             [
@@ -1417,6 +1729,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1446,8 +1775,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1463,9 +1791,16 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 57
+        "y": 59
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1478,19 +1813,22 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440)\nfrom\n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere\n  pm.project_name in ($project) and\n  pr.merged_date is not null\n  and date(pr.created_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') \n    and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
+          "rawSql": "select\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440)\nfrom\n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere\n  pm.project_name in (${project}) and\n  pr.merged_date is not null\n  and date(pr.created_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') \n    and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH",
           "refId": "A",
           "select": [
             [
@@ -1502,6 +1840,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_raw_github_api_repositories",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -1514,7 +1869,7 @@
           ]
         }
       ],
-      "title": "Mean Time to Merge (From PR creation to merge)",
+      "title": "Mean Time to Merge [in $month]",
       "type": "stat"
     },
     {
@@ -1526,6 +1881,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1539,6 +1895,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 10,
@@ -1561,8 +1918,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1578,17 +1934,27 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 57
+        "y": 59
       },
       "id": 30,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "PR Time To Merge",
+          "url": "https://devlake.apache.org/docs/Metrics/PRTimeToMerge"
+        }
+      ],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1603,7 +1969,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  DATE_ADD(date(pr.created_date), INTERVAL -DAY(date(pr.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440) as pr_time_to_merge_in_days\nfrom\n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere\n  pm.project_name in ($project) and\n  pr.merged_date is not null\n  and $__timeFilter(pr.created_date)\n  and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time\norder by time",
+          "rawSql": "select\n  DATE_ADD(date(pr.created_date), INTERVAL -DAY(date(pr.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440) as pr_time_to_merge_in_days\nfrom\n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nwhere\n  pm.project_name in (${project}) and\n  pr.merged_date is not null\n  and $__timeFilter(pr.created_date)\n  and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time\norder by time",
           "refId": "A",
           "select": [
             [
@@ -1655,6 +2021,113 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 67
+      },
+      "id": 21,
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  count(distinct case when i.type = 'BUG' then i.id else null end) as 'Bug',\n  count(distinct case when i.type != 'BUG' and epic_key != '' then i.id else null end) as 'Strategic',\n  count(distinct case when i.type != 'BUG' and epic_key = '' then i.id else null end) as 'Non-Strategic'\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in (${project}) and\n  i.resolution_date is not null and\n  date(resolution_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Work Done % [in $month]",
+      "type": "piechart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -1680,8 +2153,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1696,8 +2168,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 65
+        "x": 12,
+        "y": 67
       },
       "id": 20,
       "options": {
@@ -1706,7 +2178,9 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -1718,6 +2192,7 @@
           "valueSize": 12
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -1732,7 +2207,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.priority as 'Priority',\n  AVG(TIMESTAMPDIFF(MINUTE, i.created_date, NOW()) / 1440) as 'Average Age'\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.status = 'TODO'\n  and i.type = 'BUG'\n  and i.priority in ($priority)\ngroup by\n  i.priority",
+          "rawSql": "select\n  i.priority as 'Priority',\n  AVG(TIMESTAMPDIFF(MINUTE, i.created_date, NOW()) / 1440) as 'Average Age'\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in (${project}) and\n  i.status = 'TODO'\n  and i.type = 'BUG'\n  and i.priority in (${priority})\ngroup by\n  i.priority",
           "refId": "A",
           "select": [
             [
@@ -1760,93 +2235,6 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 65
-      },
-      "id": 21,
-      "options": {
-        "displayLabels": [
-          "name",
-          "percent"
-        ],
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "values": [
-            "value",
-            "percent"
-          ]
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "select\n  sum(case when i.type = 'BUG' then 1 else 0 end) as 'Bug',\n  sum(case when i.type = 'BUG' and epic_key != '' then 1 else 0 end) as 'Strategic',\n  sum(case when i.type != 'BUG' and epic_key = '' then 1 else 0 end) as 'Non-Strategic'\nfrom\n  issues i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.resolution_date is not null and\n  date(resolution_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "_devlake_blueprints",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Work Done % [Selected Month]",
-      "type": "piechart"
-    },
-    {
       "datasource": {
         "type": "datasource",
         "uid": "grafana"
@@ -1855,7 +2243,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 75
       },
       "id": 34,
       "options": {
@@ -1867,7 +2255,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -1882,18 +2270,22 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
-    "Engineering Leads Dashboard"
+    "Engineering Leads Dashboard",
+    "Highlights"
   ],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "mysql",
         "definition": "select distinct name from projects",
@@ -1906,6 +2298,27 @@
         "query": "select distinct name from projects",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "",
+          "value": ""
+        },
+        "datasource": "mysql",
+        "definition": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Selected Month",
+        "multi": false,
+        "name": "month",
+        "options": [],
+        "query": "select\n  distinct(concat(date_format(month_timestamp, '%Y-%m') , ':', date_format(month_timestamp, '%Y-%m-%d'))) as month\nfrom\n  calendar_months\nwhere \n  month_timestamp <= curdate()\norder by month desc\nlimit 12",
+        "refresh": 1,
+        "regex": "/^(?<text>.*):(?<value>.*)$/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -1956,27 +2369,6 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "2022-12",
-          "value": "2022-12-01"
-        },
-        "datasource": "mysql",
-        "definition": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Month",
-        "multi": false,
-        "name": "month",
-        "options": [],
-        "query": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  issues i\norder by month desc",
-        "refresh": 1,
-        "regex": "/^(?<text>.*):(?<value>.*)$/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
       }
     ]
   },
@@ -1984,10 +2376,11 @@
     "from": "now-6M",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
-  "version": 2,
+  "version": 15,
   "weekStart": ""
 }

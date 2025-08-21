@@ -37,7 +37,7 @@ func init() {
 }
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
-	Name:             "convertIssues",
+	Name:             "Convert Issues",
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issues into  domain layer table issues",
@@ -95,7 +95,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalStatus:  issue.State,
 				AssigneeName:    issue.AssigneeName,
 				CreatorName:     issue.AuthorName,
-				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
+				LeadTimeMinutes: issue.LeadTimeMinutes,
 				Url:             issue.Url,
 				CreatedDate:     &issue.GithubCreatedAt,
 				UpdatedDate:     &issue.GithubUpdatedAt,

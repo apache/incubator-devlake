@@ -70,8 +70,11 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 		restUrl := endpointUrl.ResolveReference(refUrl)
 		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
 	}
-	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("Error username/password")
+	if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden {
+		return nil, errors.HttpStatus(res.StatusCode).New("Please check your credential")
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("%s unexpected status code: %d", serverInfoFail, res.StatusCode))
 	}
 
 	resBody := &models.JiraServerInfo{}
@@ -86,9 +89,6 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 			return nil, errors.Default.New(fmt.Sprintf("%s Support JIRA Server 7+ only", serverInfoFail))
 		}
 	}
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("%s unexpected status code: %d", serverInfoFail, res.StatusCode))
-	}
 
 	// verify credential
 	getStatusFail := "an error occurred while making request to `/rest/agile/1.0/board`"
@@ -100,7 +100,7 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 
 	errMsg := ""
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("it might you use the right token(password) but with the wrong username.please check your username/password")
+		return nil, errors.HttpStatus(res.StatusCode).New("Please check your credential")
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -111,9 +111,7 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
-	if err != nil {
-		return nil, err
-	}
+
 	return &body, nil
 }
 
@@ -137,7 +135,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	// test connection
 	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
@@ -146,21 +144,22 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test jira connection
 // @Description Test Jira Connection
 // @Tags plugins/jira
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} JiraTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/jira/{connectionId}/test [POST]
+// @Router /plugins/jira/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// test connection
-	result, err := testConnection(context.TODO(), connection.JiraConn)
-	if err != nil {
-		return nil, err
+	if result, err := testConnection(context.TODO(), connection.JiraConn); err != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+	} else {
+		return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 	}
-	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
 
 // @Summary create jira connection

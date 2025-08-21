@@ -41,13 +41,13 @@ func TestImportIssueCommitDataFlow(t *testing.T) {
 	}
 	defer f.Close()
 	// import data
-	err := svc.ImportIssueCommit(`{"ConnectionId":1,"BoardId":8}`, f)
+	err := svc.ImportIssueCommit(`csv-board`, f)
 	if err != nil {
 		t.Fatal(err)
 	}
 	dataflowTester.VerifyTableWithRawData(
 		crossdomain.IssueCommit{},
-		"snapshot_tables/issue_commits.csv",
+		"snapshot_tables/issue_commits_from_import_issue_commit.csv",
 		[]string{
 			"issue_id",
 			"commit_sha",

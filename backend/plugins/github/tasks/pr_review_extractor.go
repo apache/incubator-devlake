@@ -33,7 +33,7 @@ func init() {
 }
 
 var ExtractApiPullRequestReviewsMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPullRequestReviews",
+	Name:             "Extract PR Reviews",
 	EntryPoint:       ExtractApiPullRequestReviews,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestReviewers data into tool layer table github_reviewers",
@@ -108,8 +108,8 @@ func ExtractApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			if apiPullRequestReview.User != nil {
-				githubReviewer.GithubId = apiPullRequestReview.User.Id
-				githubReviewer.Login = apiPullRequestReview.User.Login
+				githubReviewer.ReviewerId = apiPullRequestReview.User.Id
+				githubReviewer.Username = apiPullRequestReview.User.Login
 
 				githubPrReview.AuthorUserId = apiPullRequestReview.User.Id
 				githubPrReview.AuthorUsername = apiPullRequestReview.User.Login

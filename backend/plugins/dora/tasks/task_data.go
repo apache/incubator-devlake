@@ -29,11 +29,13 @@ type DoraApiParams struct {
 type DoraOptions struct {
 	Tasks       []string `json:"tasks,omitempty"`
 	Since       string
-	ProjectName string `json:"projectName"`
+	ProjectName string  `json:"projectName"`
+	ScopeId     *string `json:"scopeId,omitempty"`
 }
 
 type DoraTaskData struct {
-	Options *DoraOptions
+	Options                         *DoraOptions
+	DisableIssueToIncidentGenerator bool
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, errors.Error) {

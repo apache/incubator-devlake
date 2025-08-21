@@ -18,12 +18,18 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
+
+type ScopeRefDoc = serviceHelper.BlueprintProjectPairs
 
 type PutScopesReqBody[T any] struct {
 	Data []*T `json:"data"`
@@ -112,7 +118,16 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourc
 		}
 		dict["connectionId"] = connectionId
 	}
-	return scopeApi.ModelApiHelper.PutMultiple(input)
+	return scopeApi.ModelApiHelper.PutMultipleCb(input, func(m *S) errors.Error {
+		ok := setRawDataOrigin(m, common.RawDataOrigin{
+			RawDataTable:  fmt.Sprintf("_raw_%s_scopes", scopeApi.GetPluginName()),
+			RawDataParams: plugin.MarshalScopeParams((*m).ScopeParams()),
+		})
+		if !ok {
+			panic("set raw data origin failed")
+		}
+		return nil
+	})
 }
 
 func (scopeApi *DsScopeApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -129,7 +144,7 @@ func (scopeApi *DsScopeApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInpu
 			Success: false,
 			Message: err.Error(),
 			Data:    refs,
-		}, Status: err.GetType().GetHttpCode()}, nil
+		}, Status: err.GetType().GetHttpCode()}, err
 	}
 	return &plugin.ApiResourceOutput{
 		Body: scope,

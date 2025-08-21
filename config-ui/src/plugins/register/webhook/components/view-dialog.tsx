@@ -19,11 +19,13 @@
 import { useState, useMemo } from 'react';
 import { Modal, Button } from 'antd';
 
-import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { Block, CopyText, ExternalLink, Message } from '@/components';
 import { selectWebhook, renewWebhookApiKey } from '@/features';
 import { IWebhook } from '@/types';
 import { operator } from '@/utils';
+
+import { transformURI } from './utils';
 
 import * as S from '../styled';
 
@@ -31,36 +33,6 @@ interface Props {
   initialId: ID;
   onCancel: () => void;
 }
-
-const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
-  return {
-    postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }' -d '{
-        "issue_key":"DLK-1234",
-        "title":"a feature from DLK",
-        "type":"INCIDENT",
-        "original_status":"TODO",
-        "status":"TODO",    
-        "created_date":"2020-01-01T12:00:00+00:00",
-        "updated_date":"2020-01-01T12:00:00+00:00"
-     }'`,
-    closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }'`,
-    postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      apiKey ?? '{API_KEY}'
-    }' -d '{
-      "deploymentCommits":[
-        {
-        "commit_sha":"the sha of deployment commit1",
-        "repo_url":"the repo URL of the deployment commit"
-        }
-      ],
-      "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
-     }'`,
-  };
-};
 
 export const ViewDialog = ({ initialId, onCancel }: Props) => {
   const [open, setOpen] = useState(false);
@@ -117,6 +89,17 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
           <p>
             See the{' '}
             <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#deployment">
+              full payload schema
+            </ExternalLink>
+            .
+          </p>
+        </Block>
+        <Block title="Pull Requests">
+          <h5>Post to register/update a pull_request</h5>
+          <CopyText content={URI.postPullRequestsEndpoint} />
+          <p>
+            See the{' '}
+            <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#pull_requests">
               full payload schema
             </ExternalLink>
             .

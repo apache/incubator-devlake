@@ -30,6 +30,8 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+const DORAGenerateDeploymentCommits = "dora.generateDeploymentCommits"
+
 var DeploymentCommitsGeneratorMeta = plugin.SubTaskMeta{
 	Name:             "generateDeploymentCommits",
 	EntryPoint:       GenerateDeploymentCommits,
@@ -46,6 +48,8 @@ type pipelineCommitEx struct {
 	OriginalStatus     string
 	OriginalResult     string
 	DurationSec        *float64
+	QueuedDurationSec  *float64
+	StartedDate        *time.Time
 	CreatedDate        *time.Time
 	FinishedDate       *time.Time
 	Environment        string
@@ -61,7 +65,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	// select all cicd_pipeline_commits from all "Deployments" in the project
 	// Note that failed records shall be included as well
 	noneSkippedResult := []string{devops.RESULT_FAILURE, devops.RESULT_SUCCESS}
-	cursor, err := db.Cursor(
+	var clauses = []dal.Clause{
 		dal.Select(
 			`
 				pc.*,
@@ -69,18 +73,17 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				p.result,
 				p.status,
 				p.duration_sec,
+				p.queued_duration_sec,
+				p.started_date,
 				p.created_date,
 				p.finished_date,
 				p.environment,
 				p.cicd_scope_id,
 				p.original_status,
 				p.original_result,
-				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
-				as has_testing_tasks,
-				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
-				as has_staging_tasks,
-				EXISTS( SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?)
-				as has_production_tasks
+				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?) as has_testing_tasks,
+				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?) as has_staging_tasks,
+				EXISTS( SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result IN ?) as has_production_tasks
 			`,
 			devops.TESTING, noneSkippedResult,
 			devops.STAGING, noneSkippedResult,
@@ -88,22 +91,48 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		),
 		dal.From("cicd_pipeline_commits pc"),
 		dal.Join("LEFT JOIN cicd_pipelines p ON (p.id = pc.pipeline_id)"),
-		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = p.cicd_scope_id)"),
 		dal.Where(
 			`
-			pm.project_name = ? AND (
-				p.type = ? OR EXISTS(
-					SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = ? AND t.result IN ?
-				)
-			) AND p.result IN ?
+			p.result IN ? AND (
+				p.type = ? OR EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = ? AND t.result IN ?)
+			)
 			`,
-			data.Options.ProjectName,
-			devops.DEPLOYMENT,
-			devops.DEPLOYMENT,
 			noneSkippedResult,
+			devops.DEPLOYMENT,
+			devops.DEPLOYMENT,
 			noneSkippedResult,
 		),
-	)
+	}
+	if data.Options.ScopeId != nil {
+		clauses = append(clauses, dal.Where(`p.cicd_scope_id = ?`, data.Options.ScopeId))
+		// Clear previous results from the project
+		deleteSql := `DELETE FROM cicd_deployment_commits WHERE cicd_scope_id = ? and subtask_name = ?;`
+		err := db.Exec(deleteSql, data.Options.ScopeId, DORAGenerateDeploymentCommits)
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
+		}
+	} else {
+		clauses = append(clauses,
+			dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = p.cicd_scope_id)"),
+			dal.Where(`pm.project_name = ?`, data.Options.ProjectName),
+		)
+		// Clear previous results from the project
+		deleteSql := `DELETE FROM cicd_deployment_commits
+			WHERE cicd_scope_id IN (
+			SELECT cicd_scope_id
+			FROM (
+				SELECT cdc.cicd_scope_id
+				FROM cicd_deployment_commits cdc
+				LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = cdc.cicd_scope_id)
+				WHERE pm.project_name = ?
+			) AS subquery
+			) AND subtask_name = ?;`
+		err := db.Exec(deleteSql, data.Options.ProjectName, DORAGenerateDeploymentCommits)
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting previous cicd_deployment_commits")
+		}
+	}
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
@@ -129,6 +158,8 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId:      pipelineCommit.CicdScopeId,
 				CicdDeploymentId: pipelineCommit.PipelineId,
 				Name:             pipelineCommit.PipelineName,
+				DisplayTitle:     pipelineCommit.DisplayTitle,
+				Url:              pipelineCommit.Url,
 				Result:           pipelineCommit.Result,
 				OriginalStatus:   pipelineCommit.OriginalStatus,
 				OriginalResult:   pipelineCommit.OriginalResult,
@@ -136,18 +167,23 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				Environment:      pipelineCommit.Environment,
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  *pipelineCommit.CreatedDate,
+					StartedDate:  pipelineCommit.StartedDate,
 					FinishedDate: pipelineCommit.FinishedDate,
 				},
-				DurationSec: pipelineCommit.DurationSec,
-				CommitSha:   pipelineCommit.CommitSha,
-				RefName:     pipelineCommit.Branch,
-				RepoId:      pipelineCommit.RepoId,
-				RepoUrl:     pipelineCommit.RepoUrl,
+				DurationSec:       pipelineCommit.DurationSec,
+				QueuedDurationSec: pipelineCommit.QueuedDurationSec,
+				CommitSha:         pipelineCommit.CommitSha,
+				RefName:           pipelineCommit.Branch,
+				RepoId:            pipelineCommit.RepoId,
+				RepoUrl:           pipelineCommit.RepoUrl,
 			}
-			if pipelineCommit.FinishedDate != nil && pipelineCommit.DurationSec != nil {
-				s := pipelineCommit.FinishedDate.Add(-time.Duration(*pipelineCommit.DurationSec) * time.Second)
-				domainDeployCommit.StartedDate = &s
+			if domainDeployCommit.TaskDatesInfo.StartedDate == nil {
+				if pipelineCommit.FinishedDate != nil && pipelineCommit.DurationSec != nil {
+					s := pipelineCommit.FinishedDate.Add(-time.Duration(*pipelineCommit.DurationSec) * time.Second)
+					domainDeployCommit.StartedDate = &s
+				}
 			}
+
 			// it is tricky when Environment was declared on the cicd_tasks level
 			// lets talk common sense and assume that one pipeline can only be deployed to one environment
 			// so if the pipeline has both staging and production tasks, we will treat it as a production pipeline
@@ -166,6 +202,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 					domainDeployCommit.Environment = devops.TESTING
 				}
 			}
+			domainDeployCommit.SubtaskName = DORAGenerateDeploymentCommits
 			return []interface{}{domainDeployCommit}, nil
 		},
 	})

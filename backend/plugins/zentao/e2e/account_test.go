@@ -35,7 +35,8 @@ var basicContext = runner.CreateAppBasicRes()
 
 func getFakeAPIClient() *helper.ApiAsyncClient {
 	client, _ := helper.NewApiClient(gocontext.Background(),
-		"https://zentao.demo.haogs.cn/api.php/v1/",
+		"https://zentaomax.demo.qucheng.cc/api.php/v1/",
+		//"https://zentao.demo.haogs.cn/api.php/v1/",
 		nil, time.Second*5, "",
 		basicContext,
 	)

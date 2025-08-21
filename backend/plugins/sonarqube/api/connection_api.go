@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -91,24 +92,41 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
-	return testConnection(context.TODO(), connection)
+	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection)
+	if testConnectionErr != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
+	}
+	if testConnectionResult.Status != http.StatusOK {
+		errMsg := fmt.Sprintf("Test connection fail, unexpected status code: %d", testConnectionResult.Status)
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, errors.Default.New(errMsg))
+	}
+	return testConnectionResult, nil
 }
 
 // TestExistingConnection test sonarqube connection options
 // @Summary test sonarqube connection
 // @Description Test sonarqube Connection
 // @Tags plugins/sonarqube
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} SonarqubeTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/sonarqube/{connectionId}/test [POST]
+// @Router /plugins/sonarqube/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection, err := dsHelper.ConnApi.FindByPk(input)
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// test connection
-	return testConnection(context.TODO(), connection.SonarqubeConn)
+	testConnectionResult, testConnectionErr := testConnection(context.TODO(), connection.SonarqubeConn)
+	if testConnectionErr != nil {
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, testConnectionErr)
+	}
+	if testConnectionResult.Status != http.StatusOK {
+		errMsg := fmt.Sprintf("Test connection fail, unexpected status code: %d", testConnectionResult.Status)
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, errors.Default.New(errMsg))
+	}
+	return testConnectionResult, nil
 }
 
 // PostConnections create sonarqube connection

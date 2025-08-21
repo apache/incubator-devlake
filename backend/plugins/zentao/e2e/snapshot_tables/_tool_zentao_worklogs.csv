@@ -1,0 +1,3 @@
+connection_id,id,object_id,object_type,project,execution,product,account,work,vision,date,left,consumed,begin,end,extra,order,deleted
+1,106,135,task,48,49,,devlake,sample worklog,rnd,2025-02-20,5,11,0,0,,0,0
+1,107,135,task,48,49,,devlake,,rnd,2025-02-20,1,4,0,0,,0,0

@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,12 +29,10 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"reflect"
-	"strconv"
 )
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
-	Name:             "convertIssues",
+	Name:             "Convert Issues",
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table bitbucket_issues into  domain layer table issues",
@@ -72,8 +73,8 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:            issue.Type,
 				Status:          issue.StdState,
 				OriginalStatus:  issue.State,
-				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
 				Url:             issue.Url,
+				LeadTimeMinutes: issue.LeadTimeMinutes,
 				CreatedDate:     &issue.BitbucketCreatedAt,
 				UpdatedDate:     &issue.BitbucketUpdatedAt,
 				ResolutionDate:  issue.ClosedAt,

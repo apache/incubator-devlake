@@ -50,7 +50,11 @@ func (connection ZentaoConn) PrepareApiClient(apiClient plugin.ApiClient) errors
 		return errors.HttpStatus(http.StatusBadRequest).Wrap(err, "failed UnmarshalResponse for tokenResBody")
 	}
 	if tokenResBody.Token == "" {
-		return errors.HttpStatus(http.StatusBadRequest).New("failed to request access token")
+		msg := "failed to request access token"
+		if tokenResBody.Error != "" {
+			msg = tokenResBody.Error
+		}
+		return errors.HttpStatus(http.StatusBadRequest).New(msg)
 	}
 	apiClient.SetHeaders(map[string]string{
 		"Token": fmt.Sprintf("%v", tokenResBody.Token),
@@ -67,6 +71,11 @@ type ZentaoConn struct {
 	DbIdleConns    int    `json:"dbIdleConns" mapstructure:"dbIdleConns"`
 	DbLoggingLevel string `json:"dbLoggingLevel" mapstructure:"dbLoggingLevel"`
 	DbMaxConns     int    `json:"dbMaxConns" mapstructure:"dbMaxConns"`
+}
+
+func (connection ZentaoConn) GetHash() string {
+	// zentao's token will expire after about 24min, so api client cannot be cached.
+	return ""
 }
 
 func (connection ZentaoConn) Sanitize() ZentaoConn {
@@ -102,9 +111,32 @@ func (connection ZentaoConn) SanitizeDbUrl() string {
 	return dbUrl
 }
 
+func (connection ZentaoConnection) GetHash() string {
+	return connection.ZentaoConn.GetHash()
+}
+
 func (connection ZentaoConnection) Sanitize() ZentaoConnection {
 	connection.ZentaoConn = connection.ZentaoConn.Sanitize()
 	return connection
+}
+
+func (connection *ZentaoConnection) MergeFromRequest(target *ZentaoConnection, body map[string]interface{}) error {
+	password := target.Password
+	existedDBUrl := target.DbUrl
+	existedSanitizedConnectionDBUrl := target.Sanitize().DbUrl
+	if err := helper.DecodeMapStruct(body, target, true); err != nil {
+		return err
+	}
+
+	modifiedPassword := target.Password
+	if modifiedPassword == "" {
+		target.Password = password
+	}
+
+	if existedDBUrl != "" && target.DbUrl != "" && existedSanitizedConnectionDBUrl == target.DbUrl {
+		target.DbUrl = existedDBUrl
+	}
+	return nil
 }
 
 // Merge works with the new connection helper.

@@ -39,13 +39,13 @@ type GithubIssue struct {
 	AssigneeId      int
 	AssigneeName    string `gorm:"type:varchar(255)"`
 	MilestoneId     int    `gorm:"index"`
-	LeadTimeMinutes uint
+	LeadTimeMinutes *uint
 	Url             string `gorm:"type:varchar(255)"`
 	ClosedAt        *time.Time
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time `gorm:"index"`
 	Severity        string    `gorm:"type:varchar(255)"`
-	Component       string    `gorm:"type:varchar(255)"`
+	Component       string    `gorm:"type:text"`
 	common.NoPKModel
 }
 

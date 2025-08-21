@@ -127,6 +127,8 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 					AssigneeId:   combined.Responder.Id,
 					AssigneeName: resolve(&assigneeName),
 				}
+				domainIssue.AssigneeName = issueAssignee.AssigneeName
+				domainIssue.AssigneeId = issueAssignee.AssigneeId
 				result = append(result, issueAssignee)
 			}
 			result = append(result, domainIssue)
@@ -157,12 +159,13 @@ func getStatus(incident *models.Incident) string {
 	panic("unknown incident status encountered")
 }
 
-func getTimes(incident *models.Incident) (int64, *time.Time) {
-	var leadTime int64
+func getTimes(incident *models.Incident) (*uint, *time.Time) {
+	var leadTime *uint
 	var resolutionDate *time.Time
 	if incident.Status == models.IncidentStatusResolved {
 		resolutionDate = &incident.UpdatedDate
-		leadTime = int64(resolutionDate.Sub(incident.CreatedDate).Minutes())
+		temp := uint(resolutionDate.Sub(incident.CreatedDate).Minutes())
+		leadTime = &temp
 	}
 	return leadTime, resolutionDate
 }

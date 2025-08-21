@@ -29,9 +29,6 @@ type GenericPipelineTask[T any] struct {
 	Options  T        `json:"options"`
 }
 
-type GenericPipelineStage[T any] []*GenericPipelineTask[T]
-type GenericPipelinePlan[T any] []GenericPipelineStage[T]
-
 // PipelineTask represents a smallest unit of execution inside a PipelinePlan
 type PipelineTask GenericPipelineTask[map[string]interface{}]
 
@@ -69,6 +66,7 @@ type Pipeline struct {
 	SpentSeconds  int          `json:"spentSeconds"`
 	Stage         int          `json:"stage"`
 	Labels        []string     `json:"labels" gorm:"-"`
+	Priority      int          `json:"priority"` // greater is higher
 	SyncPolicy    `gorm:"embedded"`
 }
 
@@ -78,6 +76,7 @@ type NewPipeline struct {
 	Name        string       `json:"name"`
 	Plan        PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
 	Labels      []string     `json:"labels"`
+	Priority    int          `json:"priority"` // greater is higher
 	BlueprintId uint64
 	SyncPolicy  `gorm:"embedded"`
 }

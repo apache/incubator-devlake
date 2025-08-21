@@ -35,23 +35,27 @@ type Issue struct {
 	OriginalType            string `gorm:"type:varchar(500)"`
 	Status                  string `gorm:"type:varchar(100)"`
 	OriginalStatus          string `gorm:"type:varchar(100)"`
-	StoryPoint              float64
+	StoryPoint              *float64
 	ResolutionDate          *time.Time
 	CreatedDate             *time.Time
 	UpdatedDate             *time.Time
-	LeadTimeMinutes         int64
-	ParentIssueId           string `gorm:"type:varchar(255)"`
-	Priority                string `gorm:"type:varchar(255)"`
-	OriginalEstimateMinutes int64
-	TimeSpentMinutes        int64
-	TimeRemainingMinutes    int64
+	LeadTimeMinutes         *uint
+	OriginalEstimateMinutes *int64
+	TimeSpentMinutes        *int64
+	TimeRemainingMinutes    *int64
 	CreatorId               string `gorm:"type:varchar(255)"`
 	CreatorName             string `gorm:"type:varchar(255)"`
 	AssigneeId              string `gorm:"type:varchar(255)"`
 	AssigneeName            string `gorm:"type:varchar(255)"`
+	ParentIssueId           string `gorm:"type:varchar(255)"`
+	Priority                string `gorm:"type:varchar(255)"`
 	Severity                string `gorm:"type:varchar(255)"`
-	Component               string `gorm:"type:varchar(255)"`
+	Urgency                 string `gorm:"type:varchar(255)"`
+	Component               string `gorm:"type:text"`
 	OriginalProject         string `gorm:"type:varchar(255)"`
+	IsSubtask               bool
+	DueDate                 *time.Time
+	FixVersions             string `gorm:"type:text"`
 }
 
 func (Issue) TableName() string {
@@ -63,6 +67,7 @@ const (
 	REQUIREMENT = "REQUIREMENT"
 	INCIDENT    = "INCIDENT"
 	TASK        = "TASK"
+	SUBTASK     = "SUBTASK"
 
 	// status
 	TODO        = "TODO"
@@ -102,4 +107,49 @@ func GetStatus(rule *StatusRule, input interface{}) string {
 		}
 	}
 	return rule.Default
+}
+
+func (issue Issue) IsIncident() bool {
+	return issue.Type == INCIDENT
+}
+
+func (issue Issue) ToIncidentAssignee() (*IncidentAssignee, error) {
+	return &IncidentAssignee{
+		IncidentId:   issue.Id,
+		AssigneeId:   issue.AssigneeId,
+		AssigneeName: issue.AssigneeName,
+		NoPKModel:    issue.DomainEntity.NoPKModel,
+	}, nil
+}
+
+func (issue Issue) ToIncident(boardId string) (*Incident, error) {
+	incident := &Incident{
+		DomainEntity:            issue.DomainEntity,
+		Url:                     issue.Url,
+		IncidentKey:             issue.IssueKey,
+		Title:                   issue.Title,
+		Description:             issue.Description,
+		Status:                  issue.Status,
+		OriginalStatus:          issue.OriginalStatus,
+		ResolutionDate:          issue.ResolutionDate,
+		CreatedDate:             issue.CreatedDate,
+		UpdatedDate:             issue.UpdatedDate,
+		LeadTimeMinutes:         issue.LeadTimeMinutes,
+		OriginalEstimateMinutes: issue.OriginalEstimateMinutes,
+		TimeSpentMinutes:        issue.TimeSpentMinutes,
+		TimeRemainingMinutes:    issue.TimeRemainingMinutes,
+		CreatorId:               issue.CreatorId,
+		CreatorName:             issue.CreatorName,
+		ParentIncidentId:        issue.ParentIssueId,
+		Priority:                issue.Priority,
+		Severity:                issue.Severity,
+		Urgency:                 issue.Urgency,
+		Component:               issue.Component,
+		OriginalProject:         issue.OriginalProject,
+		ScopeId:                 boardId,
+		Table:                   "boards",
+		AssigneeId:              issue.AssigneeId,
+		AssigneeName:            issue.AssigneeName,
+	}
+	return incident, nil
 }

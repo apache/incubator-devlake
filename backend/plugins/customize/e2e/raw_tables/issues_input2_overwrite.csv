@@ -1,0 +1,3 @@
+id,url,issue_key,title,original_type,original_status,created_date,resolution_date,story_point,priority,severity,original_estimate_minutes,time_spent_minutes,component,epic_key,creator_name,assignee_name,x_int,x_time,x_varchar,x_float,labels
+csv:1,https://api.bitbucket.org/2.0/repositories/thenicetgp/lake/issues/1,1,issue test,BUG,new,2022-07-17 07:15:55.959+00:00,NULL,0,major,,0,0,,,tgp,tgp,10,2022-09-15 15:27:56,world,8,NULL
+csv:10,https://api.bitbucket.org/2.0/repositories/thenicetgp/lake/issues/10,10,issue title edited,BUG,new,2022-08-12 13:43:00.783+00:00,NULL,0,trivial,,0,0,,,tgp,tgp,30,2022-09-15 15:27:56,abc,24590,hello worlds

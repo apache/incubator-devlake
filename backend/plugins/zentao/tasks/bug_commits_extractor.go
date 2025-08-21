@@ -60,8 +60,8 @@ func ExtractBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
-			// only linked2revision action is valid
-			if res.Action != "linked2revision" {
+			// only linked2revision and gitcommited action is valid
+			if res.Action != "linked2revision" && res.Action != "gitcommited" {
 				return nil, nil
 			}
 

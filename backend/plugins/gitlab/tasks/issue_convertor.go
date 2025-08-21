@@ -18,17 +18,17 @@ limitations under the License.
 package tasks
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
-	"strconv"
-	"strings"
 )
 
 func init() {
@@ -36,7 +36,7 @@ func init() {
 }
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
-	Name:             "convertIssues",
+	Name:             "Convert Issues",
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_issues into  domain layer table issues",
@@ -44,41 +44,49 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMrCommitsMeta},
 }
 
-func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
+func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_ISSUE_TABLE)
+
+	db := subtaskCtx.GetDal()
 	projectId := data.Options.ProjectId
-
-	clauses := []dal.Clause{
-		dal.Select("issues.*"),
-		dal.From("_tool_gitlab_issues issues"),
-		dal.Where("project_id = ? and connection_id = ?", projectId, data.Options.ConnectionId),
-	}
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
 	issueIdGen := didgen.NewDomainIdGenerator(&models.GitlabIssue{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GitlabAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.GitlabIssue{}),
-		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			issue := inputRow.(*models.GitlabIssue)
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabIssue]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(&models.GitlabIssue{}),
+				dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		BeforeConvert: func(issue *models.GitlabIssue, stateManager *api.SubtaskStateManager) errors.Error {
+			issueId := issueIdGen.Generate(data.Options.ConnectionId, issue.GitlabId)
+			if err := db.Delete(&ticket.IssueLabel{}, dal.Where("issue_id = ?", issueId)); err != nil {
+				return err
+			}
+			if err := db.Delete(&ticket.IssueAssignee{}, dal.Where("issue_id = ?", issueId)); err != nil {
+				return err
+			}
+			return nil
+		},
+		Convert: func(issue *models.GitlabIssue) ([]interface{}, errors.Error) {
 			domainIssue := &ticket.Issue{
 				DomainEntity:            domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.GitlabId)},
 				IssueKey:                strconv.Itoa(issue.Number),
 				Title:                   issue.Title,
 				Description:             issue.Body,
 				Priority:                issue.Priority,
-				Type:                    issue.StdType,
 				OriginalType:            issue.Type,
-				LeadTimeMinutes:         int64(issue.LeadTimeMinutes),
+				LeadTimeMinutes:         issue.LeadTimeMinutes,
 				Url:                     issue.Url,
 				CreatedDate:             &issue.GitlabCreatedAt,
 				UpdatedDate:             &issue.GitlabUpdatedAt,
@@ -93,6 +101,9 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				AssigneeId:              accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:            issue.AssigneeName,
 			}
+			if strings.ToUpper(issue.Type) == ticket.INCIDENT {
+				domainIssue.Type = ticket.INCIDENT
+			}
 
 			if strings.ToUpper(issue.State) == "OPENED" {
 				domainIssue.Status = ticket.TODO
@@ -104,6 +115,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, projectId),
 				IssueId: domainIssue.Id,
 			}
+
 			return []interface{}{
 				domainIssue,
 				boardIssue,

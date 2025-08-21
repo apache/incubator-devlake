@@ -18,12 +18,13 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jira/impl"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"testing"
 )
 
 func TestSprintDataFlow(t *testing.T) {
@@ -43,6 +44,7 @@ func TestSprintDataFlow(t *testing.T) {
 	// verify sprint extraction
 	dataflowTester.FlushTabler(&models.JiraSprint{})
 	dataflowTester.FlushTabler(&models.JiraBoardSprint{})
+	dataflowTester.FlushTabler(&models.JiraServerInfo{})
 	dataflowTester.Subtask(tasks.ExtractSprintsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JiraSprint{},

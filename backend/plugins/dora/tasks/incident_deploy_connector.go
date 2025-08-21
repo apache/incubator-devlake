@@ -44,44 +44,61 @@ type simpleCicdDeploymentCommit struct {
 	FinishedDate *time.Time
 }
 
+// ConnectIncidentToDeployment will generate data to crossdomain.ProjectIncidentDeploymentRelationship.
 func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
+	logger := taskCtx.GetLogger()
+	// Clear previous results from the project
+	err := db.Exec("DELETE FROM project_incident_deployment_relationships WHERE project_name = ?", data.Options.ProjectName)
+	if err != nil {
+		return errors.Default.Wrap(err, "error deleting previous project_incident_deployment_relationships")
+	}
+	logger.Info("delete previous project_incident_deployment_relationships")
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
-		dal.From(`issues i`),
-		dal.Join(`left join board_issues bi on bi.issue_id = i.id`),
-		dal.Join(`left join project_mapping pm on pm.row_id = bi.board_id`),
-		dal.Where(
-			"i.type = ? and pm.project_name = ? and pm.table = ?",
-			"INCIDENT", data.Options.ProjectName, "boards",
-		),
+		dal.From(`incidents i`),
+		dal.Join(`left join project_mapping pm on pm.row_id = i.scope_id and pm.table = i.table`),
+		dal.Where("pm.project_name = ?", data.Options.ProjectName),
 	}
+
+	//count, err := db.Count(
+	//	dal.From(`incidents i`),
+	//	dal.Join(`left join project_mapping pm on pm.row_id = i.scope_id and pm.table = i.table`),
+	//	dal.Where("pm.project_name = ?", data.Options.ProjectName),
+	//)
+	//if err != nil {
+	//	logger.Error(err, "count incidents")
+	//} else {
+	//	logger.Info("incident count is %d", count)
+	//}
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
+		logger.Error(err, "db.cursor error")
 		return err
 	}
 	defer cursor.Close()
-
+	logger.Info("start enricher")
 	enricher, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: DoraApiParams{
 				ProjectName: data.Options.ProjectName,
 			},
-			Table: "issues",
+			Table: "incidents",
 		},
-		InputRowType: reflect.TypeOf(ticket.Issue{}),
+		InputRowType: reflect.TypeOf(ticket.Incident{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			issue := inputRow.(*ticket.Issue)
-			projectIssueMetric := &crossdomain.ProjectIssueMetric{
+			incident := inputRow.(*ticket.Incident)
+			projectIssueMetric := &crossdomain.ProjectIncidentDeploymentRelationship{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: issue.Id,
+					Id: incident.Id,
 				},
 				ProjectName: data.Options.ProjectName,
 			}
-
+			logger.Debug("get incident: %+v", incident.Id)
 			cicdDeploymentCommit := &devops.CicdDeploymentCommit{}
 			cicdDeploymentCommitClauses := []dal.Clause{
 				dal.Select("cicd_deployment_commits.cicd_deployment_id as id, cicd_deployment_commits.finished_date as finished_date"),
@@ -93,7 +110,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 						and cicd_deployment_commits.environment = ?
 						and pm.table = ?
 						and pm.project_name = ?`,
-					issue.CreatedDate, devops.RESULT_SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
+					incident.CreatedDate, devops.RESULT_SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
 				),
 				dal.Orderby("finished_date DESC"),
 				dal.Limit(1),
@@ -103,8 +120,10 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			err = db.All(scdc, cicdDeploymentCommitClauses...)
 			if err != nil {
 				if db.IsErrorNotFound(err) {
+					logger.Warn(err, "deployment commit not found")
 					return nil, nil
 				} else {
+					logger.Error(err, "get all deployment commits")
 					return nil, err
 				}
 			}
@@ -112,6 +131,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				projectIssueMetric.DeploymentId = scdc.Id
 				return []interface{}{projectIssueMetric}, nil
 			}
+			logger.Debug("scdc.id is empty, incident will be ignored: %+v", incident.Id)
 			return nil, nil
 		},
 	})

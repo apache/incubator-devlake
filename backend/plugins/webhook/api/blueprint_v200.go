@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -48,6 +49,14 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (coreModels.PipelinePla
 
 	// add board to scopes
 	scopes = append(scopes, &ticket.Board{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: fmt.Sprintf("%s:%d", "webhook", connection.ID),
+		},
+		Name: connection.Name,
+	})
+
+	// add repos to scopes
+	scopes = append(scopes, &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: fmt.Sprintf("%s:%d", "webhook", connection.ID),
 		},

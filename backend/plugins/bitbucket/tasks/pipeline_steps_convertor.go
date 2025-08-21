@@ -32,7 +32,7 @@ import (
 )
 
 var ConvertPipelineStepMeta = plugin.SubTaskMeta{
-	Name:             "convertPipelineSteps",
+	Name:             "Convert Pipeline Steps",
 	EntryPoint:       ConvertPipelineSteps,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table bitbucket_pipeline into domain layer table pipeline",

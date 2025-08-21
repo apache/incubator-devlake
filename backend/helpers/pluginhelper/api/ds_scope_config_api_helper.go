@@ -57,6 +57,18 @@ func (connApi *DsScopeConfigApiHelper[C, S, SC]) GetAll(input *plugin.ApiResourc
 	}, nil
 }
 
+func (connApi *DsScopeConfigApiHelper[C, S, SC]) GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+	var scopeConfig *SC
+	scopeConfig, err = connApi.FindByPk(input)
+	if err != nil {
+		return nil, err
+	}
+	projectDetails := errors.Must1(connApi.ScopeConfigSrvHelper.GetProjectsByScopeConfig(input.Params["plugin"], scopeConfig))
+	return &plugin.ApiResourceOutput{
+		Body: projectDetails,
+	}, nil
+}
+
 func (connApi *DsScopeConfigApiHelper[C, S, SC]) Post(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	// fix connectionId
 	connectionId, err := extractConnectionId(input)
@@ -89,7 +101,7 @@ func (connApi *DsScopeConfigApiHelper[C, S, SC]) Delete(input *plugin.ApiResourc
 			Success: false,
 			Message: err.Error(),
 			Data:    refs,
-		}, Status: err.GetType().GetHttpCode()}, nil
+		}, Status: err.GetType().GetHttpCode()}, err
 	}
 	return &plugin.ApiResourceOutput{
 		Body: scopeConfig,

@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 11,
+  "id": 12,
   "links": [
     {
       "asDropdown": false,
@@ -61,6 +61,13 @@
         "y": 0
       },
       "id": 128,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Opsgenie",
+          "url": "https://devlake.apache.org/docs/Plugins/opsgenie"
+        }
+      ],
       "options": {
         "code": {
           "language": "plaintext",
@@ -70,7 +77,7 @@
         "content": "- Use Cases: This dashboard shows the incident data from Opsgenie.\n- Data Source Required: Opsgenie",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": {
@@ -138,6 +145,13 @@
         "y": 4
       },
       "id": 114,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -153,7 +167,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -163,7 +177,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select count(distinct i.issue_key) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)\r\n",
+          "rawSql": "select count(distinct i.issue_key) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  $__timeFilter(i.created_date)\r\n  and bi.board_id in (${board_id})\r\n",
           "refId": "A",
           "select": [
             [
@@ -234,6 +248,13 @@
         "y": 4
       },
       "id": 116,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -249,7 +270,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -259,7 +280,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select count(distinct i.issue_key) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'resolved'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)\r\n",
+          "rawSql": "select count(distinct i.issue_key) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'resolved'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in (${board_id})\r\n",
           "refId": "A",
           "select": [
             [
@@ -361,6 +382,13 @@
         "y": 4
       },
       "id": 131,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -374,7 +402,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -384,7 +412,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \r\n  i.title as \"Title\",\r\n  i.issue_key as \"Id\",\r\n  group_concat(b.name separator \", \") as \"Service(s)\",\r\n  i.description as \"Description\",\r\n  i.original_status as \"Original Status\",\r\n  i.priority as \"Priority\",\r\n  i.created_date as \"Created Date\",\r\n  i.updated_date as \"Updated Date\",\r\n  round((i.lead_time_minutes/1440),1) as \"Lead Time Days\",\r\n  i.url as \"URL\"\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\n  join boards b on bi.board_id = b.id\r\nwhere \r\n  $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)\r\nGROUP BY i.title, i.issue_key, i.description, i.original_status, i.priority, i.created_date, i.updated_date, i.lead_time_minutes, i.url",
+          "rawSql": "select \r\n  i.title as \"Title\",\r\n  i.issue_key as \"Id\",\r\n  group_concat(b.name separator \", \") as \"Service(s)\",\r\n  i.description as \"Description\",\r\n  i.original_status as \"Original Status\",\r\n  i.priority as \"Priority\",\r\n  i.created_date as \"Created Date\",\r\n  i.updated_date as \"Updated Date\",\r\n  round((i.lead_time_minutes/1440),1) as \"Lead Time Days\",\r\n  i.url as \"URL\"\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\n  join boards b on bi.board_id = b.id\r\nwhere \r\n  $__timeFilter(i.created_date)\r\n  and bi.board_id in (${board_id})\r\nGROUP BY i.title, i.issue_key, i.description, i.original_status, i.priority, i.created_date, i.updated_date, i.lead_time_minutes, i.url",
           "refId": "A",
           "select": [
             [
@@ -455,6 +483,13 @@
         "y": 7
       },
       "id": 134,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Requirement Count",
+          "url": "https://devlake.apache.org/docs/Metrics/RequirementCount"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -470,7 +505,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -480,7 +515,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select count(distinct i.issue_key) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'closed'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)\r\n",
+          "rawSql": "select count(distinct i.issue_key) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'closed'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in (${board_id})\r\n",
           "refId": "A",
           "select": [
             [
@@ -555,6 +590,13 @@
         "y": 10
       },
       "id": 117,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -570,7 +612,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -580,7 +622,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirements as(\r\n  select\r\n    count(distinct i.id) as total_count,\r\n    count(distinct case when i.original_status = 'resolved' then i.id else null end) as resolved_count\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    $__timeFilter(i.created_date)\r\n    and bi.board_id in ($board_id)\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  1.0 * resolved_count/total_count as requirement_delivery_rate\r\nfrom _requirements",
+          "rawSql": "with _requirements as(\r\n  select\r\n    count(distinct i.id) as total_count,\r\n    count(distinct case when i.original_status = 'resolved' then i.id else null end) as resolved_count\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    $__timeFilter(i.created_date)\r\n    and bi.board_id in (${board_id})\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  1.0 * resolved_count/total_count as requirement_delivery_rate\r\nfrom _requirements",
           "refId": "A",
           "select": [
             [
@@ -685,7 +727,13 @@
         "y": 10
       },
       "id": 121,
-      "links": [],
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [],
@@ -708,7 +756,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _requirements as(\r\n  select\r\n    DATE_ADD(date(i.created_date), INTERVAL -DAYOFMONTH(date(i.created_date))+1 DAY) as time,\r\n    1.0 * count(distinct case when i.original_status = 'resolved' then i.id else null end)/count(distinct i.id) as resolved_rate\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    $__timeFilter(i.created_date)\r\n    and bi.board_id in ($board_id)\r\n  group by 1\r\n)\r\n\r\nselect\r\n  time,\r\n  resolved_rate\r\nfrom _requirements\r\norder by time",
+          "rawSql": "with _requirements as(\r\n  select\r\n    DATE_ADD(date(i.created_date), INTERVAL -DAYOFMONTH(date(i.created_date))+1 DAY) as time,\r\n    1.0 * count(distinct case when i.original_status = 'resolved' then i.id else null end)/count(distinct i.id) as resolved_rate\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    $__timeFilter(i.created_date)\r\n    and bi.board_id in (${board_id})\r\n  group by 1\r\n)\r\n\r\nselect\r\n  time,\r\n  resolved_rate\r\nfrom _requirements\r\norder by time",
           "refId": "A",
           "select": [
             [
@@ -811,6 +859,13 @@
         "y": 17
       },
       "id": 12,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -826,7 +881,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -835,7 +890,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select \r\n  avg(lead_time_minutes/1440) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'resolved'\r\n  and $__timeFilter(i.resolution_date)\r\n  and bi.board_id in ($board_id)",
+          "rawSql": "select \r\n  avg(lead_time_minutes/1440) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'resolved'\r\n  and $__timeFilter(i.resolution_date)\r\n  and bi.board_id in (${board_id})",
           "refId": "A",
           "select": [
             [
@@ -913,6 +968,13 @@
         "y": 17
       },
       "id": 13,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -928,7 +990,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.2",
+      "pluginVersion": "9.5.15",
       "targets": [
         {
           "datasource": "mysql",
@@ -937,7 +999,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    i.lead_time_minutes,\r\n    percent_rank() over (order by lead_time_minutes asc) as ranks\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    i.original_status = 'resolved'\r\n    and $__timeFilter(i.resolution_date)\r\n    and bi.board_id in ($board_id)\r\n)\r\n\r\nselect\r\n  max(lead_time_minutes/1440) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8",
+          "rawSql": "with _ranks as(\r\n  select \r\n    i.lead_time_minutes,\r\n    percent_rank() over (order by lead_time_minutes asc) as ranks\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    i.original_status = 'resolved'\r\n    and $__timeFilter(i.resolution_date)\r\n    and bi.board_id in (${board_id})\r\n)\r\n\r\nselect\r\n  max(lead_time_minutes/1440) as value\r\nfrom _ranks\r\nwhere \r\n  ranks <= 0.8",
           "refId": "A",
           "select": [
             [
@@ -1036,6 +1098,13 @@
       },
       "id": 17,
       "interval": "",
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "barRadius": 0,
         "barWidth": 0.5,
@@ -1069,7 +1138,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _requirements as(\r\n  select \r\n    DATE_ADD(date(i.resolution_date), INTERVAL -DAYOFMONTH(date(i.resolution_date))+1 DAY) as time,\r\n    avg(lead_time_minutes/1440) as mean_incident_age\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    i.original_status = 'resolved'\r\n    and $__timeFilter(i.resolution_date)\r\n    and bi.board_id in ($board_id)\r\n  group by 1\r\n)\r\n\r\nselect \r\n  date_format(time,'%M %Y') as month,\r\n  mean_incident_age\r\nfrom _requirements\r\norder by time asc",
+          "rawSql": "with _requirements as(\r\n  select \r\n    DATE_ADD(date(i.resolution_date), INTERVAL -DAYOFMONTH(date(i.resolution_date))+1 DAY) as time,\r\n    avg(lead_time_minutes/1440) as mean_incident_age\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    i.original_status = 'resolved'\r\n    and $__timeFilter(i.resolution_date)\r\n    and bi.board_id in (${board_id})\r\n  group by 1\r\n)\r\n\r\nselect \r\n  date_format(time,'%M %Y') as month,\r\n  mean_incident_age\r\nfrom _requirements\r\norder by time asc",
           "refId": "A",
           "select": [
             [
@@ -1143,6 +1212,13 @@
       },
       "lines": true,
       "linewidth": 8,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "nullPointMode": "null",
       "options": {
         "alertThreshold": false
@@ -1164,7 +1240,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _ranks as(\r\n  select \r\n    round(i.lead_time_minutes/1440) as lead_time_day\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    i.original_status = 'resolved'\r\n    and $__timeFilter(i.resolution_date)\r\n    and bi.board_id in ($board_id)\r\n  order by lead_time_day asc\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  lpad(concat(lead_time_day,'d'), 4, ' ') as metric,\r\n  percent_rank() over (order by lead_time_day asc) as value\r\nfrom _ranks\r\norder by lead_time_day asc",
+          "rawSql": "with _ranks as(\r\n  select \r\n    round(i.lead_time_minutes/1440) as lead_time_day\r\n  from issues i\r\n    join board_issues bi on i.id = bi.issue_id\r\n  where \r\n    i.original_status = 'resolved'\r\n    and $__timeFilter(i.resolution_date)\r\n    and bi.board_id in (${board_id})\r\n  order by lead_time_day asc\r\n)\r\n\r\nselect \r\n  now() as time,\r\n  lpad(concat(lead_time_day,'d'), 4, ' ') as metric,\r\n  percent_rank() over (order by lead_time_day asc) as value\r\nfrom _ranks\r\norder by lead_time_day asc",
           "refId": "A",
           "select": [
             [
@@ -1319,8 +1395,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1363,6 +1438,13 @@
         "y": 32
       },
       "id": 133,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Incident Age",
+          "url": "https://devlake.apache.org/docs/Metrics/IncidentAge"
+        }
+      ],
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1408,7 +1490,7 @@
       "type": "table"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -1446,9 +1528,9 @@
     "to": "2025-06-16T21:00:42.390Z"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "Opsgenie",
   "uid": "b4556439-f173-4411-93d4-65f261726d24",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

@@ -20,21 +20,36 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/teambition/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
-var connectionHelper *helper.ConnectionApiHelper
+var dsHelper *api.DsHelper[models.TeambitionConnection, models.TeambitionProject, models.TeambitionScopeConfig]
 var basicRes context.BasicRes
+var raProxy *api.DsRemoteApiProxyHelper[models.TeambitionConnection]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.TeambitionConnection, models.TeambitionProject, TeambitionPagination]
+var raScopeSearch *api.DsRemoteApiScopeSearchHelper[models.TeambitionConnection, models.TeambitionProject]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = helper.NewConnectionHelper(
-		basicRes,
-		vld,
+	dsHelper = api.NewDataSourceHelper[
+		models.TeambitionConnection,
+		models.TeambitionProject,
+		models.TeambitionScopeConfig,
+	](
+		br,
 		p.Name(),
+		[]string{"name"},
+		func(c models.TeambitionConnection) models.TeambitionConnection {
+			return c.Sanitize()
+		},
+		nil,
+		nil,
 	)
+	raProxy = api.NewDsRemoteApiProxyHelper(dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = api.NewDsRemoteApiScopeListHelper(raProxy, listTeambitionRemoteScopes)
+	raScopeSearch = api.NewDsRemoteApiScopeSearchHelper(raProxy, searchTeambitionRemoteProjects)
 }

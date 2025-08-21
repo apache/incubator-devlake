@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/spf13/cast"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractStoryChangelog
@@ -36,6 +37,7 @@ var ExtractStoryChangelogMeta = plugin.SubTaskMeta{
 }
 
 func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
+	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -53,6 +55,11 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 
 			storyChangelog.ConnectionId = data.Options.ConnectionId
 			for _, fc := range storyChangelog.FieldChanges {
+				if fc.IsStepChange {
+					// ignore step change
+					// https://github.com/apache/incubator-devlake/issues/8355#issuecomment-2756726463
+					continue
+				}
 				var item models.TapdStoryChangelogItem
 				var valueAfterMap interface{}
 				var valueBeforeMap interface{}
@@ -80,16 +87,17 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 						item.ConnectionId = data.Options.ConnectionId
 						item.ChangelogId = storyChangelog.Id
 						item.Field = k
-						item.ValueAfterParsed = v.(string)
-						switch valueBeforeMap.(type) {
+						item.ValueAfterParsed = cast.ToString(v)
+						switch v := valueBeforeMap.(type) {
 						case map[string]interface{}:
-							item.ValueBeforeParsed = valueBeforeMap.(map[string]interface{})[k].(string)
+							value := v[k]
+							item.ValueBeforeParsed = cast.ToString(value)
 						default:
-							item.ValueBeforeParsed = valueBeforeMap.(string)
+							item.ValueBeforeParsed = cast.ToString(valueBeforeMap)
 						}
 						err = convertUnicode(&item)
 						if err != nil {
-							return nil, err
+							logger.Error(err, "convert unicode: %s, err: %s", item, err)
 						}
 						results = append(results, &item)
 					}
@@ -97,13 +105,13 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					item.ConnectionId = data.Options.ConnectionId
 					item.ChangelogId = storyChangelog.Id
 					item.Field = fc.Field
-					item.ValueAfterParsed = valueAfterMap.(string)
+					item.ValueAfterParsed = cast.ToString(valueAfterMap)
 					// as ValueAfterParsed is string, valueBeforeMap is always string
-					item.ValueBeforeParsed = valueBeforeMap.(string)
+					item.ValueBeforeParsed = cast.ToString(valueBeforeMap)
 				}
 				err = convertUnicode(&item)
 				if err != nil {
-					return nil, err
+					logger.Error(err, "convert unicode: %s, err: %s", item, err)
 				}
 				if item.Field == "iteration_id" {
 					// some users' tapd will not return iteration_id_from/iteration_id_to

@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -25,9 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 func init() {
@@ -35,7 +35,7 @@ func init() {
 }
 
 var ConvertJobMeta = plugin.SubTaskMeta{
-	Name:             "convertJobs",
+	Name:             "Convert Job Runs",
 	EntryPoint:       ConvertJobs,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_job into domain layer table job",
@@ -43,35 +43,31 @@ var ConvertJobMeta = plugin.SubTaskMeta{
 	Dependencies:     []*plugin.SubTaskMeta{&ConvertPipelineCommitMeta},
 }
 
-func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*GitlabTaskData)
+func ConvertJobs(subtaskCtx plugin.SubTaskContext) (err errors.Error) {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_JOB_TABLE)
+	db := subtaskCtx.GetDal()
 	regexEnricher := data.RegexEnricher
+	subtaskCommonArgs.SubtaskConfig = regexEnricher.PlainMap()
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabJob{}),
-		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
-	jobIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabJob{})
-	projectIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
-	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(gitlabModels.GitlabJob{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: gitlabModels.GitlabApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_JOB_TABLE,
+	jobIdGen := didgen.NewDomainIdGenerator(&models.GitlabJob{})
+	projectIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
+	pipelineIdGen := didgen.NewDomainIdGenerator(&models.GitlabPipeline{})
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabJob]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(models.GitlabJob{}),
+				dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabJob := inputRow.(*gitlabModels.GitlabJob)
-
+		Convert: func(gitlabJob *models.GitlabJob) ([]interface{}, errors.Error) {
 			createdAt := time.Now()
 			if gitlabJob.GitlabCreatedAt != nil {
 				createdAt = *gitlabJob.GitlabCreatedAt

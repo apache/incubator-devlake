@@ -18,6 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,13 +30,10 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"reflect"
-	"strings"
-	"time"
 )
 
 var ConvertiDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "convertDeployments",
+	Name:             "Convert Deployments",
 	EntryPoint:       ConvertDeployments,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table bitbucket_deployment into domain layer tables",
@@ -102,24 +103,27 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{models.IN_PROGRESS},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketDeployment.Status),
-				OriginalStatus: bitbucketDeployment.Status,
-				Environment:    strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
+				OriginalStatus:      bitbucketDeployment.Status,
+				Environment:         strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
+				OriginalEnvironment: strings.ToUpper(bitbucketDeployment.Environment),
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					StartedDate:  bitbucketDeployment.StartedOn,
 					FinishedDate: bitbucketDeployment.CompletedOn,
 				},
-				DurationSec: duration,
-				CommitSha:   bitbucketDeployment.CommitSha,
-				RefName:     bitbucketDeployment.RefName,
-				RepoId:      repoId,
-				RepoUrl:     repo.HTMLUrl,
+				DurationSec:  duration,
+				CommitSha:    bitbucketDeployment.CommitSha,
+				RefName:      bitbucketDeployment.RefName,
+				RepoId:       repoId,
+				RepoUrl:      repo.HTMLUrl,
+				DisplayTitle: bitbucketDeployment.Name,
+				Url:          bitbucketDeployment.WebUrl,
 			}
 			if domainDeployCommit.Environment == devops.TEST {
 				// Theoretically, environment cannot be "Test" according to
 				// https://developer.atlassian.com/server/bitbucket/rest/v814/api-group-builds-and-deployments/#api-api-latest-projects-projectkey-repos-repositoryslug-commits-commitid-deployments-get
 				// but in practice, we found environment is "Test".
-				// So convert it to devlake's definition.
+				// So convert it to DevLake's definition.
 				domainDeployCommit.Environment = devops.TESTING
 			}
 

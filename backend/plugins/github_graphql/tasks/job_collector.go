@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"time"
 
@@ -50,57 +52,108 @@ type GraphqlQueryCheckSuite struct {
 		// equal to Job in rest
 		CheckRuns struct {
 			TotalCount int
-			Nodes      []struct {
-				Id          string
-				Name        string
-				DetailsUrl  string
-				DatabaseId  int
-				Status      string
-				StartedAt   *time.Time
-				Conclusion  string
-				CompletedAt *time.Time
-				//ExternalId   string
-				//Url          string
-				//Title        interface{}
-				//Text         interface{}
-				//Summary      interface{}
-
-				Steps struct {
-					TotalCount int
-					Nodes      []struct {
-						CompletedAt         *time.Time `json:"completed_at"`
-						Conclusion          string     `json:"conclusion"`
-						Name                string     `json:"name"`
-						Number              int        `json:"number"`
-						SecondsToCompletion int        `json:"seconds_to_completion"`
-						StartedAt           *time.Time `json:"started_at"`
-						Status              string     `json:"status"`
-					}
-				} `graphql:"steps(first: 50)"`
+			PageInfo   struct {
+				EndCursor   string `graphql:"endCursor"`
+				HasNextPage bool   `graphql:"hasNextPage"`
 			}
-		} `graphql:"checkRuns(first: 50)"`
+			Nodes []GraphqlQueryCheckRun
+		} `graphql:"checkRuns(first: $pageSize, after: $skipCursor)"`
 	} `graphql:"... on CheckSuite"`
+}
+
+type GraphqlQueryCheckRun struct {
+	Id          string
+	Name        string
+	DetailsUrl  string
+	DatabaseId  int
+	Status      string
+	StartedAt   *time.Time
+	Conclusion  string
+	CompletedAt *time.Time
+	// ExternalId   string
+	// Url          string
+	// Title        interface{}
+	// Text         interface{}
+	// Summary      interface{}
+
+	Steps struct {
+		TotalCount int
+		Nodes      []struct {
+			CompletedAt         *time.Time `json:"completed_at"`
+			Conclusion          string     `json:"conclusion"`
+			Name                string     `json:"name"`
+			Number              int        `json:"number"`
+			SecondsToCompletion int        `json:"seconds_to_completion"`
+			StartedAt           *time.Time `json:"started_at"`
+			Status              string     `json:"status"`
+		}
+	} `graphql:"steps(first: 50)"`
 }
 
 type SimpleWorkflowRun struct {
 	CheckSuiteNodeID string
 }
 
+// DbCheckRun is used to store additional fields (like RunId) required for database storage
+// and application logic, while embedding the GraphqlQueryCheckRun struct for API data.
+type DbCheckRun struct {
+	RunId int // WorkflowRunId, required for DORA calculation
+	*GraphqlQueryCheckRun
+}
+
 var CollectJobsMeta = plugin.SubTaskMeta{
-	Name:             "CollectJobs",
+	Name:             "Collect Job Runs",
 	EntryPoint:       CollectJobs,
 	EnabledByDefault: true,
 	Description:      "Collect Jobs(CheckRun) data from GithubGraphql api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
-var _ plugin.SubTaskEntryPoint = CollectAccount
+var _ plugin.SubTaskEntryPoint = CollectJobs
+
+func getPageInfo(query interface{}, args *helper.GraphqlCollectorArgs) (*helper.GraphqlQueryPageInfo, error) {
+	queryWrapper := query.(*GraphqlQueryCheckRunWrapper)
+	hasNextPage := false
+	endCursor := ""
+	for _, node := range queryWrapper.Node {
+		if node.CheckSuite.CheckRuns.PageInfo.HasNextPage {
+			hasNextPage = true
+			endCursor = node.CheckSuite.CheckRuns.PageInfo.EndCursor
+			break
+		}
+	}
+	return &helper.GraphqlQueryPageInfo{
+		EndCursor:   endCursor,
+		HasNextPage: hasNextPage,
+	}, nil
+}
+
+func buildQuery(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+	query := &GraphqlQueryCheckRunWrapper{}
+	if reqData == nil {
+		return query, map[string]interface{}{}, nil
+	}
+	workflowRuns := reqData.Input.([]interface{})
+	checkSuiteIds := []map[string]interface{}{}
+	for _, iWorkflowRuns := range workflowRuns {
+		workflowRun := iWorkflowRuns.(*SimpleWorkflowRun)
+		checkSuiteIds = append(checkSuiteIds, map[string]interface{}{
+			`id`: graphql.ID(workflowRun.CheckSuiteNodeID),
+		})
+	}
+	variables := map[string]interface{}{
+		"node":       checkSuiteIds,
+		"pageSize":   graphql.Int(reqData.Pager.Size),
+		"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
+	}
+	return query, variables, nil
+}
 
 func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
-	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: githubTasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -118,8 +171,8 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 		dal.Orderby("github_updated_at DESC"),
 	}
-	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.Since))
+	if apiCollector.IsIncremental() && apiCollector.GetSince() != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *apiCollector.GetSince()))
 	}
 
 	cursor, err := db.Cursor(
@@ -134,39 +187,47 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
+	err = apiCollector.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		Input:         iterator,
-		InputStep:     20,
+		InputStep:     10,
 		GraphqlClient: data.GraphqlClient,
-		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
-			query := &GraphqlQueryCheckRunWrapper{}
-			if reqData == nil {
-				return query, map[string]interface{}{}, nil
+		BuildQuery:    buildQuery,
+		GetPageInfo:   getPageInfo,
+		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
+			query := queryWrapper.(*GraphqlQueryCheckRunWrapper)
+			for _, node := range query.Node {
+				runId := node.CheckSuite.WorkflowRun.DatabaseId
+				for _, checkRun := range node.CheckSuite.CheckRuns.Nodes {
+					dbCheckRun := &DbCheckRun{
+						RunId:                runId,
+						GraphqlQueryCheckRun: &checkRun,
+					}
+					// A checkRun without a startedAt time is a run that was never started (skipped)
+					// akwardly, GitHub assigns a completedAt time to such runs, which is the time when the run was skipped
+					// TODO: Decide if we want to skip those runs or should we assign the startedAt time to the completedAt time
+					if dbCheckRun.StartedAt == nil || dbCheckRun.StartedAt.IsZero() {
+						debug := fmt.Sprintf("collector: checkRun.StartedAt is nil or zero: %s", dbCheckRun.Id)
+						taskCtx.GetLogger().Debug(debug, "Collector: CheckRun started at is nil or zero")
+						continue
+					}
+					updatedAt := dbCheckRun.StartedAt
+					if dbCheckRun.CompletedAt != nil {
+						updatedAt = dbCheckRun.CompletedAt
+					}
+					if apiCollector.GetSince() != nil && !apiCollector.GetSince().Before(*updatedAt) {
+						return messages, helper.ErrFinishCollect
+					}
+					messages = append(messages, errors.Must1(json.Marshal(dbCheckRun)))
+				}
 			}
-			workflowRuns := reqData.Input.([]interface{})
-			checkSuiteIds := []map[string]interface{}{}
-			for _, iWorkflowRuns := range workflowRuns {
-				workflowRun := iWorkflowRuns.(*SimpleWorkflowRun)
-				checkSuiteIds = append(checkSuiteIds, map[string]interface{}{
-					`id`: graphql.ID(workflowRun.CheckSuiteNodeID),
-				})
-			}
-			variables := map[string]interface{}{
-				"node": checkSuiteIds,
-			}
-			return query, variables, nil
+			return
 		},
-		ResponseParserWithDataErrors: func(iQuery interface{}, variables map[string]interface{}, dataErrors []graphql.DataError) ([]interface{}, error) {
-			for _, dataError := range dataErrors {
-				// log and ignore
-				taskCtx.GetLogger().Warn(dataError, `query check run get error but ignore`)
-			}
-			return nil, nil
-		},
+		IgnoreQueryErrors: true,
+		PageSize:          20,
 	})
 	if err != nil {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return apiCollector.Execute()
 }

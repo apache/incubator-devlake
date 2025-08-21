@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/spf13/cast"
-	"reflect"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -38,7 +39,7 @@ func init() {
 }
 
 var ConvertDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "ConvertDeployment",
+	Name:             "Convert Deployments",
 	EntryPoint:       ConvertDeployment,
 	EnabledByDefault: true,
 	Description:      "Convert gitlab deployment from tool layer to domain layer",
@@ -48,9 +49,9 @@ var ConvertDeploymentMeta = plugin.SubTaskMeta{
 
 // ConvertDeployment should be split into two task theoretically
 // But in GitLab, all deployments have commits, so there is no need to change it.
-func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
-	db := taskCtx.GetDal()
+func ConvertDeployment(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_DEPLOYMENT)
+	db := subtaskCtx.GetDal()
 
 	repo := &models.GitlabProject{}
 	err := db.First(repo, dal.Where("gitlab_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
@@ -59,35 +60,40 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	projectIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
-
-	cursor, err := db.Cursor(
-		dal.From(&models.GitlabDeployment{}),
-		dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
-	)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
 	idGen := didgen.NewDomainIdGenerator(&models.GitlabDeployment{})
 
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(models.GitlabDeployment{}),
-		Input:              cursor,
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabDeployment := inputRow.(*models.GitlabDeployment)
-
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GitlabDeployment]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.From(&models.GitlabDeployment{}),
+				dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		Convert: func(gitlabDeployment *models.GitlabDeployment) ([]interface{}, errors.Error) {
 			var duration *float64
 			if gitlabDeployment.DeployableDuration != nil {
 				deployableDuration := cast.ToFloat64(*gitlabDeployment.DeployableDuration)
 				duration = &deployableDuration
 			}
-			if duration == nil || *duration == 0 {
-				if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableStartedAt != nil {
-					deployableDuration := float64(gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableStartedAt).Milliseconds() / 1e3)
-					duration = &deployableDuration
-				}
+			// Use duration field in resp. DO NOT calculate it manually.
+			// GitLab Cloud and GitLab Server both have this fields in response.
+			//if duration == nil || *duration == 0 {
+			//	if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableStartedAt != nil {
+			//		deployableDuration := float64(gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableStartedAt).Milliseconds() / 1e3)
+			//		duration = &deployableDuration
+			//	}
+			//}
+			createdDate := time.Now()
+			if gitlabDeployment.DeployableCreatedAt != nil {
+				createdDate = *gitlabDeployment.DeployableCreatedAt
 			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.NewDomainEntity(idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId)),
@@ -103,21 +109,22 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{StatusRunning},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),
-				OriginalStatus: gitlabDeployment.Status,
-				Environment:    gitlabDeployment.Environment,
+				OriginalStatus:      gitlabDeployment.Status,
+				Environment:         gitlabDeployment.Environment,
+				OriginalEnvironment: gitlabDeployment.Environment,
 				TaskDatesInfo: devops.TaskDatesInfo{
-					CreatedDate:  gitlabDeployment.CreatedDate,
+					CreatedDate:  createdDate,
 					StartedDate:  gitlabDeployment.DeployableStartedAt,
 					FinishedDate: gitlabDeployment.DeployableFinishedAt,
 				},
+				DurationSec:       duration,
 				QueuedDurationSec: gitlabDeployment.QueuedDuration,
 				CommitSha:         gitlabDeployment.Sha,
 				RefName:           gitlabDeployment.Ref,
 				RepoId:            projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				RepoUrl:           repo.WebUrl,
-			}
-			if duration != nil {
-				domainDeployCommit.DurationSec = duration
+				DisplayTitle:      gitlabDeployment.DeployableCommitTitle,
+				Url:               repo.WebUrl + "/environments",
 			}
 			if data.RegexEnricher != nil {
 				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {

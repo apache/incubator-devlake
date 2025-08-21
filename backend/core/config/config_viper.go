@@ -72,7 +72,7 @@ func initConfig(v *viper.Viper) {
 
 	if _, err := os.Stat(v.ConfigFileUsed()); err != nil {
 		if os.IsNotExist(err) {
-			logrus.Info("no [.env] file, please make sure you have set the environment variable.")
+			logrus.Info("no [.env] file, devlake will read configuration from environment, please make sure you have set correct environment variable.")
 		} else {
 			panic(fmt.Errorf("failed to get config file info: %v", err))
 		}
@@ -104,6 +104,9 @@ func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
 	v.SetDefault("REMOTE_PLUGIN_DIR", "python/plugins")
 	v.SetDefault("SWAGGER_DOCS_DIR", "resources/swagger")
+	v.SetDefault("RESUME_PIPELINES", true)
+	v.SetDefault("CORS_ALLOW_ORIGIN", "*")
+	v.SetDefault("CONSUME_PIPELINES", true)
 }
 
 func init() {

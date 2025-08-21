@@ -18,9 +18,13 @@ limitations under the License.
 package srvhelper
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
@@ -53,6 +57,64 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(conne
 		dal.Orderby("id DESC"),
 	)
 	return scopeConfigs, err
+}
+
+func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(pluginName string, scopeConfig *SC) (*models.ProjectScopeOutput, errors.Error) {
+	s := new(S)
+	// find out the primary key of the scope model
+	sPk := errors.Must1(dal.GetPrimarykeyColumnNames(scopeConfigSrv.db, (interface{}(s)).(dal.Tabler)))
+	if len(sPk) != 2 {
+		return nil, errors.Internal.New("Scope model should have 2 primary key fields")
+	}
+	theOtherPk := sPk[0]
+	if strings.HasSuffix(theOtherPk, ".connection_id") {
+		theOtherPk = sPk[1]
+	}
+	var bpss []struct {
+		S           *S `gorm:"embedded"`
+		BlueprintId uint64
+		ProjectName string
+		ScopeId     string
+	}
+	scopeTable := (*s).TableName()
+	// Postgres fails as scope_id is a varchar and theOtherPk can be an integer in some cases
+	join := fmt.Sprintf("LEFT JOIN %s ON (%s.connection_id = bps.connection_id AND %s = bps.scope_id)", scopeTable, scopeTable, theOtherPk)
+	if scopeConfigSrv.db.Dialect() == "postgres" {
+		join = fmt.Sprintf("LEFT JOIN %s ON (%s.connection_id = bps.connection_id AND CAST(%s AS varchar) = bps.scope_id)", scopeTable, scopeTable, theOtherPk)
+	}
+	errors.Must(scopeConfigSrv.db.All(
+		&bpss,
+		dal.Select(fmt.Sprintf("bp.id AS blueprint_id, bp.project_name, bps.scope_id, %s.*", scopeTable)),
+		dal.From("_devlake_blueprint_scopes bps"),
+		dal.Join("LEFT JOIN _devlake_blueprints bp ON (bp.id = bps.blueprint_id)"),
+		dal.Join(join),
+		dal.Where("bps.plugin_name = ? AND bps.connection_id = ? AND scope_config_id = ?", pluginName, (*scopeConfig).ScopeConfigConnectionId(), (*scopeConfig).ScopeConfigId()),
+	))
+	projectScopeMap := make(map[string]*models.ProjectScope)
+	for _, bps := range bpss {
+		if _, ok := projectScopeMap[bps.ProjectName]; !ok {
+			projectScopeMap[bps.ProjectName] = &models.ProjectScope{
+				Name:        bps.ProjectName,
+				BlueprintId: bps.BlueprintId,
+			}
+		}
+		projectScopeMap[bps.ProjectName].Scopes = append(
+			projectScopeMap[bps.ProjectName].Scopes,
+			struct {
+				ScopeID   string `json:"scopeId"`
+				ScopeName string `json:"scopeName"`
+			}{
+				ScopeID:   bps.ScopeId,
+				ScopeName: (*bps.S).ScopeName(),
+			},
+		)
+	}
+	ps := &models.ProjectScopeOutput{}
+	for _, projectScope := range projectScopeMap {
+		ps.Projects = append(ps.Projects, *projectScope)
+	}
+	ps.Count = len(ps.Projects)
+	return ps, nil
 }
 
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) DeleteScopeConfig(scopeConfig *SC) (refs []*S, err errors.Error) {

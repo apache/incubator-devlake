@@ -41,6 +41,7 @@ type Blueprint struct {
 	AfterPlan    PipelinePlan           `json:"afterPlan" gorm:"serializer:encdec"`
 	Labels       []string               `json:"labels" gorm:"-"`
 	Connections  []*BlueprintConnection `json:"connections" gorm:"-"`
+	Priority     int                    `json:"priority"` // greater is higher
 	SyncPolicy   `gorm:"embedded"`
 	common.Model `swaggerignore:"true"`
 }
@@ -82,9 +83,13 @@ func (BlueprintScope) TableName() string {
 	return "_devlake_blueprint_scopes"
 }
 
+type TriggerSyncPolicy struct {
+	SkipCollectors bool `json:"skipCollectors"`
+	FullSync       bool `json:"fullSync"`
+}
+
 type SyncPolicy struct {
-	SkipOnFail     bool       `json:"skipOnFail"`
-	FullSync       bool       `json:"fullSync"`
-	SkipCollectors bool       `json:"skipCollectors"`
-	TimeAfter      *time.Time `json:"timeAfter"`
+	SkipOnFail bool       `json:"skipOnFail"`
+	TimeAfter  *time.Time `json:"timeAfter"`
+	TriggerSyncPolicy
 }

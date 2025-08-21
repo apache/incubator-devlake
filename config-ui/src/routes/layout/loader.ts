@@ -16,41 +16,38 @@
  *
  */
 
-import { AxiosError } from 'axios';
-import { json } from 'react-router-dom';
+import { redirect } from 'react-router-dom';
+import { intersection } from 'lodash';
 
 import API from '@/api';
 import { getRegisterPlugins } from '@/plugins';
-import { ErrorEnum } from '@/routes/error';
 
 type Props = {
   request: Request;
 };
 
-export const loader = async ({ request }: Props) => {
-  let version = 'unknow';
-  let plugins = [];
+export const layoutLoader = async ({ request }: Props) => {
+  const onboard = await API.store.get('onboard');
+
+  if (!onboard) {
+    return redirect('/onboard');
+  }
+
+  let fePlugins = getRegisterPlugins();
+  const bePlugins = await API.plugin.list();
 
   try {
     const envPlugins = import.meta.env.DEVLAKE_PLUGINS.split(',').filter(Boolean);
-    plugins = getRegisterPlugins().filter((plugin) => !envPlugins.length || envPlugins.includes(plugin));
-  } catch (err) {
-    plugins = getRegisterPlugins();
-  }
+    fePlugins = fePlugins.filter((plugin) => !envPlugins.length || envPlugins.includes(plugin));
+  } catch (err) {}
 
-  try {
-    const res = await API.version(request.signal);
-    version = res.version;
-  } catch (err) {
-    const status = (err as AxiosError).response?.status;
-    if (status === 428) {
-      throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
-    }
-    throw json({ error: ErrorEnum.API_OFFLINE }, { status: 503 });
-  }
+  const res = await API.version(request.signal);
 
   return {
-    version,
-    plugins,
+    version: res.version,
+    plugins: intersection(
+      fePlugins,
+      bePlugins.map((it) => it.plugin),
+    ),
   };
 };

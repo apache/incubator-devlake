@@ -28,9 +28,8 @@ type SonarqubeOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
-	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId"`
-	ProjectKey           string `json:"projectKey" mapstructure:"projectKey"`
-	api.CollectorOptions `mapstructure:",squash"`
+	ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId"`
+	ProjectKey   string `json:"projectKey" mapstructure:"projectKey"`
 }
 
 type SonarqubeTaskData struct {

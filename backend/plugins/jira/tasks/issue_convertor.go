@@ -20,7 +20,6 @@ package tasks
 import (
 	"net/url"
 	"path/filepath"
-	"reflect"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -41,48 +40,64 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*JiraTaskData)
-
-	jiraIssue := &models.JiraIssue{}
-	// select all issues belongs to the board
-	clauses := []dal.Clause{
-		dal.Select("_tool_jira_issues.*"),
-		dal.From(jiraIssue),
-		dal.Join(`left join _tool_jira_board_issues
-			on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id
-			and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id`),
-		dal.Where(
-			"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
-			data.Options.ConnectionId,
-			data.Options.BoardId,
-		),
-	}
-	cursor, err := db.Cursor(clauses...)
+func ConvertIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	logger := subtaskCtx.GetLogger()
+	data := subtaskCtx.GetData().(*JiraTaskData)
+	db := subtaskCtx.GetDal()
+	mappings, err := getTypeMappings(data, db)
 	if err != nil {
 		return err
 	}
-	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
 	boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.BoardId)
 
-	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.JiraIssue{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
+	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.JiraIssue]{
+		SubtaskCommonArgs: &api.SubtaskCommonArgs{
+			SubTaskContext: subtaskCtx,
+			Table:          RAW_ISSUE_TABLE,
 			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			Table: RAW_ISSUE_TABLE,
+			SubtaskConfig: mappings,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			jiraIssue := inputRow.(*models.JiraIssue)
+		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
+			clauses := []dal.Clause{
+				dal.Select("_tool_jira_issues.*"),
+				dal.From("_tool_jira_issues"),
+				dal.Join(`left join _tool_jira_board_issues
+					on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id
+					and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id`),
+				dal.Where(
+					"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
+					data.Options.ConnectionId,
+					data.Options.BoardId,
+				),
+			}
+			if stateManager.IsIncremental() {
+				since := stateManager.GetSince()
+				if since != nil {
+					clauses = append(clauses, dal.Where("_tool_jira_issues.updated_at >= ? ", since))
+				}
+			}
+			return db.Cursor(clauses...)
+		},
+		// not needed for now due to jira assignee and label are converted in FullSync(Delete+Insert) manner
+		// BeforeConvert: func(jiraIssue *models.JiraIssue, stateManager *api.SubtaskStateManager) errors.Error {
+		// 	issueId := issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.IssueId)
+		// 	if err := db.Delete(&ticket.IssueAssignee{}, dal.Where("issue_id = ?", issueId)); err != nil {
+		// 		return err
+		// 	}
+		// 	if err := db.Delete(&ticket.IssueLabel{}, dal.Where("issue_id = ?", issueId)); err != nil {
+		// 		return err
+		// 	}
+		// 	return nil
+		// },
+		Convert: func(jiraIssue *models.JiraIssue) ([]interface{}, errors.Error) {
+			var result []interface{}
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: issueIdGen.Generate(jiraIssue.ConnectionId, jiraIssue.IssueId),
@@ -103,9 +118,14 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Priority:                jiraIssue.PriorityName,
 				CreatedDate:             &jiraIssue.Created,
 				UpdatedDate:             &jiraIssue.Updated,
-				LeadTimeMinutes:         int64(jiraIssue.LeadTimeMinutes),
+				LeadTimeMinutes:         jiraIssue.LeadTimeMinutes,
 				TimeSpentMinutes:        jiraIssue.SpentMinutes,
+				TimeRemainingMinutes:    &jiraIssue.RemainingEstimateMinutes,
 				OriginalProject:         jiraIssue.ProjectName,
+				Component:               jiraIssue.Components,
+				IsSubtask:               jiraIssue.Subtask,
+				DueDate:                 jiraIssue.DueDate,
+				FixVersions:             jiraIssue.FixVersions,
 			}
 			if jiraIssue.CreatorAccountId != "" {
 				issue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.CreatorAccountId)
@@ -113,7 +133,18 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if jiraIssue.CreatorDisplayName != "" {
 				issue.CreatorName = jiraIssue.CreatorDisplayName
 			}
-			var result []interface{}
+			if jiraIssue.AssigneeDisplayName != "" {
+				issue.AssigneeName = jiraIssue.AssigneeDisplayName
+			}
+			if jiraIssue.ParentId != 0 {
+				issue.ParentIssueId = issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.ParentId)
+			}
+			// only set type to subtask if no type mapping is set
+			mapped, ok := mappings.StdTypeMappings[jiraIssue.Type]
+			if !(ok && mapped != "") && jiraIssue.Subtask {
+				issue.Type = ticket.SUBTASK
+			}
+			result = append(result, issue)
 			if jiraIssue.AssigneeAccountId != "" {
 				issue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.AssigneeAccountId)
 				issueAssignee := &ticket.IssueAssignee{
@@ -123,13 +154,6 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				result = append(result, issueAssignee)
 			}
-			if jiraIssue.AssigneeDisplayName != "" {
-				issue.AssigneeName = jiraIssue.AssigneeDisplayName
-			}
-			if jiraIssue.ParentId != 0 {
-				issue.ParentIssueId = issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.ParentId)
-			}
-			result = append(result, issue)
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardId,
 				IssueId: issue.Id,
@@ -138,8 +162,29 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return result, nil
 		},
 	})
+
 	if err != nil {
 		return err
+	}
+
+	if !converter.IsIncremental() {
+		logger.Debug("deleting outdated records for board_issues, issue_assignees and issues")
+		dalWhere := dal.Where("_raw_data_table in ? AND _raw_data_params = ?",
+			[]string{"_raw_jira_api_issues", "_raw_jira_api_epics"},
+			converter.GetRawDataParams(),
+		)
+		if err := db.Delete(ticket.Issue{}, dalWhere); err != nil {
+			logger.Error(err, "delete issues")
+			return err
+		}
+		if err := db.Delete(ticket.IssueAssignee{}, dalWhere); err != nil {
+			logger.Error(err, "delete issue_assignees")
+			return err
+		}
+		if err := db.Delete(ticket.BoardIssue{}, dalWhere); err != nil {
+			logger.Error(err, "delete board_issues")
+			return err
+		}
 	}
 
 	return converter.Execute()

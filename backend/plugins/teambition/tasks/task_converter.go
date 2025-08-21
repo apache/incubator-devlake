@@ -19,6 +19,11 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
-	"reflect"
-	"strconv"
-	"time"
 )
 
 var ConvertTasksMeta = plugin.SubTaskMeta{
@@ -61,6 +63,7 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			userTool := inputRow.(*models.TeambitionTask)
 			originalEstimateMinutes, timeSpentMinutes, timeRemainingMinutes := calcEstimateTimeMinutes(userTool)
+			leadTimeMinutes := uint(calcLeadTimeMinutes(userTool))
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getTaskIdGen().Generate(data.Options.ConnectionId, userTool.Id),
@@ -74,16 +77,16 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalProject:         getProjectIdGen().Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				AssigneeId:              userTool.ExecutorId,
 				Url:                     fmt.Sprintf("https://www.teambition.com/task/%s", userTool.Id),
-				LeadTimeMinutes:         calcLeadTimeMinutes(userTool),
-				OriginalEstimateMinutes: originalEstimateMinutes,
-				TimeSpentMinutes:        timeSpentMinutes,
-				TimeRemainingMinutes:    timeRemainingMinutes,
+				LeadTimeMinutes:         &leadTimeMinutes,
+				OriginalEstimateMinutes: &originalEstimateMinutes,
+				TimeSpentMinutes:        &timeSpentMinutes,
+				TimeRemainingMinutes:    &timeRemainingMinutes,
 				ResolutionDate:          userTool.AccomplishTime.ToNullableTime(),
 				CreatedDate:             userTool.Created.ToNullableTime(),
 				UpdatedDate:             userTool.Updated.ToNullableTime(),
 			}
 			if storyPoint, ok := strconv.ParseFloat(userTool.StoryPoint, 64); ok == nil {
-				issue.StoryPoint = storyPoint
+				issue.StoryPoint = &storyPoint
 			}
 			if a, err := FindAccountById(db, userTool.CreatorId); err == nil {
 				issue.CreatorName = a.Name
@@ -95,36 +98,30 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				issue.OriginalProject = p.Name
 			}
 
-			stdStatusMappings := getStatusMapping(data)
 			if taskflowstatus, err := FindTaskFlowStatusById(db, userTool.TfsId); err == nil {
 				issue.OriginalStatus = taskflowstatus.Name
-				if v, ok := stdStatusMappings[taskflowstatus.Name]; ok {
-					issue.Status = v
-				} else {
-					switch taskflowstatus.Kind {
-					case "start":
-						issue.Status = ticket.TODO
-					case "unset":
-						issue.Status = ticket.IN_PROGRESS
-					case "end":
-						issue.Status = ticket.DONE
-					}
+				switch strings.ToUpper(taskflowstatus.Kind) {
+				case "START":
+					issue.Status = ticket.TODO
+				case "UNSET":
+					issue.Status = ticket.IN_PROGRESS
+				case "END":
+					issue.Status = ticket.DONE
+				}
+				if issue.Status == "" {
+					issue.Status = strings.ToUpper(taskflowstatus.Kind)
 				}
 			}
-			stdTypeMappings := getStdTypeMappings(data)
+
 			if scenario, err := FindTaskScenarioById(db, userTool.SfcId); err == nil {
 				issue.OriginalType = scenario.Name
-				if v, ok := stdTypeMappings[scenario.Name]; ok {
-					issue.Type = v
-				} else {
-					switch scenario.Source {
-					case "application.bug":
-						issue.Type = ticket.BUG
-					case "application.story":
-						issue.Type = ticket.REQUIREMENT
-					case "application.risk":
-						issue.Type = ticket.INCIDENT
-					}
+				switch scenario.Source {
+				case "application.bug":
+					issue.Type = ticket.BUG
+				case "application.story":
+					issue.Type = ticket.REQUIREMENT
+				case "application.risk":
+					issue.Type = ticket.INCIDENT
 				}
 			}
 

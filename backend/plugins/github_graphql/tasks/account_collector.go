@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -58,7 +59,7 @@ type GraphqlQueryAccount struct {
 }
 
 var CollectAccountMeta = plugin.SubTaskMeta{
-	Name:             "CollectAccount",
+	Name:             "Collect Users",
 	EntryPoint:       CollectAccount,
 	EnabledByDefault: true,
 	Description:      "Collect Account data from GithubGraphql api, does not support either timeFilter or diffSync.",
@@ -118,13 +119,14 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return query, variables, nil
 		},
-		ResponseParserWithDataErrors: func(iQuery interface{}, variables map[string]interface{}, dataErrors []graphql.DataError) ([]interface{}, error) {
-			for _, dataError := range dataErrors {
-				// log and ignore
-				taskCtx.GetLogger().Warn(dataError, `query user get error but ignore`)
+		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
+			query := queryWrapper.(*GraphqlQueryAccountWrapper)
+			for _, rawL := range query.Users {
+				messages = append(messages, errors.Must1(json.Marshal(rawL)))
 			}
-			return nil, nil
+			return
 		},
+		IgnoreQueryErrors: true,
 	})
 
 	if err != nil {

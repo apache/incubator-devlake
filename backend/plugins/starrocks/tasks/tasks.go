@@ -24,9 +24,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -109,7 +112,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 			SrcDb:         db,
 			DestDb:        starrocksDb,
 			SrcTableName:  table,
-			DestTableName: strings.TrimLeft(table, "_"),
+			DestTableName: table,
 		}
 		columnMap, orderBy, skip, err := createTmpTableInStarrocks(&dc)
 		if skip {
@@ -137,7 +140,6 @@ func createTmpTableInStarrocks(dc *DataConfigParams) (map[string]string, string,
 	table := dc.SrcTableName
 	starrocksTable := dc.DestTableName
 	starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
-
 	columnMetas, err := db.GetColumns(&Table{name: table}, nil)
 	updateColumn := config.UpdateColumn
 	columnMap := make(map[string]string)
@@ -162,8 +164,21 @@ func createTmpTableInStarrocks(dc *DataConfigParams) (map[string]string, string,
 	} else {
 		return nil, "", false, errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
 	}
+	tableConfig, ok := config.TableConfigs[table]
 	for _, cm := range columnMetas {
 		name := cm.Name()
+		if ok {
+			if len(tableConfig.ExcludedColumns) > 0 {
+				if slices.Contains(tableConfig.ExcludedColumns, name) {
+					continue
+				}
+			}
+			if len(tableConfig.IncludedColumns) > 0 {
+				if !slices.Contains(tableConfig.IncludedColumns, name) {
+					continue
+				}
+			}
+		}
 		if name == updateColumn {
 			// check update column to detect skip or not
 			var updatedFrom time.Time
@@ -228,7 +243,11 @@ func createTmpTableInStarrocks(dc *DataConfigParams) (map[string]string, string,
 	if orderBy == "" {
 		orderBy = firstcmName
 	}
-	extra := fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, strings.Join(pks, ", "))
+	replicationNum := os.Getenv("STARROCKS_REPLICAS_NUM")
+	if replicationNum == "" {
+		replicationNum = "1"
+	}
+	extra := fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "%s")`, strings.Join(pks, ", "), replicationNum)
 	if config.Extra != nil {
 		if v, ok := config.Extra[table]; ok {
 			extra = v
@@ -250,13 +269,18 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 	table := dc.SrcTableName
 	starrocksTable := dc.DestTableName
 	starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
-
+	tableConfig, ok := config.TableConfigs[table]
+	where := ""
+	if ok {
+		where = tableConfig.Where
+	}
 	var offset int
 	var err error
 	var rows dal.Rows
 	rows, err = db.Cursor(
 		dal.From(table),
 		dal.Orderby(orderBy),
+		dal.Where(where),
 	)
 	if err != nil {
 		if strings.Contains(err.Error(), "cached plan must not change result type") {
@@ -264,6 +288,7 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 			rows, err = db.Cursor(
 				dal.From(table),
 				dal.Orderby(orderBy),
+				dal.Where(where),
 			)
 			if err != nil {
 				return err
@@ -271,7 +296,6 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 		} else {
 			return err
 		}
-
 	}
 	defer rows.Close()
 

@@ -1,0 +1,2 @@
+connection_id,gitlab_id,project_id,pipeline_id,status,stage,name,ref,tag,allow_failure,duration,web_url,gitlab_created_at,started_at,finished_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+1,1,44,73,success,deploy,deploy,master,0,0,0,"",2022-08-25T21:19:10.938+00:00,"",2022-08-25T23:00:08.594+00:00,"{""ConnectionId"":1,""ProjectId"":44}",_raw_gitlab_api_trigger_job,1,

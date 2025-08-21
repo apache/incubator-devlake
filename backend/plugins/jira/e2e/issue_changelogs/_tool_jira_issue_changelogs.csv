@@ -1,0 +1,4 @@
+connection_id,changelog_id,issue_id,author_account_id,author_display_name,author_active,created,issue_updated,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+2,57278,13383,,Runjuu,0,2021-01-25T03:09:27.985+00:00,2021-03-28T08:08:12.741+00:00,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_issue_changelogs,204483,
+2,57279,13383,,Runjuu,0,2021-01-25T03:09:27.985+00:00,2021-03-28T08:08:13.741+00:00,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_issue_changelogs,204484,
+2,57280,13383,,Runjuu,0,2021-01-25T03:09:27.985+00:00,2021-03-28T08:08:13.741+00:00,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_issue_changelogs,204486,

@@ -89,7 +89,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	// test connection
 	result, err := testConnection(context.TODO(), connection)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
@@ -98,20 +98,24 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Summary test gitee connection
 // @Description Test gitee Connection. endpoint: https://gitee.com/api/v5/
 // @Tags plugins/gitee
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} GiteeTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/gitee/{connectionId}/test [POST]
+// @Router /plugins/gitee/connections/{connectionId}/test [POST]
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "find connection from db")
 	}
+	if err := helper.DecodeMapStruct(input.Body, connection, false); err != nil {
+		return nil, err
+	}
 	// test connection
 	result, err := testConnection(context.TODO(), connection.GiteeConn)
 	if err != nil {
-		return nil, err
+		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
 	return &plugin.ApiResourceOutput{Body: result, Status: http.StatusOK}, nil
 }
@@ -143,8 +147,13 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Router /plugins/gitee/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.GiteeConnection{}
-	err := connectionHelper.Patch(connection, input)
-	if err != nil {
+	if err := connectionHelper.First(&connection, input.Params); err != nil {
+		return nil, err
+	}
+	if err := (&models.GiteeConnection{}).MergeFromRequest(connection, input.Body); err != nil {
+		return nil, errors.Convert(err)
+	}
+	if err := connectionHelper.SaveWithCreateOrUpdate(connection); err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize(), Status: http.StatusOK}, nil

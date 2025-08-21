@@ -23,9 +23,13 @@ import (
 
 type GithubReviewer struct {
 	ConnectionId  uint64 `gorm:"primaryKey"`
-	GithubId      int    `gorm:"primaryKey"`
-	Login         string `gorm:"type:varchar(255)"`
+	ReviewerId    int    `gorm:"primaryKey"`
 	PullRequestId int    `gorm:"primaryKey"`
+	Name          string `gorm:"type:varchar(255)"`
+	Username      string `gorm:"type:varchar(255)"`
+	State         string `gorm:"type:varchar(255)"`
+	AvatarUrl     string `gorm:"type:varchar(255)"`
+	WebUrl        string `gorm:"type:varchar(255)"`
 
 	common.NoPKModel
 }

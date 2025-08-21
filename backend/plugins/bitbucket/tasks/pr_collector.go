@@ -28,7 +28,7 @@ const RAW_PULL_REQUEST_TABLE = "bitbucket_api_pull_requests"
 // this struct should be moved to `bitbucket_api_common.go`
 
 var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequests",
+	Name:             "Collect Pull Requests",
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
 	Required:         false,
@@ -49,6 +49,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate: "repositories/{{ .Params.FullName }}/pullrequests",
 		Query: GetQueryCreatedAndUpdated(
 			`values.id,values.comment_count,values.type,values.state,values.title,values.description,`+
+				`values.closed_by.display_name,values.closed_by.account_id,`+
 				`values.merge_commit.hash,values.merge_commit.date,values.links.html,values.author,values.created_on,values.updated_on,`+
 				`values.destination.branch.name,values.destination.commit.hash,values.destination.repository.full_name,`+
 				`values.source.branch.name,values.source.commit.hash,values.source.repository.full_name,`+

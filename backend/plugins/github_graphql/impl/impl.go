@@ -36,6 +36,7 @@ import (
 	githubImpl "github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/incubator-devlake/plugins/github_graphql/model/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
 	"github.com/merico-dev/graphql"
 	"golang.org/x/oauth2"
@@ -49,6 +50,7 @@ var _ interface {
 	plugin.PluginModel
 	plugin.PluginSource
 	plugin.CloseablePluginTask
+	plugin.PluginMigration
 } = (*GithubGraphql)(nil)
 
 type GithubGraphql struct{}
@@ -125,18 +127,24 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 		githubTasks.ConvertIssueAssigneeMeta,
 		githubTasks.ConvertIssueCommentsMeta,
 		githubTasks.ConvertPullRequestCommentsMeta,
+		githubTasks.ConvertReviewsMeta,
 		githubTasks.ConvertMilestonesMeta,
 		githubTasks.ConvertAccountsMeta,
 
 		// deployment
 		tasks.CollectDeploymentsMeta,
 		tasks.ExtractDeploymentsMeta,
-		githubTasks.ConvertDeploymentsMeta,
+		tasks.ConvertDeploymentsMeta,
+
+		// releases
+		tasks.CollectReleaseMeta,
+		tasks.ExtractReleasesMeta,
+		githubTasks.ConvertReleasesMeta,
 	}
 }
 
 type GraphQueryRateLimit struct {
-	RateLimit struct {
+	RateLimit *struct {
 		Limit     graphql.Int
 		Remaining graphql.Int
 		ResetAt   time.Time
@@ -199,11 +207,18 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	}
 
 	httpClient := oauth2.NewClient(oauthContext, src)
-	endpoint, err := errors.Convert01(url.JoinPath(connection.Endpoint, `graphql`))
+	endpoint, err := errors.Convert01(url.Parse(connection.Endpoint))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("malformed connection endpoint supplied: %s", connection.Endpoint))
 	}
-	client := graphql.NewClient(endpoint, httpClient)
+
+	// github.com and github enterprise have different graphql endpoints
+	endpoint.Path = "/graphql" // see https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
+	if endpoint.Hostname() != "api.github.com" {
+		// see https://docs.github.com/en/enterprise-server@3.11/graphql/guides/forming-calls-with-graphql
+		endpoint.Path = "/api/graphql"
+	}
+	client := graphql.NewClient(endpoint.String(), httpClient)
 	graphqlClient, err := helper.CreateAsyncGraphqlClient(taskCtx, client, taskCtx.GetLogger(),
 		func(ctx context.Context, client *graphql.Client, logger log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
 			var query GraphQueryRateLimit
@@ -213,6 +228,10 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 			}
 			if len(dataErrors) > 0 {
 				return 0, nil, errors.Default.Wrap(dataErrors[0], `query rate limit fail`)
+			}
+			if query.RateLimit == nil {
+				logger.Info(`github graphql rate limit are disabled, fallback to 5000req/hour`)
+				return 5000, nil, nil
 			}
 			logger.Info(`github graphql init success with remaining %d/%d and will reset at %s`,
 				query.RateLimit.Remaining, query.RateLimit.Limit, query.RateLimit.ResetAt)
@@ -265,4 +284,8 @@ func (p GithubGraphql) Close(taskCtx plugin.TaskContext) errors.Error {
 	data.ApiClient.Release()
 	data.GraphqlClient.Release()
 	return nil
+}
+
+func (p GithubGraphql) MigrationScripts() []plugin.MigrationScript {
+	return migrationscripts.All()
 }

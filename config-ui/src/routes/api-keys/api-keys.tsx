@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Table, Modal, Input, Select, Button, Tag } from 'antd';
+import { Flex, Table, Modal, Input, Select, Button, Tag } from 'antd';
 import dayjs from 'dayjs';
 
 import API from '@/api';
 import { PageHeader, Block, ExternalLink, CopyText, Message } from '@/components';
+import { PATHS } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
@@ -32,7 +33,7 @@ import * as S from './styled';
 export const ApiKeys = () => {
   const [version, setVersion] = useState(1);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20);
   const [operating, setOperating] = useState(false);
   const [modal, setModal] = useState<'create' | 'show' | 'delete'>();
   const [currentId, setCurrentId] = useState<string>();
@@ -92,14 +93,14 @@ export const ApiKeys = () => {
 
   return (
     <PageHeader
-      breadcrumbs={[{ name: 'API Keys', path: '/keys' }]}
-      extra={
+      breadcrumbs={[{ name: 'API Keys', path: PATHS.APIKEYS() }]}
+      description="You can generate and manage your API keys to access the DevLake API."
+    >
+      <Flex style={{ marginBottom: 16 }} justify="flex-end">
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal('create')}>
           New API Key
         </Button>
-      }
-    >
-      <p>You can generate and manage your API keys to access the DevLake API.</p>
+      </Flex>
       <Table
         rowKey="id"
         size="middle"
@@ -154,7 +155,12 @@ export const ApiKeys = () => {
           current: page,
           pageSize,
           total,
-          onChange: setPage,
+          onChange: ((newPage: number, newPageSize: number) => {
+            setPage(newPage);
+            if (newPageSize !== pageSize) {
+              setPageSize(newPageSize);
+            }
+          }) as (newPage: number) => void,
         }}
       />
       {modal === 'create' && (

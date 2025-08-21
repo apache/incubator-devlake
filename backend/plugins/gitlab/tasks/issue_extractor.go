@@ -18,13 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"regexp"
-	"strings"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -35,7 +33,7 @@ func init() {
 }
 
 var ExtractApiIssuesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiIssues",
+	Name:             "Extract Issues",
 	EntryPoint:       ExtractApiIssues,
 	EnabledByDefault: true,
 	Description:      "Extract raw Issues data into tool layer table gitlab_issues",
@@ -110,8 +108,8 @@ type IssuesResponse struct {
 		Full     string
 	}
 	TimeStats struct {
-		TimeEstimate        int64
-		TotalTimeSpent      int64
+		TimeEstimate        *int64
+		TotalTimeSpent      *int64
 		HumanTimeEstimate   string
 		HumanTotalTimeSpent string
 	}
@@ -120,28 +118,30 @@ type IssuesResponse struct {
 	Confidential     bool
 	DiscussionLocked bool
 	IssueType        string
-	Serverity        string
+	Severity         string
+	Component        string
+	Priority         string
 	Links            struct {
-		Self       string `json:"url"`
+		Self       string `json:"self"`
 		Notes      string
 		AwardEmoji string
 		Project    string
-	}
+	} `json:"_links"`
 	TaskCompletionStatus struct {
 		Count          int
 		CompletedCount int
 	}
 }
 
-func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
+func ExtractApiIssues(subtaskCtx plugin.SubTaskContext) errors.Error {
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(subtaskCtx, RAW_ISSUE_TABLE)
+
+	db := subtaskCtx.GetDal()
 	config := data.Options.ScopeConfig
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
 	var issuePriorityRegex *regexp.Regexp
-	var issueTypeBugRegex *regexp.Regexp
-	var issueTypeRequirementRegex *regexp.Regexp
-	var issueTypeIncidentRegex *regexp.Regexp
+
 	var issueSeverity = config.IssueSeverity
 	var err error
 	if len(issueSeverity) > 0 {
@@ -164,36 +164,33 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err, "regexp Compile issuePriority failed")
 		}
 	}
-	var issueTypeBug = config.IssueTypeBug
-	if len(issueTypeBug) > 0 {
-		issueTypeBugRegex, err = regexp.Compile(issueTypeBug)
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile issueTypeBug failed")
-		}
+	subtaskCommonArgs.SubtaskConfig = map[string]interface{}{
+		"issueSeverity":      issueSeverity,
+		"issueComponent":     issueComponent,
+		"issuePriorityRegex": issuePriorityRegex,
 	}
-	var issueTypeRequirement = config.IssueTypeRequirement
-	if len(issueTypeRequirement) > 0 {
-		issueTypeRequirementRegex, err = regexp.Compile(issueTypeRequirement)
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile issueTypeRequirement failed")
-		}
-	}
-	var issueTypeIncident = config.IssueTypeIncident
-	if len(issueTypeIncident) > 0 {
-		issueTypeIncidentRegex, err = regexp.Compile(issueTypeIncident)
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile issueTypeIncident failed")
-		}
-	}
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			body := &IssuesResponse{}
-			err := errors.Convert(json.Unmarshal(row.Data, body))
-			if err != nil {
-				return nil, err
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[IssuesResponse]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		BeforeExtract: func(body *IssuesResponse, stateManager *api.SubtaskStateManager) errors.Error {
+			if stateManager.IsIncremental() {
+				err := db.Delete(
+					&models.GitlabIssueLabel{},
+					dal.Where("connection_id = ? AND issue_id = ?", data.Options.ConnectionId, body.Id),
+				)
+				if err != nil {
+					return err
+				}
+				err = db.Delete(
+					&models.GitlabIssueAssignee{},
+					dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, body.Id),
+				)
+				if err != nil {
+					return err
+				}
 			}
-
+			return nil
+		},
+		Extract: func(body *IssuesResponse, row *api.RawData) ([]interface{}, errors.Error) {
 			if body.ProjectId == 0 {
 				return nil, nil
 			}
@@ -203,12 +200,11 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			var joinedLabels []string
 			for _, label := range body.Labels {
 				results = append(results, &models.GitlabIssueLabel{
+					ConnectionId: data.Options.ConnectionId,
 					IssueId:      gitlabIssue.GitlabId,
 					LabelName:    label,
-					ConnectionId: data.Options.ConnectionId,
 				})
 				if issueSeverityRegex != nil && issueSeverityRegex.MatchString(label) {
 					gitlabIssue.Severity = label
@@ -219,20 +215,6 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				if issuePriorityRegex != nil && issuePriorityRegex.MatchString(label) {
 					gitlabIssue.Priority = label
 				}
-
-				if issueTypeRequirementRegex != nil && issueTypeRequirementRegex.MatchString(label) {
-					gitlabIssue.StdType = ticket.REQUIREMENT
-					joinedLabels = append(joinedLabels, label)
-				} else if issueTypeBugRegex != nil && issueTypeBugRegex.MatchString(label) {
-					gitlabIssue.StdType = ticket.BUG
-					joinedLabels = append(joinedLabels, label)
-				} else if issueTypeIncidentRegex != nil && issueTypeIncidentRegex.MatchString(label) {
-					gitlabIssue.StdType = ticket.INCIDENT
-					joinedLabels = append(joinedLabels, label)
-				}
-			}
-			if len(joinedLabels) > 0 {
-				gitlabIssue.Type = strings.Join(joinedLabels, ",")
 			}
 
 			gitlabIssue.ConnectionId = data.Options.ConnectionId
@@ -281,9 +263,14 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		ProjectId:       projectId,
 		Number:          issue.Iid,
 		State:           issue.State,
+		Type:            issue.Type,
+		StdType:         issue.Type,
+		Severity:        issue.Severity,
+		Component:       issue.Component,
+		Priority:        issue.Priority,
 		Title:           issue.Title,
 		Body:            issue.Description,
-		Url:             issue.Links.Self,
+		Url:             issue.WebUrl,
 		ClosedAt:        common.Iso8601TimeToTime(issue.GitlabClosedAt),
 		GitlabCreatedAt: issue.GitlabCreatedAt.ToTime(),
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
@@ -302,7 +289,8 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		gitlabIssue.CreatorName = issue.Author.Username
 	}
 	if issue.GitlabClosedAt != nil {
-		gitlabIssue.LeadTimeMinutes = uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())
+		temp := uint(issue.GitlabClosedAt.ToTime().Sub(issue.GitlabCreatedAt.ToTime()).Minutes())
+		gitlabIssue.LeadTimeMinutes = &temp
 	}
 
 	return gitlabIssue, nil

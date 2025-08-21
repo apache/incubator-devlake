@@ -29,9 +29,10 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
-	"github.com/apache/incubator-devlake/plugins/customize/models"
+	customizeModels "github.com/apache/incubator-devlake/plugins/customize/models"
 )
 
 // Service wraps database operations
@@ -45,9 +46,9 @@ func NewService(dal dal.Dal) *Service {
 }
 
 // GetFields returns all the fields of the table
-func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Error) {
+func (s *Service) GetFields(table string) ([]customizeModels.CustomizedField, errors.Error) {
 	// the customized fields created before v0.16.0 were not recorded in the table `_tool_customized_field`, we should take care of them
-	columns, err := s.dal.GetColumns(&models.Table{Name: table}, func(columnMeta dal.ColumnMeta) bool {
+	columns, err := s.dal.GetColumns(&customizeModels.Table{Name: table}, func(columnMeta dal.ColumnMeta) bool {
 		return true
 	})
 	if err != nil {
@@ -57,16 +58,16 @@ func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Erro
 	if err != nil {
 		return nil, err
 	}
-	fieldMap := make(map[string]models.CustomizedField)
+	fieldMap := make(map[string]customizeModels.CustomizedField)
 	for _, f := range ff {
 		fieldMap[f.ColumnName] = f
 	}
-	var result []models.CustomizedField
+	var result []customizeModels.CustomizedField
 	for _, col := range columns {
 		// original fields
 		if !strings.HasPrefix(col.Name(), "x_") {
 			dataType, _ := col.ColumnType()
-			result = append(result, models.CustomizedField{
+			result = append(result, customizeModels.CustomizedField{
 				TbName:     table,
 				ColumnName: col.Name(),
 				DataType:   dal.ColumnType(dataType),
@@ -76,7 +77,7 @@ func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Erro
 			if field, ok := fieldMap[col.Name()]; ok {
 				result = append(result, field)
 			} else {
-				result = append(result, models.CustomizedField{
+				result = append(result, customizeModels.CustomizedField{
 					ColumnName: col.Name(),
 					DataType:   dal.Varchar,
 				})
@@ -85,6 +86,8 @@ func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Erro
 	}
 	return result, nil
 }
+
+// checkField checks if the field exist in table
 func (s *Service) checkField(table, field string) (bool, errors.Error) {
 	if table == "" {
 		return false, errors.Default.New("empty table name")
@@ -108,7 +111,7 @@ func (s *Service) checkField(table, field string) (bool, errors.Error) {
 }
 
 // CreateField creates a new column for the table cf.TbName and creates a new record in the table `_tool_customized_fields`
-func (s *Service) CreateField(cf *models.CustomizedField) errors.Error {
+func (s *Service) CreateField(cf *customizeModels.CustomizedField) errors.Error {
 	exists, err := s.checkField(cf.TbName, cf.ColumnName)
 	if err != nil {
 		return err
@@ -140,27 +143,49 @@ func (s *Service) DeleteField(table, field string) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "DropColumn error")
 	}
-	return s.dal.Delete(&models.CustomizedField{}, dal.Where("tb_name = ? AND column_name = ?", table, field))
+	return s.dal.Delete(&customizeModels.CustomizedField{}, dal.Where("tb_name = ? AND column_name = ?", table, field))
 }
 
-func (s *Service) getCustomizedFields(table string) ([]models.CustomizedField, errors.Error) {
-	var result []models.CustomizedField
+// getCustomizedFields returns all the customized fields definitions of the table
+func (s *Service) getCustomizedFields(table string) ([]customizeModels.CustomizedField, errors.Error) {
+	var result []customizeModels.CustomizedField
 	err := s.dal.All(&result, dal.Where("tb_name = ?", table))
 	return result, err
 }
 
-func (s *Service) ImportIssue(boardId string, file io.ReadCloser) errors.Error {
-	err := s.dal.Delete(&ticket.Issue{}, dal.Where("_raw_data_params = ?", boardId))
-	if err != nil {
-		return err
+// ImportIssue import csv file to the table `issues`, and create relations to boards
+// issue could exist in multiple boards, so we should only delete an old records when it doesn't belong to another board
+func (s *Service) ImportIssue(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// not delete accounts data since account may be referenced by others
+		err := s.dal.Delete(
+			&ticket.Issue{},
+			dal.Where("id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+
+		err = s.dal.Delete(
+			&ticket.IssueLabel{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+
+		err = s.dal.Delete(
+			&ticket.BoardIssue{},
+			dal.Where("board_id = ?", boardId),
+		)
+		if err != nil {
+			return err
+		}
 	}
-	err = s.dal.Delete(&ticket.BoardIssue{}, dal.Where("board_id = ?", boardId))
-	if err != nil {
-		return err
-	}
-	return s.importCSV(file, boardId, s.issueHandlerFactory(boardId))
+	return s.importCSV(file, boardId, s.issueHandlerFactory(boardId, incremental))
 }
 
+// SaveBoard make sure the board exists in table `boards`
 func (s *Service) SaveBoard(boardId, boardName string) errors.Error {
 	return s.dal.CreateOrUpdate(&ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
@@ -171,40 +196,41 @@ func (s *Service) SaveBoard(boardId, boardName string) errors.Error {
 	})
 }
 
-func (s *Service) ImportIssueCommit(rawDataParams string, file io.ReadCloser) errors.Error {
-	err := s.dal.Delete(&crossdomain.IssueCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
+// ImportIssueCommit imports csv file into the table `issue_commits`
+func (s *Service) ImportIssueCommit(boardId string, file io.ReadCloser) errors.Error {
+	err := s.dal.Delete(
+		&crossdomain.IssueCommit{},
+		dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+	)
 	if err != nil {
 		return err
 	}
-	return s.importCSV(file, rawDataParams, s.issueCommitHandler)
+	return s.importCSV(file, boardId, s.issueCommitHandler)
 }
 
 // ImportIssueRepoCommit imports data to the table `issue_repo_commits` and `issue_commits`
-func (s *Service) ImportIssueRepoCommit(rawDataParams string, file io.ReadCloser) errors.Error {
-	fields := make(map[string]struct{})
-	// get all fields of the table `issue_repo_commit`
-	columns, err := s.dal.GetColumns(&crossdomain.IssueCommit{}, func(columnMeta dal.ColumnMeta) bool {
-		return true
-	})
-	if err != nil {
-		return err
+func (s *Service) ImportIssueRepoCommit(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old records of the table `issue_repo_commit` and `issue_commit`
+		err := s.dal.Delete(
+			&crossdomain.IssueRepoCommit{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+		err = s.dal.Delete(
+			&crossdomain.IssueCommit{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
 	}
-	for _, column := range columns {
-		fields[column.Name()] = struct{}{}
-	}
-	// delete old records of the table `issue_repo_commit` and `issue_commit`
-	err = s.dal.Delete(&crossdomain.IssueRepoCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
-	if err != nil {
-		return err
-	}
-	err = s.dal.Delete(&crossdomain.IssueCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
-	if err != nil {
-		return err
-	}
-	return s.importCSV(file, rawDataParams, s.issueRepoCommitHandlerFactory(fields))
+	return s.importCSV(file, boardId, s.issueRepoCommitHandler)
 }
 
-// importCSV imports the csv file to the database,
+// importCSV extract records from csv file, and save them to DB using recordHandler
 // the rawDataParams is used to identify the data source,
 // the recordHandler is used to handle the record, it should return an error if the record is invalid
 // the `created_at` and `updated_at` will be set to the current time
@@ -238,22 +264,74 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 	}
 }
 
-func (s *Service) issueHandlerFactory(boardId string) func(record map[string]interface{}) errors.Error {
+// createOrUpdateAccount creates or updates an account based on the provided name.
+// It returns the account ID and an error if any occurred.
+func (s *Service) createOrUpdateAccount(accountName string, rawDataParams string) (string, errors.Error) {
+	if accountName == "" {
+		return "", nil // Return empty ID if name is empty, no error needed here.
+	}
+	now := time.Now()
+	accountId := fmt.Sprintf("csv:CsvAccount:0:%s", accountName)
+	account := &crossdomain.Account{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: accountId,
+			NoPKModel: common.NoPKModel{
+				RawDataOrigin: common.RawDataOrigin{
+					RawDataParams: rawDataParams,
+				},
+			},
+		},
+		FullName:    accountName,
+		UserName:    accountName,
+		CreatedDate: &now, // FIXME: will update created_date if already exists. to debug, using created_at instead
+	}
+	err := s.dal.CreateOrUpdate(account)
+	if err != nil {
+		return "", errors.Default.Wrap(err, fmt.Sprintf("failed to create or update account for %s", accountName))
+	}
+	return accountId, nil
+}
+
+// getStringField extracts a string field from a record map.
+// If required is true, it returns an error if the field is missing, nil, empty, or not a string.
+// If required is false, it returns an empty string without error if the field is missing or nil,
+// but returns an error if the field exists and is not a string.
+func getStringField(record map[string]interface{}, fieldName string, required bool) (string, errors.Error) {
+	value, ok := record[fieldName]
+	if !ok || value == nil {
+		if required {
+			return "", errors.Default.New(fmt.Sprintf("record without required field %s", fieldName))
+		}
+		return "", nil // Field missing or nil, but not required
+	}
+
+	strValue, ok := value.(string)
+	if !ok {
+		return "", errors.Default.New(fmt.Sprintf("%s is not a string", fieldName))
+	}
+
+	if required && strValue == "" {
+		return "", errors.Default.New(fmt.Sprintf("invalid or empty required field %s", fieldName))
+	}
+
+	return strValue, nil
+}
+
+// issueHandlerFactory returns a handler that save record into `issues`, `board_issues` and `issue_labels` table
+func (s *Service) issueHandlerFactory(boardId string, incremental bool) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
 		var err errors.Error
-		var id string
-		if record["id"] == nil {
-			return errors.Default.New("record without id")
+		id, err := getStringField(record, "id", true)
+		if err != nil {
+			return err
 		}
-		id, _ = record["id"].(string)
-		if id == "" {
-			return errors.Default.New("empty id")
+
+		// Handle labels
+		labels, err := getStringField(record, "labels", false)
+		if err != nil {
+			return err
 		}
-		if record["labels"] != nil {
-			labels, ok := record["labels"].(string)
-			if !ok {
-				return errors.Default.New("labels is not string")
-			}
+		if labels != "" {
 			var issueLabels []*ticket.IssueLabel
 			appearedLabels := make(map[string]struct{}) // record the labels that have appeared
 			for _, label := range strings.Split(labels, ",") {
@@ -282,37 +360,342 @@ func (s *Service) issueHandlerFactory(boardId string) func(record map[string]int
 				}
 			}
 		}
-		delete(record, "labels")
+		delete(record, "labels") // Remove labels from record map as it's handled
+
+		// Handle creator and assignee accounts
+		rawDataParams, err := getStringField(record, "_raw_data_params", true)
+		if err != nil {
+			// This should ideally not happen as it's set in importCSV, but good to check
+			return err
+		}
+
+		// Handle creator
+		creatorName, err := getStringField(record, "creator_name", false)
+		if err != nil {
+			return err
+		}
+		creatorId, err := s.createOrUpdateAccount(creatorName, rawDataParams)
+		if err != nil {
+			return err
+		}
+		if creatorId != "" {
+			record["creator_id"] = creatorId
+		}
+
+		// Handle assignee
+		assigneeName, err := getStringField(record, "assignee_name", false)
+		if err != nil {
+			return err
+		}
+		assigneeId, err := s.createOrUpdateAccount(assigneeName, rawDataParams)
+		if err != nil {
+			return err
+		}
+		if assigneeId != "" {
+			record["assignee_id"] = assigneeId
+		}
+
+		// Handle sprint_ids
+		sprintIds, err := getStringField(record, "sprint_ids", false)
+		if err != nil {
+			return err
+		}
+		sprints := strings.Split(strings.TrimSpace(sprintIds), ",")
+		for _, sprintId := range sprints {
+			sprintId = strings.TrimSpace(sprintId)
+			if sprintId != "" {
+				err = s.dal.CreateOrUpdate(&ticket.SprintIssue{
+					SprintId: sprintId,
+					IssueId:  id,
+				})
+				if err != nil {
+					return err
+				}
+			}
+		}
+		delete(record, "sprint_ids")
+
+		// Handle issues
 		err = s.dal.CreateWithMap(&ticket.Issue{}, record)
 		if err != nil {
 			return err
 		}
-		return s.dal.CreateOrUpdate(&ticket.BoardIssue{
+
+		// Handle board_issues
+		err = s.dal.CreateOrUpdate(&ticket.BoardIssue{
 			BoardId: boardId,
 			IssueId: id,
 		})
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 }
 
+// issueCommitHandler save record into `issue_commits` table
 func (s *Service) issueCommitHandler(record map[string]interface{}) errors.Error {
 	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
 }
 
-// issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commits` table
-// ths issueCommitsFields is used to filter the fields that should be inserted into the `issue_commits` table
-func (s *Service) issueRepoCommitHandlerFactory(issueCommitsFields map[string]struct{}) func(record map[string]interface{}) errors.Error {
+// ImportQaApis imports csv file to the table `qa_apis`
+func (s *Service) ImportQaApis(qaProjectId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old data associated with this qaProjectId
+		err := s.dal.Delete(&qa.QaApi{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_apis for qaProjectId %s", qaProjectId))
+		}
+	}
+	return s.importCSV(file, qaProjectId, s.qaApiHandler(qaProjectId))
+}
+
+// qaApiHandler saves a record into the `qa_apis` table
+func (s *Service) qaApiHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
-		err := s.dal.CreateWithMap(&crossdomain.IssueRepoCommit{}, record)
+		creatorName, err := getStringField(record, "creator_name", false)
 		if err != nil {
 			return err
 		}
-		for head := range record {
-			if _, exists := issueCommitsFields[head]; exists {
-				continue
-			} else {
-				delete(record, head)
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			if creatorId != "" {
+				record["creator_id"] = creatorId
 			}
 		}
-		return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
+		delete(record, "creator_name")
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaApi{}, record)
 	}
+}
+
+// ImportQaTestCases imports csv file to the table `qa_test_cases`
+func (s *Service) ImportQaTestCases(qaProjectId, qaProjectName string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old data associated with this qaProjectId
+		// delete qa_test_cases
+		err := s.dal.Delete(&qa.QaTestCase{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_cases for qaProjectId %s", qaProjectId))
+		}
+		// delete qa_apis
+		err = s.dal.Delete(&qa.QaApi{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_apis for qaProjectId %s", qaProjectId))
+		}
+		// delete qa_test_case_executions
+		err = s.dal.Delete(&qa.QaTestCaseExecution{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_case_executions for qaProjectId %s", qaProjectId))
+		}
+		// never delete data in qa_projects
+	}
+	// create or update qa_projects
+	err := s.dal.CreateOrUpdate(&qa.QaProject{
+		DomainEntityExtended: domainlayer.DomainEntityExtended{
+			Id: qaProjectId,
+		},
+		Name: qaProjectName,
+	})
+	if err != nil {
+		return err
+	}
+	return s.importCSV(file, qaProjectId, s.qaTestCaseHandler(qaProjectId))
+}
+
+// qaTestCaseHandler saves a record into the `qa_test_cases` table
+func (s *Service) qaTestCaseHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		creatorName, _ := getStringField(record, "creator_name", false)
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			record["creator_id"] = creatorId
+		}
+		// remove fields
+		delete(record, "creator_name")
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaTestCase{}, record)
+	}
+}
+
+// ImportQaTestCaseExecutions imports csv file to the table `qa_test_case_executions`
+func (s *Service) ImportQaTestCaseExecutions(qaProjectId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		// delete old data associated with this qaProjectId
+		err := s.dal.Delete(&qa.QaTestCaseExecution{}, dal.Where("qa_project_id = ?", qaProjectId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to delete old qa_test_case_executions for qaProjectId %s", qaProjectId))
+		}
+	}
+	return s.importCSV(file, qaProjectId, s.qaTestCaseExecutionHandler(qaProjectId))
+}
+
+// qaTestCaseExecutionHandler saves a record into the `qa_test_case_executions` table
+func (s *Service) qaTestCaseExecutionHandler(qaProjectId string) func(record map[string]interface{}) errors.Error {
+	// Assuming qa.QaTestCaseExecution model exists and CreateWithMap is suitable
+	return func(record map[string]interface{}) errors.Error {
+		creatorName, _ := getStringField(record, "creator_name", false)
+		if creatorName != "" {
+			creatorId, _ := s.createOrUpdateAccount(creatorName, qaProjectId)
+			record["creator_id"] = creatorId
+		}
+		delete(record, "creator_name")
+		record["qa_project_id"] = qaProjectId
+		return s.dal.CreateWithMap(&qa.QaTestCaseExecution{}, record)
+	}
+}
+
+// issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commits` table
+// ths issueCommitsFields is used to filter the fields that should be inserted into the `issue_commits` table
+func (s *Service) issueRepoCommitHandler(record map[string]interface{}) errors.Error {
+	err := s.dal.CreateWithMap(&crossdomain.IssueRepoCommit{}, record)
+	if err != nil {
+		return err
+	}
+	// remove fields that not in table `issue_commits`
+	delete(record, "host")
+	delete(record, "namespace")
+	delete(record, "repo_name")
+	delete(record, "repo_url")
+	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
+}
+
+// ImportSprint imports csv file into the table `sprints`
+func (s *Service) ImportSprint(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		err := s.dal.Delete(
+			&ticket.Sprint{},
+			dal.Where("id IN (SELECT sprint_id FROM board_sprints WHERE board_id=? AND sprint_id NOT IN (SELECT sprint_id FROM board_sprints WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+		err = s.dal.Delete(
+			&ticket.BoardSprint{},
+			dal.Where("board_id = ?", boardId),
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return s.importCSV(file, boardId, s.sprintHandler(boardId))
+}
+
+// sprintHandler saves a record into the `sprints` table
+func (s *Service) sprintHandler(boardId string) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		id, err := getStringField(record, "id", true)
+		if err != nil {
+			return err
+		}
+		record["original_board_id"] = boardId
+		err = s.dal.CreateWithMap(&ticket.Sprint{}, record)
+		if err != nil {
+			return err
+		}
+
+		// Create board_sprint relation
+		return s.dal.CreateOrUpdate(&ticket.BoardSprint{
+			BoardId:  boardId,
+			SprintId: id,
+		})
+	}
+}
+
+// ImportIssueChangelog imports csv file into the table `issue_changelogs`
+func (s *Service) ImportIssueChangelog(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		err := s.dal.Delete(
+			&ticket.IssueChangelogs{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return s.importCSV(file, boardId, s.issueChangelogHandler)
+}
+
+// issueChangelogHandler saves a record into the `issue_changelogs` table
+func (s *Service) issueChangelogHandler(record map[string]interface{}) errors.Error {
+	// create account
+	authorName, err := getStringField(record, "author_name", false)
+	if err != nil {
+		return err
+	}
+	rawDataParams, err := getStringField(record, "_raw_data_params", true)
+	if err != nil {
+		return err
+	}
+	if authorName != "" {
+		authorId, err := s.createOrUpdateAccount(authorName, rawDataParams)
+		if err != nil {
+			return err
+		}
+		record["author_id"] = authorId
+	}
+	// set field_id = field_name
+	fieldName, err := getStringField(record, "field_name", true)
+	if err != nil {
+		return err
+	}
+	record["field_id"] = fieldName
+	// handle assignee
+	if fieldName == "assignee" {
+		originalFromValue, err := getStringField(record, "original_from_value", false)
+		if err != nil {
+			return err
+		}
+		originalToValue, err := getStringField(record, "original_to_value", false)
+		if err != nil {
+			return err
+		}
+		fromId, err := s.createOrUpdateAccount(originalFromValue, rawDataParams)
+		if err != nil {
+			return err
+		}
+		record["original_from_value"] = fromId
+		toId, err := s.createOrUpdateAccount(originalToValue, rawDataParams)
+		if err != nil {
+			return err
+		}
+		record["original_to_value"] = toId
+	}
+	return s.dal.CreateWithMap(&ticket.IssueChangelogs{}, record)
+}
+
+// ImportIssueWorklog imports csv file into the table `issue_worklogs`
+func (s *Service) ImportIssueWorklog(boardId string, file io.ReadCloser, incremental bool) errors.Error {
+	if !incremental {
+		err := s.dal.Delete(
+			&ticket.IssueWorklog{},
+			dal.Where("issue_id IN (SELECT issue_id FROM board_issues WHERE board_id=? AND issue_id NOT IN (SELECT issue_id FROM board_issues WHERE board_id!=?))", boardId, boardId),
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return s.importCSV(file, boardId, s.issueWorklogHandler)
+}
+
+// issueWorklogHandler saves a record into the `issue_worklogs` table
+func (s *Service) issueWorklogHandler(record map[string]interface{}) errors.Error {
+	// create account
+	authorName, err := getStringField(record, "author_name", false)
+	if err != nil {
+		return err
+	}
+	if authorName != "" {
+		rawDataParams, err := getStringField(record, "_raw_data_params", true)
+		if err != nil {
+			return err
+		}
+		authorId, err := s.createOrUpdateAccount(authorName, rawDataParams)
+		if err != nil {
+			return err
+		}
+		record["author_id"] = authorId
+	}
+	delete(record, "author_name")
+	return s.dal.CreateWithMap(&ticket.IssueWorklog{}, record)
 }

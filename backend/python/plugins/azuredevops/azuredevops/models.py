@@ -45,8 +45,9 @@ class GitRepository(ToolScope, table=True):
     default_branch: Optional[str]
     project_id: str
     org_id: str
-    parent_repository_url: Optional[str] = Field(source='parentRepository/url')
+    parent_repository_url: Optional[str] = Field(source='/parentRepository/url')
     provider: Optional[str]
+    updated_date: datetime.datetime = Field(source='/project/lastUpdateTime')
 
     def is_external(self):
         return bool(self.provider)
@@ -80,7 +81,7 @@ class GitPullRequestCommit(ToolModel, table=True):
     commit_id: str = Field(primary_key=True)
     pull_request_id: str
     author_name: str = Field(source='/author/name')
-    author_email: str = Field(source='/author/email')
+    author_email: Optional[str] = Field(source='/author/email')
     author_date: datetime.datetime = Field(source='/author/date')
 
 
@@ -114,6 +115,8 @@ class Build(ToolModel, table=True):
     result: Optional[BuildResult]
     source_branch: str
     source_version: str
+    display_title: Optional[str] = Field(source='/triggerInfo/ci.message')
+    url: Optional[str] = Field(source='/_links/web/href')
 
 
 class Job(ToolModel, table=True):

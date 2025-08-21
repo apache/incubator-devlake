@@ -20,13 +20,16 @@ package services
 import (
 	"context"
 	"fmt"
-	"github.com/spf13/cast"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/sync/errgroup"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -39,16 +42,25 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
-var notificationService *NotificationService
+var defaultNotificationService *DefaultPipelineNotificationService
 var globalPipelineLog = logruslog.Global.Nested("pipeline service")
 var pluginOptionSanitizers = map[string]func(map[string]interface{}){
 	"gitextractor": func(options map[string]interface{}) {
 		if v, ok := options["url"]; ok {
 			gitUrl := cast.ToString(v)
-			u, _ := url.Parse(gitUrl)
+			u, err := url.Parse(gitUrl)
+			if err != nil {
+				logger.Error(err, "failed to parse git url", gitUrl)
+			}
 			if u != nil && u.User != nil {
 				password, ok := u.User.Password()
 				if ok {
+					escapedUrl, err := url.QueryUnescape(gitUrl)
+					if err != nil {
+						logger.Warn(err, "failed to unescape url %s", gitUrl)
+					} else {
+						gitUrl = escapedUrl
+					}
 					gitUrl = strings.Replace(gitUrl, password, strings.Repeat("*", len(password)), -1)
 					options["url"] = gitUrl
 				}
@@ -74,38 +86,18 @@ func pipelineServiceInit() {
 	var notificationEndpoint = cfg.GetString("NOTIFICATION_ENDPOINT")
 	var notificationSecret = cfg.GetString("NOTIFICATION_SECRET")
 	if strings.TrimSpace(notificationEndpoint) != "" {
-		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
+		defaultNotificationService = NewDefaultPipelineNotificationService(notificationEndpoint, notificationSecret)
 	}
 
 	// standalone mode: reset pipeline status
-	errMsg := "The process was terminated unexpectedly"
-	err := db.UpdateColumns(
-		&models.Pipeline{},
-		[]dal.DalSet{
-			{ColumnName: "status", Value: models.TASK_FAILED},
-			{ColumnName: "message", Value: errMsg},
-		},
-		dal.Where("status = ?", models.TASK_RUNNING),
-	)
-	if err != nil {
-		panic(err)
-	}
-	err = db.UpdateColumns(
-		&models.Task{},
-		[]dal.DalSet{
-			{ColumnName: "status", Value: models.TASK_FAILED},
-			{ColumnName: "message", Value: errMsg},
-		},
-		dal.Where("status = ?", models.TASK_RUNNING),
-	)
-	if err != nil {
-		panic(err)
+	if cfg.GetBool("RESUME_PIPELINES") {
+		markInterruptedPipelineAs(models.TASK_RESUME)
+	} else {
+		markInterruptedPipelineAs(models.TASK_FAILED)
 	}
 
-	err = ReloadBlueprints(cronManager)
-	if err != nil {
-		panic(err)
-	}
+	// load cronjobs for blueprints
+	errors.Must(ReloadBlueprints())
 
 	var pipelineMaxParallel = cfg.GetInt64("PIPELINE_MAX_PARALLEL")
 	if pipelineMaxParallel < 0 {
@@ -116,7 +108,26 @@ func pipelineServiceInit() {
 		pipelineMaxParallel = 10000
 	}
 	// run pipeline with independent goroutine
-	go RunPipelineInQueue(pipelineMaxParallel)
+	if cfg.GetBool("CONSUME_PIPELINES") {
+		go RunPipelineInQueue(pipelineMaxParallel)
+	}
+}
+
+func markInterruptedPipelineAs(status string) {
+	errors.Must(db.UpdateColumns(
+		&models.Pipeline{},
+		[]dal.DalSet{
+			{ColumnName: "status", Value: status},
+		},
+		dal.Where("status = ?", models.TASK_RUNNING),
+	))
+	errors.Must(db.UpdateColumns(
+		&models.Task{},
+		[]dal.DalSet{
+			{ColumnName: "status", Value: status},
+		},
+		dal.Where("status = ?", models.TASK_RUNNING),
+	))
 }
 
 // CreatePipeline and return the model
@@ -149,7 +160,8 @@ func SanitizeBlueprint(blueprint *models.Blueprint) error {
 func SanitizePipeline(pipeline *models.Pipeline) error {
 	for planStageIdx, pipelineStage := range pipeline.Plan {
 		for planTaskIdx := range pipelineStage {
-			pipelineTask, err := SanitizeTask(pipeline.Plan[planStageIdx][planTaskIdx])
+			task := pipeline.Plan[planStageIdx][planTaskIdx]
+			pipelineTask, err := SanitizeTask(task)
 			if err != nil {
 				return err
 			}
@@ -182,16 +194,27 @@ func GetPipelines(query *PipelineQuery, shouldSanitize bool) ([]*models.Pipeline
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
-	for _, p := range pipelines {
-		err = fillPipelineDetail(p)
-		if err != nil {
-			return nil, 0, err
-		}
-		if shouldSanitize {
-			if err := SanitizePipeline(p); err != nil {
-				return nil, 0, errors.Convert(err)
+
+	g := new(errgroup.Group)
+	for idx, p := range pipelines {
+		tmpPipeline := *p
+		tmpIdx := idx
+		g.Go(func() error {
+			err = fillPipelineDetail(&tmpPipeline)
+			if err != nil {
+				return err
 			}
-		}
+			if shouldSanitize {
+				if err := SanitizePipeline(&tmpPipeline); err != nil {
+					return err
+				}
+			}
+			pipelines[tmpIdx] = &tmpPipeline
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, 0, errors.Convert(err)
 	}
 	return pipelines, i, nil
 }
@@ -206,8 +229,10 @@ func GetPipeline(pipelineId uint64, shouldSanitize bool) (*models.Pipeline, erro
 	if err != nil {
 		return nil, err
 	}
-	if err := SanitizePipeline(dbPipeline); err != nil {
-		return nil, errors.Convert(err)
+	if shouldSanitize {
+		if err := SanitizePipeline(dbPipeline); err != nil {
+			return nil, errors.Convert(err)
+		}
 	}
 	return dbPipeline, nil
 }
@@ -237,7 +262,7 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	// prepare query to find an appropriate pipeline to execute
 	pipeline = &models.Pipeline{}
 	err = tx.First(pipeline,
-		dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}),
+		dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN, models.TASK_RESUME}),
 		dal.Join(
 			`left join _devlake_pipeline_labels ON
 				_devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
@@ -248,20 +273,26 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 		dal.Groupby("id"),
 		dal.Having("count(_devlake_pipeline_labels.name)=0"),
 		dal.Select("id"),
-		dal.Orderby("id ASC"),
+		dal.Orderby("priority DESC, id ASC"),
 		dal.Limit(1),
 	)
 	if err == nil {
 		// mark the pipeline running, now we want a write lock
+		if pipeline.BeganAt == nil {
+			now := time.Now()
+			pipeline.BeganAt = &now
+			globalPipelineLog.Info("resumed pipeline #%d", pipeline.ID)
+		}
 		errors.Must(tx.LockTables(dal.LockTables{{Table: "_devlake_pipelines", Exclusive: true}}))
 		err = tx.UpdateColumns(&models.Pipeline{}, []dal.DalSet{
 			{ColumnName: "status", Value: models.TASK_RUNNING},
 			{ColumnName: "message", Value: ""},
-			{ColumnName: "began_at", Value: time.Now()},
+			{ColumnName: "began_at", Value: pipeline.BeganAt},
 		}, dal.Where("id = ?", pipeline.ID))
 		if err != nil {
 			panic(err)
 		}
+
 		return
 	}
 	if tx.IsErrorNotFound(err) {
@@ -319,6 +350,11 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 				globalPipelineLog.Info("finish pipeline #%d, now runningParallelLabels is %s", pipelineId, runningParallelLabels)
 			}()
 			globalPipelineLog.Info("run pipeline, %d, now running runningParallelLabels are %s", pipelineId, runningParallelLabels)
+			// Notify that the pipeline has started
+			err = NotifyExternal(pipelineId)
+			if err != nil {
+				globalPipelineLog.Error(err, "failed to send pipeline started notification for pipeline #%d", pipelineId)
+			}
 			err = runPipeline(pipelineId)
 			if err != nil {
 				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)
@@ -327,9 +363,30 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 	}
 }
 
+func getProjectName(pipeline *models.Pipeline) (string, errors.Error) {
+	if pipeline == nil {
+		return "", errors.Default.New("pipeline is nil")
+	}
+	blueprintId := pipeline.BlueprintId
+	if blueprintId == 0 {
+		// skip get project name if pipeline is not bound to a blueprint
+		return "", nil
+	}
+	dbBlueprint := &models.Blueprint{}
+	err := db.First(dbBlueprint, dal.Where("id = ?", blueprintId))
+	if err != nil {
+		if db.IsErrorNotFound(err) {
+			return "", errors.NotFound.New(fmt.Sprintf("blueprint(id: %d) not found", blueprintId))
+		}
+		return "", errors.Internal.Wrap(err, "error getting the blueprint from database")
+	}
+	return dbBlueprint.ProjectName, nil
+}
+
 // NotifyExternal FIXME ...
 func NotifyExternal(pipelineId uint64) errors.Error {
-	if notificationService == nil {
+	notification := GetPipelineNotificationService()
+	if notification == nil {
 		return nil
 	}
 	// send notification to an external web endpoint
@@ -337,13 +394,18 @@ func NotifyExternal(pipelineId uint64) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = notificationService.PipelineStatusChanged(PipelineNotification{
-		PipelineID: pipeline.ID,
-		CreatedAt:  pipeline.CreatedAt,
-		UpdatedAt:  pipeline.UpdatedAt,
-		BeganAt:    pipeline.BeganAt,
-		FinishedAt: pipeline.FinishedAt,
-		Status:     pipeline.Status,
+	projectName, err := getProjectName(pipeline)
+	if err != nil {
+		return err
+	}
+	err = notification.PipelineStatusChanged(PipelineNotificationParam{
+		ProjectName: projectName,
+		PipelineID:  pipeline.ID,
+		CreatedAt:   pipeline.CreatedAt,
+		UpdatedAt:   pipeline.UpdatedAt,
+		BeganAt:     pipeline.BeganAt,
+		FinishedAt:  pipeline.FinishedAt,
+		Status:      pipeline.Status,
 	})
 	if err != nil {
 		globalPipelineLog.Error(err, "failed to send notification: %v", err)
@@ -413,7 +475,10 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	tx := txHelper.Begin()
 	defer txHelper.End()
-	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{{Table: "_devlake_pipelines", Exclusive: true}})
+	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{
+		{Table: "_devlake_pipelines", Exclusive: true},
+		{Table: "_devlake_tasks", Exclusive: true},
+	})
 	if err != nil {
 		err = errors.BadInput.Wrap(err, "failed to lock pipeline table, is there any pending pipeline or deletion?")
 		return
@@ -441,7 +506,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 		}
 		failedTasks = append(failedTasks, task)
 	} else {
-		tasks, err := GetTasksWithLastStatus(pipelineId, false)
+		tasks, err := GetTasksWithLastStatus(pipelineId, false, tx)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error getting tasks")
 		}
@@ -458,17 +523,16 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 	}
 
 	// create new tasks
-	// TODO: this is better to be wrapped inside a transaction
 	rerunTasks := []*models.Task{}
 	for _, t := range failedTasks {
 		// mark previous task failed
 		t.Status = models.TASK_FAILED
-		err := db.UpdateColumn(t, "status", models.TASK_FAILED)
+		err := tx.UpdateColumn(t, "status", models.TASK_FAILED)
 		if err != nil {
 			return nil, err
 		}
 		// create new task
-		rerunTask, err := CreateTask(&models.NewTask{
+		rerunTask, err := createTask(&models.NewTask{
 			PipelineTask: &models.PipelineTask{
 				Plugin:   t.Plugin,
 				Subtasks: t.Subtasks,
@@ -478,7 +542,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 			PipelineRow: t.PipelineRow,
 			PipelineCol: t.PipelineCol,
 			IsRerun:     true,
-		})
+		}, tx)
 		if err != nil {
 			return nil, err
 		}

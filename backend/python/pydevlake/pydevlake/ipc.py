@@ -27,6 +27,7 @@ from sqlalchemy.engine import Engine
 from pydevlake.context import Context
 from pydevlake.message import Message
 from pydevlake.model import SubtaskRun
+from pydevlake.config import set_config
 
 
 def plugin_method(func):
@@ -51,6 +52,9 @@ def plugin_method(func):
     @wraps(func)
     @SetParseFn(parse_arg)
     def wrapper(self, *args):
+        # first arg will always be arg - pluck it out
+        cfg = args[0]
+        set_config(cfg)
         ret = func(self, *args)
         if ret is not None:
             with open_send_channel() as send_ch:
@@ -64,31 +68,32 @@ def plugin_method(func):
     return wrapper
 
 
+# all remote-callable (@plugin_method) methods should have a _ placeholder first param (until/unless I figure out a better way)
 class PluginCommands:
     def __init__(self, plugin):
         self._plugin = plugin
 
     @plugin_method
-    def collect(self, ctx: dict, stream: str):
+    def collect(self, _, ctx: dict, stream: str):
         yield from self._plugin.collect(self._mk_context(ctx), stream)
 
     @plugin_method
-    def extract(self, ctx: dict, stream: str):
+    def extract(self, _, ctx: dict, stream: str):
         yield from self._plugin.extract(self._mk_context(ctx), stream)
 
     @plugin_method
-    def convert(self, ctx: dict, stream: str):
+    def convert(self, _, ctx: dict, stream: str):
         yield from self._plugin.convert(self._mk_context(ctx), stream)
 
     @plugin_method
-    def test_connection(self, connection: dict):
+    def test_connection(self, _, connection: dict):
         if "name" not in connection:
             connection["name"] = "Test connection"
         connection = self._plugin.connection_type(**connection)
         return self._plugin.test_connection(connection)
 
     @plugin_method
-    def make_pipeline(self, scope_config_pairs: list[tuple[dict, dict]], connection: dict):
+    def make_pipeline(self, _, scope_config_pairs: list[tuple[dict, dict]], connection: dict):
         connection = self._plugin.connection_type(**connection)
         scope_config_pairs = [
             (
@@ -100,11 +105,11 @@ class PluginCommands:
         return self._plugin.make_pipeline(scope_config_pairs, connection)
 
     @plugin_method
-    def plugin_info(self):
+    def plugin_info(self, _):
         return self._plugin.plugin_info()
 
     @plugin_method
-    def remote_scopes(self, connection: dict, group_id: Optional[str] = None):
+    def remote_scopes(self, _, connection: dict, group_id: Optional[str] = None):
         c = self._plugin.connection_type(**connection)
         yield from self._plugin.make_remote_scopes(c, group_id)
 

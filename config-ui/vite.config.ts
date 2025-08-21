@@ -23,7 +23,7 @@ import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svgr(), react()],
+  plugins: [react(), svgr()],
 
   envPrefix: 'DEVLAKE_',
 
@@ -34,6 +34,10 @@ export default defineConfig({
         target: 'http://localhost:8080/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\//, ''),
+      },
+      '/grafana': {
+        target: 'http://localhost:3002/',
+        changeOrigin: true,
       },
     },
   },

@@ -18,6 +18,9 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -25,8 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
-	"testing"
-	"time"
 )
 
 func getFakeAPIClient() *helper.ApiAsyncClient {
@@ -40,7 +41,7 @@ func getFakeAPIClient() *helper.ApiAsyncClient {
 func TestBambooDeployBuildDataFlow(t *testing.T) {
 	var bamboo impl.Bamboo
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
-	taskData := &tasks.BambooTaskData{
+	taskData := &tasks.BambooOptions{
 		Options: &models.BambooOptions{
 			ConnectionId: 1,
 			PlanKey:      "TEST-PLA2",
@@ -101,11 +102,11 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:   "./snapshot_tables/cicd_deployment_commits.csv",
 		IgnoreTypes:  []interface{}{common.NoPKModel{}},
-		IgnoreFields: []string{},
+		IgnoreFields: []string{"created_date", "queued_date", "started_date", "finished_date"},
 	})
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:   "./snapshot_tables/cicd_deployments.csv",
 		IgnoreTypes:  []interface{}{common.NoPKModel{}},
-		IgnoreFields: []string{},
+		IgnoreFields: []string{"created_date", "queued_date", "started_date", "finished_date"},
 	})
 }

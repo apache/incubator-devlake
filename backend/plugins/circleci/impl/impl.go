@@ -188,24 +188,27 @@ func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
-			"PATCH":  api.UpdateScope,
+			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
 			"GET": api.GetScopeLatestSyncState,
 		},
 		"connections/:connectionId/scopes": {
-			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
+			"GET": api.GetScopes,
+			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scope-configs": {
-			"POST": api.CreateScopeConfig,
+			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.UpdateScopeConfig,
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
+			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
 		},
 	}
 }

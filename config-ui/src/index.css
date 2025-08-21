@@ -18,6 +18,7 @@
 
 body {
   color: #292b3f;
+  margin: 0;
 }
 
 h1,
@@ -64,4 +65,8 @@ p {
   margin: 8px 0;
   font-size: 12px;
   color: #94959f;
+}
+
+#root {
+  height: 100vh;
 }

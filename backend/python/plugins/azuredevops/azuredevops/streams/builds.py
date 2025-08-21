@@ -25,12 +25,21 @@ from pydevlake import Context, DomainType, Stream
 class Builds(Stream):
     tool_model = Build
     domain_types = [DomainType.CICD]
+    domain_models = [devops.CiCDPipelineCommit, devops.CICDPipeline]
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
         api = AzureDevOpsAPI(context.connection)
+        provider = repo.provider or 'tfsgit'
         response = api.builds(repo.org_id, repo.project_id, repo.id, repo.provider or 'tfsgit')
         for raw_build in response:
+            raw_build["x_request_url"] = response.get_url_with_query_string()
+            raw_build["x_request_input"] = {
+                "OrgId": repo.org_id,
+                "ProjectId": repo.project_id,
+                "RepoId": repo.id,
+                "Provider": provider,
+            }
             yield raw_build, state
 
     def convert(self, b: Build, ctx: Context):
@@ -62,9 +71,11 @@ class Builds(Stream):
         type = devops.CICDType.BUILD
         if ctx.scope_config.deployment_pattern and ctx.scope_config.deployment_pattern.search(b.name):
             type = devops.CICDType.DEPLOYMENT
-        environment = devops.CICDEnvironment.TESTING
-        if ctx.scope_config.production_pattern and ctx.scope_config.production_pattern.search(b.name):
-            environment = devops.CICDEnvironment.PRODUCTION
+
+        environment = devops.CICDEnvironment.PRODUCTION
+        if ctx.scope_config.production_pattern is not None and ctx.scope_config.production_pattern.search(
+                b.name) is None:
+            environment = None
 
         if b.finish_time:
             duration_sec = abs(b.finish_time.timestamp() - b.start_time.timestamp())
@@ -85,6 +96,8 @@ class Builds(Stream):
             environment=environment,
             type=type,
             cicd_scope_id=ctx.scope.domain_id(),
+            display_title=b.display_title,
+            url=b.url,
         )
 
         if b.source_version is not None:
@@ -94,4 +107,6 @@ class Builds(Stream):
                 branch=b.source_branch,
                 repo_id=ctx.scope.domain_id(),
                 repo_url=ctx.scope.url,
+                display_title=b.display_title,
+                url=b.url,
             )

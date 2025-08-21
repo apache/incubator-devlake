@@ -17,6 +17,12 @@ limitations under the License.
 
 package tasks
 
+type TableConfig struct {
+	IncludedColumns []string `mapstructure:"included_columns"`
+	ExcludedColumns []string `mapstructure:"excluded_columns"`
+	Where           string   `mapstructure:"where"`
+}
+
 type StarRocksConfig struct {
 	SourceType   string `mapstructure:"source_type"`
 	SourceDsn    string `mapstructure:"source_dsn"`
@@ -29,8 +35,9 @@ type StarRocksConfig struct {
 	BeHost       string `mapstructure:"be_host"`
 	BePort       int    `mapstructure:"be_port"`
 	Tables       []string
-	BatchSize    int               `mapstructure:"batch_size"`
-	OrderBy      map[string]string `mapstructure:"order_by"`
-	DomainLayer  string            `mapstructure:"domain_layer"`
+	TableConfigs map[string]TableConfig `mapstructure:"table_configs"`
+	BatchSize    int                    `mapstructure:"batch_size"`
+	OrderBy      map[string]string      `mapstructure:"order_by"`
+	DomainLayer  string                 `mapstructure:"domain_layer"`
 	Extra        map[string]string
 }

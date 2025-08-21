@@ -39,16 +39,15 @@ func TestConnectIncidentToDeploymentDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./prev_success_deployment_commit/cicd_deployment_commits_after.csv", &devops.CicdDeploymentCommit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/project_mapping.csv", &crossdomain.ProjectMapping{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/board_issues.csv", &ticket.BoardIssue{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})
+	dataflowTester.ImportCsvIntoTabler("./connect_incident_to_deployment/prev_success_deployment_commit/cicd_deployment_commits_after.csv", &devops.CicdDeploymentCommit{})
+	dataflowTester.ImportCsvIntoTabler("./connect_incident_to_deployment/raw_tables/project_mapping.csv", &crossdomain.ProjectMapping{})
+	dataflowTester.ImportCsvIntoTabler("./connect_incident_to_deployment/raw_tables/incidents.csv", &ticket.Incident{})
 
 	// verify converter
-	dataflowTester.FlushTabler(&crossdomain.ProjectIssueMetric{})
+	dataflowTester.FlushTabler(&crossdomain.ProjectIncidentDeploymentRelationship{})
 	dataflowTester.Subtask(tasks.ConnectIncidentToDeploymentMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&crossdomain.ProjectIssueMetric{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/project_issue_metrics.csv",
+	dataflowTester.VerifyTableWithOptions(&crossdomain.ProjectIncidentDeploymentRelationship{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./connect_incident_to_deployment/snapshot_tables/project_incident_deployment_relationships.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }

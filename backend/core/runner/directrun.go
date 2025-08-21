@@ -37,6 +37,7 @@ import (
 // RunCmd FIXME ...
 func RunCmd(cmd *cobra.Command) {
 	cmd.Flags().StringSliceP("subtasks", "t", nil, "specify what tasks to run, --subtasks=collectIssues,extractIssues")
+	cmd.Flags().BoolP("fullsync", "f", false, "run fullsync")
 	err := cmd.Execute()
 	if err != nil {
 		panic(err)
@@ -51,6 +52,10 @@ func RunCmd(cmd *cobra.Command) {
 func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, options map[string]interface{}, timeAfter string) {
 	basicRes := CreateAppBasicRes()
 	tasks, err := cmd.Flags().GetStringSlice("subtasks")
+	if err != nil {
+		panic(err)
+	}
+	fullSync, err := cmd.Flags().GetBool("fullsync")
 	if err != nil {
 		panic(err)
 	}
@@ -94,6 +99,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, 
 		}
 		syncPolicy.TimeAfter = &parsedTimeAfter
 	}
+	syncPolicy.FullSync = fullSync
 
 	err = RunPluginSubTasks(
 		ctx,

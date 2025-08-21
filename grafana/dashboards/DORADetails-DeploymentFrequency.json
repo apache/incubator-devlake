@@ -1,0 +1,1335 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 42,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Go Back",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/qNo8_0M4z/dora?orgId=1"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 63,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "This dashboard shows the details about [deployment frequency](https://devlake.apache.org/docs/Metrics/DeploymentFrequency) in DORA.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgba(255, 255, 255, 1)",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "mode": "basic",
+              "type": "color-background"
+            },
+            "filterable": true,
+            "inspect": true
+          },
+          "links": [],
+          "mappings": [
+            {
+              "options": {
+                "DEPLOYMENT": {
+                  "color": "green",
+                  "index": 1
+                },
+                "PRODUCTION": {
+                  "color": "green",
+                  "index": 0
+                },
+                "SUCCESS": {
+                  "color": "green",
+                  "index": 2
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "deployment_id"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 256
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "project_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 122
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "result"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 116
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "environment"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 118
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "deployment_commit_id"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 295
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "display_title"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 530
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "url"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 498
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "",
+                    "url": "${__data.fields[\"metric_hidden\"]}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric_hidden"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 19,
+        "w": 18,
+        "x": 0,
+        "y": 2
+      },
+      "id": 79,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with _deployment_commit_rank as(\n  SELECT\n  \tpm.project_name,\n  \tIF(cdc._raw_data_table != '', cdc._raw_data_table, cdc.cicd_scope_id) as _raw_data_table,\n  \tcdc.id,\n    cdc.display_title,\n    cdc.url,\n  \tcdc.cicd_deployment_id,\n  \tcdc.cicd_scope_id,\n  \tresult,\n  \tenvironment,\n    finished_date,\n    row_number() over(partition by cdc.cicd_deployment_id order by finished_date desc) as _deployment_commit_rank\n  FROM cicd_deployment_commits cdc\n  left join project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n  \tand result = 'SUCCESS'\n  \tand environment = 'PRODUCTION'\n)\n\nSELECT \n  project_name, \n  cicd_deployment_id as deployment_id,\n  case when display_title = '' then 'N/A' else display_title end as display_title,\n  url,\n  url as metric_hidden,\n  -- a deployment may have multiple deployment_commits\n  -- id as deployment_commit_id, \n  result,\n  environment,\n  finished_date\nFROM _deployment_commit_rank\nWHERE \n  _deployment_commit_rank = 1\n  and $__timeFilter(finished_date)\nORDER BY finished_date DESC",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "1. Deployment list in the selected project(s)",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "day_range"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 19,
+        "w": 6,
+        "x": 18,
+        "y": 2
+      },
+      "id": 75,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Deployment Frequency\nWITH last_few_calendar_days AS (\n  -- Construct the last few calendar days within the selected time period in the top-right corner\n  SELECT CAST(($__timeTo() - INTERVAL (H + T + U) DAY) AS date) AS day\n  FROM (\n    SELECT 0 H\n    UNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n  ) H\n  CROSS JOIN (\n    SELECT 0 T\n    UNION ALL SELECT 10 UNION ALL SELECT 20 UNION ALL SELECT 30\n    UNION ALL SELECT 40 UNION ALL SELECT 50 UNION ALL SELECT 60\n    UNION ALL SELECT 70 UNION ALL SELECT 80 UNION ALL SELECT 90\n  ) T\n  CROSS JOIN (\n    SELECT 0 U\n    UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3\n    UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6\n    UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9\n  ) U\n  WHERE ($__timeTo() - INTERVAL (H + T + U) DAY) > $__timeFrom()\n),\n\n_deployment_commit_rank as(\n  SELECT\n  \tpm.project_name,\n  \tIF(cdc._raw_data_table != '', cdc._raw_data_table, cdc.cicd_scope_id) as _raw_data_table,\n  \tcdc.id,\n  \tcdc.cicd_deployment_id,\n  \tcdc.cicd_scope_id,\n  \tresult,\n  \tenvironment,\n    finished_date,\n    row_number() over(partition by cdc.cicd_deployment_id order by finished_date desc) as _deployment_commit_rank\n  FROM cicd_deployment_commits cdc\n  left join project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n  WHERE\n    pm.project_name in ($project)\n  \tand result = 'SUCCESS'\n  \tand environment = 'PRODUCTION'\n),\n\n_deployments as (\n  SELECT \n    project_name, \n    cicd_deployment_id as deployment_id,\n    -- a deployment may have multiple deployment_commits\n    id as deployment_commit_id, \n    result,\n    environment,\n    finished_date\n  FROM _deployment_commit_rank\n  WHERE \n    _deployment_commit_rank = 1\n    and $__timeFilter(finished_date)\n)\n\nSELECT\n\tdate_format(last_few_calendar_days.day, '%Y-%m-%d') AS day,\n\tCOALESCE(COUNT(d.finished_date), 0) AS successful_deployments_to_prod\nFROM last_few_calendar_days\nLEFT JOIN _deployments d ON last_few_calendar_days.day = DATE(d.finished_date)\nGROUP BY 1\nORDER BY 1 DESC",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "2. Daily deployments in the selected project(s)",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 7
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 74,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_production_deployment_days as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(DATE(cdc.finished_date)) as day\n\tFROM cicd_deployment_commits cdc\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n\tWHERE\n\t\tpm.project_name in ($project)\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_days_weekly_deploy as(\n-- calculate the number of deployment days every week\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as weeks_deployed,\n\t\t\tCOUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_days_monthly_deploy as(\n-- calculate the number of deployment days every month\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as months_deployed,\n\t\t  COUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_days_six_months_deploy AS (\n  SELECT\n    month,\n    SUM(days_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS days_deployed_per_six_months,\n    COUNT(months_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS months_deployed_count,\n    ROW_NUMBER() OVER (\n      PARTITION BY DATE_FORMAT(month, '%Y-%m') DIV 6\n      ORDER BY month DESC\n    ) AS rn\n  FROM _days_monthly_deploy\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(day), INTERVAL -WEEKDAY(date(day)) DAY)) as start_of_week\n  FROM last_few_calendar_months\n  ORDER BY 1 asc\n)\n\n\nSELECT \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +6 DAY),'%m/%d')) as week,\n  days_deployed\nfrom calendar_weeks cw left join _days_weekly_deploy b on cw.start_of_week = b.week",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "3. Weekly deployments in the selected project(s)",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "id": 76,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "month",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_production_deployment_days as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(DATE(cdc.finished_date)) as day\n\tFROM cicd_deployment_commits cdc\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n\tWHERE\n\t\tpm.project_name in ($project)\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_days_weekly_deploy as(\n-- calculate the number of deployment days every week\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as weeks_deployed,\n\t\t\tCOUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_days_monthly_deploy as(\n-- calculate the number of deployment days every month\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as months_deployed,\n\t\t  COUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_days_six_months_deploy AS (\n  SELECT\n    month,\n    SUM(days_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS days_deployed_per_six_months,\n    COUNT(months_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS months_deployed_count,\n    ROW_NUMBER() OVER (\n      PARTITION BY DATE_FORMAT(month, '%Y-%m') DIV 6\n      ORDER BY month DESC\n    ) AS rn\n  FROM _days_monthly_deploy\n)\n\n\n\nSELECT \n  DATE_FORMAT(month, '%y/%m') as month, days_deployed\nFROM _days_monthly_deploy",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "4. Per month deployments in the selected project(s)",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 180
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 29
+      },
+      "id": 77,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_production_deployment_days as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(DATE(cdc.finished_date)) as day\n\tFROM cicd_deployment_commits cdc\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n\tWHERE\n\t\tpm.project_name in ($project)\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_days_weekly_deploy as(\n-- calculate the number of deployment days every week\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as weeks_deployed,\n\t\t\tCOUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_days_monthly_deploy as(\n-- calculate the number of deployment days every month\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as months_deployed,\n\t\t  COUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_days_six_months_deploy AS (\n  SELECT\n    month,\n    SUM(days_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS days_deployed_per_six_months,\n    COUNT(months_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS months_deployed_count,\n    ROW_NUMBER() OVER (\n      PARTITION BY DATE_FORMAT(month, '%Y-%m') DIV 6\n      ORDER BY month DESC\n    ) AS rn\n  FROM _days_monthly_deploy\n)\n\n\n\nSELECT \n  CONCAT(DATE_FORMAT(DATE_SUB(month, INTERVAL 5 MONTH), '%y/%m'), ' ~ ', DATE_FORMAT(month, '%y/%m')) AS month_range, days_deployed_per_six_months as days_deployed\nFROM _days_six_months_deploy\nORDER BY month",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "5. Per six months deployments in the selected project(s)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 0,
+        "y": 37
+      },
+      "id": 93,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "# 2023 Benchmarks\n- Elite: >= 5 days per week\n- High: >= 1 day per week\n- Medium: >= 1 day per month\n- Low: < 1 day per month\n# 2021 Benchmarks\n- Elite: >= 5 days per week\n- High: >= 1 day per month\n- Medium: >= 1 day per six months\n- Low: < 1 day per six months",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.0.0",
+      "title": "DORA Report",
+      "type": "text"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "pattern": ".*elite.*",
+                "result": {
+                  "color": "purple",
+                  "index": 0
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*high.*",
+                "result": {
+                  "color": "green",
+                  "index": 1
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*medium.*",
+                "result": {
+                  "color": "yellow",
+                  "index": 2
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*low.*",
+                "result": {
+                  "color": "red",
+                  "index": 3
+                }
+              },
+              "type": "regex"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#a6a6a6",
+                "value": null
+              }
+            ]
+          },
+          "unit": "days per week"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 6,
+        "y": 37
+      },
+      "id": 90,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_production_deployment_days as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(DATE(cdc.finished_date)) as day\n\tFROM cicd_deployment_commits cdc\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n\tWHERE\n\t\tpm.project_name in (${project})\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_days_weekly_deploy as(\n-- calculate the number of deployment days every week\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as weeks_deployed,\n\t\t\tCOUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_days_monthly_deploy as(\n-- calculate the number of deployment days every month\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as months_deployed,\n\t\t  COUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_days_six_months_deploy AS (\n  SELECT\n    month,\n    SUM(days_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS days_deployed_per_six_months,\n    COUNT(months_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS months_deployed_count,\n    ROW_NUMBER() OVER (\n      PARTITION BY DATE_FORMAT(month, '%Y-%m') DIV 6\n      ORDER BY month DESC\n    ) AS rn\n  FROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_week_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_weekly_deploy\n),\n\n_median_number_of_deployment_days_per_week as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_week\n\tFROM _median_number_of_deployment_days_per_week_ranks\n\tWHERE ranks <= 0.5\n),\n\n_median_number_of_deployment_days_per_month_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_month as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_month\n\tFROM _median_number_of_deployment_days_per_month_ranks\n\tWHERE ranks <= 0.5\n),\n\n_days_per_six_months_deploy_by_filter AS (\nSELECT\n  month,\n  days_deployed_per_six_months,\n  months_deployed_count\nFROM _days_six_months_deploy\nWHERE rn%6 = 1\n),\n\n\n_median_number_of_deployment_days_per_six_months_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed_per_six_months) as ranks\n\tFROM _days_per_six_months_deploy_by_filter\n),\n\n_median_number_of_deployment_days_per_six_months as(\n\tSELECT min(days_deployed_per_six_months) as median_number_of_deployment_days_per_six_months, min(months_deployed_count) as is_collected\n\tFROM _median_number_of_deployment_days_per_six_months_ranks\n\tWHERE ranks >= 0.5\n),\n\n_tolal_production_deployment_days as(\n\tselect \n\tcount(*) as tpdd,\n\tcount(distinct day) as dtpdd\n\tfrom _production_deployment_days\n)\n\nSELECT \n  -- tpdd as \"Production Deploy Counts\",\n\t-- dtpdd as \"Production Deployment Days\",\n  median_number_of_deployment_days_per_week as \"Median weekly deployment days\"\n\t-- median_number_of_deployment_days_per_month as \"Median monthly deployment days\",\n\t-- median_number_of_deployment_days_per_six_months as \"Median semi-annual deployment days\"\nFROM _median_number_of_deployment_days_per_week, _median_number_of_deployment_days_per_month, _median_number_of_deployment_days_per_six_months, _tolal_production_deployment_days",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "6. Median deployments days at the weekly level",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "pattern": ".*elite.*",
+                "result": {
+                  "color": "purple",
+                  "index": 0
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*high.*",
+                "result": {
+                  "color": "green",
+                  "index": 1
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*medium.*",
+                "result": {
+                  "color": "yellow",
+                  "index": 2
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*low.*",
+                "result": {
+                  "color": "red",
+                  "index": 3
+                }
+              },
+              "type": "regex"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#a6a6a6",
+                "value": null
+              }
+            ]
+          },
+          "unit": "days per month"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 12,
+        "y": 37
+      },
+      "id": 91,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_production_deployment_days as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(DATE(cdc.finished_date)) as day\n\tFROM cicd_deployment_commits cdc\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n\tWHERE\n\t\tpm.project_name in (${project})\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_days_weekly_deploy as(\n-- calculate the number of deployment days every week\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as weeks_deployed,\n\t\t\tCOUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_days_monthly_deploy as(\n-- calculate the number of deployment days every month\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as months_deployed,\n\t\t  COUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_days_six_months_deploy AS (\n  SELECT\n    month,\n    SUM(days_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS days_deployed_per_six_months,\n    COUNT(months_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS months_deployed_count,\n    ROW_NUMBER() OVER (\n      PARTITION BY DATE_FORMAT(month, '%Y-%m') DIV 6\n      ORDER BY month DESC\n    ) AS rn\n  FROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_week_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_weekly_deploy\n),\n\n_median_number_of_deployment_days_per_week as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_week\n\tFROM _median_number_of_deployment_days_per_week_ranks\n\tWHERE ranks <= 0.5\n),\n\n_median_number_of_deployment_days_per_month_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_month as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_month\n\tFROM _median_number_of_deployment_days_per_month_ranks\n\tWHERE ranks <= 0.5\n),\n\n_days_per_six_months_deploy_by_filter AS (\nSELECT\n  month,\n  days_deployed_per_six_months,\n  months_deployed_count\nFROM _days_six_months_deploy\nWHERE rn%6 = 1\n),\n\n\n_median_number_of_deployment_days_per_six_months_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed_per_six_months) as ranks\n\tFROM _days_per_six_months_deploy_by_filter\n),\n\n_median_number_of_deployment_days_per_six_months as(\n\tSELECT min(days_deployed_per_six_months) as median_number_of_deployment_days_per_six_months, min(months_deployed_count) as is_collected\n\tFROM _median_number_of_deployment_days_per_six_months_ranks\n\tWHERE ranks >= 0.5\n),\n\n_tolal_production_deployment_days as(\n\tselect \n\tcount(*) as tpdd,\n\tcount(distinct day) as dtpdd\n\tfrom _production_deployment_days\n)\n\nSELECT \n  -- tpdd as \"Production Deploy Counts\",\n\t-- dtpdd as \"Production Deployment Days\",\n  -- median_number_of_deployment_days_per_week as \"Median weekly deployment days\"\n\tmedian_number_of_deployment_days_per_month as \"Median monthly deployment days\"\n\t-- median_number_of_deployment_days_per_six_months as \"Median semi-annual deployment days\"\nFROM _median_number_of_deployment_days_per_week, _median_number_of_deployment_days_per_month, _median_number_of_deployment_days_per_six_months, _tolal_production_deployment_days",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "7. Median deployments days at monthly level",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "pattern": ".*elite.*",
+                "result": {
+                  "color": "purple",
+                  "index": 0
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*high.*",
+                "result": {
+                  "color": "green",
+                  "index": 1
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*medium.*",
+                "result": {
+                  "color": "yellow",
+                  "index": 2
+                }
+              },
+              "type": "regex"
+            },
+            {
+              "options": {
+                "pattern": ".*low.*",
+                "result": {
+                  "color": "red",
+                  "index": 3
+                }
+              },
+              "type": "regex"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#a6a6a6",
+                "value": null
+              }
+            ]
+          },
+          "unit": "days per six months"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 18,
+        "y": 37
+      },
+      "id": 92,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- construct the last few calendar months within the selected time period in the top-right corner\n\tSELECT CAST(($__timeTo()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t($__timeTo()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_production_deployment_days as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(DATE(cdc.finished_date)) as day\n\tFROM cicd_deployment_commits cdc\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id and pm.`table` = 'cicd_scopes'\n\tWHERE\n\t\tpm.project_name in (${project})\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_days_weekly_deploy as(\n-- calculate the number of deployment days every week\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as weeks_deployed,\n\t\t\tCOUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_days_monthly_deploy as(\n-- calculate the number of deployment days every month\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(_production_deployment_days.day is not null, 1, null)) as months_deployed,\n\t\t  COUNT(distinct _production_deployment_days.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN _production_deployment_days ON _production_deployment_days.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_days_six_months_deploy AS (\n  SELECT\n    month,\n    SUM(days_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS days_deployed_per_six_months,\n    COUNT(months_deployed) OVER (\n      ORDER BY month\n      ROWS BETWEEN 5 PRECEDING AND CURRENT ROW\n    ) AS months_deployed_count,\n    ROW_NUMBER() OVER (\n      PARTITION BY DATE_FORMAT(month, '%Y-%m') DIV 6\n      ORDER BY month DESC\n    ) AS rn\n  FROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_week_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_weekly_deploy\n),\n\n_median_number_of_deployment_days_per_week as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_week\n\tFROM _median_number_of_deployment_days_per_week_ranks\n\tWHERE ranks <= 0.5\n),\n\n_median_number_of_deployment_days_per_month_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_monthly_deploy\n),\n\n_median_number_of_deployment_days_per_month as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_month\n\tFROM _median_number_of_deployment_days_per_month_ranks\n\tWHERE ranks <= 0.5\n),\n\n_days_per_six_months_deploy_by_filter AS (\nSELECT\n  month,\n  days_deployed_per_six_months,\n  months_deployed_count\nFROM _days_six_months_deploy\nWHERE rn%6 = 1\n),\n\n\n_median_number_of_deployment_days_per_six_months_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed_per_six_months) as ranks\n\tFROM _days_per_six_months_deploy_by_filter\n),\n\n_median_number_of_deployment_days_per_six_months as(\n\tSELECT min(days_deployed_per_six_months) as median_number_of_deployment_days_per_six_months, min(months_deployed_count) as is_collected\n\tFROM _median_number_of_deployment_days_per_six_months_ranks\n\tWHERE ranks >= 0.5\n),\n\n_tolal_production_deployment_days as(\n\tselect \n\tcount(*) as tpdd,\n\tcount(distinct day) as dtpdd\n\tfrom _production_deployment_days\n)\n\nSELECT \n  -- tpdd as \"Production Deploy Counts\",\n\t-- dtpdd as \"Production Deployment Days\",\n  -- median_number_of_deployment_days_per_week as \"Median weekly deployment days\"\n\t-- median_number_of_deployment_days_per_month as \"Median monthly deployment days\"\n\tmedian_number_of_deployment_days_per_six_months as \"Median semi-annual deployment days\"\nFROM _median_number_of_deployment_days_per_week, _median_number_of_deployment_days_per_month, _median_number_of_deployment_days_per_six_months, _tolal_production_deployment_days",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "8. Median deployments days at per six months level",
+      "type": "stat"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "DORA"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+         "datasource": "mysql",
+        "definition": "select distinct name from projects",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Project",
+        "multi": true,
+        "name": "project",
+        "options": [],
+        "query": "select distinct name from projects",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "2023",
+          "value": "2023"
+        },
+         "datasource": "mysql",
+        "definition": "select dora_report from dora_benchmarks",
+        "hide": 0,
+        "includeAll": false,
+        "label": "DORA Report",
+        "multi": false,
+        "name": "dora_report",
+        "options": [],
+        "query": "select dora_report from dora_benchmarks",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "Failed Deployment Recovery Time",
+          "value": "Failed Deployment Recovery Time"
+        },
+         "datasource": "mysql",
+        "definition": "SELECT \n  CASE \n    WHEN dora_report = '2023' THEN \"Failed Deployment Recovery Time\"\n    WHEN dora_report = '2021' THEN \"Median Time to Restore Service\"\n    ELSE NULL \n  END AS title_value\nFROM dora_benchmarks\nWHERE dora_report = '${dora_report:raw}'",
+        "hide": 2,
+        "includeAll": false,
+        "label": "TitleValue",
+        "multi": false,
+        "name": "title_value",
+        "options": [],
+        "query": "SELECT \n  CASE \n    WHEN dora_report = '2023' THEN \"Failed Deployment Recovery Time\"\n    WHEN dora_report = '2021' THEN \"Median Time to Restore Service\"\n    ELSE NULL \n  END AS title_value\nFROM dora_benchmarks\nWHERE dora_report = '${dora_report:raw}'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timeRangeUpdatedDuringEditOrView": false,
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "DORA Details - Deployment Frequency",
+  "uid": "Deployment-frequency",
+  "version": 8,
+  "weekStart": ""
+}

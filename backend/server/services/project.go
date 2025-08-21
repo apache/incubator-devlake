@@ -19,6 +19,10 @@ package services
 
 import (
 	"fmt"
+	"golang.org/x/exp/slices"
+	"golang.org/x/sync/errgroup"
+	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -27,9 +31,23 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+type ProjectService interface {
+	RenameProject(db dal.Transaction, oldProjectName, newProjectName string) errors.Error
+}
+
+var projectService ProjectService
+
 // ProjectQuery used to query projects as the api project input
 type ProjectQuery struct {
 	Pagination
+	Keyword *string `json:"keyword" form:"keyword"`
+}
+
+func (query *ProjectQuery) GetKeyword() string {
+	if query != nil && query.Keyword != nil {
+		return strings.ToLower(*query.Keyword)
+	}
+	return ""
 }
 
 // GetProjects returns a paginated list of Projects based on `query`
@@ -40,6 +58,9 @@ func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors
 	}
 	clauses := []dal.Clause{
 		dal.From(&models.Project{}),
+	}
+	if query.Keyword != nil {
+		clauses = append(clauses, dal.Where("LOWER(name) LIKE ?", "%"+query.GetKeyword()+"%"))
 	}
 
 	count, err := db.Count(clauses...)
@@ -57,16 +78,24 @@ func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB project")
 	}
-	var apiOutProjects []*models.ApiOutputProject
-	for _, project := range projects {
-		apiOutputProject, err := makeProjectOutput(project, true)
-		if err != nil {
-			logger.Error(err, "makeProjectOutput, name: %s", project.Name)
-			return nil, 0, errors.Default.Wrap(err, "error making project output")
-		}
-		apiOutProjects = append(apiOutProjects, apiOutputProject)
+	apiOutProjects := make([]*models.ApiOutputProject, len(projects))
+	g := new(errgroup.Group)
+	for idx, project := range projects {
+		tmpProject := *project
+		tmpIdx := idx
+		g.Go(func() error {
+			apiOutputProject, err := makeProjectOutput(&tmpProject, true)
+			if err != nil {
+				logger.Error(err, "makeProjectOutput, name: %s", tmpProject.Name)
+				return errors.Default.Wrap(err, "error making project output")
+			}
+			apiOutProjects[tmpIdx] = apiOutputProject
+			return nil
+		})
 	}
-
+	if err := g.Wait(); err != nil {
+		return nil, 0, errors.Convert(err)
+	}
 	return apiOutProjects, count, nil
 }
 
@@ -108,8 +137,39 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		}
 	}
 
+	// create blueprint
+	blueprint := &models.Blueprint{
+		Name:        project.Name + "-Blueprint",
+		ProjectName: project.Name,
+		Mode:        "NORMAL",
+		Enable:      true,
+		CronConfig:  "0 0 * * *",
+		IsManual:    false,
+		SyncPolicy: models.SyncPolicy{
+			TimeAfter: func() *time.Time {
+				t := time.Now().AddDate(0, -6, 0)
+				t = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+				return &t
+			}(),
+		},
+		Connections: nil,
+	}
+	if projectInput.Blueprint != nil {
+		blueprint = projectInput.Blueprint
+	}
+	err = tx.Create(blueprint)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error creating DB blueprint")
+	}
+
 	// all good, commit transaction
 	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	// reload schedule
+	err = reloadBlueprint(blueprint)
 	if err != nil {
 		return nil, err
 	}
@@ -186,9 +246,9 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 			return nil, err
 		}
 
-		// ProjectIssueMetric
+		// ProjectIncidentDeploymentRelationship
 		err = tx.UpdateColumn(
-			&crossdomain.ProjectIssueMetric{},
+			&crossdomain.ProjectIncidentDeploymentRelationship{},
 			"project_name", project.Name,
 			dal.Where("project_name = ?", name),
 		)
@@ -215,6 +275,11 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		if err != nil {
 			return nil, err
 		}
+		if projectService != nil {
+			if err := projectService.RenameProject(tx, name, project.Name); err != nil {
+				return nil, err
+			}
+		}
 		// rename project
 		err = tx.UpdateColumn(
 			&models.Project{},
@@ -224,14 +289,14 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	}
 
 	// Blueprint
-	err = tx.UpdateColumn(
-		&models.Blueprint{},
-		"enable", projectInput.Enable,
-		dal.Where("project_name = ?", name),
-	)
-	if err != nil {
-		return nil, err
-	}
+	// err = tx.UpdateColumn(
+	// 	&models.Blueprint{},
+	// 	"enable", projectInput.Enable,
+	// 	dal.Where("project_name = ?", name),
+	// )
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// refresh project metrics if needed
 	if len(projectInput.Metrics) > 0 {
@@ -257,6 +322,31 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	return makeProjectOutput(project, false)
 }
 
+func thereAreUnfinishedPipelinesUnderProject(projectName string) (bool, errors.Error) {
+	blueprint, err := GetBlueprintByProjectName(projectName)
+	if err != nil {
+		return false, err
+	}
+	return thereAreUnfinishedPipelinesUnderBlueprint(blueprint.ID)
+}
+
+func thereAreUnfinishedPipelinesUnderBlueprint(blueprintID uint64) (bool, errors.Error) {
+	// get the first page
+	dbPipelines, count, err := GetDbPipelines(&PipelineQuery{BlueprintId: blueprintID})
+	if err != nil {
+		return false, err
+	}
+	if count <= 0 {
+		return false, nil
+	}
+	for _, pipeline := range dbPipelines {
+		if !slices.Contains(models.FinishedTaskStatus, pipeline.Status) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // DeleteProject FIXME ...
 func DeleteProject(name string) errors.Error {
 	// verify input
@@ -267,6 +357,14 @@ func DeleteProject(name string) errors.Error {
 	_, err := getProjectByName(db, name)
 	if err != nil {
 		return err
+	}
+	// make sure there is no running pipelines in current projects
+	pipelinesAreUnfinished, err := thereAreUnfinishedPipelinesUnderProject(name)
+	if err != nil {
+		return err
+	}
+	if pipelinesAreUnfinished {
+		return errors.Default.New("There are unfinished pipelines in the current project. It cannot be deleted at this time.")
 	}
 	err = deleteProjectBlueprint(name)
 	if err != nil {
@@ -297,7 +395,7 @@ func DeleteProject(name string) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project PR metric")
 	}
-	err = tx.Delete(&crossdomain.ProjectIssueMetric{}, dal.Where("project_name = ?", name))
+	err = tx.Delete(&crossdomain.ProjectIncidentDeploymentRelationship{}, dal.Where("project_name = ?", name))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project Issue metric")
 	}
@@ -375,9 +473,14 @@ func makeProjectOutput(project *models.Project, withLastPipeline bool) (*models.
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Error to get blueprint by project")
 	}
+	if projectOutput.Blueprint != nil {
+		if err := SanitizeBlueprint(projectOutput.Blueprint); err != nil {
+			return nil, errors.Convert(err)
+		}
+	}
 	if withLastPipeline {
 		if projectOutput.Blueprint == nil {
-			logger.Warn(fmt.Errorf("Blueprint is nil"), "want to get latest pipeline, but blueprint is nil")
+			logger.Warn(fmt.Errorf("blueprint is nil"), "want to get latest pipeline, but blueprint is nil")
 		} else {
 			pipelines, pipelinesCount, err := GetPipelines(&PipelineQuery{
 				BlueprintId: projectOutput.Blueprint.ID,

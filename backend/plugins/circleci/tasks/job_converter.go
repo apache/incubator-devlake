@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -25,8 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
-	"reflect"
-	"time"
 )
 
 var ConvertJobsMeta = plugin.SubTaskMeta{
@@ -66,7 +67,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				CicdScopeId: getProjectIdGen().Generate(data.Options.ConnectionId, data.Project.Id),
 				Name:        userTool.Name,
-				PipelineId:  userTool.PipelineId,
+				PipelineId:  getWorkflowIdGen().Generate(data.Options.ConnectionId, userTool.WorkflowId),
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  createdAt,
 					QueuedDate:   userTool.QueuedAt.ToNullableTime(),
