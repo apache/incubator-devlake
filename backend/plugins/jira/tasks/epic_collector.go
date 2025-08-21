@@ -86,7 +86,7 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: false,
-		UrlTemplate: "api/2/search",
+		UrlTemplate: "api/3/search/jql",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			epicKeys := []string{}
@@ -98,6 +98,8 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("expand", "changelog")
+			// Add fields parameter to ensure all required fields are returned in the new API
+			query.Set("fields", "*all")
 			return query, nil
 		},
 		Input:         epicIterator,
