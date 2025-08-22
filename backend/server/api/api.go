@@ -24,7 +24,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
 	// "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -83,7 +82,7 @@ func CreateApiServer() *gin.Engine {
 	router := gin.Default()
 
 	// Enable CORS
-	cfg := basicRes.GetConfigReader()
+	// cfg := basicRes.GetConfigReader()
 	// router.Use(cors.New(cors.Config{
 	// 	// Allow all origins
 	// 	AllowOrigins: cfg.GetStringSlice("CORS_ALLOW_ORIGIN"),
