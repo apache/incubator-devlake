@@ -209,9 +209,29 @@ func getFirstReview(prId string, prCreator string, db dal.Dal) (*code.PullReques
 // getDeploymentCommit takes a merge commit SHA, a repository ID, a list of deployment pairs, and a database connection as input.
 // It returns the deployment pair related to the merge commit, or nil if not found.
 func getDeploymentCommit(mergeSha string, projectName string, db dal.Dal) (*devops.CicdDeploymentCommit, errors.Error) {
+	// Phase 1: direct mapping when the deployment run's commit_sha equals the PR's merge commit.
+	// This is precise and safe, and should be allowed even if it's the first deployment in the collected window.
 	deploymentCommits := make([]*devops.CicdDeploymentCommit, 0, 1)
-	// do not use `.First` method since gorm would append ORDER BY ID to the query which leads to a error
 	err := db.All(
+		&deploymentCommits,
+		dal.Select("dc.*"),
+		dal.From("cicd_deployment_commits dc"),
+		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)"),
+		dal.Where("pm.project_name = ? AND dc.commit_sha = ? AND dc.result = ? AND dc.environment = 'PRODUCTION'", projectName, mergeSha, devops.RESULT_SUCCESS),
+		dal.Orderby("dc.started_date, dc.id ASC"),
+		dal.Limit(1),
+	)
+	if err != nil {
+		return nil, err
+	}
+	if len(deploymentCommits) > 0 {
+		return deploymentCommits[0], nil
+	}
+
+	// Phase 2: fall back to diff-based mapping (skipping the first deployment to avoid over-mapping).
+	// do not use `.First` method since gorm would append ORDER BY ID to the query which leads to an error
+	deploymentCommits = deploymentCommits[:0]
+	err = db.All(
 		&deploymentCommits,
 		dal.Select("dc.*"),
 		dal.From("cicd_deployment_commits dc"),
