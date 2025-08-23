@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
@@ -57,7 +58,9 @@ func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			results := make([]interface{}, 0, 1)
-
+			// Normalize zero-date times to nil
+			checkRun.StartedAt = utils.NilIfZeroTime(checkRun.StartedAt)
+			checkRun.CompletedAt = utils.NilIfZeroTime(checkRun.CompletedAt)
 			paramsBytes, marshalError := json.Marshal(checkRun.Steps.Nodes)
 			err = errors.Convert(marshalError)
 			if err != nil {
