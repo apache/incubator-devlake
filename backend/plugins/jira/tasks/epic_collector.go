@@ -82,11 +82,30 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 		jql = buildJQL(*apiCollector.GetSince(), loc)
 	}
 
+	// Choose API endpoint based on JIRA version
+	var urlTemplate string
+	var shouldAddFieldsParam bool
+	
+	// Use api/2 for JIRA Server <= v8, api/3 for newer versions
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer && 
+		len(data.JiraServerInfo.VersionNumbers) == 3 && 
+		data.JiraServerInfo.VersionNumbers[0] <= 8 {
+		// JIRA Server <= v8
+		urlTemplate = "api/2/search"
+		shouldAddFieldsParam = false
+		logger.Info("Using api/2/search for JIRA Server version <= 8")
+	} else {
+		// JIRA Cloud and Server > v8 (api/2 deprecated in Cloud)
+		urlTemplate = "api/3/search"
+		shouldAddFieldsParam = true
+		logger.Info("Using api/3/search for JIRA Cloud or JIRA Server version > 8")
+	}
+	
 	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: false,
-		UrlTemplate: "api/3/search/jql",
+		UrlTemplate: urlTemplate,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			epicKeys := []string{}
@@ -98,8 +117,10 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("expand", "changelog")
-			// Add fields parameter to ensure all required fields are returned in the new API
-			query.Set("fields", "*all")
+			// api/3 requires fields parameter, api/2 does not
+			if shouldAddFieldsParam {
+				query.Set("fields", "*all")
+			}
 			return query, nil
 		},
 		Input:         epicIterator,
