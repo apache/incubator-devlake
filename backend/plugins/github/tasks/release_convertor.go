@@ -73,7 +73,7 @@ func ConvertRelease(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: releaseIdGen.Generate(githubRelease.ConnectionId, githubRelease.Id),
 				},
-				PublishedAt:  githubRelease.PublishedAt,
+				PublishedAt:  *githubRelease.PublishedAt,
 				CicdScopeId:  releaseScopeIdGen.Generate(githubRelease.ConnectionId, githubRelease.GithubId),
 				Name:         githubRelease.Name,
 				DisplayTitle: githubRelease.Name,
