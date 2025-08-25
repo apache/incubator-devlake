@@ -85,10 +85,10 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	// Choose API endpoint based on JIRA version
 	var urlTemplate string
 	var shouldAddFieldsParam bool
-	
+
 	// Use api/2 for JIRA Server <= v8, api/3 for newer versions
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer && 
-		len(data.JiraServerInfo.VersionNumbers) == 3 && 
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer &&
+		len(data.JiraServerInfo.VersionNumbers) == 3 &&
 		data.JiraServerInfo.VersionNumbers[0] <= 8 {
 		// JIRA Server <= v8
 		urlTemplate = "api/2/search"
@@ -96,11 +96,11 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Info("Using api/2/search for JIRA Server version <= 8")
 	} else {
 		// JIRA Cloud and Server > v8 (api/2 deprecated in Cloud)
-		urlTemplate = "api/3/search"
+		urlTemplate = "api/3/search/jql"
 		shouldAddFieldsParam = true
-		logger.Info("Using api/3/search for JIRA Cloud or JIRA Server version > 8")
+		logger.Info("Using api/3/search/jql for JIRA Cloud or JIRA Server version > 8")
 	}
-	
+
 	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
