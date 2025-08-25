@@ -24,9 +24,8 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/gin-contrib/cors"
+	// "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -83,21 +82,21 @@ func CreateApiServer() *gin.Engine {
 	router := gin.Default()
 
 	// Enable CORS
-	cfg := basicRes.GetConfigReader()
-	router.Use(cors.New(cors.Config{
-		// Allow all origins
-		AllowOrigins: cfg.GetStringSlice("CORS_ALLOW_ORIGIN"),
-		// Allow common methods
-		AllowMethods: []string{"PUT", "PATCH", "POST", "GET", "OPTIONS"},
-		// Allow common headers
-		AllowHeaders: []string{"Origin", "Content-Type"},
-		// Expose these headers
-		ExposeHeaders: []string{"Content-Length"},
-		// Allow credentials
-		AllowCredentials: false,
-		// Cache for 2 hours
-		MaxAge: 120 * time.Hour,
-	}))
+	// cfg := basicRes.GetConfigReader()
+	// router.Use(cors.New(cors.Config{
+	// 	// Allow all origins
+	// 	AllowOrigins: cfg.GetStringSlice("CORS_ALLOW_ORIGIN"),
+	// 	// Allow common methods
+	// 	AllowMethods: []string{"PUT", "PATCH", "POST", "GET", "OPTIONS"},
+	// 	// Allow common headers
+	// 	AllowHeaders: []string{"Origin", "Content-Type"},
+	// 	// Expose these headers
+	// 	ExposeHeaders: []string{"Content-Length"},
+	// 	// Allow credentials
+	// 	AllowCredentials: false,
+	// 	// Cache for 2 hours
+	// 	MaxAge: 120 * time.Hour,
+	// }))
 
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
