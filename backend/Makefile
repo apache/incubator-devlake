@@ -29,13 +29,14 @@ all: build
 go-dep:
 	go install github.com/vektra/mockery/v2@v2.43.0
 	go install github.com/swaggo/swag/cmd/swag@v1.16.1
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 go-dev-tools:
 	# go install github.com/atombender/go-jsonschema/cmd/gojsonschema@latest
 	go install golang.org/x/tools/cmd/goimports@latest
 	go install golang.org/x/tools/gopls@latest
 	go install github.com/go-delve/delve/cmd/dlv@latest
+	go install honnef.co/go/tools/cmd/staticcheck@latest
 
 python-dep:
 	pip install -r python/requirements.txt
