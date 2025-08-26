@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -32,11 +33,9 @@ func ExtractThread(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*SlackTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: SlackApiParams{
-				ConnectionId: data.Options.ConnectionId,
-			},
-			Table: RAW_THREAD_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_THREAD_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			threadInput := &ThreadInput{}
@@ -82,4 +81,5 @@ var ExtractThreadMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractThread,
 	EnabledByDefault: true,
 	Description:      "Extract raw thread messages data into tool layer table",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
