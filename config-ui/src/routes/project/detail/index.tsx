@@ -17,9 +17,11 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 import { Helmet } from 'react-helmet';
-import { Tabs } from 'antd';
+import { Tabs, message } from 'antd';
 
 import API from '@/api';
 import { PageHeader, PageLoading } from '@/components';
@@ -39,12 +41,22 @@ export const ProjectDetailPage = () => {
 
   const { pname } = useParams() as { pname: string };
   const { state } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setTabId(state?.tabId ?? 'blueprint');
   }, [state]);
 
-  const { ready, data } = useRefreshData(() => API.project.get(pname), [pname, version]);
+  const { ready, data, error } = useRefreshData(() => API.project.get(pname), [pname, version]);
+
+  useEffect(() => {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      message.error(`Project not found with project name: ${pname}`);
+      setTimeout(() => {
+        navigate(PATHS.PROJECTS(), { replace: true });
+      }, 100);
+    }
+  }, [error, navigate, pname]);
 
   const handleChangeTabId = (tabId: string) => {
     setTabId(tabId);
@@ -54,8 +66,12 @@ export const ProjectDetailPage = () => {
     setVersion((v) => v + 1);
   };
 
-  if (!ready || !data) {
+  if (!ready && !error) {
     return <PageLoading />;
+  }
+
+  if (!data) {
+    return null;
   }
 
   return (
