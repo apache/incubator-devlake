@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -32,11 +33,9 @@ func ExtractChannelMessage(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*SlackTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: SlackApiParams{
-				ConnectionId: data.Options.ConnectionId,
-			},
-			Table: RAW_CHANNEL_MESSAGE_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_CHANNEL_MESSAGE_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			channel := &ChannelInput{}
@@ -82,4 +81,5 @@ var ExtractChannelMessageMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractChannelMessage,
 	EnabledByDefault: true,
 	Description:      "Extract raw channel messages data into tool layer table",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

@@ -35,6 +35,7 @@ import { ZenTaoConfig } from './zentao';
 import { OpsgenieConfig } from './opsgenie';
 import { TeambitionConfig } from './teambition';
 import { TestmoConfig } from './testmo';
+import { SlackConfig } from './slack/config';
 
 export const pluginConfigs: IPluginConfig[] = [
   AzureConfig,
@@ -48,6 +49,7 @@ export const pluginConfigs: IPluginConfig[] = [
   JenkinsConfig,
   JiraConfig,
   PagerDutyConfig,
+  SlackConfig,
   SonarQubeConfig,
   TAPDConfig,
   TestmoConfig,

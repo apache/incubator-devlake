@@ -19,11 +19,11 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 type SlackChannel struct {
-	common.NoPKModel   `json:"-"`
-	ConnectionId       uint64 `gorm:"primaryKey"`
+	common.Scope       `mapstructure:",squash"`
 	Id                 string `json:"id" gorm:"primaryKey"`
 	Name               string `json:"name"`
 	IsChannel          bool   `json:"is_channel"`
@@ -50,3 +50,26 @@ type SlackChannel struct {
 func (SlackChannel) TableName() string {
 	return "_tool_slack_channels"
 }
+
+func (s SlackChannel) ScopeId() string {
+	return s.Id
+}
+
+func (s SlackChannel) ScopeName() string {
+	return s.Name
+}
+
+func (s SlackChannel) ScopeFullName() string {
+	return s.Name
+}
+
+func (s SlackChannel) ScopeParams() interface{} {
+	return &SlackParams{ConnectionId: s.ConnectionId, ScopeId: s.Id}
+}
+
+type SlackParams struct {
+	ConnectionId uint64
+	ScopeId      string
+}
+
+var _ plugin.ToolLayerScope = (*SlackChannel)(nil)
