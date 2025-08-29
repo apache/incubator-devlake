@@ -26,6 +26,43 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+// FlexibleDescription handles both string and object (ADF) formats for Jira description field
+type FlexibleDescription struct {
+	Value string
+}
+
+// UnmarshalJSON implements custom JSON unmarshaling for FlexibleDescription
+func (fd *FlexibleDescription) UnmarshalJSON(data []byte) error {
+	// handle null values
+	if string(data) == "null" {
+		fd.Value = ""
+		return nil
+	}
+
+	// try to unmarshal as string first
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		fd.Value = str
+		return nil
+	}
+
+	// if string unmarshaling fails, try to unmarshal as object
+	var obj map[string]interface{}
+	if err := json.Unmarshal(data, &obj); err != nil {
+		fd.Value = string(data)
+		return nil
+	}
+
+	// keep the JSON representation
+	fd.Value = string(data)
+	return nil
+}
+
+// String returns the string representation of the description
+func (fd FlexibleDescription) String() string {
+	return fd.Value
+}
+
 type Issue struct {
 	Expand string `json:"expand"`
 	ID     uint64 `json:"id,string"`
@@ -121,8 +158,8 @@ type Issue struct {
 			ID   string `json:"id"`
 			Name string `json:"name"`
 		} `json:"components"`
-		Timeoriginalestimate *int64 `json:"timeoriginalestimate"`
-		Description          string `json:"description"`
+		Timeoriginalestimate *int64              `json:"timeoriginalestimate"`
+		Description          FlexibleDescription `json:"description"`
 		Timetracking         *struct {
 			RemainingEstimate        string `json:"remainingEstimate"`
 			TimeSpent                string `json:"timeSpent"`
@@ -233,7 +270,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		IssueKey:           i.Key,
 		StoryPoint:         &workload,
 		Summary:            i.Fields.Summary,
-		Description:        i.Fields.Description,
+		Description:        i.Fields.Description.Value,
 		Type:               i.Fields.Issuetype.ID,
 		StatusName:         i.Fields.Status.Name,
 		StatusKey:          i.Fields.Status.StatusCategory.Key,
