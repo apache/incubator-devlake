@@ -19,15 +19,14 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/dal"
+	"net/http"
+	"net/url"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/slack/apimodels"
-	"net/http"
-	"net/url"
-	"reflect"
-	"strconv"
 )
 
 const RAW_CHANNEL_MESSAGE_TABLE = "slack_channel_message"
@@ -40,33 +39,16 @@ type ChannelInput struct {
 
 func CollectChannelMessage(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*SlackTaskData)
-	db := taskCtx.GetDal()
-
-	clauses := []dal.Clause{
-		dal.Select("id as channel_id"),
-		dal.From("_tool_slack_channels"),
-		dal.Where("connection_id=?", data.Options.ConnectionId),
-	}
-
-	// construct the input iterator
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return err
-	}
-	// smaller struct can reduce memory footprint, we should try to avoid using big struct
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(ChannelInput{}))
-	if err != nil {
-		return err
-	}
+	// Build a single-item iterator for the specific channel passed in options
+	iterator := api.NewQueueIterator()
+	iterator.Push(&ChannelInput{ChannelId: data.Options.ChannelId})
 
 	pageSize := 100
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: SlackApiParams{
-				ConnectionId: data.Options.ConnectionId,
-			},
-			Table: RAW_CHANNEL_MESSAGE_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_CHANNEL_MESSAGE_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Incremental: false,
@@ -115,4 +97,5 @@ var CollectChannelMessageMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectChannelMessage,
 	EnabledByDefault: true,
 	Description:      "Collect channel message from Slack api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

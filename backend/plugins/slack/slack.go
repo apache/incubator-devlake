@@ -29,11 +29,13 @@ var PluginEntry impl.Slack
 func main() {
 	cmd := &cobra.Command{Use: "slack"}
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "slack connection id")
+	channelId := cmd.Flags().StringP("channelId", "s", "", "slack channel id (scopeId)")
 	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	_ = cmd.MarkFlagRequired("connectionId")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
+			"channelId":    *channelId,
 		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)

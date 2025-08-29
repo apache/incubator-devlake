@@ -27,9 +27,22 @@ type SlackApiParams struct {
 
 type SlackOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
+	ChannelId    string `json:"channelId,omitempty" mapstructure:"channelId,omitempty"`
 }
 
 type SlackTaskData struct {
 	Options   *SlackOptions
 	ApiClient *helper.ApiAsyncClient
+}
+
+// SlackParams defines the raw params shape used to tag raw tables for scoping and latest-sync-state
+type SlackParams struct {
+	ConnectionId uint64 `json:"connectionId"`
+	ScopeId      string `json:"scopeId"`
+}
+
+// GetParams implements api.TaskOptions to ensure raw_data_params include both connection and scope
+func (p *SlackOptions) GetParams() any {
+	scopeId := p.ChannelId
+	return &SlackParams{ConnectionId: p.ConnectionId, ScopeId: scopeId}
 }
