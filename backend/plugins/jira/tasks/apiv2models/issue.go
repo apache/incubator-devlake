@@ -28,6 +28,7 @@ import (
 )
 
 // FlexibleDescription supports both plain text and ADF (Atlassian Document Format) for Jira description field
+// ADF reference: https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/
 type FlexibleDescription struct {
 	Value string
 }
