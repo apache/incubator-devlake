@@ -267,7 +267,7 @@ func (p Github) GetDynamicGitUrl(taskCtx plugin.TaskContext, connectionId uint64
 		return "", err
 	}
 
-	newUrl, err := replaceAcessTokenInUrl(repoUrl, connection.Token)
+	newUrl, err := replaceAcessTokenInUrl(repoUrl, strings.Split(connection.Token, ",")[0])
 	if err != nil {
 		return "", err
 	}
