@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
@@ -66,7 +67,7 @@ type GraphqlQueryRelease struct {
 	IsLatest        bool                         `graphql:"isLatest"`
 	IsPrerelease    bool                         `graphql:"isPrerelease"`
 	Name            string                       `graphql:"name"`
-	PublishedAt     time.Time                    `graphql:"publishedAt"`
+	PublishedAt     *time.Time                   `graphql:"publishedAt"`
 	ResourcePath    string                       `graphql:"resourcePath"`
 	TagName         string                       `graphql:"tagName"`
 	TagCommit       GraphqlQueryReleaseTagCommit `graphql:"tagCommit"`
@@ -125,6 +126,7 @@ func CollectRelease(taskCtx plugin.SubTaskContext) errors.Error {
 			query := queryWrapper.(*GraphqlQueryReleaseWrapper)
 			releases := query.Repository.Releases.Releases
 			for _, rawL := range releases {
+				rawL.PublishedAt = utils.NilIfZeroTime(rawL.PublishedAt)
 				if since != nil && since.After(rawL.UpdatedAt) {
 					return messages, helper.ErrFinishCollect
 				}
