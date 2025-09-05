@@ -19,6 +19,8 @@ package archived
 
 import (
 	"time"
+
+	corearchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type TestmoRun struct {
@@ -40,9 +42,8 @@ type TestmoRun struct {
 	TestmoCreatedAt *time.Time `json:"created_at"`
 	TestmoUpdatedAt *time.Time `json:"updated_at"`
 
-	// Inline definition of NoPKModel
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	// Include standard NoPKModel with RawDataOrigin columns
+	corearchived.NoPKModel
 }
 
 func (TestmoRun) TableName() string {
