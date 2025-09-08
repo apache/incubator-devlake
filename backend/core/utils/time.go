@@ -15,33 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package utils
 
-import (
-	"github.com/apache/incubator-devlake/plugins/github/models"
-)
+import "time"
 
-type GithubAccountEdge struct {
-	Login     string
-	Id        int `graphql:"databaseId"`
-	Name      string
-	Company   string
-	Email     string
-	AvatarUrl string
-	HtmlUrl   string `graphql:"url"`
-}
-type GraphqlInlineAccountQuery struct {
-	GithubAccountEdge `graphql:"... on User"`
-}
-
-func extractGraphqlPreAccount(result *[]interface{}, res *GraphqlInlineAccountQuery, repoId int, connId uint64) {
-	if res == nil || res.Id == 0 {
-		return
+// NilIfZeroTime returns nil if t is nil or represents the zero time (0001-01-01...).
+// Otherwise, it returns t unchanged.
+func NilIfZeroTime(t *time.Time) *time.Time {
+	if t == nil {
+		return nil
 	}
-	*result = append(*result, &models.GithubRepoAccount{
-		ConnectionId: connId,
-		RepoGithubId: repoId,
-		Login:        res.Login,
-		AccountId:    res.Id,
-	})
+	if t.IsZero() {
+		return nil
+	}
+	return t
 }

@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
@@ -134,6 +135,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			query := queryWrapper.(*GraphqlQueryIssueWrapper)
 			issues := query.Repository.IssueList.Issues
 			for _, rawL := range issues {
+				rawL.ClosedAt = utils.NilIfZeroTime(rawL.ClosedAt)
 				if since != nil && since.After(rawL.UpdatedAt) {
 					return messages, api.ErrFinishCollect
 				}

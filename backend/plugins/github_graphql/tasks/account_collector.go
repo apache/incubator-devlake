@@ -40,14 +40,13 @@ type GraphqlQueryAccountWrapper struct {
 }
 
 type GraphqlQueryAccount struct {
-	Login     string
-	Id        int `graphql:"databaseId"`
-	Name      string
-	Company   string
-	Email     string
-	AvatarUrl string
-	HtmlUrl   string `graphql:"url"`
-	//Type      string
+	Login         string
+	Id            int `graphql:"databaseId"`
+	Name          string
+	Company       string
+	Email         string
+	AvatarUrl     string
+	HtmlUrl       string `graphql:"url"`
 	Organizations struct {
 		Nodes []struct {
 			Email      string
