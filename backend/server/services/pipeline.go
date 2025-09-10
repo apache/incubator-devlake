@@ -261,8 +261,17 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	}))
 	// prepare query to find an appropriate pipeline to execute
 	pipeline = &models.Pipeline{}
+	// 1. find out the current highest priority in the queue
+	top_priority := 0
+	where_status := dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN, models.TASK_RESUME})
+	err = tx.First(&top_priority, dal.Select("priority"), dal.From(pipeline), where_status, dal.Orderby("priority DESC"))
+	if err != nil {
+		tx.Rollback()
+	}
+	// 2. pick the earlier runnable pipeline with the highest priority
 	err = tx.First(pipeline,
-		dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN, models.TASK_RESUME}),
+		where_status,
+		dal.Where("priority = ?", top_priority),
 		dal.Join(
 			`left join _devlake_pipeline_labels ON
 				_devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
@@ -270,10 +279,10 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 				_devlake_pipeline_labels.name in ?`,
 			runningParallelLabels,
 		),
-		dal.Groupby("priority, id"),
+		dal.Groupby("id"),
 		dal.Having("count(_devlake_pipeline_labels.name)=0"),
 		dal.Select("id"),
-		dal.Orderby("priority DESC, id ASC"),
+		dal.Orderby("id ASC"),
 		dal.Limit(1),
 	)
 	if err == nil {
