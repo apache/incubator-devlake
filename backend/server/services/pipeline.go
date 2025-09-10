@@ -263,10 +263,14 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	pipeline = &models.Pipeline{}
 	// 1. find out the current highest priority in the queue
 	top_priority := 0
+	var top_priorities []int
 	where_status := dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN, models.TASK_RESUME})
-	err = tx.First(&top_priority, dal.Select("priority"), dal.From(pipeline), where_status, dal.Orderby("priority DESC"))
+	err = tx.Pluck("priority", &top_priorities, dal.From(pipeline), where_status, dal.Orderby("priority DESC"), dal.Limit(1))
 	if err != nil {
-		tx.Rollback()
+		panic(err)
+	}
+	if len(top_priorities) > 0 {
+		top_priority = top_priorities[0]
 	}
 	// 2. pick the earlier runnable pipeline with the highest priority
 	err = tx.First(pipeline,
