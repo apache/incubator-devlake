@@ -62,6 +62,8 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		urlTemplate = "/users"
 	}
 
+	 var lastID int
+
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
@@ -69,6 +71,16 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:           100,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
+			if urlTemplate == "/users" {
+                query.Set("pagination", "keyset")
+                query.Set("order_by", "id")
+                query.Set("sort", "asc")
+                query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
+                if lastID > 0 {
+                    query.Set("id_after", fmt.Sprintf("%d", lastID))
+                }
+                return query, nil
+            }
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
@@ -80,6 +92,15 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
+			if len(items) > 0 && urlTemplate == "/users" {
+                var tail struct {
+                    ID int `json:"id"`
+                }
+                _ = json.Unmarshal(items[len(items)-1], &tail)
+                if tail.ID > 0 {
+                    lastID = tail.ID
+                }
+            }
 			return items, nil
 		},
 	})
