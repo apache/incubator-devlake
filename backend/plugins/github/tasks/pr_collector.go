@@ -110,7 +110,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 					dal.Select("number"),
 					dal.From(&models.GithubPullRequest{}),
 					dal.Where(
-						"repo_id = ? AND connection_id = ? AND state != 'closed'",
+						"repo_id = ? AND connection_id = ? AND (state != 'closed' OR merged = false)",
 						data.Options.GithubId, data.Options.ConnectionId,
 					),
 				)
