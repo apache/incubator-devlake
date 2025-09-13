@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 )
 
@@ -31,14 +32,78 @@ func (*modifyFileMetaTable) Name() string {
 func (*modifyFileMetaTable) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 
-	// 修改 processed_time 列允许为 NULL
-	sql := "ALTER TABLE _tool_q_dev_s3_file_meta MODIFY processed_time DATETIME NULL"
-	err := db.Exec(sql)
-	if err != nil {
-		return errors.Default.Wrap(err, "failed to modify processed_time column")
+	// Target table and column
+	tableName := "_tool_q_dev_s3_file_meta"
+	columnName := "processed_time"
+
+	// If column doesn't exist, no migration needed, idempotent
+	if !db.HasColumn(tableName, columnName) {
+		return nil
 	}
 
-	return nil
+	// Read column metadata to check if already nullable, return idempotently if already nullable
+	var processedTimeNullable bool
+	{
+		cols, err := db.GetColumns(dal.DefaultTabler{Name: tableName}, func(cm dal.ColumnMeta) bool {
+			return cm.Name() == columnName
+		})
+		if err != nil {
+			return errors.Default.Wrap(err, "failed to load column metadata for _tool_q_dev_s3_file_meta.processed_time")
+		}
+		if len(cols) == 0 {
+			// If column is not visible in metadata, treat as no processing needed 
+			return nil
+		}
+		if nullable, ok := cols[0].Nullable(); ok {
+			processedTimeNullable = nullable
+		}
+	}
+	if processedTimeNullable {
+		return nil
+	}
+
+	// Execute compatible SQL by dialect
+	switch db.Dialect() {
+	case "postgres":
+		// PostgreSQL makes column nullable via DROP NOT NULL, without changing data type
+		if err := db.Exec(
+			"ALTER TABLE ? ALTER COLUMN ? DROP NOT NULL",
+			dal.ClauseTable{Name: tableName},
+			dal.ClauseColumn{Name: columnName},
+		); err != nil {
+			return errors.Default.Wrap(err, "failed to drop NOT NULL on processed_time for postgres")
+		}
+		return nil
+	case "mysql":
+		// MySQL requires MODIFY COLUMN with original type specification, preserve original type as much as possible
+		cols, err := db.GetColumns(dal.DefaultTabler{Name: tableName}, func(cm dal.ColumnMeta) bool {
+			return cm.Name() == columnName
+		})
+		if err != nil {
+			return errors.Default.Wrap(err, "failed to load column metadata for mysql type preservation")
+		}
+		columnTypeSql := "DATETIME"
+		if len(cols) > 0 {
+			if ct, ok := cols[0].ColumnType(); ok && ct != "" {
+				columnTypeSql = ct
+			} else if dbt := cols[0].DatabaseTypeName(); dbt != "" {
+				// DatabaseTypeName may return DATETIME, TIMESTAMP etc
+				columnTypeSql = dbt
+			}
+		}
+		alterSql := "ALTER TABLE ? MODIFY COLUMN ? " + columnTypeSql + " NULL"
+		if err := db.Exec(
+			alterSql,
+			dal.ClauseTable{Name: tableName},
+			dal.ClauseColumn{Name: columnName},
+		); err != nil {
+			return errors.Default.Wrap(err, "failed to modify processed_time to NULL for mysql")
+		}
+		return nil
+	default:
+		// Other dialects are not forced to migrate for now, return idempotently
+		return nil
+	}
 }
 
 func (*modifyFileMetaTable) Version() uint64 {
