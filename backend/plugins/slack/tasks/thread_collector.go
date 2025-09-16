@@ -19,15 +19,16 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/url"
+	"reflect"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/slack/apimodels"
-	"net/http"
-	"net/url"
-	"reflect"
-	"strconv"
 )
 
 const RAW_THREAD_TABLE = "slack_thread"
@@ -44,9 +45,9 @@ func CollectThread(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 
 	clauses := []dal.Clause{
-		dal.Select("thread_ts, channel_id"),
+		dal.Select("DISTINCT CASE WHEN thread_ts = '' OR thread_ts IS NULL THEN ts ELSE thread_ts END AS thread_ts, channel_id"),
 		dal.From("_tool_slack_channel_messages"),
-		dal.Where("connection_id=? AND thread_ts!='' AND subtype=''", data.Options.ConnectionId),
+		dal.Where("connection_id = ? AND channel_id = ? AND reply_count > 0 AND (subtype = '' OR subtype IS NULL)", data.Options.ConnectionId, data.Options.ChannelId),
 	}
 
 	// construct the input iterator
@@ -63,11 +64,9 @@ func CollectThread(taskCtx plugin.SubTaskContext) errors.Error {
 	pageSize := 50
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: SlackApiParams{
-				ConnectionId: data.Options.ConnectionId,
-			},
-			Table: RAW_THREAD_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_THREAD_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Incremental: false,
@@ -118,4 +117,5 @@ var CollectThreadMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectThread,
 	EnabledByDefault: true,
 	Description:      "Collect thread from Slack api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

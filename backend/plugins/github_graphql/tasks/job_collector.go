@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"time"
 
@@ -69,11 +70,11 @@ type GraphqlQueryCheckRun struct {
 	StartedAt   *time.Time
 	Conclusion  string
 	CompletedAt *time.Time
-	//ExternalId   string
-	//Url          string
-	//Title        interface{}
-	//Text         interface{}
-	//Summary      interface{}
+	// ExternalId   string
+	// Url          string
+	// Title        interface{}
+	// Text         interface{}
+	// Summary      interface{}
 
 	Steps struct {
 		TotalCount int
@@ -200,6 +201,14 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					dbCheckRun := &DbCheckRun{
 						RunId:                runId,
 						GraphqlQueryCheckRun: &checkRun,
+					}
+					// A checkRun without a startedAt time is a run that was never started (skipped)
+					// akwardly, GitHub assigns a completedAt time to such runs, which is the time when the run was skipped
+					// TODO: Decide if we want to skip those runs or should we assign the startedAt time to the completedAt time
+					if dbCheckRun.StartedAt == nil || dbCheckRun.StartedAt.IsZero() {
+						debug := fmt.Sprintf("collector: checkRun.StartedAt is nil or zero: %s", dbCheckRun.Id)
+						taskCtx.GetLogger().Debug(debug, "Collector: CheckRun started at is nil or zero")
+						continue
 					}
 					updatedAt := dbCheckRun.StartedAt
 					if dbCheckRun.CompletedAt != nil {

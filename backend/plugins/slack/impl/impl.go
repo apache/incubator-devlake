@@ -19,10 +19,12 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/slack/api"
@@ -38,6 +40,7 @@ var _ interface {
 	plugin.PluginApi
 	plugin.PluginModel
 	plugin.PluginMigration
+	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
 	plugin.PluginSource
 } = (*Slack)(nil)
@@ -71,7 +74,7 @@ func (p Slack) Connection() dal.Tabler {
 }
 
 func (p Slack) Scope() plugin.ToolLayerScope {
-	return nil
+	return &models.SlackChannel{}
 }
 
 func (p Slack) ScopeConfig() dal.Tabler {
@@ -126,6 +129,13 @@ func (p Slack) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
+func (p Slack) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
+}
+
 func (p Slack) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {
@@ -142,6 +152,24 @@ func (p Slack) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/test": {
 			"POST": api.TestExistingConnection,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScopes,
+		},
+		"connections/:connectionId/scopes/:scopeId": {
+			"GET":    api.GetScope,
+			"PATCH":  api.PatchScope,
+			"DELETE": api.DeleteScope,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
 		},
 	}
 }

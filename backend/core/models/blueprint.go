@@ -41,6 +41,7 @@ type Blueprint struct {
 	AfterPlan    PipelinePlan           `json:"afterPlan" gorm:"serializer:encdec"`
 	Labels       []string               `json:"labels" gorm:"-"`
 	Connections  []*BlueprintConnection `json:"connections" gorm:"-"`
+	Priority     int                    `json:"priority"` // greater is higher
 	SyncPolicy   `gorm:"embedded"`
 	common.Model `swaggerignore:"true"`
 }

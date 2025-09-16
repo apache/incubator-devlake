@@ -270,10 +270,10 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 				_devlake_pipeline_labels.name in ?`,
 			runningParallelLabels,
 		),
-		dal.Groupby("id"),
+		dal.Groupby("priority, id"),
 		dal.Having("count(_devlake_pipeline_labels.name)=0"),
 		dal.Select("id"),
-		dal.Orderby("id ASC"),
+		dal.Orderby("priority DESC, id ASC"),
 		dal.Limit(1),
 	)
 	if err == nil {
@@ -292,13 +292,6 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 		if err != nil {
 			panic(err)
 		}
-
-		// Notify that the pipeline has started
-		go func(pipelineId uint64) {
-			if notifyErr := NotifyExternal(pipelineId); notifyErr != nil {
-				globalPipelineLog.Error(notifyErr, "failed to send pipeline started notification for pipeline #%d", pipelineId)
-			}
-		}(pipeline.ID)
 
 		return
 	}
@@ -357,6 +350,11 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 				globalPipelineLog.Info("finish pipeline #%d, now runningParallelLabels is %s", pipelineId, runningParallelLabels)
 			}()
 			globalPipelineLog.Info("run pipeline, %d, now running runningParallelLabels are %s", pipelineId, runningParallelLabels)
+			// Notify that the pipeline has started
+			err = NotifyExternal(pipelineId)
+			if err != nil {
+				globalPipelineLog.Error(err, "failed to send pipeline started notification for pipeline #%d", pipelineId)
+			}
 			err = runPipeline(pipelineId)
 			if err != nil {
 				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)

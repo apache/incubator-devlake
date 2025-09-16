@@ -22,9 +22,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	testmoModels "github.com/apache/incubator-devlake/plugins/testmo/models"
@@ -60,17 +57,8 @@ func ConvertAutomationRuns(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(testmoModels.TestmoAutomationRun{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			run := inputRow.(*testmoModels.TestmoAutomationRun)
 
-			// Convert to domain layer QA project (representing test suite)
-			qaProject := &qa.QaProject{
-				DomainEntityExtended: domainlayer.DomainEntityExtended{
-					Id: didgen.NewDomainIdGenerator(&testmoModels.TestmoAutomationRun{}).Generate(data.Options.ConnectionId, run.Id),
-				},
-				Name: run.Name,
-			}
-
-			return []interface{}{qaProject}, nil
+			return []interface{}{}, nil
 		},
 	})
 
