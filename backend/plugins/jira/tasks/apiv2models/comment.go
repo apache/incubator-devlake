@@ -25,14 +25,14 @@ import (
 )
 
 type Comment struct {
-	Self         string             `json:"self"`
-	Id           string             `json:"id"`
-	Author       *Account           `json:"author"`
-	Body         string             `json:"body"`
-	UpdateAuthor *Account           `json:"updateAuthor"`
-	Created      common.Iso8601Time `json:"created"`
-	Updated      common.Iso8601Time `json:"updated"`
-	JsdPublic    bool               `json:"jsdPublic"`
+	Self         string              `json:"self"`
+	Id           string              `json:"id"`
+	Author       *Account            `json:"author"`
+	Body         FlexibleDescription `json:"body"`
+	UpdateAuthor *Account            `json:"updateAuthor"`
+	Created      common.Iso8601Time  `json:"created"`
+	Updated      common.Iso8601Time  `json:"updated"`
+	JsdPublic    bool                `json:"jsdPublic"`
 }
 
 func (c Comment) ToToolLayer(connectionId uint64, issueId uint64, issueUpdated *time.Time) *models.JiraIssueComment {
@@ -41,7 +41,7 @@ func (c Comment) ToToolLayer(connectionId uint64, issueId uint64, issueUpdated *
 		IssueId:      issueId,
 		ComentId:     c.Id,
 		Self:         c.Self,
-		Body:         c.Body,
+		Body:         c.Body.Value,
 		Created:      c.Updated.ToTime(),
 		Updated:      c.Updated.ToTime(),
 		IssueUpdated: issueUpdated,

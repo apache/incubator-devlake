@@ -19,12 +19,141 @@ package apiv2models
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
+
+// FlexibleDescription supports both plain text and ADF (Atlassian Document Format) for Jira description field
+// ADF reference: https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/
+type FlexibleDescription struct {
+	Value string
+}
+
+// ADFNode represents a node in Atlassian Document Format
+type ADFNode struct {
+	Type    string                 `json:"type"`
+	Text    string                 `json:"text,omitempty"`
+	Content []ADFNode              `json:"content,omitempty"`
+	Attrs   map[string]interface{} `json:"attrs,omitempty"`
+}
+
+// UnmarshalJSON implements custom JSON unmarshaling for FlexibleDescription
+func (fd *FlexibleDescription) UnmarshalJSON(data []byte) error {
+	// Handle null values
+	if string(data) == "null" {
+		fd.Value = ""
+		return nil
+	}
+
+	// Try to unmarshal as string first
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		fd.Value = str
+		return nil
+	}
+
+	// Try to unmarshal as ADF document
+	var adfDoc ADFNode
+	if err := json.Unmarshal(data, &adfDoc); err == nil {
+		fd.Value = extractTextFromADF(adfDoc)
+		return nil
+	}
+
+	// Fallback: keep raw JSON as string for debugging
+	fd.Value = string(data)
+	return nil
+}
+
+// extractTextFromADF recursively extracts plain text from ADF document
+func extractTextFromADF(node ADFNode) string {
+	var result strings.Builder
+
+	switch node.Type {
+	case "text":
+		result.WriteString(node.Text)
+	case "hardBreak":
+		result.WriteString("\n")
+	case "paragraph":
+		for _, child := range node.Content {
+			result.WriteString(extractTextFromADF(child))
+		}
+		result.WriteString("\n")
+	case "heading":
+		for _, child := range node.Content {
+			result.WriteString(extractTextFromADF(child))
+		}
+		result.WriteString("\n")
+	case "listItem":
+		for _, child := range node.Content {
+			result.WriteString(extractTextFromADF(child))
+		}
+	case "bulletList", "orderedList":
+		for _, child := range node.Content {
+			result.WriteString("• ")
+			result.WriteString(extractTextFromADF(child))
+			result.WriteString("\n")
+		}
+	case "table":
+		for _, row := range node.Content {
+			if row.Type == "tableRow" {
+				for j, cell := range row.Content {
+					if j > 0 {
+						result.WriteString(" | ")
+					}
+					result.WriteString(extractTextFromADF(cell))
+				}
+				result.WriteString("\n")
+			}
+		}
+	case "tableCell", "tableHeader":
+		for _, child := range node.Content {
+			result.WriteString(extractTextFromADF(child))
+		}
+	case "codeBlock":
+		result.WriteString("```\n")
+		for _, child := range node.Content {
+			result.WriteString(extractTextFromADF(child))
+		}
+		result.WriteString("\n```\n")
+	case "blockquote":
+		result.WriteString("> ")
+		for _, child := range node.Content {
+			result.WriteString(extractTextFromADF(child))
+		}
+		result.WriteString("\n")
+	case "doc":
+		for _, child := range node.Content {
+			result.WriteString(extractTextFromADF(child))
+		}
+	case "inlineCard", "mention":
+		// Extract text from attrs or content for links and mentions
+		if attrs, ok := node.Attrs["text"]; ok {
+			if text, ok := attrs.(string); ok {
+				result.WriteString(text)
+			}
+		} else {
+			for _, child := range node.Content {
+				result.WriteString(extractTextFromADF(child))
+			}
+		}
+	default:
+		// For unknown types, extract content recursively
+		for _, child := range node.Content {
+			result.WriteString(extractTextFromADF(child))
+		}
+	}
+
+	return result.String()
+}
+
+// String returns the string value
+func (fd FlexibleDescription) String() string {
+	return fd.Value
+}
 
 type Issue struct {
 	Expand string `json:"expand"`
@@ -121,8 +250,8 @@ type Issue struct {
 			ID   string `json:"id"`
 			Name string `json:"name"`
 		} `json:"components"`
-		Timeoriginalestimate *int64 `json:"timeoriginalestimate"`
-		Description          string `json:"description"`
+		Timeoriginalestimate *int64              `json:"timeoriginalestimate"`
+		Description          FlexibleDescription `json:"description"`
 		Timetracking         *struct {
 			RemainingEstimate        string `json:"remainingEstimate"`
 			TimeSpent                string `json:"timeSpent"`
@@ -233,7 +362,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		IssueKey:           i.Key,
 		StoryPoint:         &workload,
 		Summary:            i.Fields.Summary,
-		Description:        i.Fields.Description,
+		Description:        i.Fields.Description.Value,
 		Type:               i.Fields.Issuetype.ID,
 		StatusName:         i.Fields.Status.Name,
 		StatusKey:          i.Fields.Status.StatusCategory.Key,

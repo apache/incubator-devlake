@@ -96,6 +96,10 @@ const URLS = {
       BASIS: 'https://devlake.apache.org/docs/Configuration/PagerDuty',
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/PagerDuty/#custom-rate-limit-optional',
     },
+    SLACK: {
+      BASIS: 'https://devlake.apache.org/docs/Configuration/Slack',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/Slack#custom-rate-limit-optional',
+    },
     SONARQUBE: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/SonarQube',
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/SonarQube/#custom-rate-limit-optional',
