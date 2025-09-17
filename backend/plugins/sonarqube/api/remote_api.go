@@ -49,10 +49,10 @@ func querySonarqubeProjects(
 		page.Page = 1
 	}
 	res, err := apiClient.Get("projects/search", url.Values{
-		"p":  {fmt.Sprintf("%v", page.Page)},
-		"ps": {fmt.Sprintf("%v", page.PageSize)},
-		"q":  {keyword},
-		"qualifiers": {"TRK"},
+		"p":         []string{fmt.Sprintf("%v", page.Page)},
+		"ps":        []string{fmt.Sprintf("%v", page.PageSize)},
+		"q":         []string{keyword},
+		"qualifiers": []string{"TRK"},
 	}, nil)
 	if err != nil {
 		return
