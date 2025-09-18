@@ -36,6 +36,7 @@ func init() {
 }
 
 const RAW_USER_TABLE = "gitlab_api_users"
+const KEYSET_MIN_VERSION = "v16.5.0"
 
 var CollectAccountsMeta = plugin.SubTaskMeta{
 	Name:             "Collect Users",
@@ -62,6 +63,14 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		urlTemplate = "/users"
 	}
 
+	useKeyset := false
+	if urlTemplate == "/users" && semver.IsValid(apiVersion) && semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), KEYSET_MIN_VERSION)>= 0 {
+		useKeyset = true
+	} else if urlTemplate == "/users" && !semver.IsValid(apiVersion) {
+		// If version unknown, be conservative for CE 11–16.4: default to offset
+		logger.Debug("GitLab version is unknown/invalid; falling back to offset pagination for /users")
+	}
+
 	 var lastID int
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
@@ -71,7 +80,8 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:           100,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if urlTemplate == "/users" {
+			// Use keyset only when gated true and only on /users endpoint
+			if useKeyset && urlTemplate == "/users" {
                 query.Set("pagination", "keyset")
                 query.Set("order_by", "id")
                 query.Set("sort", "asc")
