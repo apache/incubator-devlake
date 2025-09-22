@@ -63,8 +63,10 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		urlTemplate = "/users"
 	}
 
+	apiVersion := data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string)
+
 	useKeyset := false
-	if urlTemplate == "/users" && semver.IsValid(apiVersion) && semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), KEYSET_MIN_VERSION)>= 0 {
+	if urlTemplate == "/users" && semver.IsValid(apiVersion) && semver.Compare(apiVersion, KEYSET_MIN_VERSION)>= 0 {
 		useKeyset = true
 	} else if urlTemplate == "/users" && !semver.IsValid(apiVersion) {
 		// If version unknown, be conservative for CE 11–16.4: default to offset
