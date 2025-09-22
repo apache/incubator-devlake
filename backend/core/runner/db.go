@@ -60,7 +60,7 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 	}
 
 	idleConns := configReader.GetInt("DB_IDLE_CONNS")
-	if idleConns <= 0 {
+	if idleConns == 0 {
 		idleConns = 10
 	}
 	dbMaxOpenConns := configReader.GetInt("DB_MAX_CONNS")
