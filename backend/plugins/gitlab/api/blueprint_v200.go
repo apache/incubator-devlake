@@ -132,17 +132,22 @@ func makePipelinePlanV200(
 				return nil, err
 			}
 			cloneUrl.User = url.UserPassword("git", connection.Token)
+			gitextOpts := map[string]interface{}{
+				"url":          cloneUrl.String(),
+				"name":         gitlabProject.Name,
+				"fullName":     gitlabProject.PathWithNamespace,
+				"repoId":       didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
+				"proxy":        connection.Proxy,
+				"connectionId": gitlabProject.ConnectionId,
+				"pluginName":   "gitlab",
+			}
+			if len(scopeConfig.PrSizeExcludedFileExtensions) > 0 {
+				// pass excluded file extensions to gitextractor to support PR Size exclusion
+				gitextOpts["excludeFileExtensions"] = scopeConfig.PrSizeExcludedFileExtensions
+			}
 			stage = append(stage, &coreModels.PipelineTask{
-				Plugin: "gitextractor",
-				Options: map[string]interface{}{
-					"url":          cloneUrl.String(),
-					"name":         gitlabProject.Name,
-					"fullName":     gitlabProject.PathWithNamespace,
-					"repoId":       didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
-					"proxy":        connection.Proxy,
-					"connectionId": gitlabProject.ConnectionId,
-					"pluginName":   "gitlab",
-				},
+				Plugin:  "gitextractor",
+				Options: gitextOpts,
 			})
 		}
 
