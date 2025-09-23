@@ -111,12 +111,48 @@ func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 	timeString = strings.Trim(timeString, `"`)
+
+	// Handle special cases for non-standard date representations
+	// Some systems may use text like "长期" (long-term) instead of actual dates
+	if isNonDateString(timeString) {
+		jt.Time = time.Time{}
+		return nil
+	}
+
 	t, err := ConvertStringToTime(timeString)
 	if err != nil {
 		return err
 	}
 	jt.Time = t
 	return nil
+}
+
+// isNonDateString checks if a string represents a non-date value like "long-term"
+func isNonDateString(s string) bool {
+	// Handle various representations of "long-term" in different systems
+	nonDateStrings := []string{
+		"长期",                 // Chinese for "long-term"
+		"\\u957f\\u671f",     // Unicode escape sequence for "长期"
+		"\\\\u957f\\\\u671f", // Double-escaped Unicode sequence
+		"long-term",          // English
+		"永久",                 // Chinese for "permanent"
+		"indefinite",         // English
+		"unlimited",          // English
+	}
+
+	for _, nonDate := range nonDateStrings {
+		if s == nonDate {
+			return true
+		}
+	}
+
+	// Also check if the string contains the Unicode escape pattern for "长期"
+	// This handles cases where escape sequences might be processed differently
+	if strings.Contains(s, "957f") && strings.Contains(s, "671f") {
+		return true
+	}
+
+	return false
 }
 
 // ToTime FIXME ...

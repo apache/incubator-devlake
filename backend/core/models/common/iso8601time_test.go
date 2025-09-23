@@ -21,6 +21,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -158,6 +159,116 @@ func TestConvertStringToTime(t *testing.T) {
 				t.Errorf("Expected output to be %v, but got %v", tc.output, output)
 			}
 			assert.Equal(t, fmt.Sprintf("%v", err), fmt.Sprintf("%v", tc.err), "Expected error to be %v, but got %v", tc.err, err)
+		})
+	}
+}
+
+func TestIsNonDateString(t *testing.T) {
+	testCases := []struct {
+		name   string
+		input  string
+		output bool
+	}{
+		{
+			name:   "ZenTao long-term in Chinese",
+			input:  "长期",
+			output: true,
+		},
+		{
+			name:   "ZenTao long-term in Unicode escape",
+			input:  "\\u957f\\u671f",
+			output: true,
+		},
+		{
+			name:   "ZenTao long-term in double-escaped Unicode",
+			input:  "\\\\u957f\\\\u671f",
+			output: true,
+		},
+		{
+			name:   "English long-term",
+			input:  "long-term",
+			output: true,
+		},
+		{
+			name:   "Chinese permanent",
+			input:  "永久",
+			output: true,
+		},
+		{
+			name:   "English indefinite",
+			input:  "indefinite",
+			output: true,
+		},
+		{
+			name:   "English unlimited",
+			input:  "unlimited",
+			output: true,
+		},
+		{
+			name:   "Valid date string",
+			input:  "2023-03-01",
+			output: false,
+		},
+		{
+			name:   "Valid datetime string",
+			input:  "2023-03-01T12:30:00Z",
+			output: false,
+		},
+		{
+			name:   "Random string",
+			input:  "random",
+			output: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output := isNonDateString(tc.input)
+			assert.Equal(t, tc.output, output, "Expected output to be %v, but got %v", tc.output, output)
+		})
+	}
+}
+
+func TestIso8601Time_UnmarshalJSON_NonDateStrings(t *testing.T) {
+	testCases := []struct {
+		name      string
+		input     string
+		shouldErr bool
+	}{
+		{
+			name:      "ZenTao long-term in Chinese",
+			input:     `"长期"`,
+			shouldErr: false,
+		},
+		{
+			name:      "ZenTao long-term in Unicode escape",
+			input:     `"\\u957f\\u671f"`,
+			shouldErr: false,
+		},
+		{
+			name:      "English long-term",
+			input:     `"long-term"`,
+			shouldErr: false,
+		},
+		{
+			name:      "Valid date",
+			input:     `"2023-03-01T12:30:00Z"`,
+			shouldErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var iso8601Time Iso8601Time
+			err := iso8601Time.UnmarshalJSON([]byte(tc.input))
+			if tc.shouldErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				// For non-date strings, the time should be zero
+				if isNonDateString(strings.Trim(tc.input, `"`)) {
+					assert.True(t, iso8601Time.Time.IsZero(), "Expected zero time for non-date string")
+				}
+			}
 		})
 	}
 }
