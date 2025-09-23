@@ -37,6 +37,8 @@ type GitlabScopeConfig struct {
 	ProductionPattern    string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 	EnvNamePattern       string            `mapstructure:"envNamePattern,omitempty" json:"envNamePattern" gorm:"type:varchar(255)"`
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
+	// A list of file extensions to exclude when calculating PR Size (affects commit additions/deletions used by dashboards)
+	PrSizeExcludedFileExtensions []string `mapstructure:"prSizeExcludedFileExtensions" json:"prSizeExcludedFileExtensions" gorm:"type:json;serializer:json"`
 }
 
 func (t GitlabScopeConfig) TableName() string {
