@@ -23,7 +23,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -221,6 +220,9 @@ func (r *GogitRepoCollector) CollectBranches(subtaskCtx plugin.SubTaskContext) e
 		func(r *plumbing.Reference) bool {
 			return r.Name().IsBranch() || r.Name().IsRemote()
 		}, refIter)
+	if err != nil {
+		return err
+	}
 	headRef, err := r.repo.Head()
 	if err != nil {
 		return err
@@ -334,26 +336,7 @@ func (r *GogitRepoCollector) CollectCommits(subtaskCtx plugin.SubTaskContext) (e
 			if err != nil {
 				return err
 			} else {
-				excluded := map[string]struct{}{}
-				for _, ext := range taskOpts.ExcludeFileExtensions {
-					e := strings.ToLower(strings.TrimSpace(ext))
-					if e == "" {
-						continue
-					}
-					excluded[e] = struct{}{}
-				}
 				for _, stat := range stats {
-					nameLower := strings.ToLower(stat.Name)
-					skip := false
-					for ext := range excluded {
-						if strings.HasSuffix(nameLower, ext) {
-							skip = true
-							break
-						}
-					}
-					if skip {
-						continue
-					}
 					codeCommit.Additions += stat.Addition
 					// In some repos, deletion may be zero, which is different from git log --stat.
 					// It seems go-git doesn't get the correct changes.
@@ -380,7 +363,7 @@ func (r *GogitRepoCollector) CollectCommits(subtaskCtx plugin.SubTaskContext) (e
 			return err
 		}
 		if !*taskOpts.SkipCommitFiles {
-			if err := r.storeDiffCommitFilesComparedToParent(subtaskCtx, componentMap, commit, taskOpts.ExcludeFileExtensions); err != nil {
+			if err := r.storeDiffCommitFilesComparedToParent(subtaskCtx, componentMap, commit); err != nil {
 				return err
 			}
 		}
@@ -440,7 +423,7 @@ func (r *GogitRepoCollector) getCurrentAndParentTree(ctx context.Context, commit
 	return commitTree, firstParentTree, nil
 }
 
-func (r *GogitRepoCollector) storeDiffCommitFilesComparedToParent(subtaskCtx plugin.SubTaskContext, componentMap map[string]*regexp.Regexp, commit *object.Commit, excludeExts []string) (err error) {
+func (r *GogitRepoCollector) storeDiffCommitFilesComparedToParent(subtaskCtx plugin.SubTaskContext, componentMap map[string]*regexp.Regexp, commit *object.Commit) (err error) {
 	commitTree, firstParentTree, err := r.getCurrentAndParentTree(subtaskCtx.GetContext(), commit)
 	if err != nil {
 		return err
@@ -450,34 +433,12 @@ func (r *GogitRepoCollector) storeDiffCommitFilesComparedToParent(subtaskCtx plu
 	if err != nil {
 		return err
 	}
-	// normalize exclusions
-	excluded := map[string]struct{}{}
-	for _, ext := range excludeExts {
-		e := strings.ToLower(strings.TrimSpace(ext))
-		if e == "" {
-			continue
-		}
-		excluded[e] = struct{}{}
-	}
 	for _, p := range patch.Stats() {
 		commitFile := &code.CommitFile{
 			CommitSha: commit.Hash.String(),
 		}
 		fileName := p.Name
 		commitFile.FilePath = fileName
-		if len(excluded) > 0 {
-			lower := strings.ToLower(fileName)
-			skip := false
-			for ext := range excluded {
-				if strings.HasSuffix(lower, ext) {
-					skip = true
-					break
-				}
-			}
-			if skip {
-				continue
-			}
-		}
 		commitFile.Id = genCommitFileId(commitFile.CommitSha, fileName)
 		commitFile.Deletions = p.Deletion
 		commitFile.Additions = p.Addition

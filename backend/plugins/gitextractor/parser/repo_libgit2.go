@@ -25,7 +25,6 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -318,13 +317,12 @@ func (r *Libgit2RepoCollector) CollectCommits(subtaskCtx plugin.SubTaskContext) 
 
 		if !*taskOpts.SkipCommitStat {
 			var stats *git.DiffStats
-			var addIncluded, delIncluded int
-			if stats, addIncluded, delIncluded, err = r.getDiffComparedToParent(taskOpts, c.Sha, commit, parent, opts, componentMap); err != nil {
+			if stats, err = r.getDiffComparedToParent(taskOpts, c.Sha, commit, parent, opts, componentMap); err != nil {
 				return err
 			}
 			r.logger.Debug("state: %#+v\n", stats.Deletions())
-			c.Additions += addIncluded
-			c.Deletions += delIncluded
+			c.Additions += stats.Insertions()
+			c.Deletions += stats.Deletions()
 		}
 
 		err = r.store.Commits(c)
@@ -360,83 +358,39 @@ func (r *Libgit2RepoCollector) storeParentCommits(commitSha string, commit *git.
 	return r.store.CommitParents(commitParents)
 }
 
-func (r *Libgit2RepoCollector) getDiffComparedToParent(taskOpts *GitExtractorOptions, commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, int, int, errors.Error) {
+func (r *Libgit2RepoCollector) getDiffComparedToParent(taskOpts *GitExtractorOptions, commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, errors.Error) {
 	var err error
 	var parentTree, tree *git.Tree
 	if parent != nil {
 		parentTree, err = parent.Tree()
 	}
 	if err != nil {
-		return nil, 0, 0, errors.Convert(err)
+		return nil, errors.Convert(err)
 	}
 	tree, err = commit.Tree()
 	if err != nil {
-		return nil, 0, 0, errors.Convert(err)
+		return nil, errors.Convert(err)
 	}
 	var diff *git.Diff
 	diff, err = r.repo.DiffTreeToTree(parentTree, tree, opts)
 	if err != nil {
-		return nil, 0, 0, errors.Convert(err)
-	}
-	// build excluded extension set
-	excluded := map[string]struct{}{}
-	for _, ext := range taskOpts.ExcludeFileExtensions {
-		e := strings.ToLower(strings.TrimSpace(ext))
-		if e == "" {
-			continue
-		}
-		excluded[e] = struct{}{}
+		return nil, errors.Convert(err)
 	}
 	if !*taskOpts.SkipCommitFiles {
-		err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap, excluded)
+		err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
 		if err != nil {
-			return nil, 0, 0, errors.Convert(err)
+			return nil, errors.Convert(err)
 		}
 	}
 	var stats *git.DiffStats
 	stats, err = diff.Stats()
 	if err != nil {
-		return nil, 0, 0, errors.Convert(err)
+		return nil, errors.Convert(err)
 	}
-	// calculate included totals with exclusions
-	addIncluded := 0
-	delIncluded := 0
-	if len(excluded) == 0 {
-		addIncluded = stats.Insertions()
-		delIncluded = stats.Deletions()
-		return stats, addIncluded, delIncluded, nil
-	}
-	_ = diff.ForEach(func(file git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
-		// choose path to check based on delta status; for deletions use old path
-		pathForCheck := file.NewFile.Path
-		if file.Status == git.DeltaDeleted || pathForCheck == "" {
-			pathForCheck = file.OldFile.Path
-		}
-		lower := strings.ToLower(pathForCheck)
-		for ext := range excluded {
-			if strings.HasSuffix(lower, ext) {
-				// skip all lines for excluded files
-				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-					return func(line git.DiffLine) error { return nil }, nil
-				}, nil
-			}
-		}
-		return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-			return func(line git.DiffLine) error {
-				if line.Origin == git.DiffLineAddition {
-					addIncluded += line.NumLines
-				}
-				if line.Origin == git.DiffLineDeletion {
-					delIncluded += line.NumLines
-				}
-				return nil
-			}, nil
-		}, nil
-	}, git.DiffDetailLines)
-	return stats, addIncluded, delIncluded, nil
+	return stats, nil
 }
 
-func (r *Libgit2RepoCollector) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, componentMap map[string]*regexp.Regexp, excluded map[string]struct{}) errors.Error {
+func (r *Libgit2RepoCollector) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, componentMap map[string]*regexp.Regexp) errors.Error {
 	var commitFile *code.CommitFile
 	var commitFileComponent *code.CommitFileComponent
 	var err error
@@ -450,36 +404,15 @@ func (r *Libgit2RepoCollector) storeCommitFilesFromDiff(commitSha string, diff *
 			}
 		}
 
-		// skip files by extension if configured
-		if len(excluded) > 0 {
-			pathForCheck := file.NewFile.Path
-			if file.Status == git.DeltaDeleted || pathForCheck == "" {
-				pathForCheck = file.OldFile.Path
-			}
-			lower := strings.ToLower(pathForCheck)
-			for ext := range excluded {
-				if strings.HasSuffix(lower, ext) {
-					// skip this file entirely
-					return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-						return func(line git.DiffLine) error { return nil }, nil
-					}, nil
-				}
-			}
-		}
-
 		commitFile = new(code.CommitFile)
 		commitFile.CommitSha = commitSha
-		// prefer new path; for deletions fall back to old path
 		commitFile.FilePath = file.NewFile.Path
-		if commitFile.FilePath == "" {
-			commitFile.FilePath = file.OldFile.Path
-		}
 
 		// With some long path,the varchar(255) was not enough both ID and file_path
 		// So we use the hash to compress the path in ID and add length of file_path.
 		// Use commitSha and the sha256 of FilePath to create id
 		shaFilePath := sha256.New()
-		shaFilePath.Write([]byte(commitFile.FilePath))
+		shaFilePath.Write([]byte(file.NewFile.Path))
 		commitFile.Id = commitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
 
 		commitFileComponent = new(code.CommitFileComponent)
