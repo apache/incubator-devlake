@@ -51,7 +51,7 @@ func (*modifyFileMetaTable) Up(basicRes context.BasicRes) errors.Error {
 			return errors.Default.Wrap(err, "failed to load column metadata for _tool_q_dev_s3_file_meta.processed_time")
 		}
 		if len(cols) == 0 {
-			// If column is not visible in metadata, treat as no processing needed 
+			// If column is not visible in metadata, treat as no processing needed
 			return nil
 		}
 		if nullable, ok := cols[0].Nullable(); ok {
