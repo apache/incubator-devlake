@@ -78,6 +78,7 @@ export const GitLabConfig: IPluginConfig = {
       envNamePattern: '(?i)prod(.*)',
       deploymentPattern: '',
       productionPattern: '',
+      prSizeExcludedFileExtensions: [],
     },
   },
 };
