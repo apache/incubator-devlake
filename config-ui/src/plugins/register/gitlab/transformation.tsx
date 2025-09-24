@@ -178,4 +178,34 @@ const renderCollapseItems = ({
         </>
       ),
     },
+    {
+      key: 'CODEREVIEW',
+      label: 'Code Review',
+      style: panelStyle,
+      children: (
+        <>
+          <h3 style={{ marginBottom: 16 }}>
+            <span>PR Size Exclusions</span>
+          </h3>
+          <div style={{ margin: '8px 0' }}>
+            <span>Exclude file extensions (comma-separated, e.g. .md,.txt,.json)</span>
+            <Input
+              style={{ width: 360, margin: '0 8px' }}
+              placeholder=".md,.txt,.json"
+              value={(transformation.prSizeExcludedFileExtensions || []).join(',')}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  prSizeExcludedFileExtensions: e.target.value
+                    .split(',')
+                    .map((s: string) => s.trim())
+                    .filter((s: string) => s),
+                })
+              }
+            />
+            <HelpTooltip content="These extensions are ignored when computing PR Size (additions/deletions)." />
+          </div>
+        </>
+      ),
+    },
   ].filter((it) => entities.includes(it.key));
