@@ -19,6 +19,7 @@
 import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
+import { AwsCredentials, IdentityCenterConfig, S3Config } from './connection-fields';
 
 export const QDevConfig: IPluginConfig = {
   plugin: 'q_dev',
@@ -26,57 +27,53 @@ export const QDevConfig: IPluginConfig = {
   icon: ({ color }) => <Icon fill={color} />,
   sort: 20,
   connection: {
-    docLink: '', // TODO: 添加文档链接
+    docLink: 'https://devlake.apache.org/docs/UserManual/plugins/qdev',
     initialValues: {
+      name: '',
       accessKeyId: '',
       secretAccessKey: '',
       region: 'us-east-1',
       bucket: '',
       identityStoreId: '',
-      identityStoreRegion: 'us-east-1',
+      identityStoreRegion: '',
       rateLimitPerHour: 20000,
     },
     fields: [
       'name',
-      {
-        key: 'accessKeyId',
-        label: 'AWS Access Key ID',
-        subLabel: '请输入您的AWS Access Key ID',
-      },
-      {
-        key: 'secretAccessKey',
-        label: 'AWS Secret Access Key',
-        subLabel: '请输入您的AWS Secret Access Key',
-      },
-      {
-        key: 'region',
-        label: 'AWS区域',
-        subLabel: '请输入AWS区域，例如：us-east-1',
-      },
-      {
-        key: 'bucket',
-        label: 'S3存储桶名称',
-        subLabel: '请输入存储Q Developer数据的S3存储桶名称',
-      },
-      {
-        key: 'identityStoreId',
-        label: 'IAM Identity Store ID',
-        subLabel: '请输入Identity Store ID，格式：d-xxxxxxxxxx',
-      },
-      {
-        key: 'identityStoreRegion',
-        label: 'IAM Identity Center区域',
-        subLabel: '请输入IAM Identity Center所在的AWS区域',
-      },
+      ({ type, initialValues, values, setValues, setErrors }: any) => (
+        <AwsCredentials
+          key="qdev-aws"
+          type={type}
+          initialValues={initialValues}
+          values={values}
+          setValues={setValues}
+          setErrors={setErrors}
+        />
+      ),
+      ({ initialValues, values, setValues, setErrors }: any) => (
+        <S3Config
+          key="qdev-s3"
+          initialValues={initialValues}
+          values={values}
+          setValues={setValues}
+          setErrors={setErrors}
+        />
+      ),
+      ({ initialValues, values, setValues, setErrors }: any) => (
+        <IdentityCenterConfig
+          key="qdev-identity"
+          initialValues={initialValues}
+          values={values}
+          setValues={setValues}
+          setErrors={setErrors}
+        />
+      ),
       'proxy',
       {
         key: 'rateLimitPerHour',
-        subLabel: '设置每小时的API请求限制，用于控制数据收集速度',
+        subLabel: 'Set a fixed hourly rate limit if you need to throttle collection speed (default 20,000).',
         defaultValue: 20000,
       },
     ],
-  },
-  dataScope: {
-    title: 'Data Sources',
   },
 };

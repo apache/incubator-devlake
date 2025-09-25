@@ -16,49 +16,61 @@
  *
  */
 
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useEffect, useMemo, useRef } from 'react';
 import { Input } from 'antd';
 
 import { Block } from '@/components';
 
 interface Props {
-  bucket: string;
-  error?: string;
-  setValue: (value: string) => void;
-  setError: (error: string) => void;
+  initialValues: any;
+  values: any;
+  setValues: (values: any) => void;
+  setErrors: (errors: any) => void;
 }
 
-export const S3Config = ({ bucket, error, setValue, setError }: Props) => {
-  
-  const validateBucket = (value: string) => {
-    if (!value) {
-      return 'S3存储桶名称是必填项';
+const BUCKET_PATTERN = /^[a-z0-9](?:[a-z0-9.-]{1,61}[a-z0-9])?$/;
+
+export const S3Config = ({ initialValues, values, setValues, setErrors }: Props) => {
+  const bucket = values.bucket ?? '';
+
+  useEffect(() => {
+    if (values.bucket === undefined) {
+      setValues({ bucket: initialValues.bucket ?? '' });
     }
-    if (!/^[a-z0-9.-]+$/.test(value)) {
-      return 'S3存储桶名称格式不正确，只能包含小写字母、数字、点和连字符';
+  }, [initialValues.bucket, values.bucket, setValues]);
+
+  const bucketError = useMemo(() => {
+    if (!bucket) {
+      return 'S3 bucket name is required.';
     }
-    if (value.length < 3 || value.length > 63) {
-      return 'S3存储桶名称长度必须在3-63个字符之间';
+    if (!BUCKET_PATTERN.test(bucket) || bucket.length < 3 || bucket.length > 63 || bucket.includes('..')) {
+      return 'Bucket names must be 3-63 characters, lowercase, numbers, dots or hyphens.';
     }
     return '';
-  };
+  }, [bucket]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setValue(value);
-    setError(validateBucket(value));
+  const bucketErrorRef = useRef<string>();
+  useEffect(() => {
+    if (bucketErrorRef.current !== bucketError) {
+      bucketErrorRef.current = bucketError;
+      setErrors({ bucket: bucketError });
+    }
+  }, [bucketError, setErrors]);
+
+  const handleBucketChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setValues({ bucket: e.target.value.trim() });
   };
 
   return (
-    <Block title="S3存储桶名称" description="请输入存储Q Developer数据的S3存储桶名称" required>
-      <Input 
-        style={{ width: 386 }} 
-        placeholder="my-qdev-data-bucket" 
-        value={bucket} 
-        onChange={handleChange}
-        status={error ? 'error' : ''}
+    <Block title="S3 Bucket" description="Name of the bucket that stores the Q Developer CSV files." required>
+      <Input
+        style={{ width: 386 }}
+        placeholder="my-q-dev-data"
+        value={bucket}
+        onChange={handleBucketChange}
+        status={bucketError ? 'error' : ''}
       />
-      {error && <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{error}</div>}
+      {bucketError && <div style={{ marginTop: 4, color: '#f5222d' }}>{bucketError}</div>}
     </Block>
   );
 };
