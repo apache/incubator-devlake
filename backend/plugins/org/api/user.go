@@ -79,9 +79,8 @@ func (h *Handlers) CreateUser(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if err != nil {
 		return nil, err
 	}
-	var u *user
 	var items []interface{}
-	users, teamUsers := u.toDomainLayer(uu)
+	users, teamUsers := (&user{}).toDomainLayer(uu)
 	for _, user := range users {
 		items = append(items, user)
 	}
