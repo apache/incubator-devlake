@@ -76,4 +76,11 @@ export const QDevConfig: IPluginConfig = {
       },
     ],
   },
+  dataScope: {
+    title: 'S3 Prefixes',
+  },
+  scopeConfig: {
+    entities: ['CROSS'],
+    transformation: {},
+  },
 };
