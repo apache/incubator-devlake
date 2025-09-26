@@ -15,28 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/q_dev/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type addScopeTable struct{}
-
-func (*addScopeTable) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.QDevScope{},
-	)
+type QDevS3Slice struct {
+	archived.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey"`
+	Id           string `gorm:"primaryKey;type:varchar(512)"`
+	Prefix       string `gorm:"type:varchar(512);not null"`
+	BasePath     string `gorm:"type:varchar(512)"`
+	Year         int    `gorm:"not null"`
+	Month        *int
 }
 
-func (*addScopeTable) Version() uint64 {
-	return 20250926
-}
-
-func (*addScopeTable) Name() string {
-	return "Add scopes table for QDev plugin"
+func (QDevS3Slice) TableName() string {
+	return "_tool_q_dev_s3_slices"
 }

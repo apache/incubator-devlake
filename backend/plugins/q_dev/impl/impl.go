@@ -54,7 +54,7 @@ func (p QDev) GetTablesInfo() []dal.Tabler {
 		&models.QDevConnection{},
 		&models.QDevUserData{},
 		&models.QDevS3FileMeta{},
-		&models.QDevScope{},
+		&models.QDevS3Slice{},
 	}
 }
 
@@ -71,7 +71,7 @@ func (p QDev) Connection() dal.Tabler {
 }
 
 func (p QDev) Scope() plugin.ToolLayerScope {
-	return &models.QDevScope{}
+	return &models.QDevS3Slice{}
 }
 
 func (p QDev) ScopeConfig() dal.Tabler {

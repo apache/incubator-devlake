@@ -27,36 +27,35 @@ import (
 	"gorm.io/gorm"
 )
 
-// QDevScope describes a time-sliced S3 prefix to collect from.
-type QDevScope struct {
+// QDevS3Slice describes a time-sliced S3 prefix to collect from.
+type QDevS3Slice struct {
 	common.Scope `mapstructure:",squash"`
-
-	Id       string `json:"id" mapstructure:"id" gorm:"primaryKey;type:varchar(512)"`
-	Prefix   string `json:"prefix" mapstructure:"prefix" gorm:"type:varchar(512);not null"`
-	BasePath string `json:"basePath" mapstructure:"basePath" gorm:"type:varchar(512)"`
-	Year     int    `json:"year" mapstructure:"year" gorm:"not null"`
-	Month    *int   `json:"month,omitempty" mapstructure:"month"`
+	Id           string `json:"id" mapstructure:"id" gorm:"primaryKey;type:varchar(512)"`
+	Prefix       string `json:"prefix" mapstructure:"prefix" gorm:"type:varchar(512);not null"`
+	BasePath     string `json:"basePath" mapstructure:"basePath" gorm:"type:varchar(512)"`
+	Year         int    `json:"year" mapstructure:"year" gorm:"not null"`
+	Month        *int   `json:"month,omitempty" mapstructure:"month"`
 
 	Name     string `json:"name" mapstructure:"name" gorm:"-"`
 	FullName string `json:"fullName" mapstructure:"fullName" gorm:"-"`
 }
 
-func (QDevScope) TableName() string {
-	return "_tool_q_dev_scopes"
+func (QDevS3Slice) TableName() string {
+	return "_tool_q_dev_s3_slices"
 }
 
 // BeforeSave ensures derived fields stay in sync before persisting.
-func (s *QDevScope) BeforeSave(_ *gorm.DB) error {
+func (s *QDevS3Slice) BeforeSave(_ *gorm.DB) error {
 	return s.normalize(true)
 }
 
 // AfterFind fills derived fields for API responses.
-func (s *QDevScope) AfterFind(_ *gorm.DB) error {
+func (s *QDevS3Slice) AfterFind(_ *gorm.DB) error {
 	return s.normalize(false)
 }
 
 // normalize trims inputs, derives prefix/id/name fields, and optionally validates.
-func (s *QDevScope) normalize(strict bool) error {
+func (s *QDevS3Slice) normalize(strict bool) error {
 	if s == nil {
 		return nil
 	}
@@ -72,7 +71,7 @@ func (s *QDevScope) normalize(strict bool) error {
 
 	if s.Year <= 0 {
 		if strict {
-			return fmt.Errorf("year is required for QDev scope")
+			return fmt.Errorf("year is required for QDev S3 slice")
 		}
 	}
 
@@ -108,7 +107,7 @@ func (s *QDevScope) normalize(strict bool) error {
 	return nil
 }
 
-func (s *QDevScope) deriveYearAndMonthFromPrefix() error {
+func (s *QDevS3Slice) deriveYearAndMonthFromPrefix() error {
 	if s == nil {
 		return nil
 	}
@@ -143,11 +142,11 @@ func (s *QDevScope) deriveYearAndMonthFromPrefix() error {
 	return fmt.Errorf("unable to derive year/month from prefix %q", s.Prefix)
 }
 
-func (s QDevScope) ScopeId() string {
+func (s QDevS3Slice) ScopeId() string {
 	return s.Id
 }
 
-func (s QDevScope) ScopeName() string {
+func (s QDevS3Slice) ScopeName() string {
 	if s.Name != "" {
 		return s.Name
 	}
@@ -160,32 +159,32 @@ func (s QDevScope) ScopeName() string {
 	return s.Prefix
 }
 
-func (s QDevScope) ScopeFullName() string {
+func (s QDevS3Slice) ScopeFullName() string {
 	if s.FullName != "" {
 		return s.FullName
 	}
 	return s.Prefix
 }
 
-func (s QDevScope) ScopeParams() interface{} {
-	return &QDevScopeParams{
+func (s QDevS3Slice) ScopeParams() interface{} {
+	return &QDevS3SliceParams{
 		ConnectionId: s.ConnectionId,
 		Prefix:       s.Prefix,
 	}
 }
 
 // Sanitize returns a copy ready for JSON serialization.
-func (s QDevScope) Sanitize() QDevScope {
+func (s QDevS3Slice) Sanitize() QDevS3Slice {
 	_ = s.normalize(false)
 	return s
 }
 
-type QDevScopeParams struct {
+type QDevS3SliceParams struct {
 	ConnectionId uint64 `json:"connectionId"`
 	Prefix       string `json:"prefix"`
 }
 
-var _ plugin.ToolLayerScope = (*QDevScope)(nil)
+var _ plugin.ToolLayerScope = (*QDevS3Slice)(nil)
 
 func buildPrefix(basePath string, year int, month *int) string {
 	parts := splitPath(basePath)

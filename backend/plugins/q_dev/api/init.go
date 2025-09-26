@@ -29,7 +29,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var basicRes context.BasicRes
-var dsHelper *api.DsHelper[models.QDevConnection, models.QDevScope, srvhelper.NoScopeConfig]
+var dsHelper *api.DsHelper[models.QDevConnection, models.QDevS3Slice, srvhelper.NoScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
@@ -41,13 +41,13 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	)
 
 	dsHelper = api.NewDataSourceHelper[
-		models.QDevConnection, models.QDevScope, srvhelper.NoScopeConfig,
+		models.QDevConnection, models.QDevS3Slice, srvhelper.NoScopeConfig,
 	](
 		basicRes,
 		p.Name(),
 		[]string{"prefix", "basePath", "name"},
 		func(c models.QDevConnection) models.QDevConnection { return c.Sanitize() },
-		func(s models.QDevScope) models.QDevScope { return s.Sanitize() },
+		func(s models.QDevS3Slice) models.QDevS3Slice { return s.Sanitize() },
 		nil,
 	)
 }

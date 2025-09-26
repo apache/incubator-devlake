@@ -25,8 +25,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/q_dev/models"
 )
 
-type PutScopesReqBody = helper.PutScopesReqBody[models.QDevScope]
-type ScopeDetail = srvhelper.ScopeDetail[models.QDevScope, srvhelper.NoScopeConfig]
+type PutScopesReqBody = helper.PutScopesReqBody[models.QDevS3Slice]
+type ScopeDetail = srvhelper.ScopeDetail[models.QDevS3Slice, srvhelper.NoScopeConfig]
 
 // PutScopes create or update Q Developer scopes (S3 prefixes)
 // @Summary create or update Q Developer scopes
@@ -35,7 +35,7 @@ type ScopeDetail = srvhelper.ScopeDetail[models.QDevScope, srvhelper.NoScopeConf
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scope body PutScopesReqBody true "json"
-// @Success 200  {object} []models.QDevScope
+// @Success 200  {object} []models.QDevS3Slice
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/q_dev/connections/{connectionId}/scopes [PUT]
@@ -81,8 +81,8 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path string true "scope id"
-// @Param scope body models.QDevScope true "json"
-// @Success 200  {object} models.QDevScope
+// @Param scope body models.QDevS3Slice true "json"
+// @Success 200  {object} models.QDevS3Slice
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/q_dev/connections/{connectionId}/scopes/{scopeId} [PATCH]

@@ -27,7 +27,6 @@ export const QDevConfig: IPluginConfig = {
   name: 'Q Developer',
   icon: ({ color }) => <Icon fill={color} />,
   sort: 20,
-  supportsScopes: true,
   connection: {
     docLink: 'https://devlake.apache.org/docs/UserManual/plugins/qdev',
     initialValues: {
