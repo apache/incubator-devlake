@@ -18,16 +18,25 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models/migrationscripts/archived"
 )
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addS3SliceTable),
-	}
+type addS3SliceTable struct{}
+
+func (*addS3SliceTable) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.QDevS3Slice{},
+	)
+}
+
+func (*addS3SliceTable) Version() uint64 {
+	return 20250926
+}
+
+func (*addS3SliceTable) Name() string {
+	return "Add S3 slice table for QDev plugin"
 }

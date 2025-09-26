@@ -20,6 +20,7 @@ import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
 import { AwsCredentials, IdentityCenterConfig, S3Config } from './connection-fields';
+import { QDevDataScope } from './data-scope';
 
 export const QDevConfig: IPluginConfig = {
   plugin: 'q_dev',
@@ -78,6 +79,14 @@ export const QDevConfig: IPluginConfig = {
   },
   dataScope: {
     title: 'S3 Prefixes',
+    render: ({ connectionId, disabledItems, selectedItems, onChangeSelectedItems }) => (
+      <QDevDataScope
+        connectionId={connectionId}
+        disabledItems={disabledItems}
+        selectedItems={selectedItems as any}
+        onChangeSelectedItems={onChangeSelectedItems}
+      />
+    ),
   },
   scopeConfig: {
     entities: ['CROSS'],

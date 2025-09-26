@@ -34,7 +34,7 @@ func TestQDev_BasicPluginMethods(t *testing.T) {
 
 	// Test table info
 	tables := plugin.GetTablesInfo()
-	assert.Len(t, tables, 3)
+	assert.Len(t, tables, 4)
 
 	// Test subtask metas
 	subtasks := plugin.SubTaskMetas()

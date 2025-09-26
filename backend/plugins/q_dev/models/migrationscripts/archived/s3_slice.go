@@ -15,19 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addS3SliceTable),
-	}
+type QDevS3Slice struct {
+	archived.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey"`
+	Id           string `gorm:"primaryKey;type:varchar(512)"`
+	Prefix       string `gorm:"type:varchar(512);not null"`
+	BasePath     string `gorm:"type:varchar(512)"`
+	Year         int    `gorm:"not null"`
+	Month        *int
+}
+
+func (QDevS3Slice) TableName() string {
+	return "_tool_q_dev_s3_slices"
 }

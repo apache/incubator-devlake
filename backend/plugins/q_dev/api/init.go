@@ -21,12 +21,15 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var basicRes context.BasicRes
+var dsHelper *api.DsHelper[models.QDevConnection, models.QDevS3Slice, srvhelper.NoScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
@@ -35,5 +38,16 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 		p.Name(),
+	)
+
+	dsHelper = api.NewDataSourceHelper[
+		models.QDevConnection, models.QDevS3Slice, srvhelper.NoScopeConfig,
+	](
+		basicRes,
+		p.Name(),
+		[]string{"prefix", "basePath", "name"},
+		func(c models.QDevConnection) models.QDevConnection { return c.Sanitize() },
+		func(s models.QDevS3Slice) models.QDevS3Slice { return s.Sanitize() },
+		nil,
 	)
 }
