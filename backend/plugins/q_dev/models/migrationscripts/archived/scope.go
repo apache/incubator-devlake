@@ -15,19 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/plugin"
-)
+import "github.com/apache/incubator-devlake/core/models/common"
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addScopeTable),
-	}
+type QDevScope struct {
+	common.Scope
+	Id       string `gorm:"primaryKey;type:varchar(512)"`
+	Prefix   string `gorm:"type:varchar(512);not null"`
+	BasePath string `gorm:"type:varchar(512)"`
+	Year     int    `gorm:"not null"`
+	Month    *int
+}
+
+func (QDevScope) TableName() string {
+	return "_tool_q_dev_scopes"
 }

@@ -18,16 +18,25 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models/migrationscripts/archived"
 )
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addScopeTable),
-	}
+type addScopeTable struct{}
+
+func (*addScopeTable) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.QDevScope{},
+	)
+}
+
+func (*addScopeTable) Version() uint64 {
+	return 20250926
+}
+
+func (*addScopeTable) Name() string {
+	return "Add scopes table for QDev plugin"
 }
