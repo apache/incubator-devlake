@@ -170,7 +170,12 @@ type FormValues = {
   months?: number[];
 };
 
-export const QDevDataScope = ({ connectionId: _connectionId, disabledItems, selectedItems, onChangeSelectedItems }: Props) => {
+export const QDevDataScope = ({
+  connectionId: _connectionId,
+  disabledItems,
+  selectedItems,
+  onChangeSelectedItems,
+}: Props) => {
   const [form] = Form.useForm<FormValues>();
 
   const disabledIds = useMemo(() => new Set(disabledItems?.map((it) => String(it.id)) ?? []), [disabledItems]);
@@ -234,7 +239,9 @@ export const QDevDataScope = ({ connectionId: _connectionId, disabledItems, sele
         return;
       }
 
-      const uniqueMonths = Array.from(new Set(months)).map((m) => Number(m)).filter((m) => !Number.isNaN(m));
+      const uniqueMonths = Array.from(new Set(months))
+        .map((m) => Number(m))
+        .filter((m) => !Number.isNaN(m));
       uniqueMonths.sort((a, b) => a - b);
 
       uniqueMonths.forEach((month) => {
@@ -289,7 +296,11 @@ export const QDevDataScope = ({ connectionId: _connectionId, disabledItems, sele
       key: 'basePath',
       render: (_: unknown, item) => {
         const meta = extractScopeMeta(item);
-        return meta.basePath ? <Typography.Text>{meta.basePath}</Typography.Text> : <Typography.Text type="secondary">(bucket root)</Typography.Text>;
+        return meta.basePath ? (
+          <Typography.Text>{meta.basePath}</Typography.Text>
+        ) : (
+          <Typography.Text type="secondary">(bucket root)</Typography.Text>
+        );
       },
     },
     {
@@ -340,12 +351,7 @@ export const QDevDataScope = ({ connectionId: _connectionId, disabledItems, sele
           <Input placeholder="user-report/AWSLogs/.../us-east-1" />
         </Form.Item>
 
-        <Form.Item
-          label="Year"
-          name="year"
-          rules={[{ required: true, message: 'Enter year' }]}
-          style={{ width: 160 }}
-        >
+        <Form.Item label="Year" name="year" rules={[{ required: true, message: 'Enter year' }]} style={{ width: 160 }}>
           <InputNumber min={2000} max={2100} style={{ width: '100%' }} />
         </Form.Item>
 

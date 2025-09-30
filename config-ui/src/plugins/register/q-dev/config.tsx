@@ -31,6 +31,7 @@ export const QDevConfig: IPluginConfig = {
     docLink: 'https://devlake.apache.org/docs/UserManual/plugins/qdev',
     initialValues: {
       name: '',
+      authType: 'access_key',
       accessKeyId: '',
       secretAccessKey: '',
       region: 'us-east-1',
