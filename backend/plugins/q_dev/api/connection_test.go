@@ -111,24 +111,40 @@ func TestValidateConnection_MissingBucket(t *testing.T) {
 	assert.Contains(t, err.Error(), "Bucket is required")
 }
 
-func TestValidateConnection_MissingIdentityStoreId(t *testing.T) {
+func TestValidateConnection_EmptyIdentityStoreOk(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
 			AccessKeyId:         "AKIAIOSFODNN7EXAMPLE",
 			SecretAccessKey:     "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 			Region:              "us-east-1",
 			Bucket:              "my-q-dev-bucket",
-			IdentityStoreId:     "", // Missing
-			IdentityStoreRegion: "us-west-2",
+			IdentityStoreId:     "",
+			IdentityStoreRegion: "",
+		},
+	}
+
+	err := validateConnection(connection)
+	assert.NoError(t, err)
+}
+
+func TestValidateConnection_IdentityStoreRegionWithoutId(t *testing.T) {
+	connection := &models.QDevConnection{
+		QDevConn: models.QDevConn{
+			AccessKeyId:         "AKIAIOSFODNN7EXAMPLE",
+			SecretAccessKey:     "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+			Region:              "us-east-1",
+			Bucket:              "my-q-dev-bucket",
+			IdentityStoreId:     "",
+			IdentityStoreRegion: "us-east-1",
 		},
 	}
 
 	err := validateConnection(connection)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "IdentityStoreId is required")
+	assert.Contains(t, err.Error(), "IdentityStoreRegion")
 }
 
-func TestValidateConnection_MissingIdentityStoreRegion(t *testing.T) {
+func TestValidateConnection_IdentityStoreIdWithoutRegion(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
 			AccessKeyId:         "AKIAIOSFODNN7EXAMPLE",
@@ -136,13 +152,13 @@ func TestValidateConnection_MissingIdentityStoreRegion(t *testing.T) {
 			Region:              "us-east-1",
 			Bucket:              "my-q-dev-bucket",
 			IdentityStoreId:     "d-1234567890",
-			IdentityStoreRegion: "", // Missing
+			IdentityStoreRegion: "",
 		},
 	}
 
 	err := validateConnection(connection)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "IdentityStoreRegion is required")
+	assert.Contains(t, err.Error(), "IdentityStoreId provided but IdentityStoreRegion is empty")
 }
 
 func TestValidateConnection_InvalidRateLimit(t *testing.T) {

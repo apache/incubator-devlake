@@ -78,7 +78,7 @@ func listGitlabRemoteScopes(
 	// no more groups, start to load projects under the group
 	var moreChild []dsmodels.DsRemoteApiScopeListEntry[models.GitlabProject]
 	moreChild, nextPage, err = listGitlabRemoteProjects(connection, apiClient, groupId, GitlabRemotePagination{
-		Page:    1,
+		Page:    page.Page,
 		PerPage: page.PerPage,
 		Step:    "project",
 	})
