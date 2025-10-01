@@ -66,14 +66,14 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	apiVersion := data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string)
 
 	useKeyset := false
-	if urlTemplate == "/users" && semver.IsValid(apiVersion) && semver.Compare(apiVersion, KEYSET_MIN_VERSION)>= 0 {
+	if urlTemplate == "/users" && semver.IsValid(apiVersion) && semver.Compare(apiVersion, KEYSET_MIN_VERSION) >= 0 {
 		useKeyset = true
 	} else if urlTemplate == "/users" && !semver.IsValid(apiVersion) {
 		// If version unknown, be conservative for CE 11–16.4: default to offset
 		logger.Debug("GitLab version is unknown/invalid; falling back to offset pagination for /users")
 	}
 
-	 var lastID int
+	var lastID int
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -84,15 +84,15 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 			query := url.Values{}
 			// Use keyset only when gated true and only on /users endpoint
 			if useKeyset && urlTemplate == "/users" {
-                query.Set("pagination", "keyset")
-                query.Set("order_by", "id")
-                query.Set("sort", "asc")
-                query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
-                if lastID > 0 {
-                    query.Set("id_after", fmt.Sprintf("%d", lastID))
-                }
-                return query, nil
-            }
+				query.Set("pagination", "keyset")
+				query.Set("order_by", "id")
+				query.Set("sort", "asc")
+				query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
+				if lastID > 0 {
+					query.Set("id_after", fmt.Sprintf("%d", lastID))
+				}
+				return query, nil
+			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
@@ -105,14 +105,14 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			if len(items) > 0 && urlTemplate == "/users" {
-                var tail struct {
-                    ID int `json:"id"`
-                }
-                _ = json.Unmarshal(items[len(items)-1], &tail)
-                if tail.ID > 0 {
-                    lastID = tail.ID
-                }
-            }
+				var tail struct {
+					ID int `json:"id"`
+				}
+				_ = json.Unmarshal(items[len(items)-1], &tail)
+				if tail.ID > 0 {
+					lastID = tail.ID
+				}
+			}
 			return items, nil
 		},
 	})
