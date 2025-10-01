@@ -63,8 +63,8 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketPipelineStep := inputRow.(*models.BitbucketPipelineStep)
 
-			// don't save to domain layer if `StartedOn` is nil
-			if bitbucketPipelineStep.StartedOn == nil {
+			// don't save to domain layer if `StartedOn` is nil, UNLESS it's a NOT_RUN step which should be SKIPPED
+			if bitbucketPipelineStep.StartedOn == nil && bitbucketPipelineStep.Result != models.NOT_RUN {
 				return nil, nil
 			}
 
@@ -82,12 +82,12 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 					Success:  []string{models.SUCCESSFUL, models.COMPLETED},
 					Failure:  []string{models.FAILED, models.ERROR, models.STOPPED},
 					Canceled: []string{models.CANCELLED},
-					Skipped:  []string{models.SKIPPED},
+					Skipped:  []string{models.SKIPPED, models.NOT_RUN},
 					Default:  devops.RESULT_DEFAULT,
 				}, bitbucketPipelineStep.Result),
 				OriginalResult: bitbucketPipelineStep.Result,
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.ERROR, models.STOPPED, models.CANCELLED, models.SKIPPED},
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.ERROR, models.STOPPED, models.CANCELLED, models.SKIPPED, models.NOT_RUN},
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING, models.READY},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipelineStep.State),

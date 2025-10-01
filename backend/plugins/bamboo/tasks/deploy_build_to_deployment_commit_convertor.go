@@ -124,11 +124,12 @@ func ConvertDeployBuildsToDeploymentCommits(taskCtx plugin.SubTaskContext) error
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{ResultSuccess, ResultSuccessful},
 					Failure: []string{ResultFailed},
+					Skipped: []string{ResultSkipped},
 					Default: devops.RESULT_DEFAULT,
 				}, input.DeploymentState),
 				OriginalResult: input.DeploymentState,
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{StatusFinished},
+					Done:       []string{StatusFinished, ResultSkipped},
 					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
 					Default:    devops.STATUS_OTHER,
 				}, input.LifeCycleState),

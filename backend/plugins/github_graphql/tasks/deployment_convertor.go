@@ -80,7 +80,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					Default: devops.RESULT_DEFAULT,
 				}, githubDeployment.State),
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{restTasks.StatusSuccess, restTasks.StatusError, restTasks.StatusFailure, restTasks.StatusInactive, restTasks.StatusActive},
+					Done:       []string{restTasks.StatusSuccess, restTasks.StatusError, restTasks.StatusFailure, restTasks.StatusInactive, restTasks.StatusActive, restTasks.StatusCancelled, restTasks.StatusSkipped},
 					InProgress: []string{restTasks.StatusInProgress, restTasks.StatusQueued, restTasks.StatusWaiting, restTasks.StatusPending},
 					Default:    devops.STATUS_OTHER,
 				}, githubDeployment.State),

@@ -9,7 +9,7 @@ bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4101},#7,SUCCES
 bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4102},#7,SUCCESS,DONE,,SUCCESSFUL,PRODUCTION,PRODUCTION,#7,https://bitbucket.org/likyh/likyhphp/addon/pipelines/home#!/results/7
 bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4103},#7,FAILURE,DONE,,FAILED,PRODUCTION,PRODUCTION,#7,https://bitbucket.org/likyh/likyhphp/addon/pipelines/home#!/results/7
 bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4104},#7,FAILURE,DONE,,STOPPED,PRODUCTION,PRODUCTION,#7,https://bitbucket.org/likyh/likyhphp/addon/pipelines/home#!/results/7
-bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4105},#7,FAILURE,DONE,,CANCELLED,PRODUCTION,PRODUCTION,#7,https://bitbucket.org/likyh/likyhphp/addon/pipelines/home#!/results/7
+bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4105},#7,CANCELED,DONE,,CANCELLED,PRODUCTION,PRODUCTION,#7,https://bitbucket.org/likyh/likyhphp/addon/pipelines/home#!/results/7
 bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4106},#7,,IN_PROGRESS,,IN_PROGRESS,PRODUCTION,PRODUCTION,#7,https://bitbucket.org/likyh/likyhphp/addon/pipelines/home#!/results/7
 bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4107},#7,,OTHER,,UNDEPLOYED,PRODUCTION,PRODUCTION,#7,https://bitbucket.org/likyh/likyhphp/addon/pipelines/home#!/results/7
 bitbucket:BitbucketDeployment:1:{5c6b00c4-a848-5db6-b9e1-3912631d4108},#7,,OTHER,,PENDING,PRODUCTION,PRODUCTION,#7,https://bitbucket.org/likyh/likyhphp/addon/pipelines/home#!/results/7
