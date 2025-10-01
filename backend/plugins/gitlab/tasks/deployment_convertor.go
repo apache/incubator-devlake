@@ -100,12 +100,14 @@ func ConvertDeployment(subtaskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				Name:         fmt.Sprintf("%s:%d", gitlabDeployment.Name, gitlabDeployment.DeploymentId),
 				Result: devops.GetResult(&devops.ResultRule{
-					Success: []string{StatusSuccess, StatusCompleted},
-					Failure: []string{StatusCanceled, StatusFailed},
-					Default: devops.RESULT_DEFAULT,
+					Success:  []string{StatusSuccess, StatusCompleted},
+					Failure:  []string{StatusFailed},
+					Canceled: []string{StatusCanceled},
+					Skipped:  []string{StatusSkipped},
+					Default:  devops.RESULT_DEFAULT,
 				}, gitlabDeployment.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled},
+					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled, StatusSkipped},
 					InProgress: []string{StatusRunning},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),

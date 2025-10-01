@@ -94,12 +94,14 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId: repoId,
 				Name:        bitbucketDeployment.Name,
 				Result: devops.GetResult(&devops.ResultRule{
-					Success: []string{models.COMPLETED, models.SUCCESSFUL},
-					Failure: []string{models.FAILED, models.STOPPED, models.CANCELLED},
-					Default: devops.RESULT_DEFAULT,
+					Success:  []string{models.COMPLETED, models.SUCCESSFUL},
+					Failure:  []string{models.FAILED, models.STOPPED},
+					Canceled: []string{models.CANCELLED},
+					Skipped:  []string{models.SKIPPED},
+					Default:  devops.RESULT_DEFAULT,
 				}, bitbucketDeployment.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.STOPPED, models.CANCELLED},
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.STOPPED, models.CANCELLED, models.SKIPPED},
 					InProgress: []string{models.IN_PROGRESS},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketDeployment.Status),

@@ -49,9 +49,11 @@ func (CICDPipeline) TableName() string {
 
 // this is for the field `result` in table.cicd_pipelines and table.cicd_tasks
 const (
-	RESULT_SUCCESS = "SUCCESS"
-	RESULT_FAILURE = "FAILURE"
-	RESULT_DEFAULT = ""
+	RESULT_SUCCESS  = "SUCCESS"
+	RESULT_FAILURE  = "FAILURE"
+	RESULT_CANCELED = "CANCELED"
+	RESULT_SKIPPED  = "SKIPPED"
+	RESULT_DEFAULT  = ""
 )
 
 // this is for the field `status` in table.cicd_pipelines and table.cicd_tasks
@@ -62,9 +64,11 @@ const (
 )
 
 type ResultRule struct {
-	Success []string
-	Failure []string
-	Default string
+	Success  []string
+	Failure  []string
+	Canceled []string
+	Skipped  []string
+	Default  string
 }
 
 type StatusRule struct {
@@ -89,6 +93,16 @@ func GetResult(rule *ResultRule, input interface{}) string {
 	for _, fail := range rule.Failure {
 		if strings.EqualFold(fail, cast.ToString(input)) {
 			return RESULT_FAILURE
+		}
+	}
+	for _, canceled := range rule.Canceled {
+		if strings.EqualFold(canceled, cast.ToString(input)) {
+			return RESULT_CANCELED
+		}
+	}
+	for _, skipped := range rule.Skipped {
+		if strings.EqualFold(skipped, cast.ToString(input)) {
+			return RESULT_SKIPPED
 		}
 	}
 	return rule.Default
