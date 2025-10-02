@@ -22,9 +22,10 @@ import (
 )
 
 type JenkinsScopeConfig struct {
-	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	DeploymentPattern  string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern"`
-	ProductionPattern  string `gorm:"type:varchar(255)" mapstructure:"productionPattern,omitempty" json:"productionPattern"`
+	common.ScopeConfig  `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	DeploymentPattern   string `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ProductionPattern   string `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	BranchFilterPattern string `mapstructure:"branchFilterPattern,omitempty" json:"branchFilterPattern" gorm:"type:varchar(255)"`
 }
 
 func (t JenkinsScopeConfig) TableName() string {

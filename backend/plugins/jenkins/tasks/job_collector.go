@@ -22,9 +22,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
@@ -66,16 +68,26 @@ func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					return query, nil
 				},
 				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-					var data struct {
+					var resData struct {
 						Jobs []json.RawMessage `json:"jobs"`
 					}
-					err := helper.UnmarshalResponse(res, &data)
+					err := helper.UnmarshalResponse(res, &resData)
 					if err != nil {
 						return nil, err
 					}
 
-					jobs := make([]json.RawMessage, 0, len(data.Jobs))
-					for _, job := range data.Jobs {
+					// Compile branch filter pattern once for this batch
+					var branchPattern *regexp.Regexp
+					if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.BranchFilterPattern != "" {
+						var compileErr error
+						branchPattern, compileErr = regexp.Compile(data.Options.ScopeConfig.BranchFilterPattern)
+						if compileErr != nil {
+							logger.Warn(nil, "Invalid branch filter pattern: %s, will include all jobs", data.Options.ScopeConfig.BranchFilterPattern)
+						}
+					}
+
+					jobs := make([]json.RawMessage, 0, len(resData.Jobs))
+					for _, job := range resData.Jobs {
 						var jobObj map[string]interface{}
 						err := json.Unmarshal(job, &jobObj)
 						if err != nil {
@@ -84,7 +96,10 @@ func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 
 						logger.Debug("%v", jobObj)
 						if jobObj["color"] != "notbuilt" && jobObj["color"] != "nobuilt_anime" {
-							jobs = append(jobs, job)
+							// Apply branch filter pattern if configured
+							if shouldIncludeJob(jobObj, branchPattern, logger) {
+								jobs = append(jobs, job)
+							}
 						}
 					}
 
@@ -99,4 +114,27 @@ func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collector.Execute()
+}
+
+// shouldIncludeJob determines whether a job should be included based on the branch filter pattern
+func shouldIncludeJob(jobObj map[string]interface{}, branchPattern *regexp.Regexp, logger log.Logger) bool {
+	// If no branch filter pattern is configured, include all jobs
+	if branchPattern == nil {
+		return true
+	}
+
+	// Get the job name for pattern matching
+	jobName, ok := jobObj["name"].(string)
+	if !ok {
+		// If we can't get the job name, include it by default
+		logger.Warn(nil, "Could not extract job name for filtering, including job by default")
+		return true
+	}
+
+	// Match the job name against the pattern
+	matched := branchPattern.MatchString(jobName)
+	logger.Debug("Job '%s' %s branch filter pattern", jobName,
+		map[bool]string{true: "matches", false: "does not match"}[matched])
+
+	return matched
 }
