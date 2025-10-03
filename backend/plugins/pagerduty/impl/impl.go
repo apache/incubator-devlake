@@ -70,7 +70,7 @@ func (p PagerDuty) Scope() plugin.ToolLayerScope {
 }
 
 func (p PagerDuty) ScopeConfig() dal.Tabler {
-	return nil
+	return &models.PagerdutyScopeConfig{}
 }
 
 func (p PagerDuty) SubTaskMetas() []plugin.SubTaskMeta {
@@ -107,6 +107,21 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Pagerduty connection by the given connection ID")
+	}
+
+	// Load ScopeConfig from database if only ScopeConfigId is provided
+	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.PagerdutyScopeConfig
+		db := taskCtx.GetDal()
+		err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+		if err != nil && !db.IsErrorNotFound(err) {
+			return nil, errors.BadInput.Wrap(err, "fail to get scopeConfig")
+		}
+		op.ScopeConfig = &scopeConfig
+	}
+	// Initialize empty ScopeConfig if none provided
+	if op.ScopeConfig == nil {
+		op.ScopeConfig = new(models.PagerdutyScopeConfig)
 	}
 
 	client, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
@@ -167,6 +182,18 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		},
 		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
 			"GET": api.GetScopeLatestSyncState,
+		},
+		"connections/:connectionId/scope-configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
+		},
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
+			"PATCH":  api.PatchScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
+		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetServicesByScopeConfig,
 		},
 	}
 }

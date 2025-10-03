@@ -55,4 +55,11 @@ export const PagerDutyConfig: IPluginConfig = {
   dataScope: {
     title: 'Services',
   },
+  scopeConfig: {
+    entities: ['TICKET'],
+    transformation: {
+      priorityFilter: [],
+      urgencyFilter: [],
+    },
+  },
 };

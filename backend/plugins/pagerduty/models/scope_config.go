@@ -23,6 +23,8 @@ import (
 
 type PagerdutyScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	PriorityFilter     []string `mapstructure:"priorityFilter" json:"priorityFilter" gorm:"type:text;serializer:json"`
+	UrgencyFilter      []string `mapstructure:"urgencyFilter" json:"urgencyFilter" gorm:"type:text;serializer:json"`
 }
 
 func (p PagerdutyScopeConfig) TableName() string {

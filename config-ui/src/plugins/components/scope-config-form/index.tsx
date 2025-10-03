@@ -34,6 +34,7 @@ import { AzureTransformation } from '@/plugins/register/azure';
 import { TapdTransformation } from '@/plugins/register/tapd';
 import { BambooTransformation } from '@/plugins/register/bamboo';
 import { CircleCITransformation } from '@/plugins/register/circleci';
+import { PagerDutyTransformation } from '@/plugins/register/pagerduty';
 import { DOC_URL } from '@/release';
 import { operator } from '@/utils';
 
@@ -281,6 +282,13 @@ export const ScopeConfigForm = ({
                   entities={entities}
                   connectionId={connectionId}
                   scopeId={scopeId}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
+                />
+              )}
+
+              {plugin === 'pagerduty' && (
+                <PagerDutyTransformation
                   transformation={transformation}
                   setTransformation={setTransformation}
                 />
