@@ -80,9 +80,8 @@ func (h *Handlers) CreateTeam(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if err != nil {
 		return nil, err
 	}
-	var t *team
 	var items []interface{}
-	for _, tm := range t.toDomainLayer(tt) {
+	for _, tm := range (&team{}).toDomainLayer(tt) {
 		items = append(items, tm)
 	}
 	err = h.store.deleteAll(&crossdomain.Team{})

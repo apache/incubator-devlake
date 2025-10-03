@@ -29,7 +29,6 @@ type GithubAccountEdge struct {
 	Email     string
 	AvatarUrl string
 	HtmlUrl   string `graphql:"url"`
-	//Type      string
 }
 type GraphqlInlineAccountQuery struct {
 	GithubAccountEdge `graphql:"... on User"`

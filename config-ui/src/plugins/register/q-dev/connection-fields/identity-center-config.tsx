@@ -16,84 +16,110 @@
  *
  */
 
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useEffect, useMemo, useRef } from 'react';
 import { Input } from 'antd';
 
 import { Block } from '@/components';
 
 interface Props {
-  identityStoreId: string;
-  identityStoreRegion: string;
-  errors: {
-    identityStoreId?: string;
-    identityStoreRegion?: string;
-  };
+  initialValues: any;
+  values: any;
   setValues: (values: any) => void;
   setErrors: (errors: any) => void;
 }
 
-export const IdentityCenterConfig = ({ 
-  identityStoreId, 
-  identityStoreRegion, 
-  errors, 
-  setValues, 
-  setErrors 
-}: Props) => {
-  
-  const validateIdentityStoreId = (value: string) => {
-    if (!value) {
-      return 'Identity Store ID是必填项';
+const STORE_ID_PATTERN = /^d-[a-z0-9]{10}$/;
+const REGION_PATTERN = /^[a-z]{2}-[a-z]+-\d$/;
+
+export const IdentityCenterConfig = ({ initialValues, values, setValues, setErrors }: Props) => {
+  const identityStoreId = values.identityStoreId ?? '';
+  const identityStoreRegion = values.identityStoreRegion ?? '';
+
+  useEffect(() => {
+    if (values.identityStoreId === undefined) {
+      setValues({ identityStoreId: initialValues.identityStoreId ?? '' });
     }
-    if (!/^d-[a-z0-9]{10}$/.test(value)) {
-      return 'Identity Store ID格式不正确，应为：d-xxxxxxxxxx';
+  }, [initialValues.identityStoreId, values.identityStoreId, setValues]);
+
+  useEffect(() => {
+    if (values.identityStoreRegion === undefined) {
+      setValues({ identityStoreRegion: initialValues.identityStoreRegion ?? '' });
+    }
+  }, [initialValues.identityStoreRegion, values.identityStoreRegion, setValues]);
+
+  const storeIdError = useMemo(() => {
+    if (!identityStoreId) {
+      return '';
+    }
+    if (!STORE_ID_PATTERN.test(identityStoreId)) {
+      return 'Expected format d-xxxxxxxxxx (lowercase letters and digits).';
     }
     return '';
-  };
+  }, [identityStoreId]);
 
-  const validateIdentityStoreRegion = (value: string) => {
-    if (!value) {
-      return 'Identity Center区域是必填项';
+  const regionError = useMemo(() => {
+    if (!identityStoreRegion) {
+      return identityStoreId ? 'Identity Center region is required when providing an Identity Store ID.' : '';
     }
-    if (!/^[a-z0-9-]+$/.test(value)) {
-      return 'Identity Center区域格式不正确';
+    if (!REGION_PATTERN.test(identityStoreRegion)) {
+      return 'Region should look like us-east-1.';
     }
     return '';
+  }, [identityStoreRegion, identityStoreId]);
+
+  const storeIdErrorRef = useRef<string>();
+  const regionErrorRef = useRef<string>();
+
+  useEffect(() => {
+    if (storeIdErrorRef.current !== storeIdError) {
+      storeIdErrorRef.current = storeIdError;
+      setErrors({ identityStoreId: storeIdError });
+    }
+  }, [storeIdError, setErrors]);
+
+  useEffect(() => {
+    if (regionErrorRef.current !== regionError) {
+      regionErrorRef.current = regionError;
+      setErrors({ identityStoreRegion: regionError });
+    }
+  }, [regionError, setErrors]);
+
+  const handleStoreIdChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setValues({ identityStoreId: e.target.value.trim() });
   };
 
-  const handleIdentityStoreIdChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setValues({ identityStoreId: value });
-    setErrors({ identityStoreId: validateIdentityStoreId(value) });
-  };
-
-  const handleIdentityStoreRegionChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setValues({ identityStoreRegion: value });
-    setErrors({ identityStoreRegion: validateIdentityStoreRegion(value) });
+  const handleRegionChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setValues({ identityStoreRegion: e.target.value.trim() });
   };
 
   return (
     <>
-      <Block title="IAM Identity Store ID" description="请输入Identity Store ID，格式：d-xxxxxxxxxx" required>
-        <Input 
-          style={{ width: 386 }} 
-          placeholder="d-1234567890" 
-          value={identityStoreId} 
-          onChange={handleIdentityStoreIdChange}
-          status={errors.identityStoreId ? 'error' : ''}
+      <Block
+        title="IAM Identity Store ID"
+        description="Optional. Provide if you want DevLake to resolve user display names (format d-xxxxxxxxxx)."
+      >
+        <Input
+          style={{ width: 386 }}
+          placeholder="d-1234567890"
+          value={identityStoreId}
+          onChange={handleStoreIdChange}
+          status={storeIdError ? 'error' : ''}
         />
-        {errors.identityStoreId && <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.identityStoreId}</div>}
+        {storeIdError && <div style={{ marginTop: 4, color: '#f5222d' }}>{storeIdError}</div>}
       </Block>
 
-      <Block title="IAM Identity Center区域" description="请输入IAM Identity Center所在的AWS区域" required>
-        <Input 
-          style={{ width: 386 }} 
-          placeholder="us-east-1" 
-          value={identityStoreRegion} 
-          onChange={handleIdentityStoreRegionChange}
-          status={errors.identityStoreRegion ? 'error' : ''}
+      <Block
+        title="IAM Identity Center Region"
+        description="Optional. Required only when Identity Store ID is provided (e.g. us-east-1)."
+      >
+        <Input
+          style={{ width: 386 }}
+          placeholder="us-east-1"
+          value={identityStoreRegion}
+          onChange={handleRegionChange}
+          status={regionError ? 'error' : ''}
         />
-        {errors.identityStoreRegion && <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.identityStoreRegion}</div>}
+        {regionError && <div style={{ marginTop: 4, color: '#f5222d' }}>{regionError}</div>}
       </Block>
     </>
   );

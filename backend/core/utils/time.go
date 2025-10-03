@@ -15,19 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package utils
 
-import (
-	"github.com/apache/incubator-devlake/core/plugin"
-)
+import "time"
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addS3SliceTable),
+// NilIfZeroTime returns nil if t is nil or represents the zero time (0001-01-01...).
+// Otherwise, it returns t unchanged.
+func NilIfZeroTime(t *time.Time) *time.Time {
+	if t == nil {
+		return nil
 	}
+	if t.IsZero() {
+		return nil
+	}
+	return t
 }
