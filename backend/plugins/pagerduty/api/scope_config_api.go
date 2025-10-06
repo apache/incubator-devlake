@@ -88,7 +88,7 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Tags plugins/pagerduty
 // @Param id path int true "id"
 // @Param scopeConfigId path int true "scopeConfigId"
-// @Success 200  {object} models.ServiceScopeOutput
+// @Success 200  {object} models.ProjectScopeOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/scope-config/{scopeConfigId}/projects [GET]
