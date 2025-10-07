@@ -1,47 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_MYSQL",
-      "label": "mysql",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "mysql",
-      "pluginName": "MySQL"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "panel",
-      "id": "barchart",
-      "name": "Bar chart",
-      "version": ""
-    },
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "11.3.0"
-    },
-    {
-      "type": "datasource",
-      "id": "mysql",
-      "name": "MySQL",
-      "version": "11.3.0-pre"
-    },
-    {
-      "type": "panel",
-      "id": "stat",
-      "name": "Stat",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "text",
-      "name": "Text",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -61,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 9,
   "graphTooltip": 0,
-  "id": null,
+  "id": 153,
   "links": [
     {
       "asDropdown": false,
@@ -95,7 +52,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "${DS_MYSQL}"
+        "uid": "cey4ufm78rw8wf"
       },
       "description": "1. Total number of issues created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
@@ -146,7 +103,7 @@
         {
           "datasource": {
             "type": "mysql",
-            "uid": "${DS_MYSQL}"
+            "uid": "cey4ufm78rw8wf"
           },
           "editorMode": "code",
           "format": "table",
@@ -154,7 +111,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n\tcount(distinct(i.id))\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\t(i.original_type IN (${type}) OR i.type IN (${type}))\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n\ti.original_status != 'cancelled'",
+          "rawSql": "SELECT\r\n\tcount(distinct(i.id))\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})",
           "refId": "A",
           "select": [
             [
@@ -199,7 +156,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "${DS_MYSQL}"
+        "uid": "cey4ufm78rw8wf"
       },
       "description": "",
       "fieldConfig": {
@@ -251,7 +208,7 @@
         {
           "datasource": {
             "type": "mysql",
-            "uid": "${DS_MYSQL}"
+            "uid": "cey4ufm78rw8wf"
           },
           "editorMode": "code",
           "format": "table",
@@ -259,7 +216,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n\tcount(distinct(i.id))\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\t(i.original_type IN (${type}) OR i.type IN (${type}))\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n\ti.status = 'DONE'\r\n    AND\r\n    i.original_status != 'cancelled'",
+          "rawSql": "SELECT\r\n\tcount(distinct(i.id))\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n\ti.status = 'DONE'",
           "refId": "A",
           "select": [
             [
@@ -304,7 +261,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "${DS_MYSQL}"
+        "uid": "cey4ufm78rw8wf"
       },
       "fieldConfig": {
         "defaults": {
@@ -383,12 +340,12 @@
           "dataset": "devlakeschema",
           "datasource": {
             "type": "mysql",
-            "uid": "${DS_MYSQL}"
+            "uid": "cey4ufm78rw8wf"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n\tCOUNT(DISTINCT CASE WHEN i.status = 'DONE' THEN i.id END) AS number_of_delivered_issues,\r\n\tCOUNT(DISTINCT CASE WHEN i.status != 'DONE' THEN i.id END) AS number_of_open_issues,\r\n  sp.name AS sprint_name\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\t(i.original_type IN (${type}) OR i.type IN (${type}))\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n    i.original_status != 'cancelled'\r\nGROUP BY sp.name",
+          "rawSql": "SELECT\r\n\tCOUNT(DISTINCT CASE WHEN i.status = 'DONE' THEN i.id END) AS number_of_delivered_issues,\r\n\tCOUNT(DISTINCT CASE WHEN i.status != 'DONE' THEN i.id END) AS number_of_open_issues,\r\n  sp.name AS sprint_name\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\nGROUP BY sp.name",
           "refId": "A",
           "sql": {
             "columns": [
@@ -415,7 +372,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "${DS_MYSQL}"
+        "uid": "cey4ufm78rw8wf"
       },
       "description": "Issue Delivery Rate = count(Delivered Issues)/count(Issues)",
       "fieldConfig": {
@@ -480,7 +437,7 @@
         {
           "datasource": {
             "type": "mysql",
-            "uid": "${DS_MYSQL}"
+            "uid": "cey4ufm78rw8wf"
           },
           "editorMode": "code",
           "format": "time_series",
@@ -488,7 +445,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n    NOW() AS time,\r\n    (COUNT(DISTINCT(CASE WHEN i.status = 'Done' THEN i.id END))) / (COUNT(DISTINCT(i.id)))\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\t(i.original_type IN (${type}) OR i.type IN (${type}))\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n\ti.original_status != 'cancelled'",
+          "rawSql": "SELECT\r\n    NOW() AS time,\r\n    (COUNT(DISTINCT(CASE WHEN i.status = 'Done' THEN i.id END))) / (COUNT(DISTINCT(i.id)))\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})",
           "refId": "A",
           "select": [
             [
@@ -533,7 +490,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "${DS_MYSQL}"
+        "uid": "cey4ufm78rw8wf"
       },
       "fieldConfig": {
         "defaults": {
@@ -612,12 +569,12 @@
           "dataset": "devlakeschema",
           "datasource": {
             "type": "mysql",
-            "uid": "${DS_MYSQL}"
+            "uid": "cey4ufm78rw8wf"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n\t(COUNT(DISTINCT CASE WHEN i.status = 'DONE' THEN i.id END))/(COUNT(DISTINCT i.id))*100 AS issues_delivered_percentage,\r\n  sp.name AS sprint_name\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\t(i.original_type IN (${type}) OR i.type IN (${type}))\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n  i.original_status != 'cancelled'\r\nGROUP BY sp.name",
+          "rawSql": "SELECT\r\n\t(COUNT(DISTINCT CASE WHEN i.status = 'DONE' THEN i.id END))/(COUNT(DISTINCT i.id))*100 AS issues_delivered_percentage,\r\n  sp.name AS sprint_name\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\nGROUP BY sp.name",
           "refId": "A",
           "sql": {
             "columns": [
@@ -649,313 +606,15 @@
         "x": 0,
         "y": 13
       },
-      "id": 110,
-      "panels": [],
-      "title": "2. Cycle Time",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "mysql",
-        "uid": "${DS_MYSQL}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 14
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 0,
-        "y": 14
-      },
-      "id": 139,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "/^value$/",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.3.0",
-      "targets": [
-        {
-          "dataset": "devlake",
-          "datasource": {
-            "type": "mysql",
-            "uid": "${DS_MYSQL}"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n\tavg(cycle_lead_time_seconds/86400) AS value\nFROM (\n\tSELECT\n\t\tDISTINCT(issue_key) AS issue_key,\n\t\tMIN(issue_start_date) AS issue_start_date,\n\t\tMAX(issue_resolve_date) AS issue_resolve_date,\n\t\tTIMESTAMPDIFF(SECOND,MIN(issue_start_date),MAX(issue_resolve_date)) AS cycle_lead_time_seconds\n\t\t-- MIN(issue_key) AS issue_key\n\tFROM (\n\t\tSELECT\n\t\t\ti.id,\n\t\t\ti.issue_key,\n\t\t\t(CASE WHEN jci.to_string IN ('In Progress','Developing') THEN jc.created END) AS issue_start_date,\n\t\t\t(i.resolution_date) AS issue_resolve_date,\n\t\t\tjci.to_string AS to_string\n\t\tFROM\n\t\t\tissues i\n\t\tJOIN sprint_issues si ON si.issue_id = i.id\n\t\tJOIN sprints sp ON si.sprint_id = sp.id\n\t\tJOIN _tool_jira_issue_changelog_items jci on i._raw_data_id = jci._raw_data_id\n\t\tJOIN _tool_jira_issue_changelogs jc on jc.changelog_id = jci.changelog_id\n\t\tWHERE\n\t\t\t(i.original_type IN (${type}) or i.type IN (${type}))\n\t\t\tAND\n\t\t\tsp.id IN (${sprint_id})\n\t\t\tAND\n\t\t\ti.status = 'DONE'\n\t\t\tAND\n\t\t\ti.original_status != 'cancelled'\n\t--         AND\n\t\n\t\tORDER BY issue_start_date asc) issues_der\n\tWHERE \n\t\tto_string IN ('In Progress','Developing')\n\tGROUP BY issue_key\n) cycle_lead_time_der",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Mean Cycle Time in Days [Issues Resolved in Select Time Range]",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "mysql",
-        "uid": "${DS_MYSQL}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 14
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 4,
-        "y": 14
-      },
-      "id": 143,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "/^value$/",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.3.0",
-      "targets": [
-        {
-          "dataset": "devlake",
-          "datasource": {
-            "type": "mysql",
-            "uid": "${DS_MYSQL}"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n\tAVG(CASE WHEN _rank <= 0.8 THEN (cycle_lead_time_seconds/86400) END) AS value\nFROM (\n\tSELECT\n\t\tDISTINCT(issue_key) AS issue_key,\n\t\tMIN(issue_start_date) AS issue_start_date,\n\t\tMAX(issue_resolve_date) AS issue_resolve_date,\n\t\tTIMESTAMPDIFF(SECOND,MIN(issue_start_date),MAX(issue_resolve_date)) AS cycle_lead_time_seconds,\n    PERCENT_RANK() OVER (ORDER BY (TIMESTAMPDIFF(SECOND,MIN(issue_start_date),MAX(issue_resolve_date)))) AS _rank\n\tFROM (\n\t\tSELECT\n\t\t\ti.id,\n\t\t\ti.issue_key,\n\t\t\t(CASE WHEN jci.to_string IN ('In Progress','Developing') THEN jc.created END) AS issue_start_date,\n\t\t\t(i.resolution_date) AS issue_resolve_date,\n\t\t\tjci.to_string AS to_string\n\t\tFROM\n\t\t\tissues i\n\t\tJOIN sprint_issues si ON si.issue_id = i.id\n\t\tJOIN sprints sp ON si.sprint_id = sp.id\n\t\tJOIN _tool_jira_issue_changelog_items jci on i._raw_data_id = jci._raw_data_id\n\t\tJOIN _tool_jira_issue_changelogs jc on jc.changelog_id = jci.changelog_id\n\t\tWHERE\n\t\t\t(i.original_type IN (${type}) or i.type IN (${type}))\n\t\t\tAND\n\t\t\tsp.id IN (${sprint_id})\n\t\t\tAND\n\t\t\ti.status = 'DONE'\n\t\t\tAND\n\t\t\ti.original_status != 'cancelled'\n\t\tORDER BY issue_start_date asc) issues_der\n\tWHERE \n\t\tto_string IN ('In Progress','Developing')\n\tGROUP BY issue_key\n) cycle_lead_time_der",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "80% Issues' Cycle Time are less than # days [Issues Resolved in Select Time Range]",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "mysql",
-        "uid": "${DS_MYSQL}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 16,
-        "x": 8,
-        "y": 14
-      },
-      "id": 147,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "normal",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": -45,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "11.3.0",
-      "targets": [
-        {
-          "dataset": "devlakeschema",
-          "datasource": {
-            "type": "mysql",
-            "uid": "${DS_MYSQL}"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n\tsprint_name,\r\n\tavg(cycle_lead_time_seconds/86400) AS mean_lead_time\r\nFROM (\r\n\tSELECT\r\n\t\tDISTINCT(issue_key) AS issue_key,\r\n\t\tMIN(issue_start_date) AS issue_start_date,\r\n\t\tMAX(issue_resolve_date) AS issue_resolve_date,\r\n\t\tTIMESTAMPDIFF(SECOND,MIN(issue_start_date),MAX(issue_resolve_date)) AS cycle_lead_time_seconds,\r\n\t\tMIN(sprint_name) AS sprint_name\r\n\t\t-- MIN(issue_key) AS issue_key\r\n\tFROM (\r\n\t\tSELECT\r\n\t\t\ti.id,\r\n\t\t\ti.issue_key,\r\n\t\t\t(CASE WHEN jci.to_string = 'In Progress' THEN jc.created END) AS issue_start_date,\r\n\t\t\t(i.resolution_date) AS issue_resolve_date,\r\n\t\t\tjci.to_string AS to_string,\r\n\t\t\tsp.name AS sprint_name\r\n\t\tFROM\r\n\t\t\tissues i\r\n\t\tJOIN sprint_issues si ON si.issue_id = i.id\r\n\t\tJOIN sprints sp ON si.sprint_id = sp.id\r\n\t\tJOIN _tool_jira_issue_changelog_items jci on i._raw_data_id = jci._raw_data_id\r\n\t\tJOIN _tool_jira_issue_changelogs jc on jc.changelog_id = jci.changelog_id\r\n\t\tWHERE\r\n\t\t\t(i.original_type IN (${type}) or i.type IN (${type}))\r\n\t\t\tAND\r\n\t\t\tsp.id IN (${sprint_id})\r\n\t\t\tAND\r\n\t\t\ti.status = 'DONE'\r\n\t\t\tAND\r\n\t\t\ti.original_status != 'cancelled'\r\n\t--         AND\r\n\t\r\n\t\tORDER BY issue_start_date asc) issues_der\r\n\tWHERE \r\n\t\tto_string IN ('In Progress')\r\n\tGROUP BY issue_key\r\n) cycle_lead_time_der\r\nGROUP BY sprint_name",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Mean Cycle Time Over Sprint",
-      "type": "barchart"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 20
-      },
       "id": 135,
       "panels": [],
-      "title": "3. Issue Lead Time",
+      "title": "2. Issue Lead Time",
       "type": "row"
     },
     {
       "datasource": {
         "type": "mysql",
-        "uid": "${DS_MYSQL}"
+        "uid": "cey4ufm78rw8wf"
       },
       "description": "",
       "fieldConfig": {
@@ -985,7 +644,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 21
+        "y": 14
       },
       "id": 137,
       "options": {
@@ -1011,14 +670,14 @@
         {
           "datasource": {
             "type": "mysql",
-            "uid": "${DS_MYSQL}"
+            "uid": "cey4ufm78rw8wf"
           },
           "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n    avg(lead_time_minutes)/1440 AS value\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\t(i.original_type IN (${type}) OR i.type IN (${type}))\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n\ti.status = 'DONE'\r\n    AND\r\n    i.original_status != 'cancelled'",
+          "rawSql": "SELECT\r\n    avg(lead_time_minutes)/1440 AS value\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n\ti.status = 'DONE'",
           "refId": "A",
           "select": [
             [
@@ -1065,7 +724,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "${DS_MYSQL}"
+        "uid": "cey4ufm78rw8wf"
       },
       "description": "",
       "fieldConfig": {
@@ -1095,7 +754,7 @@
         "h": 6,
         "w": 4,
         "x": 4,
-        "y": 21
+        "y": 14
       },
       "id": 138,
       "options": {
@@ -1121,14 +780,14 @@
         {
           "datasource": {
             "type": "mysql",
-            "uid": "${DS_MYSQL}"
+            "uid": "cey4ufm78rw8wf"
           },
           "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\r\nAVG(CASE WHEN _rank <= 0.8 THEN lead_time_minutes END)/1440 AS value\r\nFROM (\r\n\tSELECT\r\n\t\tDISTINCT(issue_key),\r\n\t\tlead_time_minutes,\r\n\t\tPERCENT_RANK() OVER (ORDER BY lead_time_minutes) AS _rank\r\n\tFROM\r\n\t\tissues i\r\n\tJOIN\r\n\t\tsprint_issues si ON si.issue_id = i.id\r\n\tJOIN\t\r\n\t\tsprints sp ON si.sprint_id = sp.id\r\n\tWHERE\r\n\t\t(i.original_type IN (${type}) OR i.type IN (${type}))\r\n\t\tAND\r\n\t\tsp.id IN (${sprint_id})\r\n\t\tAND\r\n\t\ti.status = 'DONE'\r\n\t\t\tAND\r\n\t\t\ti.original_status != 'cancelled'\r\n\t) mean_lead_time_der",
+          "rawSql": "SELECT\r\nAVG(CASE WHEN _rank <= 0.8 THEN lead_time_minutes END)/1440 AS value\r\nFROM (\r\n\tSELECT\r\n\t\tDISTINCT(issue_key),\r\n\t\tlead_time_minutes,\r\n\t\tPERCENT_RANK() OVER (ORDER BY lead_time_minutes) AS _rank\r\n\tFROM\r\n\t\tissues i\r\n\tJOIN\r\n\t\tsprint_issues si ON si.issue_id = i.id\r\n\tJOIN\t\r\n\t\tsprints sp ON si.sprint_id = sp.id\r\n\tWHERE\r\n\t\ti.type IN (${type})\r\n\t\tAND\r\n\t\tsp.id IN (${sprint_id})\r\n\t\tAND\r\n\t\ti.status = 'DONE'\r\n\t) mean_lead_time_der",
           "refId": "A",
           "select": [
             [
@@ -1175,7 +834,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "${DS_MYSQL}"
+        "uid": "cey4ufm78rw8wf"
       },
       "fieldConfig": {
         "defaults": {
@@ -1224,7 +883,7 @@
         "h": 6,
         "w": 16,
         "x": 8,
-        "y": 21
+        "y": 14
       },
       "id": 148,
       "options": {
@@ -1254,12 +913,12 @@
           "dataset": "devlakeschema",
           "datasource": {
             "type": "mysql",
-            "uid": "${DS_MYSQL}"
+            "uid": "cey4ufm78rw8wf"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n\t\tDISTINCT(sp.name) AS sprint_name,\r\n    avg(lead_time_minutes)/1440 AS mean_lead_time\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\t(i.original_type IN (${type}) OR i.type IN (${type}))\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n\ti.status = 'DONE'\r\n    AND\r\n    i.original_status != 'cancelled'\r\nGROUP BY sprint_name",
+          "rawSql": "SELECT\r\n\t\tDISTINCT(sp.name) AS sprint_name,\r\n    avg(lead_time_minutes)/1440 AS mean_lead_time\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})\r\n\tAND\r\n\ti.status = 'DONE'\r\nGROUP BY sprint_name",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1284,11 +943,15 @@
       "type": "barchart"
     },
     {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 20
       },
       "id": 130,
       "options": {
@@ -1301,37 +964,49 @@
         "mode": "markdown"
       },
       "pluginVersion": "11.3.0",
+      "title": "",
       "type": "text"
     }
   ],
+  "preload": false,
   "refresh": "",
   "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
       {
-        "current": {},
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
         "datasource": {
           "type": "mysql",
-          "uid": "${DS_MYSQL}"
+          "uid": "cey4ufm78rw8wf"
         },
-        "definition": "SELECT id AS __value, name AS __text\nFROM boards\nWHERE\nid like ('%jira%')\n-- Below where clause must be used to get data from specific boards\n-- AND name IN ('board-name-1','board-name-2')\n",
+        "definition": "SELECT id AS __value, name AS __text\nFROM boards\nWHERE\nid like ('%jira%')",
         "includeAll": true,
         "label": "Board",
         "multi": true,
         "name": "board_id",
         "options": [],
-        "query": "SELECT id AS __value, name AS __text\nFROM boards\nWHERE\nid like ('%jira%')\n-- Below where clause must be used to get data from specific boards\n-- AND name IN ('board-name-1','board-name-2')\n",
+        "query": "SELECT id AS __value, name AS __text\nFROM boards\nWHERE\nid like ('%jira%')",
         "refresh": 1,
         "regex": "",
         "sort": 1,
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "type": "mysql",
-          "uid": "${DS_MYSQL}"
+          "uid": "cey4ufm78rw8wf"
         },
         "definition": "SELECT\ns.id AS __value,\ns.name AS __text\nFROM\nboards AS b JOIN\nboard_sprints AS bs JOIN\nsprints AS s\nON\nb.id = bs.board_id AND\ns.id = bs.sprint_id\nWHERE b.id IN (${board_id})",
         "description": "",
@@ -1349,75 +1024,22 @@
       {
         "current": {
           "text": [
-            "$__all"
+            "All"
           ],
           "value": [
             "$__all"
           ]
         },
+        "definition": "select distinct type from issues",
         "includeAll": true,
         "label": "Issue Type",
         "multi": true,
         "name": "type",
-        "options": [
-          {
-            "selected": false,
-            "text": "REQUIREMENT",
-            "value": "REQUIREMENT"
-          },
-          {
-            "selected": false,
-            "text": "STORY",
-            "value": "STORY"
-          },
-          {
-            "selected": false,
-            "text": "ENABLER",
-            "value": "ENABLER"
-          },
-          {
-            "selected": false,
-            "text": "SPIKE",
-            "value": "SPIKE"
-          },
-          {
-            "selected": false,
-            "text": "EPIC",
-            "value": "EPIC"
-          },
-          {
-            "selected": false,
-            "text": "SAGA",
-            "value": "SAGA"
-          },
-          {
-            "selected": false,
-            "text": "IMPROVEMENT",
-            "value": "IMPROVEMENT"
-          },
-          {
-            "selected": false,
-            "text": "INITIATIVE",
-            "value": "INITIATIVE"
-          },
-          {
-            "selected": false,
-            "text": "BUG",
-            "value": "BUG"
-          },
-          {
-            "selected": false,
-            "text": "DEFECT",
-            "value": "DEFECT"
-          },
-          {
-            "selected": false,
-            "text": "INCIDENT",
-            "value": "INCIDENT"
-          }
-        ],
-        "query": "REQUIREMENT,STORY,ENABLER,SPIKE,EPIC,SAGA,IMPROVEMENT,INITIATIVE,BUG,DEFECT,INCIDENT",
-        "type": "custom"
+        "options": [],
+        "query": "select distinct type from issues",
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
       }
     ]
   },
@@ -1429,8 +1051,8 @@
     "hidden": true
   },
   "timezone": "Asia/Kolkata",
-  "title": "Jira",
-  "uid": "c662f7fb-6c02-40d1-85a3-e9164d0366be",
-  "version": 2,
+  "title": "Jira - Sprint Board",
+  "uid": "c662f7fb-6c02-40d1-85a3-sprint",
+  "version": 8,
   "weekStart": ""
 }
