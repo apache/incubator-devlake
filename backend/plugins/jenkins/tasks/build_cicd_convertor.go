@@ -100,9 +100,10 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 			jenkinsPipelineResult := devops.RESULT_DEFAULT
 			if !jenkinsBuild.Building {
 				jenkinsPipelineResult = devops.GetResult(&devops.ResultRule{
-					Success: []string{SUCCESS},
-					Failure: []string{FAILURE, ABORTED},
-					Default: devops.RESULT_DEFAULT,
+					Success:  []string{SUCCESS},
+					Failure:  []string{FAILURE},
+					Canceled: []string{ABORTED},
+					Default:  devops.RESULT_DEFAULT,
 				}, jenkinsBuild.Result)
 			}
 			var jenkinsPipelineFinishedDate *time.Time

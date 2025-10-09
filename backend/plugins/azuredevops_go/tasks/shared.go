@@ -20,12 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 // Build and TimeLine Record State and Result types can be found here:
@@ -109,25 +110,28 @@ func ExtractContToken(_ *api.RequestData, prevPageResponse *http.Response) (inte
 }
 
 var cicdBuildResultRule = devops.ResultRule{
-	Success: []string{succeeded},
-	Failure: []string{canceled, failed, none, partiallySucceeded},
-	Default: devops.RESULT_DEFAULT,
+	Success:  []string{succeeded},
+	Failure:  []string{failed, none, partiallySucceeded},
+	Canceled: []string{canceled},
+	Default:  devops.RESULT_DEFAULT,
 }
 
 var cicdBuildStatusRule = devops.StatusRule{
-	Done:       []string{completed, cancelling},
+	Done:       []string{completed, cancelling, canceled},
 	InProgress: []string{inProgress, notStarted, postponed},
 	Default:    devops.STATUS_OTHER,
 }
 
 var cicdTaskResultRule = &devops.ResultRule{
-	Success: []string{succeeded, succeededWithIssues},
-	Failure: []string{abandoned, canceled, failed, skipped},
-	Default: devops.RESULT_DEFAULT,
+	Success:  []string{succeeded, succeededWithIssues},
+	Failure:  []string{failed},
+	Canceled: []string{abandoned, canceled},
+	Skipped:  []string{skipped},
+	Default:  devops.RESULT_DEFAULT,
 }
 
 var cicdTaskStatusRule = &devops.StatusRule{
-	Done:       []string{completed},
+	Done:       []string{completed, abandoned, canceled, skipped},
 	InProgress: []string{pending, inProgress},
 	Default:    devops.STATUS_OTHER,
 }

@@ -84,11 +84,12 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{ResultSuccess, ResultSuccessful},
 					Failure: []string{ResultFailed},
+					Skipped: []string{ResultSkipped},
 					Default: devops.RESULT_DEFAULT,
 				}, line.BuildState),
 				OriginalResult: line.BuildState,
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{StatusFinished},
+					Done:       []string{StatusFinished, ResultSkipped},
 					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
 					Default:    devops.STATUS_OTHER,
 				}, line.LifeCycleState),

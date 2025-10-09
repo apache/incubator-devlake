@@ -82,9 +82,11 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				}, userTool.Status),
 				OriginalStatus: userTool.Status,
 				Result: devops.GetResult(&devops.ResultRule{
-					Success: []string{"success"},
-					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
-					Default: devops.RESULT_DEFAULT,
+					Success:  []string{"success"},
+					Failure:  []string{"failed", "failing", "error"},
+					Canceled: []string{"canceled"},
+					Skipped:  []string{"not_run"},
+					Default:  devops.RESULT_DEFAULT,
 				}, userTool.Status),
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
 				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
