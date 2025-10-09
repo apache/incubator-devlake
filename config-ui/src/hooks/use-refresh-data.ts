@@ -26,6 +26,7 @@ export const useRefreshData = <T>(request: (signal: AbortSignal) => Promise<T>, 
     state: 'ready' | 'pending' | 'error';
     deps?: React.DependencyList;
     data?: T;
+    error?: unknown;  
     abortController?: AbortController;
     timer?: number;
   }>({
@@ -37,15 +38,14 @@ export const useRefreshData = <T>(request: (signal: AbortSignal) => Promise<T>, 
       data: ref.current.data,
       ready: ref.current.state === 'ready',
       pending: ref.current.state === 'pending',
-      error: ref.current.state === 'error',
+      error: ref.current.error,  
     };
   }
 
-  // When the last state transition has not waited until the new request is completed
-  // Reset status to pending
   ref.current.state = 'pending';
   ref.current.deps = deps;
   ref.current.data = undefined;
+  ref.current.error = undefined;
   clearTimeout(ref.current.timer);
   ref.current.abortController?.abort();
   ref.current.timer = window.setTimeout(() => {
@@ -54,6 +54,7 @@ export const useRefreshData = <T>(request: (signal: AbortSignal) => Promise<T>, 
       .then((data: T) => {
         ref.current.data = data;
         ref.current.state = 'ready';
+        ref.current.error = undefined;
         setVersion((v) => v + 1);
       })
       .catch((err: unknown) => {
@@ -61,6 +62,7 @@ export const useRefreshData = <T>(request: (signal: AbortSignal) => Promise<T>, 
           return;
         }
         ref.current.state = 'error';
+        ref.current.error = err;
         console.error(err);
         setVersion((v) => v + 1);
       });
@@ -69,5 +71,6 @@ export const useRefreshData = <T>(request: (signal: AbortSignal) => Promise<T>, 
   return {
     ready: false,
     pending: true,
+    error: undefined,
   };
 };

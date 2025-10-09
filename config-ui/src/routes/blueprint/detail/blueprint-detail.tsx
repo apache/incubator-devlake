@@ -17,12 +17,13 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Tabs } from 'antd';
-
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Tabs, message } from 'antd';
+import axios from 'axios';
 import API from '@/api';
 import { PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
+import { PATHS } from '@/config';
 
 import { FromEnum } from '../types';
 
@@ -40,15 +41,26 @@ export const BlueprintDetail = ({ id, from }: Props) => {
   const [activeKey, setActiveKey] = useState('status');
 
   const { state } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setActiveKey(state?.activeKey ?? 'status');
   }, [state]);
 
-  const { ready, data } = useRefreshData(async () => {
-    const [bpRes, pipelineRes] = await Promise.all([API.blueprint.get(id), API.blueprint.pipelines(id)]);
+  const { ready, data, error } = useRefreshData(async () => {
+    const [bpRes, pipelineRes] = await Promise.all([
+      API.blueprint.get(id),
+      API.blueprint.pipelines(id),
+    ]);
     return [bpRes, pipelineRes.pipelines[0]];
   }, [version]);
+
+  useEffect(() => {
+     if (axios.isAxiosError(error) && error.response?.status === 404) {
+      message.error(`Blueprint not found with id: ${id}`);
+      navigate(PATHS.BLUEPRINTS(), { replace: true });
+    }
+  }, [error, navigate, id]);
 
   const handlRefresh = () => {
     setVersion((v) => v + 1);

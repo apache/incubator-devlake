@@ -122,12 +122,12 @@ func validateConnection(connection *models.QDevConnection) error {
 		return errors.Default.New("Bucket is required")
 	}
 
-	// Validate Identity Store fields (now required)
-	if connection.IdentityStoreId == "" {
-		return errors.Default.New("IdentityStoreId is required")
+	// Identity Store fields are optional, but must be provided together if used
+	if connection.IdentityStoreId == "" && connection.IdentityStoreRegion != "" {
+		return errors.Default.New("IdentityStoreRegion provided but IdentityStoreId is empty")
 	}
-	if connection.IdentityStoreRegion == "" {
-		return errors.Default.New("IdentityStoreRegion is required")
+	if connection.IdentityStoreId != "" && connection.IdentityStoreRegion == "" {
+		return errors.Default.New("IdentityStoreId provided but IdentityStoreRegion is empty")
 	}
 
 	// Validate rate limit

@@ -33,8 +33,10 @@ import { TAPDConfig } from './tapd';
 import { WebhookConfig } from './webhook';
 import { ZenTaoConfig } from './zentao';
 import { OpsgenieConfig } from './opsgenie';
+import { QDevConfig } from './q-dev';
 import { TeambitionConfig } from './teambition';
 import { TestmoConfig } from './testmo';
+import { SlackConfig } from './slack/config';
 
 export const pluginConfigs: IPluginConfig[] = [
   AzureConfig,
@@ -48,6 +50,8 @@ export const pluginConfigs: IPluginConfig[] = [
   JenkinsConfig,
   JiraConfig,
   PagerDutyConfig,
+  SlackConfig,
+  QDevConfig,
   SonarQubeConfig,
   TAPDConfig,
   TestmoConfig,

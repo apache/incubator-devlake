@@ -19,13 +19,13 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
@@ -202,14 +202,10 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 						RunId:                runId,
 						GraphqlQueryCheckRun: &checkRun,
 					}
-					// A checkRun without a startedAt time is a run that was never started (skipped)
-					// akwardly, GitHub assigns a completedAt time to such runs, which is the time when the run was skipped
-					// TODO: Decide if we want to skip those runs or should we assign the startedAt time to the completedAt time
-					if dbCheckRun.StartedAt == nil || dbCheckRun.StartedAt.IsZero() {
-						debug := fmt.Sprintf("collector: checkRun.StartedAt is nil or zero: %s", dbCheckRun.Id)
-						taskCtx.GetLogger().Debug(debug, "Collector: CheckRun started at is nil or zero")
-						continue
-					}
+					// A checkRun without a startedAt time is a run that was never started (skipped), GitHub returns
+					// a ZeroTime (Due to the GO implementation) for startedAt, so we need to check for that here.
+					dbCheckRun.StartedAt = utils.NilIfZeroTime(dbCheckRun.StartedAt)
+					dbCheckRun.CompletedAt = utils.NilIfZeroTime(dbCheckRun.CompletedAt)
 					updatedAt := dbCheckRun.StartedAt
 					if dbCheckRun.CompletedAt != nil {
 						updatedAt = dbCheckRun.CompletedAt

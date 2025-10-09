@@ -77,7 +77,8 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
             })
           : API.connection.testOld(
               plugin,
-              pick(values, [
+              pick({ ...initialValues, ...values }, [
+                'name',
                 'endpoint',
                 'token',
                 'username',
@@ -86,6 +87,13 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
                 'authMethod',
                 'appId',
                 'secretKey',
+                'accessKeyId',
+                'secretAccessKey',
+                'region',
+                'bucket',
+                'identityStoreId',
+                'identityStoreRegion',
+                'rateLimitPerHour',
                 'tenantId',
                 'tenantType',
                 'dbUrl',

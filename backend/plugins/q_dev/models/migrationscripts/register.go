@@ -28,5 +28,6 @@ func All() []plugin.MigrationScript {
 		new(modifyFileMetaTable),
 		new(addDisplayNameFields),
 		new(addMissingMetrics),
+		new(addS3SliceTable),
 	}
 }

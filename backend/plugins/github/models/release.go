@@ -25,25 +25,25 @@ import (
 
 type GithubRelease struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
-	ConnectionId     uint64    `json:"connection_id" gorm:"primaryKey"`
-	GithubId         int       `json:"github_id"`
-	Id               string    `json:"id" gorm:"type:varchar(255);primaryKey"`
-	AuthorName       string    `json:"authorName"`
-	AuthorID         string    `json:"authorId"`
-	CreatedAt        time.Time `json:"createdAt"`
-	DatabaseID       int       `json:"databaseId"`
-	Description      string    `json:"description"`
-	DescriptionHTML  string    `json:"descriptionHTML"`
-	IsDraft          bool      `json:"isDraft"`
-	IsLatest         bool      `json:"isLatest"`
-	IsPrerelease     bool      `json:"isPrerelease"`
-	Name             string    `json:"name"`
-	PublishedAt      time.Time `json:"publishedAt"`
-	ResourcePath     string    `json:"resourcePath"`
-	TagName          string    `json:"tagName"`
-	UpdatedAt        time.Time `json:"updatedAt"`
-	CommitSha        string    `json:"commit_sha"`
-	URL              string    `json:"url"`
+	ConnectionId     uint64     `json:"connection_id" gorm:"primaryKey"`
+	GithubId         int        `json:"github_id"`
+	Id               string     `json:"id" gorm:"type:varchar(255);primaryKey"`
+	AuthorName       string     `json:"authorName"`
+	AuthorID         string     `json:"authorId"`
+	CreatedAt        time.Time  `json:"createdAt"`
+	DatabaseID       int        `json:"databaseId"`
+	Description      string     `json:"description"`
+	DescriptionHTML  string     `json:"descriptionHTML"`
+	IsDraft          bool       `json:"isDraft"`
+	IsLatest         bool       `json:"isLatest"`
+	IsPrerelease     bool       `json:"isPrerelease"`
+	Name             string     `json:"name"`
+	PublishedAt      *time.Time `json:"publishedAt"`
+	ResourcePath     string     `json:"resourcePath"`
+	TagName          string     `json:"tagName"`
+	UpdatedAt        time.Time  `json:"updatedAt"`
+	CommitSha        string     `json:"commit_sha"`
+	URL              string     `json:"url"`
 }
 
 func (GithubRelease) TableName() string {

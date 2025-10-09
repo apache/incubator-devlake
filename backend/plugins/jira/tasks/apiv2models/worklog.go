@@ -25,17 +25,17 @@ import (
 )
 
 type Worklog struct {
-	Self             string             `json:"self"`
-	Author           *Account           `json:"author"`
-	UpdateAuthor     *Account           `json:"updateAuthor"`
-	Comment          string             `json:"comment"`
-	Created          string             `json:"created"`
-	Updated          common.Iso8601Time `json:"updated"`
-	Started          common.Iso8601Time `json:"started"`
-	TimeSpent        string             `json:"timeSpent"`
-	TimeSpentSeconds int                `json:"timeSpentSeconds"`
-	ID               string             `json:"id"`
-	IssueID          uint64             `json:"issueId,string"`
+	Self             string              `json:"self"`
+	Author           *Account            `json:"author"`
+	UpdateAuthor     *Account            `json:"updateAuthor"`
+	Comment          FlexibleDescription `json:"comment"`
+	Created          string              `json:"created"`
+	Updated          common.Iso8601Time  `json:"updated"`
+	Started          common.Iso8601Time  `json:"started"`
+	TimeSpent        string              `json:"timeSpent"`
+	TimeSpentSeconds int                 `json:"timeSpentSeconds"`
+	ID               string              `json:"id"`
+	IssueID          uint64              `json:"issueId,string"`
 }
 
 func (w Worklog) ToToolLayer(connectionId uint64, issueUpdated *time.Time) *models.JiraWorklog {
