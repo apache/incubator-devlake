@@ -21,15 +21,17 @@ SHA ?= $(shell if [ -d .git ]; then git show -s --format=%h; else echo "unknown_
 TAG ?= $(shell if [ -d .git ]; then git tag --points-at HEAD; else echo "local_build"; fi)
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
+CONTAINER_CMD ?= docker
+PLATFORM ?= linux/amd64
 
 build-server-image:
 	make build-server-image -C backend
 
 build-config-ui-image:
-	cd config-ui; docker build -t $(IMAGE_REPO)/devlake-config-ui:$(TAG) --file ./Dockerfile .
+	cd config-ui; $(CONTAINER_CMD) build --platform=$(PLATFORM) -t $(IMAGE_REPO)/devlake-config-ui:$(TAG) --file ./Dockerfile .
 
 build-grafana-image:
-	cd grafana; docker build -t $(IMAGE_REPO)/devlake-dashboard:$(TAG) --file ./backend/Dockerfile .
+	cd grafana; $(CONTAINER_CMD) build --platform=$(PLATFORM) -t $(IMAGE_REPO)/devlake-dashboard:$(TAG) --file ./Dockerfile .
 
 build-images: build-server-image build-config-ui-image build-grafana-image
 

@@ -69,13 +69,17 @@ RUN for arch in aarch64 x86_64 ; do \
         if [ "$arch" = "aarch64" ] ; then \
             cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
                 -DBUILD_SHARED_LIBS=ON -DCMAKE_SYSROOT=/rootfs-arm64 \
-                -DCMAKE_INSTALL_PREFIX=/usr/local/deps/${arch} ; \
+                -DCMAKE_INSTALL_PREFIX=/usr/local/deps/${arch} \
+                -DCMAKE_C_FLAGS="-Wno-incompatible-pointer-types" \
+                -DUSE_BUNDLED_ZLIB=ON ; \
         elif [ "$arch" = "x86_64" ] ; then \
             cmake .. -DCMAKE_C_COMPILER=x86_64-linux-gnu-gcc \
                 -DBUILD_SHARED_LIBS=ON -DCMAKE_SYSROOT=/rootfs-amd64 \
-                -DCMAKE_INSTALL_PREFIX=/usr/local/deps/${arch} ; \
+                -DCMAKE_INSTALL_PREFIX=/usr/local/deps/${arch} \
+                -DCMAKE_C_FLAGS="-Wno-incompatible-pointer-types" \
+                -DUSE_BUNDLED_ZLIB=ON ; \
         fi && \
-        make -j install ; \
+        make install -j ; \
     done
 
 

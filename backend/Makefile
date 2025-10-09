@@ -22,6 +22,8 @@ TAG ?= $(shell if [ -d .git ]; then git tag --points-at HEAD; else echo "local_b
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 PYTHON_DIR ?= "./python"
+CONTAINER_CMD ?= docker
+PLATFORM ?= linux/amd64
 
 
 all: build
@@ -106,7 +108,7 @@ clean:
 	@rm -rf bin
 
 build-server-image:
-	docker build -t $(IMAGE_REPO)/devlake:$(TAG) --build-arg TAG=$(TAG) --build-arg SHA=$(SHA) --file ./Dockerfile .
+	$(CONTAINER_CMD) build --platform=$(PLATFORM) -t $(IMAGE_REPO)/devlake:$(TAG) --build-arg TAG=$(TAG) --build-arg SHA=$(SHA) --file ./Dockerfile .
 
 migration-script-lint:
 	go run core/migration/linter/main.go -- $$(find . -path '**/migrationscripts/**.go')
