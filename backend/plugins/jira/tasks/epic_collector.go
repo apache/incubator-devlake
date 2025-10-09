@@ -83,68 +83,14 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// Choose API endpoint based on JIRA deployment type
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
-		logger.Info("Using api/2/search for JIRA Server")
-		err = setupApiV2Collector(apiCollector, data, epicIterator, jql)
-	} else {
-		logger.Info("Using api/3/search/jql for JIRA Cloud")
-		err = setupApiV3Collector(apiCollector, data, epicIterator, jql)
-	}
+	logger.Info("Using api/3/search/jql for JIRA")
+	err = setupApiV3Collector(apiCollector, data, epicIterator, jql)
 	if err != nil {
 		return err
 	}
 	return apiCollector.Execute()
 }
 
-// JIRA Server API v2 collector
-func setupApiV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, epicIterator api.Iterator, jql string) errors.Error {
-	return apiCollector.InitCollector(api.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: false,
-		UrlTemplate: "api/2/search",
-		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			epicKeys := []string{}
-
-			input, ok := reqData.Input.([]interface{})
-			if !ok {
-				return nil, errors.Default.New("invalid input type, expected []interface{}")
-			}
-
-			for _, e := range input {
-				if epicKey, ok := e.(*string); ok && epicKey != nil {
-					epicKeys = append(epicKeys, *epicKey)
-				}
-			}
-
-			localJQL := fmt.Sprintf("issue in (%s) and %s", strings.Join(epicKeys, ","), jql)
-			query.Set("jql", localJQL)
-			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
-			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("expand", "changelog")
-			return query, nil
-		},
-		Input:         epicIterator,
-		GetTotalPages: GetTotalPagesFromResponse,
-		Concurrency:   10,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Issues []json.RawMessage `json:"issues"`
-			}
-			blob, err := io.ReadAll(res.Body)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			err = json.Unmarshal(blob, &data)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			return data.Issues, nil
-		},
-		AfterResponse: ignoreHTTPStatus400,
-	})
-}
 
 // JIRA Cloud API v3 collector
 func setupApiV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, epicIterator api.Iterator, jql string) errors.Error {
@@ -153,7 +99,29 @@ func setupApiV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskD
 		PageSize:              100,
 		Incremental:           false,
 		UrlTemplate:           "api/3/search/jql",
-		GetNextPageCustomData: getNextPageCustomDataForV3,
+		GetNextPageCustomData: func(reqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
+			var response struct {
+				NextPageToken string `json:"nextPageToken"`
+			}
+
+			blob, err := io.ReadAll(prevPageResponse.Body)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+
+			prevPageResponse.Body = io.NopCloser(strings.NewReader(string(blob)))
+
+			err = json.Unmarshal(blob, &response)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+
+			if response.NextPageToken == "" {
+				return nil, api.ErrFinishCollect
+			}
+
+			return response.NextPageToken, nil
+		},
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			epicKeys := []string{}
@@ -191,30 +159,6 @@ func setupApiV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskD
 	})
 }
 
-// Get next page token for API v3
-func getNextPageCustomDataForV3(_ *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
-	var response struct {
-		NextPageToken string `json:"nextPageToken"`
-	}
-
-	blob, err := io.ReadAll(prevPageResponse.Body)
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
-
-	prevPageResponse.Body = io.NopCloser(strings.NewReader(string(blob)))
-
-	err = json.Unmarshal(blob, &response)
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
-
-	if response.NextPageToken == "" {
-		return nil, api.ErrFinishCollect
-	}
-
-	return response.NextPageToken, nil
-}
 
 func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (api.Iterator, errors.Error) {
 	cursor, err := db.Cursor(
