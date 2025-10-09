@@ -75,10 +75,10 @@ func init() {
 		panic(err)
 	}
 	basePath = filepath.Join(abs, "devlake.log")
-	var err errors.Error
-	Global, err = NewDefaultLogger(inner)
-	if err != nil {
-		panic(err)
+	var errLogger errors.Error
+	Global, errLogger = NewDefaultLogger(inner)
+	if errLogger != nil {
+		panic(errLogger)
 	}
 	stream, err := GetFileStream(basePath)
 	if err != nil {
