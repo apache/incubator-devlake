@@ -52,7 +52,7 @@ class Builds(Stream):
         elif b.result == Build.BuildResult.Failed:
             result = devops.CICDResult.FAILURE
         elif b.result == Build.BuildResult.PartiallySucceeded:
-            result = devops.CICDResult.FAILURE
+            result = devops.CICDResult.SUCCESS
         elif b.result == Build.BuildResult.Succeeded:
             result = devops.CICDResult.SUCCESS
 

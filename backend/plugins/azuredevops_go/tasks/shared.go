@@ -109,8 +109,8 @@ func ExtractContToken(_ *api.RequestData, prevPageResponse *http.Response) (inte
 }
 
 var cicdBuildResultRule = devops.ResultRule{
-	Success: []string{succeeded},
-	Failure: []string{canceled, failed, none, partiallySucceeded},
+	Success: []string{succeeded, partiallySucceeded},
+	Failure: []string{canceled, failed, none},
 	Default: devops.RESULT_DEFAULT,
 }
 
