@@ -25,7 +25,7 @@ export const BambooConfig: IPluginConfig = {
   plugin: 'bamboo',
   name: 'Bamboo',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 2,
+  sort: 3,
   connection: {
     docLink: DOC_URL.PLUGIN.BAMBOO.BASIS,
     fields: [

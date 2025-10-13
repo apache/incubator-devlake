@@ -27,7 +27,7 @@ export const AzureConfig: IPluginConfig = {
   plugin: 'azuredevops',
   name: 'Azure DevOps',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 1,
+  sort: 2,
   connection: {
     docLink: DOC_URL.PLUGIN.AZUREDEVOPS.BASIS,
     fields: [
@@ -78,7 +78,7 @@ export const AzureGoConfig: IPluginConfig = {
   plugin: 'azuredevops_go',
   name: 'Azure DevOps Go',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 1,
+  sort: 2,
   isBeta: true,
   connection: {
     docLink: DOC_URL.PLUGIN.AZUREDEVOPS.BASIS,
