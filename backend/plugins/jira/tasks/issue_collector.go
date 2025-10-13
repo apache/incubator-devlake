@@ -173,7 +173,7 @@ func getTimeZone(taskCtx plugin.SubTaskContext) (*time.Location, errors.Error) {
 	var resp *http.Response
 	var path string
 	var query url.Values
-	if strings.ToLower(string(data.JiraServerInfo.DeploymentType)) == string(models.DeploymentServer) {
+	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
 		path = "api/2/user"
 		query = url.Values{"username": []string{conn.Username}}
 	} else {
