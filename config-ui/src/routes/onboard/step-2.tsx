@@ -25,8 +25,6 @@ import { Markdown } from '@/components';
 import { PATHS } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { ConnectionToken } from '@/plugins/components/connection-form/fields/token';
-import { ConnectionUsername } from '@/plugins/components/connection-form/fields/username';
-import { ConnectionPassword } from '@/plugins/components/connection-form/fields/password';
 import { operator } from '@/utils';
 
 import { Context } from './context';
@@ -42,6 +40,7 @@ const paramsMap: Record<string, any> = {
   },
   bitbucket: {
     endpoint: 'https://api.bitbucket.org/2.0/',
+    usesApiToken: true,
   },
   azuredevops: {},
 };
@@ -56,6 +55,14 @@ export const Step2 = () => {
   const { step, records, done, projectName, plugin, setStep, setRecords } = useContext(Context);
 
   const config = useMemo(() => getPluginConfig(plugin as string), [plugin]);
+
+  // Get the auth field component for Bitbucket
+  const BitbucketAuthField = useMemo(() => {
+    if (plugin === 'bitbucket' && config?.connection?.fields) {
+      return config.connection.fields[1];
+    }
+    return null;
+  }, [plugin, config]);
 
   useEffect(() => {
     fetch(`/onboard/step-2/${plugin}.md`)
@@ -133,7 +140,7 @@ export const Step2 = () => {
     github: 'GitHub',
     gitlab: 'GitLab',
     azuredevops: 'Azure DevOps',
-  }
+  };
 
   return (
     <>
@@ -145,8 +152,8 @@ export const Step2 = () => {
               label="Personal Access Token"
               subLabel={
                 <p>
-                  Create a personal access token in {platformNames[plugin]}. For self-managed {config.name}, please skip the onboarding
-                  and configure via <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
+                  Create a personal access token in {platformNames[plugin]}. For self-managed {config.name}, please skip
+                  the onboarding and configure via <Link to={PATHS.CONNECTIONS()}>Data Connections</Link>.
                 </p>
               }
               initialValue=""
@@ -171,30 +178,24 @@ export const Step2 = () => {
             </Tooltip>
           </div>
         )}
-        {['bitbucket'].includes(plugin) && (
+        {['bitbucket'].includes(plugin) && BitbucketAuthField && (
           <div className="content">
-            <ConnectionUsername
-              initialValue=""
-              value={payload.username}
-              setValue={(username) => {
-                setPayload({ ...payload, username });
+            {BitbucketAuthField({
+              type: 'create',
+              initialValues: {
+                endpoint: 'https://api.bitbucket.org/2.0/',
+                usesApiToken: true,
+                username: '',
+                password: '',
+              },
+              values: payload,
+              errors: {},
+              setValues: (values: any) => {
+                setPayload({ ...payload, ...values });
                 setTestStatus(false);
-              }}
-              error=""
-              setError={() => {}}
-            />
-            <ConnectionPassword
-              type="create"
-              label="App Password"
-              initialValue=""
-              value={payload.password}
-              setValue={(password) => {
-                setPayload({ ...payload, password });
-                setTestStatus(false);
-              }}
-              error=""
-              setError={() => {}}
-            />
+              },
+              setErrors: () => {},
+            })}
             <Tooltip title="Test Connection">
               <Button
                 style={{ marginTop: 16 }}

@@ -46,6 +46,8 @@ const URLS = {
     BITBUCKET: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/BitBucket',
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/BitBucket#fixed-rate-limit-optional',
+      API_TOKEN: 'https://devlake.apache.org/docs/Configuration/BitBucket#api-token-recommended',
+      APP_PASSWORD: 'https://devlake.apache.org/docs/Configuration/BitBucket#app-password-deprecated',
       TRANSFORMATION:
         'https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional',
     },
