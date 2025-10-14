@@ -39,11 +39,12 @@ import (
 )
 
 type WebhookDeploymentReq struct {
-	Id           string `mapstructure:"id" validate:"required"`
-	DisplayTitle string `mapstructure:"displayTitle"`
-	Result       string `mapstructure:"result"`
-	Environment  string `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
-	Name         string `mapstructure:"name"`
+	Id                  string `mapstructure:"id" validate:"required"`
+	DisplayTitle        string `mapstructure:"displayTitle"`
+	Result              string `mapstructure:"result"`
+	Environment         string `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
+	OriginalEnvironment string `mapstructure:"originalEnvironment"`
+	Name                string `mapstructure:"name"`
 	// DeploymentCommits is used for multiple commits in one deployment
 	DeploymentCommits []WebhookDeploymentCommitReq `mapstructure:"deploymentCommits" validate:"omitempty,dive"`
 	CreatedDate       *time.Time                   `mapstructure:"createdDate"`
@@ -219,7 +220,7 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 			DisplayTitle:        commit.DisplayTitle,
 			RepoUrl:             commit.RepoUrl,
 			Environment:         request.Environment,
-			OriginalEnvironment: request.Environment,
+			OriginalEnvironment: request.OriginalEnvironment,
 			RefName:             commit.RefName,
 			CommitSha:           commit.CommitSha,
 			CommitMsg:           commit.CommitMsg,

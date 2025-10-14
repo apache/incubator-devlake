@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -172,7 +173,7 @@ func getTimeZone(taskCtx plugin.SubTaskContext) (*time.Location, errors.Error) {
 	var resp *http.Response
 	var path string
 	var query url.Values
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
 		path = "api/2/user"
 		query = url.Values{"username": []string{conn.Username}}
 	} else {
