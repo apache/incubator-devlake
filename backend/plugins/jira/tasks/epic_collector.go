@@ -51,7 +51,7 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	batchSize := 100
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer && len(data.JiraServerInfo.VersionNumbers) == 3 && data.JiraServerInfo.VersionNumbers[0] <= 8 {
+	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) && len(data.JiraServerInfo.VersionNumbers) == 3 && data.JiraServerInfo.VersionNumbers[0] <= 8 {
 		batchSize = 1
 	}
 	epicIterator, err := GetEpicKeysIterator(db, data, batchSize)
@@ -83,7 +83,7 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// Choose API endpoint based on JIRA deployment type
-	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
 		logger.Info("Using api/2/search for JIRA Server")
 		err = setupApiV2Collector(apiCollector, data, epicIterator, jql)
 	} else {
