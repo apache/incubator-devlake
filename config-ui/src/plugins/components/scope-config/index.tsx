@@ -71,7 +71,7 @@ export const ScopeConfig = ({
   const handleHideDialog = () => setType(undefined);
 
   const handleCheckScopeConfig = async (id: ID) => {
-    const [success, res] = await operator(() => API.scopeConfig.check(plugin, id), { hideToast: true });
+    const [success, res] = await operator(() => API.scopeConfig.check(plugin, connectionId, id), { hideToast: true });
 
     if (success) {
       const projects = (res.projects ?? []).map((it: any) => ({
@@ -189,7 +189,7 @@ export const ScopeConfig = ({
   const handleUpdate = async (trId: ID) => {
     handleHideDialog();
 
-    const [success, res] = await operator(() => API.scopeConfig.check(plugin, trId), { hideToast: true });
+    const [success, res] = await operator(() => API.scopeConfig.check(plugin, connectionId, trId), { hideToast: true });
 
     if (success) {
       handleShowProjectsModal(res.projects ?? []);

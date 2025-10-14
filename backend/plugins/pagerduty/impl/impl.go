@@ -192,7 +192,7 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
-		"scope-config/:scopeConfigId/projects": {
+		"connections/:connectionId/scope-configs/:scopeConfigId/projects": {
 			"GET": api.GetServicesByScopeConfig,
 		},
 	}
