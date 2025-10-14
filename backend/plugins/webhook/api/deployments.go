@@ -125,7 +125,7 @@ func PostDeploymentsByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// find or create the connection for this project
 	connection := &models.WebhookConnection{}
-	err := connectionHelper.FirstByProjectName(connection, input.Params, pluginName)
+	err := findByProjectName(connection, input.Params, pluginName)
 
 	return postDeployments(input, connection, err)
 }
@@ -271,4 +271,38 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 func GenerateDeploymentCommitId(connectionId uint64, deploymentId string, repoUrl string, commitSha string) string {
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(repoUrl)))[:16]
 	return fmt.Sprintf("%s:%d:%s:%s:%s", "webhook", connectionId, deploymentId, urlHash16, commitSha)
+}
+
+// findByProjectName finds the connection by project name and plugin name
+func findByProjectName(connection interface{}, params map[string]string, pluginName string) errors.Error {
+	projectName := params["projectName"]
+	if projectName == "" {
+		return errors.BadInput.New("missing projectName")
+	}
+	if len(projectName) > 100 {
+		return errors.BadInput.New("invalid projectName")
+	}
+	if pluginName == "" {
+		return errors.BadInput.New("missing pluginName")
+	}
+	// We need to join three tables: _tool_webhook_connections, _devlake_blueprint_connections, and _devlake_blueprints
+	// to find the connection associated with the given project name and plugin name.
+	// The SQL query would look something like this:
+	// SELECT wc.*
+	// FROM _tool_webhook_connections AS wc
+	// JOIN _devlake_blueprint_connections AS bc ON wc.id = bc.connection_id AND bc.plugin_name = ?
+	// JOIN _devlake_blueprints AS bp ON bc.blueprint_id = bp.id
+	// WHERE bp.project_name = ?
+	// LIMIT 1;
+
+	// Using DAL to construct the query
+	clauses := []dal.Clause{dal.From(connection)}
+	clauses = append(clauses,
+		dal.Join("left join _devlake_blueprint_connections bc ON _tool_webhook_connections.id = bc.connection_id and bc.plugin_name = ?", pluginName),
+		dal.Join("left join _devlake_blueprints bp ON bc.blueprint_id = bp.id"),
+		dal.Where("bp.project_name = ?", projectName),
+	)
+
+	dal := basicRes.GetDal()
+	return dal.First(connection, clauses...)
 }

@@ -142,39 +142,6 @@ func (c *ConnectionApiHelper) FirstByName(connection interface{}, params map[str
 	return CallDB(c.db.First, connection, dal.Where("name = ?", connectionName))
 }
 
-// FirstByProjectName finds the connection by project name and plugin name
-func (c *ConnectionApiHelper) FirstByProjectName(connection interface{}, params map[string]string, pluginName string) errors.Error {
-	projectName := params["projectName"]
-	if projectName == "" {
-		return errors.BadInput.New("missing projectName")
-	}
-	if len(projectName) > 100 {
-		return errors.BadInput.New("projectName exceeds maximum length of 100 characters")
-	}
-	if pluginName == "" {
-		return errors.BadInput.New("missing pluginName")
-	}
-	// We need to join three tables: _tool_webhook_connections, _devlake_blueprint_connections, and _devlake_blueprints
-	// to find the connection associated with the given project name and plugin name.
-	// The SQL query would look something like this:
-	// SELECT wc.*
-	// FROM _tool_webhook_connections AS wc
-	// JOIN _devlake_blueprint_connections AS bc ON wc.id = bc.connection_id AND bc.plugin_name = ?
-	// JOIN _devlake_blueprints AS bp ON bc.blueprint_id = bp.id
-	// WHERE bp.project_name = ?
-	// LIMIT 1;
-
-	// Using DAL to construct the query
-	clauses := []dal.Clause{dal.From(connection)}
-	clauses = append(clauses,
-		dal.Join("left join _devlake_blueprint_connections bc ON _tool_webhook_connections.id = bc.connection_id and bc.plugin_name = ?", pluginName),
-		dal.Join("left join _devlake_blueprints bp ON bc.blueprint_id = bp.id"),
-		dal.Where("bp.project_name = ?", projectName),
-	)
-
-	return CallDB(c.db.First, connection, clauses...)
-}
-
 // List returns all connections with password/token decrypted
 func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
 	return CallDB(c.db.All, connections)
