@@ -70,15 +70,15 @@ func init() {
 	if basePath == "" {
 		basePath = "./logs"
 	}
-	if abs, err := filepath.Abs(basePath); err != nil {
-		panic(err)
-	} else {
-		basePath = filepath.Join(abs, "devlake.log")
-	}
-	var err errors.Error
-	Global, err = NewDefaultLogger(inner)
+	abs, err := filepath.Abs(basePath)
 	if err != nil {
 		panic(err)
+	}
+	basePath = filepath.Join(abs, "devlake.log")
+	var errLogger errors.Error
+	Global, errLogger = NewDefaultLogger(inner)
+	if errLogger != nil {
+		panic(errLogger)
 	}
 	stream, err := GetFileStream(basePath)
 	if err != nil {
