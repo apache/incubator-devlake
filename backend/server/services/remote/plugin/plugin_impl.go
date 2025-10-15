@@ -186,7 +186,7 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 	}, nil
 }
 
-func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, scopeId string) (interface{}, interface{}, errors.Error) {
+func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, scopeId string) (resultScope interface{}, resultScopeConfig interface{}, resultErr errors.Error) {
 	wrappedScope := p.scopeTabler.New()
 	err := api.CallDB(db.First, wrappedScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
 	if err != nil {
