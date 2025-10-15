@@ -18,7 +18,7 @@ FROM --platform=linux/amd64 debian:bullseye as debian-amd64
 RUN apt-get -y update && apt -y upgrade &&\
     apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
 
-FROM golang:1.23-bullseye as builder
+FROM golang:1.24-bullseye as builder
 
 # Base dependencies
 RUN apt-get -y update && apt -y upgrade &&\
@@ -55,7 +55,7 @@ COPY --from=builder /tmp/deps/include/ /usr/include/
 ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 
 # Install Golang
-RUN curl -L https://git.io/vQhTU | bash -s -- --version 1.23.0
+RUN curl -L https://git.io/vQhTU | bash -s -- --version 1.24.0
 RUN mv /root/go /go &&\
     mv /root/.go /usr/local/go &&\
     ln -sf /usr/local/go/bin/* /usr/bin
