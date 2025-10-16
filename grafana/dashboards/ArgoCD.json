@@ -1,0 +1,879 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "ArgoCD",
+          "url": "https://devlake.apache.org/docs/Plugins/argocd"
+        }
+      ],
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "- Use Cases: Track ArgoCD deployment activity, measure success rates, monitor environments, and spot slow deployments.\n- Data Source Required: ArgoCD plugin (deployments mapped into `cicd_deployments`).\n- Filters: Use the *Application* templating variable to focus on specific ArgoCD applications.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 3
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  count(distinct id)\nFROM \n  cicd_deployments\nWHERE\n  $__timeFilter(created_date)\n  and (\n    '${application_id:raw}' = ''\n    OR '${application_id:raw}' = '$__all'\n    OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "1.1 Total Deployments",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 3
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  count(distinct case when result = 'SUCCESS' then id else null end)\nFROM \n  cicd_deployments\nWHERE\n  $__timeFilter(created_date)\n  and (\n    '${application_id:raw}' = ''\n    OR '${application_id:raw}' = '$__all'\n    OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "1.2 Successful Deployments",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Successful deployments / Total deployments",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 3
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  1.0 * count(case when result = 'SUCCESS' then id else null end)/nullif(count(distinct id), 0)\nFROM cicd_deployments\nWHERE\n  $__timeFilter(created_date)\n  and (\n    '${application_id:raw}' = ''\n    OR '${application_id:raw}' = '$__all'\n    OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "1.3 Deployment Success Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 3
+      },
+      "id": 5,
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  result,\n  count(distinct id) as deployment_count\nFROM cicd_deployments\nWHERE\n  $__timeFilter(created_date)\n  and (\n    '${application_id:raw}' = ''\n    OR '${application_id:raw}' = '$__all'\n    OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n  )\nGROUP BY 1\nORDER BY 2 desc",
+          "refId": "A"
+        }
+      ],
+      "title": "1.4 Deployment Result Distribution",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "id": 6,
+      "panels": [],
+      "title": "2. Deployment Trends",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 9
+      },
+      "id": 7,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _deployments AS (\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) AS time,\n    count(distinct id) AS deployment_count\n  FROM cicd_deployments\n  WHERE\n    $__timeFilter(created_date)\n    and (\n      '${application_id:raw}' = ''\n      OR '${application_id:raw}' = '$__all'\n      OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n    )\n  GROUP BY 1\n)\nSELECT\n  date_format(time,'%M %Y') AS month,\n  deployment_count\nFROM _deployments\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "2.1 Deployments per Month",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 9
+      },
+      "id": 8,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _deployment_success_rate AS (\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) AS time,\n    result,\n    id\n  FROM cicd_deployments\n  WHERE\n    $__timeFilter(created_date)\n    and (\n      '${application_id:raw}' = ''\n      OR '${application_id:raw}' = '$__all'\n      OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n    )\n  GROUP BY 1,2,3\n)\nSELECT\n  date_format(time,'%M %Y') AS month,\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/count(*) AS \"Deployment Success Rate\"\nFROM _deployment_success_rate\nGROUP BY time\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "2.2 Deployment Success Rate by Month",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 9
+      },
+      "id": 15,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  environment,\n  count(distinct id) as deployment_count\nFROM cicd_deployments\nWHERE\n  $__timeFilter(created_date)\n  and (\n    '${application_id:raw}' = ''\n    OR '${application_id:raw}' = '$__all'\n    OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n  )\nGROUP BY 1\nORDER BY 2 desc",
+          "refId": "A"
+        }
+      ],
+      "title": "2.3 Deployments by Environment",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "id": 9,
+      "panels": [],
+      "title": "3. Deployment Durations",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Average duration of deployments (minutes)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "m"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 17
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  avg(duration_sec/60)\nFROM cicd_deployments\nWHERE\n  $__timeFilter(created_date)\n  and (\n    '${application_id:raw}' = ''\n    OR '${application_id:raw}' = '$__all'\n    OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n  )\n  and duration_sec is not null",
+          "refId": "A"
+        }
+      ],
+      "title": "3.1 Mean Deployment Duration (Minutes)",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 6,
+        "y": 17
+      },
+      "id": 11,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _durations AS (\n  SELECT\n    DATE_ADD(date(created_date), INTERVAL -DAYOFMONTH(date(created_date))+1 DAY) AS time,\n    avg(duration_sec) AS mean_duration_sec\n  FROM cicd_deployments\n  WHERE\n    $__timeFilter(created_date)\n    and (\n      '${application_id:raw}' = ''\n      OR '${application_id:raw}' = '$__all'\n      OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n    )\n    and duration_sec is not null\n  GROUP BY 1\n)\nSELECT\n  date_format(time,'%M %Y') AS month,\n  mean_duration_sec/60 AS mean_duration_minutes\nFROM _durations\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "3.2 Mean Deployment Duration by Month",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 15,
+        "y": 17
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "duration_minutes"
+          }
+        ]
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  name AS deployment_name,\n  display_title AS description,\n  environment,\n  result,\n  duration_sec/60 AS duration_minutes,\n  finished_date\nFROM cicd_deployments\nWHERE\n  $__timeFilter(created_date)\n  and (\n    '${application_id:raw}' = ''\n    OR '${application_id:raw}' = '$__all'\n    OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n  )\n  and duration_sec is not null\nORDER BY duration_sec DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "3.3 Top 20 Longest Deployments",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "7-day rolling average of deployment duration (minutes)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "m"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH daily AS (\n  SELECT\n    DATE(created_date) AS day_bucket,\n    avg(duration_sec/60) AS avg_duration_minutes\n  FROM cicd_deployments\n  WHERE\n    $__timeFilter(created_date)\n    and (\n      '${application_id:raw}' = ''\n      OR '${application_id:raw}' = '$__all'\n      OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n    )\n    and duration_sec is not null\n  GROUP BY 1\n),\nrolling AS (\n  SELECT\n    day_bucket,\n    avg(avg_duration_minutes) OVER (\n      ORDER BY day_bucket\n      ROWS BETWEEN 6 PRECEDING AND CURRENT ROW\n    ) AS rolling_avg_minutes\n  FROM daily\n)\nSELECT\n  day_bucket AS time,\n  rolling_avg_minutes\nFROM rolling\nORDER BY day_bucket",
+          "refId": "A"
+        }
+      ],
+      "title": "3.4 Rolling Deployment Duration (7-day Avg)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "id": 13,
+      "panels": [],
+      "title": "4. Deployment Details",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 14,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "created_date"
+          }
+        ]
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  created_date,\n  name AS deployment_name,\n  environment,\n  result,\n  status,\n  display_title AS description,\n  finished_date\nFROM cicd_deployments\nWHERE\n  $__timeFilter(created_date)\n  and (\n    '${application_id:raw}' = ''\n    OR '${application_id:raw}' = '$__all'\n    OR FIND_IN_SET(cicd_scope_id, '${application_id:raw}') > 0\n  )\nORDER BY created_date DESC\nLIMIT 50",
+          "refId": "A"
+        }
+      ],
+      "title": "4.1 Recent Deployments",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "Data Source Dashboard",
+    "Stable Data Sources"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "allValue": "$__all",
+        "definition": "select concat(name, '--', id) as text from cicd_scopes where id like 'argocd:ArgocdApplication:%'",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Application",
+        "multi": true,
+        "name": "application_id",
+        "options": [],
+        "query": "select concat(name, '--', id) as text from cicd_scopes where id like 'argocd:ArgocdApplication:%'",
+        "refresh": 1,
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "ArgoCD",
+  "uid": "Argocd001",
+  "version": 1,
+  "weekStart": ""
+}

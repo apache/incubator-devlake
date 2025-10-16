@@ -27,7 +27,7 @@ export const TAPDConfig: IPluginConfig = {
   plugin: 'tapd',
   name: 'TAPD',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 12,
+  sort: 15,
   connection: {
     docLink: DOC_URL.PLUGIN.TAPD.BASIS,
     initialValues: {

@@ -60,7 +60,7 @@ func TestImportIssueWorklogDataFlow(t *testing.T) {
 			"author_id",
 			"time_spent_minutes",
 			"started_date",
-            "logged_date",
+			"logged_date",
 			"comment",
 		})
 
@@ -85,7 +85,7 @@ func TestImportIssueWorklogDataFlow(t *testing.T) {
 			"author_id",
 			"time_spent_minutes",
 			"started_date",
-            "logged_date",
+			"logged_date",
 			"comment",
 		})
 

@@ -26,7 +26,7 @@ export const ZenTaoConfig: IPluginConfig = {
   plugin: 'zentao',
   name: 'ZenTao',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 13,
+  sort: 18,
   connection: {
     docLink: DOC_URL.PLUGIN.ZENTAO.BASIS,
     fields: [
