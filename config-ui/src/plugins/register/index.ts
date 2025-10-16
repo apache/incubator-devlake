@@ -18,6 +18,7 @@
 
 import { IPluginConfig } from '@/types';
 
+import { ArgoCDConfig } from './argocd';
 import { AzureConfig, AzureGoConfig } from './azure';
 import { BambooConfig } from './bamboo';
 import { BitbucketConfig } from './bitbucket';
@@ -39,6 +40,7 @@ import { TestmoConfig } from './testmo';
 import { SlackConfig } from './slack/config';
 
 export const pluginConfigs: IPluginConfig[] = [
+  ArgoCDConfig,
   AzureConfig,
   AzureGoConfig,
   BambooConfig,

@@ -25,7 +25,7 @@ export const CircleCIConfig: IPluginConfig = {
   plugin: 'circleci',
   name: 'CircleCI',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 4,
+  sort: 5,
   connection: {
     docLink: '',
     fields: [

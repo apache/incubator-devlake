@@ -25,7 +25,7 @@ export const SlackConfig: IPluginConfig = {
   plugin: 'slack',
   name: 'Slack',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 12,
+  sort: 13,
   connection: {
     docLink: DOC_URL.PLUGIN.SLACK?.BASIS,
     initialValues: {
