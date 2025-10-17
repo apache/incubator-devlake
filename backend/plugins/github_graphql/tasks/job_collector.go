@@ -43,15 +43,75 @@ const (
 // Set the collection mode here
 // BATCHING: Query multiple runs at once, no pagination (may miss jobs if >20 per run)
 // PAGINATING: Query one run at a time with full pagination (complete data, more API calls)
-const JOB_COLLECTION_MODE = JOB_COLLECTION_MODE_PAGINATING
+const DEFAULT_JOB_COLLECTION_MODE = JOB_COLLECTION_MODE_BATCHING
 
 // Mode-specific configuration
 const (
-	BATCHING_INPUT_STEP   = 10 // Number of runs per request in BATCHING mode
-	BATCHING_PAGE_SIZE    = 20 // Jobs per run in BATCHING mode (no pagination)
-	PAGINATING_INPUT_STEP = 1  // Number of runs per request in PAGINATING mode
-	PAGINATING_PAGE_SIZE  = 50 // Jobs per page in PAGINATING mode (with pagination)
+	DEFAULT_BATCHING_INPUT_STEP  = 10 // Number of runs per request in BATCHING mode (must be > 1)
+	DEFAULT_BATCHING_PAGE_SIZE   = 20 // Jobs per run in BATCHING mode (no pagination)
+	PAGINATING_INPUT_STEP        = 1  // Number of runs per request in PAGINATING mode (always 1)
+	DEFAULT_PAGINATING_PAGE_SIZE = 50 // Jobs per page in PAGINATING mode (with pagination)
 )
+
+// JobCollectionConfig holds the configuration for job collection
+type JobCollectionConfig struct {
+	Mode               string
+	PageSize           int
+	InputStep          int
+	BatchingInputStep  int
+	BatchingPageSize   int
+	PaginatingPageSize int
+}
+
+// getJobCollectionConfig reads configuration from environment variables with fallback to defaults
+func getJobCollectionConfig(taskCtx plugin.SubTaskContext) *JobCollectionConfig {
+	cfg := taskCtx.TaskContext().GetConfigReader()
+
+	config := &JobCollectionConfig{
+		Mode:               DEFAULT_JOB_COLLECTION_MODE,
+		BatchingInputStep:  DEFAULT_BATCHING_INPUT_STEP,
+		BatchingPageSize:   DEFAULT_BATCHING_PAGE_SIZE,
+		PaginatingPageSize: DEFAULT_PAGINATING_PAGE_SIZE,
+	}
+
+	// Read collection mode from environment
+	if mode := taskCtx.TaskContext().GetConfig("GITHUB_GRAPHQL_JOB_COLLECTION_MODE"); mode != "" {
+		if mode == JOB_COLLECTION_MODE_BATCHING || mode == JOB_COLLECTION_MODE_PAGINATING {
+			config.Mode = mode
+		}
+	}
+
+	// Read batching input step (must be > 1)
+	if cfg.IsSet("GITHUB_GRAPHQL_JOB_BATCHING_INPUT_STEP") {
+		if step := cfg.GetInt("GITHUB_GRAPHQL_JOB_BATCHING_INPUT_STEP"); step > 1 {
+			config.BatchingInputStep = step
+		}
+	}
+
+	// Read page sizes
+	if cfg.IsSet("GITHUB_GRAPHQL_JOB_BATCHING_PAGE_SIZE") {
+		if size := cfg.GetInt("GITHUB_GRAPHQL_JOB_BATCHING_PAGE_SIZE"); size > 0 {
+			config.BatchingPageSize = size
+		}
+	}
+
+	if cfg.IsSet("GITHUB_GRAPHQL_JOB_PAGINATING_PAGE_SIZE") {
+		if size := cfg.GetInt("GITHUB_GRAPHQL_JOB_PAGINATING_PAGE_SIZE"); size > 0 {
+			config.PaginatingPageSize = size
+		}
+	}
+
+	// Set derived values based on mode
+	if config.Mode == JOB_COLLECTION_MODE_PAGINATING {
+		config.PageSize = config.PaginatingPageSize
+		config.InputStep = PAGINATING_INPUT_STEP // Always 1 for paginating
+	} else {
+		config.PageSize = config.BatchingPageSize
+		config.InputStep = config.BatchingInputStep // User-configurable for batching
+	}
+
+	return config
+}
 
 // Batch mode: query multiple runs at once (array of nodes)
 type GraphqlQueryCheckRunWrapperBatch struct {
@@ -139,61 +199,70 @@ var CollectJobsMeta = plugin.SubTaskMeta{
 
 var _ plugin.SubTaskEntryPoint = CollectJobs
 
-func getPageInfo(query interface{}, args *helper.GraphqlCollectorArgs) (*helper.GraphqlQueryPageInfo, error) {
-	// Only PAGINATING mode supports pagination
-	if JOB_COLLECTION_MODE == JOB_COLLECTION_MODE_PAGINATING {
-		queryWrapper := query.(*GraphqlQueryCheckRunWrapperSingle)
-		return &helper.GraphqlQueryPageInfo{
-			EndCursor:   queryWrapper.Node.CheckSuite.CheckRuns.PageInfo.EndCursor,
-			HasNextPage: queryWrapper.Node.CheckSuite.CheckRuns.PageInfo.HasNextPage,
-		}, nil
+// createGetPageInfoFunc returns the appropriate page info function based on collection mode
+func createGetPageInfoFunc(mode string) func(interface{}, *helper.GraphqlCollectorArgs) (*helper.GraphqlQueryPageInfo, error) {
+	if mode == JOB_COLLECTION_MODE_PAGINATING {
+		// PAGINATING mode: supports full pagination
+		return func(query interface{}, args *helper.GraphqlCollectorArgs) (*helper.GraphqlQueryPageInfo, error) {
+			queryWrapper := query.(*GraphqlQueryCheckRunWrapperSingle)
+			return &helper.GraphqlQueryPageInfo{
+				EndCursor:   queryWrapper.Node.CheckSuite.CheckRuns.PageInfo.EndCursor,
+				HasNextPage: queryWrapper.Node.CheckSuite.CheckRuns.PageInfo.HasNextPage,
+			}, nil
+		}
 	}
 
 	// BATCHING mode: no pagination support
-	// Always return false for HasNextPage to collect only first page of jobs
-	return &helper.GraphqlQueryPageInfo{
-		EndCursor:   "",
-		HasNextPage: false,
-	}, nil
+	return func(query interface{}, args *helper.GraphqlCollectorArgs) (*helper.GraphqlQueryPageInfo, error) {
+		return &helper.GraphqlQueryPageInfo{
+			EndCursor:   "",
+			HasNextPage: false,
+		}, nil
+	}
 }
 
-func buildQuery(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
-	if reqData == nil {
-		// Return appropriate empty query based on mode
-		if JOB_COLLECTION_MODE == JOB_COLLECTION_MODE_PAGINATING {
-			return &GraphqlQueryCheckRunWrapperSingle{}, map[string]interface{}{}, nil
+// createBuildQueryFunc returns the appropriate build query function based on collection mode
+func createBuildQueryFunc(mode string) func(*helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+	if mode == JOB_COLLECTION_MODE_PAGINATING {
+		// PAGINATING mode: single run per request
+		return func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+			if reqData == nil {
+				return &GraphqlQueryCheckRunWrapperSingle{}, map[string]interface{}{}, nil
+			}
+
+			workflowRun := reqData.Input.(*SimpleWorkflowRun)
+			query := &GraphqlQueryCheckRunWrapperSingle{}
+			variables := map[string]interface{}{
+				"id":         graphql.ID(workflowRun.CheckSuiteNodeID),
+				"pageSize":   graphql.Int(reqData.Pager.Size),
+				"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
+			}
+			return query, variables, nil
 		}
-		return &GraphqlQueryCheckRunWrapperBatch{}, map[string]interface{}{}, nil
 	}
 
-	if JOB_COLLECTION_MODE == JOB_COLLECTION_MODE_PAGINATING {
-		// Single run mode
-		workflowRun := reqData.Input.(*SimpleWorkflowRun)
-		query := &GraphqlQueryCheckRunWrapperSingle{}
+	// BATCHING mode: multiple runs per request
+	return func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+		if reqData == nil {
+			return &GraphqlQueryCheckRunWrapperBatch{}, map[string]interface{}{}, nil
+		}
+
+		workflowRuns := reqData.Input.([]interface{})
+		query := &GraphqlQueryCheckRunWrapperBatch{}
+		checkSuiteIds := []map[string]interface{}{}
+		for _, iWorkflowRuns := range workflowRuns {
+			workflowRun := iWorkflowRuns.(*SimpleWorkflowRun)
+			checkSuiteIds = append(checkSuiteIds, map[string]interface{}{
+				`id`: graphql.ID(workflowRun.CheckSuiteNodeID),
+			})
+		}
 		variables := map[string]interface{}{
-			"id":         graphql.ID(workflowRun.CheckSuiteNodeID),
+			"node":       checkSuiteIds,
 			"pageSize":   graphql.Int(reqData.Pager.Size),
 			"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
 		}
 		return query, variables, nil
 	}
-
-	// Batch mode (default)
-	workflowRuns := reqData.Input.([]interface{})
-	query := &GraphqlQueryCheckRunWrapperBatch{}
-	checkSuiteIds := []map[string]interface{}{}
-	for _, iWorkflowRuns := range workflowRuns {
-		workflowRun := iWorkflowRuns.(*SimpleWorkflowRun)
-		checkSuiteIds = append(checkSuiteIds, map[string]interface{}{
-			`id`: graphql.ID(workflowRun.CheckSuiteNodeID),
-		})
-	}
-	variables := map[string]interface{}{
-		"node":       checkSuiteIds,
-		"pageSize":   graphql.Int(reqData.Pager.Size),
-		"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
-	}
-	return query, variables, nil
 }
 
 func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
@@ -201,8 +270,10 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	logger := taskCtx.GetLogger()
 
-	// Log the collection mode
-	logger.Info("GitHub Job Collector Mode: %s", JOB_COLLECTION_MODE)
+	// Get configuration from environment variables or defaults
+	config := getJobCollectionConfig(taskCtx)
+	logger.Info("GitHub Job Collector - Mode: %s, InputStep: %d, PageSize: %d",
+		config.Mode, config.InputStep, config.PageSize)
 
 	apiCollector, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
@@ -237,28 +308,24 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	// Set configuration based on mode
-	var inputStep, pageSize int
+	// Create closures that capture the runtime mode configuration
+	buildQueryFunc := createBuildQueryFunc(config.Mode)
 	var getPageInfoFunc func(interface{}, *helper.GraphqlCollectorArgs) (*helper.GraphqlQueryPageInfo, error)
 
-	if JOB_COLLECTION_MODE == JOB_COLLECTION_MODE_PAGINATING {
-		inputStep = PAGINATING_INPUT_STEP
-		pageSize = PAGINATING_PAGE_SIZE
-		getPageInfoFunc = getPageInfo // Enable pagination
+	if config.Mode == JOB_COLLECTION_MODE_PAGINATING {
+		getPageInfoFunc = createGetPageInfoFunc(config.Mode) // Enable pagination
 	} else {
-		inputStep = BATCHING_INPUT_STEP
-		pageSize = BATCHING_PAGE_SIZE
-		getPageInfoFunc = nil // Disable pagination
+		getPageInfoFunc = nil // Disable pagination for BATCHING mode
 	}
 
 	err = apiCollector.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		Input:         iterator,
-		InputStep:     inputStep,
+		InputStep:     config.InputStep,
 		GraphqlClient: data.GraphqlClient,
-		BuildQuery:    buildQuery,
+		BuildQuery:    buildQueryFunc,
 		GetPageInfo:   getPageInfoFunc, // nil for BATCHING, function for PAGINATING
 		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
-			if JOB_COLLECTION_MODE == JOB_COLLECTION_MODE_PAGINATING {
+			if config.Mode == JOB_COLLECTION_MODE_PAGINATING {
 				// Single node processing
 				query := queryWrapper.(*GraphqlQueryCheckRunWrapperSingle)
 				node := query.Node
@@ -310,7 +377,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			return
 		},
 		IgnoreQueryErrors: true,
-		PageSize:          pageSize,
+		PageSize:          config.PageSize,
 	})
 	if err != nil {
 		return err
