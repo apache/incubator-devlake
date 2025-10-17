@@ -109,6 +109,27 @@ func PostDeploymentsByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 	return postDeployments(input, connection, err)
 }
 
+// PostDeploymentsByProjectName
+// @Summary create deployment by project name
+// @Description Create deployment pipeline by project name.<br/>
+// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
+// @Description So we suggest request before task after deployment pipeline finish.
+// @Description Both cicd_pipeline and cicd_task will be created
+// @Tags plugins/webhook
+// @Param body body WebhookDeploymentReq true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 403  {string} errcode.Error "Forbidden"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /projects/:projectName/deployments [POST]
+func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// find or create the connection for this project
+	connection := &models.WebhookConnection{}
+	err := findByProjectName(connection, input.Params, pluginName)
+
+	return postDeployments(input, connection, err)
+}
+
 func postDeployments(input *plugin.ApiResourceInput, connection *models.WebhookConnection, err errors.Error) (*plugin.ApiResourceOutput, errors.Error) {
 	if err != nil {
 		return nil, err
@@ -250,4 +271,38 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 func GenerateDeploymentCommitId(connectionId uint64, deploymentId string, repoUrl string, commitSha string) string {
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(repoUrl)))[:16]
 	return fmt.Sprintf("%s:%d:%s:%s:%s", "webhook", connectionId, deploymentId, urlHash16, commitSha)
+}
+
+// findByProjectName finds the connection by project name and plugin name
+func findByProjectName(connection interface{}, params map[string]string, pluginName string) errors.Error {
+	projectName := params["projectName"]
+	if projectName == "" {
+		return errors.BadInput.New("missing projectName")
+	}
+	if len(projectName) > 100 {
+		return errors.BadInput.New("invalid projectName")
+	}
+	if pluginName == "" {
+		return errors.BadInput.New("missing pluginName")
+	}
+	// We need to join three tables: _tool_webhook_connections, _devlake_blueprint_connections, and _devlake_blueprints
+	// to find the connection associated with the given project name and plugin name.
+	// The SQL query would look something like this:
+	// SELECT wc.*
+	// FROM _tool_webhook_connections AS wc
+	// JOIN _devlake_blueprint_connections AS bc ON wc.id = bc.connection_id AND bc.plugin_name = ?
+	// JOIN _devlake_blueprints AS bp ON bc.blueprint_id = bp.id
+	// WHERE bp.project_name = ?
+	// LIMIT 1;
+
+	// Using DAL to construct the query
+	clauses := []dal.Clause{dal.From(connection)}
+	clauses = append(clauses,
+		dal.Join("left join _devlake_blueprint_connections bc ON _tool_webhook_connections.id = bc.connection_id and bc.plugin_name = ?", pluginName),
+		dal.Join("left join _devlake_blueprints bp ON bc.blueprint_id = bp.id"),
+		dal.Where("bp.project_name = ?", projectName),
+	)
+
+	dal := basicRes.GetDal()
+	return dal.First(connection, clauses...)
 }
