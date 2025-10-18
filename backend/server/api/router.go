@@ -93,6 +93,16 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	}
 	// mount all api resources for all plugins
 	for pluginName, apiResources := range resources {
+		if pluginName == "webhook" {
+			// we need to register the project webhook endpoint first to avoid route conflict
+			const endpointName = "projects/:projectName/deployments"
+			if methodMap, ok := apiResources[endpointName]; ok {
+				if handler, ok := methodMap["POST"]; ok {
+					r.Handle("POST", fmt.Sprintf("/%s", endpointName), handlePluginCall(basicRes, pluginName, handler))
+					delete(apiResources, endpointName)
+				}
+			}
+		}
 		registerPluginEndpoints(r, basicRes, pluginName, apiResources)
 	}
 }
