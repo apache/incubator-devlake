@@ -26,6 +26,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/log"
+	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"github.com/go-playground/validator/v10"
@@ -126,6 +127,33 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 	// find or create the connection for this project
 	connection := &models.WebhookConnection{}
 	err := findByProjectName(connection, input.Params, pluginName)
+	if err != nil {
+		// if not found, we will attempt to create a new connection
+		// Use direct comparison against the package sentinel; only treat other errors as fatal.
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			basicRes.GetLogger().Debug("creating webhook connection for project %s", input.Params["projectName"])
+			connection.Name = input.Params["projectName"]
+			// &{Params:map[plugin:webhook] Query:map[] Body:map[name:test-webhook] Request:<nil> User:<nil>}
+			input = &plugin.ApiResourceInput{
+				Params: map[string]string{
+					"plugin": "webhook",
+				},
+				Body: map[string]interface{}{
+					"name": input.Params["projectName"],
+				},
+			}
+			basicRes.GetLogger().Info("input: %+v", input)
+			err = connectionHelper.Create(connection, input)
+			if err != nil {
+				basicRes.GetLogger().Error(err, "failed to create webhook connection for project", "projectName", input.Params["projectName"])
+				return nil, err
+			}
+			basicRes.GetLogger().Info("connection: %+v", connection)
+		} else {
+			basicRes.GetLogger().Error(err, "failed to find webhook connection for project", "projectName", input.Params["projectName"])
+			return nil, err
+		}
+	}
 
 	return postDeployments(input, connection, err)
 }
@@ -295,12 +323,13 @@ func findByProjectName(connection interface{}, params map[string]string, pluginN
 	// WHERE bp.project_name = ?
 	// LIMIT 1;
 
+	basicRes.GetLogger().Debug("finding project webhook connection for project %s and plugin %s", projectName, pluginName)
 	// Using DAL to construct the query
 	clauses := []dal.Clause{dal.From(connection)}
 	clauses = append(clauses,
 		dal.Join("left join _devlake_blueprint_connections bc ON _tool_webhook_connections.id = bc.connection_id and bc.plugin_name = ?", pluginName),
 		dal.Join("left join _devlake_blueprints bp ON bc.blueprint_id = bp.id"),
-		dal.Where("bp.project_name = ?", projectName),
+		dal.Where("bp.project_name = ? and _tool_webhook_connections.name = ?", projectName, projectName),
 	)
 
 	dal := basicRes.GetDal()
