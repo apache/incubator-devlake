@@ -26,12 +26,14 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/server/services"
 	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"github.com/go-playground/validator/v10"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coremodels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -126,31 +128,72 @@ func PostDeploymentsByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// find or create the connection for this project
 	connection := &models.WebhookConnection{}
+	projectName := input.Params["projectName"]
 	err := findByProjectName(connection, input.Params, pluginName)
 	if err != nil {
 		// if not found, we will attempt to create a new connection
 		// Use direct comparison against the package sentinel; only treat other errors as fatal.
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			basicRes.GetLogger().Debug("creating webhook connection for project %s", input.Params["projectName"])
-			connection.Name = input.Params["projectName"]
-			// &{Params:map[plugin:webhook] Query:map[] Body:map[name:test-webhook] Request:<nil> User:<nil>}
-			input = &plugin.ApiResourceInput{
-				Params: map[string]string{
-					"plugin": "webhook",
-				},
-				Body: map[string]interface{}{
-					"name": input.Params["projectName"],
-				},
-			}
-			basicRes.GetLogger().Info("input: %+v", input)
-			err = connectionHelper.Create(connection, input)
-			if err != nil {
-				basicRes.GetLogger().Error(err, "failed to create webhook connection for project", "projectName", input.Params["projectName"])
-				return nil, err
-			}
-			basicRes.GetLogger().Info("connection: %+v", connection)
-		} else {
-			basicRes.GetLogger().Error(err, "failed to find webhook connection for project", "projectName", input.Params["projectName"])
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Error(err, "failed to find webhook connection for project", "projectName", input.Params["projectName"])
+			return nil, err
+		}
+
+		// create the connection
+		logger.Debug("creating webhook connection for project %s", input.Params["projectName"])
+		connection.Name = projectName
+
+		// find the project and blueprint with which we will associate this connection
+		projectOutput, err := services.GetProject(projectName)
+		if err != nil {
+			logger.Error(err, "failed to find project for webhook connection", "projectName", projectName)
+			return nil, err
+		}
+
+		if projectOutput == nil {
+			logger.Error(err, "project not found for webhook connection", "projectName", projectName)
+			return nil, errors.NotFound.New("project not found: " + projectName)
+		}
+
+		if projectOutput.Blueprint == nil {
+			logger.Error(err, "unable to create webhook as the project has no blueprint", "projectName", projectName)
+			return nil, errors.BadInput.New("project has no blueprint: " + projectName)
+		}
+
+		input = &plugin.ApiResourceInput{
+			Params: map[string]string{
+				"plugin": "webhook",
+			},
+			Body: map[string]interface{}{
+				"name": input.Params["projectName"],
+			},
+		}
+
+		err = connectionHelper.Create(connection, input)
+		if err != nil {
+			logger.Error(err, "failed to create webhook connection for project", "projectName", input.Params["projectName"])
+			return nil, err
+		}
+
+		// get the blueprint
+		blueprintId := projectOutput.Blueprint.ID
+		blueprint, err := services.GetBlueprint(blueprintId, true)
+
+		if err != nil {
+			logger.Error(err, "failed to find blueprint for webhook connection", "blueprintId", blueprintId)
+			return nil, err
+		}
+
+		// we need to associate this connection with the blueprint
+		blueprintConnection := &coremodels.BlueprintConnection{
+			BlueprintId:  blueprint.ID,
+			PluginName:   pluginName,
+			ConnectionId: connection.ID,
+		}
+
+		logger.Info("adding blueprint connection for blueprint %d and connection %d", blueprint.ID, connection.ID)
+		err = basicRes.GetDal().Create(blueprintConnection)
+		if err != nil {
+			logger.Error(err, "failed to create blueprint connection for project", "projectName", input.Params["projectName"])
 			return nil, err
 		}
 	}
