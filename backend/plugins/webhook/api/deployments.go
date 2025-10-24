@@ -129,6 +129,7 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 	// find or create the connection for this project
 	connection := &models.WebhookConnection{}
 	projectName := input.Params["projectName"]
+	webhookName := fmt.Sprintf("%s_deployments", projectName)
 	err := findByProjectName(connection, input.Params, pluginName)
 	if err != nil {
 		// if not found, we will attempt to create a new connection
@@ -140,7 +141,7 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 
 		// create the connection
 		logger.Debug("creating webhook connection for project %s", input.Params["projectName"])
-		connection.Name = projectName
+		connection.Name = webhookName
 
 		// find the project and blueprint with which we will associate this connection
 		projectOutput, err := services.GetProject(projectName)
@@ -164,7 +165,7 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 				"plugin": "webhook",
 			},
 			Body: map[string]interface{}{
-				"name": input.Params["projectName"],
+				"name": webhookName,
 			},
 		}
 
@@ -347,6 +348,7 @@ func GenerateDeploymentCommitId(connectionId uint64, deploymentId string, repoUr
 // findByProjectName finds the connection by project name and plugin name
 func findByProjectName(connection interface{}, params map[string]string, pluginName string) errors.Error {
 	projectName := params["projectName"]
+	webhookName := fmt.Sprintf("%s_deployments", projectName)
 	if projectName == "" {
 		return errors.BadInput.New("missing projectName")
 	}
@@ -363,7 +365,7 @@ func findByProjectName(connection interface{}, params map[string]string, pluginN
 	// FROM _tool_webhook_connections AS wc
 	// JOIN _devlake_blueprint_connections AS bc ON wc.id = bc.connection_id AND bc.plugin_name = ?
 	// JOIN _devlake_blueprints AS bp ON bc.blueprint_id = bp.id
-	// WHERE bp.project_name = ?
+	// WHERE bp.project_name = ? and _tool_webhook_connections.name = ?
 	// LIMIT 1;
 
 	basicRes.GetLogger().Debug("finding project webhook connection for project %s and plugin %s", projectName, pluginName)
@@ -372,7 +374,7 @@ func findByProjectName(connection interface{}, params map[string]string, pluginN
 	clauses = append(clauses,
 		dal.Join("left join _devlake_blueprint_connections bc ON _tool_webhook_connections.id = bc.connection_id and bc.plugin_name = ?", pluginName),
 		dal.Join("left join _devlake_blueprints bp ON bc.blueprint_id = bp.id"),
-		dal.Where("bp.project_name = ? and _tool_webhook_connections.name = ?", projectName, projectName),
+		dal.Where("bp.project_name = ? and _tool_webhook_connections.name = ?", projectName, webhookName),
 	)
 
 	dal := basicRes.GetDal()
