@@ -64,14 +64,15 @@ func makePipelinePlanV200(
 		}
 
 		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
-		// construct task options for circleci
+		// construct task options for pagerduty
 		task, err := api.MakePipelinePlanTask(
 			"pagerduty",
 			subtaskMetas,
 			scopeConfig.Entities,
 			tasks.PagerDutyOptions{
-				ConnectionId: connection.ID,
-				ServiceId:    scope.Id,
+				ConnectionId:  connection.ID,
+				ServiceId:     scope.Id,
+				ScopeConfigId: scopeConfig.ID,
 			},
 		)
 		if err != nil {
