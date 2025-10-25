@@ -132,25 +132,31 @@ RUN apt-get update && \
 
 EXPOSE 8080
 
-RUN useradd -ms /bin/bash -d /app devlake -u 1010
-RUN chown -R devlake:devlake /etc/ssl/certs
+RUN useradd -ms /bin/bash -d /app devlake -u 1010 && \
+    mkdir -p /app/.local /app/.cache /app/logs && \
+    chown -R devlake:devlake /app /etc/ssl/certs && \
+    chmod -R 755 /app
+
 USER devlake
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN mkdir logs
 VOLUME /app/logs
 
 # Setup Python
-COPY python/ /app/python/
+COPY --chown=devlake:devlake python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
     python3 -m pip install --upgrade pip
 
-# Setup Python Poetry package manager
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Setup Python Poetry package manager with proper permissions for Kubernetes environments
+RUN curl -sSL https://install.python-poetry.org | python3 - && \
+    mkdir -p /app/.local/bin && \
+    chmod +x /app/.local/bin/poetry
 ENV PATH="$PATH:/app/.local/bin"
+ENV POETRY_CACHE_DIR="/app/.cache/pypoetry"
+ENV POETRY_VENV_IN_PROJECT="true"
 
 # Build Python plugins, make sure the scripts has execute permission
 # RUN find /app/python/ -name "*.sh" | xargs -I{} chmod +x {}
@@ -162,13 +168,13 @@ ARG DEBUG=
 # libraries
 ENV LD_LIBRARY_PATH=/app/libs
 RUN mkdir -p /app/libs
-COPY --from=build /usr/local/deps/target/lib/*.so* /app/libs
+COPY --from=build --chown=devlake:devlake /usr/local/deps/target/lib/*.so* /app/libs
 COPY --from=build /go/bin /usr/bin
 RUN ldconfig -vn /app/libs
 
 # apps
-COPY --from=build /app/bin /app/bin
-COPY --from=build /app/resources /app/resources
+COPY --from=build --chown=devlake:devlake /app/bin /app/bin
+COPY --from=build --chown=devlake:devlake /app/resources /app/resources
 
 ENV PATH="/app/bin:${PATH}"
 ENV DEBUG="$DEBUG"
@@ -177,4 +183,3 @@ ENV DEBUG="$DEBUG"
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["lake"]
-
