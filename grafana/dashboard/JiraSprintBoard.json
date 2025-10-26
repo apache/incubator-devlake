@@ -420,7 +420,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n    NOW() AS time,\r\n    (COUNT(DISTINCT(CASE WHEN i.status = 'Done' THEN i.id END))) / (COUNT(DISTINCT(i.id)))\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})",
+          "rawSql": "SELECT\r\n    NOW() AS time,\r\n    (COUNT(DISTINCT(CASE WHEN i.status = 'DONE' THEN i.id END))) / (COUNT(DISTINCT(i.id)))\r\nFROM\r\n\tissues i\r\nJOIN\r\n\tsprint_issues si ON si.issue_id = i.id\r\nJOIN\t\r\n\tsprints sp ON si.sprint_id = sp.id\r\nWHERE\r\n\ti.type IN (${type})\r\n\tAND\r\n\tsp.id IN (${sprint_id})",
           "refId": "A",
           "select": [
             [
