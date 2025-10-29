@@ -62,4 +62,3 @@ func (*addApiTokenAuth) Version() uint64 {
 func (script *addApiTokenAuth) Name() string {
 	return "add API token authentication support to Bitbucket connections"
 }
-

@@ -36,9 +36,9 @@ type BitbucketConn struct {
 	UsesApiToken bool `mapstructure:"usesApiToken" json:"usesApiToken"`
 }
 
-func (connection BitbucketConn) Sanitize() BitbucketConn {
-	connection.Password = ""
-	return connection
+func (bc BitbucketConn) Sanitize() BitbucketConn {
+	bc.Password = ""
+	return bc
 }
 
 // SetupAuthentication sets up HTTP Basic Authentication

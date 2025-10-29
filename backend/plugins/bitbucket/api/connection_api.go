@@ -58,12 +58,12 @@ func testConnection(ctx context.Context, connection models.BitbucketConn) (*BitB
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code when testing connection")
 	}
-	
+
 	// Log deprecation warning if using App Password (not API token)
 	if !connection.UsesApiToken {
 		basicRes.GetLogger().Warn(nil, "Bitbucket App passwords are deprecated and will be deactivated on June 9, 2026. Please migrate to API tokens.")
 	}
-	
+
 	connection = connection.Sanitize()
 	body := BitBucketTestConnResponse{}
 	body.Success = true
