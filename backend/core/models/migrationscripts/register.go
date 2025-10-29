@@ -140,5 +140,6 @@ func All() []plugin.MigrationScript {
 		new(extendFieldSizeForCq),
 		new(addIssueFixVerion),
 		new(addPipelinePriority),
+		new(fixNullPriority),
 	}
 }

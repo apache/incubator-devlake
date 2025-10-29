@@ -89,6 +89,9 @@ export const PipelineTask = ({ task }: Props) => {
       case ['azuredevops_go'].includes(config.plugin):
         name = `ado:${options.name}`;
         break;
+      case ['argocd'].includes(config.plugin):
+        name = `${name}:${options.ApplicationName}`;
+        break;
     }
 
     return [config.icon, name];
