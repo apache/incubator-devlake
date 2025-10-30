@@ -52,12 +52,18 @@ func testConnection(ctx context.Context, connection models.BitbucketConn) (*BitB
 	}
 
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing connection")
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing connection. Please check your credentials.")
 	}
 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code when testing connection")
 	}
+
+	// Log deprecation warning if using App Password (not API token)
+	if !connection.UsesApiToken {
+		basicRes.GetLogger().Warn(nil, "Bitbucket App passwords are deprecated and will be deactivated on June 9, 2026. Please migrate to API tokens.")
+	}
+
 	connection = connection.Sanitize()
 	body := BitBucketTestConnResponse{}
 	body.Success = true

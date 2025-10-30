@@ -70,11 +70,11 @@ func init() {
 	if basePath == "" {
 		basePath = "./logs"
 	}
-	if abs, err := filepath.Abs(basePath); err != nil {
-		panic(err)
-	} else {
-		basePath = filepath.Join(abs, "devlake.log")
+	abs, absErr := filepath.Abs(basePath)
+	if absErr != nil {
+		panic(absErr)
 	}
+	basePath = filepath.Join(abs, "devlake.log")
 	var err errors.Error
 	Global, err = NewDefaultLogger(inner)
 	if err != nil {

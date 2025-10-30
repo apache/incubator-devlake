@@ -42,5 +42,6 @@ func All() []plugin.MigrationScript {
 		new(reCreatBitBucketPipelineSteps),
 		new(addMergedByToPr),
 		new(changeIssueComponentType),
+		new(addApiTokenAuth),
 	}
 }

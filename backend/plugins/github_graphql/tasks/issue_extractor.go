@@ -143,7 +143,7 @@ func convertGithubIssue(milestoneMap map[int]int, issue *GraphqlQueryIssue, conn
 		GithubCreatedAt: issue.CreatedAt,
 		GithubUpdatedAt: issue.UpdatedAt,
 	}
-	if issue.AssigneeList.Assignees != nil && len(issue.AssigneeList.Assignees) > 0 {
+	if len(issue.AssigneeList.Assignees) > 0 {
 		githubIssue.AssigneeId = issue.AssigneeList.Assignees[0].Id
 		githubIssue.AssigneeName = issue.AssigneeList.Assignees[0].Login
 	}

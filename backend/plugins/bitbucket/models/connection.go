@@ -18,6 +18,9 @@ limitations under the License.
 package models
 
 import (
+	"net/http"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
@@ -28,11 +31,20 @@ var _ plugin.ApiConnection = (*BitbucketConnection)(nil)
 type BitbucketConn struct {
 	api.RestConnection `mapstructure:",squash"`
 	api.BasicAuth      `mapstructure:",squash"`
+	// UsesApiToken indicates whether the password field contains an API token (true)
+	// or an App password (false). Both use Basic Auth, but API tokens are the new standard.
+	UsesApiToken bool `mapstructure:"usesApiToken" json:"usesApiToken"`
 }
 
-func (connection BitbucketConn) Sanitize() BitbucketConn {
-	connection.Password = ""
-	return connection
+func (bc BitbucketConn) Sanitize() BitbucketConn {
+	bc.Password = ""
+	return bc
+}
+
+// SetupAuthentication sets up HTTP Basic Authentication
+// Both App passwords and API tokens use Basic Auth with username:credential format
+func (bc *BitbucketConn) SetupAuthentication(req *http.Request) errors.Error {
+	return bc.BasicAuth.SetupAuthentication(req)
 }
 
 // BitbucketConnection holds BitbucketConn plus ID/Name for database storage
