@@ -72,6 +72,10 @@ func ConvertRelease(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubRelease := inputRow.(*models.GithubRelease)
+			// Skip releases with nil PublishedAt (draft releases or data inconsistency)
+			if githubRelease.PublishedAt == nil {
+				return nil, nil
+			}
 			release := &devops.CicdRelease{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: releaseIdGen.Generate(githubRelease.ConnectionId, githubRelease.Id),
