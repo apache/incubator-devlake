@@ -63,6 +63,9 @@ type ArgocdApiApplication struct {
 		Health struct {
 			Status string `json:"status"` // Healthy, Progressing, Degraded, etc.
 		} `json:"health"`
+		Summary struct {
+			Images []string `json:"images"`
+		} `json:"summary"`
 	} `json:"status"`
 }
 
@@ -96,6 +99,7 @@ func ExtractApplications(taskCtx plugin.SubTaskContext) errors.Error {
 				DestNamespace:  apiApp.Spec.Destination.Namespace,
 				SyncStatus:     apiApp.Status.Sync.Status,
 				HealthStatus:   apiApp.Status.Health.Status,
+				SummaryImages:  apiApp.Status.Summary.Images,
 				CreatedDate:    &apiApp.Metadata.CreationTimestamp,
 			}
 			application.ConnectionId = data.Options.ConnectionId

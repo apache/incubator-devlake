@@ -85,6 +85,7 @@ func (p ArgoCD) GetTablesInfo() []dal.Tabler {
 		&models.ArgocdConnection{},
 		&models.ArgocdApplication{},
 		&models.ArgocdSyncOperation{},
+		&models.ArgocdRevisionImage{},
 		&models.ArgocdScopeConfig{},
 	}
 }

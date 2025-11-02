@@ -47,6 +47,7 @@ type ArgocdApplication struct {
 	SyncStatus     string `gorm:"type:varchar(100)"`
 	HealthStatus   string `gorm:"type:varchar(100)"`
 	CreatedDate    *time.Time
+	SummaryImages  []string `gorm:"type:json;serializer:json"`
 	ScopeConfigId  uint64
 	archived.NoPKModel
 }
@@ -69,11 +70,24 @@ type ArgocdSyncOperation struct {
 	SyncStatus      string `gorm:"type:varchar(100)"`
 	HealthStatus    string `gorm:"type:varchar(100)"`
 	ResourcesCount  int
+	ContainerImages []string `gorm:"type:json;serializer:json"`
 	archived.NoPKModel
 }
 
 func (ArgocdSyncOperation) TableName() string {
 	return "_tool_argocd_sync_operations"
+}
+
+type ArgocdRevisionImage struct {
+	ConnectionId    uint64   `gorm:"primaryKey"`
+	ApplicationName string   `gorm:"primaryKey;type:varchar(255)"`
+	Revision        string   `gorm:"primaryKey;type:varchar(255)"`
+	Images          []string `gorm:"type:json;serializer:json"`
+	archived.NoPKModel
+}
+
+func (ArgocdRevisionImage) TableName() string {
+	return "_tool_argocd_revision_images"
 }
 
 type ArgocdScopeConfig struct {

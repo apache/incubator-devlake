@@ -39,6 +39,7 @@ type ArgocdApplication struct {
 	SyncStatus     string     `gorm:"type:varchar(100)" json:"syncStatus" mapstructure:"syncStatus"`     // Synced, OutOfSync, Unknown
 	HealthStatus   string     `gorm:"type:varchar(100)" json:"healthStatus" mapstructure:"healthStatus"` // Healthy, Progressing, Degraded, Suspended, Missing, Unknown
 	CreatedDate    *time.Time `json:"createdDate,omitempty" mapstructure:"createdDate,omitempty"`
+	SummaryImages  []string   `gorm:"type:json;serializer:json" json:"summaryImages" mapstructure:"summaryImages"`
 	common.NoPKModel
 }
 
