@@ -18,7 +18,6 @@ limitations under the License.
 package shared
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -124,7 +123,7 @@ func ApiOutputSuccess(c *gin.Context, body interface{}, status int) {
 func ApiOutputAbort(c *gin.Context, err error) {
 	if e, ok := err.(errors.Error); ok {
 		logruslog.Global.Error(err, "HTTP %d abort-error", e.GetType().GetHttpCode())
-		_ = c.AbortWithError(e.GetType().GetHttpCode(), fmt.Errorf(e.Messages().Format()))
+		_ = c.AbortWithError(e.GetType().GetHttpCode(), errors.Default.New(e.Messages().Format()))
 	} else {
 		logruslog.Global.Error(err, "HTTP %d abort-error (native)", http.StatusInternalServerError)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
