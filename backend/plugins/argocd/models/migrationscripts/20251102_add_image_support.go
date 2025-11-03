@@ -18,12 +18,30 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/argocd/models/migrationscripts/archived"
 )
 
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addImageSupportArtifacts),
-	}
+var _ plugin.MigrationScript = (*addImageSupportArtifacts)(nil)
+
+type addImageSupportArtifacts struct{}
+
+func (m *addImageSupportArtifacts) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.ArgocdApplication{},
+		&archived.ArgocdSyncOperation{},
+		&archived.ArgocdRevisionImage{},
+	)
+}
+
+func (*addImageSupportArtifacts) Version() uint64 {
+	return 20251102160000
+}
+
+func (*addImageSupportArtifacts) Name() string {
+	return "argocd add image support artifacts"
 }

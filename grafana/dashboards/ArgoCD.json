@@ -827,6 +827,136 @@
       ],
       "title": "4.1 Recent Deployments",
       "type": "table"
+    },
+    {
+      "collapsed": false,
+      "id": 17,
+      "panels": [],
+      "title": "5. Images",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 41
+      },
+      "id": 18,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "deployment_created"
+          }
+        ]
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  d.created_date AS deployment_created,\n  d.name AS deployment_name,\n  ri.images AS images,\n  c.commit_sha AS revision,\n  d.environment,\n  d.result\nFROM cicd_deployments d\nLEFT JOIN cicd_deployment_commits c ON c.cicd_deployment_id = d.id\nLEFT JOIN _tool_argocd_revision_images ri ON ri.revision = c.commit_sha\nWHERE $__timeFilter(d.created_date)\n  AND ( '${application_id:raw}' = '' OR '${application_id:raw}' = '$__all' OR FIND_IN_SET(d.cicd_scope_id, '${application_id:raw}') > 0 )\nORDER BY d.created_date DESC\nLIMIT 50",
+          "refId": "A"
+        }
+      ],
+      "title": "5.1 Recent Deployment Images",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Approximation: counts deployments per unique images array (revision-level). For per-image counts, consider exploding arrays during ingestion.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 41
+      },
+      "id": 19,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.5.15",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH dep AS (\n  SELECT d.id, c.commit_sha, d.cicd_scope_id\n  FROM cicd_deployments d\n  LEFT JOIN cicd_deployment_commits c ON c.cicd_deployment_id = d.id\n  WHERE $__timeFilter(d.created_date)\n    AND ( '${application_id:raw}' = '' OR '${application_id:raw}' = '$__all' OR FIND_IN_SET(d.cicd_scope_id, '${application_id:raw}') > 0 )\n), imgs AS (\n  SELECT dep.id deployment_id, ri.images\n  FROM dep\n  LEFT JOIN _tool_argocd_revision_images ri ON ri.revision = dep.commit_sha\n  WHERE ri.images IS NOT NULL\n)\nSELECT images AS image_array, COUNT(DISTINCT deployment_id) deployment_count\nFROM imgs\nGROUP BY 1\nORDER BY 2 DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "5.2 Top Image Arrays (Approx)",
+      "type": "table"
     }
   ],
   "refresh": "",
