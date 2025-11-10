@@ -48,7 +48,7 @@ export const ProjectHomePage = () => {
 
   const { ready, data } = useRefreshData(
     () => API.project.list({ page, pageSize, ...(searchKeyword.trim() && { keyword: searchKeyword.trim() }) }),
-    [version, page, pageSize, searchKeyword]
+    [version, page, pageSize, searchKeyword],
   );
 
   const navigate = useNavigate();

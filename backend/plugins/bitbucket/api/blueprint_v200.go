@@ -120,7 +120,13 @@ func makeDataSourcePipelinePlanV200(
 			if err != nil {
 				return nil, err
 			}
-			cloneUrl.User = url.UserPassword(connection.Username, connection.Password)
+			// For Bitbucket API tokens, use x-token-auth as username per Bitbucket docs
+			// https://support.atlassian.com/bitbucket-cloud/docs/using-api-tokens/
+			gitUsername := connection.Username
+			if connection.UsesApiToken {
+				gitUsername = "x-bitbucket-api-token-auth"
+			}
+			cloneUrl.User = url.UserPassword(gitUsername, connection.Password)
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{

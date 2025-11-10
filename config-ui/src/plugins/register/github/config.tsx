@@ -28,7 +28,7 @@ export const GitHubConfig: IPluginConfig = {
   plugin: 'github',
   name: 'GitHub',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 5,
+  sort: 6,
   connection: {
     docLink: DOC_URL.PLUGIN.GITHUB.BASIS,
     initialValues: {

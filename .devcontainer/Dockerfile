@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM mcr.microsoft.com/devcontainers/go:1-1.22-bookworm
+FROM mcr.microsoft.com/devcontainers/go:1-1.23-bookworm
 
 ENV PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib:/usr/local/lib/pkgconfig
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-ENV DEVLAKE_PLUGINS=bamboo,bitbucket,circleci,customize,dora,gitextractor,github,github_graphql,gitlab,jenkins,jira,org,pagerduty,refdiff,slack,sonarqube,trello,webhook
+ENV DEVLAKE_PLUGINS=argocd,bamboo,bitbucket,circleci,customize,dora,gitextractor,github,github_graphql,gitlab,issue_trace,jenkins,jira,org,pagerduty,refdiff,slack,sonarqube,trello,webhook
 
 RUN apt-get update -y
 RUN apt-get install pkg-config python3-dev default-libmysqlclient-dev build-essential libpq-dev cmake -y

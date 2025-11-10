@@ -25,7 +25,7 @@ export const PagerDutyConfig: IPluginConfig = {
   plugin: 'pagerduty',
   name: 'PagerDuty',
   icon: ({ color }) => <Icon fill={color} />,
-  sort: 10,
+  sort: 11,
   connection: {
     docLink: DOC_URL.PLUGIN.PAGERDUTY.BASIS,
     initialValues: {
