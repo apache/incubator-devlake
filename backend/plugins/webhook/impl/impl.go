@@ -128,5 +128,8 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		"connections/by-name/:connectionName/issue/:issueKey/close": {
 			"POST": api.CloseIssueByName,
 		},
+		"projects/:projectName/deployments": {
+			"POST": api.PostDeploymentsByProjectName,
+		},
 	}
 }

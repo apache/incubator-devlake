@@ -1,0 +1,34 @@
+# Ensure all text files use LF (Linux) line endings
+* text=auto eol=lf
+
+# Treat shell scripts as text and enforce LF
+*.sh text eol=lf
+
+# Treat Go files as text and enforce LF
+*.go text eol=lf
+
+# Treat Python files as text and enforce LF
+*.py text eol=lf
+
+# Treat JavaScript files as text and enforce LF
+*.js text eol=lf
+
+# Treat Markdown files as text and enforce LF
+*.md text eol=lf
+
+# Treat configuration files as text and enforce LF
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+# Prevent CRLF normalization for binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.xz binary
