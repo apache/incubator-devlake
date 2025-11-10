@@ -130,7 +130,7 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 	connection := &models.WebhookConnection{}
 	projectName := input.Params["projectName"]
 	webhookName := fmt.Sprintf("%s_deployments", projectName)
-	err := findByProjectName(connection, input.Params, pluginName)
+	err := findByProjectName(connection, input.Params, pluginName, webhookName)
 	if err != nil {
 		// if not found, we will attempt to create a new connection
 		// Use direct comparison against the package sentinel; only treat other errors as fatal.
@@ -346,9 +346,8 @@ func GenerateDeploymentCommitId(connectionId uint64, deploymentId string, repoUr
 }
 
 // findByProjectName finds the connection by project name and plugin name
-func findByProjectName(connection interface{}, params map[string]string, pluginName string) errors.Error {
+func findByProjectName(connection interface{}, params map[string]string, pluginName string, webhookName string) errors.Error {
 	projectName := params["projectName"]
-	webhookName := fmt.Sprintf("%s_deployments", projectName)
 	if projectName == "" {
 		return errors.BadInput.New("missing projectName")
 	}
