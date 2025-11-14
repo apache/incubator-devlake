@@ -21,6 +21,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 
+// Allow Grafana access from the dev server when using dev container 
+const grafanaOrigin = process.env.VITE_GRAFANA_URL || 'http://localhost:3002';
+const grafanaChangeOrigin = envBool('VITE_GRAFANA_CHANGE_ORIGIN', true);
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), svgr()],
@@ -36,8 +40,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\//, ''),
       },
       '/grafana': {
-        target: 'http://localhost:3002/',
-        changeOrigin: true,
+        target: grafanaOrigin,
+        changeOrigin: grafanaChangeOrigin,
+        ws: true // Proxying websockets to allow features like query auto-complete
       },
     },
   },
@@ -48,3 +53,9 @@ export default defineConfig({
     },
   },
 });
+
+function envBool(name: string, defaultValue = false): boolean {
+  const v = process.env[name];
+  if (v == null) return defaultValue;
+  return /^(1|true|yes|on)$/i.test(v);
+}
