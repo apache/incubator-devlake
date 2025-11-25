@@ -63,11 +63,10 @@ export const QDevConnectionTest = ({ plugin, connectionId, values, initialValues
               identityStoreRegion: values.identityStoreRegion !== initialValues.identityStoreRegion ? values.identityStoreRegion : undefined,
               rateLimitPerHour: values.rateLimitPerHour !== initialValues.rateLimitPerHour ? values.rateLimitPerHour : undefined,
               proxy: values.proxy !== initialValues.proxy ? values.proxy : undefined,
-            });
+            } as any);
           } else {
             // Test new connection with all values
             return API.connection.testOld(plugin, {
-              name: values.name || '',
               authType: values.authType || 'access_key',
               accessKeyId: values.accessKeyId || '',
               secretAccessKey: values.secretAccessKey || '',
@@ -78,15 +77,8 @@ export const QDevConnectionTest = ({ plugin, connectionId, values, initialValues
               rateLimitPerHour: values.rateLimitPerHour || 20000,
               proxy: values.proxy || '',
               endpoint: '', // Not used by Q Developer
-              authMethod: '', // Not used by Q Developer
-              username: '', // Not used by Q Developer
-              password: '', // Not used by Q Developer
               token: '', // Not used by Q Developer
-              appId: '', // Not used by Q Developer
-              secretKey: '', // Not used by Q Developer
-              dbUrl: '', // Not used by Q Developer
-              organization: '', // Not used by Q Developer
-            });
+            } as any);
           }
         },
         {
