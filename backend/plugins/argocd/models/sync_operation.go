@@ -37,6 +37,7 @@ type ArgocdSyncOperation struct {
 	SyncStatus      string `gorm:"type:varchar(100)"` // Synced, OutOfSync
 	HealthStatus    string `gorm:"type:varchar(100)"` // Healthy, Degraded, etc.
 	ResourcesCount  int
+	ContainerImages []string `gorm:"type:json;serializer:json"`
 	common.NoPKModel
 }
 

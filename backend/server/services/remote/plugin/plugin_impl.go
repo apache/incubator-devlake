@@ -186,20 +186,20 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 	}, nil
 }
 
-func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, scopeId string) (interface{}, interface{}, errors.Error) {
+func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, scopeId string) (scope interface{}, scopeConfig interface{}, err errors.Error) {
 	wrappedScope := p.scopeTabler.New()
-	err := api.CallDB(db.First, wrappedScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
+	err = api.CallDB(db.First, wrappedScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
 	if err != nil {
 		return nil, nil, errors.BadInput.New("Invalid scope id")
 	}
-	scope := models.ScopeModel{}
-	err = wrappedScope.To(&scope)
+	scopeModel := models.ScopeModel{}
+	err = wrappedScope.To(&scopeModel)
 	if err != nil {
 		return nil, nil, errors.BadInput.Wrap(err, "Invalid scope")
 	}
-	if scope.ScopeConfigId != 0 {
+	if scopeModel.ScopeConfigId != 0 {
 		wrappedScopeConfig := p.scopeConfigTabler.New()
-		err = api.CallDB(db.First, wrappedScopeConfig, dal.From(p.scopeConfigTabler.TableName()), dal.Where("id = ?", scope.ScopeConfigId))
+		err = api.CallDB(db.First, wrappedScopeConfig, dal.From(p.scopeConfigTabler.TableName()), dal.Where("id = ?", scopeModel.ScopeConfigId))
 		if err != nil {
 			return nil, nil, err
 		}

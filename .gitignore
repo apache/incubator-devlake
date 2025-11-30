@@ -121,6 +121,7 @@ _debug_bin
 postgres-data/
 mysql-data/
 .docker/
+docker-compose.override.yml
 
 # config files
 local.js

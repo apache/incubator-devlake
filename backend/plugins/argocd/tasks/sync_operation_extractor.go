@@ -19,8 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
+	"sort"
+	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -52,6 +55,8 @@ type ArgocdApiSyncOperation struct {
 		Username  string `json:"username"`
 		Automated bool   `json:"automated"`
 	} `json:"initiatedBy"`
+	Metadata  ArgocdApiSyncOperationMetadata `json:"metadata"`
+	Operation ArgocdApiSyncOperationDetails  `json:"operation"`
 
 	// For operationState (current operation)
 	Phase      string     `json:"phase"` // Succeeded, Failed, Error, Running, Terminating
@@ -65,17 +70,73 @@ type ArgocdApiSyncOperation struct {
 }
 
 type ArgocdApiSyncResourceItem struct {
-	Group     string `json:"group"`
-	Version   string `json:"version"`
-	Kind      string `json:"kind"`
-	Namespace string `json:"namespace"`
-	Name      string `json:"name"`
-	Status    string `json:"status"`
-	Message   string `json:"message"`
+	Group     string   `json:"group"`
+	Version   string   `json:"version"`
+	Kind      string   `json:"kind"`
+	Namespace string   `json:"namespace"`
+	Name      string   `json:"name"`
+	Status    string   `json:"status"`
+	Message   string   `json:"message"`
+	Images    []string `json:"images"`
+}
+
+type ArgocdApiSyncOperationMetadata struct {
+	Images    []string                                 `json:"images"`
+	Resources []ArgocdApiSyncOperationMetadataResource `json:"resources"`
+}
+
+type ArgocdApiSyncOperationMetadataResource struct {
+	Images []string `json:"images"`
+}
+
+type ArgocdApiSyncOperationDetails struct {
+	Metadata ArgocdApiSyncOperationMetadata `json:"metadata"`
+	Sync     ArgocdApiSyncOperationSync     `json:"sync"`
+}
+
+type ArgocdApiSyncOperationSync struct {
+	Resources []ArgocdApiSyncResourceItem `json:"resources"`
 }
 
 func ExtractSyncOperations(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ArgocdTaskData)
+
+	var summaryImages []string
+	application := &models.ArgocdApplication{}
+	db := taskCtx.GetDal()
+	if err := db.First(
+		application,
+		dal.Where("connection_id = ? AND name = ?", data.Options.ConnectionId, data.Options.ApplicationName),
+	); err != nil {
+		if !db.IsErrorNotFound(err) {
+			return errors.Default.Wrap(err, "error loading argocd application for summary images")
+		}
+	} else {
+		summaryImages = application.SummaryImages
+	}
+	summaryImages = normalizeImages(summaryImages)
+
+	revisionImageCache := make(map[string][]string)
+	revisionRecords := make([]models.ArgocdRevisionImage, 0)
+	err := db.All(
+		&revisionRecords,
+		dal.Where("connection_id = ? AND application_name = ?", data.Options.ConnectionId, data.Options.ApplicationName),
+	)
+	if err != nil && !db.IsErrorNotFound(err) {
+		return errors.Default.Wrap(err, "error loading argocd revision images")
+	}
+	for _, record := range revisionRecords {
+		if record.Revision == "" {
+			continue
+		}
+		normalized := normalizeImages(record.Images)
+		if len(normalized) == 0 {
+			continue
+		}
+		revisionImageCache[record.Revision] = normalized
+	}
+
+	revisionDirty := make(map[string][]string)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -160,7 +221,47 @@ func ExtractSyncOperations(taskCtx plugin.SubTaskContext) errors.Error {
 
 			syncOp.Kind = extractPrimaryDeploymentKind(apiOp.SyncResult.Resources)
 
-			return []interface{}{syncOp}, nil
+			payloadImages := collectContainerImages(&apiOp)
+			images := copyStringSlice(payloadImages)
+
+			if len(images) > 0 {
+				if syncOp.Revision != "" {
+					cached := revisionImageCache[syncOp.Revision]
+					if !stringSlicesEqual(cached, images) {
+						revisionImageCache[syncOp.Revision] = copyStringSlice(images)
+						revisionDirty[syncOp.Revision] = copyStringSlice(images)
+					}
+				}
+			} else if syncOp.Revision != "" {
+				if cached := revisionImageCache[syncOp.Revision]; len(cached) > 0 {
+					images = copyStringSlice(cached)
+				} else if len(summaryImages) > 0 {
+					// Fallback: use application summary images and cache for this revision.
+					images = copyStringSlice(summaryImages)
+					revisionImageCache[syncOp.Revision] = copyStringSlice(images)
+					revisionDirty[syncOp.Revision] = copyStringSlice(images)
+				}
+			}
+
+			if len(images) > 0 {
+				syncOp.ContainerImages = images
+			}
+
+			results := []interface{}{syncOp}
+			if syncOp.Revision != "" {
+				if dirtyImages, ok := revisionDirty[syncOp.Revision]; ok && len(dirtyImages) > 0 {
+					revision := &models.ArgocdRevisionImage{
+						ConnectionId:    syncOp.ConnectionId,
+						ApplicationName: syncOp.ApplicationName,
+						Revision:        syncOp.Revision,
+						Images:          copyStringSlice(dirtyImages),
+					}
+					results = append(results, revision)
+					delete(revisionDirty, syncOp.Revision)
+				}
+			}
+
+			return results, nil
 		},
 	})
 
@@ -200,4 +301,81 @@ func extractPrimaryDeploymentKind(resources []ArgocdApiSyncResourceItem) string 
 	}
 
 	return ""
+}
+
+func collectContainerImages(apiOp *ArgocdApiSyncOperation) []string {
+	if apiOp == nil {
+		return nil
+	}
+
+	var collected []string
+	appendAll := func(images []string) {
+		if len(images) == 0 {
+			return
+		}
+		collected = append(collected, images...)
+	}
+	appendMetadataResources := func(resources []ArgocdApiSyncOperationMetadataResource) {
+		for _, r := range resources {
+			appendAll(r.Images)
+		}
+	}
+	appendResourceItems := func(resources []ArgocdApiSyncResourceItem) {
+		for _, r := range resources {
+			appendAll(r.Images)
+		}
+	}
+
+	appendAll(apiOp.Metadata.Images)
+	appendMetadataResources(apiOp.Metadata.Resources)
+	appendAll(apiOp.Operation.Metadata.Images)
+	appendMetadataResources(apiOp.Operation.Metadata.Resources)
+	appendResourceItems(apiOp.Operation.Sync.Resources)
+	appendResourceItems(apiOp.SyncResult.Resources)
+
+	return normalizeImages(collected)
+}
+
+func normalizeImages(images []string) []string {
+	if len(images) == 0 {
+		return nil
+	}
+	uniq := make(map[string]struct{}, len(images))
+	for _, image := range images {
+		trimmed := strings.TrimSpace(image)
+		if trimmed == "" {
+			continue
+		}
+		uniq[trimmed] = struct{}{}
+	}
+	if len(uniq) == 0 {
+		return nil
+	}
+	normalized := make([]string, 0, len(uniq))
+	for image := range uniq {
+		normalized = append(normalized, image)
+	}
+	sort.Strings(normalized)
+	return normalized
+}
+
+func copyStringSlice(values []string) []string {
+	if len(values) == 0 {
+		return nil
+	}
+	dup := make([]string, len(values))
+	copy(dup, values)
+	return dup
+}
+
+func stringSlicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }

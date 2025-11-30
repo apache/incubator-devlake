@@ -15,23 +15,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-##### Q1. How to generate a Bitbucket app password?
+##### Q1. How to generate a Bitbucket API token?
 
-1. Sign in at [bitbucket.org](https://bitbucket.org).
-2. Select the **Settings** cog in the upper-right corner of the top navigation bar.
-3. Under **Personal settings**, select **Personal Bitbucket settings**.
-4. On the left sidebar, select **App passwords**.
-5. Select **Create app password**.
-6. Give the 'App password' a name.
-7. Select the permissions the 'App password needs'. See **Q2**.
-8. Select the **Create** button.
+**⚠️ Important: App passwords are being deprecated!**
+- Creation of App passwords will be discontinued on **September 9, 2025**
+- All existing App passwords will be deactivated on **June 9, 2026**
+- Please use API tokens for all new connections
 
-For detailed instructions, refer to [this doc](https://devlake.apache.org/docs/Configuration/BitBucket/#username-and-app-password).
+**To create an API token:**
 
-##### Q2. Which app password permissions should be included in a token?
+1. Sign in at [https://id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens).
+2. Select **Create API token with scopes**.
+3. Give the API token a name and an expiry date (ex: 365 days), then select **Next**.
+4. Select **Bitbucket** as the app and select **Next**.
+5. Select the required scopes (see **Q2**) and select **Next**.
+6. Review your token and select **Create token**.
+7. **Copy the generated API token immediately** - it's only displayed once and can't be retrieved later.
 
-The following permissions are required to collect data from Bitbucket repositories:
-`Account:Read` `Workspace` `membership:Read` `Repositories:Read` `Projects:Read` `Pull requests:Read` `Issues:Read` `Pipelines:Read` `Runners:Read`
+For detailed instructions, refer to [Atlassian's API token documentation](https://support.atlassian.com/bitbucket-cloud/docs/create-an-api-token/).
+
+##### Q2. Which permissions (scopes) should be included in an API token?
+
+The following scopes are **required** to collect data from Bitbucket repositories:
+
+- `read:account` - Required to view users profiles
+- `read:issue:bitbucket` - View your issues
+- `read:pipeline:bitbucket` - View your pipelines
+- `read:project:bitbucket` - View your projects
+- `read:pullrequest:bitbucket` - View your pull requests
+- `read:repository:bitbucket` - View your repositories
+- `read:runner:bitbucket` - View your workspaces/repositories' runners
+- `read:user:bitbucket` - View user info (required for connection test)
+- `read:workspace:bitbucket` - View your workspaces
 
 ##### Q3. Is connecting to the Bitbucket Server/Data Center possible?
 

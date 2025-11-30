@@ -18,12 +18,31 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addImageSupportArtifacts),
+type addScopeConfigIdToS3Slice struct{}
+
+func (*addScopeConfigIdToS3Slice) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+
+	// Add scope_config_id column to _tool_q_dev_s3_slices table
+	err := db.Exec(`
+		ALTER TABLE _tool_q_dev_s3_slices
+		ADD COLUMN scope_config_id BIGINT UNSIGNED DEFAULT 0
+	`)
+	if err != nil {
+		return errors.Convert(err)
 	}
+
+	return nil
+}
+
+func (*addScopeConfigIdToS3Slice) Version() uint64 {
+	return 20251123000001
+}
+
+func (*addScopeConfigIdToS3Slice) Name() string {
+	return "Add scope_config_id column to S3 slice table"
 }
