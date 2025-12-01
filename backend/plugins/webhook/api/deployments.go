@@ -126,16 +126,26 @@ func PostDeploymentsByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 // @Router /projects/:projectName/deployments [POST]
 func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// find or create the connection for this project
+	connection, err, shouldReturn := getOrCreateConnection(input)
+	if shouldReturn {
+		return nil, err
+	}
+
+	return postDeployments(input, connection, err)
+}
+
+func getOrCreateConnection(input *plugin.ApiResourceInput) (*models.WebhookConnection, errors.Error, bool) {
 	connection := &models.WebhookConnection{}
 	projectName := input.Params["projectName"]
 	webhookName := fmt.Sprintf("%s_deployments", projectName)
 	err := findByProjectName(connection, input.Params, pluginName, webhookName)
+	dal := basicRes.GetDal()
 	if err != nil {
 		// if not found, we will attempt to create a new connection
 		// Use direct comparison against the package sentinel; only treat other errors as fatal.
-		if !basicRes.GetDal().IsErrorNotFound(err) {
+		if !dal.IsErrorNotFound(err) {
 			logger.Error(err, "failed to find webhook connection for project", "projectName", projectName)
-			return nil, err
+			return nil, err, true
 		}
 
 		// create the connection
@@ -146,20 +156,20 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 		projectOutput, err := services.GetProject(projectName)
 		if err != nil {
 			logger.Error(err, "failed to find project for webhook connection", "projectName", projectName)
-			return nil, err
+			return nil, err, true
 		}
 
 		if projectOutput == nil {
 			logger.Error(err, "project not found for webhook connection", "projectName", projectName)
-			return nil, errors.NotFound.New("project not found: " + projectName)
+			return nil, errors.NotFound.New("project not found: " + projectName), true
 		}
 
 		if projectOutput.Blueprint == nil {
 			logger.Error(err, "unable to create webhook as the project has no blueprint", "projectName", projectName)
-			return nil, errors.BadInput.New("project has no blueprint: " + projectName)
+			return nil, errors.BadInput.New("project has no blueprint: " + projectName), true
 		}
 
-		input = &plugin.ApiResourceInput{
+		connectionInput := &plugin.ApiResourceInput{
 			Params: map[string]string{
 				"plugin": "webhook",
 			},
@@ -168,10 +178,10 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 			},
 		}
 
-		err = connectionHelper.Create(connection, input)
+		err = connectionHelper.Create(connection, connectionInput)
 		if err != nil {
-			logger.Error(err, "failed to create webhook connection for project", "projectName", input.Params["projectName"])
-			return nil, err
+			logger.Error(err, "failed to create webhook connection for project", "projectName", projectName)
+			return nil, err, true
 		}
 
 		// get the blueprint
@@ -180,7 +190,7 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 
 		if err != nil {
 			logger.Error(err, "failed to find blueprint for webhook connection", "blueprintId", blueprintId)
-			return nil, err
+			return nil, err, true
 		}
 
 		// we need to associate this connection with the blueprint
@@ -191,14 +201,13 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 		}
 
 		logger.Info("adding blueprint connection for blueprint %d and connection %d", blueprint.ID, connection.ID)
-		err = basicRes.GetDal().Create(blueprintConnection)
+		err = dal.Create(blueprintConnection)
 		if err != nil {
-			logger.Error(err, "failed to create blueprint connection for project", "projectName", input.Params["projectName"])
-			return nil, err
+			logger.Error(err, "failed to create blueprint connection for project", "projectName", projectName)
+			return nil, err, true
 		}
 	}
-
-	return postDeployments(input, connection, err)
+	return connection, err, false
 }
 
 func postDeployments(input *plugin.ApiResourceInput, connection *models.WebhookConnection, err errors.Error) (*plugin.ApiResourceOutput, errors.Error) {
