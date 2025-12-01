@@ -135,12 +135,12 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 		// if not found, we will attempt to create a new connection
 		// Use direct comparison against the package sentinel; only treat other errors as fatal.
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logger.Error(err, "failed to find webhook connection for project", "projectName", input.Params["projectName"])
+			logger.Error(err, "failed to find webhook connection for project", "projectName", projectName)
 			return nil, err
 		}
 
 		// create the connection
-		logger.Debug("creating webhook connection for project %s", input.Params["projectName"])
+		logger.Debug("creating webhook connection for project %s", projectName)
 		connection.Name = webhookName
 
 		// find the project and blueprint with which we will associate this connection
