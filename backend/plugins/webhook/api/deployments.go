@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/server/services"
-	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"github.com/go-playground/validator/v10"
@@ -134,7 +133,7 @@ func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiRe
 	if err != nil {
 		// if not found, we will attempt to create a new connection
 		// Use direct comparison against the package sentinel; only treat other errors as fatal.
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
+		if !basicRes.GetDal().IsErrorNotFound(err) {
 			logger.Error(err, "failed to find webhook connection for project", "projectName", projectName)
 			return nil, err
 		}
