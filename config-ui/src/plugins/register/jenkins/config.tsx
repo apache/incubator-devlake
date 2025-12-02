@@ -59,6 +59,7 @@ export const JenkinsConfig: IPluginConfig = {
     transformation: {
       deploymentPattern: '(deploy|push-image)',
       productionPattern: 'prod(.*)',
+      branchFilterPattern: '',
     },
   },
 };
