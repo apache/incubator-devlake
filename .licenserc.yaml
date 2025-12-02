@@ -35,6 +35,7 @@ header:
     - "**/*.svg"
     - "**/*.png"
     - ".editorconfig"
+    - "**/.gitattributes"
     - "**/.gitignore"
     - "**/.helmignore"
     - "**/.dockerignore"
