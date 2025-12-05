@@ -1,4 +1,4 @@
-# Specification Quality Checklist: GitHub Copilot Plugin
+# Specification Quality Checklist: GitHub Copilot Plugin - Adoption Metrics (Phase 1)
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning  
 **Created**: December 5, 2025  
@@ -32,6 +32,6 @@
 ## Notes
 
 - Specification is complete and ready for `/speckit.clarify` or `/speckit.plan`
+- Phase 1 focused on plugin infrastructure and Adoption Dashboard only
+- Impact Dashboard deferred to Phase 2 (`002-copilot-impact-dashboard`)
 - All requirements derived from completed research in `copilot-metrics-research/copilot_plugin_spec.md`
-- Assumes existing DevLake PR data is available for impact correlation (documented in Assumptions section)
-- GitHub Copilot Metrics API 100-day lookback limit is addressed via incremental collection strategy

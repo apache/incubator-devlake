@@ -1,9 +1,10 @@
-# Feature Specification: GitHub Copilot Plugin for Apache DevLake
+# Feature Specification: GitHub Copilot Plugin - Adoption Metrics (Phase 1)
 
 **Feature Branch**: `001-copilot-metrics-plugin`  
 **Created**: December 5, 2025  
 **Status**: Draft  
-**Input**: User description: "Build a GitHub Copilot plugin for Apache DevLake that collects Copilot usage metrics from GitHub's REST API (org-level and team-level), enables before/after impact analysis with implementation_date in scope config, and provides Grafana dashboards for adoption and impact analysis"
+**Phase**: 1 of 2 (see `002-copilot-impact-dashboard` for Phase 2)  
+**Input**: User description: "Build a GitHub Copilot plugin for Apache DevLake that collects Copilot usage metrics from GitHub's REST API (org-level and team-level) and provides an Adoption Dashboard"
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -65,45 +66,7 @@ As a DevOps leader, I want to view a dashboard showing Copilot adoption trends s
 
 ---
 
-### User Story 4 - Configure Copilot Implementation Date (Priority: P2)
-
-As an engineering manager, I want to specify when Copilot was rolled out to my team so that I can compare productivity metrics before and after adoption.
-
-**Why this priority**: Implementation date is required for before/after impact analysis, but can be added after initial metrics collection is working.
-
-**Independent Test**: Can be fully tested by configuring an implementation date in scope settings and verifying the date is stored and used in impact calculations.
-
-**Acceptance Scenarios**:
-
-1. **Given** I am editing a Copilot scope configuration, **When** I set an implementation date, **Then** the date is saved and displayed in scope details.
-
-2. **Given** no implementation date is set, **When** I try to view the Impact Dashboard, **Then** I see a message prompting me to configure the implementation date first.
-
-3. **Given** I set a baseline period (days before implementation to compare), **When** viewing impact analysis, **Then** the system uses that period for before/after calculations.
-
----
-
-### User Story 5 - View Copilot Impact Dashboard (Priority: P2)
-
-As a VP of Engineering, I want to compare engineering velocity metrics before and after Copilot adoption so that I can measure the tool's impact on productivity.
-
-**Why this priority**: Impact analysis delivers the highest strategic value but depends on metrics collection and implementation date configuration being complete.
-
-**Independent Test**: Can be fully tested by viewing the Impact Dashboard with a configured implementation date and verifying before/after comparison panels show meaningful data differences.
-
-**Acceptance Scenarios**:
-
-1. **Given** an implementation date is configured and PR metrics exist, **When** I open the Impact Dashboard, **Then** I see side-by-side comparison of PR cycle time before vs after Copilot.
-
-2. **Given** deployment data exists in DevLake, **When** I view deployment frequency panel, **Then** I see deployment counts per week for baseline period vs post-implementation period.
-
-3. **Given** sufficient historical data exists, **When** I view the impact summary, **Then** I see percentage change metrics (e.g., "PR cycle time reduced by 23%").
-
-4. **Given** I view the time series panel, **When** implementation date is set, **Then** I see a vertical annotation line marking the Copilot rollout date.
-
----
-
-### User Story 6 - Collect Language and Editor Breakdown (Priority: P3)
+### User Story 4 - Collect Language and Editor Breakdown (Priority: P2)
 
 As an engineering leader, I want to see Copilot usage broken down by programming language and IDE so that I can understand adoption patterns across different tech stacks.
 
@@ -119,7 +82,7 @@ As an engineering leader, I want to see Copilot usage broken down by programming
 
 ---
 
-### User Story 7 - Track PR Summary Usage by Repository (Priority: P3)
+### User Story 5 - Track PR Summary Usage by Repository (Priority: P3)
 
 As a repository owner, I want to see which repositories use Copilot PR summaries so that I can encourage adoption in lower-usage repos.
 
@@ -151,20 +114,16 @@ As a repository owner, I want to see which repositories use Copilot PR summaries
 - **FR-005**: System MUST collect PR summary counts per repository from the Copilot API.
 - **FR-006**: System MUST support incremental collection to respect the 100-day API lookback limit.
 - **FR-007**: System MUST allow configuration of organization-level or team-level scope for metric collection.
-- **FR-008**: System MUST store an implementation date in scope configuration for before/after impact analysis.
-- **FR-009**: System MUST store a configurable baseline period (default: 90 days) for impact comparison calculations.
-- **FR-010**: System MUST provide an Adoption Dashboard showing usage trends, acceptance rates, and user counts.
-- **FR-011**: System MUST provide an Impact Dashboard comparing PR cycle time, coding time, and deployment frequency before vs after Copilot adoption.
-- **FR-012**: System MUST correlate Copilot metrics with existing `project_pr_metrics` data using date-based joins.
-- **FR-013**: System MUST handle API errors gracefully (403, 404, 422, 429) with clear user-facing messages.
-- **FR-014**: System MUST respect team privacy thresholds (5+ users required for data) without failing collection.
-- **FR-015**: System MUST store language and editor breakdown metrics for granular usage analysis.
-- **FR-016**: System MUST support seat assignment collection to track adoption timeline.
+- **FR-008**: System MUST provide an Adoption Dashboard showing usage trends, acceptance rates, and user counts.
+- **FR-009**: System MUST handle API errors gracefully (403, 404, 422, 429) with clear user-facing messages.
+- **FR-010**: System MUST respect team privacy thresholds (5+ users required for data) without failing collection.
+- **FR-011**: System MUST store language and editor breakdown metrics for granular usage analysis.
+- **FR-012**: System MUST support seat assignment collection to track adoption timeline.
 
 ### Key Entities
 
 - **CopilotConnection**: Authentication credentials linking DevLake to a GitHub organization's Copilot subscription. Contains token, organization name, and API endpoint.
-- **CopilotScope**: Defines the data collection boundary (organization or team level). Contains implementation date and baseline period for impact analysis.
+- **CopilotScope**: Defines the data collection boundary (organization or team level).
 - **CopilotOrgMetrics**: Daily aggregate usage data including active users, suggestions, acceptances, and chat interactions. Primary entity for adoption dashboards.
 - **CopilotLanguageMetrics**: Breakdown of usage by programming language and editor. Supports granular adoption analysis.
 - **CopilotSeat**: Individual seat assignment record tracking when users received Copilot access. Enables adoption timeline visualization.
@@ -175,18 +134,24 @@ As a repository owner, I want to see which repositories use Copilot PR summaries
 
 - **SC-001**: Users can configure a Copilot connection and complete initial metrics collection within 10 minutes.
 - **SC-002**: Adoption Dashboard displays current-week Copilot usage within 24 hours of data availability from GitHub.
-- **SC-003**: Impact Dashboard accurately shows before/after comparison when implementation date is set and 90+ days of PR data exists.
-- **SC-004**: System handles 100-day historical collection without timeout or resource exhaustion.
-- **SC-005**: 90% of users can identify Copilot adoption trends by viewing the Adoption Dashboard without additional training.
-- **SC-006**: Before/after impact metrics match manual calculations within 2% margin when validated against raw data.
-- **SC-007**: System recovers gracefully from API rate limits and completes collection within the same pipeline run.
-- **SC-008**: Clear error messages displayed for all API failure scenarios (invalid token, missing permissions, API disabled).
+- **SC-003**: System handles 100-day historical collection without timeout or resource exhaustion.
+- **SC-004**: 90% of users can identify Copilot adoption trends by viewing the Adoption Dashboard without additional training.
+- **SC-005**: System recovers gracefully from API rate limits and completes collection within the same pipeline run.
+- **SC-006**: Clear error messages displayed for all API failure scenarios (invalid token, missing permissions, API disabled).
 
 ## Assumptions
 
 - GitHub Copilot Business or Enterprise subscription is active for the target organization.
 - Users have access to a GitHub PAT with `manage_billing:copilot` or equivalent fine-grained permissions.
 - The organization has enabled the Copilot Metrics API feature (may require opt-in in GitHub settings).
-- DevLake already has PR data from GitHub/GitLab plugins for the repositories being analyzed (required for impact correlation).
 - Standard web application performance expectations apply (pages load within 3 seconds, dashboards render within 5 seconds).
 - Data retention follows DevLake's existing data management policies.
+
+## Out of Scope (Phase 2)
+
+The following capabilities are deferred to Phase 2 (`002-copilot-impact-dashboard`):
+- Implementation date configuration for before/after analysis
+- Baseline period configuration
+- Impact Dashboard with before/after velocity comparisons
+- Correlation with `project_pr_metrics` data
+- Before/after deployment frequency analysis
