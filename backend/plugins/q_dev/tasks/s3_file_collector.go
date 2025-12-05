@@ -114,4 +114,5 @@ var CollectQDevS3FilesMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectQDevS3Files,
 	EnabledByDefault: true,
 	Description:      "Collect S3 file metadata from AWS S3 bucket",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
