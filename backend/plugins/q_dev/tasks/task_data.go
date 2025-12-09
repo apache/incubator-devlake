@@ -28,6 +28,7 @@ type QDevApiParams struct {
 type QDevOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
 	S3Prefix     string `json:"s3Prefix"`
+	ScopeId      string `json:"scopeId"`
 }
 
 type QDevTaskData struct {

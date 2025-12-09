@@ -29,6 +29,7 @@ type QDevS3FileMeta struct {
 	ConnectionId  uint64     `gorm:"primaryKey"`
 	FileName      string     `gorm:"primaryKey;type:varchar(255)"`
 	S3Path        string     `gorm:"type:varchar(512)" json:"s3Path"`
+	ScopeId       string     `gorm:"type:varchar(255);index" json:"scopeId"`
 	Processed     bool       `gorm:"default:false"`
 	ProcessedTime *time.Time `gorm:"default:null"`
 }
