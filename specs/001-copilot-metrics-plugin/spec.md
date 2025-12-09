@@ -78,20 +78,6 @@ As an engineering leader, I want to see Copilot usage broken down by programming
 
 ---
 
-### User Story 5 - Track PR Summary Usage by Repository (Priority: P3)
-
-As a repository owner, I want to see which repositories use Copilot PR summaries so that I can encourage adoption in lower-usage repos.
-
-**Why this priority**: PR summary tracking is a nice-to-have feature that depends on core metrics collection.
-
-**Independent Test**: Can be fully tested by viewing the PR summaries panel and verifying repository-level counts appear.
-
-**Acceptance Scenarios**:
-
-1. **Given** repositories have PR summary data, **When** I view the PR summaries panel, **Then** I see a table of repositories ranked by PR summaries created.
-
----
-
 ### Edge Cases
 
 - What happens when the GitHub API rate limit is exceeded? The system should respect `Retry-After` headers and resume collection without losing progress.
@@ -107,7 +93,6 @@ As a repository owner, I want to see which repositories use Copilot PR summaries
 - **FR-002**: System MUST validate connections by testing GitHub API authentication and Copilot billing access.
 - **FR-003**: System MUST collect daily Copilot usage metrics including active users, engaged users, suggestions, and acceptances.
 - **FR-004**: System MUST collect chat usage metrics for both IDE and GitHub.com chat interactions.
-- **FR-005**: System MUST collect PR summary counts per repository from the Copilot API.
 - **FR-006**: System MUST support incremental collection to respect the 100-day API lookback limit.
 - **FR-007**: System MUST allow configuration of organization-level scope for metric collection.
 - **FR-008**: System MUST provide an Adoption Dashboard showing usage trends (active & engaged users), acceptance rates, and user counts.
