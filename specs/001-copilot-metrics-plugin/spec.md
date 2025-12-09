@@ -4,7 +4,7 @@
 **Created**: December 5, 2025  
 **Status**: Draft  
 **Phase**: 1 of 2 (see `002-copilot-impact-dashboard` for Phase 2)  
-**Input**: User description: "Build a GitHub Copilot plugin for Apache DevLake that collects Copilot usage metrics from GitHub's REST API (org-level and team-level) and provides an Adoption Dashboard"
+**Input**: User description: "Build a GitHub Copilot plugin for Apache DevLake that collects Copilot usage metrics from GitHub's REST API (org-level only) and provides an Adoption Dashboard"
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -40,10 +40,6 @@ As an engineering manager, I want DevLake to automatically collect daily Copilot
 
 2. **Given** the system has previously collected metrics, **When** I run collection again, **Then** only new days since the last collection are fetched (incremental collection respecting 100-day API lookback limit).
 
-3. **Given** the organization has fewer than 5 active Copilot users on a team, **When** metrics collection runs, **Then** the system logs a warning about privacy threshold and continues without failing.
-
-4. **Given** a valid scope with team filtering enabled, **When** I run collection, **Then** only metrics for the specified team are collected.
-
 ---
 
 ### User Story 3 - View Copilot Adoption Dashboard (Priority: P1)
@@ -58,7 +54,7 @@ As a DevOps leader, I want to view a dashboard showing Copilot adoption trends s
 
 1. **Given** Copilot metrics have been collected, **When** I open the Adoption Dashboard, **Then** I see active and engaged user counts over time as a trend line.
 
-2. **Given** Copilot metrics exist for multiple languages, **When** I view the language breakdown panel, **Then** I see a bar chart of the top languages by suggestions/acceptances.
+2. **Given** Copilot metrics exist for multiple languages, **When** I view the language breakdown panel, **Then** I see a bar chart of the top 10 languages by suggestions/acceptances.
 
 3. **Given** metrics include chat usage data, **When** I view the chat usage panel, **Then** I see IDE chat vs GitHub.com chat usage as separate trend lines.
 
@@ -113,17 +109,16 @@ As a repository owner, I want to see which repositories use Copilot PR summaries
 - **FR-004**: System MUST collect chat usage metrics for both IDE and GitHub.com chat interactions.
 - **FR-005**: System MUST collect PR summary counts per repository from the Copilot API.
 - **FR-006**: System MUST support incremental collection to respect the 100-day API lookback limit.
-- **FR-007**: System MUST allow configuration of organization-level or team-level scope for metric collection.
+- **FR-007**: System MUST allow configuration of organization-level scope for metric collection.
 - **FR-008**: System MUST provide an Adoption Dashboard showing usage trends (active & engaged users), acceptance rates, and user counts.
 - **FR-009**: System MUST handle API errors gracefully (403, 404, 422, 429) with clear user-facing messages.
-- **FR-010**: System MUST respect team privacy thresholds (5+ users required for data) without failing collection.
-- **FR-011**: System MUST store language and editor breakdown metrics for granular usage analysis.
-- **FR-012**: System MUST support seat assignment collection to track adoption timeline.
+- **FR-010**: System MUST store language and editor breakdown metrics for granular usage analysis.
+- **FR-011**: System MUST support seat assignment collection to track adoption timeline.
 
 ### Key Entities
 
 - **CopilotConnection**: Authentication credentials linking DevLake to a GitHub organization's Copilot subscription. Contains token, organization name, and API endpoint.
-- **CopilotScope**: Defines the data collection boundary (organization or team level).
+- **CopilotScope**: Defines the data collection boundary (organization level).
 - **CopilotOrgMetrics**: Daily aggregate usage data including active users, suggestions, acceptances, and chat interactions. Primary entity for adoption dashboards.
 - **CopilotLanguageMetrics**: Breakdown of usage by programming language and editor. Supports granular adoption analysis.
 - **CopilotSeat**: Individual seat assignment record tracking when users received Copilot access. Enables adoption timeline visualization.
@@ -155,3 +150,4 @@ The following capabilities are deferred to Phase 2 (`002-copilot-impact-dashboar
 - Impact Dashboard with before/after velocity comparisons
 - Correlation with `project_pr_metrics` data
 - Before/after deployment frequency analysis
+- Team-level metrics collection and filtering
