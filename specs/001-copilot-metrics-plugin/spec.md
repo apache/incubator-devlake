@@ -113,7 +113,7 @@ As a repository owner, I want to see which repositories use Copilot PR summaries
 - **FR-008**: System MUST provide an Adoption Dashboard showing usage trends (active & engaged users), acceptance rates, and user counts.
 - **FR-009**: System MUST handle API errors gracefully (403, 404, 422, 429) with clear user-facing messages.
 - **FR-010**: System MUST store language and editor breakdown metrics for granular usage analysis.
-- **FR-011**: System MUST support seat assignment collection to track adoption timeline.
+- **FR-011**: System MUST support seat assignment collection to track adoption timeline, storing raw GitHub usernames to enable precise user identification.
 
 ### Key Entities
 
@@ -121,7 +121,7 @@ As a repository owner, I want to see which repositories use Copilot PR summaries
 - **CopilotScope**: Defines the data collection boundary (organization level).
 - **CopilotOrgMetrics**: Daily aggregate usage data including active users, suggestions, acceptances, and chat interactions. Primary entity for adoption dashboards.
 - **CopilotLanguageMetrics**: Breakdown of usage by programming language and editor. Supports granular adoption analysis.
-- **CopilotSeat**: Individual seat assignment record tracking when users received Copilot access. Enables adoption timeline visualization.
+- **CopilotSeat**: Individual seat assignment record tracking when users received Copilot access. Stores raw GitHub usernames to enable precise identification and adoption timeline visualization.
 
 ## Success Criteria *(mandatory)*
 
