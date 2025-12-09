@@ -25,6 +25,7 @@
       "tags": [],
       "targetBlank": true,
       "title": "DORA Dashboard",
+      "tooltip": "",
       "type": "link",
       "url": "/d/qNo8_0M4z/dora"
     },
@@ -36,6 +37,7 @@
       "tags": [],
       "targetBlank": true,
       "title": "Q Dev Dashboard",
+      "tooltip": "",
       "type": "link",
       "url": "/d/qdev_user_data/q-dev-user-data-dashboard"
     }
@@ -59,7 +61,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "## AI-Powered DORA Dashboard\nThis dashboard correlates **Q Dev (AI coding assistant)** usage metrics with **DORA** performance indicators to understand the impact of AI-assisted development on engineering efficiency.\n\n- **Q Dev data** is now linked to projects via `scope_id` and `project_mapping` table\n- Select a project to filter both Q Dev and DORA metrics together",
+        "content": "## AI-Powered DORA Dashboard\nThis dashboard correlates **Q Dev (AI coding assistant)** usage metrics with **DORA** performance indicators to help understand the impact of AI-assisted development on engineering efficiency.\n\n- **Left side**: Q Dev AI usage metrics (code generation, acceptance rate)\n- **Right side**: DORA metrics (Lead Time, Deployment Frequency, Change Failure Rate)\n- **Correlation charts**: Show trends over time to identify potential relationships",
         "mode": "markdown"
       },
       "pluginVersion": "11.0.0",
@@ -81,7 +83,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Number of unique users who used Q Dev AI features in selected project(s)",
+      "description": "Number of unique users who used Q Dev AI features",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -128,7 +130,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(DISTINCT qd.user_id) as 'Active Q Dev Users'\nFROM _tool_q_dev_user_data qd\nLEFT JOIN project_mapping pm ON qd.scope_id = pm.row_id AND pm.`table` = '_tool_q_dev_s3_slices'\nWHERE $__timeFilter(qd.date)\n  AND (pm.project_name IN (${project}) OR qd.scope_id IS NULL OR '${project}' = 'All')",
+          "rawSql": "SELECT COUNT(DISTINCT user_id) as 'Active Q Dev Users'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)",
           "refId": "A"
         }
       ],
@@ -185,7 +187,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(qd.inline_ai_code_lines + qd.chat_ai_code_lines) as 'AI Accepted Lines'\nFROM _tool_q_dev_user_data qd\nLEFT JOIN project_mapping pm ON qd.scope_id = pm.row_id AND pm.`table` = '_tool_q_dev_s3_slices'\nWHERE $__timeFilter(qd.date)\n  AND (pm.project_name IN (${project}) OR qd.scope_id IS NULL OR '${project}' = 'All')",
+          "rawSql": "SELECT SUM(inline_ai_code_lines + chat_ai_code_lines) as 'AI Accepted Lines'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)",
           "refId": "A"
         }
       ],
@@ -250,7 +252,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  SUM(qd.inline_acceptance_count) / NULLIF(SUM(qd.inline_suggestions_count), 0) as 'Acceptance Rate'\nFROM _tool_q_dev_user_data qd\nLEFT JOIN project_mapping pm ON qd.scope_id = pm.row_id AND pm.`table` = '_tool_q_dev_s3_slices'\nWHERE $__timeFilter(qd.date)\n  AND (pm.project_name IN (${project}) OR qd.scope_id IS NULL OR '${project}' = 'All')",
+          "rawSql": "SELECT \n  SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) as 'Acceptance Rate'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)",
           "refId": "A"
         }
       ],
@@ -453,12 +455,12 @@
       },
       "id": 9,
       "panels": [],
-      "title": "AI Usage vs DORA Metrics Correlation (by Project)",
+      "title": "AI Usage vs DORA Metrics Correlation",
       "type": "row"
     },
     {
       "datasource": "mysql",
-      "description": "Compare AI code generation trends with Lead Time for Changes by project. A negative correlation (AI lines up, Lead Time down) suggests AI is helping accelerate delivery.",
+      "description": "Compare AI code generation trends with Lead Time for Changes. A negative correlation (AI lines up, Lead Time down) suggests AI is helping accelerate delivery.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -584,7 +586,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH ai_monthly AS (\n  SELECT \n    DATE_FORMAT(qd.date, '%Y-%m-01') AS month,\n    SUM(qd.inline_ai_code_lines + qd.chat_ai_code_lines) AS ai_lines\n  FROM _tool_q_dev_user_data qd\n  LEFT JOIN project_mapping pm ON qd.scope_id = pm.row_id AND pm.`table` = '_tool_q_dev_s3_slices'\n  WHERE $__timeFilter(qd.date)\n    AND (pm.project_name IN (${project}) OR qd.scope_id IS NULL OR '${project}' = 'All')\n  GROUP BY DATE_FORMAT(qd.date, '%Y-%m-01')\n),\nlead_time_monthly AS (\n  SELECT\n    DATE_FORMAT(cdc.finished_date, '%Y-%m-01') AS month,\n    AVG(ppm.pr_cycle_time) / 60 AS avg_lead_time\n  FROM pull_requests pr\n  JOIN project_pr_metrics ppm ON ppm.id = pr.id\n  JOIN project_mapping pm ON pr.base_repo_id = pm.row_id AND pm.`table` = 'repos'\n  JOIN cicd_deployment_commits cdc ON ppm.deployment_commit_id = cdc.id\n  WHERE pm.project_name IN (${project})\n    AND pr.merged_date IS NOT NULL\n    AND ppm.pr_cycle_time IS NOT NULL\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, lt.month), '%Y-%m-%d') AS time,\n  ai.ai_lines AS 'AI Accepted Lines',\n  ROUND(lt.avg_lead_time, 1) AS 'Median Lead Time (hours)'\nFROM ai_monthly ai\nLEFT JOIN lead_time_monthly lt ON ai.month = lt.month\nWHERE ai.month IS NOT NULL OR lt.month IS NOT NULL\nORDER BY time",
+          "rawSql": "WITH ai_monthly AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(inline_ai_code_lines + chat_ai_code_lines) AS ai_lines\n  FROM _tool_q_dev_user_data\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\nlead_time_monthly AS (\n  SELECT\n    DATE_FORMAT(cdc.finished_date, '%Y-%m-01') AS month,\n    AVG(ppm.pr_cycle_time) / 60 AS avg_lead_time\n  FROM pull_requests pr\n  JOIN project_pr_metrics ppm ON ppm.id = pr.id\n  JOIN project_mapping pm ON pr.base_repo_id = pm.row_id AND pm.`table` = 'repos'\n  JOIN cicd_deployment_commits cdc ON ppm.deployment_commit_id = cdc.id\n  WHERE pm.project_name IN (${project})\n    AND pr.merged_date IS NOT NULL\n    AND ppm.pr_cycle_time IS NOT NULL\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, lt.month), '%Y-%m-%d') AS time,\n  ai.ai_lines AS 'AI Accepted Lines',\n  ROUND(lt.avg_lead_time, 1) AS 'Median Lead Time (hours)'\nFROM ai_monthly ai\nLEFT JOIN lead_time_monthly lt ON ai.month = lt.month\nWHERE ai.month IS NOT NULL OR lt.month IS NOT NULL\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -593,7 +595,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Compare AI suggestion acceptance rate with deployment frequency by project.",
+      "description": "Compare AI suggestion acceptance rate with deployment frequency. Higher acceptance rate may indicate better AI integration and potentially more deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -723,7 +725,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH ai_acceptance AS (\n  SELECT \n    DATE_FORMAT(qd.date, '%Y-%m-01') AS month,\n    SUM(qd.inline_acceptance_count) / NULLIF(SUM(qd.inline_suggestions_count), 0) AS acceptance_rate\n  FROM _tool_q_dev_user_data qd\n  LEFT JOIN project_mapping pm ON qd.scope_id = pm.row_id AND pm.`table` = '_tool_q_dev_s3_slices'\n  WHERE $__timeFilter(qd.date)\n    AND (pm.project_name IN (${project}) OR qd.scope_id IS NULL OR '${project}' = 'All')\n  GROUP BY DATE_FORMAT(qd.date, '%Y-%m-01')\n),\ndeployment_count AS (\n  SELECT \n    DATE_FORMAT(MAX(cdc.finished_date), '%Y-%m-01') AS month,\n    COUNT(DISTINCT cdc.cicd_deployment_id) AS deploy_count\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, dc.month), '%Y-%m-%d') AS time,\n  ai.acceptance_rate AS 'AI Acceptance Rate',\n  dc.deploy_count AS 'Deployment Count'\nFROM ai_acceptance ai\nLEFT JOIN deployment_count dc ON ai.month = dc.month\nWHERE ai.month IS NOT NULL OR dc.month IS NOT NULL\nORDER BY time",
+          "rawSql": "WITH ai_acceptance AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) AS acceptance_rate\n  FROM _tool_q_dev_user_data\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\ndeployment_count AS (\n  SELECT \n    DATE_FORMAT(MAX(cdc.finished_date), '%Y-%m-01') AS month,\n    COUNT(DISTINCT cdc.cicd_deployment_id) AS deploy_count\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, dc.month), '%Y-%m-%d') AS time,\n  ai.acceptance_rate AS 'AI Acceptance Rate',\n  dc.deploy_count AS 'Deployment Count'\nFROM ai_acceptance ai\nLEFT JOIN deployment_count dc ON ai.month = dc.month\nWHERE ai.month IS NOT NULL OR dc.month IS NOT NULL\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -732,7 +734,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Compare AI-generated tests with Change Failure Rate by project. More AI tests might correlate with lower failure rates.",
+      "description": "Compare AI-generated tests with Change Failure Rate. More AI-generated tests might correlate with lower failure rates.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -862,7 +864,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH ai_tests AS (\n  SELECT \n    DATE_FORMAT(qd.date, '%Y-%m-01') AS month,\n    SUM(qd.test_generation_generated_tests) AS generated_tests\n  FROM _tool_q_dev_user_data qd\n  LEFT JOIN project_mapping pm ON qd.scope_id = pm.row_id AND pm.`table` = '_tool_q_dev_s3_slices'\n  WHERE $__timeFilter(qd.date)\n    AND (pm.project_name IN (${project}) OR qd.scope_id IS NULL OR '${project}' = 'All')\n  GROUP BY DATE_FORMAT(qd.date, '%Y-%m-01')\n),\ncfr_monthly AS (\n  SELECT\n    DATE_FORMAT(deployment_finished_date, '%Y-%m-01') AS month,\n    SUM(has_incident) / NULLIF(COUNT(deployment_id), 0) AS cfr\n  FROM (\n    SELECT\n      d.deployment_id,\n      d.deployment_finished_date,\n      COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n    FROM (\n      SELECT\n        cdc.cicd_deployment_id AS deployment_id,\n        MAX(cdc.finished_date) AS deployment_finished_date\n      FROM cicd_deployment_commits cdc\n      JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n      WHERE pm.project_name IN (${project})\n        AND cdc.result = 'SUCCESS'\n        AND cdc.environment = 'PRODUCTION'\n      GROUP BY 1\n      HAVING $__timeFilter(MAX(cdc.finished_date))\n    ) d\n    LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n    LEFT JOIN incidents i ON pim.id = i.id\n    GROUP BY 1, 2\n  ) failure_data\n  GROUP BY DATE_FORMAT(deployment_finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, cfr.month), '%Y-%m-%d') AS time,\n  ai.generated_tests AS 'AI Generated Tests',\n  cfr.cfr AS 'Change Failure Rate'\nFROM ai_tests ai\nLEFT JOIN cfr_monthly cfr ON ai.month = cfr.month\nWHERE ai.month IS NOT NULL OR cfr.month IS NOT NULL\nORDER BY time",
+          "rawSql": "WITH ai_tests AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(test_generation_generated_tests) AS generated_tests\n  FROM _tool_q_dev_user_data\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\ncfr_monthly AS (\n  SELECT\n    DATE_FORMAT(deployment_finished_date, '%Y-%m-01') AS month,\n    SUM(has_incident) / NULLIF(COUNT(deployment_id), 0) AS cfr\n  FROM (\n    SELECT\n      d.deployment_id,\n      d.deployment_finished_date,\n      COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n    FROM (\n      SELECT\n        cdc.cicd_deployment_id AS deployment_id,\n        MAX(cdc.finished_date) AS deployment_finished_date\n      FROM cicd_deployment_commits cdc\n      JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n      WHERE pm.project_name IN (${project})\n        AND cdc.result = 'SUCCESS'\n        AND cdc.environment = 'PRODUCTION'\n      GROUP BY 1\n      HAVING $__timeFilter(MAX(cdc.finished_date))\n    ) d\n    LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n    LEFT JOIN incidents i ON pim.id = i.id\n    GROUP BY 1, 2\n  ) failure_data\n  GROUP BY DATE_FORMAT(deployment_finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, cfr.month), '%Y-%m-%d') AS time,\n  ai.generated_tests AS 'AI Generated Tests',\n  cfr.cfr AS 'Change Failure Rate'\nFROM ai_tests ai\nLEFT JOIN cfr_monthly cfr ON ai.month = cfr.month\nWHERE ai.month IS NOT NULL OR cfr.month IS NOT NULL\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -871,7 +873,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Q Dev users and Code Review findings by project",
+      "description": "Compare active Q Dev users with Code Review findings. More AI-assisted code review might catch issues earlier.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -997,7 +999,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  STR_TO_DATE(DATE_FORMAT(qd.date, '%Y-%m-01'), '%Y-%m-%d') AS time,\n  COUNT(DISTINCT qd.user_id) AS 'Active Users',\n  SUM(qd.code_review_findings_count) AS 'Code Review Findings'\nFROM _tool_q_dev_user_data qd\nLEFT JOIN project_mapping pm ON qd.scope_id = pm.row_id AND pm.`table` = '_tool_q_dev_s3_slices'\nWHERE $__timeFilter(qd.date)\n  AND (pm.project_name IN (${project}) OR qd.scope_id IS NULL OR '${project}' = 'All')\nGROUP BY DATE_FORMAT(qd.date, '%Y-%m-01')\nORDER BY time",
+          "rawSql": "SELECT \n  STR_TO_DATE(DATE_FORMAT(date, '%Y-%m-01'), '%Y-%m-%d') AS time,\n  COUNT(DISTINCT user_id) AS 'Active Users',\n  SUM(code_review_findings_count) AS 'Code Review Findings'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY DATE_FORMAT(date, '%Y-%m-01')\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -1019,7 +1021,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Monthly summary comparing Q Dev AI metrics with DORA metrics by project",
+      "description": "Monthly summary comparing Q Dev AI metrics with DORA metrics side by side",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1147,7 +1149,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH ai_metrics AS (\n  SELECT \n    DATE_FORMAT(qd.date, '%Y-%m') AS month,\n    COUNT(DISTINCT qd.user_id) AS active_users,\n    SUM(qd.inline_ai_code_lines + qd.chat_ai_code_lines) AS ai_lines,\n    SUM(qd.inline_acceptance_count) / NULLIF(SUM(qd.inline_suggestions_count), 0) AS acceptance_rate,\n    SUM(qd.test_generation_generated_tests) AS generated_tests,\n    SUM(qd.code_review_findings_count) AS review_findings\n  FROM _tool_q_dev_user_data qd\n  LEFT JOIN project_mapping pm ON qd.scope_id = pm.row_id AND pm.`table` = '_tool_q_dev_s3_slices'\n  WHERE $__timeFilter(qd.date)\n    AND (pm.project_name IN (${project}) OR qd.scope_id IS NULL OR '${project}' = 'All')\n  GROUP BY DATE_FORMAT(qd.date, '%Y-%m')\n),\ndora_metrics AS (\n  SELECT\n    DATE_FORMAT(cdc.finished_date, '%Y-%m') AS month,\n    COUNT(DISTINCT cdc.cicd_deployment_id) AS deployments,\n    AVG(ppm.pr_cycle_time) / 60 AS avg_lead_time\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  LEFT JOIN cicd_deployment_commits cdc2 ON cdc.cicd_deployment_id = cdc2.cicd_deployment_id\n  LEFT JOIN project_pr_metrics ppm ON ppm.deployment_commit_id = cdc2.id\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m')\n),\ncfr_metrics AS (\n  SELECT\n    DATE_FORMAT(deployment_finished_date, '%Y-%m') AS month,\n    SUM(has_incident) / NULLIF(COUNT(deployment_id), 0) AS cfr\n  FROM (\n    SELECT\n      d.deployment_id,\n      d.deployment_finished_date,\n      COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n    FROM (\n      SELECT\n        cdc.cicd_deployment_id AS deployment_id,\n        MAX(cdc.finished_date) AS deployment_finished_date\n      FROM cicd_deployment_commits cdc\n      JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n      WHERE pm.project_name IN (${project})\n        AND cdc.result = 'SUCCESS'\n        AND cdc.environment = 'PRODUCTION'\n      GROUP BY 1\n      HAVING $__timeFilter(MAX(cdc.finished_date))\n    ) d\n    LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n    LEFT JOIN incidents i ON pim.id = i.id\n    GROUP BY 1, 2\n  ) failure_data\n  GROUP BY DATE_FORMAT(deployment_finished_date, '%Y-%m')\n)\nSELECT \n  COALESCE(ai.month, dm.month, cfr.month) AS 'Month',\n  COALESCE(ai.active_users, 0) AS 'Q Dev Users',\n  COALESCE(ai.ai_lines, 0) AS 'AI Code Lines',\n  ai.acceptance_rate AS 'AI Acceptance Rate',\n  COALESCE(ai.generated_tests, 0) AS 'AI Tests',\n  COALESCE(ai.review_findings, 0) AS 'Review Findings',\n  COALESCE(dm.deployments, 0) AS 'Deployments',\n  ROUND(dm.avg_lead_time, 1) AS 'Lead Time (hours)',\n  cfr.cfr AS 'Change Failure Rate'\nFROM ai_metrics ai\nLEFT JOIN dora_metrics dm ON ai.month = dm.month\nLEFT JOIN cfr_metrics cfr ON ai.month = cfr.month\nORDER BY ai.month DESC",
+          "rawSql": "WITH ai_metrics AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m') AS month,\n    COUNT(DISTINCT user_id) AS active_users,\n    SUM(inline_ai_code_lines + chat_ai_code_lines) AS ai_lines,\n    SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) AS acceptance_rate,\n    SUM(test_generation_generated_tests) AS generated_tests,\n    SUM(code_review_findings_count) AS review_findings\n  FROM _tool_q_dev_user_data\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m')\n),\ndora_metrics AS (\n  SELECT\n    DATE_FORMAT(cdc.finished_date, '%Y-%m') AS month,\n    COUNT(DISTINCT cdc.cicd_deployment_id) AS deployments,\n    AVG(ppm.pr_cycle_time) / 60 AS avg_lead_time\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  LEFT JOIN cicd_deployment_commits cdc2 ON cdc.cicd_deployment_id = cdc2.cicd_deployment_id\n  LEFT JOIN project_pr_metrics ppm ON ppm.deployment_commit_id = cdc2.id\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m')\n),\ncfr_metrics AS (\n  SELECT\n    DATE_FORMAT(deployment_finished_date, '%Y-%m') AS month,\n    SUM(has_incident) / NULLIF(COUNT(deployment_id), 0) AS cfr\n  FROM (\n    SELECT\n      d.deployment_id,\n      d.deployment_finished_date,\n      COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n    FROM (\n      SELECT\n        cdc.cicd_deployment_id AS deployment_id,\n        MAX(cdc.finished_date) AS deployment_finished_date\n      FROM cicd_deployment_commits cdc\n      JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n      WHERE pm.project_name IN (${project})\n        AND cdc.result = 'SUCCESS'\n        AND cdc.environment = 'PRODUCTION'\n      GROUP BY 1\n      HAVING $__timeFilter(MAX(cdc.finished_date))\n    ) d\n    LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n    LEFT JOIN incidents i ON pim.id = i.id\n    GROUP BY 1, 2\n  ) failure_data\n  GROUP BY DATE_FORMAT(deployment_finished_date, '%Y-%m')\n)\nSELECT \n  COALESCE(ai.month, dm.month, cfr.month) AS 'Month',\n  COALESCE(ai.active_users, 0) AS 'Q Dev Users',\n  COALESCE(ai.ai_lines, 0) AS 'AI Code Lines',\n  ai.acceptance_rate AS 'AI Acceptance Rate',\n  COALESCE(ai.generated_tests, 0) AS 'AI Tests',\n  COALESCE(ai.review_findings, 0) AS 'Review Findings',\n  COALESCE(dm.deployments, 0) AS 'Deployments',\n  ROUND(dm.avg_lead_time, 1) AS 'Lead Time (hours)',\n  cfr.cfr AS 'Change Failure Rate'\nFROM ai_metrics ai\nLEFT JOIN dora_metrics dm ON ai.month = dm.month\nLEFT JOIN cfr_metrics cfr ON ai.month = cfr.month\nORDER BY ai.month DESC",
           "refId": "A"
         }
       ],
