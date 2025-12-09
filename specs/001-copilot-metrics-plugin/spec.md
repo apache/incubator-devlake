@@ -56,7 +56,7 @@ As a DevOps leader, I want to view a dashboard showing Copilot adoption trends s
 
 **Acceptance Scenarios**:
 
-1. **Given** Copilot metrics have been collected, **When** I open the Adoption Dashboard, **Then** I see active user counts over time as a trend line.
+1. **Given** Copilot metrics have been collected, **When** I open the Adoption Dashboard, **Then** I see active and engaged user counts over time as a trend line.
 
 2. **Given** Copilot metrics exist for multiple languages, **When** I view the language breakdown panel, **Then** I see a bar chart of the top languages by suggestions/acceptances.
 
@@ -114,7 +114,7 @@ As a repository owner, I want to see which repositories use Copilot PR summaries
 - **FR-005**: System MUST collect PR summary counts per repository from the Copilot API.
 - **FR-006**: System MUST support incremental collection to respect the 100-day API lookback limit.
 - **FR-007**: System MUST allow configuration of organization-level or team-level scope for metric collection.
-- **FR-008**: System MUST provide an Adoption Dashboard showing usage trends, acceptance rates, and user counts.
+- **FR-008**: System MUST provide an Adoption Dashboard showing usage trends (active & engaged users), acceptance rates, and user counts.
 - **FR-009**: System MUST handle API errors gracefully (403, 404, 422, 429) with clear user-facing messages.
 - **FR-010**: System MUST respect team privacy thresholds (5+ users required for data) without failing collection.
 - **FR-011**: System MUST store language and editor breakdown metrics for granular usage analysis.
