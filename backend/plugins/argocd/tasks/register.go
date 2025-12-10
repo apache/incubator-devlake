@@ -30,6 +30,7 @@ func CollectDataTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		CollectApplicationsMeta,
 		ExtractApplicationsMeta,
+		ConvertApplicationsMeta,
 		CollectSyncOperationsMeta,
 		ExtractSyncOperationsMeta,
 		ConvertSyncOperationsMeta,
