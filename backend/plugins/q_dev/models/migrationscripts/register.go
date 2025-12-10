@@ -30,5 +30,6 @@ func All() []plugin.MigrationScript {
 		new(addMissingMetrics),
 		new(addS3SliceTable),
 		new(addScopeConfigIdToS3Slice),
+		new(addScopeIdFields),
 	}
 }

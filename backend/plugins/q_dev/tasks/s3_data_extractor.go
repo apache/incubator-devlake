@@ -161,6 +161,7 @@ func createUserDataWithDisplayName(logger interface {
 }, headers []string, record []string, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver) (*models.QDevUserData, errors.Error) {
 	userData := &models.QDevUserData{
 		ConnectionId: fileMeta.ConnectionId,
+		ScopeId:      fileMeta.ScopeId,
 	}
 
 	// 创建字段映射
