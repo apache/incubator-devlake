@@ -1,0 +1,264 @@
+openapi: 3.0.3
+info:
+  title: DevLake Copilot Plugin API
+  version: 0.1.0
+  description: REST endpoints for managing GitHub Copilot connections and scopes.
+servers:
+  - url: https://localhost:8080/api
+paths:
+  /plugins/copilot/connections:
+    get:
+      summary: List Copilot connections
+      tags: [Copilot Connections]
+      responses:
+        '200':
+          description: Array of connections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CopilotConnection'
+    post:
+      summary: Create a Copilot connection
+      tags: [Copilot Connections]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopilotConnectionCreate'
+      responses:
+        '201':
+          description: Connection created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotConnection'
+  /plugins/copilot/connections/{connectionId}:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: Retrieve a Copilot connection
+      tags: [Copilot Connections]
+      responses:
+        '200':
+          description: Connection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotConnection'
+    patch:
+      summary: Update a Copilot connection
+      tags: [Copilot Connections]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopilotConnectionUpdate'
+      responses:
+        '200':
+          description: Connection updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotConnection'
+    delete:
+      summary: Delete a Copilot connection
+      tags: [Copilot Connections]
+      responses:
+        '204':
+          description: Connection deleted
+  /plugins/copilot/connections/{connectionId}/test:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    post:
+      summary: Test Copilot connection
+      tags: [Copilot Connections]
+      responses:
+        '200':
+          description: Test results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotConnectionTest'
+  /plugins/copilot/connections/{connectionId}/scopes:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+    get:
+      summary: List scopes for a connection
+      tags: [Copilot Scopes]
+      responses:
+        '200':
+          description: Array of scopes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CopilotScope'
+    put:
+      summary: Upsert scopes for a connection
+      tags: [Copilot Scopes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CopilotScopeUpsert'
+      responses:
+        '200':
+          description: Scope list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CopilotScope'
+  /plugins/copilot/connections/{connectionId}/scopes/{scopeId}:
+    parameters:
+      - $ref: '#/components/parameters/ConnectionId'
+      - name: scopeId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrieve a Copilot scope
+      tags: [Copilot Scopes]
+      responses:
+        '200':
+          description: Scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotScope'
+    patch:
+      summary: Update a Copilot scope
+      tags: [Copilot Scopes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopilotScopeUpdate'
+      responses:
+        '200':
+          description: Scope updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotScope'
+    delete:
+      summary: Delete a Copilot scope
+      tags: [Copilot Scopes]
+      responses:
+        '204':
+          description: Scope deleted
+
+components:
+  parameters:
+    ConnectionId:
+      name: connectionId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Numeric identifier for the Copilot connection.
+  schemas:
+    CopilotConnection:
+      type: object
+      required: [id, name, organization, endpoint]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        endpoint:
+          type: string
+          example: https://api.github.com
+        organization:
+          type: string
+          example: octodemo
+        rateLimitPerHour:
+          type: integer
+          example: 5000
+        createdAt:
+          type: string
+          format: date-time
+    CopilotConnectionCreate:
+      type: object
+      required: [name, endpoint, token, organization]
+      properties:
+        name:
+          type: string
+        endpoint:
+          type: string
+          default: https://api.github.com
+        token:
+          type: string
+          format: password
+        organization:
+          type: string
+        rateLimitPerHour:
+          type: integer
+    CopilotConnectionUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        endpoint:
+          type: string
+        token:
+          type: string
+        organization:
+          type: string
+        rateLimitPerHour:
+          type: integer
+    CopilotConnectionTest:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        organization:
+          type: string
+        planType:
+          type: string
+        totalSeats:
+          type: integer
+        activeSeats:
+          type: integer
+    CopilotScope:
+      type: object
+      required: [connectionId, scopeId, organization]
+      properties:
+        connectionId:
+          type: integer
+        scopeId:
+          type: string
+        organization:
+          type: string
+        implementationDate:
+          type: string
+          format: date
+        baselinePeriodDays:
+          type: integer
+          default: 90
+    CopilotScopeUpsert:
+      allOf:
+        - $ref: '#/components/schemas/CopilotScope'
+      required: [scopeId]
+    CopilotScopeUpdate:
+      type: object
+      properties:
+        implementationDate:
+          type: string
+          format: date
+        baselinePeriodDays:
+          type: integer
