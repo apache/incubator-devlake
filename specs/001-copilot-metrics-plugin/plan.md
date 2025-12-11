@@ -5,7 +5,14 @@
 
 ## Summary
 
-Deliver a new GitHub Copilot data source plugin that ingests organization-level adoption metrics (code completions, chat usage, seat activity) from the Copilot REST API, persists them in DevLake tool-layer tables, and exposes an Adoption Dashboard in Grafana with active/engaged user trends, top languages, editor distribution, and chat usage panels. The plugin will support connection CRUD, org-scope configuration, incremental collection within the 100-day API window, and seat tracking using raw GitHub usernames for accurate adoption analysis.
+Deliver a new GitHub Copilot data source plugin that ingests organization-level adoption metrics (code completions, chat usage, seat activity) from the Copilot REST API, persists them in DevLake tool-layer tables, and exposes an Adoption Dashboard in Grafana with active/engaged user trends, top languages, editor distribution, and chat usage panels. The plugin will support connection CRUD, org-scope configuration, incremental collection within the 100-day API window, and seat tracking using raw GitHub usernames for accurate adoption analysis. Each collector/API surface will implement explicit error handling for 403/404/422/429 responses with retry/backoff guidance so user-facing workflows remain resilient. Recently documented enterprise and per-user download schemas introduce additional metrics (daily/weekly/monthly actives, agent usage, LOC deltas), but these remain out-of-scope for Phase 1 and are captured as future expansion notes below.
+
+## API Surface & Scope Notes
+
+- **Supported in Phase 1**: `GET /orgs/{org}/copilot/metrics`, `GET /orgs/{org}/copilot/billing`, `GET /orgs/{org}/copilot/billing/seats` (JSON responses, 100-day rolling window). These endpoints provide active/engaged users, editor/language breakdowns, chat usage, and seat assignments.
+- **Deferred**: Enterprise download endpoints (`/enterprises/{enterprise}/copilot/metrics` and `/metrics/users`) that supply daily/weekly/monthly actives, agent mode usage, LOC change counts, and per-user breakdowns. Integration requires handling JSONL downloads and 28-day history limits; captured for future roadmap (Phase 2+).
+- **Feature Mapping**: Recorded schema enums (e.g., `code_completion`, `chat_panel_agent_mode`, `agent_edit`) inform naming conventions for Grafana panels and potential filter chips but will not be fully persisted until enterprise support is prioritized.
+- **Error Handling**: Connections and collectors must surface clear messaging for 403/404/422/429 responses and honor `Retry-After` headers; unit/E2E tests will simulate these cases to keep pipelines stable.
 
 ## Technical Context
 
@@ -69,7 +76,7 @@ backend/helpers/
     └── (reuse existing helpers; no structural change)
 ```
 
-**Structure Decision**: Implement a dedicated `backend/plugins/copilot` Go plugin mirroring existing data-source patterns (e.g., GitLab, Slack). Dashboard assets live under `grafana/dashboards/copilot/` alongside SQL templates. No additional top-level services are required.
+**Structure Decision**: Implement a dedicated `backend/plugins/copilot` Go plugin mirroring existing data-source patterns—**explicitly modeled on** the `backend/plugins/q_dev` (Quick Development) plugin for structure, interface wiring, migration layout, and task registration. Dashboard assets live under `grafana/dashboards/copilot/` (SQL snippets embedded in `adoption.json` rather than a separate `queries/` directory). No additional top-level services are required.
 
 ## Complexity Tracking
 
