@@ -47,6 +47,7 @@ import (
 	pagerduty "github.com/apache/incubator-devlake/plugins/pagerduty/impl"
 	q_dev "github.com/apache/incubator-devlake/plugins/q_dev/impl"
 	refdiff "github.com/apache/incubator-devlake/plugins/refdiff/impl"
+	copilot "github.com/apache/incubator-devlake/plugins/copilot/impl"
 	slack "github.com/apache/incubator-devlake/plugins/slack/impl"
 	sonarqube "github.com/apache/incubator-devlake/plugins/sonarqube/impl"
 	starrocks "github.com/apache/incubator-devlake/plugins/starrocks/impl"
@@ -98,6 +99,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("linker/models", linker.Linker{}.GetTablesInfo)
 	checker.FeedIn("issue_trace/models", issueTrace.IssueTrace{}.GetTablesInfo)
 	checker.FeedIn("q_dev/models", q_dev.QDev{}.GetTablesInfo)
+	checker.FeedIn("copilot/models", copilot.Copilot{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)

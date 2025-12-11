@@ -1,0 +1,38 @@
+{
+  "__inputs": [],
+  "__elements": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": "10.0.0"
+    }
+  ],
+  "title": "Copilot Adoption (placeholder)",
+  "uid": "copilot-adoption-placeholder",
+  "version": 1,
+  "tags": [
+    "copilot",
+    "devlake"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "panels": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "dashboard": {
+    "description": "Placeholder dashboard. Panels will be added in Phase 3."
+  }
+}
