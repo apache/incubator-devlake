@@ -30,6 +30,7 @@ type QDevUserData struct {
 	UserId       string    `gorm:"index" json:"userId"`
 	Date         time.Time `gorm:"index" json:"date"`
 	DisplayName  string    `gorm:"type:varchar(255)" json:"displayName"` // New field for user display name
+	ScopeId      string    `gorm:"index;type:varchar(255)" json:"scopeId"`
 
 	CodeReview_FindingsCount             int
 	CodeReview_SucceededEventCount       int

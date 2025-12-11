@@ -15,33 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
 import (
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-type QDevApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
+type addScopeConfigIdToS3Slice struct{}
+
+func (*addScopeConfigIdToS3Slice) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+
+	// Add scope_config_id column to _tool_q_dev_s3_slices table
+	err := db.Exec(`
+		ALTER TABLE _tool_q_dev_s3_slices
+		ADD COLUMN scope_config_id BIGINT UNSIGNED DEFAULT 0
+	`)
+	if err != nil {
+		return errors.Convert(err)
+	}
+
+	return nil
 }
 
-type QDevOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	S3Prefix     string `json:"s3Prefix"`
-	ScopeId      string `json:"scopeId"`
+func (*addScopeConfigIdToS3Slice) Version() uint64 {
+	return 20251123000001
 }
 
-type QDevTaskData struct {
-	Options        *QDevOptions
-	S3Client       *QDevS3Client
-	IdentityClient *QDevIdentityClient // New field for Identity Center client
-}
-
-type QDevS3Client struct {
-	S3     *s3.S3
-	Bucket string
-}
-
-func (client *QDevS3Client) Close() {
-	// S3客户端不需要特别关闭操作
+func (*addScopeConfigIdToS3Slice) Name() string {
+	return "Add scope_config_id column to S3 slice table"
 }

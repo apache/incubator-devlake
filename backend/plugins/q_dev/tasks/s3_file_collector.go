@@ -87,6 +87,7 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				FileName:     *object.Key,
 				S3Path:       *object.Key,
+				ScopeId:      data.Options.ScopeId,
 				Processed:    false,
 			}
 
@@ -114,4 +115,5 @@ var CollectQDevS3FilesMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectQDevS3Files,
 	EnabledByDefault: true,
 	Description:      "Collect S3 file metadata from AWS S3 bucket",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

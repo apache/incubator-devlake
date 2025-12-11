@@ -70,6 +70,11 @@ func NewQDevIdentityClient(connection *models.QDevConnection) (*QDevIdentityClie
 // ResolveUserDisplayName resolves a user ID to a human-readable display name
 // Returns the display name if found, otherwise returns the original userId as fallback
 func (client *QDevIdentityClient) ResolveUserDisplayName(userId string) (string, error) {
+	// Check if client or IdentityStore is nil
+	if client == nil || client.IdentityStore == nil {
+		return userId, nil
+	}
+
 	input := &identitystore.DescribeUserInput{
 		IdentityStoreId: aws.String(client.StoreId),
 		UserId:          aws.String(userId),
