@@ -92,7 +92,10 @@ All research is complete. This document summarizes findings across all research 
 | [copilot_api_research.md](copilot_api_research.md) | API documentation notes |
 | [copilot_implementation_strategy.md](copilot_implementation_strategy.md) | Option B strategy details |
 | [copilot_api_actual_responses.md](copilot_api_actual_responses.md) | Live API test results |
+| [copilot_api_schemas.md](copilot_api_schemas.md) | **Complete API response schemas** |
 | [copilot_plugin_spec.md](copilot_plugin_spec.md) | **Main spec document** |
+| [avocado_corp_enterprise_28_day.json](avocado_corp_enterprise_28_day.json) | Sample enterprise metrics data |
+| [avocado_corp_users_28_day.json](avocado_corp_users_28_day.json) | Sample user metrics data |
 
 ---
 
