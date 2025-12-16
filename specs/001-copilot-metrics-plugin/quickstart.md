@@ -49,17 +49,18 @@ Branch: `001-copilot-metrics-plugin`
 ## 6. Run Collection
 - Run the blueprint immediately (`Run Now`).
 - Monitor DevLake logs for rate-limit warnings or privacy-threshold messages.
-- Verify that tables `_tool_copilot_org_metrics`, `_tool_copilot_language_metrics`, and `_tool_copilot_seats` contain new records.
+- Verify that tables `_tool_copilot_org_metrics` and `_tool_copilot_seats` contain new records.
 
 ## 7. Explore Grafana Adoption Dashboard
-1. Open Grafana → `DevLake Copilot Adoption` dashboard (new entry).
-2. Select connection scope (org) via dashboard variables.
+1. Open Grafana → `Copilot Adoption` dashboard.
+2. Select your Copilot dataset via dashboard variables:
+  - `connection_id`: your Copilot connection ID
+  - `scope_id`: the organization scope ID (typically the org slug)
 3. Panels available:
    - Active vs Engaged users over time
    - Acceptance rate (acceptances / suggestions)
    - Copilot IDE vs GitHub.com chat usage
-   - Top 10 languages & editor distribution
-   - Seat adoption timeline (cumulative assignments)
+  - Seat timeline (total vs active)
 4. Adjust time range (e.g., last 90 days) and verify panels refresh successfully.
 
 ## 8. Troubleshooting

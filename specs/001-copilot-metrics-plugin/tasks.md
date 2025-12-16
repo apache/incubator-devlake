@@ -76,9 +76,10 @@
 
 ### Implementation
 
-- [ ] T021 [P] [US3] Author `grafana/dashboards/copilot/adoption.json` with panels for active/engaged trends, acceptance rate, chat usage, seat timeline, leveraging DevLake SQL macros
-- [ ] T022 [P] [US3] Add supporting SQL query snippets (e.g., acceptance rate CTEs) directly within `grafana/dashboards/copilot/adoption.json` or existing macro snippets, avoiding extra directory structure
-- [ ] T023 [US3] Update `specs/001-copilot-metrics-plugin/quickstart.md` with dashboard navigation + variable instructions and verify via local Grafana sync
+- [x] T021 [P] [US3] Author `grafana/dashboards/copilot/adoption.json` with panels for active/engaged trends, acceptance rate, chat usage, seat timeline, leveraging DevLake SQL macros
+- [x] T022 [P] [US3] Add supporting SQL query snippets (e.g., acceptance rate CTEs) directly within `grafana/dashboards/copilot/adoption.json` or existing macro snippets, avoiding extra directory structure
+- [x] T023 [US3] Update `specs/001-copilot-metrics-plugin/quickstart.md` with dashboard navigation + variable instructions and verify via local Grafana sync
+
 
 **Checkpoint**: Adoption dashboard deliverable complete; foundation for Phase 2 impact analytics
 
