@@ -99,6 +99,21 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 					query.Set("limit", fmt.Sprintf("%d", reqData.Pager.Size))
 					query.Set("offset", fmt.Sprintf("%d", reqData.Pager.Skip))
 					query.Set("total", "true")
+
+					// Apply Priority filters if configured
+					if data.Options.ScopeConfig != nil && len(data.Options.ScopeConfig.PriorityFilter) > 0 {
+						for _, priority := range data.Options.ScopeConfig.PriorityFilter {
+							query.Add("priorities[]", priority)
+						}
+					}
+
+					// Apply Urgency filters if configured
+					if data.Options.ScopeConfig != nil && len(data.Options.ScopeConfig.UrgencyFilter) > 0 {
+						for _, urgency := range data.Options.ScopeConfig.UrgencyFilter {
+							query.Add("urgencies[]", urgency)
+						}
+					}
+
 					return query, nil
 				},
 				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {

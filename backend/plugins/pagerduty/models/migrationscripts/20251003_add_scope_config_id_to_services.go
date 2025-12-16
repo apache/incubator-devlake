@@ -18,23 +18,31 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addEndpointAndProxyToConnection),
-		new(addPagerdutyConnectionFields20230123),
-		new(addTransformationRulesToService20230303),
-		new(renameTr2ScopeConfig),
-		new(removeScopeConfig),
-		new(addRawParamTableForScope),
-		new(addIncidentPriority),
-		new(addPagerDutyScopeConfig20231214),
-		new(addPagerDutyScopeConfig20240614),
-		new(addFilterFieldsToPagerDutyScopeConfig20251003),
-		new(addScopeConfigIdToServices20251003),
-	}
+var _ plugin.MigrationScript = (*addScopeConfigIdToServices20251003)(nil)
+
+type service20251003 struct {
+	ScopeConfigId uint64 `gorm:"column:scope_config_id"`
+}
+
+func (service20251003) TableName() string {
+	return "_tool_pagerduty_services"
+}
+
+type addScopeConfigIdToServices20251003 struct{}
+
+func (script *addScopeConfigIdToServices20251003) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&service20251003{})
+}
+
+func (*addScopeConfigIdToServices20251003) Version() uint64 {
+	return 20251003000001
+}
+
+func (script *addScopeConfigIdToServices20251003) Name() string {
+	return "add scope_config_id to _tool_pagerduty_services"
 }
