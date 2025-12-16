@@ -7,8 +7,8 @@
 
 **Purpose**: Establish plugin scaffold aligned with the `q_dev` data-source pattern
 
-- [ ] T001 Create `backend/plugins/copilot/` directory skeleton (api/, impl/, models/, tasks/, e2e/, README.md) mirroring `backend/plugins/q_dev/`
-- [ ] T002 [P] Add `grafana/dashboards/copilot/` folder with placeholder `adoption.json` seeded from q_dev dashboard conventions
+- [x] T001 Create `backend/plugins/copilot/` directory skeleton (api/, impl/, models/, tasks/, e2e/, README.md) mirroring `backend/plugins/q_dev/`
+- [x] T002 [P] Add `grafana/dashboards/copilot/` folder with placeholder `adoption.json` seeded from q_dev dashboard conventions
 
 ---
 
@@ -16,13 +16,13 @@
 
 **Purpose**: Core plumbing required before implementing any user story
 
-- [ ] T003 Implement plugin meta + task registration in `backend/plugins/copilot/impl/impl.go` modeled on `backend/plugins/q_dev/impl/impl.go`
-- [ ] T004 [P] Register Copilot plugin in `backend/plugins/register/register.go` and ensure inclusion in build pipeline (`backend/plugins/all_plugins.go`)
-- [ ] T005 Define option/connection helper structs in `backend/plugins/copilot/impl/options.go` and shared constants referencing GitHub endpoints
-- [ ] T006 Create tool-layer models for `CopilotConnection`, `CopilotScope`, `CopilotOrgMetrics`, `CopilotLanguageMetrics`, `CopilotSeat` in `backend/plugins/copilot/models/`
-- [ ] T007 Author initial migration script `backend/plugins/copilot/models/migrationscripts/20250100_initialize.go` and register via `models/migrationscripts/register.go`
-- [ ] T008 [P] Populate `backend/plugins/copilot/models/models.go` with `GetTablesInfo()` metadata and add unit coverage similar to `backend/plugins/q_dev/models/models_test.go`
-- [ ] T009 Establish task registry bootstrap in `backend/plugins/copilot/tasks/register.go` (define subtasks, meta ordering, blueprint default)
+- [x] T003 Implement plugin meta + task registration in `backend/plugins/copilot/impl/impl.go` modeled on `backend/plugins/q_dev/impl/impl.go`
+- [x] T004 [P] Register Copilot plugin in `backend/plugins/register/register.go` and ensure inclusion in build pipeline (`backend/plugins/all_plugins.go`)
+- [x] T005 Define option/connection helper structs in `backend/plugins/copilot/impl/options.go` and shared constants referencing GitHub endpoints
+- [x] T006 Create tool-layer models for `CopilotConnection`, `CopilotScope`, `CopilotOrgMetrics`, `CopilotLanguageMetrics`, `CopilotSeat` in `backend/plugins/copilot/models/`
+- [x] T007 Author initial migration script `backend/plugins/copilot/models/migrationscripts/20250100_initialize.go` and register via `models/migrationscripts/register.go`
+- [x] T008 [P] Populate `backend/plugins/copilot/models/models.go` with `GetTablesInfo()` metadata and add unit coverage similar to `backend/plugins/q_dev/models/models_test.go`
+- [x] T009 Establish task registry bootstrap in `backend/plugins/copilot/tasks/register.go` (define subtasks, meta ordering, blueprint default)
 
 **Checkpoint**: Copilot plugin compiles, migrations apply, and plugin appears in DevLake plugin registry
 
@@ -36,12 +36,12 @@
 
 ### Implementation
 
-- [ ] T010 [P] [US1] Implement API bootstrap in `backend/plugins/copilot/api/init.go` (connection helper, validators) following q_dev init pattern
-- [ ] T011 [P] [US1] Create connection + scope REST handlers in `backend/plugins/copilot/api/connection.go` and `api/scope.go` with DTOs from `contracts/copilot.openapi.yaml`
-- [ ] T012 [P] [US1] Implement `TestConnection` helper hitting `/orgs/{org}/copilot/billing` in `backend/plugins/copilot/impl/connection_helper.go`
-- [ ] T013 [US1] Add validation/unit tests mirroring `backend/plugins/q_dev/api/connection_test.go` to cover PAT/org edge cases
-- [ ] T014 [US1] Update plugin README (`backend/plugins/copilot/README.md`) and quickstart connection steps to document required PAT scopes
-- [ ] T014a [US1] Implement graceful error handling for connection and `TestConnection` endpoints, including unit tests simulating 403/404/422/429 responses with user-facing messages
+- [x] T010 [P] [US1] Implement API bootstrap in `backend/plugins/copilot/api/init.go` (connection helper, validators) following q_dev init pattern
+- [x] T011 [P] [US1] Create connection + scope REST handlers in `backend/plugins/copilot/api/connection.go` and `api/scope.go` with DTOs from `contracts/copilot.openapi.yaml`
+- [x] T012 [P] [US1] Implement `TestConnection` helper hitting `/orgs/{org}/copilot/billing` in `backend/plugins/copilot/impl/connection_helper.go`
+- [x] T013 [US1] Add validation/unit tests mirroring `backend/plugins/q_dev/api/connection_test.go` to cover PAT/org edge cases
+- [x] T014 [US1] Update plugin README (`backend/plugins/copilot/README.md`) and quickstart connection steps to document required PAT scopes
+- [x] T014a [US1] Implement graceful error handling for connection and `TestConnection` endpoints, including unit tests simulating 403/404/422/429 responses with user-facing messages
 
 **Checkpoint**: Connection CRUD & test APIs operational; no data collection yet
 
@@ -56,12 +56,13 @@
 ### Implementation
 
 - [ ] T015 [P] [US2] Build metrics collector (`backend/plugins/copilot/tasks/metrics_collector.go`) using `helper.NewStatefulApiCollector` against `/orgs/{org}/copilot/metrics`
-- [ ] T016 [P] [US2] Implement seat assignment collector (`backend/plugins/copilot/tasks/seat_collector.go`) calling `/orgs/{org}/copilot/billing/seats`
-- [ ] T017 [P] [US2] Create extractor/convertor mapping raw payloads to `CopilotOrgMetrics` + `CopilotSeat` in `backend/plugins/copilot/tasks/metrics_extractor.go`
-- [ ] T018 [US2] Register subtasks in `backend/plugins/copilot/tasks/register.go` and wire into plugin pipeline order (collector → extractor)
-- [ ] T019 [P] [US2] Add E2E fixture set under `backend/plugins/copilot/e2e/metrics/` with mocked JSON (org metrics + seats) and golden CSVs
-- [ ] T020 [US2] Write unit tests for state bookmarking + rate limit handling in `backend/plugins/copilot/tasks/metrics_collector_test.go`
-- [ ] T020a [US2] Harden collectors with Retry-After/backoff logic and verify graceful handling of 403/404/422/429 responses via unit tests and log assertions
+- [x] T015 [P] [US2] Build metrics collector (`backend/plugins/copilot/tasks/metrics_collector.go`) using `helper.NewStatefulApiCollector` against `/orgs/{org}/copilot/metrics`
+- [x] T016 [P] [US2] Implement seat assignment collector (`backend/plugins/copilot/tasks/seat_collector.go`) calling `/orgs/{org}/copilot/billing/seats`
+- [x] T017 [P] [US2] Create extractor/convertor mapping raw payloads to `CopilotOrgMetrics` + `CopilotSeat` in `backend/plugins/copilot/tasks/metrics_extractor.go`
+- [x] T018 [US2] Register subtasks in `backend/plugins/copilot/tasks/register.go` and wire into plugin pipeline order (collector → extractor)
+- [x] T019 [P] [US2] Add E2E fixture set under `backend/plugins/copilot/e2e/metrics/` with mocked JSON (org metrics + seats) and golden CSVs
+- [x] T020 [US2] Write unit tests for state bookmarking + rate limit handling in `backend/plugins/copilot/tasks/metrics_collector_test.go`
+- [x] T020a [US2] Harden collectors with Retry-After/backoff logic and verify graceful handling of 403/404/422/429 responses via unit tests and log assertions
 
 **Checkpoint**: Metrics & seat data captured incrementally and ready for dashboard consumption
 
