@@ -18,26 +18,27 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"net/http"
+	"strconv"
+	"time"
 )
 
-var CollectCopilotOrgMetricsMeta = plugin.SubTaskMeta{
-	Name:             "collectCopilotOrgMetrics",
-	EntryPoint:       CollectCopilotOrgMetrics,
-	EnabledByDefault: true,
-	Description:      "Collect GitHub Copilot organization metrics",
-}
-
-var CollectCopilotSeatAssignmentsMeta = plugin.SubTaskMeta{
-	Name:             "collectCopilotSeatAssignments",
-	EntryPoint:       CollectCopilotSeatAssignments,
-	EnabledByDefault: true,
-	Description:      "Collect GitHub Copilot seat assignments",
-}
-
-var ExtractCopilotOrgMetricsMeta = plugin.SubTaskMeta{
-	Name:             "extractCopilotOrgMetrics",
-	EntryPoint:       ExtractCopilotOrgMetrics,
-	EnabledByDefault: true,
-	Description:      "Extract Copilot metrics into tool-layer tables",
+func parseRetryAfter(value string, now time.Time) time.Duration {
+	if value == "" {
+		return 0
+	}
+	if seconds, err := strconv.Atoi(value); err == nil {
+		if seconds <= 0 {
+			return 0
+		}
+		return time.Duration(seconds) * time.Second
+	}
+	if t, err := http.ParseTime(value); err == nil {
+		wait := t.Sub(now)
+		if wait < 0 {
+			return 0
+		}
+		return wait
+	}
+	return 0
 }
