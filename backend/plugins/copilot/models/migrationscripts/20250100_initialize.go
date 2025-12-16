@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/copilot/models"
 )
 
@@ -27,8 +28,8 @@ import (
 type addCopilotInitialTables struct{}
 
 func (script *addCopilotInitialTables) Up(basicRes context.BasicRes) errors.Error {
-	db := basicRes.GetDal()
-	return db.AutoMigrate(
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		&models.CopilotConnection{},
 		&models.CopilotScope{},
 		&models.CopilotOrgMetrics{},

@@ -17,9 +17,4 @@ limitations under the License.
 
 package impl
 
-import "github.com/apache/incubator-devlake/plugins/copilot/models"
-
-// NormalizeConnection ensures required defaults are set before use.
-func NormalizeConnection(connection *models.CopilotConnection) {
-	connection.Normalize()
-}
+// Legacy placeholder: connection helper tests moved to the service package.

@@ -22,6 +22,13 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+const (
+	// DefaultEndpoint is the GitHub REST API endpoint used for Copilot metrics.
+	DefaultEndpoint = "https://api.github.com"
+	// DefaultRateLimitPerHour mirrors GitHub's default rate limit for PATs.
+	DefaultRateLimitPerHour = 5000
+)
+
 // CopilotConn stores GitHub Copilot connection settings.
 type CopilotConn struct {
 	helper.RestConnection `mapstructure:",squash"`
@@ -68,4 +75,17 @@ func (connection *CopilotConnection) MergeFromRequest(target *CopilotConnection,
 		target.Token = originalToken
 	}
 	return nil
+}
+
+// Normalize applies default connection values where necessary.
+func (connection *CopilotConnection) Normalize() {
+	if connection == nil {
+		return
+	}
+	if connection.Endpoint == "" {
+		connection.Endpoint = DefaultEndpoint
+	}
+	if connection.RateLimitPerHour <= 0 {
+		connection.RateLimitPerHour = DefaultRateLimitPerHour
+	}
 }

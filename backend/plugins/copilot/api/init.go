@@ -18,21 +18,74 @@ limitations under the License.
 package api
 
 import (
+	"github.com/go-playground/validator/v10"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
+	"github.com/apache/incubator-devlake/plugins/copilot/models"
 )
 
 var (
-	basicRes     context.BasicRes
-	apiResources = map[string]map[string]plugin.ApiResourceHandler{}
+	basicRes         context.BasicRes
+	apiResources     = map[string]map[string]plugin.ApiResourceHandler{}
+	vld              *validator.Validate
+	connectionHelper *helper.ConnectionApiHelper
+	dsHelper         *helper.DsHelper[models.CopilotConnection, models.CopilotScope, srvhelper.NoScopeConfig]
 )
 
-// Init stores basic resources for later API handlers.
-func Init(br context.BasicRes, _ plugin.PluginMeta) {
+// Init stores basic resources and configures shared helpers for API handlers.
+func Init(br context.BasicRes, meta plugin.PluginMeta) {
 	basicRes = br
+	vld = validator.New()
+	connectionHelper = helper.NewConnectionHelper(basicRes, vld, meta.Name())
+	dsHelper = helper.NewDataSourceHelper[
+		models.CopilotConnection, models.CopilotScope, srvhelper.NoScopeConfig,
+	](
+		basicRes,
+		meta.Name(),
+		[]string{"id", "organization"},
+		func(c models.CopilotConnection) models.CopilotConnection {
+			c.Normalize()
+			return c.Sanitize()
+		},
+		func(s models.CopilotScope) models.CopilotScope { return s },
+		nil,
+	)
+
+	apiResources = map[string]map[string]plugin.ApiResourceHandler{
+		"test": {
+			"POST": TestConnection,
+		},
+		"connections": {
+			"POST": PostConnections,
+			"GET":  ListConnections,
+		},
+		"connections/:connectionId": {
+			"GET":    GetConnection,
+			"PATCH":  PatchConnection,
+			"DELETE": DeleteConnection,
+		},
+		"connections/:connectionId/test": {
+			"POST": TestExistingConnection,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": GetScopeList,
+			"PUT": PutScopes,
+		},
+		"connections/:connectionId/scopes/:scopeId": {
+			"GET":    GetScope,
+			"PATCH":  PatchScope,
+			"DELETE": DeleteScope,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": GetScopeLatestSyncState,
+		},
+	}
 }
 
-// GetApiResources returns registered API handlers. Populated in later phases.
+// GetApiResources returns registered API handlers for the Copilot plugin.
 func GetApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return apiResources
 }
