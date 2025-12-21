@@ -151,6 +151,7 @@ func (tp *TokenProvider) refreshToken() errors.Error {
 		})
 		if err != nil {
 			tp.logger.Warn(err, "failed to persist refreshed token")
+			return errors.Convert(err)
 		}
 	}
 
