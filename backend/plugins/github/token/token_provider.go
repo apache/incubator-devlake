@@ -112,15 +112,18 @@ func (tp *TokenProvider) refreshToken() errors.Error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return errors.Default.New(fmt.Sprintf("failed to refresh token: %d", resp.StatusCode))
-	}
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Convert(err)
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		// Log the response body to aid in debugging token refresh failures.
+		if tp.logger != nil {
+			tp.logger.Error(nil, "failed to refresh token from GitHub, status=%d, body=%s", resp.StatusCode, string(body))
+		}
+		return errors.Default.New(fmt.Sprintf("failed to refresh token: %d, body: %s", resp.StatusCode, string(body)))
+	}
 	var result struct {
 		AccessToken           string `json:"access_token"`
 		RefreshToken          string `json:"refresh_token"`
