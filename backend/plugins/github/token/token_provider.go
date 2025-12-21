@@ -135,7 +135,12 @@ func (tp *TokenProvider) refreshToken() errors.Error {
 	}
 
 	if result.AccessToken == "" {
-		return errors.Default.New("empty access token returned")
+		bodyStr := string(body)
+		const maxBodySnippet = 512
+		if len(bodyStr) > maxBodySnippet {
+			bodyStr = bodyStr[:maxBodySnippet] + "…"
+		}
+		return errors.Default.New(fmt.Sprintf("empty access token returned; response body: %s", bodyStr))
 	}
 
 	tp.conn.UpdateToken(
