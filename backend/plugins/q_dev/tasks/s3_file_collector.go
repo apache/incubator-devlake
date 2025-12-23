@@ -87,6 +87,7 @@ func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				FileName:     *object.Key,
 				S3Path:       *object.Key,
+				ScopeId:      data.Options.ScopeId,
 				Processed:    false,
 			}
 

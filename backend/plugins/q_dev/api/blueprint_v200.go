@@ -71,6 +71,7 @@ func makeDataSourcePipelinePlanV200(
 		op := &tasks.QDevOptions{
 			ConnectionId: s3Slice.ConnectionId,
 			S3Prefix:     s3Slice.Prefix,
+			ScopeId:      s3Slice.Id,
 		}
 
 		// Pass empty entities array to enable all subtasks
