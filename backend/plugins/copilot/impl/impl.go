@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/copilot/api"
@@ -36,6 +37,7 @@ var _ interface {
 	plugin.PluginApi
 	plugin.PluginModel
 	plugin.PluginSource
+	plugin.DataSourcePluginBlueprintV200
 	plugin.PluginMigration
 	plugin.CloseablePluginTask
 } = (*Copilot)(nil)
@@ -100,6 +102,13 @@ func (p Copilot) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 
 func (p Copilot) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return api.GetApiResources()
+}
+
+func (p Copilot) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Copilot) RootPkgPath() string {
