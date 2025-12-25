@@ -18,18 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+type githubConnection20241120 struct {
+	RefreshToken          string `gorm:"type:text;serializer:encdec"`
+	TokenExpiresAt        time.Time
+	RefreshTokenExpiresAt time.Time
+}
+
+func (githubConnection20241120) TableName() string {
+	return "_tool_github_connections"
+}
 
 type addRefreshTokenFields struct{}
 
 func (*addRefreshTokenFields) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.GithubConnection{},
+		&githubConnection20241120{},
 	)
 }
 
