@@ -43,5 +43,6 @@ func All() []plugin.MigrationScript {
 		new(addMergedByToPr),
 		new(changeIssueComponentType),
 		new(addApiTokenAuth),
+		new(addPrReviewerTable),
 	}
 }
