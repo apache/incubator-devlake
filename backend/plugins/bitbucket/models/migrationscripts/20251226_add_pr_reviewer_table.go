@@ -22,23 +22,23 @@ import (
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 var _ plugin.MigrationScript = (*addPrReviewerTable)(nil)
 
 type prReviewer20251226 struct {
-	ConnectionId   uint64     `gorm:"primaryKey"`
-	RepoId         string     `gorm:"primaryKey;type:varchar(255)"`
-	PullRequestId  int        `gorm:"primaryKey"`
-	AccountId      string     `gorm:"primaryKey;type:varchar(255)"`
-	DisplayName    string     `gorm:"type:varchar(255)"`
-	Role           string     `gorm:"type:varchar(100)"`
-	State          string     `gorm:"type:varchar(100)"`
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	RepoId         string `gorm:"primaryKey;type:varchar(255)"`
+	PullRequestId  int    `gorm:"primaryKey"`
+	AccountId      string `gorm:"primaryKey;type:varchar(255)"`
+	DisplayName    string `gorm:"type:varchar(255)"`
+	Role           string `gorm:"type:varchar(100)"`
+	State          string `gorm:"type:varchar(100)"`
 	Approved       bool
 	ParticipatedOn *time.Time
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	archived.NoPKModel
 }
 
 func (prReviewer20251226) TableName() string {
