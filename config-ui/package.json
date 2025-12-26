@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "packageManager": "yarn@3.4.1",
   "scripts": {
-    "start": "vite",
+    "start": "vite --host --strictPort",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc && eslint . --fix",
