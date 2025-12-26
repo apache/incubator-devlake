@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -276,7 +277,11 @@ func (collector *GraphqlCollector) fetchAsync(reqData *GraphqlRequestData, handl
 	if len(dataErrors) > 0 {
 		if !collector.args.IgnoreQueryErrors {
 			for _, dataError := range dataErrors {
-				collector.checkError(errors.Default.Wrap(dataError, `graphql query got error`))
+				if strings.Contains(dataError.Error(), "Could not resolve to an Issue") {
+					logger.Warn(nil, "Issue may have been transferred.")
+				} else {
+					collector.checkError(errors.Default.Wrap(dataError, `graphql query got error`))
+				}
 			}
 			return
 		}
