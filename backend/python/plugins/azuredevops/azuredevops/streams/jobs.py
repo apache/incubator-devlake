@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from http import HTTPStatus
-from typing import Iterable
+from typing import Iterable, Optional
 
 import pydevlake.domain_layer.devops as devops
 from azuredevops.api import AzureDevOpsAPI
@@ -22,6 +22,31 @@ from azuredevops.models import Job, Build, GitRepository
 from azuredevops.streams.builds import Builds
 from pydevlake import Context, Substream, DomainType
 from pydevlake.api import APIException
+
+
+def extract_environment_name(name: str, identifier: Optional[str], context: Context) -> Optional[str]:
+    """
+    Extract environment name from job/stage name or identifier using environment_pattern.
+
+    The environment_pattern should contain a capture group to extract the environment name.
+    For example: r'(?:deploy|predeploy)[_-](.+?)(?:[_-](?:helm|terraform))?$'
+    This would extract 'xxxx-prod' from 'deploy_xxxx-prod_helm'
+    """
+    if not context.scope_config.environment_pattern:
+        return None
+
+    # Try to match against the name first
+    match = context.scope_config.environment_pattern.search(name)
+    if match and match.groups():
+        return match.group(1)
+
+    # If no match on name and identifier is available, try identifier
+    if identifier:
+        match = context.scope_config.environment_pattern.search(identifier)
+        if match and match.groups():
+            return match.group(1)
+
+    return None
 
 
 class Jobs(Substream):
@@ -48,7 +73,8 @@ class Jobs(Substream):
         if response.status == HTTPStatus.NO_CONTENT:
             return
         for raw_job in response.json["records"]:
-            if raw_job["type"] == "Job":
+            # Collect both Job and Stage records to support environment detection from stages
+            if raw_job["type"] in ("Job", "Stage"):
                 raw_job["build_id"] = parent.domain_id()
                 raw_job["x_request_url"] = response.get_url_with_query_string()
                 raw_job["x_request_input"] = {
@@ -87,10 +113,26 @@ class Jobs(Substream):
         type = devops.CICDType.BUILD
         if ctx.scope_config.deployment_pattern and ctx.scope_config.deployment_pattern.search(j.name):
             type = devops.CICDType.DEPLOYMENT
-        environment = devops.CICDEnvironment.PRODUCTION
-        if ctx.scope_config.production_pattern is not None and ctx.scope_config.production_pattern.search(
-                j.name) is None:
-            environment = None
+
+        # Extract environment name using the new environment_pattern if configured
+        extracted_env_name = extract_environment_name(j.name, j.identifier, ctx)
+
+        # Determine if this is a production environment
+        # Priority: 1) Use extracted environment name with production_pattern
+        #           2) Fall back to matching production_pattern against job name
+        environment = None
+        if ctx.scope_config.production_pattern is not None:
+            # If we extracted an environment name, use it for production matching
+            if extracted_env_name:
+                if ctx.scope_config.production_pattern.search(extracted_env_name):
+                    environment = devops.CICDEnvironment.PRODUCTION
+            # Fall back to matching against job name
+            elif ctx.scope_config.production_pattern.search(j.name):
+                environment = devops.CICDEnvironment.PRODUCTION
+        else:
+            # No production_pattern configured - default to PRODUCTION for deployments
+            if type == devops.CICDType.DEPLOYMENT:
+                environment = devops.CICDEnvironment.PRODUCTION
 
         if j.finish_time:
             duration_sec = abs(j.finish_time.timestamp() - j.start_time.timestamp())
