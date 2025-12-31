@@ -37,6 +37,9 @@ class GitRepositoryConfig(ScopeConfig):
     refdiff: Optional[RefDiffOptions]
     deployment_pattern: Optional[re.Pattern]
     production_pattern: Optional[re.Pattern]
+    # Optional pattern with capture group to extract environment name from job/stage names
+    # Example: r'(?:deploy|predeploy)[_-](.+?)(?:[_-](?:helm|terraform))?$' extracts 'xxxx-prod' from 'deploy_xxxx-prod_helm'
+    environment_pattern: Optional[re.Pattern]
 
 
 class GitRepository(ToolScope, table=True):
@@ -146,3 +149,6 @@ class Job(ToolModel, table=True):
     finish_time: Optional[datetime.datetime]
     state: JobState
     result: Optional[JobResult]
+    identifier: Optional[str]
+    type: Optional[str]
+    parent_id: Optional[str] = Field(source='/parentId')
