@@ -228,7 +228,7 @@ func TestGithubConnection_Sanitize(t *testing.T) {
 	}
 }
 
-func TestIsUserToServerToken(t *testing.T) {
+func TestTokenTypeClassification(t *testing.T) {
 	conn := &GithubConn{}
 	assert.Equal(t, GithubTokenTypeClassical, conn.typeIs("ghp_123"))
 	assert.Equal(t, GithubTokenTypeClassical, conn.typeIs("gho_123"))
