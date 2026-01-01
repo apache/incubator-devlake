@@ -360,3 +360,189 @@ def test_pull_request_commits_stream():
     )
 
     assert_stream_convert(AzureDevOpsPlugin, 'gitpullrequestcommits', raw, expected)
+
+
+@pytest.fixture
+def context_with_environment_pattern():
+    """Context with environment_pattern configured to extract environment names from job names."""
+    return (
+        ContextBuilder(AzureDevOpsPlugin())
+        .with_connection(token='token')
+        .with_scope_config(
+            deployment_pattern='deploy',
+            production_pattern='prod',
+            # Pattern to extract environment name from job names like 'deploy_xxxx-prod_helm'
+            environment_pattern=r'(?:deploy|predeploy)[_-](.+?)(?:[_-](?:helm|terraform))?$'
+        )
+        .with_scope('johndoe/test-repo', url='https://github.com/johndoe/test-repo')
+        .build()
+    )
+
+
+def test_jobs_stream_with_environment_pattern(context_with_environment_pattern):
+    """Test that environment_pattern extracts environment name and uses it for production matching."""
+    raw = {
+        'previousAttempts': [],
+        'id': 'cfa20e98-6997-523c-4233-f0a7302c929f',
+        'parentId': '9ecf18fe-987d-5811-7c63-300aecae35da',
+        'type': 'Job',
+        'name': 'deploy_xxxx-prod_helm',  # environment name 'xxxx-prod' should be extracted
+        'build_id': 'azuredevops:Build:1:12',
+        'start_time': '2023-02-25T06:22:36.8066667Z',
+        'finish_time': '2023-02-25T06:22:43.2333333Z',
+        'currentOperation': None,
+        'percentComplete': None,
+        'state': 'completed',
+        'result': 'succeeded',
+        'resultCode': None,
+        'changeId': 18,
+        'lastModified': '0001-01-01T00:00:00',
+        'workerName': 'Hosted Agent',
+        'queueId': 9,
+        'order': 1,
+        'details': None,
+        'errorCount': 0,
+        'warningCount': 0,
+        'url': None,
+        'log': {
+            'id': 10,
+            'type': 'Container',
+            'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/builds/12/logs/10'
+        },
+        'task': None,
+        'attempt': 1,
+        'identifier': 'deploy_xxxx-prod_helm.__default'
+    }
+
+    expected = devops.CICDTask(
+        id='cfa20e98-6997-523c-4233-f0a7302c929f',
+        name='deploy_xxxx-prod_helm',
+        pipeline_id='azuredevops:Build:1:12',
+        status=devops.CICDStatus.DONE,
+        original_status='Completed',
+        original_result='Succeeded',
+        created_date='2023-02-25T06:22:36.8066667Z',
+        started_date='2023-02-25T06:22:36.8066667Z',
+        finished_date='2023-02-25T06:22:43.2333333Z',
+        result=devops.CICDResult.SUCCESS,
+        type=devops.CICDType.DEPLOYMENT,
+        duration_sec=6.426667213439941,
+        environment=devops.CICDEnvironment.PRODUCTION,  # Should match because 'xxxx-prod' contains 'prod'
+        cicd_scope_id=context_with_environment_pattern.scope.domain_id()
+    )
+    assert_stream_convert(AzureDevOpsPlugin, 'jobs', raw, expected, context_with_environment_pattern)
+
+
+def test_jobs_stream_with_environment_pattern_non_prod(context_with_environment_pattern):
+    """Test that non-prod environments are correctly identified."""
+    raw = {
+        'previousAttempts': [],
+        'id': 'cfa20e98-6997-523c-4233-f0a7302c929f',
+        'parentId': '9ecf18fe-987d-5811-7c63-300aecae35da',
+        'type': 'Job',
+        'name': 'deploy_xxxx-dev_helm',  # environment name 'xxxx-dev' should be extracted, not prod
+        'build_id': 'azuredevops:Build:1:12',
+        'start_time': '2023-02-25T06:22:36.8066667Z',
+        'finish_time': '2023-02-25T06:22:43.2333333Z',
+        'currentOperation': None,
+        'percentComplete': None,
+        'state': 'completed',
+        'result': 'succeeded',
+        'resultCode': None,
+        'changeId': 18,
+        'lastModified': '0001-01-01T00:00:00',
+        'workerName': 'Hosted Agent',
+        'queueId': 9,
+        'order': 1,
+        'details': None,
+        'errorCount': 0,
+        'warningCount': 0,
+        'url': None,
+        'log': {
+            'id': 10,
+            'type': 'Container',
+            'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/builds/12/logs/10'
+        },
+        'task': None,
+        'attempt': 1,
+        'identifier': 'deploy_xxxx-dev_helm.__default'
+    }
+
+    expected = devops.CICDTask(
+        id='cfa20e98-6997-523c-4233-f0a7302c929f',
+        name='deploy_xxxx-dev_helm',
+        pipeline_id='azuredevops:Build:1:12',
+        status=devops.CICDStatus.DONE,
+        original_status='Completed',
+        original_result='Succeeded',
+        created_date='2023-02-25T06:22:36.8066667Z',
+        started_date='2023-02-25T06:22:36.8066667Z',
+        finished_date='2023-02-25T06:22:43.2333333Z',
+        result=devops.CICDResult.SUCCESS,
+        type=devops.CICDType.DEPLOYMENT,
+        duration_sec=6.426667213439941,
+        environment=None,  # Should be None because 'xxxx-dev' does not contain 'prod'
+        cicd_scope_id=context_with_environment_pattern.scope.domain_id()
+    )
+    assert_stream_convert(AzureDevOpsPlugin, 'jobs', raw, expected, context_with_environment_pattern)
+
+
+def test_stage_record_collected():
+    """Test that Stage records are also collected (not just Job records)."""
+    context = (
+        ContextBuilder(AzureDevOpsPlugin())
+        .with_connection(token='token')
+        .with_scope_config(
+            deployment_pattern='deploy',
+            production_pattern='prod'
+        )
+        .with_scope('johndoe/test-repo', url='https://github.com/johndoe/test-repo')
+        .build()
+    )
+
+    raw = {
+        'previousAttempts': [],
+        'id': 'stage-id-123',
+        'parentId': None,
+        'type': 'Stage',  # This is a Stage record
+        'name': 'deploy_prod_stage',
+        'build_id': 'azuredevops:Build:1:12',
+        'start_time': '2023-02-25T06:22:36.8066667Z',
+        'finish_time': '2023-02-25T06:22:43.2333333Z',
+        'currentOperation': None,
+        'percentComplete': None,
+        'state': 'completed',
+        'result': 'succeeded',
+        'resultCode': None,
+        'changeId': 18,
+        'lastModified': '0001-01-01T00:00:00',
+        'workerName': None,
+        'queueId': None,
+        'order': 1,
+        'details': None,
+        'errorCount': 0,
+        'warningCount': 0,
+        'url': None,
+        'log': None,
+        'task': None,
+        'attempt': 1,
+        'identifier': 'deploy_prod_stage'
+    }
+
+    expected = devops.CICDTask(
+        id='stage-id-123',
+        name='deploy_prod_stage',
+        pipeline_id='azuredevops:Build:1:12',
+        status=devops.CICDStatus.DONE,
+        original_status='Completed',
+        original_result='Succeeded',
+        created_date='2023-02-25T06:22:36.8066667Z',
+        started_date='2023-02-25T06:22:36.8066667Z',
+        finished_date='2023-02-25T06:22:43.2333333Z',
+        result=devops.CICDResult.SUCCESS,
+        type=devops.CICDType.DEPLOYMENT,
+        duration_sec=6.426667213439941,
+        environment=devops.CICDEnvironment.PRODUCTION,
+        cicd_scope_id=context.scope.domain_id()
+    )
+    assert_stream_convert(AzureDevOpsPlugin, 'jobs', raw, expected, context)
