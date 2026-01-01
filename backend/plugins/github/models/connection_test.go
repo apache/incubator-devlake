@@ -227,3 +227,14 @@ func TestGithubConnection_Sanitize(t *testing.T) {
 		})
 	}
 }
+
+func TestTokenTypeClassification(t *testing.T) {
+	conn := &GithubConn{}
+	assert.Equal(t, GithubTokenTypeClassical, conn.typeIs("ghp_123"))
+	assert.Equal(t, GithubTokenTypeClassical, conn.typeIs("gho_123"))
+	assert.Equal(t, GithubTokenTypeClassical, conn.typeIs("ghu_123"))
+	assert.Equal(t, GithubTokenTypeClassical, conn.typeIs("ghs_123"))
+	assert.Equal(t, GithubTokenTypeClassical, conn.typeIs("ghr_123"))
+	assert.Equal(t, GithubTokenTypeFineGrained, conn.typeIs("github_pat_123"))
+	assert.Equal(t, GithubTokenTypeUnknown, conn.typeIs("some_other_token"))
+}
