@@ -48,6 +48,8 @@ type TokenProvider struct {
 	refreshURL string
 }
 
+// NewTokenProvider creates a TokenProvider for the given GitHub connection using
+// the provided DAL, HTTP client, and logger, and returns a pointer to it.
 func NewTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Client, logger log.Logger) *TokenProvider {
 	return &TokenProvider{
 		conn:       conn,
