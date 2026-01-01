@@ -167,6 +167,10 @@ func (tp *TokenProvider) refreshToken() errors.Error {
 	return nil
 }
 
+// ForceRefresh refreshes the access token if the current token is still equal to oldToken.
+// The oldToken parameter should be the token value observed by the caller when it determined
+// that a refresh might be needed; if the token has changed since then, another goroutine has
+// already refreshed it and this method returns without performing a redundant refresh.
 func (tp *TokenProvider) ForceRefresh(oldToken string) errors.Error {
 	tp.mu.Lock()
 	defer tp.mu.Unlock()
