@@ -18,6 +18,10 @@ limitations under the License.
 package models
 
 import (
+	"net/http"
+	"strings"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
@@ -36,6 +40,26 @@ type CopilotConn struct {
 	Token            string `mapstructure:"token" json:"token"`
 	Organization     string `mapstructure:"organization" json:"organization"`
 	RateLimitPerHour int    `mapstructure:"rateLimitPerHour" json:"rateLimitPerHour"`
+}
+
+// SetupAuthentication implements plugin.ApiAuthenticator so helper.NewApiClientFromConnection
+// can attach the Authorization header for GitHub API requests.
+func (conn *CopilotConn) SetupAuthentication(request *http.Request) errors.Error {
+	if conn == nil {
+		return errors.BadInput.New("connection is required")
+	}
+	token := strings.TrimSpace(conn.Token)
+	if token == "" {
+		return errors.BadInput.New("token is required")
+	}
+
+	lower := strings.ToLower(token)
+	if strings.HasPrefix(lower, "bearer ") || strings.HasPrefix(lower, "token ") {
+		request.Header.Set("Authorization", token)
+		return nil
+	}
+	request.Header.Set("Authorization", "Bearer "+token)
+	return nil
 }
 
 func (conn *CopilotConn) Sanitize() CopilotConn {
