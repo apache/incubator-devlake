@@ -43,12 +43,21 @@ func (p copilotRawParams) GetParams() any {
 	return p
 }
 
+const copilotMetricsMaxDays = 100
+
+func utcDate(t time.Time) time.Time {
+	y, m, d := t.UTC().Date()
+	return time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+}
+
 func computeMetricsDateRange(now time.Time, since *time.Time) (start time.Time, until time.Time) {
-	until = now.UTC()
-	min := until.AddDate(0, 0, -100)
+	until = utcDate(now)
+	// The GitHub Copilot metrics endpoint only supports a limited window. Treat the date range as inclusive
+	// and clamp to at most `copilotMetricsMaxDays` days.
+	min := until.AddDate(0, 0, -(copilotMetricsMaxDays - 1))
 	start = min
 	if since != nil {
-		start = since.UTC()
+		start = utcDate(*since)
 		if start.Before(min) {
 			start = min
 		}

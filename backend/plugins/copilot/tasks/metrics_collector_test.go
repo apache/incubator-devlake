@@ -40,30 +40,30 @@ func TestParseRetryAfterHttpDate(t *testing.T) {
 func TestComputeMetricsDateRangeDefaultLookback(t *testing.T) {
 	now := time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC)
 	start, until := computeMetricsDateRange(now, nil)
-	require.Equal(t, now, until)
-	require.Equal(t, now.AddDate(0, 0, -100), start)
+	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), until)
+	require.Equal(t, time.Date(2024, 10, 3, 0, 0, 0, 0, time.UTC), start)
 }
 
 func TestComputeMetricsDateRangeUsesSince(t *testing.T) {
 	now := time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC)
-	since := now.AddDate(0, 0, -7)
+	since := time.Date(2025, 1, 3, 12, 0, 0, 0, time.UTC)
 	start, until := computeMetricsDateRange(now, &since)
-	require.Equal(t, now, until)
-	require.Equal(t, since, start)
+	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), until)
+	require.Equal(t, time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC), start)
 }
 
 func TestComputeMetricsDateRangeClampsToLookback(t *testing.T) {
 	now := time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC)
-	since := now.AddDate(0, 0, -200)
+	since := time.Date(2024, 6, 24, 12, 0, 0, 0, time.UTC)
 	start, until := computeMetricsDateRange(now, &since)
-	require.Equal(t, now, until)
-	require.Equal(t, now.AddDate(0, 0, -100), start)
+	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), until)
+	require.Equal(t, time.Date(2024, 10, 3, 0, 0, 0, 0, time.UTC), start)
 }
 
 func TestComputeMetricsDateRangeClampsFutureSince(t *testing.T) {
 	now := time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC)
 	since := now.Add(24 * time.Hour)
 	start, until := computeMetricsDateRange(now, &since)
-	require.Equal(t, now, until)
-	require.Equal(t, now, start)
+	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), until)
+	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), start)
 }
