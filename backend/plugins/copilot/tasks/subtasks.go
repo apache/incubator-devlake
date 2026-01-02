@@ -25,6 +25,7 @@ var CollectCopilotOrgMetricsMeta = plugin.SubTaskMeta{
 	Name:             "collectCopilotOrgMetrics",
 	EntryPoint:       CollectCopilotOrgMetrics,
 	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 	Description:      "Collect GitHub Copilot organization metrics",
 }
 
@@ -32,6 +33,7 @@ var CollectCopilotSeatAssignmentsMeta = plugin.SubTaskMeta{
 	Name:             "collectCopilotSeatAssignments",
 	EntryPoint:       CollectCopilotSeatAssignments,
 	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 	Description:      "Collect GitHub Copilot seat assignments",
 }
 
@@ -39,5 +41,6 @@ var ExtractCopilotOrgMetricsMeta = plugin.SubTaskMeta{
 	Name:             "extractCopilotOrgMetrics",
 	EntryPoint:       ExtractCopilotOrgMetrics,
 	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 	Description:      "Extract Copilot metrics into tool-layer tables",
 }

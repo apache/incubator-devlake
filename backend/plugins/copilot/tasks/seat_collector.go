@@ -31,6 +31,33 @@ import (
 
 const rawCopilotSeatsTable = "copilot_seats"
 
+func parseCopilotSeatsFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
+	if res == nil {
+		return nil, errors.Default.New("res is nil")
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response body of %s", res.Request.URL.String()))
+	}
+
+	// Some GitHub endpoints return a top-level array, others return an object wrapper.
+	// Support both, returning the underlying array of seat objects.
+	var rawMessages []json.RawMessage
+	if jsonErr := json.Unmarshal(body, &rawMessages); jsonErr == nil {
+		return rawMessages, nil
+	}
+
+	var wrapped struct {
+		Seats []json.RawMessage `json:"seats"`
+	}
+	if jsonErr := json.Unmarshal(body, &wrapped); jsonErr != nil {
+		return nil, errors.Default.Wrap(errors.Convert(jsonErr), fmt.Sprintf("error decoding response of %s: raw response: %s", res.Request.URL.String(), string(body)))
+	}
+	return wrapped.Seats, nil
+}
+
 func CollectCopilotSeatAssignments(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*CopilotTaskData)
 	if !ok {
@@ -81,7 +108,7 @@ func CollectCopilotSeatAssignments(taskCtx plugin.SubTaskContext) errors.Error {
 				res.Body.Close()
 				return nil, buildGitHubApiError(res.StatusCode, connection.Organization, body, res.Header.Get("Retry-After"))
 			}
-			return helper.GetRawMessageArrayFromResponse(res)
+			return parseCopilotSeatsFromResponse(res)
 		},
 	})
 	if err != nil {
