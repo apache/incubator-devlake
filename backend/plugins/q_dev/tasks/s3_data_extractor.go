@@ -161,6 +161,7 @@ func createUserDataWithDisplayName(logger interface {
 }, headers []string, record []string, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver) (*models.QDevUserData, errors.Error) {
 	userData := &models.QDevUserData{
 		ConnectionId: fileMeta.ConnectionId,
+		ScopeId:      fileMeta.ScopeId,
 	}
 
 	// 创建字段映射
@@ -318,4 +319,5 @@ var ExtractQDevS3DataMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract data from S3 CSV files and save to database",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectQDevS3FilesMeta},
 }
