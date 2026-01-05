@@ -17,7 +17,11 @@ limitations under the License.
 
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
+)
 
 // CopilotSeat represents a seat assignment snapshot for Copilot.
 type CopilotSeat struct {
@@ -32,6 +36,8 @@ type CopilotSeat struct {
 	LastAuthenticatedAt     *time.Time
 	PendingCancellationDate *time.Time
 	UpdatedAt               time.Time
+
+	common.RawDataOrigin
 }
 
 func (CopilotSeat) TableName() string {

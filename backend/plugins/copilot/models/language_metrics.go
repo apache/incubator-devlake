@@ -19,6 +19,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 // CopilotLanguageMetrics represents engagement statistics broken down by editor and language.
@@ -34,6 +36,7 @@ type CopilotLanguageMetrics struct {
 	Acceptances    int `json:"acceptances"`
 	LinesSuggested int `json:"linesSuggested"`
 	LinesAccepted  int `json:"linesAccepted"`
+	common.RawDataOrigin
 }
 
 func (CopilotLanguageMetrics) TableName() string {
