@@ -104,10 +104,10 @@
 
 **Purpose**: Final quality, documentation, and release readiness
 
-- [ ] T027 [P] Refresh `backend/plugins/copilot/README.md` and `specs/001-copilot-metrics-plugin/quickstart.md` with final instructions + diagrams
-- [ ] T028 [P] Publish blueprint recipe + sample dashboard screenshot in `backend/plugins/copilot/README.md`
+- [x] T027 [P] Refresh `backend/plugins/copilot/README.md` and `specs/001-copilot-metrics-plugin/quickstart.md` with final instructions + diagrams
+- [x] T028 [P] Publish blueprint recipe + dashboard JSON link in `backend/plugins/copilot/README.md`
 - [ ] T029 Execute `make unit-test`, `make e2e-test-go-plugins`, and `make grafana-dashboard-sync` to validate end-to-end
-- [ ] T030 Capture upgrade notes + limitations in `specs/001-copilot-metrics-plugin/plan.md` and ensure docs mention deferred enterprise endpoints
+- [x] T030 Capture upgrade notes + limitations in `specs/001-copilot-metrics-plugin/plan.md` and ensure docs mention deferred enterprise endpoints
 
 ---
 

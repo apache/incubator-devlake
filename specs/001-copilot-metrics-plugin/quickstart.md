@@ -9,13 +9,24 @@ Branch: `001-copilot-metrics-plugin`
 - Personal Access Token (classic) with `manage_billing:copilot` scope (or org-level Copilot Business fine-grained token).
 - DevLake CLI/Config UI access to create plugin connections.
 
-## 2. Install Plugin (after implementation)
+## 2. Data Flow (What Happens)
+
+```mermaid
+flowchart LR
+  GH[GitHub Copilot REST API]
+  RAW[(Raw tables\n_raw_copilot_*)]
+  TOOL[(Tool tables\n_tool_copilot_*)]
+  GRAF[Grafana Dashboard\nCopilot Adoption]
+  GH --> RAW --> TOOL --> GRAF
+```
+
+## 3. Install Plugin (after implementation)
 1. Pull latest DevLake code with the Copilot plugin branch.
 2. Run `make dep` (installs Go + UI dependencies if needed).
 3. Rebuild the server: `make build` or `make dev`.
-4. Confirm Grafana dashboards sync via `make grafana-dashboard-sync` (or deploy JSON manually).
+4. Sync Grafana dashboards: `make grafana-dashboard-sync` (or deploy JSON manually).
 
-## 3. Configure Copilot Connection
+## 4. Configure Copilot Connection
 1. Navigate to **Data Integrations → Add Connection → GitHub Copilot** (new entry).
 2. Provide:
    - **Name**: e.g., `Copilot Octodemo`
@@ -25,12 +36,12 @@ Branch: `001-copilot-metrics-plugin`
 3. Click **Test Connection** and ensure the response shows plan type, active seats, and success status.
 4. Save the connection.
 
-## 4. Define Scope
+## 5. Define Scope
 1. In the newly created connection, open **Scopes**.
 2. Add the organization scope (same slug). Leave `implementationDate` blank for Phase 1 (Phase 2 will use it).
 3. Save scopes; blueprint JSON will reference `scopeId = <orgSlug>`.
 
-## 5. Create Blueprint
+## 6. Create Blueprint
 ```json
 [
   [
@@ -46,29 +57,35 @@ Branch: `001-copilot-metrics-plugin`
 ```
 - Schedule the blueprint to run daily to stay within the 100-day lookback.
 
-## 6. Run Collection
+## 7. Run Collection
 - Run the blueprint immediately (`Run Now`).
 - Monitor DevLake logs for rate-limit warnings or privacy-threshold messages.
 - Verify that tables `_tool_copilot_org_metrics` and `_tool_copilot_seats` contain new records.
 
-## 7. Explore Grafana Adoption Dashboard
+## 8. Explore Grafana Adoption Dashboard
 1. Open Grafana → `Copilot Adoption` dashboard.
 2. Select your Copilot dataset via dashboard variables:
-  - `connection_id`: your Copilot connection ID
-  - `scope_id`: the organization scope ID (typically the org slug)
+   - `connection_id`: your Copilot connection ID
+   - `scope_id`: the organization scope ID (typically the org slug)
 3. Panels available:
    - Active vs Engaged users over time
    - Acceptance rate (acceptances / suggestions)
    - Copilot IDE vs GitHub.com chat usage
-  - Seat timeline (total vs active)
+   - Seat timeline (total vs active)
 4. Adjust time range (e.g., last 90 days) and verify panels refresh successfully.
 
-## 8. Troubleshooting
+## 9. Verify Data (Quick Checks)
+
+- Confirm daily org metrics exist for your scope in `_tool_copilot_org_metrics`
+- Confirm seat rows exist for your org in `_tool_copilot_seats`
+- For language/editor panels, confirm `_tool_copilot_language_metrics` has rows after at least one metrics run
+
+## 10. Troubleshooting
 - **403 Forbidden**: Ensure PAT includes `manage_billing:copilot`.
 - **422 Metrics Disabled**: Copilot Metrics API must be enabled in GitHub organization settings.
 - **Empty datasets**: Organization may not meet the ≥5 engaged user privacy threshold; plugin will log warnings.
 - **Rate limit**: Respect Retry-After headers; rerun pipeline if necessary.
 
-## 9. Next Steps (Phase 2 Preview)
+## 11. Next Steps (Phase 2 Preview)
 - Configure `implementationDate` once Phase 2 is available to unlock Impact Dashboard comparisons.
 - Evaluate team-level metrics demand before opting into Phase 2 feature branch.

@@ -81,3 +81,16 @@ backend/helpers/
 ## Complexity Tracking
 
 No constitution violations identified; complexity tracking not required.
+
+## Upgrade Notes (Phase 1)
+
+- **New tables**: This feature introduces new Copilot raw/tool tables via migrations under `backend/plugins/copilot/models/migrationscripts/`. Upgrading an existing DevLake deployment requires applying migrations (standard DevLake startup behavior).
+- **Required GitHub permissions**: Tokens must be able to call Copilot billing + metrics endpoints; a classic PAT with `manage_billing:copilot` works for Copilot Business. If connection tests fail with 403, re-check token scope and org Copilot settings.
+- **Grafana dashboards**: Sync `grafana/dashboards/copilot/adoption.json` after upgrading (e.g. via `make grafana-dashboard-sync`) so the dashboard appears in Grafana.
+
+## Limitations & Deferred Scope
+
+- **Rolling window**: `GET /orgs/{org}/copilot/metrics` is constrained to a rolling **100-day** history window, so the collector is designed for daily incremental ingestion.
+- **Privacy threshold**: GitHub may omit daily metrics when the organization does not meet the privacy threshold (commonly **≥ 5 engaged users**). The plugin treats missing days as expected and logs warnings.
+- **Enterprise download endpoints**: `/enterprises/{enterprise}/copilot/metrics` and `/metrics/users` (JSONL export flows, 28-day limits, more granular datasets) are intentionally out of scope for Phase 1 and tracked for Phase 2+.
+- **Team-level attribution**: Team mappings and impact analytics are deferred; Phase 1 stays org-scope only.
