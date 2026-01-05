@@ -26,11 +26,13 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/server/services"
 
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"github.com/go-playground/validator/v10"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coremodels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -107,6 +109,105 @@ func PostDeploymentsByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 	err := connectionHelper.FirstByName(connection, input.Params)
 
 	return postDeployments(input, connection, err)
+}
+
+// PostDeploymentsByProjectName
+// @Summary create deployment by project name
+// @Description Create deployment pipeline by project name.<br/>
+// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
+// @Description So we suggest request before task after deployment pipeline finish.
+// @Description Both cicd_pipeline and cicd_task will be created
+// @Tags plugins/webhook
+// @Param body body WebhookDeploymentReq true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 403  {string} errcode.Error "Forbidden"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /projects/:projectName/deployments [POST]
+func PostDeploymentsByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// find or create the connection for this project
+	connection, err, shouldReturn := getOrCreateConnection(input)
+	if shouldReturn {
+		return nil, err
+	}
+
+	return postDeployments(input, connection, err)
+}
+
+func getOrCreateConnection(input *plugin.ApiResourceInput) (*models.WebhookConnection, errors.Error, bool) {
+	connection := &models.WebhookConnection{}
+	projectName := input.Params["projectName"]
+	webhookName := fmt.Sprintf("%s_deployments", projectName)
+	err := findByProjectName(connection, input.Params, pluginName, webhookName)
+	dal := basicRes.GetDal()
+	if err != nil {
+		// if not found, we will attempt to create a new connection
+		// Use direct comparison against the package sentinel; only treat other errors as fatal.
+		if !dal.IsErrorNotFound(err) {
+			logger.Error(err, "failed to find webhook connection for project", "projectName", projectName)
+			return nil, err, true
+		}
+
+		// create the connection
+		logger.Debug("creating webhook connection for project %s", projectName)
+		connection.Name = webhookName
+
+		// find the project and blueprint with which we will associate this connection
+		projectOutput, err := services.GetProject(projectName)
+		if err != nil {
+			logger.Error(err, "failed to find project for webhook connection", "projectName", projectName)
+			return nil, err, true
+		}
+
+		if projectOutput == nil {
+			logger.Error(err, "project not found for webhook connection", "projectName", projectName)
+			return nil, errors.NotFound.New("project not found: " + projectName), true
+		}
+
+		if projectOutput.Blueprint == nil {
+			logger.Error(err, "unable to create webhook as the project has no blueprint", "projectName", projectName)
+			return nil, errors.BadInput.New("project has no blueprint: " + projectName), true
+		}
+
+		connectionInput := &plugin.ApiResourceInput{
+			Params: map[string]string{
+				"plugin": "webhook",
+			},
+			Body: map[string]interface{}{
+				"name": webhookName,
+			},
+		}
+
+		err = connectionHelper.Create(connection, connectionInput)
+		if err != nil {
+			logger.Error(err, "failed to create webhook connection for project", "projectName", projectName)
+			return nil, err, true
+		}
+
+		// get the blueprint
+		blueprintId := projectOutput.Blueprint.ID
+		blueprint, err := services.GetBlueprint(blueprintId, true)
+
+		if err != nil {
+			logger.Error(err, "failed to find blueprint for webhook connection", "blueprintId", blueprintId)
+			return nil, err, true
+		}
+
+		// we need to associate this connection with the blueprint
+		blueprintConnection := &coremodels.BlueprintConnection{
+			BlueprintId:  blueprint.ID,
+			PluginName:   pluginName,
+			ConnectionId: connection.ID,
+		}
+
+		logger.Info("adding blueprint connection for blueprint %d and connection %d", blueprint.ID, connection.ID)
+		err = dal.Create(blueprintConnection)
+		if err != nil {
+			logger.Error(err, "failed to create blueprint connection for project", "projectName", projectName)
+			return nil, err, true
+		}
+	}
+	return connection, err, false
 }
 
 func postDeployments(input *plugin.ApiResourceInput, connection *models.WebhookConnection, err errors.Error) (*plugin.ApiResourceOutput, errors.Error) {
@@ -250,4 +351,39 @@ func CreateDeploymentAndDeploymentCommits(connection *models.WebhookConnection, 
 func GenerateDeploymentCommitId(connectionId uint64, deploymentId string, repoUrl string, commitSha string) string {
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(repoUrl)))[:16]
 	return fmt.Sprintf("%s:%d:%s:%s:%s", "webhook", connectionId, deploymentId, urlHash16, commitSha)
+}
+
+// findByProjectName finds the connection by project name and plugin name
+func findByProjectName(connection interface{}, params map[string]string, pluginName string, webhookName string) errors.Error {
+	projectName := params["projectName"]
+	if projectName == "" {
+		return errors.BadInput.New("missing projectName")
+	}
+	if len(projectName) > 100 {
+		return errors.BadInput.New("invalid projectName")
+	}
+	if pluginName == "" {
+		return errors.BadInput.New("missing pluginName")
+	}
+	// We need to join three tables: _tool_webhook_connections, _devlake_blueprint_connections, and _devlake_blueprints
+	// to find the connection associated with the given project name and plugin name.
+	// The SQL query would look something like this:
+	// SELECT wc.*
+	// FROM _tool_webhook_connections AS wc
+	// JOIN _devlake_blueprint_connections AS bc ON wc.id = bc.connection_id AND bc.plugin_name = ?
+	// JOIN _devlake_blueprints AS bp ON bc.blueprint_id = bp.id
+	// WHERE bp.project_name = ? and _tool_webhook_connections.name = ?
+	// LIMIT 1;
+
+	basicRes.GetLogger().Debug("finding project webhook connection for project %s and plugin %s", projectName, pluginName)
+	// Using DAL to construct the query
+	clauses := []dal.Clause{dal.From(connection)}
+	clauses = append(clauses,
+		dal.Join("left join _devlake_blueprint_connections bc ON _tool_webhook_connections.id = bc.connection_id and bc.plugin_name = ?", pluginName),
+		dal.Join("left join _devlake_blueprints bp ON bc.blueprint_id = bp.id"),
+		dal.Where("bp.project_name = ? and _tool_webhook_connections.name = ?", projectName, webhookName),
+	)
+
+	dal := basicRes.GetDal()
+	return dal.First(connection, clauses...)
 }

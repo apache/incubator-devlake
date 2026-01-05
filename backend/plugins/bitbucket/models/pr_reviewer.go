@@ -15,33 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package models
 
 import (
-	"github.com/aws/aws-sdk-go/service/s3"
+	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type QDevApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
+type BitbucketPrReviewer struct {
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	RepoId         string `gorm:"primaryKey;type:varchar(255)"`
+	PullRequestId  int    `gorm:"primaryKey"`
+	AccountId      string `gorm:"primaryKey;type:varchar(255)"`
+	DisplayName    string `gorm:"type:varchar(255)"`
+	Role           string `gorm:"type:varchar(100)"` // PARTICIPANT, REVIEWER
+	State          string `gorm:"type:varchar(100)"` // approved, changes_requested, null
+	Approved       bool
+	ParticipatedOn *time.Time
+	common.NoPKModel
 }
 
-type QDevOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	S3Prefix     string `json:"s3Prefix"`
-	ScopeId      string `json:"scopeId"`
-}
-
-type QDevTaskData struct {
-	Options        *QDevOptions
-	S3Client       *QDevS3Client
-	IdentityClient *QDevIdentityClient // New field for Identity Center client
-}
-
-type QDevS3Client struct {
-	S3     *s3.S3
-	Bucket string
-}
-
-func (client *QDevS3Client) Close() {
-	// S3客户端不需要特别关闭操作
+func (BitbucketPrReviewer) TableName() string {
+	return "_tool_bitbucket_pr_reviewers"
 }
