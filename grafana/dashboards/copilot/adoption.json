@@ -116,7 +116,7 @@
           },
           "custom": {
             "axisBorderShow": false,
-            "axisCenteredZero": true,
+            "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Rate",
             "axisPlacement": "auto",
@@ -156,6 +156,7 @@
               }
             ]
           },
+          "min": 0,
           "unit": "percentunit"
         },
         "overrides": []
@@ -285,6 +286,7 @@
           "color": {
             "mode": "palette-classic"
           },
+          "min": 0,
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
@@ -361,6 +363,118 @@
       ],
       "title": "Seat Timeline (Total vs Active)",
       "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Top 10 languages by suggestions in selected time range",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  language as \"Language\",\n  SUM(suggestions) as \"Suggestions\",\n  SUM(acceptances) as \"Acceptances\"\nFROM _tool_copilot_language_metrics\nWHERE\n  $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY language\nORDER BY SUM(suggestions) DESC\nLIMIT 10\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Languages (Top 10)",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Editor share based on total suggestions (summed across languages)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  NOW() as time,\n  editor as metric,\n  SUM(suggestions) as value\nFROM _tool_copilot_language_metrics\nWHERE\n  $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY editor\nORDER BY value DESC\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Editor Distribution",
+      "type": "piechart"
     }
   ],
   "refresh": "",

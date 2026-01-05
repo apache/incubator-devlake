@@ -55,7 +55,6 @@
 
 ### Implementation
 
-- [ ] T015 [P] [US2] Build metrics collector (`backend/plugins/copilot/tasks/metrics_collector.go`) using `helper.NewStatefulApiCollector` against `/orgs/{org}/copilot/metrics`
 - [x] T015 [P] [US2] Build metrics collector (`backend/plugins/copilot/tasks/metrics_collector.go`) using `helper.NewStatefulApiCollector` against `/orgs/{org}/copilot/metrics`
 - [x] T016 [P] [US2] Implement seat assignment collector (`backend/plugins/copilot/tasks/seat_collector.go`) calling `/orgs/{org}/copilot/billing/seats`
 - [x] T017 [P] [US2] Create extractor/convertor mapping raw payloads to `CopilotOrgMetrics` + `CopilotSeat` in `backend/plugins/copilot/tasks/metrics_extractor.go`
@@ -93,9 +92,9 @@
 
 ### Implementation
 
-- [ ] T024 [P] [US4] Extend extractor (`backend/plugins/copilot/tasks/metrics_extractor.go`) to persist `CopilotLanguageMetrics` from `editors[].languages[]`
-- [ ] T025 [US4] Enhance dashboard JSON (`grafana/dashboards/copilot/adoption.json`) with Top 10 language bar chart + editor distribution pie chart
-- [ ] T026 [US4] Add test coverage (E2E fixture + assertions) for language/editor rows in `backend/plugins/copilot/e2e/metrics/language_breakdown.csv`
+- [x] T024 [P] [US4] Extend extractor (`backend/plugins/copilot/tasks/metrics_extractor.go`) to persist `CopilotLanguageMetrics` from `editors[].languages[]`
+- [x] T025 [US4] Enhance dashboard JSON (`grafana/dashboards/copilot/adoption.json`) with Top 10 language bar chart + editor distribution pie chart
+- [x] T026 [US4] Add test coverage (E2E fixture + assertions) for language/editor rows in `backend/plugins/copilot/e2e/metrics/language_breakdown.csv`
 
 **Checkpoint**: Detailed language/editor analytics available while core adoption metrics remain stable
 
