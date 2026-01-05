@@ -18,8 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -37,22 +40,30 @@ type copilotMetricsDay struct {
 }
 
 type copilotIdeCodeCompletions struct {
-	Editors []copilotEditorCompletions `json:"editors"`
+	TotalEngagedUsers int                        `json:"total_engaged_users"`
+	Editors           []copilotEditorCompletions `json:"editors"`
 }
 
 type copilotEditorCompletions struct {
-	Models []copilotModelCompletions `json:"models"`
+	Name              string                    `json:"name"`
+	TotalEngagedUsers int                       `json:"total_engaged_users"`
+	Models            []copilotModelCompletions `json:"models"`
 }
 
 type copilotModelCompletions struct {
-	Languages []copilotLanguageMetrics `json:"languages"`
+	Name              string                   `json:"name"`
+	IsCustomModel     bool                     `json:"is_custom_model"`
+	TotalEngagedUsers int                      `json:"total_engaged_users"`
+	Languages         []copilotLanguageMetrics `json:"languages"`
 }
 
 type copilotLanguageMetrics struct {
-	TotalCodeSuggestions    int `json:"total_code_suggestions"`
-	TotalCodeAcceptances    int `json:"total_code_acceptances"`
-	TotalCodeLinesSuggested int `json:"total_code_lines_suggested"`
-	TotalCodeLinesAccepted  int `json:"total_code_lines_accepted"`
+	Name                    string `json:"name"`
+	TotalEngagedUsers       int    `json:"total_engaged_users"`
+	TotalCodeSuggestions    int    `json:"total_code_suggestions"`
+	TotalCodeAcceptances    int    `json:"total_code_acceptances"`
+	TotalCodeLinesSuggested int    `json:"total_code_lines_suggested"`
+	TotalCodeLinesAccepted  int    `json:"total_code_lines_accepted"`
 }
 
 type copilotIdeChat struct {
@@ -61,13 +72,18 @@ type copilotIdeChat struct {
 }
 
 type copilotEditorChat struct {
-	Models []copilotModelChat `json:"models"`
+	Name              string             `json:"name"`
+	TotalEngagedUsers int                `json:"total_engaged_users"`
+	Models            []copilotModelChat `json:"models"`
 }
 
 type copilotModelChat struct {
-	TotalChats               int `json:"total_chats"`
-	TotalChatCopyEvents      int `json:"total_chat_copy_events"`
-	TotalChatInsertionEvents int `json:"total_chat_insertion_events"`
+	Name                     string `json:"name"`
+	IsCustomModel            bool   `json:"is_custom_model"`
+	TotalEngagedUsers        int    `json:"total_engaged_users"`
+	TotalChats               int    `json:"total_chats"`
+	TotalChatCopyEvents      int    `json:"total_chat_copy_events"`
+	TotalChatInsertionEvents int    `json:"total_chat_insertion_events"`
 }
 
 type copilotDotcomChat struct {
@@ -76,7 +92,10 @@ type copilotDotcomChat struct {
 }
 
 type copilotDotcomModel struct {
-	TotalChats int `json:"total_chats"`
+	Name              string `json:"name"`
+	IsCustomModel     bool   `json:"is_custom_model"`
+	TotalEngagedUsers int    `json:"total_engaged_users"`
+	TotalChats        int    `json:"total_chats"`
 }
 
 type copilotSeatResponse struct {
@@ -111,6 +130,114 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		Endpoint:     connection.Endpoint,
 	}
 
+	// Extract seat assignments first so we can derive seat counts for org metrics.
+	// NOTE: Keep this extractor stateless to avoid SubtaskStateManager collisions inside this subtask.
+	// The state key does not include raw table name, so multiple stateful extractors would race/skip.
+	seatsExtractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx:     taskCtx,
+			Table:   rawCopilotSeatsTable,
+			Options: params,
+		},
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
+			seat := &copilotSeatResponse{}
+			if err := errors.Convert(json.Unmarshal(row.Data, seat)); err != nil {
+				return nil, err
+			}
+
+			createdAt, parseErr := time.Parse(time.RFC3339, seat.CreatedAt)
+			if parseErr != nil {
+				return nil, errors.BadInput.Wrap(parseErr, "invalid seat created_at")
+			}
+			updatedAt, parseErr := time.Parse(time.RFC3339, seat.UpdatedAt)
+			if parseErr != nil {
+				return nil, errors.BadInput.Wrap(parseErr, "invalid seat updated_at")
+			}
+
+			parseOptional := func(v *string) (*time.Time, errors.Error) {
+				if v == nil || *v == "" {
+					return nil, nil
+				}
+				// GitHub may return RFC3339 timestamps or date-only strings (YYYY-MM-DD) for some fields.
+				if t, parseErr := time.Parse(time.RFC3339, *v); parseErr == nil {
+					return &t, nil
+				}
+				t, parseErr := time.Parse("2006-01-02", *v)
+				if parseErr != nil {
+					return nil, errors.BadInput.Wrap(parseErr, "invalid timestamp")
+				}
+				return &t, nil
+			}
+
+			lastAuth, err := parseOptional(seat.LastAuthenticatedAt)
+			if err != nil {
+				return nil, err
+			}
+			lastAct, err := parseOptional(seat.LastActivityAt)
+			if err != nil {
+				return nil, err
+			}
+			pendingCancel, err := parseOptional(seat.PendingCancellationDate)
+			if err != nil {
+				return nil, err
+			}
+
+			toolSeat := &models.CopilotSeat{
+				ConnectionId:            data.Options.ConnectionId,
+				Organization:            connection.Organization,
+				UserLogin:               seat.Assignee.Login,
+				UserId:                  seat.Assignee.Id,
+				PlanType:                seat.PlanType,
+				CreatedAt:               createdAt,
+				LastActivityAt:          lastAct,
+				LastActivityEditor:      seat.LastActivityEditor,
+				LastAuthenticatedAt:     lastAuth,
+				PendingCancellationDate: pendingCancel,
+				UpdatedAt:               updatedAt,
+			}
+
+			return []interface{}{toolSeat}, nil
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if err := seatsExtractor.Execute(); err != nil {
+		return err
+	}
+
+	// Derive seat counts from extracted assignments.
+	db := taskCtx.GetDal()
+	seatTotal, err := db.Count(dal.From(&models.CopilotSeat{}), dal.Where(
+		"connection_id = ? AND organization = ?",
+		data.Options.ConnectionId,
+		connection.Organization,
+	))
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to count copilot seats")
+	}
+	seatActive, err := db.Count(dal.From(&models.CopilotSeat{}), dal.Where(
+		"connection_id = ? AND organization = ? AND last_activity_at IS NOT NULL",
+		data.Options.ConnectionId,
+		connection.Organization,
+	))
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to count active copilot seats")
+	}
+
+	// Keep existing org metrics in sync even when the stateful metrics extractor
+	// has nothing new to process (e.g., incremental runs with no new raw metrics).
+	if db.HasTable(&models.CopilotOrgMetrics{}) {
+		err = db.UpdateColumns(
+			&models.CopilotOrgMetrics{},
+			[]dal.DalSet{{ColumnName: "seat_total", Value: seatTotal}, {ColumnName: "seat_active_count", Value: seatActive}},
+			dal.Where("connection_id = ? AND scope_id = ?", data.Options.ConnectionId, data.Options.ScopeId),
+		)
+		if err != nil {
+			return errors.Default.Wrap(err, "failed to update copilot org metrics seat counts")
+		}
+	}
+
 	metricsExtractor, err := helper.NewStatefulApiExtractor(&helper.StatefulApiExtractorArgs[copilotMetricsDay]{
 		SubtaskCommonArgs: &helper.SubtaskCommonArgs{
 			SubTaskContext: taskCtx,
@@ -124,17 +251,41 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, errors.BadInput.Wrap(err, "invalid metrics date")
 			}
 
+			normalizeDim := func(v, fallback string) string {
+				v = strings.TrimSpace(v)
+				if v == "" {
+					return fallback
+				}
+				return v
+			}
+
 			completionSuggestions := 0
 			completionAcceptances := 0
 			completionLinesSuggested := 0
 			completionLinesAccepted := 0
+			languageMetrics := make([]any, 0, 64)
 			for _, editor := range day.IdeCodeCompletions.Editors {
+				editorName := normalizeDim(editor.Name, "unknown")
 				for _, model := range editor.Models {
 					for _, lang := range model.Languages {
 						completionSuggestions += lang.TotalCodeSuggestions
 						completionAcceptances += lang.TotalCodeAcceptances
 						completionLinesSuggested += lang.TotalCodeLinesSuggested
 						completionLinesAccepted += lang.TotalCodeLinesAccepted
+
+						toolLang := &models.CopilotLanguageMetrics{
+							ConnectionId:   data.Options.ConnectionId,
+							ScopeId:        data.Options.ScopeId,
+							Date:           date,
+							Editor:         editorName,
+							Language:       normalizeDim(lang.Name, "unknown"),
+							EngagedUsers:   lang.TotalEngagedUsers,
+							Suggestions:    lang.TotalCodeSuggestions,
+							Acceptances:    lang.TotalCodeAcceptances,
+							LinesSuggested: lang.TotalCodeLinesSuggested,
+							LinesAccepted:  lang.TotalCodeLinesAccepted,
+						}
+						languageMetrics = append(languageMetrics, toolLang)
 					}
 				}
 			}
@@ -171,8 +322,13 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				IdeChatEngagedUsers:      day.IdeChat.TotalEngagedUsers,
 				DotcomChats:              dotcomChats,
 				DotcomChatEngagedUsers:   day.DotcomChat.TotalEngagedUsers,
+				SeatTotal:                int(seatTotal),
+				SeatActiveCount:          int(seatActive),
 			}
-			return []any{metric}, nil
+			results := make([]any, 0, 1+len(languageMetrics))
+			results = append(results, metric)
+			results = append(results, languageMetrics...)
+			return results, nil
 		},
 	})
 	if err != nil {
@@ -182,67 +338,5 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	seatsExtractor, err := helper.NewStatefulApiExtractor(&helper.StatefulApiExtractorArgs[copilotSeatResponse]{
-		SubtaskCommonArgs: &helper.SubtaskCommonArgs{
-			SubTaskContext: taskCtx,
-			Table:          rawCopilotSeatsTable,
-			Params:         params,
-			SubtaskConfig:  params,
-		},
-		Extract: func(seat *copilotSeatResponse, row *helper.RawData) ([]any, errors.Error) {
-			createdAt, parseErr := time.Parse(time.RFC3339, seat.CreatedAt)
-			if parseErr != nil {
-				return nil, errors.BadInput.Wrap(parseErr, "invalid seat created_at")
-			}
-			updatedAt, parseErr := time.Parse(time.RFC3339, seat.UpdatedAt)
-			if parseErr != nil {
-				return nil, errors.BadInput.Wrap(parseErr, "invalid seat updated_at")
-			}
-
-			parseOptional := func(v *string) (*time.Time, errors.Error) {
-				if v == nil || *v == "" {
-					return nil, nil
-				}
-				t, parseErr := time.Parse(time.RFC3339, *v)
-				if parseErr != nil {
-					return nil, errors.BadInput.Wrap(parseErr, "invalid timestamp")
-				}
-				return &t, nil
-			}
-
-			lastAuth, err := parseOptional(seat.LastAuthenticatedAt)
-			if err != nil {
-				return nil, err
-			}
-			lastAct, err := parseOptional(seat.LastActivityAt)
-			if err != nil {
-				return nil, err
-			}
-			pendingCancel, err := parseOptional(seat.PendingCancellationDate)
-			if err != nil {
-				return nil, err
-			}
-
-			toolSeat := &models.CopilotSeat{
-				ConnectionId:            data.Options.ConnectionId,
-				Organization:            connection.Organization,
-				UserLogin:               seat.Assignee.Login,
-				UserId:                  seat.Assignee.Id,
-				PlanType:                seat.PlanType,
-				CreatedAt:               createdAt,
-				LastActivityAt:          lastAct,
-				LastActivityEditor:      seat.LastActivityEditor,
-				LastAuthenticatedAt:     lastAuth,
-				PendingCancellationDate: pendingCancel,
-				UpdatedAt:               updatedAt,
-			}
-
-			return []any{toolSeat}, nil
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	return seatsExtractor.Execute()
+	return nil
 }
