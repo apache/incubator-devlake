@@ -299,6 +299,11 @@ func (apiClient *ApiClient) SetLogger(logger log.Logger) {
 	apiClient.logger = logger
 }
 
+// GetClient returns the underlying http.Client
+func (apiClient *ApiClient) GetClient() *http.Client {
+	return apiClient.client
+}
+
 func (apiClient *ApiClient) logDebug(format string, a ...interface{}) {
 	if apiClient.logger != nil {
 		apiClient.logger.Debug(format, a...)
