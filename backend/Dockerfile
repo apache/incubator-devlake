@@ -83,6 +83,8 @@ FROM builder as build
 
 WORKDIR /app
 COPY . /app
+RUN find /app/scripts -type f -name "*.sh" -exec sed -i 's/\r$//' {} + && \
+    find /app/scripts -type f -name "*.sh" -exec chmod +x {} +
 ENV GOBIN=/app/bin
 
 ARG TARGETPLATFORM
@@ -143,7 +145,9 @@ RUN mkdir logs
 VOLUME /app/logs
 
 # Setup Python
-COPY python/ /app/python/
+COPY --chown=devlake:devlake python/ /app/python/
+RUN find /app/python -type f -name "*.sh" -exec sed -i 's/\r$//' {} + && \
+    find /app/python -type f -name "*.sh" -exec chmod +x {} +
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
     python3 -m pip install --upgrade pip
