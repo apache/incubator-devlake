@@ -74,6 +74,38 @@ const renderCollapseItems = ({
       children: (
         <>
           <h3 style={{ marginBottom: 16 }}>
+            <span>Branch Filtering</span>
+            <Tag style={{ marginLeft: 4 }} color="green">
+              NEW
+            </Tag>
+          </h3>
+          <p style={{ marginBottom: 16 }}>
+            Use Regular Expression to filter Jenkins jobs by branch name. This helps exclude temporary branch/PR builds from collection.{' '}
+            <ExternalLink link={DOC_URL.PLUGIN.JENKINS.TRANSFORMATION}>Learn more</ExternalLink>
+          </p>
+          <div style={{ marginTop: 16 }}>Only collect Jenkins jobs when: </div>
+          <div style={{ margin: '8px 0', paddingLeft: 28 }}>
+            <span>
+              The <strong>job name</strong> matches
+            </span>
+            <Input
+              style={{ width: 200, margin: '0 8px' }}
+              placeholder="^(main|master|develop).*"
+              value={transformation.branchFilterPattern ?? ''}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  branchFilterPattern: e.target.value,
+                })
+              }
+            />
+            <HelpTooltip content="Regular expression to match job names. Leave empty to collect all jobs. Example: '^(main|master|develop).*' to collect only main branches" />
+          </div>
+          <div style={{ margin: '8px 0', paddingLeft: 28, fontSize: '12px', color: '#666' }}>
+            <span>Examples: <code>^(main|master|develop).*</code> (main branches only), <code>.*production.*</code> (production jobs)</span>
+          </div>
+
+          <h3 style={{ marginBottom: 16, marginTop: 32 }}>
             <span>Deployment</span>
             <Tag style={{ marginLeft: 4 }} color="blue">
               DORA
@@ -117,7 +149,7 @@ const renderCollapseItems = ({
                 })
               }
             />
-            <span>, this Deployment is a ‘Production Deployment’</span>
+            <span>, this Deployment is a 'Production Deployment'</span>
             <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
           </div>
         </>
