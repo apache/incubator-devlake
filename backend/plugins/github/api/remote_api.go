@@ -52,7 +52,7 @@ func listGithubRemoteScopes(
 	if groupId == "" {
 		return listGithubUserOrgs(apiClient, page)
 	}
-	return listGithubOrgRepos(apiClient, groupId, page)
+	return listGithubOwnerRepos(apiClient, groupId, page)
 }
 
 func listGithubUserOrgs(
@@ -112,9 +112,41 @@ func listGithubUserOrgs(
 	return children, nextPage, nil
 }
 
-func listGithubOrgRepos(
+// getOwnerInfo fetches the owner's type and ID from the GitHub API.
+func getOwnerInfo(apiClient plugin.ApiClient, owner string) (ownerType string, ownerID int, err errors.Error) {
+	resp, err := apiClient.Get(fmt.Sprintf("users/%s", owner), nil, nil)
+	if err != nil {
+		return "", 0, err
+	}
+	var info struct {
+		ID   int    `json:"id"`
+		Type string `json:"type"`
+	}
+	errors.Must(api.UnmarshalResponse(resp, &info))
+	return info.Type, info.ID, nil
+}
+
+// getAuthenticatedUserID returns the ID of the currently authenticated user.
+func getAuthenticatedUserID(apiClient plugin.ApiClient) (int, errors.Error) {
+	resp, err := apiClient.Get("user", nil, nil)
+	if err != nil {
+		return 0, err
+	}
+	var user struct {
+		ID int `json:"id"`
+	}
+	errors.Must(api.UnmarshalResponse(resp, &user))
+	return user.ID, nil
+}
+
+// listGithubOwnerRepos lists repositories for a given owner (user or organization).
+// It determines the owner type via the GitHub API and uses the appropriate endpoint:
+// - For organizations: /orgs/{owner}/repos
+// - For the authenticated user: /user/repos (includes private repos)
+// - For other users: /users/{owner}/repos (public repos only)
+func listGithubOwnerRepos(
 	apiClient plugin.ApiClient,
-	org string,
+	owner string,
 	page GithubRemotePagination,
 ) (
 	children []dsmodels.DsRemoteApiScopeListEntry[models.GithubRepo],
@@ -124,19 +156,38 @@ func listGithubOrgRepos(
 	query := url.Values{
 		"page":     []string{fmt.Sprintf("%v", page.Page)},
 		"per_page": []string{fmt.Sprintf("%v", page.PerPage)},
+		"type":     []string{"all"},
 	}
-	// user's orgs
-	reposBody, err := apiClient.Get(fmt.Sprintf("orgs/%s/repos", org), query, nil)
+
+	ownerType, ownerID, err := getOwnerInfo(apiClient, owner)
 	if err != nil {
 		return nil, nil, err
 	}
-	// if not found, try to get user repos
-	if reposBody.StatusCode == http.StatusNotFound {
-		reposBody, err = apiClient.Get(fmt.Sprintf("users/%s/repos", org), query, nil)
+
+	var reposBody *http.Response
+	switch ownerType {
+	case "Organization":
+		reposBody, err = apiClient.Get(fmt.Sprintf("orgs/%s/repos", owner), query, nil)
+	case "User":
+		authUserID, err := getAuthenticatedUserID(apiClient)
 		if err != nil {
 			return nil, nil, err
 		}
+		if authUserID == ownerID {
+			// Authenticated user's own account - includes private repos
+			reposBody, err = apiClient.Get("user/repos", query, nil)
+		} else {
+			// Another user's account - public repos only
+			reposBody, err = apiClient.Get(fmt.Sprintf("users/%s/repos", owner), query, nil)
+		}
+	default:
+		// Fallback for unknown types
+		reposBody, err = apiClient.Get(fmt.Sprintf("users/%s/repos", owner), query, nil)
 	}
+	if err != nil {
+		return nil, nil, err
+	}
+
 	var repos []repo
 	errors.Must(api.UnmarshalResponse(reposBody, &repos))
 	for _, repo := range repos {
