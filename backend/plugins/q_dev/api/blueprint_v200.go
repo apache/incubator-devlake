@@ -56,7 +56,7 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopeDetails []*srvhelper.ScopeDetail[models.QDevS3Slice, srvhelper.NoScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.QDevS3Slice, models.QDevScopeConfig],
 	connection *models.QDevConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
@@ -86,7 +86,7 @@ func makeDataSourcePipelinePlanV200(
 }
 
 func makeScopesV200(
-	scopeDetails []*srvhelper.ScopeDetail[models.QDevS3Slice, srvhelper.NoScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.QDevS3Slice, models.QDevScopeConfig],
 	connection *models.QDevConnection,
 ) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)

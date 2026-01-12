@@ -32,31 +32,31 @@ services:
       --collation-server=utf8mb4_bin
       --skip-log-bin
 
-  postgres:
-    image: postgres:14.2
-    volumes:
-      - postgres-storage:/var/lib/postgresql
-    restart: always
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_DB: lake
-      POSTGRES_USER: merico
-      POSTGRES_PASSWORD: merico
-      TZ: UTC
+  # postgres:
+  #   image: postgres:14.2
+  #   volumes:
+  #     - postgres-storage:/var/lib/postgresql
+  #   restart: always
+  #   ports:
+  #     - 5432:5432
+  #   environment:
+  #     POSTGRES_DB: lake
+  #     POSTGRES_USER: merico
+  #     POSTGRES_PASSWORD: merico
+  #     TZ: UTC
 
-  postgres17:
-    image: postgres:17.2
-    volumes:
-      - postgres17-storage:/var/lib/postgresql
-    restart: always
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_DB: lake
-      POSTGRES_USER: merico
-      POSTGRES_PASSWORD: merico
-      TZ: UTC
+  # postgres17:
+  #   image: postgres:17.2
+  #   volumes:
+  #     - postgres17-storage:/var/lib/postgresql
+  #   restart: always
+  #   ports:
+  #     - 5432:5432
+  #   environment:
+  #     POSTGRES_DB: lake
+  #     POSTGRES_USER: merico
+  #     POSTGRES_PASSWORD: merico
+  #     TZ: UTC
 
   grafana:
     image: devlake.docker.scarf.sh/apache/devlake-dashboard:latest
@@ -142,6 +142,6 @@ services:
 volumes:
   mysql-storage:
   grafana-storage:
-  postgres-storage:
-  postgres17-storage:
+  # postgres-storage:
+  # postgres17-storage:
   devlake-log:

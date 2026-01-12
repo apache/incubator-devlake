@@ -57,6 +57,7 @@ func (p QDev) GetTablesInfo() []dal.Tabler {
 		&models.QDevUserData{},
 		&models.QDevS3FileMeta{},
 		&models.QDevS3Slice{},
+		&models.QDevScopeConfig{},
 	}
 }
 
@@ -77,7 +78,7 @@ func (p QDev) Scope() plugin.ToolLayerScope {
 }
 
 func (p QDev) ScopeConfig() dal.Tabler {
-	return nil
+	return &models.QDevScopeConfig{}
 }
 
 func (p QDev) SubTaskMetas() []plugin.SubTaskMeta {
@@ -150,7 +151,7 @@ func (p QDev) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.TestExistingConnection,
 		},
 		"connections/:connectionId/scopes": {
-			"GET": api.GetScopeList,
+			"GET": api.GetScopes,
 			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scopes/:scopeId": {
@@ -158,8 +159,8 @@ func (p QDev) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
 		},
-		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
-			"GET": api.GetScopeLatestSyncState,
+		"connections/:connectionId/scope-configs": {
+			"GET": api.GetScopeConfigs,
 		},
 	}
 }

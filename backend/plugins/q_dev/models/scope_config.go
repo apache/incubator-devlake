@@ -15,22 +15,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addS3SliceTable),
-		new(addScopeConfigIdToS3Slice),
-		new(addScopeIdFields),
-		new(addQDevScopeConfig),
-	}
+type QDevScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline"`
+	
+	// Processing options
+	ProcessingEnabled bool `json:"processingEnabled" mapstructure:"processingEnabled"`
+	
+	// File filtering
+	FilePattern string `json:"filePattern" mapstructure:"filePattern"`
 }
+
+func (QDevScopeConfig) TableName() string {
+	return "_tool_q_dev_scope_configs"
+}
+
+func (c QDevScopeConfig) ScopeConfigId() uint64 {
+	return c.ID
+}
+
+func (c QDevScopeConfig) ScopeConfigConnectionId() uint64 {
+	return c.ConnectionId
+}
+
+var _ plugin.ToolLayerScopeConfig = (*QDevScopeConfig)(nil)
