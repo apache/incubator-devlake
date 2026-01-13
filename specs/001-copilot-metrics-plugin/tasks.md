@@ -110,7 +110,7 @@
 
 - [x] T027 [P] Refresh `backend/plugins/copilot/README.md` and `specs/001-copilot-metrics-plugin/quickstart.md` with final instructions + diagrams
 - [x] T028 [P] Publish blueprint recipe + dashboard JSON link in `backend/plugins/copilot/README.md`
-- [ ] T029 Execute `make unit-test`, `make e2e-test-go-plugins`, and `make grafana-dashboard-sync` to validate end-to-end
+- [x] T029 Execute `make unit-test`, `make e2e-test-go-plugins`, and `make grafana-dashboard-sync` to validate end-to-end
 - [x] T030 Capture upgrade notes + limitations in `specs/001-copilot-metrics-plugin/plan.md` and ensure docs mention deferred enterprise endpoints
 - [ ] T035 [P] Rename UI-facing strings from "Copilot" to "GitHub Copilot" in docs: `backend/plugins/copilot/README.md` and `specs/001-copilot-metrics-plugin/quickstart.md`
 - [ ] T036 [P] Update OpenAPI metadata strings (title/tags/summaries) to "GitHub Copilot" while keeping REST paths/ids as `copilot` in `specs/001-copilot-metrics-plugin/contracts/copilot.openapi.yaml`

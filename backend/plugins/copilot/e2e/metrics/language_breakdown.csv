@@ -1,5 +1,5 @@
 connection_id,scope_id,date,editor,language,engaged_users,suggestions,acceptances,lines_suggested,lines_accepted
-1,octodemo,2025-09-01T00:00:00Z,vscode,python,6,100,20,300,60
-1,octodemo,2025-09-01T00:00:00Z,jetbrains,ruby,4,50,10,120,30
-1,octodemo,2025-09-02T00:00:00Z,vscode,python,8,180,36,450,180
-1,octodemo,2025-09-02T00:00:00Z,jetbrains,go,2,20,4,50,20
+1,octodemo,2025-09-01T00:00:00.000+00:00,vscode,python,6,100,20,300,60
+1,octodemo,2025-09-01T00:00:00.000+00:00,jetbrains,ruby,4,50,10,120,30
+1,octodemo,2025-09-02T00:00:00.000+00:00,vscode,python,8,180,36,450,180
+1,octodemo,2025-09-02T00:00:00.000+00:00,jetbrains,go,2,20,4,50,20
