@@ -1,4 +1,4 @@
-# Copilot Plugin (Adoption Metrics)
+# GitHub Copilot Plugin (Adoption Metrics)
 
 This plugin ingests GitHub Copilot **organization-level adoption metrics** (daily usage and seat assignments) and provides a Grafana dashboard for adoption trends.
 
@@ -25,7 +25,7 @@ flowchart LR
 	GH[GitHub Copilot REST API]
 	RAW[(Raw tables\n_raw_copilot_*)]
 	TOOL[(Tool tables\n_tool_copilot_*)]
-	GRAF[Grafana Dashboard\nCopilot Adoption]
+	GRAF[Grafana Dashboard\nGitHub Copilot Adoption]
 
 	GH --> RAW --> TOOL --> GRAF
 ```
@@ -44,13 +44,13 @@ flowchart LR
 ### Prerequisites
 
 - GitHub Copilot Business or Enterprise enabled for the target organization
-- A token that can access Copilot billing/metrics (classic PAT with `manage_billing:copilot` works)
+- A token that can access GitHub Copilot billing/metrics (classic PAT with `manage_billing:copilot` works)
 
 ### 1) Create a connection
 
 1. DevLake UI → **Data Integrations → Add Connection → GitHub Copilot**
 2. Fill in:
-	 - **Name**: e.g. `Copilot Octodemo`
+	 - **Name**: e.g. `GitHub Copilot Octodemo`
 	 - **Endpoint**: defaults to `https://api.github.com`
 	 - **Organization**: GitHub org slug
 	 - **Token**: PAT with required scope
@@ -89,9 +89,10 @@ Link: `grafana/dashboards/copilot/adoption.json`
 
 ## Error handling guidance
 
-- **403 Forbidden** → token missing required billing/metrics scope, or org lacks Copilot access
-- **404 Not Found** → incorrect org slug, or Copilot endpoints unavailable for the org
-- **422 Unprocessable Entity** → Copilot metrics disabled in GitHub org settings
+- **403 Forbidden** → token missing required billing/metrics scope, or org lacks GitHub Copilot access
+- **404 Not Found** → incorrect org slug, or GitHub Copilot endpoints unavailable for the org
+- **422 Unprocessable Entity** → GitHub Copilot metrics disabled in GitHub org settings
+
 - **429 Too Many Requests** → respect `Retry-After`; collectors implement backoff/retry
 
 Tokens are sanitized before persisting. When patching an existing connection, omit the token to retain the encrypted value already stored in DevLake.

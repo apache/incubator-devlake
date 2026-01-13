@@ -78,9 +78,9 @@
 - [x] T021 [P] [US3] Author `grafana/dashboards/copilot/adoption.json` with panels for active/engaged trends, acceptance rate, chat usage, seat timeline, leveraging DevLake SQL macros
 - [x] T022 [P] [US3] Add supporting SQL query snippets (e.g., acceptance rate CTEs) directly within `grafana/dashboards/copilot/adoption.json` or existing macro snippets, avoiding extra directory structure
 - [x] T023 [US3] Update `specs/001-copilot-metrics-plugin/quickstart.md` with dashboard navigation + variable instructions and verify via local Grafana sync
-- [ ] T031 [P] [US3] Add Stat panel for average acceptance rate over the selected time range in `grafana/dashboards/copilot/adoption.json`
-- [ ] T032 [P] [US3] Add Stat panel for % engaged users (engaged / active) with delta vs previous time period in `grafana/dashboards/copilot/adoption.json`
-- [ ] T033 [P] [US3] Rename dashboard + panel titles from "Copilot" to "GitHub Copilot" in `grafana/dashboards/copilot/adoption.json` (use "gh-copilot" only where space is constrained)
+- [x] T031 [P] [US3] Add Stat panel for average acceptance rate over the selected time range in `grafana/dashboards/copilot/adoption.json`
+- [x] T032 [P] [US3] Add Stat panel for % engaged users (engaged / active) with delta vs previous time period in `grafana/dashboards/copilot/adoption.json`
+- [x] T033 [P] [US3] Rename dashboard + panel titles from "Copilot" to "GitHub Copilot" in `grafana/dashboards/copilot/adoption.json` (use "gh-copilot" only where space is constrained)
 
 
 **Checkpoint**: Adoption dashboard deliverable complete; foundation for Phase 2 impact analytics
@@ -98,7 +98,7 @@
 - [x] T024 [P] [US4] Extend extractor (`backend/plugins/copilot/tasks/metrics_extractor.go`) to persist `CopilotLanguageMetrics` from `editors[].languages[]`
 - [x] T025 [US4] Enhance dashboard JSON (`grafana/dashboards/copilot/adoption.json`) with Top 10 language bar chart + editor distribution pie chart
 - [x] T026 [US4] Add test coverage (E2E fixture + assertions) for language/editor rows in `backend/plugins/copilot/e2e/metrics/language_breakdown.csv`
-- [ ] T034 [P] [US4] Modify editor distribution panel to show percentages in hover/tooltip (and legend if applicable) instead of raw request counts in `grafana/dashboards/copilot/adoption.json`
+- [x] T034 [P] [US4] Modify editor distribution panel to show percentages in hover/tooltip (and legend if applicable) instead of raw request counts in `grafana/dashboards/copilot/adoption.json`
 
 **Checkpoint**: Detailed language/editor analytics available while core adoption metrics remain stable
 
@@ -112,8 +112,8 @@
 - [x] T028 [P] Publish blueprint recipe + dashboard JSON link in `backend/plugins/copilot/README.md`
 - [x] T029 Execute `make unit-test`, `make e2e-test-go-plugins`, and `make grafana-dashboard-sync` to validate end-to-end
 - [x] T030 Capture upgrade notes + limitations in `specs/001-copilot-metrics-plugin/plan.md` and ensure docs mention deferred enterprise endpoints
-- [ ] T035 [P] Rename UI-facing strings from "Copilot" to "GitHub Copilot" in docs: `backend/plugins/copilot/README.md` and `specs/001-copilot-metrics-plugin/quickstart.md`
-- [ ] T036 [P] Update OpenAPI metadata strings (title/tags/summaries) to "GitHub Copilot" while keeping REST paths/ids as `copilot` in `specs/001-copilot-metrics-plugin/contracts/copilot.openapi.yaml`
+- [x] T035 [P] Rename UI-facing strings from "Copilot" to "GitHub Copilot" in docs: `backend/plugins/copilot/README.md` and `specs/001-copilot-metrics-plugin/quickstart.md`
+- [x] T036 [P] Update OpenAPI metadata strings (title/tags/summaries) to "GitHub Copilot" while keeping REST paths/ids as `copilot` in `specs/001-copilot-metrics-plugin/contracts/copilot.openapi.yaml`
 
 ---
 

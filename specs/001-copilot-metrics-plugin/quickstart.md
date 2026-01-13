@@ -16,23 +16,23 @@ flowchart LR
   GH[GitHub Copilot REST API]
   RAW[(Raw tables\n_raw_copilot_*)]
   TOOL[(Tool tables\n_tool_copilot_*)]
-  GRAF[Grafana Dashboard\nCopilot Adoption]
+  GRAF[Grafana Dashboard\nGitHub Copilot Adoption]
   GH --> RAW --> TOOL --> GRAF
 ```
 
 ## 3. Install Plugin (after implementation)
-1. Pull latest DevLake code with the Copilot plugin branch.
+1. Pull latest DevLake code with the GitHub Copilot plugin branch.
 2. Run `make dep` (installs Go + UI dependencies if needed).
 3. Rebuild the server: `make build` or `make dev`.
 4. Sync Grafana dashboards: `make grafana-dashboard-sync` (or deploy JSON manually).
 
-## 4. Configure Copilot Connection
+## 4. Configure GitHub Copilot Connection
 1. Navigate to **Data Integrations → Add Connection → GitHub Copilot** (new entry).
 2. Provide:
-   - **Name**: e.g., `Copilot Octodemo`
+  - **Name**: e.g., `GitHub Copilot Octodemo`
    - **Endpoint**: default `https://api.github.com`
    - **Organization**: GitHub org slug (e.g., `octodemo`)
-   - **Token**: PAT with Copilot billing scope
+  - **Token**: PAT with GitHub Copilot billing scope
 3. Click **Test Connection** and ensure the response shows plan type, active seats, and success status.
 4. Save the connection.
 
@@ -63,14 +63,14 @@ flowchart LR
 - Verify that tables `_tool_copilot_org_metrics` and `_tool_copilot_seats` contain new records.
 
 ## 8. Explore Grafana Adoption Dashboard
-1. Open Grafana → `Copilot Adoption` dashboard.
-2. Select your Copilot dataset via dashboard variables:
-   - `connection_id`: your Copilot connection ID
+1. Open Grafana → `GitHub Copilot Adoption` dashboard.
+2. Select your GitHub Copilot dataset via dashboard variables:
+  - `connection_id`: your GitHub Copilot connection ID
    - `scope_id`: the organization scope ID (typically the org slug)
 3. Panels available:
    - Active vs Engaged users over time
    - Acceptance rate (acceptances / suggestions)
-   - Copilot IDE vs GitHub.com chat usage
+  - GitHub Copilot IDE vs GitHub.com chat usage
    - Seat timeline (total vs active)
 4. Adjust time range (e.g., last 90 days) and verify panels refresh successfully.
 

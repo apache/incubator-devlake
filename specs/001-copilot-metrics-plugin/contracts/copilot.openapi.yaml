@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: DevLake Copilot Plugin API
+  title: DevLake GitHub Copilot Plugin API
   version: 0.1.0
   description: REST endpoints for managing GitHub Copilot connections and scopes.
 servers:
@@ -8,8 +8,8 @@ servers:
 paths:
   /plugins/copilot/connections:
     get:
-      summary: List Copilot connections
-      tags: [Copilot Connections]
+      summary: List GitHub Copilot connections
+      tags: [GitHub Copilot Connections]
       responses:
         '200':
           description: Array of connections
@@ -20,8 +20,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/CopilotConnection'
     post:
-      summary: Create a Copilot connection
-      tags: [Copilot Connections]
+      summary: Create a GitHub Copilot connection
+      tags: [GitHub Copilot Connections]
       requestBody:
         required: true
         content:
@@ -39,8 +39,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/ConnectionId'
     get:
-      summary: Retrieve a Copilot connection
-      tags: [Copilot Connections]
+      summary: Retrieve a GitHub Copilot connection
+      tags: [GitHub Copilot Connections]
       responses:
         '200':
           description: Connection
@@ -49,8 +49,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/CopilotConnection'
     patch:
-      summary: Update a Copilot connection
-      tags: [Copilot Connections]
+      summary: Update a GitHub Copilot connection
+      tags: [GitHub Copilot Connections]
       requestBody:
         required: true
         content:
@@ -65,8 +65,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/CopilotConnection'
     delete:
-      summary: Delete a Copilot connection
-      tags: [Copilot Connections]
+      summary: Delete a GitHub Copilot connection
+      tags: [GitHub Copilot Connections]
       responses:
         '204':
           description: Connection deleted
@@ -74,8 +74,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/ConnectionId'
     post:
-      summary: Test Copilot connection
-      tags: [Copilot Connections]
+      summary: Test GitHub Copilot connection
+      tags: [GitHub Copilot Connections]
       responses:
         '200':
           description: Test results
@@ -88,7 +88,7 @@ paths:
       - $ref: '#/components/parameters/ConnectionId'
     get:
       summary: List scopes for a connection
-      tags: [Copilot Scopes]
+      tags: [GitHub Copilot Scopes]
       responses:
         '200':
           description: Array of scopes
@@ -100,7 +100,7 @@ paths:
                   $ref: '#/components/schemas/CopilotScope'
     put:
       summary: Upsert scopes for a connection
-      tags: [Copilot Scopes]
+      tags: [GitHub Copilot Scopes]
       requestBody:
         required: true
         content:
@@ -127,8 +127,8 @@ paths:
         schema:
           type: string
     get:
-      summary: Retrieve a Copilot scope
-      tags: [Copilot Scopes]
+      summary: Retrieve a GitHub Copilot scope
+      tags: [GitHub Copilot Scopes]
       responses:
         '200':
           description: Scope
@@ -137,8 +137,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/CopilotScope'
     patch:
-      summary: Update a Copilot scope
-      tags: [Copilot Scopes]
+      summary: Update a GitHub Copilot scope
+      tags: [GitHub Copilot Scopes]
       requestBody:
         required: true
         content:
@@ -153,8 +153,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/CopilotScope'
     delete:
-      summary: Delete a Copilot scope
-      tags: [Copilot Scopes]
+      summary: Delete a GitHub Copilot scope
+      tags: [GitHub Copilot Scopes]
       responses:
         '204':
           description: Scope deleted
@@ -167,7 +167,7 @@ components:
       required: true
       schema:
         type: integer
-      description: Numeric identifier for the Copilot connection.
+          description: Numeric identifier for the GitHub Copilot connection.
   schemas:
     CopilotConnection:
       type: object

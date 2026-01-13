@@ -78,7 +78,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 6
       },
       "id": 1,
       "options": {
@@ -165,7 +165,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 6
       },
       "id": 2,
       "options": {
@@ -250,7 +250,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 14
       },
       "id": 3,
       "options": {
@@ -336,7 +336,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 14
       },
       "id": 4,
       "options": {
@@ -389,7 +389,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 22
       },
       "id": 5,
       "options": {
@@ -418,12 +418,15 @@
     },
     {
       "datasource": "mysql",
-      "description": "Editor share based on total suggestions (summed across languages)",
+      "description": "Editor share based on total suggestions (percent of total in selected time range)",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -441,7 +444,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 22
       },
       "id": 6,
       "options": {
@@ -469,12 +472,127 @@
           "datasource": "mysql",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  NOW() as time,\n  editor as metric,\n  SUM(suggestions) as value\nFROM _tool_copilot_language_metrics\nWHERE\n  $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY editor\nORDER BY value DESC\n",
+          "rawSql": "WITH editor_sums AS (\n  SELECT\n    editor,\n    SUM(suggestions) AS suggestions\n  FROM _tool_copilot_language_metrics\n  WHERE\n    $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n  GROUP BY editor\n), total AS (\n  SELECT SUM(suggestions) AS total_suggestions\n  FROM editor_sums\n)\nSELECT\n  NOW() as time,\n  editor_sums.editor as metric,\n  COALESCE(editor_sums.suggestions / NULLIF(total.total_suggestions, 0), 0) as value\nFROM editor_sums\nCROSS JOIN total\nORDER BY editor_sums.suggestions DESC\n",
           "refId": "A"
         }
       ],
       "title": "Editor Distribution",
       "type": "piechart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Average acceptance rate over the selected time range (SUM(acceptances) / SUM(suggestions)).",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(SUM(completion_acceptances) / NULLIF(SUM(completion_suggestions), 0), 0) AS value\nFROM _tool_copilot_org_metrics\nWHERE\n  $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Average Acceptance Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Engaged users / active users over the selected time range; percent change compares current range to the previous range of equal length.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": true,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH bounds AS (\n  SELECT\n    $__timeFrom() AS from_time,\n    $__timeTo() AS to_time,\n    TIMESTAMPDIFF(SECOND, $__timeFrom(), $__timeTo()) AS span_sec\n)\nSELECT\n  bounds.from_time AS time,\n  COALESCE(\n    (\n      SELECT SUM(total_engaged_users)\n      FROM _tool_copilot_org_metrics\n      WHERE\n        date >= DATE_SUB(bounds.from_time, INTERVAL bounds.span_sec SECOND)\n        AND date < bounds.from_time\n        AND connection_id = ${connection_id}\n        AND scope_id = '${scope_id}'\n    ) / NULLIF((\n      SELECT SUM(total_active_users)\n      FROM _tool_copilot_org_metrics\n      WHERE\n        date >= DATE_SUB(bounds.from_time, INTERVAL bounds.span_sec SECOND)\n        AND date < bounds.from_time\n        AND connection_id = ${connection_id}\n        AND scope_id = '${scope_id}'\n    ), 0),\n    0\n  ) AS value\nFROM bounds\nUNION ALL\nSELECT\n  bounds.to_time AS time,\n  COALESCE(\n    (\n      SELECT SUM(total_engaged_users)\n      FROM _tool_copilot_org_metrics\n      WHERE\n        date >= bounds.from_time\n        AND date <= bounds.to_time\n        AND connection_id = ${connection_id}\n        AND scope_id = '${scope_id}'\n    ) / NULLIF((\n      SELECT SUM(total_active_users)\n      FROM _tool_copilot_org_metrics\n      WHERE\n        date >= bounds.from_time\n        AND date <= bounds.to_time\n        AND connection_id = ${connection_id}\n        AND scope_id = '${scope_id}'\n    ), 0),\n    0\n  ) AS value\nFROM bounds\nORDER BY time\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Engaged Users %",
+      "type": "stat"
     }
   ],
   "refresh": "",
@@ -535,7 +653,7 @@
   },
   "timepicker": {},
   "timezone": "utc",
-  "title": "Copilot Adoption",
+  "title": "GitHub Copilot Adoption",
   "uid": "copilot_adoption",
   "version": 1,
   "weekStart": ""
