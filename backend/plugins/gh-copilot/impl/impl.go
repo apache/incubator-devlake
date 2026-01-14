@@ -24,10 +24,10 @@ import (
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/copilot/api"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
-	"github.com/apache/incubator-devlake/plugins/copilot/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/copilot/tasks"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/api"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/tasks"
 )
 
 var _ interface {
@@ -55,7 +55,7 @@ func (p Copilot) Description() string {
 }
 
 func (p Copilot) Name() string {
-	return "copilot"
+	return "gh-copilot"
 }
 
 func (p Copilot) Connection() dal.Tabler {
@@ -112,7 +112,7 @@ func (p Copilot) MakeDataSourcePipelinePlanV200(
 }
 
 func (p Copilot) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/copilot"
+	return "github.com/apache/incubator-devlake/plugins/gh-copilot"
 }
 
 func (p Copilot) MigrationScripts() []plugin.MigrationScript {

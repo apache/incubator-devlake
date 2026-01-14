@@ -23,8 +23,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
-	"github.com/apache/incubator-devlake/plugins/copilot/tasks"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/tasks"
 )
 
 // MakeDataSourcePipelinePlanV200 generates the pipeline plan for blueprint v2.0.0.
@@ -67,7 +67,7 @@ func makeDataSourcePipelinePlanV200(
 
 		scope := scopeDetail.Scope
 		task, err := helper.MakePipelinePlanTask(
-			"copilot",
+			"gh-copilot",
 			subtaskMetas,
 			nil,
 			tasks.CopilotOptions{

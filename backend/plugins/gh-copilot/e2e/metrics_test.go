@@ -26,9 +26,9 @@ import (
 	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/copilot/impl"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
-	"github.com/apache/incubator-devlake/plugins/copilot/tasks"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/impl"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/tasks"
 )
 
 func TestCopilotMetricsDataFlow(t *testing.T) {
@@ -42,7 +42,7 @@ func TestCopilotMetricsDataFlow(t *testing.T) {
 	}
 
 	var copilot impl.Copilot
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "copilot", copilot)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "gh-copilot", copilot)
 
 	taskData := &tasks.CopilotTaskData{
 		Options: &tasks.CopilotOptions{

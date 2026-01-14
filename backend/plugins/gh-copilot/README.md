@@ -69,7 +69,7 @@ Use a blueprint plan like:
 [
 	[
 		{
-			"plugin": "copilot",
+			"plugin": "gh-copilot",
 			"options": {
 				"connectionId": 1,
 				"scopeId": "octodemo"

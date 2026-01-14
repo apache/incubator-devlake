@@ -24,8 +24,8 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
-	"github.com/apache/incubator-devlake/plugins/copilot/service"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/service"
 )
 
 // TestConnection validates a Copilot connection before saving it.
