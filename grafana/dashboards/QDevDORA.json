@@ -1,0 +1,1203 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "DORA Dashboard",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/qNo8_0M4z/dora"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Q Dev Dashboard",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/qdev_user_data/q-dev-user-data-dashboard"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## AI-Powered DORA Dashboard\nThis dashboard correlates **Q Dev (AI coding assistant)** usage metrics with **DORA** performance indicators to help understand the impact of AI-assisted development on engineering efficiency.\n\n- **Left side**: Q Dev AI usage metrics (code generation, acceptance rate)\n- **Right side**: DORA metrics (Lead Time, Deployment Frequency, Change Failure Rate)\n- **Correlation charts**: Show trends over time to identify potential relationships",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.0.0",
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 2,
+      "panels": [],
+      "title": "Overview Statistics",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Number of unique users who used Q Dev AI features",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 4
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT user_id) as 'Active Q Dev Users'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Q Dev Active Users",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Total AI-generated code lines accepted (Inline + Chat)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 4
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(inline_ai_code_lines + chat_ai_code_lines) as 'AI Accepted Lines'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Total AI Code Lines",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Acceptance rate of inline AI suggestions",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.3
+              },
+              {
+                "color": "green",
+                "value": 0.5
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) as 'Acceptance Rate'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "AI Acceptance Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Number of production deployments in selected period",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 4
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT cdc.cicd_deployment_id) as 'Deployments'\nFROM cicd_deployment_commits cdc\nJOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\nWHERE pm.project_name IN (${project})\n  AND cdc.result = 'SUCCESS'\n  AND cdc.environment = 'PRODUCTION'\n  AND $__timeFilter(cdc.finished_date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Deployments",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Median lead time for changes in hours",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 24
+              },
+              {
+                "color": "red",
+                "value": 168
+              }
+            ]
+          },
+          "unit": "h"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 4
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH _pr_stats AS (\n  SELECT\n    distinct pr.id,\n    ppm.pr_cycle_time\n  FROM pull_requests pr\n  JOIN project_pr_metrics ppm ON ppm.id = pr.id\n  JOIN project_mapping pm ON pr.base_repo_id = pm.row_id AND pm.`table` = 'repos'\n  JOIN cicd_deployment_commits cdc ON ppm.deployment_commit_id = cdc.id\n  WHERE pm.project_name IN (${project})\n    AND pr.merged_date IS NOT NULL\n    AND ppm.pr_cycle_time IS NOT NULL\n    AND $__timeFilter(cdc.finished_date)\n),\n_median_ranks AS (\n  SELECT *, percent_rank() OVER(ORDER BY pr_cycle_time) AS ranks\n  FROM _pr_stats\n)\nSELECT ROUND(MAX(pr_cycle_time) / 60, 1) AS 'Lead Time (hours)'\nFROM _median_ranks\nWHERE ranks <= 0.5",
+          "refId": "A"
+        }
+      ],
+      "title": "Median Lead Time",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Percentage of deployments that caused incidents",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 0.15
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 4
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH _deployments AS (\n  SELECT\n    cdc.cicd_deployment_id AS deployment_id,\n    MAX(cdc.finished_date) AS deployment_finished_date\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n  GROUP BY 1\n  HAVING $__timeFilter(MAX(cdc.finished_date))\n),\n_failure_caused AS (\n  SELECT\n    d.deployment_id,\n    COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n  FROM _deployments d\n  LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n  LEFT JOIN incidents i ON pim.id = i.id\n  GROUP BY 1\n)\nSELECT \n  CASE WHEN COUNT(deployment_id) = 0 THEN NULL \n       ELSE SUM(has_incident) / COUNT(deployment_id) \n  END AS 'Change Failure Rate'\nFROM _failure_caused",
+          "refId": "A"
+        }
+      ],
+      "title": "Change Failure Rate",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 9,
+      "panels": [],
+      "title": "AI Usage vs DORA Metrics Correlation",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Compare AI code generation trends with Lead Time for Changes. A negative correlation (AI lines up, Lead Time down) suggests AI is helping accelerate delivery.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "AI Accepted Lines"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "AI Code Lines"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Median Lead Time (hours)"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Lead Time (hours)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ai_monthly AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(inline_ai_code_lines + chat_ai_code_lines) AS ai_lines\n  FROM _tool_q_dev_user_data\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\nlead_time_monthly AS (\n  SELECT\n    DATE_FORMAT(cdc.finished_date, '%Y-%m-01') AS month,\n    AVG(ppm.pr_cycle_time) / 60 AS avg_lead_time\n  FROM pull_requests pr\n  JOIN project_pr_metrics ppm ON ppm.id = pr.id\n  JOIN project_mapping pm ON pr.base_repo_id = pm.row_id AND pm.`table` = 'repos'\n  JOIN cicd_deployment_commits cdc ON ppm.deployment_commit_id = cdc.id\n  WHERE pm.project_name IN (${project})\n    AND pr.merged_date IS NOT NULL\n    AND ppm.pr_cycle_time IS NOT NULL\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, lt.month), '%Y-%m-%d') AS time,\n  ai.ai_lines AS 'AI Accepted Lines',\n  ROUND(lt.avg_lead_time, 1) AS 'Median Lead Time (hours)'\nFROM ai_monthly ai\nLEFT JOIN lead_time_monthly lt ON ai.month = lt.month\nWHERE ai.month IS NOT NULL OR lt.month IS NOT NULL\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "AI Code Generation vs Lead Time Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Compare AI suggestion acceptance rate with deployment frequency. Higher acceptance rate may indicate better AI integration and potentially more deployments.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "AI Acceptance Rate"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Acceptance Rate"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deployment Count"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Deployments"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ai_acceptance AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) AS acceptance_rate\n  FROM _tool_q_dev_user_data\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\ndeployment_count AS (\n  SELECT \n    DATE_FORMAT(MAX(cdc.finished_date), '%Y-%m-01') AS month,\n    COUNT(DISTINCT cdc.cicd_deployment_id) AS deploy_count\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, dc.month), '%Y-%m-%d') AS time,\n  ai.acceptance_rate AS 'AI Acceptance Rate',\n  dc.deploy_count AS 'Deployment Count'\nFROM ai_acceptance ai\nLEFT JOIN deployment_count dc ON ai.month = dc.month\nWHERE ai.month IS NOT NULL OR dc.month IS NOT NULL\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "AI Acceptance Rate vs Deployment Frequency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Compare AI-generated tests with Change Failure Rate. More AI-generated tests might correlate with lower failure rates.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "AI Generated Tests"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Tests Generated"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Change Failure Rate"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Failure Rate"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ai_tests AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(test_generation_generated_tests) AS generated_tests\n  FROM _tool_q_dev_user_data\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\ncfr_monthly AS (\n  SELECT\n    DATE_FORMAT(deployment_finished_date, '%Y-%m-01') AS month,\n    SUM(has_incident) / NULLIF(COUNT(deployment_id), 0) AS cfr\n  FROM (\n    SELECT\n      d.deployment_id,\n      d.deployment_finished_date,\n      COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n    FROM (\n      SELECT\n        cdc.cicd_deployment_id AS deployment_id,\n        MAX(cdc.finished_date) AS deployment_finished_date\n      FROM cicd_deployment_commits cdc\n      JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n      WHERE pm.project_name IN (${project})\n        AND cdc.result = 'SUCCESS'\n        AND cdc.environment = 'PRODUCTION'\n      GROUP BY 1\n      HAVING $__timeFilter(MAX(cdc.finished_date))\n    ) d\n    LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n    LEFT JOIN incidents i ON pim.id = i.id\n    GROUP BY 1, 2\n  ) failure_data\n  GROUP BY DATE_FORMAT(deployment_finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, cfr.month), '%Y-%m-%d') AS time,\n  ai.generated_tests AS 'AI Generated Tests',\n  cfr.cfr AS 'Change Failure Rate'\nFROM ai_tests ai\nLEFT JOIN cfr_monthly cfr ON ai.month = cfr.month\nWHERE ai.month IS NOT NULL OR cfr.month IS NOT NULL\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "AI Test Generation vs Change Failure Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Compare active Q Dev users with Code Review findings. More AI-assisted code review might catch issues earlier.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Active Users"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Users"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Code Review Findings"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Findings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  STR_TO_DATE(DATE_FORMAT(date, '%Y-%m-01'), '%Y-%m-%d') AS time,\n  COUNT(DISTINCT user_id) AS 'Active Users',\n  SUM(code_review_findings_count) AS 'Code Review Findings'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY DATE_FORMAT(date, '%Y-%m-01')\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Q Dev Users vs Code Review Findings",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 14,
+      "panels": [],
+      "title": "Monthly Comparison Table",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Monthly summary comparing Q Dev AI metrics with DORA metrics side by side",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "AI Acceptance Rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              },
+              {
+                "id": "max",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Change Failure Rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-RdYlGr"
+                }
+              },
+              {
+                "id": "max",
+                "value": 0.3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Lead Time (hours)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "h"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 15,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Month"
+          }
+        ]
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ai_metrics AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m') AS month,\n    COUNT(DISTINCT user_id) AS active_users,\n    SUM(inline_ai_code_lines + chat_ai_code_lines) AS ai_lines,\n    SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) AS acceptance_rate,\n    SUM(test_generation_generated_tests) AS generated_tests,\n    SUM(code_review_findings_count) AS review_findings\n  FROM _tool_q_dev_user_data\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m')\n),\ndora_metrics AS (\n  SELECT\n    DATE_FORMAT(cdc.finished_date, '%Y-%m') AS month,\n    COUNT(DISTINCT cdc.cicd_deployment_id) AS deployments,\n    AVG(ppm.pr_cycle_time) / 60 AS avg_lead_time\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  LEFT JOIN cicd_deployment_commits cdc2 ON cdc.cicd_deployment_id = cdc2.cicd_deployment_id\n  LEFT JOIN project_pr_metrics ppm ON ppm.deployment_commit_id = cdc2.id\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m')\n),\ncfr_metrics AS (\n  SELECT\n    DATE_FORMAT(deployment_finished_date, '%Y-%m') AS month,\n    SUM(has_incident) / NULLIF(COUNT(deployment_id), 0) AS cfr\n  FROM (\n    SELECT\n      d.deployment_id,\n      d.deployment_finished_date,\n      COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n    FROM (\n      SELECT\n        cdc.cicd_deployment_id AS deployment_id,\n        MAX(cdc.finished_date) AS deployment_finished_date\n      FROM cicd_deployment_commits cdc\n      JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n      WHERE pm.project_name IN (${project})\n        AND cdc.result = 'SUCCESS'\n        AND cdc.environment = 'PRODUCTION'\n      GROUP BY 1\n      HAVING $__timeFilter(MAX(cdc.finished_date))\n    ) d\n    LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n    LEFT JOIN incidents i ON pim.id = i.id\n    GROUP BY 1, 2\n  ) failure_data\n  GROUP BY DATE_FORMAT(deployment_finished_date, '%Y-%m')\n)\nSELECT \n  COALESCE(ai.month, dm.month, cfr.month) AS 'Month',\n  COALESCE(ai.active_users, 0) AS 'Q Dev Users',\n  COALESCE(ai.ai_lines, 0) AS 'AI Code Lines',\n  ai.acceptance_rate AS 'AI Acceptance Rate',\n  COALESCE(ai.generated_tests, 0) AS 'AI Tests',\n  COALESCE(ai.review_findings, 0) AS 'Review Findings',\n  COALESCE(dm.deployments, 0) AS 'Deployments',\n  ROUND(dm.avg_lead_time, 1) AS 'Lead Time (hours)',\n  cfr.cfr AS 'Change Failure Rate'\nFROM ai_metrics ai\nLEFT JOIN dora_metrics dm ON ai.month = dm.month\nLEFT JOIN cfr_metrics cfr ON ai.month = cfr.month\nORDER BY ai.month DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Monthly Q Dev vs DORA Metrics Comparison",
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "5m",
+  "schemaVersion": 39,
+  "tags": [
+    "q_dev",
+    "DORA",
+    "AI",
+    "correlation"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": ["All"],
+          "value": ["$__all"]
+        },
+        "datasource": "mysql",
+        "definition": "SELECT DISTINCT name FROM projects",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Project",
+        "multi": true,
+        "name": "project",
+        "options": [],
+        "query": "SELECT DISTINCT name FROM projects",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "Q Dev + DORA Correlation",
+  "uid": "qdev_dora_correlation",
+  "version": 1
+}
