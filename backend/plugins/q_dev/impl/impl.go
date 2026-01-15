@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/q_dev/api"
@@ -39,6 +40,7 @@ var _ interface {
 	plugin.PluginModel
 	plugin.PluginSource
 	plugin.PluginMigration
+	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
 } = (*QDev)(nil)
 
@@ -169,4 +171,11 @@ func (p QDev) Close(taskCtx plugin.TaskContext) errors.Error {
 	}
 	data.S3Client.Close()
 	return nil
+}
+
+func (p QDev) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
