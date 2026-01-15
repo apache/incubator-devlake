@@ -27,7 +27,7 @@ export const GhCopilotConfig: IPluginConfig = {
   icon: ({ color }) => <Icon fill={color} />,
   sort: 6.5,
   connection: {
-    docLink: '',
+    docLink: 'https://github.com/apache/incubator-devlake/blob/main/backend/plugins/gh-copilot/README.md',
     initialValues: {
       endpoint: 'https://api.github.com',
       organization: '',
