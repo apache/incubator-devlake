@@ -20,6 +20,6 @@ package impl
 import "github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 
 // NormalizeConnection ensures required defaults are set before use.
-func NormalizeConnection(connection *models.CopilotConnection) {
+func NormalizeConnection(connection *models.GhCopilotConnection) {
 	connection.Normalize()
 }

@@ -116,7 +116,7 @@ type copilotAssignee struct {
 }
 
 func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
-	data, ok := taskCtx.TaskContext().GetData().(*CopilotTaskData)
+	data, ok := taskCtx.TaskContext().GetData().(*GhCopilotTaskData)
 	if !ok {
 		return errors.Default.New("task data is not CopilotTaskData")
 	}
@@ -182,7 +182,7 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
-			toolSeat := &models.CopilotSeat{
+			toolSeat := &models.GhCopilotSeat{
 				ConnectionId:            data.Options.ConnectionId,
 				Organization:            connection.Organization,
 				UserLogin:               seat.Assignee.Login,
@@ -208,7 +208,7 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// Derive seat counts from extracted assignments.
 	db := taskCtx.GetDal()
-	seatTotal, err := db.Count(dal.From(&models.CopilotSeat{}), dal.Where(
+	seatTotal, err := db.Count(dal.From(&models.GhCopilotSeat{}), dal.Where(
 		"connection_id = ? AND organization = ?",
 		data.Options.ConnectionId,
 		connection.Organization,
@@ -216,7 +216,7 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to count copilot seats")
 	}
-	seatActive, err := db.Count(dal.From(&models.CopilotSeat{}), dal.Where(
+	seatActive, err := db.Count(dal.From(&models.GhCopilotSeat{}), dal.Where(
 		"connection_id = ? AND organization = ? AND last_activity_at IS NOT NULL",
 		data.Options.ConnectionId,
 		connection.Organization,
@@ -227,9 +227,9 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// Keep existing org metrics in sync even when the stateful metrics extractor
 	// has nothing new to process (e.g., incremental runs with no new raw metrics).
-	if db.HasTable(&models.CopilotOrgMetrics{}) {
+	if db.HasTable(&models.GhCopilotOrgMetrics{}) {
 		err = db.UpdateColumns(
-			&models.CopilotOrgMetrics{},
+			&models.GhCopilotOrgMetrics{},
 			[]dal.DalSet{{ColumnName: "seat_total", Value: seatTotal}, {ColumnName: "seat_active_count", Value: seatActive}},
 			dal.Where("connection_id = ? AND scope_id = ?", data.Options.ConnectionId, data.Options.ScopeId),
 		)
@@ -273,7 +273,7 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 						completionLinesSuggested += lang.TotalCodeLinesSuggested
 						completionLinesAccepted += lang.TotalCodeLinesAccepted
 
-						toolLang := &models.CopilotLanguageMetrics{
+						toolLang := &models.GhCopilotLanguageMetrics{
 							ConnectionId:   data.Options.ConnectionId,
 							ScopeId:        data.Options.ScopeId,
 							Date:           date,
@@ -306,7 +306,7 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				dotcomChats += model.TotalChats
 			}
 
-			metric := &models.CopilotOrgMetrics{
+			metric := &models.GhCopilotOrgMetrics{
 				ConnectionId:             data.Options.ConnectionId,
 				ScopeId:                  data.Options.ScopeId,
 				Date:                     date,

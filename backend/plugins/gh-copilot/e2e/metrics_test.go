@@ -41,7 +41,7 @@ func TestCopilotMetricsDataFlow(t *testing.T) {
 		t.Skipf("skipping e2e test: cannot connect to E2E_DB_URL: %v", err)
 	}
 
-	var copilot impl.Copilot
+	var copilot impl.GhCopilot
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gh-copilot", copilot)
 
 	taskData := &tasks.CopilotTaskData{
@@ -61,25 +61,25 @@ func TestCopilotMetricsDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./metrics/raw_tables/_raw_copilot_metrics.csv", "_raw_copilot_metrics")
 	dataflowTester.ImportCsvIntoRawTable("./metrics/raw_tables/_raw_copilot_seats.csv", "_raw_copilot_seats")
 
-	dataflowTester.FlushTabler(&models.CopilotOrgMetrics{})
-	dataflowTester.FlushTabler(&models.CopilotLanguageMetrics{})
-	dataflowTester.FlushTabler(&models.CopilotSeat{})
+	dataflowTester.FlushTabler(&models.GhCopilotOrgMetrics{})
+	dataflowTester.FlushTabler(&models.GhCopilotLanguageMetrics{})
+	dataflowTester.FlushTabler(&models.GhCopilotSeat{})
 
 	dataflowTester.Subtask(tasks.ExtractCopilotOrgMetricsMeta, taskData)
 
-	dataflowTester.VerifyTableWithOptions(&models.CopilotOrgMetrics{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&models.GhCopilotOrgMetrics{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./metrics/snapshot_tables/_tool_copilot_org_metrics.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
-	dataflowTester.VerifyTableWithOptions(&models.CopilotSeat{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&models.GhCopilotSeat{}, e2ehelper.TableOptions{
 		CSVRelPath: "./metrics/snapshot_tables/_tool_copilot_seats.csv",
 		IgnoreTypes: []interface{}{
 			common.RawDataOrigin{},
 		},
 	})
 
-	dataflowTester.VerifyTableWithOptions(&models.CopilotLanguageMetrics{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&models.GhCopilotLanguageMetrics{}, e2ehelper.TableOptions{
 		CSVRelPath: "./metrics/language_breakdown.csv",
 		IgnoreTypes: []interface{}{
 			common.RawDataOrigin{},

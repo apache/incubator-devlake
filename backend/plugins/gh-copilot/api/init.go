@@ -32,7 +32,7 @@ var (
 	apiResources     = map[string]map[string]plugin.ApiResourceHandler{}
 	vld              *validator.Validate
 	connectionHelper *helper.ConnectionApiHelper
-	dsHelper         *helper.DsHelper[models.CopilotConnection, models.CopilotScope, srvhelper.NoScopeConfig]
+	dsHelper         *helper.DsHelper[models.GhCopilotConnection, models.GhCopilotScope, srvhelper.NoScopeConfig]
 )
 
 // Init stores basic resources and configures shared helpers for API handlers.
@@ -41,16 +41,16 @@ func Init(br context.BasicRes, meta plugin.PluginMeta) {
 	vld = validator.New()
 	connectionHelper = helper.NewConnectionHelper(basicRes, vld, meta.Name())
 	dsHelper = helper.NewDataSourceHelper[
-		models.CopilotConnection, models.CopilotScope, srvhelper.NoScopeConfig,
+		models.GhCopilotConnection, models.GhCopilotScope, srvhelper.NoScopeConfig,
 	](
 		basicRes,
 		meta.Name(),
 		[]string{"id", "organization"},
-		func(c models.CopilotConnection) models.CopilotConnection {
+		func(c models.GhCopilotConnection) models.GhCopilotConnection {
 			c.Normalize()
 			return c.Sanitize()
 		},
-		func(s models.CopilotScope) models.CopilotScope { return s },
+		func(s models.GhCopilotScope) models.GhCopilotScope { return s },
 		nil,
 	)
 

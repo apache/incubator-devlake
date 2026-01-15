@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var PluginEntry impl.Copilot
+var PluginEntry impl.GhCopilot
 
 // standalone mode for debugging collectors.
 func main() {

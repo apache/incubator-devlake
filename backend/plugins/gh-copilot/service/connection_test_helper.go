@@ -52,7 +52,7 @@ type copilotBillingSummary struct {
 }
 
 // TestConnection exercises the GitHub Copilot billing endpoint to validate credentials.
-func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.CopilotConnection) (*TestConnectionResult, errors.Error) {
+func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.GhCopilotConnection) (*TestConnectionResult, errors.Error) {
 	if connection == nil {
 		return nil, errors.BadInput.New("connection is required")
 	}

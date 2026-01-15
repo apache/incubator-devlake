@@ -31,7 +31,7 @@ type addRawDataOriginToCopilotLanguageMetrics struct{}
 func (script *addRawDataOriginToCopilotLanguageMetrics) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.CopilotLanguageMetrics{},
+		&models.GhCopilotLanguageMetrics{},
 	)
 }
 

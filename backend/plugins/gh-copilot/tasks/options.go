@@ -17,8 +17,8 @@ limitations under the License.
 
 package tasks
 
-// CopilotOptions defines task-level options passed from pipeline plans.
-type CopilotOptions struct {
+// GhCopilotOptions defines task-level options passed from pipeline plans.
+type GhCopilotOptions struct {
 	ConnectionId uint64 `mapstructure:"connectionId" json:"connectionId"`
 	ScopeId      string `mapstructure:"scopeId" json:"scopeId"`
 }

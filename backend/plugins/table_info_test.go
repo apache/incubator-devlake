@@ -99,7 +99,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("linker/models", linker.Linker{}.GetTablesInfo)
 	checker.FeedIn("issue_trace/models", issueTrace.IssueTrace{}.GetTablesInfo)
 	checker.FeedIn("q_dev/models", q_dev.QDev{}.GetTablesInfo)
-	checker.FeedIn("gh-copilot/models", copilot.Copilot{}.GetTablesInfo)
+	checker.FeedIn("gh-copilot/models", copilot.GhCopilot{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)

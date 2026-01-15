@@ -30,11 +30,11 @@ type addCopilotInitialTables struct{}
 func (script *addCopilotInitialTables) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.CopilotConnection{},
-		&models.CopilotScope{},
-		&models.CopilotOrgMetrics{},
-		&models.CopilotLanguageMetrics{},
-		&models.CopilotSeat{},
+		&models.GhCopilotConnection{},
+		&models.GhCopilotScope{},
+		&models.GhCopilotOrgMetrics{},
+		&models.GhCopilotLanguageMetrics{},
+		&models.GhCopilotSeat{},
 	)
 }
 

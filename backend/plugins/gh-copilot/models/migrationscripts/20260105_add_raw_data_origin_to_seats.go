@@ -31,7 +31,7 @@ type addRawDataOriginToCopilotSeats struct{}
 func (script *addRawDataOriginToCopilotSeats) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.CopilotSeat{},
+		&models.GhCopilotSeat{},
 	)
 }
 

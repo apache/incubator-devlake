@@ -24,8 +24,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// CopilotScope represents an organization-level collection scope.
-type CopilotScope struct {
+// GhCopilotScope represents an organization-level collection scope.
+type GhCopilotScope struct {
 	common.Scope       `mapstructure:",squash"`
 	Id                 string     `json:"id" mapstructure:"id" gorm:"primaryKey;type:varchar(255)"`
 	Organization       string     `json:"organization" mapstructure:"organization" gorm:"type:varchar(255);not null"`
@@ -34,36 +34,36 @@ type CopilotScope struct {
 	SeatsLastSyncedAt  *time.Time `json:"seatsLastSyncedAt" mapstructure:"seatsLastSyncedAt"`
 }
 
-func (CopilotScope) TableName() string {
+func (GhCopilotScope) TableName() string {
 	return "_tool_copilot_scopes"
 }
 
-func (s CopilotScope) ScopeId() string {
+func (s GhCopilotScope) ScopeId() string {
 	return s.Id
 }
 
-func (s CopilotScope) ScopeName() string {
+func (s GhCopilotScope) ScopeName() string {
 	if s.Id != "" {
 		return s.Id
 	}
 	return s.Organization
 }
 
-func (s CopilotScope) ScopeFullName() string {
+func (s GhCopilotScope) ScopeFullName() string {
 	return s.ScopeName()
 }
 
-func (s CopilotScope) ScopeParams() interface{} {
-	return &CopilotScopeParams{
+func (s GhCopilotScope) ScopeParams() interface{} {
+	return &GhCopilotScopeParams{
 		ConnectionId: s.ConnectionId,
 		ScopeId:      s.Id,
 	}
 }
 
-// CopilotScopeParams is returned for blueprint configuration.
-type CopilotScopeParams struct {
+// GhCopilotScopeParams is returned for blueprint configuration.
+type GhCopilotScopeParams struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ScopeId      string `json:"scopeId"`
 }
 
-var _ plugin.ToolLayerScope = (*CopilotScope)(nil)
+var _ plugin.ToolLayerScope = (*GhCopilotScope)(nil)

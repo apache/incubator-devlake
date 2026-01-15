@@ -56,7 +56,7 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopeDetails []*srvhelper.ScopeDetail[models.CopilotScope, srvhelper.NoScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.GhCopilotScope, srvhelper.NoScopeConfig],
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
 	for i, scopeDetail := range scopeDetails {
@@ -70,7 +70,7 @@ func makeDataSourcePipelinePlanV200(
 			"gh-copilot",
 			subtaskMetas,
 			nil,
-			tasks.CopilotOptions{
+			tasks.GhCopilotOptions{
 				ConnectionId: scope.ConnectionId,
 				ScopeId:      scope.Id,
 			},
