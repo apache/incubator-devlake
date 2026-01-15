@@ -22,12 +22,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 func TestValidateConnection_Success(t *testing.T) {
-	connection := &models.CopilotConnection{
-		CopilotConn: models.CopilotConn{
+	connection := &models.GhCopilotConnection{
+		GhCopilotConn: models.GhCopilotConn{
 			Organization: "octodemo",
 			Token:        "ghp_example",
 		},
@@ -39,8 +39,8 @@ func TestValidateConnection_Success(t *testing.T) {
 }
 
 func TestValidateConnection_MissingOrganization(t *testing.T) {
-	connection := &models.CopilotConnection{
-		CopilotConn: models.CopilotConn{
+	connection := &models.GhCopilotConnection{
+		GhCopilotConn: models.GhCopilotConn{
 			Token: "ghp_example",
 		},
 	}
@@ -51,8 +51,8 @@ func TestValidateConnection_MissingOrganization(t *testing.T) {
 }
 
 func TestValidateConnection_MissingToken(t *testing.T) {
-	connection := &models.CopilotConnection{
-		CopilotConn: models.CopilotConn{
+	connection := &models.GhCopilotConnection{
+		GhCopilotConn: models.GhCopilotConn{
 			Organization: "octodemo",
 			Token:        "",
 		},
@@ -64,8 +64,8 @@ func TestValidateConnection_MissingToken(t *testing.T) {
 }
 
 func TestValidateConnection_InvalidRateLimit(t *testing.T) {
-	connection := &models.CopilotConnection{
-		CopilotConn: models.CopilotConn{
+	connection := &models.GhCopilotConnection{
+		GhCopilotConn: models.GhCopilotConn{
 			Organization:     "octodemo",
 			Token:            "ghp_example",
 			RateLimitPerHour: -1,

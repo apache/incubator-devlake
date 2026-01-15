@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 // addCopilotInitialTables creates the initial Copilot tool-layer tables.
@@ -30,11 +30,11 @@ type addCopilotInitialTables struct{}
 func (script *addCopilotInitialTables) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.CopilotConnection{},
-		&models.CopilotScope{},
-		&models.CopilotOrgMetrics{},
-		&models.CopilotLanguageMetrics{},
-		&models.CopilotSeat{},
+		&models.GhCopilotConnection{},
+		&models.GhCopilotScope{},
+		&models.GhCopilotOrgMetrics{},
+		&models.GhCopilotLanguageMetrics{},
+		&models.GhCopilotSeat{},
 	)
 }
 

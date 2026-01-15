@@ -33,8 +33,8 @@ const (
 	DefaultRateLimitPerHour = 5000
 )
 
-// CopilotConn stores GitHub Copilot connection settings.
-type CopilotConn struct {
+// GhCopilotConn stores GitHub Copilot connection settings.
+type GhCopilotConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 
 	Token            string `mapstructure:"token" json:"token"`
@@ -44,7 +44,7 @@ type CopilotConn struct {
 
 // SetupAuthentication implements plugin.ApiAuthenticator so helper.NewApiClientFromConnection
 // can attach the Authorization header for GitHub API requests.
-func (conn *CopilotConn) SetupAuthentication(request *http.Request) errors.Error {
+func (conn *GhCopilotConn) SetupAuthentication(request *http.Request) errors.Error {
 	if conn == nil {
 		return errors.BadInput.New("connection is required")
 	}
@@ -62,31 +62,31 @@ func (conn *CopilotConn) SetupAuthentication(request *http.Request) errors.Error
 	return nil
 }
 
-func (conn *CopilotConn) Sanitize() CopilotConn {
+func (conn *GhCopilotConn) Sanitize() GhCopilotConn {
 	if conn == nil {
-		return CopilotConn{}
+		return GhCopilotConn{}
 	}
 	clone := *conn
 	clone.Token = utils.SanitizeString(clone.Token)
 	return clone
 }
 
-// CopilotConnection persists connection details with metadata required by DevLake.
-type CopilotConnection struct {
+// GhCopilotConnection persists connection details with metadata required by DevLake.
+type GhCopilotConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
-	CopilotConn           `mapstructure:",squash"`
+	GhCopilotConn         `mapstructure:",squash"`
 }
 
-func (CopilotConnection) TableName() string {
+func (GhCopilotConnection) TableName() string {
 	return "_tool_copilot_connections"
 }
 
-func (connection CopilotConnection) Sanitize() CopilotConnection {
-	connection.CopilotConn = connection.CopilotConn.Sanitize()
+func (connection GhCopilotConnection) Sanitize() GhCopilotConnection {
+	connection.GhCopilotConn = connection.GhCopilotConn.Sanitize()
 	return connection
 }
 
-func (connection *CopilotConnection) MergeFromRequest(target *CopilotConnection, body map[string]interface{}) error {
+func (connection *GhCopilotConnection) MergeFromRequest(target *GhCopilotConnection, body map[string]interface{}) error {
 	if target == nil {
 		return nil
 	}
@@ -102,7 +102,7 @@ func (connection *CopilotConnection) MergeFromRequest(target *CopilotConnection,
 }
 
 // Normalize applies default connection values where necessary.
-func (connection *CopilotConnection) Normalize() {
+func (connection *GhCopilotConnection) Normalize() {
 	if connection == nil {
 		return
 	}

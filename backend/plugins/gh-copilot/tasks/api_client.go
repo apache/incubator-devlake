@@ -25,7 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 type nowFunc func() time.Time
@@ -57,7 +57,7 @@ func handleGitHubRetryAfter(res *http.Response, logger log.Logger, now nowFunc, 
 	return errors.HttpStatus(http.StatusTooManyRequests).New("GitHub rate limited the request")
 }
 
-func CreateApiClient(taskCtx plugin.TaskContext, connection *models.CopilotConnection) (*helper.ApiAsyncClient, errors.Error) {
+func CreateApiClient(taskCtx plugin.TaskContext, connection *models.GhCopilotConnection) (*helper.ApiAsyncClient, errors.Error) {
 	apiClient, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 	if err != nil {
 		return nil, err

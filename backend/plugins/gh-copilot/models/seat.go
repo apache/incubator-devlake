@@ -23,8 +23,8 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// CopilotSeat represents a seat assignment snapshot for Copilot.
-type CopilotSeat struct {
+// GhCopilotSeat represents a seat assignment snapshot for Copilot.
+type GhCopilotSeat struct {
 	ConnectionId            uint64 `gorm:"primaryKey"`
 	Organization            string `gorm:"primaryKey;type:varchar(255)"`
 	UserLogin               string `gorm:"primaryKey;type:varchar(255)"`
@@ -40,6 +40,6 @@ type CopilotSeat struct {
 	common.RawDataOrigin
 }
 
-func (CopilotSeat) TableName() string {
+func (GhCopilotSeat) TableName() string {
 	return "_tool_copilot_seats"
 }

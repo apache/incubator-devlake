@@ -22,10 +22,10 @@ import "github.com/apache/incubator-devlake/core/dal"
 // GetTablesInfo returns the list of tool-layer tables managed by the Copilot plugin.
 func GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
-		&CopilotConnection{},
-		&CopilotScope{},
-		&CopilotOrgMetrics{},
-		&CopilotLanguageMetrics{},
-		&CopilotSeat{},
+		&GhCopilotConnection{},
+		&GhCopilotScope{},
+		&GhCopilotOrgMetrics{},
+		&GhCopilotLanguageMetrics{},
+		&GhCopilotSeat{},
 	}
 }

@@ -21,12 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 // PostConnections creates a new Copilot connection.
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CopilotConnection{}
+	connection := &models.GhCopilotConnection{}
 	if err := helper.Decode(input.Body, connection, vld); err != nil {
 		return nil, err
 	}
@@ -43,11 +43,11 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 }
 
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CopilotConnection{}
+	connection := &models.GhCopilotConnection{}
 	if err := connectionHelper.First(connection, input.Params); err != nil {
 		return nil, err
 	}
-	if err := (&models.CopilotConnection{}).MergeFromRequest(connection, input.Body); err != nil {
+	if err := (&models.GhCopilotConnection{}).MergeFromRequest(connection, input.Body); err != nil {
 		return nil, errors.Convert(err)
 	}
 	connection.Normalize()
@@ -61,7 +61,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 }
 
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	conn := &models.CopilotConnection{}
+	conn := &models.GhCopilotConnection{}
 	output, err := connectionHelper.Delete(conn, input)
 	if err != nil {
 		return output, err
@@ -71,7 +71,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 }
 
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connections []models.CopilotConnection
+	var connections []models.GhCopilotConnection
 	if err := connectionHelper.List(&connections); err != nil {
 		return nil, err
 	}
@@ -82,14 +82,14 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 }
 
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CopilotConnection{}
+	connection := &models.GhCopilotConnection{}
 	if err := connectionHelper.First(connection, input.Params); err != nil {
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: connection.Sanitize()}, nil
 }
 
-func validateConnection(connection *models.CopilotConnection) errors.Error {
+func validateConnection(connection *models.GhCopilotConnection) errors.Error {
 	if connection == nil {
 		return errors.BadInput.New("connection is required")
 	}

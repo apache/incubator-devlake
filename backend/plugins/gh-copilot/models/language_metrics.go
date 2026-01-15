@@ -23,8 +23,8 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// CopilotLanguageMetrics represents engagement statistics broken down by editor and language.
-type CopilotLanguageMetrics struct {
+// GhCopilotLanguageMetrics represents engagement statistics broken down by editor and language.
+type GhCopilotLanguageMetrics struct {
 	ConnectionId uint64    `gorm:"primaryKey"`
 	ScopeId      string    `gorm:"primaryKey;type:varchar(255)"`
 	Date         time.Time `gorm:"primaryKey;type:date"`
@@ -39,6 +39,6 @@ type CopilotLanguageMetrics struct {
 	common.RawDataOrigin
 }
 
-func (CopilotLanguageMetrics) TableName() string {
+func (GhCopilotLanguageMetrics) TableName() string {
 	return "_tool_copilot_language_metrics"
 }

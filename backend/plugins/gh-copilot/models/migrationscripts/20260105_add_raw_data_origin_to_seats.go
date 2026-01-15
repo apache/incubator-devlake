@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 // addRawDataOriginToCopilotSeats ensures _tool_copilot_seats includes RawDataOrigin columns.
@@ -31,7 +31,7 @@ type addRawDataOriginToCopilotSeats struct{}
 func (script *addRawDataOriginToCopilotSeats) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.CopilotSeat{},
+		&models.GhCopilotSeat{},
 	)
 }
 

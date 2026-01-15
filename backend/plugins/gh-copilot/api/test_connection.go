@@ -24,13 +24,13 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
-	"github.com/apache/incubator-devlake/plugins/copilot/service"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/service"
 )
 
 // TestConnection validates a Copilot connection before saving it.
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CopilotConnection{}
+	connection := &models.GhCopilotConnection{}
 	if err := helper.Decode(input.Body, connection, vld); err != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
 	}
@@ -49,7 +49,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 
 // TestExistingConnection validates a stored Copilot connection with optional overrides.
 func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CopilotConnection{}
+	connection := &models.GhCopilotConnection{}
 	if err := connectionHelper.First(connection, input.Params); err != nil {
 		return nil, plugin.WrapTestConnectionErrResp(basicRes, errors.BadInput.Wrap(err, "find connection from db"))
 	}

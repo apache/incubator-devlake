@@ -19,17 +19,17 @@ package main
 
 import (
 	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/plugins/copilot/impl"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/impl"
 	"github.com/spf13/cobra"
 )
 
-var PluginEntry impl.Copilot
+var PluginEntry impl.GhCopilot
 
 // standalone mode for debugging collectors.
 func main() {
-	cmd := &cobra.Command{Use: "copilot"}
-	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "copilot connection id")
-	scopeId := cmd.Flags().StringP("scopeId", "s", "", "copilot scope id (organization)")
+	cmd := &cobra.Command{Use: "gh-copilot"}
+	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "gh-copilot connection id")
+	scopeId := cmd.Flags().StringP("scopeId", "s", "", "gh-copilot scope id (organization)")
 	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data created after the specified time")
 
 	_ = cmd.MarkFlagRequired("connectionId")

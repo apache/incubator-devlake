@@ -30,7 +30,7 @@ import (
 	corectx "github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 // TestConnectionResult represents the payload returned by the connection test endpoints.
@@ -52,7 +52,7 @@ type copilotBillingSummary struct {
 }
 
 // TestConnection exercises the GitHub Copilot billing endpoint to validate credentials.
-func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.CopilotConnection) (*TestConnectionResult, errors.Error) {
+func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.GhCopilotConnection) (*TestConnectionResult, errors.Error) {
 	if connection == nil {
 		return nil, errors.BadInput.New("connection is required")
 	}

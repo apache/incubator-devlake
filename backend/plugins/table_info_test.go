@@ -28,7 +28,7 @@ import (
 	bitbucket "github.com/apache/incubator-devlake/plugins/bitbucket/impl"
 	bitbucket_server "github.com/apache/incubator-devlake/plugins/bitbucket_server/impl"
 	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
-	copilot "github.com/apache/incubator-devlake/plugins/copilot/impl"
+	copilot "github.com/apache/incubator-devlake/plugins/gh-copilot/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
 	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
@@ -99,7 +99,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("linker/models", linker.Linker{}.GetTablesInfo)
 	checker.FeedIn("issue_trace/models", issueTrace.IssueTrace{}.GetTablesInfo)
 	checker.FeedIn("q_dev/models", q_dev.QDev{}.GetTablesInfo)
-	checker.FeedIn("copilot/models", copilot.Copilot{}.GetTablesInfo)
+	checker.FeedIn("gh-copilot/models", copilot.GhCopilot{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)

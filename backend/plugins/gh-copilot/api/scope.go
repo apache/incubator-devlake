@@ -22,11 +22,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/plugins/copilot/models"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
-type PutScopesReqBody = helper.PutScopesReqBody[models.CopilotScope]
-type ScopeDetail = srvhelper.ScopeDetail[models.CopilotScope, srvhelper.NoScopeConfig]
+type PutScopesReqBody = helper.PutScopesReqBody[models.GhCopilotScope]
+type ScopeDetail = srvhelper.ScopeDetail[models.GhCopilotScope, srvhelper.NoScopeConfig]
 
 // PutScopes creates or updates Copilot organization scopes.
 func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
