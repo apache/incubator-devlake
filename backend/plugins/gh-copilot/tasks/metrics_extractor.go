@@ -118,7 +118,7 @@ type copilotAssignee struct {
 func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*GhCopilotTaskData)
 	if !ok {
-		return errors.Default.New("task data is not CopilotTaskData")
+		return errors.Default.New("task data is not GhCopilotTaskData")
 	}
 	connection := data.Connection
 	connection.Normalize()

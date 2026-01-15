@@ -71,7 +71,7 @@ func computeMetricsDateRange(now time.Time, since *time.Time) (start time.Time, 
 func CollectCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*GhCopilotTaskData)
 	if !ok {
-		return errors.Default.New("task data is not CopilotTaskData")
+		return errors.Default.New("task data is not GhCopilotTaskData")
 	}
 	connection := data.Connection
 	connection.Normalize()
