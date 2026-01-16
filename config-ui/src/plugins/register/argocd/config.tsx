@@ -29,7 +29,7 @@ export const ArgoCDConfig: IPluginConfig = {
   sort: 1,
   isBeta: true,
   connection: {
-    docLink: '',
+    docLink: DOC_URL.PLUGIN.ARGOCD.BASIS,
     initialValues: {
       endpoint: 'https://',
     },

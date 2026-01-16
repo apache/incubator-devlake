@@ -26,12 +26,31 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/github/token"
 )
 
 func CreateApiClient(taskCtx plugin.TaskContext, connection *models.GithubConnection) (*api.ApiAsyncClient, errors.Error) {
 	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 	if err != nil {
 		return nil, err
+	}
+
+	// Inject TokenProvider if refresh token is present
+	if connection.RefreshToken != "" {
+		logger := taskCtx.GetLogger()
+		db := taskCtx.GetDal()
+
+		// Create TokenProvider
+		tp := token.NewTokenProvider(connection, db, apiClient.GetClient(), logger)
+
+		// Wrap the transport
+		baseTransport := apiClient.GetClient().Transport
+		if baseTransport == nil {
+			baseTransport = http.DefaultTransport
+		}
+
+		rt := token.NewRefreshRoundTripper(baseTransport, tp)
+		apiClient.GetClient().Transport = rt
 	}
 
 	// create rate limit calculator
