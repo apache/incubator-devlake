@@ -133,6 +133,9 @@ local.js
 /.nova
 *.sublime*
 
+# Agent skills (local-only)
+.github/skills/
+
 
 # OS metadata
 .DS_Store
