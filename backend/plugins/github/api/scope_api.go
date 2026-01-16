@@ -18,10 +18,13 @@ limitations under the License.
 package api
 
 import (
+	"context"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
 type PutScopesReqBody api.PutScopesReqBody[models.GithubRepo]
@@ -39,6 +42,50 @@ type ScopeDetail api.ScopeDetail[models.GithubRepo, models.GithubScopeConfig]
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes [PUT]
 func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// Enrich missing URL fields by fetching from GitHub API
+	connection, err := dsHelper.ConnApi.GetMergedConnection(input)
+	if err != nil {
+		return nil, err
+	}
+
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+	if err != nil {
+		return nil, err
+	}
+
+	data, ok := input.Body["data"].([]interface{})
+	if ok {
+		for _, row := range data {
+			dict, ok := row.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			// Check if URL fields are missing
+			htmlUrl, hasHtmlUrl := dict["htmlUrl"].(string)
+			cloneUrl, hasCloneUrl := dict["cloneUrl"].(string)
+			fullName, hasFullName := dict["fullName"].(string)
+
+			// If URLs are missing but we have fullName, fetch from GitHub API
+			if hasFullName && fullName != "" && ((!hasHtmlUrl || htmlUrl == "") || (!hasCloneUrl || cloneUrl == "")) {
+				repo, err := getApiRepo(&tasks.GithubOptions{Name: fullName}, apiClient)
+				if err != nil {
+					// Log warning but don't fail - might be a deleted/private repo
+					basicRes.GetLogger().Warn(err, "failed to fetch repo details for %s, URL fields may be incomplete", fullName)
+					continue
+				}
+
+				// Populate missing fields from API
+				if !hasHtmlUrl || htmlUrl == "" {
+					dict["htmlUrl"] = repo.HTMLUrl
+				}
+				if !hasCloneUrl || cloneUrl == "" {
+					dict["cloneUrl"] = repo.CloneUrl
+				}
+			}
+		}
+	}
+
 	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
