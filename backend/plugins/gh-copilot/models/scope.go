@@ -29,6 +29,8 @@ type GhCopilotScope struct {
 	common.Scope       `mapstructure:",squash"`
 	Id                 string     `json:"id" mapstructure:"id" gorm:"primaryKey;type:varchar(255)"`
 	Organization       string     `json:"organization" mapstructure:"organization" gorm:"type:varchar(255);not null"`
+	Name               string     `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
+	FullName           string     `json:"fullName" mapstructure:"fullName" gorm:"type:varchar(255)"`
 	ImplementationDate *time.Time `json:"implementationDate" mapstructure:"implementationDate"`
 	BaselinePeriodDays int        `json:"baselinePeriodDays" mapstructure:"baselinePeriodDays"`
 	SeatsLastSyncedAt  *time.Time `json:"seatsLastSyncedAt" mapstructure:"seatsLastSyncedAt"`
@@ -36,6 +38,17 @@ type GhCopilotScope struct {
 
 func (GhCopilotScope) TableName() string {
 	return "_tool_copilot_scopes"
+}
+
+func (s *GhCopilotScope) BeforeSave() error {
+	// Populate Name and FullName from Organization and Id
+	if s.Name == "" {
+		s.Name = s.ScopeName()
+	}
+	if s.FullName == "" {
+		s.FullName = s.ScopeFullName()
+	}
+	return nil
 }
 
 func (s GhCopilotScope) ScopeId() string {

@@ -17,14 +17,28 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+)
 
-// All returns the ordered list of migration scripts for the Copilot plugin.
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addCopilotInitialTables),
-		new(addRawDataOriginToCopilotSeats),
-		new(addRawDataOriginToCopilotLanguageMetrics),
-		new(addNameFieldsToScopes),
-	}
+// addNameFieldsToScopes adds name and fullName columns to _tool_copilot_scopes.
+// These fields are required by the UI for displaying data scopes in the connection page.
+type addNameFieldsToScopes struct{}
+
+func (script *addNameFieldsToScopes) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&models.GhCopilotScope{},
+	)
+}
+
+func (*addNameFieldsToScopes) Version() uint64 {
+	return 20260116000000
+}
+
+func (*addNameFieldsToScopes) Name() string {
+	return "copilot add name fields to scopes"
 }
