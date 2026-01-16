@@ -16,7 +16,9 @@
  *
  */
 
-import PluginIcon from '@/images/plugin-icon.svg';
+import React from 'react';
+
+import PluginIcon from '@/images/plugin-icon.svg?react';
 
 import { pluginConfigs } from './register';
 import { IPluginConfig } from '@/types';
@@ -46,15 +48,53 @@ export const getPluginScopeId = (plugin: string, scope: any) => {
   }
 };
 
-export const getRegisterPlugins = () => pluginConfigs.map((it) => it.plugin);
+const pluginAliasMap: Record<string, string> = {
+  copilot: 'gh-copilot',
+};
+
+const aliasByTarget = Object.entries(pluginAliasMap).reduce<Record<string, string[]>>((acc, [alias, target]) => {
+  acc[target] ??= [];
+  acc[target].push(alias);
+  return acc;
+}, {});
+
+export const getRegisterPlugins = () => {
+  const ordered: string[] = [];
+  const seen = new Set<string>();
+
+  for (const config of pluginConfigs) {
+    if (!seen.has(config.plugin)) {
+      ordered.push(config.plugin);
+      seen.add(config.plugin);
+    }
+
+    for (const alias of aliasByTarget[config.plugin] ?? []) {
+      if (!seen.has(alias)) {
+        ordered.push(alias);
+        seen.add(alias);
+      }
+    }
+  }
+
+  for (const alias of Object.keys(pluginAliasMap)) {
+    if (!seen.has(alias)) {
+      ordered.push(alias);
+    }
+  }
+
+  return ordered;
+};
 
 export const getPluginConfig = (name: string): IPluginConfig => {
   let pluginConfig = pluginConfigs.find((it) => it.plugin === name);
+  if (!pluginConfig && pluginAliasMap[name]) {
+    pluginConfig = pluginConfigs.find((it) => it.plugin === pluginAliasMap[name]);
+  }
   if (!pluginConfig) {
     pluginConfig = {
       plugin: name,
       name: name,
-      icon: PluginIcon,
+      icon: ({ color }) => React.createElement(PluginIcon, { fill: color }),
       sort: 101,
       connection: {
         docLink: '',

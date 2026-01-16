@@ -2,3 +2,20 @@
 config-ui/
 grafana/
 releases/
+
+# Common ignores
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Dependency & build outputs
+**/node_modules/
+**/dist/
+**/build/
+**/coverage/
