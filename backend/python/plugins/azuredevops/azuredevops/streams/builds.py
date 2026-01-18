@@ -72,10 +72,16 @@ class Builds(Stream):
         if ctx.scope_config.deployment_pattern and ctx.scope_config.deployment_pattern.search(b.name):
             type = devops.CICDType.DEPLOYMENT
 
-        environment = devops.CICDEnvironment.PRODUCTION
-        if ctx.scope_config.production_pattern is not None and ctx.scope_config.production_pattern.search(
-                b.name) is None:
-            environment = None
+        # Determine if this is a production environment
+        # Match production_pattern against pipeline name
+        environment = None
+        if ctx.scope_config.production_pattern is not None:
+            if ctx.scope_config.production_pattern.search(b.name):
+                environment = devops.CICDEnvironment.PRODUCTION
+        else:
+            # No production_pattern configured - default to PRODUCTION for deployments
+            if type == devops.CICDType.DEPLOYMENT:
+                environment = devops.CICDEnvironment.PRODUCTION
 
         if b.finish_time:
             duration_sec = abs(b.finish_time.timestamp() - b.start_time.timestamp())
