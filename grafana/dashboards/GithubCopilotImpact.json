@@ -343,8 +343,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 16,
+        "w": 12,
+        "x": 12,
         "y": 10
       },
       "id": 6,
@@ -677,10 +677,10 @@
         "uid": "grafana"
       },
       "gridPos": {
-        "h": 3,
-        "w": 24,
-        "x": 0,
-        "y": 35
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 31
       },
       "id": 15,
       "options": {
@@ -750,7 +750,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 35
       },
       "id": 11,
       "options": {
@@ -800,7 +800,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 38
+        "y": 35
       },
       "id": 12,
       "options": {
@@ -852,7 +852,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 38
+        "y": 35
       },
       "id": 13,
       "options": {
@@ -1263,69 +1263,6 @@
       "panels": [],
       "title": "Adoption Intensity Analysis",
       "type": "row"
-    },
-
-    {
-      "datasource": "mysql",
-      "description": "Distribution of weeks by GitHub Copilot adoption tier. Shows how many weeks fell into each adoption level.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 22
-      },
-      "id": 71,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.6,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "horizontal",
-        "showValue": "auto",
-        "stacking": "none",
-        "text": {
-          "valueSize": 12
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH _copilot_adoption AS (\n  SELECT\n    DATE(day) AS metric_date,\n    ROUND(SUM(active_users) * 100.0 / NULLIF(SUM(total_seats), 0), 1) AS adoption_pct\n  FROM _tool_copilot_enterprise_metrics\n  WHERE scope_id = '${scope_id}'\n  GROUP BY DATE(day)\n),\n_adoption_weekly AS (\n  SELECT\n    DATE_SUB(metric_date, INTERVAL WEEKDAY(metric_date) DAY) AS week_start,\n    AVG(adoption_pct) AS adoption_pct\n  FROM _copilot_adoption\n  GROUP BY DATE_SUB(metric_date, INTERVAL WEEKDAY(metric_date) DAY)\n),\n_adoption_tiers AS (\n  SELECT\n    week_start,\n    CASE\n      WHEN adoption_pct < 25 THEN '<25%'\n      WHEN adoption_pct < 50 THEN '25-50%'\n      WHEN adoption_pct < 75 THEN '50-75%'\n      ELSE '>75%'\n    END AS tier\n  FROM _adoption_weekly\n)\nSELECT tier AS Tier, COUNT(*) AS Weeks FROM _adoption_tiers GROUP BY tier ORDER BY FIELD(tier, '<25%', '25-50%', '50-75%', '>75%')",
-          "refId": "A"
-        }
-      ],
-      "title": "Weeks by Adoption Tier",
-      "type": "barchart"
     },
     {
       "datasource": "mysql",
