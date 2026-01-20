@@ -63,4 +63,11 @@ export const GhCopilotConfig: IPluginConfig = {
   dataScope: {
     title: 'Organizations',
   },
+  scopeConfig: {
+    entities: ['COPILOT'],
+    transformation: {
+      implementationDate: null,
+      baselinePeriodDays: 90,
+    },
+  },
 };

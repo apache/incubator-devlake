@@ -48,6 +48,12 @@ func (s *GhCopilotScope) BeforeSave() error {
 	if s.FullName == "" {
 		s.FullName = s.ScopeFullName()
 	}
+	// Validate and normalize BaselinePeriodDays (7-365 range, default 90)
+	if s.BaselinePeriodDays <= 0 || s.BaselinePeriodDays < 7 {
+		s.BaselinePeriodDays = 90 // Default to 90 days
+	} else if s.BaselinePeriodDays > 365 {
+		s.BaselinePeriodDays = 365 // Cap at 1 year
+	}
 	return nil
 }
 
