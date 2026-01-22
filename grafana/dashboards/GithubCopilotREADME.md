@@ -95,7 +95,7 @@ _copilot_adoption → _adoption_weekly (by week_start)
 ```
 
 Key tables used:
-- `_tool_copilot_enterprise_metrics` - Daily GitHub Copilot usage
+- `_tool_copilot_org_metrics` - Daily GitHub Copilot usage
 - `project_pr_metrics` - PR cycle time, review time
 - `cicd_deployment_commits` - Deployment frequency, CFR
 - `issues` (type='INCIDENT') - MTTR calculation
@@ -106,6 +106,6 @@ Key tables used:
 | Issue | Solution |
 |-------|----------|
 | "No data" on panels | Check that time range includes GitHub Copilot data; verify `scope_id` variable |
-| Correlation shows "N/A" | Need at least 4 weeks of overlapping data |
+| Correlation shows "N/A" | Need at least 2 weeks of overlapping data |
 | CFR/MTTR empty | Ensure incidents are collected (Jira/GitHub issues with 'incident' label) |
 | Code Quality empty | Configure SonarQube integration |

@@ -200,7 +200,7 @@ As a tech lead, I want to see if code quality metrics (bugs, vulnerabilities, co
 **Correlation Analysis:**
 - What if no Copilot metrics exist yet? Display "Awaiting Copilot data. Please run a collection first." with guidance.
 - What if Copilot and DORA metrics don't have overlapping dates? Display correlation panels as "Insufficient overlapping data" and show individual trends separately.
-- How many data points are needed for meaningful correlation? Minimum 4 weeks of overlapping data recommended; display warning if less.
+- How many data points are needed for meaningful correlation? Minimum 2 weeks of overlapping data recommended; display warning if less.
 - What if correlation is weak (|r| < 0.3)? Display "Weak or no correlation detected" with explanation that other factors may be influencing metrics.
 - What if correlation is counter-intuitive (positive when negative expected)? Display result honestly with disclaimer about confounding variables.
 
@@ -287,7 +287,7 @@ As a tech lead, I want to see if code quality metrics (bugs, vulnerabilities, co
 ### Measurable Outcomes
 
 - **SC-001**: Users can view correlation-based Impact Dashboard within 2 minutes of completing Phase 1 setup (no implementation date configuration required).
-- **SC-002**: Impact Dashboard accurately shows correlation analysis when Copilot metrics and DORA metrics have 4+ weeks of overlapping data.
+- **SC-002**: Impact Dashboard accurately shows correlation analysis when Copilot metrics and DORA metrics have 2+ weeks of overlapping data.
 - **SC-003**: Correlation coefficients match manual calculations within 2% margin when validated against raw data.
 - **SC-004**: 90% of users can determine correlation strength (strong/moderate/weak) and direction (positive/negative) by viewing the correlation summary.
 - **SC-005**: Dashboard panels load within 5 seconds for organizations with up to 10,000 PRs and 1,000 incidents.
@@ -302,7 +302,7 @@ As a tech lead, I want to see if code quality metrics (bugs, vulnerabilities, co
 - Phase 1 (`001-copilot-metrics-plugin`) is complete and Copilot metrics are being collected.
 - Copilot metrics include daily active users count and total seats, enabling adoption percentage calculation.
 - DevLake already has PR data from GitHub/GitLab plugins for the repositories being analyzed.
-- Copilot metrics and DORA metrics have at least 4 weeks of overlapping date ranges for meaningful correlation analysis.
+- Copilot metrics and DORA metrics have at least 2 weeks of overlapping date ranges for meaningful correlation analysis.
 - DevLake has deployment data (via CI/CD plugins) for deployment frequency analysis; if not, those panels will show "No data available."
 - The `project_pr_metrics` domain table contains cycle time components (pr_cycle_time, pr_coding_time, pr_pickup_time, pr_review_time, pr_deploy_time).
 - For CFR and MTTR panels: Incident data may or may not be configured. If not configured, panels will display "N/A" messages.
