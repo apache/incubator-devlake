@@ -47,12 +47,8 @@ func (sc GhCopilotScopeConfig) GetConnectionId() uint64 {
 
 // BeforeSave validates and normalizes the scope config before saving.
 func (sc *GhCopilotScopeConfig) BeforeSave() error {
-	// First, run base ScopeConfig validation/normalization.
-	if sc.BaselinePeriodDays < 7 {
-		return err
-	}
 	// Validate and normalize BaselinePeriodDays (7-365 range, default 90)
-	if sc.BaselinePeriodDays <= 0 || sc.BaselinePeriodDays < 7 {
+	if sc.BaselinePeriodDays < 7 {
 		sc.BaselinePeriodDays = 90 // Default to 90 days
 	} else if sc.BaselinePeriodDays > 365 {
 		sc.BaselinePeriodDays = 365 // Cap at 1 year

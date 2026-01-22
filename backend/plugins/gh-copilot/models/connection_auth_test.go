@@ -24,8 +24,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCopilotConn_SetupAuthentication_BearerPrefix(t *testing.T) {
-	conn := &CopilotConn{Token: "Bearer abc"}
+func TestGhCopilotConn_SetupAuthentication_BearerPrefix(t *testing.T) {
+	conn := &GhCopilotConn{Token: "Bearer abc"}
 	req, err := http.NewRequest(http.MethodGet, "https://example.com", nil)
 	require.NoError(t, err)
 
@@ -34,8 +34,8 @@ func TestCopilotConn_SetupAuthentication_BearerPrefix(t *testing.T) {
 	require.Equal(t, "Bearer abc", req.Header.Get("Authorization"))
 }
 
-func TestCopilotConn_SetupAuthentication_TokenPrefix(t *testing.T) {
-	conn := &CopilotConn{Token: "token abc"}
+func TestGhCopilotConn_SetupAuthentication_TokenPrefix(t *testing.T) {
+	conn := &GhCopilotConn{Token: "token abc"}
 	req, err := http.NewRequest(http.MethodGet, "https://example.com", nil)
 	require.NoError(t, err)
 
@@ -44,8 +44,8 @@ func TestCopilotConn_SetupAuthentication_TokenPrefix(t *testing.T) {
 	require.Equal(t, "token abc", req.Header.Get("Authorization"))
 }
 
-func TestCopilotConn_SetupAuthentication_RawToken(t *testing.T) {
-	conn := &CopilotConn{Token: "abc"}
+func TestGhCopilotConn_SetupAuthentication_RawToken(t *testing.T) {
+	conn := &GhCopilotConn{Token: "abc"}
 	req, err := http.NewRequest(http.MethodGet, "https://example.com", nil)
 	require.NoError(t, err)
 
@@ -54,8 +54,8 @@ func TestCopilotConn_SetupAuthentication_RawToken(t *testing.T) {
 	require.Equal(t, "Bearer abc", req.Header.Get("Authorization"))
 }
 
-func TestCopilotConn_SetupAuthentication_TrimsWhitespace(t *testing.T) {
-	conn := &CopilotConn{Token: "  abc  "}
+func TestGhCopilotConn_SetupAuthentication_TrimsWhitespace(t *testing.T) {
+	conn := &GhCopilotConn{Token: "  abc  "}
 	req, err := http.NewRequest(http.MethodGet, "https://example.com", nil)
 	require.NoError(t, err)
 

@@ -22,11 +22,12 @@ import "testing"
 func TestGetTablesInfo(t *testing.T) {
 	tables := GetTablesInfo()
 	expected := map[string]bool{
-		(&CopilotConnection{}).TableName():      false,
-		(&CopilotScope{}).TableName():           false,
-		(&CopilotOrgMetrics{}).TableName():      false,
-		(&CopilotLanguageMetrics{}).TableName(): false,
-		(&CopilotSeat{}).TableName():            false,
+		(&GhCopilotConnection{}).TableName():      false,
+		(&GhCopilotScope{}).TableName():           false,
+		(&GhCopilotScopeConfig{}).TableName():     false,
+		(&GhCopilotOrgMetrics{}).TableName():      false,
+		(&GhCopilotLanguageMetrics{}).TableName(): false,
+		(&GhCopilotSeat{}).TableName():            false,
 	}
 
 	if len(tables) != len(expected) {
