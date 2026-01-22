@@ -100,7 +100,7 @@ const renderCollapseItems = ({
               onChange={(date) =>
                 onChangeTransformation({
                   ...transformation,
-                  implementationDate: date ? date.utc().format('YYYY-MM-DD[T]HH:mm:ssZ') : null,
+                  implementationDate: date ? date.format('YYYY-MM-DD') : null,
                 })
               }
             />

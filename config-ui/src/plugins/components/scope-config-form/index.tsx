@@ -119,12 +119,12 @@ export const ScopeConfigForm = ({
 
   return (
     <Flex vertical gap="middle">
-      {DOC_URL.PLUGIN[config.plugin.toLocaleUpperCase()]?.TRANSFORMATION && (
+      {DOC_URL.PLUGIN[config.plugin.toUpperCase()]?.TRANSFORMATION && (
         <Alert
           message={
             <>
               To learn about how {config.name} transformation is used in DevLake,
-              <ExternalLink link={DOC_URL.PLUGIN[config.plugin.toLocaleUpperCase()]?.TRANSFORMATION}>
+              <ExternalLink link={DOC_URL.PLUGIN[config.plugin.toUpperCase()]?.TRANSFORMATION}>
                 check out this doc
               </ExternalLink>
               .

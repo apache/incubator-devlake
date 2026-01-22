@@ -47,5 +47,5 @@ func (*addScopeConfig20260121) Version() uint64 {
 }
 
 func (*addScopeConfig20260121) Name() string {
-	return "add scope config table for impact dashboard settings"
+	return "Add scope_configs table for GitHub Copilot impact analysis"
 }
