@@ -19,7 +19,7 @@
         "hide": false,
         "iconColor": "purple",
         "name": "Copilot Implementation Date",
-        "rawQuery": "SELECT\n  UNIX_TIMESTAMP(implementation_date) * 1000 AS time,\n  'Copilot Rollout' AS text,\n  'Implementation Date' AS title\nFROM _tool_copilot_scopes\nWHERE id = '${scope_id}'\n  AND implementation_date IS NOT NULL",
+        "rawQuery": "SELECT\n  UNIX_TIMESTAMP(sc.implementation_date) * 1000 AS time,\n  'Copilot Rollout' AS text,\n  'Implementation Date' AS title\nFROM _tool_copilot_scopes s\nJOIN _tool_copilot_scope_configs sc ON s.scope_config_id = sc.id\nWHERE s.id = '${scope_id}'\n  AND sc.implementation_date IS NOT NULL",
         "type": "dashboard"
       }
     ]
@@ -442,7 +442,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(implementation_date) * 1000 AS value\nFROM _tool_copilot_scopes\nWHERE id = '${scope_id}'\n  AND implementation_date IS NOT NULL",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(sc.implementation_date) * 1000 AS value\nFROM _tool_copilot_scopes s\nJOIN _tool_copilot_scope_configs sc ON s.scope_config_id = sc.id\nWHERE s.id = '${scope_id}'\n  AND sc.implementation_date IS NOT NULL",
           "refId": "A"
         }
       ],
@@ -499,7 +499,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(baseline_period_days, 90) AS value\nFROM _tool_copilot_scopes\nWHERE id = '${scope_id}'\n  AND implementation_date IS NOT NULL",
+          "rawSql": "SELECT\n  COALESCE(sc.baseline_period_days, 90) AS value\nFROM _tool_copilot_scopes s\nJOIN _tool_copilot_scope_configs sc ON s.scope_config_id = sc.id\nWHERE s.id = '${scope_id}'\n  AND sc.implementation_date IS NOT NULL",
           "refId": "A"
         }
       ],
@@ -599,7 +599,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH _scope_config AS (\n  SELECT\n    implementation_date,\n    COALESCE(baseline_period_days, 90) AS baseline_days\n  FROM _tool_copilot_scopes\n  WHERE id = '${scope_id}'\n    AND implementation_date IS NOT NULL\n),\n_before_period AS (\n  SELECT\n    AVG(pr_cycle_time) / 60.0 AS avg_cycle_time_hours\n  FROM project_pr_metrics ppm\n  CROSS JOIN _scope_config sc\n  WHERE ppm.pr_merged_date >= DATE_SUB(sc.implementation_date, INTERVAL sc.baseline_days DAY)\n    AND ppm.pr_merged_date < sc.implementation_date\n),\n_after_period AS (\n  SELECT\n    AVG(pr_cycle_time) / 60.0 AS avg_cycle_time_hours\n  FROM project_pr_metrics ppm\n  CROSS JOIN _scope_config sc\n  WHERE ppm.pr_merged_date >= sc.implementation_date\n    AND ppm.pr_merged_date <= DATE_ADD(sc.implementation_date, INTERVAL sc.baseline_days DAY)\n)\nSELECT\n  'Before' AS period,\n  ROUND(avg_cycle_time_hours, 1) AS value\nFROM _before_period\nWHERE avg_cycle_time_hours IS NOT NULL\nUNION ALL\nSELECT\n  'After' AS period,\n  ROUND(avg_cycle_time_hours, 1) AS value\nFROM _after_period\nWHERE avg_cycle_time_hours IS NOT NULL",
+          "rawSql": "WITH _scope_config AS (\n  SELECT\n    sc.implementation_date,\n    COALESCE(sc.baseline_period_days, 90) AS baseline_days\n  FROM _tool_copilot_scopes s\n  JOIN _tool_copilot_scope_configs sc ON s.scope_config_id = sc.id\n  WHERE s.id = '${scope_id}'\n    AND sc.implementation_date IS NOT NULL\n),\n_before_period AS (\n  SELECT\n    AVG(pr_cycle_time) / 60.0 AS avg_cycle_time_hours\n  FROM project_pr_metrics ppm\n  CROSS JOIN _scope_config sc\n  WHERE ppm.pr_merged_date >= DATE_SUB(sc.implementation_date, INTERVAL sc.baseline_days DAY)\n    AND ppm.pr_merged_date < sc.implementation_date\n),\n_after_period AS (\n  SELECT\n    AVG(pr_cycle_time) / 60.0 AS avg_cycle_time_hours\n  FROM project_pr_metrics ppm\n  CROSS JOIN _scope_config sc\n  WHERE ppm.pr_merged_date >= sc.implementation_date\n    AND ppm.pr_merged_date <= DATE_ADD(sc.implementation_date, INTERVAL sc.baseline_days DAY)\n)\nSELECT\n  'Before' AS period,\n  ROUND(avg_cycle_time_hours, 1) AS value\nFROM _before_period\nWHERE avg_cycle_time_hours IS NOT NULL\nUNION ALL\nSELECT\n  'After' AS period,\n  ROUND(avg_cycle_time_hours, 1) AS value\nFROM _after_period\nWHERE avg_cycle_time_hours IS NOT NULL",
           "refId": "A"
         }
       ],

@@ -50,6 +50,7 @@ export const GhCopilotTransformation = ({ entities, transformation, setTransform
         panelStyle,
         transformation,
         onChangeTransformation: setTransformation,
+        token,
       })}
     />
   );
@@ -60,11 +61,13 @@ const renderCollapseItems = ({
   panelStyle,
   transformation,
   onChangeTransformation,
+  token,
 }: {
   entities: string[];
   panelStyle: React.CSSProperties;
   transformation: any;
   onChangeTransformation: any;
+  token: any;
 }) =>
   [
     {

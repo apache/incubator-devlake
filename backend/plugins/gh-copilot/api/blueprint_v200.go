@@ -56,7 +56,7 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopeDetails []*srvhelper.ScopeDetail[models.GhCopilotScope, srvhelper.NoScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.GhCopilotScope, models.GhCopilotScopeConfig],
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
 	for i, scopeDetail := range scopeDetails {

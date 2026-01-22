@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
@@ -32,7 +31,7 @@ var (
 	apiResources     = map[string]map[string]plugin.ApiResourceHandler{}
 	vld              *validator.Validate
 	connectionHelper *helper.ConnectionApiHelper
-	dsHelper         *helper.DsHelper[models.GhCopilotConnection, models.GhCopilotScope, srvhelper.NoScopeConfig]
+	dsHelper         *helper.DsHelper[models.GhCopilotConnection, models.GhCopilotScope, models.GhCopilotScopeConfig]
 )
 
 // Init stores basic resources and configures shared helpers for API handlers.
@@ -41,7 +40,7 @@ func Init(br context.BasicRes, meta plugin.PluginMeta) {
 	vld = validator.New()
 	connectionHelper = helper.NewConnectionHelper(basicRes, vld, meta.Name())
 	dsHelper = helper.NewDataSourceHelper[
-		models.GhCopilotConnection, models.GhCopilotScope, srvhelper.NoScopeConfig,
+		models.GhCopilotConnection, models.GhCopilotScope, models.GhCopilotScopeConfig,
 	](
 		basicRes,
 		meta.Name(),
@@ -81,6 +80,15 @@ func Init(br context.BasicRes, meta plugin.PluginMeta) {
 		},
 		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
 			"GET": GetScopeLatestSyncState,
+		},
+		"connections/:connectionId/scope-configs": {
+			"POST": PostScopeConfig,
+			"GET":  GetScopeConfigList,
+		},
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
+			"GET":    GetScopeConfig,
+			"PATCH":  PatchScopeConfig,
+			"DELETE": DeleteScopeConfig,
 		},
 	}
 }

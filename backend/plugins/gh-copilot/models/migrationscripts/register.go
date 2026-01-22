@@ -26,5 +26,6 @@ func All() []plugin.MigrationScript {
 		new(addRawDataOriginToCopilotSeats),
 		new(addRawDataOriginToCopilotLanguageMetrics),
 		new(addNameFieldsToScopes),
+		new(addScopeConfig20260121),
 	}
 }

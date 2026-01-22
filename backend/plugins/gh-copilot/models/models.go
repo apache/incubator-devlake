@@ -24,6 +24,7 @@ func GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&GhCopilotConnection{},
 		&GhCopilotScope{},
+		&GhCopilotScopeConfig{},
 		&GhCopilotOrgMetrics{},
 		&GhCopilotLanguageMetrics{},
 		&GhCopilotSeat{},

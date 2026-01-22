@@ -67,7 +67,7 @@ func (p GhCopilot) Scope() plugin.ToolLayerScope {
 }
 
 func (p GhCopilot) ScopeConfig() dal.Tabler {
-	return nil
+	return &models.GhCopilotScopeConfig{}
 }
 
 func (p GhCopilot) GetTablesInfo() []dal.Tabler {
