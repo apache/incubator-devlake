@@ -44,13 +44,13 @@ func TestCopilotMetricsDataFlow(t *testing.T) {
 	var copilot impl.GhCopilot
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gh-copilot", copilot)
 
-	taskData := &tasks.CopilotTaskData{
-		Options: &tasks.CopilotOptions{
+	taskData := &tasks.GhCopilotTaskData{
+		Options: &tasks.GhCopilotOptions{
 			ConnectionId: 1,
 			ScopeId:      "octodemo",
 		},
-		Connection: &models.CopilotConnection{
-			CopilotConn: models.CopilotConn{
+		Connection: &models.GhCopilotConnection{
+			GhCopilotConn: models.GhCopilotConn{
 				RestConnection:   helper.RestConnection{Endpoint: "https://api.github.com"},
 				Organization:     "octodemo",
 				RateLimitPerHour: 5000,
