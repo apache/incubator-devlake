@@ -173,5 +173,5 @@ __debug_bin*
 # speckit
 .specify
 specs/
-.github/agents/
+# .github/agents/ - Commented out to allow custom deployment agents
 .github/prompts/
