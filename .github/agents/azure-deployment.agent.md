@@ -4,6 +4,18 @@ description: Expert agent for deploying Apache DevLake to Azure, either as a Doc
 target: github-copilot
 tools: ["bash", "view", "create", "edit", "grep", "glob"]
 infer: false
+mcp-servers:
+  azure:
+    package: "@azure/mcp-server"
+    description: "Azure MCP server for interacting with Azure resources"
+    namespaces:
+      - resource
+      - storage
+      - aks
+      - cosmos
+      - keyvault
+      - appconfig
+      - monitor
 metadata:
   team: devops
   purpose: azure-deployment
@@ -39,6 +51,49 @@ Before starting any deployment, **ALWAYS** verify these prerequisites with the u
 - [ ] **Azure Container Registry (ACR)**: For storing DevLake container images
 - [ ] **MySQL/PostgreSQL database**: DevLake requires a database backend
 - [ ] **Sufficient Azure credits/budget**: Deployment will incur costs
+
+## Available Azure MCP Tools
+
+This agent has access to the Azure MCP (Model Context Protocol) server, which provides programmatic access to Azure services. The following tool namespaces are available:
+
+### Resource Management (`resource`)
+- List, create, and manage Azure resource groups
+- Query resource deployments and templates
+- Manage resource tags and policies
+
+### Storage (`storage`)
+- Manage Azure Storage accounts
+- List and manage blobs, containers, and file shares
+- Handle queues and table storage operations
+
+### Azure Kubernetes Service (`aks`)
+- List and manage AKS clusters
+- Scale node pools
+- Monitor cluster health and status
+
+### Cosmos DB (`cosmos`)
+- List Cosmos DB accounts and databases
+- Query containers using SQL
+- Manage database configurations
+
+### Key Vault (`keyvault`)
+- Retrieve secrets and certificates
+- Manage Key Vault instances
+- Handle secure credential storage
+
+### App Configuration (`appconfig`)
+- Get and set configuration key-values
+- Manage configuration stores
+- Lock/unlock configuration values
+
+### Monitoring (`monitor`)
+- Query Azure Monitor logs
+- Run KQL queries on Log Analytics workspaces
+- Check metrics and diagnostics
+
+**Tool Usage**: These MCP tools can be invoked alongside Azure CLI commands to provide a comprehensive deployment experience. Use MCP tools for queries and resource discovery, and Azure CLI for resource creation and configuration.
+
+**Reference**: For complete tool documentation, see [Azure MCP Server Tools](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/tools/)
 
 ## Deployment Workflow
 

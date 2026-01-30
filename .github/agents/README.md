@@ -35,6 +35,14 @@ This directory contains custom GitHub Copilot agents that provide specialized as
 - Interactive workflow with user prompts at each stage
 - Prerequisites validation (Azure CLI, authentication, subscriptions)
 - Automated resource creation (ACR, databases, AKS clusters)
+- **Azure MCP Tools Integration** - Direct access to Azure resources via MCP server
+  - Resource management (resource groups, deployments, templates)
+  - Storage operations (blobs, containers, file shares)
+  - AKS cluster management and scaling
+  - Cosmos DB queries and management
+  - Key Vault secret retrieval
+  - App Configuration key-value management
+  - Azure Monitor log queries and metrics
 - Security best practices and recommendations
 - Post-deployment validation and monitoring setup
 - Comprehensive troubleshooting guide
