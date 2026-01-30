@@ -2,7 +2,7 @@
 name: Azure Deployment Agent
 description: Expert agent for deploying Apache DevLake to Azure, either as a Docker container or on Azure Kubernetes Service (AKS). Provides interactive, step-by-step guidance through the deployment process.
 target: github-copilot
-tools: ["bash", "view", "create", "edit", "grep", "glob"]
+tools: ['vscode/getProjectSetupInfo', 'vscode/installExtension', 'vscode/newWorkspace', 'vscode/openSimpleBrowser', 'vscode/runCommand', 'vscode/askQuestions', 'vscode/switchAgent', 'vscode/vscodeAPI', 'vscode/extensions', 'execute/runNotebookCell', 'execute/testFailure', 'execute/getTerminalOutput', 'execute/awaitTerminal', 'execute/killTerminal', 'execute/runTask', 'execute/createAndRunTask', 'execute/runInTerminal', 'execute/runTests', 'read/getNotebookSummary', 'read/problems', 'read/readFile', 'read/readNotebookCellOutput', 'read/terminalSelection', 'read/terminalLastCommand', 'read/getTaskOutput', 'agent/runSubagent', 'search/changes', 'search/codebase', 'search/fileSearch', 'search/listDirectory', 'search/searchResults', 'search/textSearch', 'search/usages', 'search/searchSubagent', 'web/fetch', 'web/githubRepo', 'azure-mcp/aks', 'azure-mcp/bicepschema', 'azure-mcp/cloudarchitect', 'azure-mcp/deploy', 'azure-mcp/documentation', 'azure-mcp/extension_cli_generate', 'azure-mcp/extension_cli_install', 'azure-mcp/grafana', 'azure-mcp/mysql', 'azure-mcp/sql', 'todo']
 infer: false
 mcp-servers:
   azure:
