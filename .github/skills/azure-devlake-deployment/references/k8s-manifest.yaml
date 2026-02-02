@@ -1,0 +1,172 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devlake
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: devlake-db-secret
+  namespace: devlake
+type: Opaque
+stringData:
+  DB_URL: "mysql://merico:<password>@<server>.mysql.database.azure.com:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC&tls=true"
+  ENCRYPTION_SECRET: "<32-character-random-string>"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devlake-server
+  namespace: devlake
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devlake-server
+  template:
+    metadata:
+      labels:
+        app: devlake-server
+    spec:
+      containers:
+      - name: devlake
+        image: <acr>.azurecr.io/devlake-backend:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: devlake-db-secret
+              key: DB_URL
+        - name: ENCRYPTION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: devlake-db-secret
+              key: ENCRYPTION_SECRET
+        - name: PORT
+          value: "8080"
+        - name: MODE
+          value: "release"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devlake-service
+  namespace: devlake
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: devlake-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devlake-grafana
+  namespace: devlake
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devlake-grafana
+  template:
+    metadata:
+      labels:
+        app: devlake-grafana
+    spec:
+      containers:
+      - name: grafana
+        image: <acr>.azurecr.io/devlake-grafana:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SERVER_ROOT_URL
+          value: "http://grafana-service"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-service
+  namespace: devlake
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: devlake-grafana
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devlake-ui
+  namespace: devlake
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devlake-ui
+  template:
+    metadata:
+      labels:
+        app: devlake-ui
+    spec:
+      containers:
+      - name: config-ui
+        image: <acr>.azurecr.io/devlake-config-ui:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: DEVLAKE_ENDPOINT
+          value: "http://devlake-service"
+        - name: GRAFANA_ENDPOINT
+          value: "http://grafana-service"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devlake-ui-service
+  namespace: devlake
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 4000
+  selector:
+    app: devlake-ui
