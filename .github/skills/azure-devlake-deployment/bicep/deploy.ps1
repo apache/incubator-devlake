@@ -175,6 +175,56 @@ Write-Host "`nSecrets (save these!):" -ForegroundColor Red
 Write-Host "  MySQL Password:     $MysqlPassword"
 Write-Host "  Encryption Secret:  $EncryptionSecret"
 
+# Wait for backend and trigger migration
+Write-Host "`nWaiting for backend to start..." -ForegroundColor Yellow
+$backendUrl = $deployment.backendEndpoint.value
+$maxAttempts = 30
+$attempt = 0
+$backendReady = $false
+
+while ($attempt -lt $maxAttempts -and -not $backendReady) {
+    $attempt++
+    try {
+        $response = Invoke-WebRequest -Uri "$backendUrl/ping" -TimeoutSec 5 -ErrorAction SilentlyContinue
+        if ($response.StatusCode -eq 200) {
+            $backendReady = $true
+            Write-Host "  Backend is responding!" -ForegroundColor Green
+        }
+    }
+    catch {
+        Write-Host "  Attempt $attempt/$maxAttempts - waiting..." -ForegroundColor Gray
+        Start-Sleep -Seconds 10
+    }
+}
+
+if ($backendReady) {
+    Write-Host "`nTriggering database migration..." -ForegroundColor Yellow
+    try {
+        $migrationResponse = Invoke-RestMethod -Uri "$backendUrl/proceed-db-migration" -Method GET -TimeoutSec 120
+        Write-Host "  Migration completed successfully!" -ForegroundColor Green
+    }
+    catch {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+        if ($statusCode -eq 428) {
+            Write-Host "  Migration confirmation required. Triggering..." -ForegroundColor Yellow
+            $migrationResponse = Invoke-RestMethod -Uri "$backendUrl/proceed-db-migration" -Method GET -TimeoutSec 120
+            Write-Host "  Migration completed!" -ForegroundColor Green
+        }
+        elseif ($statusCode -eq 200 -or $null -eq $statusCode) {
+            Write-Host "  Migration already complete or not needed." -ForegroundColor Green
+        }
+        else {
+            Write-Host "  Migration may need manual triggering. Status: $statusCode" -ForegroundColor Yellow
+            Write-Host "  Run: Invoke-RestMethod -Uri '$backendUrl/proceed-db-migration' -Method GET" -ForegroundColor Yellow
+        }
+    }
+}
+else {
+    Write-Host "  Backend not ready after $maxAttempts attempts." -ForegroundColor Yellow
+    Write-Host "  You may need to manually trigger migration once backend starts:" -ForegroundColor Yellow
+    Write-Host "  Invoke-RestMethod -Uri '$backendUrl/proceed-db-migration' -Method GET" -ForegroundColor Yellow
+}
+
 # Save deployment state file
 $stateFile = Join-Path $RepoRoot ".devlake-azure.json"
 $state = @{

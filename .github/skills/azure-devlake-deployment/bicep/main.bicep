@@ -118,6 +118,17 @@ resource mysqlFirewallRule 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2
   }
 }
 
+// MySQL Server Configuration - Disable invisible primary key generation
+// Required for DevLake migrations that drop/recreate primary keys
+resource mysqlInvisiblePKConfig 'Microsoft.DBforMySQL/flexibleServers/configurations@2023-06-30' = {
+  parent: mysqlServer
+  name: 'sql_generate_invisible_primary_key'
+  properties: {
+    value: 'OFF'
+    source: 'user-override'
+  }
+}
+
 // Construct DB URL with required parameters
 var dbUrl = 'mysql://${mysqlAdminUser}:${mysqlAdminPassword}@${mysqlServer.properties.fullyQualifiedDomainName}:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC&tls=true'
 
@@ -249,8 +260,9 @@ resource configUiContainer 'Microsoft.ContainerInstance/containerGroups@2023-05-
             }
           ]
           environmentVariables: [
-            { name: 'DEVLAKE_ENDPOINT', value: 'http://${backendContainer.properties.ipAddress.fqdn}:8080' }
-            { name: 'GRAFANA_ENDPOINT', value: 'http://${grafanaContainer.properties.ipAddress.fqdn}:3000' }
+            // Note: Do NOT include http:// prefix - nginx.conf adds the protocol
+            { name: 'DEVLAKE_ENDPOINT', value: '${backendContainer.properties.ipAddress.fqdn}:8080' }
+            { name: 'GRAFANA_ENDPOINT', value: '${grafanaContainer.properties.ipAddress.fqdn}:3000' }
           ]
           resources: {
             requests: {
