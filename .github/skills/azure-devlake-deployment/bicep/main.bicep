@@ -211,6 +211,10 @@ resource grafanaContainer 'Microsoft.ContainerInstance/containerGroups@2023-05-0
           ]
           environmentVariables: [
             { name: 'GF_SERVER_ROOT_URL', value: 'http://${baseName}-grafana-${uniqueSuffix}.${location}.azurecontainer.io:3000' }
+            { name: 'MYSQL_URL', value: '${mysqlServer.properties.fullyQualifiedDomainName}:3306' }
+            { name: 'MYSQL_DATABASE', value: 'lake' }
+            { name: 'MYSQL_USER', value: mysqlAdminUser }
+            { name: 'MYSQL_PASSWORD', secureValue: mysqlAdminPassword }
           ]
           resources: {
             requests: {
