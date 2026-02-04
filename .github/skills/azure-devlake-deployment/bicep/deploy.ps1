@@ -98,7 +98,7 @@ if (-not $SkipImageBuild) {
         $acrDeployment = az deployment group create `
             --resource-group $ResourceGroupName `
             --template-file ".github/skills/azure-devlake-deployment/bicep/main.bicep" `
-            --parameters baseName=$BaseName mysqlAdminPassword=$MysqlPassword encryptionSecret=$EncryptionSecret `
+            --parameters baseName=$BaseName uniqueSuffix=$UniqueSuffix mysqlAdminPassword=$MysqlPassword encryptionSecret=$EncryptionSecret `
             --query "properties.outputs" -o json 2>$null | ConvertFrom-Json
         
         $AcrLoginServer = $acrDeployment.acrLoginServer.value
@@ -147,15 +147,23 @@ if (-not (Test-Path $templatePath)) {
     $templatePath = Join-Path $RepoRoot $templatePath
 }
 
+# Pass uniqueSuffix explicitly to ensure consistency between script and bicep
 $deployment = az deployment group create `
     --resource-group $ResourceGroupName `
     --template-file $templatePath `
     --parameters `
         baseName=$BaseName `
+        uniqueSuffix=$UniqueSuffix `
         mysqlAdminPassword=$MysqlPassword `
         encryptionSecret=$EncryptionSecret `
         acrName=$AcrName `
     --query "properties.outputs" -o json | ConvertFrom-Json
+
+# Verify deployment outputs
+if (-not $deployment) {
+    Write-Error "Bicep deployment failed or returned no outputs. Check 'az deployment group show' for details."
+    exit 1
+}
 
 Write-Host "`n========================================" -ForegroundColor Green
 Write-Host "  Deployment Complete!" -ForegroundColor Green
@@ -227,6 +235,15 @@ else {
 
 # Save deployment state file
 $stateFile = Join-Path $RepoRoot ".devlake-azure.json"
+
+# Get values from deployment outputs with null-safe access
+$backendEndpoint = if ($deployment.backendEndpoint) { $deployment.backendEndpoint.value } else { "http://${BaseName}-${UniqueSuffix}.${Location}.azurecontainer.io:8080" }
+$grafanaEndpoint = if ($deployment.grafanaEndpoint) { $deployment.grafanaEndpoint.value } else { "http://${BaseName}-grafana-${UniqueSuffix}.${Location}.azurecontainer.io:3000" }
+$configUiEndpoint = if ($deployment.configUiEndpoint) { $deployment.configUiEndpoint.value } else { "http://${BaseName}-ui-${UniqueSuffix}.${Location}.azurecontainer.io:4000" }
+$acrName = if ($deployment.acrName) { $deployment.acrName.value } else { $AcrName }
+$keyVaultName = if ($deployment.keyVaultName) { $deployment.keyVaultName.value } else { "${BaseName}kv${UniqueSuffix}" }
+$mysqlServerName = if ($deployment.mysqlServerName) { $deployment.mysqlServerName.value } else { "${BaseName}mysql${UniqueSuffix}" }
+
 $state = @{
     deployedAt = (Get-Date -Format "o")
     method = "bicep"
@@ -236,9 +253,9 @@ $state = @{
     region = $Location
     suffix = $UniqueSuffix
     resources = @{
-        acr = $deployment.acrName.value
-        keyVault = $deployment.keyVaultName.value
-        mysql = $deployment.mysqlServerName.value
+        acr = $acrName
+        keyVault = $keyVaultName
+        mysql = $mysqlServerName
         database = "lake"
         containers = @(
             "$BaseName-backend-$UniqueSuffix",
@@ -247,9 +264,9 @@ $state = @{
         )
     }
     endpoints = @{
-        backend = $deployment.backendEndpoint.value
-        grafana = $deployment.grafanaEndpoint.value
-        configUi = $deployment.configUiEndpoint.value
+        backend = $backendEndpoint
+        grafana = $grafanaEndpoint
+        configUi = $configUiEndpoint
     }
     secrets = @{
         keyVaultSecrets = @("db-admin-password", "encryption-secret")
