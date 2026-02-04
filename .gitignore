@@ -173,4 +173,4 @@ specs/
 # But ignore speckit/copilot instruction templates (agent framework files)
 .github/agents/speckit.*.agent.md
 .github/agents/copilot-instructions.md
-.github/prompts/
+.github/prompts/speckit.*.prompt.md
