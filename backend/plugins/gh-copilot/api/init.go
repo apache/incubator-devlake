@@ -31,6 +31,9 @@ var (
 	vld              *validator.Validate
 	connectionHelper *helper.ConnectionApiHelper
 	dsHelper         *helper.DsHelper[models.GhCopilotConnection, models.GhCopilotScope, models.GhCopilotScopeConfig]
+	raProxy          *helper.DsRemoteApiProxyHelper[models.GhCopilotConnection]
+	raScopeList      *helper.DsRemoteApiScopeListHelper[models.GhCopilotConnection, models.GhCopilotScope, GhCopilotRemotePagination]
+	raScopeSearch    *helper.DsRemoteApiScopeSearchHelper[models.GhCopilotConnection, models.GhCopilotScope]
 )
 
 // Init stores basic resources and configures shared helpers for API handlers.
@@ -51,4 +54,7 @@ func Init(br context.BasicRes, meta plugin.PluginMeta) {
 		func(s models.GhCopilotScope) models.GhCopilotScope { return s },
 		nil,
 	)
+	raProxy = helper.NewDsRemoteApiProxyHelper[models.GhCopilotConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = helper.NewDsRemoteApiScopeListHelper[models.GhCopilotConnection, models.GhCopilotScope, GhCopilotRemotePagination](raProxy, listGhCopilotRemoteScopes)
+	raScopeSearch = helper.NewDsRemoteApiScopeSearchHelper[models.GhCopilotConnection, models.GhCopilotScope](raProxy, searchGhCopilotRemoteScopes)
 }

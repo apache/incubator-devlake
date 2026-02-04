@@ -129,6 +129,12 @@ func (p GhCopilot) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
 			"GET": api.GetScopeLatestSyncState,
 		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
 		"connections/:connectionId/scope-configs": {
 			"POST": api.PostScopeConfig,
 			"GET":  api.GetScopeConfigList,

@@ -31,6 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 const (
@@ -251,6 +252,23 @@ func (connection *GithubConnection) Merge(existed, modified *GithubConnection, b
 	}
 
 	existed.Token = strings.Join(mergedToken, ",")
+	return nil
+}
+
+func (connection *GithubConnection) BeforeSave(tx *gorm.DB) error {
+	if connection == nil {
+		return nil
+	}
+	if connection.TokenExpiresAt.IsZero() {
+		if strings.TrimSpace(connection.RefreshToken) != "" {
+			connection.TokenExpiresAt = time.Now().UTC().Add(-1 * time.Minute)
+		} else {
+			connection.TokenExpiresAt = time.Now().UTC().AddDate(100, 0, 0)
+		}
+	}
+	if connection.RefreshTokenExpiresAt.IsZero() {
+		connection.RefreshTokenExpiresAt = time.Now().UTC().AddDate(100, 0, 0)
+	}
 	return nil
 }
 
