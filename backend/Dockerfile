@@ -173,6 +173,11 @@ COPY --from=build /app/resources /app/resources
 ENV PATH="/app/bin:${PATH}"
 ENV DEBUG="$DEBUG"
 
+USER root
+RUN chgrp -R 0 /app && \
+    chmod -R g=u /app
+USER devlake
+
 #add tini, prevent zombie process
 ENTRYPOINT ["/usr/bin/tini", "--"]
 

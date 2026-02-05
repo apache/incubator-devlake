@@ -56,6 +56,21 @@ type GithubConn struct {
 	helper.MultiAuth      `mapstructure:",squash"`
 	GithubAccessToken     `mapstructure:",squash" authMethod:"AccessToken"`
 	GithubAppKey          `mapstructure:",squash" authMethod:"AppKey"`
+	RefreshToken          string    `mapstructure:"refreshToken" json:"refreshToken" gorm:"type:text;serializer:encdec"`
+	TokenExpiresAt        time.Time `mapstructure:"tokenExpiresAt" json:"tokenExpiresAt"`
+	RefreshTokenExpiresAt time.Time `mapstructure:"refreshTokenExpiresAt" json:"refreshTokenExpiresAt"`
+}
+
+// UpdateToken updates the token and refresh token information
+func (conn *GithubConn) UpdateToken(newToken, newRefreshToken string, expiry, refreshExpiry time.Time) {
+	conn.Token = newToken
+	conn.RefreshToken = newRefreshToken
+	conn.TokenExpiresAt = expiry
+	conn.RefreshTokenExpiresAt = refreshExpiry
+
+	// Update the internal tokens slice used by SetupAuthentication
+	conn.tokens = []string{newToken}
+	conn.tokenIndex = 0
 }
 
 // PrepareApiClient splits Token to tokens for SetupAuthentication to utilize
@@ -249,7 +264,7 @@ func (conn *GithubConn) typeIs(token string) string {
 	// total len is 40, {prefix}{showPrefix}{secret}{showSuffix}
 	// fine-grained tokens
 	// github_pat_{82_characters}
-	classicalTokenClassicalPrefixes := []string{"ghp_", "gho_", "ghs_", "ghr_"}
+	classicalTokenClassicalPrefixes := []string{"ghp_", "gho_", "ghs_", "ghr_", "ghu_"}
 	classicalTokenFindGrainedPrefixes := []string{"github_pat_"}
 	for _, prefix := range classicalTokenClassicalPrefixes {
 		if strings.HasPrefix(token, prefix) {

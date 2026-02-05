@@ -80,6 +80,7 @@ func (p Bitbucket) GetTablesInfo() []dal.Tabler {
 		&models.BitbucketDeployment{},
 		&models.BitbucketPipelineStep{},
 		&models.BitbucketPrCommit{},
+		&models.BitbucketPrReviewer{},
 		&models.BitbucketScopeConfig{},
 	}
 }
@@ -125,6 +126,7 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertRepoMeta,
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertPullRequestsMeta,
+		tasks.ConvertPrReviewersMeta,
 		tasks.ConvertPrCommentsMeta,
 		tasks.ConvertPrCommitsMeta,
 		tasks.ConvertCommitsMeta,
