@@ -18,11 +18,25 @@
 .PARAMETER SkipImageBuild
     Skip Docker image building (use if images already in ACR)
 
+.PARAMETER RepoUrl
+    Clone a remote repository instead of using the local repo.
+    Useful for deploying from a fork (e.g., https://github.com/ewega/incubator-devlake)
+
+.PARAMETER UseOfficialImages
+    Use official Apache DevLake images from Docker Hub instead of building.
+    No ACR needed. Uses apache/devlake:latest, apache/devlake-config-ui:latest, apache/devlake-dashboard:latest
+
 .EXAMPLE
     .\deploy.ps1 -ResourceGroupName "devlake-rg" -Location "eastus"
 
 .EXAMPLE
     .\deploy.ps1 -ResourceGroupName "devlake-rg" -Location "eastus" -SkipImageBuild
+
+.EXAMPLE
+    .\deploy.ps1 -ResourceGroupName "devlake-rg" -Location "eastus" -RepoUrl "https://github.com/ewega/incubator-devlake"
+
+.EXAMPLE
+    .\deploy.ps1 -ResourceGroupName "devlake-rg" -Location "eastus" -UseOfficialImages
 #>
 
 param(
@@ -34,24 +48,71 @@ param(
 
     [string]$BaseName = "devlake",
 
-    [switch]$SkipImageBuild
+    [switch]$SkipImageBuild,
+
+    [string]$RepoUrl,
+
+    [switch]$UseOfficialImages
 )
 
 $ErrorActionPreference = "Stop"
+
+# Handle UseOfficialImages mode (no repo needed, no build needed)
+if ($UseOfficialImages) {
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "  DevLake Azure Deployment (Official Images)" -ForegroundColor Cyan
+    Write-Host "========================================`n" -ForegroundColor Cyan
+    Write-Host "Using official Apache DevLake images from Docker Hub" -ForegroundColor Yellow
+    Write-Host "  • apache/devlake:latest" -ForegroundColor Gray
+    Write-Host "  • apache/devlake-config-ui:latest" -ForegroundColor Gray
+    Write-Host "  • apache/devlake-dashboard:latest" -ForegroundColor Gray
+    $RepoRoot = $null
+    $SkipImageBuild = $true
+} elseif ($RepoUrl) {
+    # Clone remote repository
+    $CloneDir = Join-Path $env:TEMP "devlake-clone-$(Get-Date -Format 'yyyyMMddHHmmss')"
+    Write-Host "Cloning $RepoUrl to $CloneDir..." -ForegroundColor Yellow
+    git clone --depth 1 $RepoUrl $CloneDir
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to clone repository: $RepoUrl"
+        exit 1
+    }
+    $RepoRoot = $CloneDir
+    Write-Host "  Cloned successfully." -ForegroundColor Green
+} else {
+    # Find local repo root (look for backend/Dockerfile)
+    $RepoRoot = Get-Location
+    while ($RepoRoot -and -not (Test-Path "$RepoRoot/backend/Dockerfile")) {
+        $RepoRoot = Split-Path $RepoRoot -Parent
+    }
+    if (-not $RepoRoot -or -not (Test-Path "$RepoRoot/backend/Dockerfile")) {
+        Write-Error "Could not find DevLake repository root. Run from within the incubator-devlake directory, use -RepoUrl, or use -UseOfficialImages."
+        exit 1
+    }
+}
+if ($RepoRoot) {
+    Write-Host "Repo root: $RepoRoot" -ForegroundColor Gray
+}
 
 # Generate unique suffix
 $UniqueSuffix = (Get-FileHash -InputStream ([IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($ResourceGroupName)))).Hash.Substring(0,5).ToLower()
 $AcrName = "devlakeacr$UniqueSuffix"
 
-Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host "  DevLake Azure Deployment" -ForegroundColor Cyan
-Write-Host "========================================`n" -ForegroundColor Cyan
+if (-not $UseOfficialImages) {
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "  DevLake Azure Deployment" -ForegroundColor Cyan
+    Write-Host "========================================`n" -ForegroundColor Cyan
+}
 
 Write-Host "Configuration:" -ForegroundColor Yellow
 Write-Host "  Resource Group: $ResourceGroupName"
 Write-Host "  Location: $Location"
 Write-Host "  Base Name: $BaseName"
-Write-Host "  ACR Name: $AcrName"
+if (-not $UseOfficialImages) {
+    Write-Host "  ACR Name: $AcrName"
+} else {
+    Write-Host "  Images: Official (Docker Hub)"
+}
 Write-Host ""
 
 # Check Azure CLI login
@@ -77,19 +138,7 @@ Write-Host "Secrets generated." -ForegroundColor Green
 # Build and push images (unless skipped)
 if (-not $SkipImageBuild) {
     Write-Host "`nBuilding Docker images..." -ForegroundColor Yellow
-    
-    # Find repo root (look for backend/Dockerfile)
-    $RepoRoot = Get-Location
-    while ($RepoRoot -and -not (Test-Path "$RepoRoot/backend/Dockerfile")) {
-        $RepoRoot = Split-Path $RepoRoot -Parent
-    }
-    
-    if (-not $RepoRoot -or -not (Test-Path "$RepoRoot/backend/Dockerfile")) {
-        Write-Error "Could not find DevLake repository root. Run from within the incubator-devlake directory."
-        exit 1
-    }
-    
-    Write-Host "  Found repo root: $RepoRoot"
+    Write-Host "  Using repo root: $RepoRoot"
     Push-Location $RepoRoot
     
     try {
@@ -139,25 +188,68 @@ if (-not $SkipImageBuild) {
     }
 }
 
+# Ensure MySQL is running (Azure auto-stops Burstable tier after creation)
+$mysqlName = "${BaseName}mysql${UniqueSuffix}"
+Write-Host "`nChecking if MySQL server exists and is running..." -ForegroundColor Yellow
+$mysqlState = az mysql flexible-server show --name $mysqlName --resource-group $ResourceGroupName --query state -o tsv 2>$null
+if ($mysqlState -eq "Stopped") {
+    Write-Host "  MySQL server is stopped (Azure auto-stop). Starting..." -ForegroundColor Yellow
+    az mysql flexible-server start --name $mysqlName --resource-group $ResourceGroupName --output none
+    Write-Host "  Waiting 30s for MySQL to be ready..." -ForegroundColor Yellow
+    Start-Sleep -Seconds 30
+    Write-Host "  MySQL started." -ForegroundColor Green
+} elseif ($mysqlState) {
+    Write-Host "  MySQL state: $mysqlState" -ForegroundColor Green
+} else {
+    Write-Host "  MySQL not yet created (will be created by Bicep)." -ForegroundColor Gray
+}
+
 # Deploy infrastructure
 Write-Host "`nDeploying infrastructure with Bicep..." -ForegroundColor Yellow
 
-$templatePath = ".github/skills/azure-devlake-deployment/bicep/main.bicep"
-if (-not (Test-Path $templatePath)) {
-    $templatePath = Join-Path $RepoRoot $templatePath
+# Determine template path based on mode
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+if ($UseOfficialImages) {
+    $templatePath = Join-Path $scriptDir "main-official.bicep"
+    Write-Host "  Using official images template: $templatePath" -ForegroundColor Gray
+} else {
+    $templatePath = ".github/skills/azure-devlake-deployment/bicep/main.bicep"
+    if (-not (Test-Path $templatePath)) {
+        $templatePath = Join-Path $RepoRoot $templatePath
+    }
+    if (-not (Test-Path $templatePath)) {
+        $templatePath = Join-Path $scriptDir "main.bicep"
+    }
 }
 
-# Pass uniqueSuffix explicitly to ensure consistency between script and bicep
-$deployment = az deployment group create `
-    --resource-group $ResourceGroupName `
-    --template-file $templatePath `
-    --parameters `
-        baseName=$BaseName `
-        uniqueSuffix=$UniqueSuffix `
-        mysqlAdminPassword=$MysqlPassword `
-        encryptionSecret=$EncryptionSecret `
-        acrName=$AcrName `
-    --query "properties.outputs" -o json | ConvertFrom-Json
+if (-not (Test-Path $templatePath)) {
+    Write-Error "Could not find Bicep template at: $templatePath"
+    exit 1
+}
+
+# Deploy with appropriate parameters based on mode
+if ($UseOfficialImages) {
+    $deployment = az deployment group create `
+        --resource-group $ResourceGroupName `
+        --template-file $templatePath `
+        --parameters `
+            baseName=$BaseName `
+            uniqueSuffix=$UniqueSuffix `
+            mysqlAdminPassword=$MysqlPassword `
+            encryptionSecret=$EncryptionSecret `
+        --query "properties.outputs" -o json | ConvertFrom-Json
+} else {
+    $deployment = az deployment group create `
+        --resource-group $ResourceGroupName `
+        --template-file $templatePath `
+        --parameters `
+            baseName=$BaseName `
+            uniqueSuffix=$UniqueSuffix `
+            mysqlAdminPassword=$MysqlPassword `
+            encryptionSecret=$EncryptionSecret `
+            acrName=$AcrName `
+        --query "properties.outputs" -o json | ConvertFrom-Json
+}
 
 # Verify deployment outputs
 if (-not $deployment) {
@@ -175,9 +267,14 @@ Write-Host "  Config UI:   $($deployment.configUiEndpoint.value)"
 Write-Host "  Grafana:     $($deployment.grafanaEndpoint.value)"
 
 Write-Host "`nResources:" -ForegroundColor Yellow
-Write-Host "  ACR:         $($deployment.acrName.value)"
+if (-not $UseOfficialImages -and $deployment.acrName) {
+    Write-Host "  ACR:         $($deployment.acrName.value)"
+}
 Write-Host "  Key Vault:   $($deployment.keyVaultName.value)"
 Write-Host "  MySQL:       $($deployment.mysqlServerName.value)"
+if ($UseOfficialImages) {
+    Write-Host "  Images:      Official (Docker Hub)"
+}
 
 Write-Host "`nSecrets (save these!):" -ForegroundColor Red
 Write-Host "  MySQL Password:     $MysqlPassword"
@@ -234,26 +331,31 @@ else {
 }
 
 # Save deployment state file
-$stateFile = Join-Path $RepoRoot ".devlake-azure.json"
+if ($RepoRoot) {
+    $stateFile = Join-Path $RepoRoot ".devlake-azure.json"
+} else {
+    $stateFile = Join-Path (Get-Location) ".devlake-azure.json"
+}
 
 # Get values from deployment outputs with null-safe access
 $backendEndpoint = if ($deployment.backendEndpoint) { $deployment.backendEndpoint.value } else { "http://${BaseName}-${UniqueSuffix}.${Location}.azurecontainer.io:8080" }
 $grafanaEndpoint = if ($deployment.grafanaEndpoint) { $deployment.grafanaEndpoint.value } else { "http://${BaseName}-grafana-${UniqueSuffix}.${Location}.azurecontainer.io:3000" }
 $configUiEndpoint = if ($deployment.configUiEndpoint) { $deployment.configUiEndpoint.value } else { "http://${BaseName}-ui-${UniqueSuffix}.${Location}.azurecontainer.io:4000" }
-$acrName = if ($deployment.acrName) { $deployment.acrName.value } else { $AcrName }
+$acrNameOutput = if ($deployment.acrName) { $deployment.acrName.value } else { if ($UseOfficialImages) { $null } else { $AcrName } }
 $keyVaultName = if ($deployment.keyVaultName) { $deployment.keyVaultName.value } else { "${BaseName}kv${UniqueSuffix}" }
 $mysqlServerName = if ($deployment.mysqlServerName) { $deployment.mysqlServerName.value } else { "${BaseName}mysql${UniqueSuffix}" }
 
 $state = @{
     deployedAt = (Get-Date -Format "o")
-    method = "bicep"
+    method = if ($UseOfficialImages) { "bicep-official" } else { "bicep" }
     subscription = $account.name
     subscriptionId = $account.id
     resourceGroup = $ResourceGroupName
     region = $Location
     suffix = $UniqueSuffix
+    useOfficialImages = [bool]$UseOfficialImages
     resources = @{
-        acr = $acrName
+        acr = $acrNameOutput
         keyVault = $keyVaultName
         mysql = $mysqlServerName
         database = "lake"

@@ -194,6 +194,25 @@ az container restart --name devlake-backend --resource-group <rg>
 
 ---
 
+## Bicep Deployment Fails on Stopped MySQL
+
+**Error:**
+```
+Cannot do operation 'Update', since server is busy with other operations in 'Stopped' state
+```
+
+**Cause:** Azure auto-stops Burstable tier MySQL after first creation. Subsequent Bicep runs fail because the server is stopped.
+
+**Fix:** Start the server manually, then rerun with `-SkipImageBuild`:
+```powershell
+az mysql flexible-server start --name <mysql-name> --resource-group <rg>
+.\.github\skills\azure-devlake-deployment\bicep\deploy.ps1 -ResourceGroupName <rg> -Location <region> -SkipImageBuild
+```
+
+**Note:** The deploy script now auto-starts MySQL if stopped, but this error can still occur if Bicep tries to update a stopped server before the script's check runs.
+
+---
+
 ## Database Migration Required (HTTP 428)
 
 **Symptoms:** Backend returns 428 status, Config UI shows "Database migration required"
