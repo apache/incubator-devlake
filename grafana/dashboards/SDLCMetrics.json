@@ -1,0 +1,1490 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 91,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(ts, '.', 1) AS UNSIGNED)), INTERVAL WEEKDAY(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(ts, '.', 1) AS UNSIGNED))) DAY)) as time,\n    COUNT(*) as deployments\n  FROM _tool_slack_channel_messages\n  WHERE\n    channel_id = 'CCNC39ECD'\n    AND (thread_ts = '' OR thread_ts IS NULL)\n  GROUP BY time\n)\nSELECT\n  time,\n  deployments,\n  AVG(deployments) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Deployments",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(merged_date, INTERVAL WEEKDAY(merged_date) DAY)) as time,\n    COUNT(*) as merged_prs\n  FROM pull_requests\n  WHERE merged_date IS NOT NULL\n  GROUP BY time\n)\nSELECT\n  time,\n  merged_prs,\n  AVG(merged_prs) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Merged Code Reviews",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(merged_date, INTERVAL WEEKDAY(merged_date) DAY)) as time,\n    COUNT(DISTINCT author_name) as authors\n  FROM pull_requests\n  WHERE merged_date IS NOT NULL\n    AND author_name != 'depfu'\n    AND author_name != ''\n  GROUP BY time\n)\nSELECT\n  time,\n  authors,\n  AVG(authors) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Code Review Authors",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "h"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(merged_date, INTERVAL WEEKDAY(merged_date) DAY)) as time,\n    AVG(TIMESTAMPDIFF(MINUTE, created_date, merged_date) / 60) as lead_time_hours\n  FROM pull_requests\n  WHERE merged_date IS NOT NULL\n    AND author_name != 'depfu'\n    AND author_name != ''\n  GROUP BY time\n)\nSELECT\n  time,\n  lead_time_hours,\n  AVG(lead_time_hours) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Code Review Lead Time (hours)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly_reported AS (\n  SELECT\n    DATE(DATE_SUB(created_at, INTERVAL WEEKDAY(created_at) DAY)) as time,\n    COUNT(*) as fixes_reported\n  FROM _tool_basecamp_todos\n  WHERE project_id = '16186768'\n  GROUP BY time\n),\nweekly_solved AS (\n  SELECT\n    DATE(DATE_SUB(completed_at, INTERVAL WEEKDAY(completed_at) DAY)) as time,\n    COUNT(*) as fixes_solved\n  FROM _tool_basecamp_todos\n  WHERE project_id = '16186768'\n    AND completed = 1\n    AND completed_at IS NOT NULL\n  GROUP BY time\n),\ncombined AS (\n  SELECT COALESCE(r.time, s.time) as time,\n    COALESCE(r.fixes_reported, 0) as fixes_reported,\n    COALESCE(s.fixes_solved, 0) as fixes_solved\n  FROM weekly_reported r\n  LEFT JOIN weekly_solved s ON r.time = s.time\n  UNION\n  SELECT s.time, 0, s.fixes_solved\n  FROM weekly_solved s\n  LEFT JOIN weekly_reported r ON r.time = s.time\n  WHERE r.time IS NULL\n)\nSELECT\n  time,\n  fixes_reported,\n  fixes_solved\nFROM combined\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Fixes (Weekly)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 6
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  SUM(CASE WHEN tl.name = 'All bugs' THEN 1 ELSE 0 END) as Triage,\n  SUM(CASE WHEN tl.name = 'High Priority' THEN 1 ELSE 0 END) as High,\n  SUM(CASE WHEN tl.name = 'Medium Priority' THEN 1 ELSE 0 END) as Medium,\n  SUM(CASE WHEN tl.name = 'Low Priority' THEN 1 ELSE 0 END) as Low\nFROM _tool_basecamp_todos t\nJOIN _tool_basecamp_todolists tl ON t.todo_list_id = tl.todolist_id\nWHERE t.project_id = '16186768'\n  AND t.completed = 0",
+          "refId": "A"
+        }
+      ],
+      "title": "Open Fixes by Priority",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(pr.merged_date, INTERVAL WEEKDAY(pr.merged_date) DAY)) as time,\n    COUNT(DISTINCT pr.id) as fix_prs\n  FROM pull_requests pr\n  JOIN pull_request_labels prl ON pr.id = prl.pull_request_id\n  WHERE pr.merged_date IS NOT NULL\n    AND prl.label_name = 'fix'\n  GROUP BY time\n)\nSELECT\n  time,\n  fix_prs,\n  AVG(fix_prs) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "PRs with Fix Label",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 6
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly_fix AS (\n  SELECT\n    DATE(DATE_SUB(pr.merged_date, INTERVAL WEEKDAY(pr.merged_date) DAY)) as time,\n    COUNT(DISTINCT pr.id) as fix_prs\n  FROM pull_requests pr\n  JOIN pull_request_labels prl ON pr.id = prl.pull_request_id\n  WHERE pr.merged_date IS NOT NULL\n    AND prl.label_name = 'fix'\n  GROUP BY time\n),\nweekly_total AS (\n  SELECT\n    DATE(DATE_SUB(merged_date, INTERVAL WEEKDAY(merged_date) DAY)) as time,\n    COUNT(*) as total_prs\n  FROM pull_requests\n  WHERE merged_date IS NOT NULL\n  GROUP BY time\n),\ncombined AS (\n  SELECT\n    t.time,\n    COALESCE(f.fix_prs, 0) * 100.0 / t.total_prs as fix_pct\n  FROM weekly_total t\n  LEFT JOIN weekly_fix f ON t.time = f.time\n)\nSELECT\n  time,\n  fix_pct,\n  AVG(fix_pct) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM combined\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Fix PRs % of Total",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 12
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly_reported AS (\n  SELECT\n    DATE(DATE_SUB(created_at, INTERVAL WEEKDAY(created_at) DAY)) as time,\n    COUNT(*) as bau_reported\n  FROM _tool_basecamp_todos\n  WHERE project_id = '29433274'\n  GROUP BY time\n),\nweekly_solved AS (\n  SELECT\n    DATE(DATE_SUB(completed_at, INTERVAL WEEKDAY(completed_at) DAY)) as time,\n    COUNT(*) as bau_solved\n  FROM _tool_basecamp_todos\n  WHERE project_id = '29433274'\n    AND completed = 1\n    AND completed_at IS NOT NULL\n  GROUP BY time\n),\ncombined AS (\n  SELECT COALESCE(r.time, s.time) as time,\n    COALESCE(r.bau_reported, 0) as bau_reported,\n    COALESCE(s.bau_solved, 0) as bau_solved\n  FROM weekly_reported r\n  LEFT JOIN weekly_solved s ON r.time = s.time\n  UNION\n  SELECT s.time, 0, s.bau_solved\n  FROM weekly_solved s\n  LEFT JOIN weekly_reported r ON r.time = s.time\n  WHERE r.time IS NULL\n)\nSELECT\n  time,\n  bau_reported,\n  bau_solved\nFROM combined\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "BAU Tasks (Weekly)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 20
+              },
+              {
+                "color": "red",
+                "value": 40
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 12
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH todoset_mapping AS (\n  SELECT DISTINCT\n    SUBSTRING_INDEX(SUBSTRING_INDEX(r.input, 'TodosetId\": \"', -1), '\"', 1) as todoset_id,\n    TRIM(SUBSTRING(r.data, 7, LOCATE(',', r.data) - 7)) as todolist_id\n  FROM _raw_basecamp_todolists r\n  WHERE r.input LIKE '%29433274%'\n),\ntodoset_groups AS (\n  SELECT m.todoset_id, g.group_id as todolist_id\n  FROM todoset_mapping m\n  JOIN _tool_basecamp_todolist_groups g ON m.todolist_id = g.todolist_id\n  WHERE g.project_id = '29433274'\n  UNION\n  SELECT todoset_id, todolist_id FROM todoset_mapping\n)\nSELECT\n  SUM(CASE WHEN tg.todoset_id = '7138095528' THEN 1 ELSE 0 END) as Engineering,\n  SUM(CASE WHEN tg.todoset_id = '8062742858' THEN 1 ELSE 0 END) as Prioritised,\n  SUM(CASE WHEN tg.todoset_id = '5355919599' THEN 1 ELSE 0 END) as Requests\nFROM todoset_groups tg\nJOIN _tool_basecamp_todos t ON t.todo_list_id = tg.todolist_id\nWHERE t.project_id = '29433274' AND t.completed = 0",
+          "refId": "A"
+        }
+      ],
+      "title": "Open BAU by Todoset",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 12
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(ts, '.', 1) AS UNSIGNED)), INTERVAL WEEKDAY(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(ts, '.', 1) AS UNSIGNED))) DAY)) as time,\n    COUNT(*) as messages\n  FROM _tool_slack_channel_messages\n  WHERE channel_id = 'CPBVAGSBT'\n  GROUP BY time\n)\nSELECT\n  time,\n  messages,\n  AVG(messages) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Messages (engineering_humans)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 12
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(ts, '.', 1) AS UNSIGNED)), INTERVAL WEEKDAY(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(ts, '.', 1) AS UNSIGNED))) DAY)) as time,\n    SUM(CASE WHEN text LIKE '%<!subteam^SFXKCCD50>%' THEN 1 ELSE 0 END) as mentions_eng\n  FROM _tool_slack_channel_messages\n  WHERE channel_id = 'CPBVAGSBT'\n  GROUP BY time\n)\nSELECT\n  time,\n  mentions_eng,\n  AVG(mentions_eng) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly @eng Mentions",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 18
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(pr.merged_date, INTERVAL WEEKDAY(pr.merged_date) DAY)) as time,\n    COUNT(DISTINCT pr.id) as high_risk_prs\n  FROM pull_requests pr\n  JOIN pull_request_labels prl ON pr.id = prl.pull_request_id\n  WHERE pr.merged_date IS NOT NULL\n    AND prl.label_name = 'high risk'\n  GROUP BY time\n)\nSELECT\n  time,\n  high_risk_prs,\n  AVG(high_risk_prs) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly High Risk PRs",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 18
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(m.ts, '.', 1) AS UNSIGNED)), INTERVAL WEEKDAY(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(m.ts, '.', 1) AS UNSIGNED))) DAY)) as time,\n    COUNT(*) as messages\n  FROM _tool_slack_channel_messages m\n  JOIN _tool_slack_channels c ON m.channel_id = c.id\n  WHERE c.name = '3rd-party-alerts'\n  GROUP BY time\n)\nSELECT\n  time,\n  messages,\n  AVG(messages) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Messages (3rd-party-alerts)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 18
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(m.ts, '.', 1) AS UNSIGNED)), INTERVAL WEEKDAY(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(m.ts, '.', 1) AS UNSIGNED))) DAY)) as time,\n    COUNT(*) as messages\n  FROM _tool_slack_channel_messages m\n  JOIN _tool_slack_channels c ON m.channel_id = c.id\n  WHERE c.name = 'incident-triage'\n  GROUP BY time\n)\nSELECT\n  time,\n  messages,\n  AVG(messages) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Messages (incident-triage)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 18
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(pr.merged_date, INTERVAL WEEKDAY(pr.merged_date) DAY)) as time,\n    COUNT(DISTINCT pr.id) as unsure_prs\n  FROM pull_requests pr\n  JOIN pull_request_labels prl ON pr.id = prl.pull_request_id\n  WHERE pr.merged_date IS NOT NULL\n    AND prl.label_name = 'topic::unsure'\n  GROUP BY time\n)\nSELECT\n  time,\n  unsure_prs,\n  AVG(unsure_prs) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "PRs with topic::unsure Label",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 24
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH weekly AS (\n  SELECT\n    DATE(DATE_SUB(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(m.ts, '.', 1) AS UNSIGNED)), INTERVAL WEEKDAY(FROM_UNIXTIME(CAST(SUBSTRING_INDEX(m.ts, '.', 1) AS UNSIGNED))) DAY)) as time,\n    COUNT(*) as messages\n  FROM _tool_slack_channel_messages m\n  JOIN _tool_slack_channels c ON m.channel_id = c.id\n  WHERE c.name = 'errors_on_production'\n  GROUP BY time\n)\nSELECT\n  time,\n  messages,\n  AVG(messages) OVER (ORDER BY time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) as moving_avg_12w\nFROM weekly\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Messages (errors_on_production)",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [
+    "Slack"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "SDLC metrics",
+  "uid": "slack-deployments",
+  "version": 7
+}
+
