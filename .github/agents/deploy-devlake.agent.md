@@ -3,7 +3,6 @@ name: DeployDevlake
 description: Deploy Apache DevLake to cloud or local. Supports Official release or Custom builds. Currently Azure-only for cloud deployments.
 target: github-copilot
 tools: ['vscode/askQuestions', 'execute/runInTerminal', 'execute/getTerminalOutput', 'read/readFile', 'search/textSearch', 'search/fileSearch', 'azure-mcp/aks', 'azure-mcp/deploy', 'azure-mcp/mysql', 'azure-mcp/monitor', 'todo']
-infer: false
 ---
 
 # DevLake Deployment Agent
@@ -32,10 +31,13 @@ This skill contains deployment methods, reference files, scripts, and templates.
     a) Local Docker - quick setup on your machine
     b) Deploy to Azure - ACI containers with managed MySQL
 
-2️⃣  Custom DevLake (build from source → Azure)
-    a) Clone a remote fork (e.g., ewega/incubator-devlake)
-    b) Use a local repository path
-    Build dev images → Deploy to Azure ACI/AKS
+2️⃣  Custom DevLake (build from source)
+    Step 1: Choose source
+      a) Clone a remote fork (e.g., ewega/incubator-devlake)
+      b) Use a local repository path
+    Step 2: Choose target
+      1) Local Docker - build & run locally
+      2) Deploy to Azure - push to ACR, deploy to ACI/AKS
 
 ☁️  Cloud support: Azure only (AWS/GCP coming soon)
 ═══════════════════════════════════════════════════════════════
