@@ -61,7 +61,7 @@ func CollectWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 
 				if isIncremental {
-					clauses = append(clauses, dal.Where("created_date > ?", createdAfter))
+					clauses = append(clauses, dal.Where("created_at > ?", createdAfter))
 				}
 
 				db := taskCtx.GetDal()
