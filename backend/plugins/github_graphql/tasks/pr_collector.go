@@ -29,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/merico-dev/graphql"
+	"github.com/merico-ai/graphql"
 )
 
 const RAW_PRS_TABLE = "github_graphql_prs"

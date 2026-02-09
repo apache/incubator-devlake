@@ -161,17 +161,18 @@ func listGithubOwnerRepos(
 
 	ownerType, ownerID, err := getOwnerInfo(apiClient, owner)
 	if err != nil {
-		return nil, nil, err
+		return
 	}
 
 	var reposBody *http.Response
+	var authUserID int
 	switch ownerType {
 	case "Organization":
 		reposBody, err = apiClient.Get(fmt.Sprintf("orgs/%s/repos", owner), query, nil)
 	case "User":
-		authUserID, err := getAuthenticatedUserID(apiClient)
+		authUserID, err = getAuthenticatedUserID(apiClient)
 		if err != nil {
-			return nil, nil, err
+			return
 		}
 		if authUserID == ownerID {
 			// Authenticated user's own account - includes private repos
@@ -185,7 +186,7 @@ func listGithubOwnerRepos(
 		reposBody, err = apiClient.Get(fmt.Sprintf("users/%s/repos", owner), query, nil)
 	}
 	if err != nil {
-		return nil, nil, err
+		return
 	}
 
 	var repos []repo
@@ -200,7 +201,7 @@ func listGithubOwnerRepos(
 			PerPage: page.PerPage,
 		}
 	}
-	return children, nextPage, nil
+	return
 }
 
 func listGithubAppInstalledRepos(
