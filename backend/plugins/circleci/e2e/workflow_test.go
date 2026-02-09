@@ -52,9 +52,8 @@ func TestCircleciWorkflow(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(
 		models.CircleciWorkflow{},
 		e2ehelper.TableOptions{
-			CSVRelPath:   "./snapshot_tables/_tool_circleci_workflows.csv",
-			IgnoreTypes:  []interface{}{common.NoPKModel{}},
-			IgnoreFields: []string{"started_at", "stopped_at"},
+			CSVRelPath:  "./snapshot_tables/_tool_circleci_workflows.csv",
+			IgnoreTypes: []interface{}{common.NoPKModel{}},
 		},
 	)
 
