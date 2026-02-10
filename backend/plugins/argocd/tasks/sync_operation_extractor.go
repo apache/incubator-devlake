@@ -38,6 +38,7 @@ var ExtractSyncOperationsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractSyncOperations,
 	EnabledByDefault: true,
 	Description:      "Extract sync operations from raw data",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{RAW_SYNC_OPERATION_TABLE},
 	ProductTables:    []string{models.ArgocdSyncOperation{}.TableName()},
 }

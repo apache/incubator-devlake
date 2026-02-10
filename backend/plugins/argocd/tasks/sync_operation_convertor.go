@@ -40,6 +40,7 @@ var ConvertSyncOperationsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertSyncOperations,
 	EnabledByDefault: true,
 	Description:      "Convert sync operations to domain layer deployments",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{models.ArgocdSyncOperation{}.TableName()},
 	ProductTables:    []string{"cicd_deployments", "cicd_deployment_commits"},
 }

@@ -38,6 +38,7 @@ var CollectSyncOperationsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectSyncOperations,
 	EnabledByDefault: true,
 	Description:      "Collect sync operations (deployment history) from ArgoCD API",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{models.ArgocdApplication{}.TableName()},
 }
 
