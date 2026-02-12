@@ -61,9 +61,8 @@ func TestCircleciProject(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(
 		devops.CicdScope{},
 		e2ehelper.TableOptions{
-			CSVRelPath:   "./snapshot_tables/cicd_scopes.csv",
-			IgnoreFields: []string{"created_date"},
-			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
+			CSVRelPath:  "./snapshot_tables/cicd_scopes.csv",
+			IgnoreTypes: []interface{}{domainlayer.DomainEntity{}},
 		},
 	)
 }
