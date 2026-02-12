@@ -133,10 +133,6 @@ local.js
 /.nova
 *.sublime*
 
-# Agent skills (local-only)
-.github/skills/
-
-
 # OS metadata
 .DS_Store
 Thumbs.db
@@ -173,5 +169,8 @@ __debug_bin*
 # speckit
 .specify
 specs/
-.github/agents/
-.github/prompts/
+# .github/agents/ - Commented out to allow custom deployment agents
+# But ignore speckit/copilot instruction templates (agent framework files)
+.github/agents/speckit.*.agent.md
+.github/agents/copilot-instructions.md
+.github/prompts/speckit.*.prompt.md

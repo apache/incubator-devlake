@@ -28,10 +28,12 @@ import (
 
 var (
 	basicRes         context.BasicRes
-	apiResources     = map[string]map[string]plugin.ApiResourceHandler{}
 	vld              *validator.Validate
 	connectionHelper *helper.ConnectionApiHelper
 	dsHelper         *helper.DsHelper[models.GhCopilotConnection, models.GhCopilotScope, models.GhCopilotScopeConfig]
+	raProxy          *helper.DsRemoteApiProxyHelper[models.GhCopilotConnection]
+	raScopeList      *helper.DsRemoteApiScopeListHelper[models.GhCopilotConnection, models.GhCopilotScope, GhCopilotRemotePagination]
+	raScopeSearch    *helper.DsRemoteApiScopeSearchHelper[models.GhCopilotConnection, models.GhCopilotScope]
 )
 
 // Init stores basic resources and configures shared helpers for API handlers.
@@ -52,48 +54,7 @@ func Init(br context.BasicRes, meta plugin.PluginMeta) {
 		func(s models.GhCopilotScope) models.GhCopilotScope { return s },
 		nil,
 	)
-
-	apiResources = map[string]map[string]plugin.ApiResourceHandler{
-		"test": {
-			"POST": TestConnection,
-		},
-		"connections": {
-			"POST": PostConnections,
-			"GET":  ListConnections,
-		},
-		"connections/:connectionId": {
-			"GET":    GetConnection,
-			"PATCH":  PatchConnection,
-			"DELETE": DeleteConnection,
-		},
-		"connections/:connectionId/test": {
-			"POST": TestExistingConnection,
-		},
-		"connections/:connectionId/scopes": {
-			"GET": GetScopeList,
-			"PUT": PutScopes,
-		},
-		"connections/:connectionId/scopes/:scopeId": {
-			"GET":    GetScope,
-			"PATCH":  PatchScope,
-			"DELETE": DeleteScope,
-		},
-		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
-			"GET": GetScopeLatestSyncState,
-		},
-		"connections/:connectionId/scope-configs": {
-			"POST": PostScopeConfig,
-			"GET":  GetScopeConfigList,
-		},
-		"connections/:connectionId/scope-configs/:scopeConfigId": {
-			"GET":    GetScopeConfig,
-			"PATCH":  PatchScopeConfig,
-			"DELETE": DeleteScopeConfig,
-		},
-	}
-}
-
-// GetApiResources returns registered API handlers for the Copilot plugin.
-func GetApiResources() map[string]map[string]plugin.ApiResourceHandler {
-	return apiResources
+	raProxy = helper.NewDsRemoteApiProxyHelper[models.GhCopilotConnection](dsHelper.ConnApi.ModelApiHelper)
+	raScopeList = helper.NewDsRemoteApiScopeListHelper[models.GhCopilotConnection, models.GhCopilotScope, GhCopilotRemotePagination](raProxy, listGhCopilotRemoteScopes)
+	raScopeSearch = helper.NewDsRemoteApiScopeSearchHelper[models.GhCopilotConnection, models.GhCopilotScope](raProxy, searchGhCopilotRemoteScopes)
 }

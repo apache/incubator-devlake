@@ -101,7 +101,50 @@ func (p GhCopilot) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 }
 
 func (p GhCopilot) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
-	return api.GetApiResources()
+	return map[string]map[string]plugin.ApiResourceHandler{
+		"test": {
+			"POST": api.TestConnection,
+		},
+		"connections": {
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
+		},
+		"connections/:connectionId": {
+			"GET":    api.GetConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+		},
+		"connections/:connectionId/test": {
+			"POST": api.TestExistingConnection,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScopes,
+		},
+		"connections/:connectionId/scopes/:scopeId": {
+			"GET":    api.GetScope,
+			"PATCH":  api.PatchScope,
+			"DELETE": api.DeleteScope,
+		},
+		"connections/:connectionId/scopes/:scopeId/latest-sync-state": {
+			"GET": api.GetScopeLatestSyncState,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
+		"connections/:connectionId/scope-configs": {
+			"POST": api.PostScopeConfig,
+			"GET":  api.GetScopeConfigList,
+		},
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
+			"GET":    api.GetScopeConfig,
+			"PATCH":  api.PatchScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
+		},
+	}
 }
 
 func (p GhCopilot) MakeDataSourcePipelinePlanV200(
