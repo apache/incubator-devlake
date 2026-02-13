@@ -18,24 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyAllEntities),
-		new(modifyJenkinsBuild),
-		new(addJobFields),
-		new(addJobPathForBuilds),
-		new(changeIndexOfJobPath),
-		new(addTransformationRule20221128),
-		new(addFullNameForBuilds),
-		new(addConnectionIdToTransformationRule),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addNumberToJenkinsBuildCommit),
-		new(addBranchFilterPattern),
-	}
+type addBranchFilterPattern struct{}
+
+type JenkinsScopeConfig20251002 struct {
+	BranchFilterPattern string `gorm:"type:varchar(255)"`
+}
+
+func (JenkinsScopeConfig20251002) TableName() string {
+	return "_tool_jenkins_scope_configs"
+}
+
+func (u *addBranchFilterPattern) Up(baseRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(baseRes, &JenkinsScopeConfig20251002{})
+}
+
+func (*addBranchFilterPattern) Version() uint64 {
+	return 20251002100000
+}
+
+func (*addBranchFilterPattern) Name() string {
+	return "add branch filter pattern to jenkins scope config"
 }
