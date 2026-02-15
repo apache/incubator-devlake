@@ -131,6 +131,11 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			if rawL.GithubId == 0 {
 				return nil, nil
 			}
+			// Filter bot PRs by username
+			if rawL.User != nil && shouldSkipByUsername(rawL.User.Login) {
+				taskCtx.GetLogger().Debug("Skipping PR #%d from bot user: %s", rawL.Number, rawL.User.Login)
+				return nil, nil
+			}
 			//If this is a pr, ignore
 			githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Options.GithubId)
 			if err != nil {
