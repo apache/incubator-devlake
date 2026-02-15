@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -68,6 +69,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubDeployment := inputRow.(*models.GithubDeployment)
+
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: deploymentIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.Id),
@@ -88,9 +90,8 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				Environment:         githubDeployment.Environment,
 				OriginalEnvironment: githubDeployment.Environment,
 				TaskDatesInfo: devops.TaskDatesInfo{
-					CreatedDate:  githubDeployment.CreatedDate,
-					StartedDate:  &githubDeployment.CreatedDate,
-					FinishedDate: &githubDeployment.UpdatedDate,
+					CreatedDate: githubDeployment.CreatedDate,
+					StartedDate: &githubDeployment.CreatedDate,
 				},
 				CommitSha:    githubDeployment.CommitOid,
 				RefName:      githubDeployment.RefName,
@@ -100,8 +101,11 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:          githubDeployment.Url,
 			}
 
-			durationSec := float64(githubDeployment.UpdatedDate.Sub(githubDeployment.CreatedDate).Milliseconds() / 1e3)
-			deploymentCommit.DurationSec = &durationSec
+			finishedDate := resolveFinishedDate(githubDeployment)
+			deploymentCommit.TaskDatesInfo.FinishedDate = finishedDate
+
+			durationSec := calculateDuration(githubDeployment.CreatedDate, finishedDate)
+			deploymentCommit.DurationSec = durationSec
 
 			if data.RegexEnricher != nil {
 				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, githubDeployment.Environment) != "" {
@@ -122,4 +126,19 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
+}
+
+func resolveFinishedDate(deployment *models.GithubDeployment) *time.Time {
+	if deployment.FinishedDate != nil {
+		return deployment.FinishedDate
+	}
+	return &deployment.UpdatedDate
+}
+
+func calculateDuration(start time.Time, end *time.Time) *float64 {
+	if end == nil {
+		return nil
+	}
+	duration := float64(end.Sub(start).Milliseconds()) / 1e3
+	return &duration
 }
