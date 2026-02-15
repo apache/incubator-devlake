@@ -103,6 +103,12 @@ func ExtractApiPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			if prReviewComment.User != nil {
+				// Filter bot comments by username
+				if shouldSkipByUsername(prReviewComment.User.Login) {
+					taskCtx.GetLogger().Debug("Skipping PR review comment #%d from bot user: %s", prReviewComment.GithubId, prReviewComment.User.Login)
+					return nil, nil
+				}
+
 				githubPrComment.AuthorUserId = prReviewComment.User.Id
 				githubPrComment.AuthorUsername = prReviewComment.User.Login
 

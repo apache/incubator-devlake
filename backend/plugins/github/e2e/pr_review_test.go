@@ -18,8 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	"os"
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -98,4 +100,41 @@ func TestPrReviewDataFlow(t *testing.T) {
 			"status",
 		},
 	)
+}
+
+func TestPrReviewDataFlowWithBotFiltering(t *testing.T) {
+	var plugin impl.Github
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
+
+	// Set up bot filtering
+	os.Setenv("GITHUB_PR_EXCLUDELIST", "renovate[bot]")
+	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
+
+	taskData := &tasks.GithubTaskData{
+		Options: &tasks.GithubOptions{
+			ConnectionId: 1,
+			Name:         "test/repo",
+			GithubId:     123,
+		},
+	}
+
+	// import raw data table with bot and human reviews
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_pr_reviews_bot_filter.csv", "_raw_github_api_pull_request_reviews")
+
+	// verify review extraction filters bot reviews
+	dataflowTester.FlushTabler(&models.GithubPrReview{})
+	dataflowTester.FlushTabler(&models.GithubReviewer{})
+	dataflowTester.FlushTabler(&models.GithubRepoAccount{})
+	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewsMeta, taskData)
+
+	// Verify only human review was extracted
+	var reviews []models.GithubPrReview
+	dataflowTester.Dal.All(&reviews, dal.Where("connection_id = ?", 1))
+
+	if len(reviews) != 1 {
+		t.Errorf("Expected 1 review (human), got %d", len(reviews))
+	}
+	if len(reviews) > 0 && reviews[0].GithubId != 5002 {
+		t.Errorf("Expected review #5002 (human), got #%d", reviews[0].GithubId)
+	}
 }

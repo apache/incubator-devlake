@@ -18,8 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	"os"
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
@@ -170,4 +172,41 @@ func TestPrDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
+}
+
+func TestPrDataFlowWithBotFiltering(t *testing.T) {
+	var plugin impl.Github
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
+
+	// Set up bot filtering
+	os.Setenv("GITHUB_PR_EXCLUDELIST", "renovate[bot]")
+	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
+
+	taskData := &tasks.GithubTaskData{
+		Options: &tasks.GithubOptions{
+			ConnectionId: 1,
+			Name:         "test/repo",
+			GithubId:     123,
+			ScopeConfig:  &models.GithubScopeConfig{},
+		},
+	}
+
+	// import raw data table with bot and human PRs
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_pull_requests_bot_filter.csv", "_raw_github_api_pull_requests")
+
+	// verify pr extraction filters bot PRs
+	dataflowTester.FlushTabler(&models.GithubPullRequest{})
+	dataflowTester.FlushTabler(&models.GithubRepoAccount{})
+	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
+
+	// Verify only human PR was extracted
+	var prs []models.GithubPullRequest
+	dataflowTester.Dal.All(&prs, dal.Where("connection_id = ?", 1))
+
+	if len(prs) != 1 {
+		t.Errorf("Expected 1 PR (human), got %d", len(prs))
+	}
+	if len(prs) > 0 && prs[0].Number != 1000 {
+		t.Errorf("Expected PR #1000 (human), got #%d", prs[0].Number)
+	}
 }
