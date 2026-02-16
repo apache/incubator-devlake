@@ -16,7 +16,6 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/libgit2/git2go/v33 v33.0.6
 	github.com/magiconair/properties v1.8.5
-	github.com/merico-dev/graphql v0.0.0-20240807070533-1cafa544cd5d
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/robfig/cron/v3 v3.0.0
@@ -45,6 +44,7 @@ require (
 	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
+	github.com/merico-ai/graphql v0.0.0-20260206020408-b7fd267bcfac
 	github.com/rogpeppe/go-internal v1.11.0
 	golang.org/x/mod v0.17.0
 )

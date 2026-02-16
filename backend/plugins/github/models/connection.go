@@ -57,13 +57,13 @@ type GithubConn struct {
 	helper.MultiAuth      `mapstructure:",squash"`
 	GithubAccessToken     `mapstructure:",squash" authMethod:"AccessToken"`
 	GithubAppKey          `mapstructure:",squash" authMethod:"AppKey"`
-	RefreshToken          string    `mapstructure:"refreshToken" json:"refreshToken" gorm:"type:text;serializer:encdec"`
-	TokenExpiresAt        time.Time `mapstructure:"tokenExpiresAt" json:"tokenExpiresAt"`
-	RefreshTokenExpiresAt time.Time `mapstructure:"refreshTokenExpiresAt" json:"refreshTokenExpiresAt"`
+	RefreshToken          string     `mapstructure:"refreshToken" json:"refreshToken" gorm:"type:text;serializer:encdec"`
+	TokenExpiresAt        *time.Time `mapstructure:"tokenExpiresAt" json:"tokenExpiresAt"`
+	RefreshTokenExpiresAt *time.Time `mapstructure:"refreshTokenExpiresAt" json:"refreshTokenExpiresAt"`
 }
 
 // UpdateToken updates the token and refresh token information
-func (conn *GithubConn) UpdateToken(newToken, newRefreshToken string, expiry, refreshExpiry time.Time) {
+func (conn *GithubConn) UpdateToken(newToken, newRefreshToken string, expiry, refreshExpiry *time.Time) {
 	conn.Token = newToken
 	conn.RefreshToken = newRefreshToken
 	conn.TokenExpiresAt = expiry
