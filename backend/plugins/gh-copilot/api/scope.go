@@ -26,7 +26,7 @@ import (
 )
 
 type PutScopesReqBody = helper.PutScopesReqBody[models.GhCopilotScope]
-type ScopeDetail = srvhelper.ScopeDetail[models.GhCopilotScope, srvhelper.NoScopeConfig]
+type ScopeDetail = srvhelper.ScopeDetail[models.GhCopilotScope, models.GhCopilotScopeConfig]
 
 // PutScopes creates or updates Copilot organization scopes.
 func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {

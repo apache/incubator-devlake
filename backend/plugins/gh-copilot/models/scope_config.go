@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"gorm.io/gorm"
 )
 
 var _ plugin.ToolLayerScopeConfig = (*GhCopilotScopeConfig)(nil)
@@ -46,7 +47,7 @@ func (sc GhCopilotScopeConfig) GetConnectionId() uint64 {
 }
 
 // BeforeSave validates and normalizes the scope config before saving.
-func (sc *GhCopilotScopeConfig) BeforeSave() error {
+func (sc *GhCopilotScopeConfig) BeforeSave(tx *gorm.DB) error {
 	// Validate and normalize BaselinePeriodDays (7-365 range, default 90)
 	if sc.BaselinePeriodDays < 7 {
 		sc.BaselinePeriodDays = 90 // Default to 90 days
