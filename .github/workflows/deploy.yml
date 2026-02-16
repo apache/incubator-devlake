@@ -1,4 +1,4 @@
-name: Deploy to Production
+name: Deploy Production
 
 on:
   workflow_dispatch:
@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set version variable
+      - name: Extract version
         id: vars
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: SSH and Deploy
+      - name: SSH Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
