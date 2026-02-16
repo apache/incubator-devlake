@@ -39,7 +39,13 @@ type GhCopilotConn struct {
 
 	Token            string `mapstructure:"token" json:"token"`
 	Organization     string `mapstructure:"organization" json:"organization"`
+	Enterprise       string `mapstructure:"enterprise" json:"enterprise,omitempty" gorm:"type:varchar(100)"`
 	RateLimitPerHour int    `mapstructure:"rateLimitPerHour" json:"rateLimitPerHour"`
+}
+
+// HasEnterprise returns true if the connection is configured for enterprise-level access.
+func (conn *GhCopilotConn) HasEnterprise() bool {
+	return conn != nil && strings.TrimSpace(conn.Enterprise) != ""
 }
 
 // SetupAuthentication implements plugin.ApiAuthenticator so helper.NewApiClientFromConnection

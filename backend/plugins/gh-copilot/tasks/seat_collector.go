@@ -87,11 +87,22 @@ func CollectCopilotSeatAssignments(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	var urlTemplate string
+	switch {
+	case connection.HasEnterprise():
+		urlTemplate = fmt.Sprintf("enterprises/%s/copilot/billing/seats", connection.Enterprise)
+	case connection.Organization != "":
+		urlTemplate = fmt.Sprintf("orgs/%s/copilot/billing/seats", connection.Organization)
+	default:
+		taskCtx.GetLogger().Warn(nil, "skipping seat collection: no enterprise or organization configured on connection %d", connection.ID)
+		return nil
+	}
+
 	perPage := 100
 	err = collector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   apiClient,
 		PageSize:    perPage,
-		UrlTemplate: fmt.Sprintf("orgs/%s/copilot/billing/seats", connection.Organization),
+		UrlTemplate: urlTemplate,
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			q := url.Values{}
 			q.Set("per_page", fmt.Sprintf("%d", reqData.Pager.Size))

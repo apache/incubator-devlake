@@ -49,22 +49,42 @@ func listGhCopilotRemoteScopes(
 		return nil, nil, errors.BadInput.New("connection is required")
 	}
 	organization := strings.TrimSpace(connection.Organization)
-	if organization == "" {
-		return []dsmodels.DsRemoteApiScopeListEntry[models.GhCopilotScope]{}, nil, nil
-	}
 
-	children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GhCopilotScope]{
-		Type:     api.RAS_ENTRY_TYPE_SCOPE,
-		Id:       organization,
-		Name:     organization,
-		FullName: organization,
-		Data: &models.GhCopilotScope{
-			Id:           organization,
-			Organization: organization,
-			Name:         organization,
-			FullName:     organization,
-		},
-	})
+	if connection.HasEnterprise() {
+		enterprise := strings.TrimSpace(connection.Enterprise)
+		if enterprise != "" {
+			scopeId := enterprise
+			if organization != "" {
+				scopeId = enterprise + "/" + organization
+			}
+			children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GhCopilotScope]{
+				Type:     api.RAS_ENTRY_TYPE_SCOPE,
+				Id:       scopeId,
+				Name:     scopeId,
+				FullName: scopeId,
+				Data: &models.GhCopilotScope{
+					Id:           scopeId,
+					Organization: organization,
+					Enterprise:   enterprise,
+					Name:         scopeId,
+					FullName:     scopeId,
+				},
+			})
+		}
+	} else if organization != "" {
+		children = append(children, dsmodels.DsRemoteApiScopeListEntry[models.GhCopilotScope]{
+			Type:     api.RAS_ENTRY_TYPE_SCOPE,
+			Id:       organization,
+			Name:     organization,
+			FullName: organization,
+			Data: &models.GhCopilotScope{
+				Id:           organization,
+				Organization: organization,
+				Name:         organization,
+				FullName:     organization,
+			},
+		})
+	}
 
 	return children, nil, nil
 }

@@ -23,7 +23,8 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// GhCopilotOrgMetrics captures daily organization-level Copilot adoption metrics.
+// GhCopilotOrgMetrics captures daily organization-level Copilot adoption metrics
+// from the organization usage report downloads.
 type GhCopilotOrgMetrics struct {
 	ConnectionId uint64    `gorm:"primaryKey" json:"connectionId"`
 	ScopeId      string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
@@ -41,6 +42,8 @@ type GhCopilotOrgMetrics struct {
 	IdeChatEngagedUsers      int `json:"ideChatEngagedUsers"`
 	DotcomChats              int `json:"dotcomChats"`
 	DotcomChatEngagedUsers   int `json:"dotcomChatEngagedUsers"`
+	PRSummariesCreated       int `json:"prSummariesCreated"`
+	PREngagedUsers           int `json:"prEngagedUsers"`
 	SeatActiveCount          int `json:"seatActiveCount"`
 	SeatTotal                int `json:"seatTotal"`
 
@@ -48,5 +51,5 @@ type GhCopilotOrgMetrics struct {
 }
 
 func (GhCopilotOrgMetrics) TableName() string {
-	return "_tool_copilot_org_metrics"
+	return "_tool_copilot_org_daily_metrics"
 }

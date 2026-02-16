@@ -21,12 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-var CollectCopilotOrgMetricsMeta = plugin.SubTaskMeta{
-	Name:             "collectCopilotOrgMetrics",
-	EntryPoint:       CollectCopilotOrgMetrics,
+var CollectOrgMetricsMeta = plugin.SubTaskMeta{
+	Name:             "collectOrgMetrics",
+	EntryPoint:       CollectOrgMetrics,
 	EnabledByDefault: true,
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	Description:      "Collect GitHub Copilot organization metrics",
+	Description:      "Collect GitHub Copilot organization usage metrics reports",
 }
 
 var CollectCopilotSeatAssignmentsMeta = plugin.SubTaskMeta{
@@ -37,10 +37,54 @@ var CollectCopilotSeatAssignmentsMeta = plugin.SubTaskMeta{
 	Description:      "Collect GitHub Copilot seat assignments",
 }
 
-var ExtractCopilotOrgMetricsMeta = plugin.SubTaskMeta{
-	Name:             "extractCopilotOrgMetrics",
-	EntryPoint:       ExtractCopilotOrgMetrics,
+var CollectEnterpriseMetricsMeta = plugin.SubTaskMeta{
+	Name:             "collectEnterpriseMetrics",
+	EntryPoint:       CollectEnterpriseMetrics,
 	EnabledByDefault: true,
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	Description:      "Extract Copilot metrics into tool-layer tables",
+	Description:      "Collect GitHub Copilot enterprise usage metrics reports",
+}
+
+var CollectUserMetricsMeta = plugin.SubTaskMeta{
+	Name:             "collectUserMetrics",
+	EntryPoint:       CollectUserMetrics,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Collect GitHub Copilot enterprise user-level usage metrics reports",
+}
+
+var ExtractOrgMetricsMeta = plugin.SubTaskMeta{
+	Name:             "extractOrgMetrics",
+	EntryPoint:       ExtractOrgMetrics,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Extract Copilot org metrics into tool-layer tables",
+	Dependencies:     []*plugin.SubTaskMeta{&CollectOrgMetricsMeta, &ExtractSeatsMeta},
+}
+
+var ExtractSeatsMeta = plugin.SubTaskMeta{
+	Name:             "extractSeats",
+	EntryPoint:       ExtractSeats,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Extract Copilot seat assignments into tool-layer tables",
+	Dependencies:     []*plugin.SubTaskMeta{&CollectCopilotSeatAssignmentsMeta},
+}
+
+var ExtractEnterpriseMetricsMeta = plugin.SubTaskMeta{
+	Name:             "extractEnterpriseMetrics",
+	EntryPoint:       ExtractEnterpriseMetrics,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Extract Copilot enterprise metrics into tool-layer tables",
+	Dependencies:     []*plugin.SubTaskMeta{&CollectEnterpriseMetricsMeta},
+}
+
+var ExtractUserMetricsMeta = plugin.SubTaskMeta{
+	Name:             "extractUserMetrics",
+	EntryPoint:       ExtractUserMetrics,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Extract Copilot user metrics into tool-layer tables",
+	Dependencies:     []*plugin.SubTaskMeta{&CollectUserMetricsMeta},
 }

@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -29,74 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
-type copilotMetricsDay struct {
-	Date              string `json:"date"`
-	TotalActiveUsers  int    `json:"total_active_users"`
-	TotalEngagedUsers int    `json:"total_engaged_users"`
-
-	IdeCodeCompletions copilotIdeCodeCompletions `json:"copilot_ide_code_completions"`
-	IdeChat            copilotIdeChat            `json:"copilot_ide_chat"`
-	DotcomChat         copilotDotcomChat         `json:"copilot_dotcom_chat"`
-}
-
-type copilotIdeCodeCompletions struct {
-	TotalEngagedUsers int                        `json:"total_engaged_users"`
-	Editors           []copilotEditorCompletions `json:"editors"`
-}
-
-type copilotEditorCompletions struct {
-	Name              string                    `json:"name"`
-	TotalEngagedUsers int                       `json:"total_engaged_users"`
-	Models            []copilotModelCompletions `json:"models"`
-}
-
-type copilotModelCompletions struct {
-	Name              string                   `json:"name"`
-	IsCustomModel     bool                     `json:"is_custom_model"`
-	TotalEngagedUsers int                      `json:"total_engaged_users"`
-	Languages         []copilotLanguageMetrics `json:"languages"`
-}
-
-type copilotLanguageMetrics struct {
-	Name                    string `json:"name"`
-	TotalEngagedUsers       int    `json:"total_engaged_users"`
-	TotalCodeSuggestions    int    `json:"total_code_suggestions"`
-	TotalCodeAcceptances    int    `json:"total_code_acceptances"`
-	TotalCodeLinesSuggested int    `json:"total_code_lines_suggested"`
-	TotalCodeLinesAccepted  int    `json:"total_code_lines_accepted"`
-}
-
-type copilotIdeChat struct {
-	TotalEngagedUsers int                 `json:"total_engaged_users"`
-	Editors           []copilotEditorChat `json:"editors"`
-}
-
-type copilotEditorChat struct {
-	Name              string             `json:"name"`
-	TotalEngagedUsers int                `json:"total_engaged_users"`
-	Models            []copilotModelChat `json:"models"`
-}
-
-type copilotModelChat struct {
-	Name                     string `json:"name"`
-	IsCustomModel            bool   `json:"is_custom_model"`
-	TotalEngagedUsers        int    `json:"total_engaged_users"`
-	TotalChats               int    `json:"total_chats"`
-	TotalChatCopyEvents      int    `json:"total_chat_copy_events"`
-	TotalChatInsertionEvents int    `json:"total_chat_insertion_events"`
-}
-
-type copilotDotcomChat struct {
-	TotalEngagedUsers int                  `json:"total_engaged_users"`
-	Models            []copilotDotcomModel `json:"models"`
-}
-
-type copilotDotcomModel struct {
-	Name              string `json:"name"`
-	IsCustomModel     bool   `json:"is_custom_model"`
-	TotalEngagedUsers int    `json:"total_engaged_users"`
-	TotalChats        int    `json:"total_chats"`
-}
+// Seat response structs (used by seat_extractor.go)
 
 type copilotSeatResponse struct {
 	CreatedAt               string          `json:"created_at"`
@@ -115,13 +47,22 @@ type copilotAssignee struct {
 	Type  string `json:"type"`
 }
 
-func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
+// ExtractOrgMetrics parses org report data from the new report download API.
+// The org report uses the same flat format as enterprise reports (day, totals_by_*).
+// It extracts to GhCopilotOrgMetrics + GhCopilotLanguageMetrics tool-layer tables,
+// aggregating the flat breakdown data into the org-level summary format.
+func ExtractOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*GhCopilotTaskData)
 	if !ok {
 		return errors.Default.New("task data is not GhCopilotTaskData")
 	}
 	connection := data.Connection
 	connection.Normalize()
+
+	if connection.Organization == "" {
+		taskCtx.GetLogger().Info("No organization configured, skipping org metrics extraction")
+		return nil
+	}
 
 	params := copilotRawParams{
 		ConnectionId: data.Options.ConnectionId,
@@ -130,83 +71,7 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		Endpoint:     connection.Endpoint,
 	}
 
-	// Extract seat assignments first so we can derive seat counts for org metrics.
-	// NOTE: Keep this extractor stateless to avoid SubtaskStateManager collisions inside this subtask.
-	// The state key does not include raw table name, so multiple stateful extractors would race/skip.
-	seatsExtractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Table:   rawCopilotSeatsTable,
-			Options: params,
-		},
-		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			seat := &copilotSeatResponse{}
-			if err := errors.Convert(json.Unmarshal(row.Data, seat)); err != nil {
-				return nil, err
-			}
-
-			createdAt, parseErr := time.Parse(time.RFC3339, seat.CreatedAt)
-			if parseErr != nil {
-				return nil, errors.BadInput.Wrap(parseErr, "invalid seat created_at")
-			}
-			updatedAt, parseErr := time.Parse(time.RFC3339, seat.UpdatedAt)
-			if parseErr != nil {
-				return nil, errors.BadInput.Wrap(parseErr, "invalid seat updated_at")
-			}
-
-			parseOptional := func(v *string) (*time.Time, errors.Error) {
-				if v == nil || *v == "" {
-					return nil, nil
-				}
-				// GitHub may return RFC3339 timestamps or date-only strings (YYYY-MM-DD) for some fields.
-				if t, parseErr := time.Parse(time.RFC3339, *v); parseErr == nil {
-					return &t, nil
-				}
-				t, parseErr := time.Parse("2006-01-02", *v)
-				if parseErr != nil {
-					return nil, errors.BadInput.Wrap(parseErr, "invalid timestamp")
-				}
-				return &t, nil
-			}
-
-			lastAuth, err := parseOptional(seat.LastAuthenticatedAt)
-			if err != nil {
-				return nil, err
-			}
-			lastAct, err := parseOptional(seat.LastActivityAt)
-			if err != nil {
-				return nil, err
-			}
-			pendingCancel, err := parseOptional(seat.PendingCancellationDate)
-			if err != nil {
-				return nil, err
-			}
-
-			toolSeat := &models.GhCopilotSeat{
-				ConnectionId:            data.Options.ConnectionId,
-				Organization:            connection.Organization,
-				UserLogin:               seat.Assignee.Login,
-				UserId:                  seat.Assignee.Id,
-				PlanType:                seat.PlanType,
-				CreatedAt:               createdAt,
-				LastActivityAt:          lastAct,
-				LastActivityEditor:      seat.LastActivityEditor,
-				LastAuthenticatedAt:     lastAuth,
-				PendingCancellationDate: pendingCancel,
-				UpdatedAt:               updatedAt,
-			}
-
-			return []interface{}{toolSeat}, nil
-		},
-	})
-	if err != nil {
-		return err
-	}
-	if err := seatsExtractor.Execute(); err != nil {
-		return err
-	}
-
-	// Derive seat counts from extracted assignments.
+	// Derive seat counts from extracted seat assignments
 	db := taskCtx.GetDal()
 	seatTotal, err := db.Count(dal.From(&models.GhCopilotSeat{}), dal.Where(
 		"connection_id = ? AND organization = ?",
@@ -214,7 +79,7 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		connection.Organization,
 	))
 	if err != nil {
-		return errors.Default.Wrap(err, "failed to count copilot seats")
+		seatTotal = 0
 	}
 	seatActive, err := db.Count(dal.From(&models.GhCopilotSeat{}), dal.Where(
 		"connection_id = ? AND organization = ? AND last_activity_at IS NOT NULL",
@@ -222,121 +87,91 @@ func ExtractCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		connection.Organization,
 	))
 	if err != nil {
-		return errors.Default.Wrap(err, "failed to count active copilot seats")
+		seatActive = 0
 	}
 
-	// Keep existing org metrics in sync even when the stateful metrics extractor
-	// has nothing new to process (e.g., incremental runs with no new raw metrics).
-	if db.HasTable(&models.GhCopilotOrgMetrics{}) {
-		err = db.UpdateColumns(
-			&models.GhCopilotOrgMetrics{},
-			[]dal.DalSet{{ColumnName: "seat_total", Value: seatTotal}, {ColumnName: "seat_active_count", Value: seatActive}},
-			dal.Where("connection_id = ? AND scope_id = ?", data.Options.ConnectionId, data.Options.ScopeId),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to update copilot org metrics seat counts")
-		}
-	}
-
-	metricsExtractor, err := helper.NewStatefulApiExtractor(&helper.StatefulApiExtractorArgs[copilotMetricsDay]{
-		SubtaskCommonArgs: &helper.SubtaskCommonArgs{
-			SubTaskContext: taskCtx,
-			Table:          rawCopilotMetricsTable,
-			Params:         params,
-			SubtaskConfig:  params,
+	// Org reports use the same flat format as enterprise reports (enterpriseDayTotal struct).
+	// Each raw data row is one day's metrics with totals_by_* breakdowns.
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx:     taskCtx,
+			Table:   rawOrgMetricsTable,
+			Options: params,
 		},
-		Extract: func(day *copilotMetricsDay, row *helper.RawData) ([]any, errors.Error) {
-			date, err := time.Parse("2006-01-02", day.Date)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "invalid metrics date")
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
+			var dt enterpriseDayTotal
+			if err := errors.Convert(json.Unmarshal(row.Data, &dt)); err != nil {
+				return nil, err
 			}
 
-			normalizeDim := func(v, fallback string) string {
-				v = strings.TrimSpace(v)
-				if v == "" {
-					return fallback
-				}
-				return v
+			day, parseErr := time.Parse("2006-01-02", dt.Day)
+			if parseErr != nil {
+				return nil, errors.BadInput.Wrap(parseErr, "invalid day in org report")
 			}
 
+			// Aggregate code completions from feature breakdowns
 			completionSuggestions := 0
 			completionAcceptances := 0
 			completionLinesSuggested := 0
 			completionLinesAccepted := 0
-			languageMetrics := make([]any, 0, 64)
-			for _, editor := range day.IdeCodeCompletions.Editors {
-				editorName := normalizeDim(editor.Name, "unknown")
-				for _, model := range editor.Models {
-					for _, lang := range model.Languages {
-						completionSuggestions += lang.TotalCodeSuggestions
-						completionAcceptances += lang.TotalCodeAcceptances
-						completionLinesSuggested += lang.TotalCodeLinesSuggested
-						completionLinesAccepted += lang.TotalCodeLinesAccepted
-
-						toolLang := &models.GhCopilotLanguageMetrics{
-							ConnectionId:   data.Options.ConnectionId,
-							ScopeId:        data.Options.ScopeId,
-							Date:           date,
-							Editor:         editorName,
-							Language:       normalizeDim(lang.Name, "unknown"),
-							EngagedUsers:   lang.TotalEngagedUsers,
-							Suggestions:    lang.TotalCodeSuggestions,
-							Acceptances:    lang.TotalCodeAcceptances,
-							LinesSuggested: lang.TotalCodeLinesSuggested,
-							LinesAccepted:  lang.TotalCodeLinesAccepted,
-						}
-						languageMetrics = append(languageMetrics, toolLang)
-					}
+			for _, f := range dt.TotalsByFeature {
+				if f.Feature == "code_completion" {
+					completionSuggestions += f.CodeGenerationActivityCount
+					completionAcceptances += f.CodeAcceptanceActivityCount
+					completionLinesSuggested += f.LocSuggestedToAddSum
+					completionLinesAccepted += f.LocAddedSum
 				}
 			}
 
+			// Aggregate chat metrics from feature breakdowns
 			ideChats := 0
-			ideChatCopyEvents := 0
-			ideChatInsertionEvents := 0
-			for _, editor := range day.IdeChat.Editors {
-				for _, model := range editor.Models {
-					ideChats += model.TotalChats
-					ideChatCopyEvents += model.TotalChatCopyEvents
-					ideChatInsertionEvents += model.TotalChatInsertionEvents
+			for _, f := range dt.TotalsByFeature {
+				if f.Feature == "chat_panel_ask_mode" || f.Feature == "chat_panel_agent_mode" ||
+					f.Feature == "chat_panel_edit_mode" || f.Feature == "chat_panel_custom_mode" ||
+					f.Feature == "chat_panel_unknown_mode" || f.Feature == "chat_inline" {
+					ideChats += f.UserInitiatedInteractionCount
 				}
 			}
 
-			dotcomChats := 0
-			for _, model := range day.DotcomChat.Models {
-				dotcomChats += model.TotalChats
-			}
+			var results []interface{}
 
-			metric := &models.GhCopilotOrgMetrics{
+			results = append(results, &models.GhCopilotOrgMetrics{
 				ConnectionId:             data.Options.ConnectionId,
 				ScopeId:                  data.Options.ScopeId,
-				Date:                     date,
-				TotalActiveUsers:         day.TotalActiveUsers,
-				TotalEngagedUsers:        day.TotalEngagedUsers,
+				Date:                     day,
+				TotalActiveUsers:         dt.DailyActiveUsers,
+				TotalEngagedUsers:        0, // not available in flat format
 				CompletionSuggestions:    completionSuggestions,
 				CompletionAcceptances:    completionAcceptances,
 				CompletionLinesSuggested: completionLinesSuggested,
 				CompletionLinesAccepted:  completionLinesAccepted,
 				IdeChats:                 ideChats,
-				IdeChatCopyEvents:        ideChatCopyEvents,
-				IdeChatInsertionEvents:   ideChatInsertionEvents,
-				IdeChatEngagedUsers:      day.IdeChat.TotalEngagedUsers,
-				DotcomChats:              dotcomChats,
-				DotcomChatEngagedUsers:   day.DotcomChat.TotalEngagedUsers,
 				SeatTotal:                int(seatTotal),
 				SeatActiveCount:          int(seatActive),
+			})
+
+			// Language metrics from totals_by_language_feature
+			for _, lf := range dt.TotalsByLanguageFeature {
+				if lf.Feature == "code_completion" {
+					results = append(results, &models.GhCopilotLanguageMetrics{
+						ConnectionId:   data.Options.ConnectionId,
+						ScopeId:        data.Options.ScopeId,
+						Date:           day,
+						Editor:         "all",
+						Language:       lf.Language,
+						Suggestions:    lf.CodeGenerationActivityCount,
+						Acceptances:    lf.CodeAcceptanceActivityCount,
+						LinesSuggested: lf.LocSuggestedToAddSum,
+						LinesAccepted:  lf.LocAddedSum,
+					})
+				}
 			}
-			results := make([]any, 0, 1+len(languageMetrics))
-			results = append(results, metric)
-			results = append(results, languageMetrics...)
+
 			return results, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
-	if err := metricsExtractor.Execute(); err != nil {
-		return err
-	}
-
-	return nil
+	return extractor.Execute()
 }

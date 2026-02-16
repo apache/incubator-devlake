@@ -58,17 +58,18 @@ func TestCopilotMetricsDataFlow(t *testing.T) {
 		},
 	}
 
-	dataflowTester.ImportCsvIntoRawTable("./metrics/raw_tables/_raw_copilot_metrics.csv", "_raw_copilot_metrics")
+	dataflowTester.ImportCsvIntoRawTable("./metrics/raw_tables/_raw_copilot_metrics.csv", "_raw_copilot_org_metrics")
 	dataflowTester.ImportCsvIntoRawTable("./metrics/raw_tables/_raw_copilot_seats.csv", "_raw_copilot_seats")
 
 	dataflowTester.FlushTabler(&models.GhCopilotOrgMetrics{})
 	dataflowTester.FlushTabler(&models.GhCopilotLanguageMetrics{})
 	dataflowTester.FlushTabler(&models.GhCopilotSeat{})
 
-	dataflowTester.Subtask(tasks.ExtractCopilotOrgMetricsMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractSeatsMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractOrgMetricsMeta, taskData)
 
 	dataflowTester.VerifyTableWithOptions(&models.GhCopilotOrgMetrics{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./metrics/snapshot_tables/_tool_copilot_org_metrics.csv",
+		CSVRelPath:  "./metrics/snapshot_tables/_tool_copilot_org_daily_metrics.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
@@ -80,9 +81,7 @@ func TestCopilotMetricsDataFlow(t *testing.T) {
 	})
 
 	dataflowTester.VerifyTableWithOptions(&models.GhCopilotLanguageMetrics{}, e2ehelper.TableOptions{
-		CSVRelPath: "./metrics/language_breakdown.csv",
-		IgnoreTypes: []interface{}{
-			common.RawDataOrigin{},
-		},
+		CSVRelPath:  "./metrics/language_breakdown.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }
