@@ -93,3 +93,16 @@ func PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return dsHelper.ScopeConfigApi.Delete(input)
 }
+
+// GetProjectsByScopeConfig returns projects related to a scope config
+// @Summary Get projects by scope config
+// @Description Get projects details related by scope config
+// @Tags plugins/gh-copilot
+// @Param scopeConfigId path int true "scope config ID"
+// @Success 200 {object} models.GhCopilotScopeConfig
+// @Failure 400 {object} shared.ApiBody "bad request"
+// @Failure 500 {object} shared.ApiBody "internal error"
+// @Router /plugins/gh-copilot/scope-config/{scopeConfigId}/projects [GET]
+func GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return dsHelper.ScopeConfigApi.GetProjectsByScopeConfig(input)
+}

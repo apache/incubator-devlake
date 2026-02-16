@@ -144,6 +144,9 @@ func (p GhCopilot) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"PATCH":  api.PatchScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
+		"scope-config/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
+		},
 	}
 }
 

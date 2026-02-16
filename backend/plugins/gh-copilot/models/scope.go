@@ -23,6 +23,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"gorm.io/gorm"
 )
 
 // GhCopilotScope represents an organization or enterprise-level collection scope.
@@ -47,7 +48,7 @@ func (GhCopilotScope) TableName() string {
 	return "_tool_copilot_scopes"
 }
 
-func (s *GhCopilotScope) BeforeSave() error {
+func (s *GhCopilotScope) BeforeSave(tx *gorm.DB) error {
 	// Populate Name and FullName from Organization and Id
 	if s.Name == "" {
 		s.Name = s.ScopeName()
