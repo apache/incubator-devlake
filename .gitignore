@@ -174,3 +174,13 @@ specs/
 .github/agents/speckit.*.agent.md
 .github/agents/copilot-instructions.md
 .github/prompts/speckit.*.prompt.md
+
+# Playwright / browser automation
+.playwright-cli/
+.playwright/
+.playwright-mcp/
+playwright-console.log
+
+# Copilot/Claude local config
+.copilot/
+.claude/

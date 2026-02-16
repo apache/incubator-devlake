@@ -22,8 +22,15 @@ import "github.com/apache/incubator-devlake/core/plugin"
 // GetSubTaskMetas returns the ordered list of Copilot subtasks.
 func GetSubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		CollectCopilotOrgMetricsMeta,
+		// Collectors
+		CollectOrgMetricsMeta,
 		CollectCopilotSeatAssignmentsMeta,
-		ExtractCopilotOrgMetricsMeta,
+		CollectEnterpriseMetricsMeta,
+		CollectUserMetricsMeta,
+		// Extractors
+		ExtractSeatsMeta,
+		ExtractOrgMetricsMeta,
+		ExtractEnterpriseMetricsMeta,
+		ExtractUserMetricsMeta,
 	}
 }

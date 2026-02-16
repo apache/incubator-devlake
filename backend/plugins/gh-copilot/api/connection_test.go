@@ -47,7 +47,20 @@ func TestValidateConnection_MissingOrganization(t *testing.T) {
 
 	err := validateConnection(connection)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "organization is required")
+	assert.Contains(t, err.Error(), "either enterprise or organization is required")
+}
+
+func TestValidateConnection_EnterpriseOnly(t *testing.T) {
+	connection := &models.GhCopilotConnection{
+		GhCopilotConn: models.GhCopilotConn{
+			Enterprise: "my-enterprise",
+			Token:      "ghp_example",
+		},
+	}
+	connection.Normalize()
+
+	err := validateConnection(connection)
+	assert.NoError(t, err)
 }
 
 func TestValidateConnection_MissingToken(t *testing.T) {

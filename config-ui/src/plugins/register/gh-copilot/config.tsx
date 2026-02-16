@@ -32,6 +32,7 @@ export const GhCopilotConfig: IPluginConfig = {
     initialValues: {
       endpoint: 'https://api.github.com',
       organization: '',
+      enterprise: '',
       token: '',
       rateLimitPerHour: 5000,
     },
@@ -48,9 +49,16 @@ export const GhCopilotConfig: IPluginConfig = {
         />
       ),
       {
+        key: 'enterprise',
+        label: 'GitHub Enterprise Slug',
+        subLabel:
+          'Optional. The enterprise slug for enterprise-level Copilot metrics (e.g., "my-enterprise"). When set, enterprise-level and user-level metrics will be collected.',
+      },
+      {
         key: 'token',
         label: 'GitHub Personal Access Token',
-        subLabel: 'Use a token with access to the organization Copilot metrics (for example: read:org).',
+        subLabel:
+          'Use a token with access to the organization/enterprise Copilot metrics (for example: manage_billing:copilot, read:enterprise).',
       },
       'proxy',
       {
@@ -62,7 +70,7 @@ export const GhCopilotConfig: IPluginConfig = {
     ],
   },
   dataScope: {
-    title: 'Organizations',
+    title: 'Scopes',
   },
   scopeConfig: {
     entities: ['COPILOT'],

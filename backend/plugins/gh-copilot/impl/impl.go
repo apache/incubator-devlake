@@ -51,7 +51,7 @@ func (p GhCopilot) Init(basicRes context.BasicRes) errors.Error {
 }
 
 func (p GhCopilot) Description() string {
-	return "Collect GitHub Copilot adoption metrics (organization level)"
+	return "Collect GitHub Copilot usage metrics (enterprise and organization level)"
 }
 
 func (p GhCopilot) Name() string {

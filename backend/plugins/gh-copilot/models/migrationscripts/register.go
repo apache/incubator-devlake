@@ -27,5 +27,7 @@ func All() []plugin.MigrationScript {
 		new(addRawDataOriginToCopilotLanguageMetrics),
 		new(addNameFieldsToScopes),
 		new(addScopeConfig20260121),
+		new(migrateToUsageMetricsV2),
+		new(addPRFieldsToEnterpriseMetrics),
 	}
 }

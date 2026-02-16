@@ -18,22 +18,29 @@ limitations under the License.
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// GhCopilotScope represents an organization-level collection scope.
+// GhCopilotScope represents an organization or enterprise-level collection scope.
 type GhCopilotScope struct {
 	common.Scope       `mapstructure:",squash"`
 	Id                 string     `json:"id" mapstructure:"id" gorm:"primaryKey;type:varchar(255)"`
-	Organization       string     `json:"organization" mapstructure:"organization" gorm:"type:varchar(255);not null"`
+	Organization       string     `json:"organization" mapstructure:"organization" gorm:"type:varchar(255)"`
+	Enterprise         string     `json:"enterprise,omitempty" mapstructure:"enterprise" gorm:"type:varchar(100)"`
 	Name               string     `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
 	FullName           string     `json:"fullName" mapstructure:"fullName" gorm:"type:varchar(255)"`
 	ImplementationDate *time.Time `json:"implementationDate" mapstructure:"implementationDate"`
 	BaselinePeriodDays int        `json:"baselinePeriodDays" mapstructure:"baselinePeriodDays"`
 	SeatsLastSyncedAt  *time.Time `json:"seatsLastSyncedAt" mapstructure:"seatsLastSyncedAt"`
+}
+
+// IsEnterprise returns true if this scope targets an enterprise.
+func (s *GhCopilotScope) IsEnterprise() bool {
+	return s != nil && strings.TrimSpace(s.Enterprise) != ""
 }
 
 func (GhCopilotScope) TableName() string {

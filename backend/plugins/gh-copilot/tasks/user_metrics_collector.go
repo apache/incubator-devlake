@@ -30,51 +30,23 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const rawCopilotMetricsTable = "copilot_metrics"
+const rawUserMetricsTable = "copilot_user_metrics"
 
-type copilotRawParams struct {
-	ConnectionId uint64
-	ScopeId      string
-	Organization string
-	Endpoint     string
-}
-
-func (p copilotRawParams) GetParams() any {
-	return p
-}
-
-const copilotMetricsMaxDays = 100
-
-func utcDate(t time.Time) time.Time {
-	y, m, d := t.UTC().Date()
-	return time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
-}
-
-func computeMetricsDateRange(now time.Time, since *time.Time) (start time.Time, until time.Time) {
-	until = utcDate(now)
-	// The GitHub Copilot metrics endpoint only supports a limited window. Treat the date range as inclusive
-	// and clamp to at most `copilotMetricsMaxDays` days.
-	min := until.AddDate(0, 0, -(copilotMetricsMaxDays - 1))
-	start = min
-	if since != nil {
-		start = utcDate(*since)
-		if start.Before(min) {
-			start = min
-		}
-		if start.After(until) {
-			start = until
-		}
-	}
-	return start, until
-}
-
-func CollectCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
+// CollectUserMetrics collects enterprise user-level daily Copilot usage reports.
+// These reports are in JSONL format (one JSON object per line per user).
+// Only available for enterprise-scoped connections.
+func CollectUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*GhCopilotTaskData)
 	if !ok {
 		return errors.Default.New("task data is not GhCopilotTaskData")
 	}
 	connection := data.Connection
 	connection.Normalize()
+
+	if !connection.HasEnterprise() {
+		taskCtx.GetLogger().Info("No enterprise configured, skipping user metrics collection")
+		return nil
+	}
 
 	apiClient, err := CreateApiClient(taskCtx.TaskContext(), connection)
 	if err != nil {
@@ -83,7 +55,7 @@ func CollectCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 
 	rawArgs := helper.RawDataSubTaskArgs{
 		Ctx:   taskCtx,
-		Table: rawCopilotMetricsTable,
+		Table: rawUserMetricsTable,
 		Options: copilotRawParams{
 			ConnectionId: data.Options.ConnectionId,
 			ScopeId:      data.Options.ScopeId,
@@ -97,26 +69,58 @@ func CollectCopilotOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	// GitHub returns up to 100 days of daily metrics. Request the smallest possible range by default.
 	now := time.Now().UTC()
-	start, until := computeMetricsDateRange(now, collector.GetSince())
+	start, until := computeReportDateRange(now, collector.GetSince())
+	logger := taskCtx.GetLogger()
+
+	dayIter := newDayIterator(start, until)
 
 	err = collector.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   apiClient,
-		UrlTemplate: fmt.Sprintf("orgs/%s/copilot/metrics", connection.Organization),
+		ApiClient: apiClient,
+		Input:     dayIter,
+		UrlTemplate: fmt.Sprintf("enterprises/%s/copilot/metrics/reports/users-1-day",
+			connection.Enterprise),
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
+			input := reqData.Input.(*dayInput)
 			q := url.Values{}
-			q.Set("since", start.Format("2006-01-02"))
-			q.Set("until", until.Format("2006-01-02"))
+			q.Set("day", input.Day)
 			return q, nil
 		},
+		Incremental: true,
+		Concurrency: 1,
+		AfterResponse: ignore404,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			if res.StatusCode >= 400 {
-				body, _ := io.ReadAll(res.Body)
-				res.Body.Close()
-				return nil, buildGitHubApiError(res.StatusCode, connection.Organization, body, res.Header.Get("Retry-After"))
+			body, readErr := io.ReadAll(res.Body)
+			res.Body.Close()
+			if readErr != nil {
+				return nil, errors.Default.Wrap(readErr, "failed to read report metadata")
 			}
-			return helper.GetRawMessageArrayFromResponse(res)
+
+			var meta reportMetadataResponse
+			if jsonErr := json.Unmarshal(body, &meta); jsonErr != nil {
+				return nil, errors.Default.Wrap(jsonErr, "failed to parse report metadata")
+			}
+
+			// User reports are JSONL — each download link returns one file where
+			// each line is a separate JSON object for one user's daily metrics.
+			// We download the file and split into individual JSON messages.
+			var results []json.RawMessage
+			for _, link := range meta.DownloadLinks {
+				reportBody, dlErr := downloadReport(link, logger)
+				if dlErr != nil {
+					return nil, dlErr
+				}
+				if reportBody == nil {
+					continue // blob not found, skip
+				}
+				// Parse JSONL: split by newlines and return each non-empty line
+				userRecords, parseErr := parseJSONL(reportBody)
+				if parseErr != nil {
+					return nil, parseErr
+				}
+				results = append(results, userRecords...)
+			}
+			return results, nil
 		},
 	})
 	if err != nil {

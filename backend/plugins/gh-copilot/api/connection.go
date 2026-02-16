@@ -93,8 +93,8 @@ func validateConnection(connection *models.GhCopilotConnection) errors.Error {
 	if connection == nil {
 		return errors.BadInput.New("connection is required")
 	}
-	if connection.Organization == "" {
-		return errors.BadInput.New("organization is required")
+	if connection.Organization == "" && !connection.HasEnterprise() {
+		return errors.BadInput.New("either enterprise or organization is required")
 	}
 	if connection.Token == "" {
 		return errors.BadInput.New("token is required")

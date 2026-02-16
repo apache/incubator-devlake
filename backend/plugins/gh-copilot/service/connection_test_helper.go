@@ -37,6 +37,7 @@ import (
 type TestConnectionResult struct {
 	Success      bool   `json:"success"`
 	Message      string `json:"message"`
+	Enterprise   string `json:"enterprise,omitempty"`
 	Organization string `json:"organization,omitempty"`
 	PlanType     string `json:"planType,omitempty"`
 	TotalSeats   int    `json:"totalSeats,omitempty"`
@@ -59,6 +60,13 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 
 	connection.Normalize()
 
+	hasEnterprise := connection.HasEnterprise()
+	hasOrg := strings.TrimSpace(connection.Organization) != ""
+
+	if !hasEnterprise && !hasOrg {
+		return nil, errors.BadInput.New("either enterprise or organization must be specified")
+	}
+
 	apiClient, err := helper.NewApiClientFromConnection(ctx, br, connection)
 	if err != nil {
 		return nil, err
@@ -68,7 +76,54 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 		"X-GitHub-Api-Version": "2022-11-28",
 	})
 
-	path := fmt.Sprintf("orgs/%s/copilot/billing", connection.Organization)
+	result := &TestConnectionResult{
+		Success: true,
+		Message: "Successfully connected to GitHub Copilot",
+	}
+
+	// Test enterprise endpoint first when configured.
+	// Note: /enterprises/{ent}/copilot/billing does not exist — use /billing/seats instead.
+	if hasEnterprise {
+		entSlug := strings.TrimSpace(connection.Enterprise)
+		seatsPath := fmt.Sprintf("enterprises/%s/copilot/billing/seats", entSlug)
+		entSummary, entErr := fetchSeatsSummary(apiClient, seatsPath)
+		if entErr != nil {
+			return nil, entErr
+		}
+		result.Enterprise = entSlug
+		result.PlanType = "enterprise"
+		result.TotalSeats = entSummary.TotalSeats
+	}
+
+	// Test org endpoint when configured.
+	if hasOrg {
+		orgSummary, orgErr := fetchBillingSummary(apiClient, fmt.Sprintf("orgs/%s/copilot/billing", connection.Organization))
+		if orgErr != nil {
+			return nil, orgErr
+		}
+		organization := orgSummary.Organization
+		if organization == "" {
+			organization = connection.Organization
+		}
+		result.Organization = organization
+
+		// When enterprise is not set, use org-level data for the result.
+		if !hasEnterprise {
+			result.PlanType = orgSummary.PlanType
+			result.TotalSeats = orgSummary.TotalSeats
+			activeSeats := orgSummary.ActiveSeats
+			if activeSeats == 0 && orgSummary.ActiveThisCycle > 0 {
+				activeSeats = orgSummary.ActiveThisCycle
+			}
+			result.ActiveSeats = activeSeats
+		}
+	}
+
+	return result, nil
+}
+
+// fetchBillingSummary calls a billing endpoint and returns the parsed summary or error.
+func fetchBillingSummary(apiClient *helper.ApiClient, path string) (*copilotBillingSummary, errors.Error) {
 	res, err := apiClient.Get(path, nil, nil)
 	if err != nil {
 		return nil, err
@@ -80,35 +135,45 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 		if readErr != nil {
 			return nil, errors.Convert(readErr)
 		}
-		return nil, buildGitHubApiError(res.StatusCode, connection.Organization, body, res.Header.Get("Retry-After"))
+		return nil, buildGitHubApiError(res.StatusCode, path, body, res.Header.Get("Retry-After"))
 	}
 
-	summary := copilotBillingSummary{}
-	if err := helper.UnmarshalResponse(res, &summary); err != nil {
+	summary := &copilotBillingSummary{}
+	if err := helper.UnmarshalResponse(res, summary); err != nil {
+		return nil, err
+	}
+	return summary, nil
+}
+
+// enterpriseSeatsSummary represents the top-level response from /copilot/billing/seats.
+type enterpriseSeatsSummary struct {
+	TotalSeats int `json:"total_seats"`
+}
+
+// fetchSeatsSummary calls the seats endpoint and returns the total seat count.
+func fetchSeatsSummary(apiClient *helper.ApiClient, path string) (*enterpriseSeatsSummary, errors.Error) {
+	res, err := apiClient.Get(path, nil, nil)
+	if err != nil {
 		return nil, err
 	}
 
-	activeSeats := summary.ActiveSeats
-	if activeSeats == 0 && summary.ActiveThisCycle > 0 {
-		activeSeats = summary.ActiveThisCycle
+	if res.StatusCode >= 400 {
+		body, readErr := io.ReadAll(res.Body)
+		res.Body.Close()
+		if readErr != nil {
+			return nil, errors.Convert(readErr)
+		}
+		return nil, buildGitHubApiError(res.StatusCode, path, body, res.Header.Get("Retry-After"))
 	}
 
-	organization := summary.Organization
-	if organization == "" {
-		organization = connection.Organization
+	summary := &enterpriseSeatsSummary{}
+	if err := helper.UnmarshalResponse(res, summary); err != nil {
+		return nil, err
 	}
-
-	return &TestConnectionResult{
-		Success:      true,
-		Message:      "Successfully connected to GitHub Copilot",
-		Organization: organization,
-		PlanType:     summary.PlanType,
-		TotalSeats:   summary.TotalSeats,
-		ActiveSeats:  activeSeats,
-	}, nil
+	return summary, nil
 }
 
-func buildGitHubApiError(status int, organization string, body []byte, retryAfter string) errors.Error {
+func buildGitHubApiError(status int, resource string, body []byte, retryAfter string) errors.Error {
 	type githubError struct {
 		Message string `json:"message"`
 	}
@@ -124,11 +189,11 @@ func buildGitHubApiError(status int, organization string, body []byte, retryAfte
 	var prefix string
 	switch status {
 	case http.StatusForbidden:
-		prefix = "GitHub returned 403 Forbidden. Ensure the PAT includes manage_billing:copilot and the organization has Copilot access."
+		prefix = "GitHub returned 403 Forbidden. Ensure the PAT includes manage_billing:copilot and the resource has Copilot access."
 	case http.StatusNotFound:
-		prefix = fmt.Sprintf("GitHub returned 404 Not Found for organization '%s'. Verify the organization slug and Copilot availability.", organization)
+		prefix = fmt.Sprintf("GitHub returned 404 Not Found for '%s'. Verify the organization/enterprise slug and Copilot availability.", resource)
 	case http.StatusUnprocessableEntity:
-		prefix = "GitHub returned 422 Unprocessable Entity. Enable Copilot metrics for the organization before testing."
+		prefix = "GitHub returned 422 Unprocessable Entity. Enable Copilot metrics before testing."
 	case http.StatusTooManyRequests:
 		prefix = "GitHub rate limited the request (429). Respect Retry-After guidance before retrying."
 	default:
