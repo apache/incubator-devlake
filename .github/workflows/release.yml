@@ -41,5 +41,5 @@ jobs:
 
       - name: Build and Push Image
         run: |
-          docker build -t yourdockerhub/devlake:${{ steps.vars.outputs.TAG }} .
-          docker push yourdockerhub/devlake:${{ steps.vars.outputs.TAG }}
+          docker build -t jawad4khan/devlake:${{ steps.vars.outputs.TAG }} .
+          docker push jawad4khan/devlake:${{ steps.vars.outputs.TAG }}
