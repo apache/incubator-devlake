@@ -18,7 +18,6 @@
 name: Deploy Production
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -34,11 +33,15 @@ jobs:
 
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_VERSION: ${{ steps.vars.outputs.VERSION }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: DEPLOY_VERSION
           script: |
             cd /opt/devlake
-            sed -i "s/^APP_VERSION=.*/APP_VERSION=${{ steps.vars.outputs.VERSION }}/" .env
+            sed -i "s/^APP_VERSION=.*/APP_VERSION=${DEPLOY_VERSION}/" .env
+            docker pull jawad4khan/devlake:${DEPLOY_VERSION}
             ./deploy.sh

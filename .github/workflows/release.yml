@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Extract tag
         id: vars
@@ -41,5 +41,5 @@ jobs:
 
       - name: Build and Push Image
         run: |
-          docker build -t jawad4khan/devlake:${{ steps.vars.outputs.TAG }} .
+          docker build -t jawad4khan/devlake:${{ steps.vars.outputs.TAG }} ./backend
           docker push jawad4khan/devlake:${{ steps.vars.outputs.TAG }}
