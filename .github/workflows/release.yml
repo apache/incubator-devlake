@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-name: Build Release Image
+name: Build Release Images
 
 on:
   push:
@@ -23,15 +23,32 @@ on:
       - 'v*'
 
 jobs:
-  build-image:
+  build-backend:
+    name: Build DevLake Backend
     runs-on: ubuntu-latest
-
     steps:
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          docker system prune -af
+          docker volume prune -f
+
       - uses: actions/checkout@v4
 
       - name: Extract tag
         id: vars
-        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -39,7 +56,56 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Image
+      - name: Build and Push devlake backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: jawad4khan/devlake:${{ steps.vars.outputs.TAG }}
+          platforms: linux/amd64
+          cache-from: |
+            apache/devlake:amd64-builder
+            apache/devlake:base
+          build-args: |
+            TAG=${{ steps.vars.outputs.TAG }}
+            SHA=${{ steps.vars.outputs.SHORT_SHA }}
+
+  build-config-ui:
+    name: Build DevLake Config UI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free Disk Space
         run: |
-          docker build -t jawad4khan/devlake:${{ steps.vars.outputs.TAG }} ./backend
-          docker push jawad4khan/devlake:${{ steps.vars.outputs.TAG }}
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          docker system prune -af
+          docker volume prune -f
+
+      - uses: actions/checkout@v4
+
+      - name: Extract tag
+        id: vars
+        run: |
+          echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push config-ui image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./config-ui
+          push: true
+          tags: jawad4khan/devlake-config-ui:${{ steps.vars.outputs.TAG }}
+          platforms: linux/amd64

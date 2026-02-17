@@ -15,26 +15,38 @@
 # limitations under the License.
 #
 
-name: Deploy Production
+name: Deploy to Production
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+  workflow_run:
+    workflows: ["Build Release Images"]
+    types:
+      - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Extract version
-        id: vars
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.0.3
         env:
-          DEPLOY_VERSION: ${{ steps.vars.outputs.VERSION }}
+          DEPLOY_VERSION: ${{ steps.version.outputs.VERSION }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -43,5 +55,7 @@ jobs:
           script: |
             cd /opt/devlake
             sed -i "s/^APP_VERSION=.*/APP_VERSION=${DEPLOY_VERSION}/" .env
-            docker pull jawad4khan/devlake:${DEPLOY_VERSION}
-            ./deploy.sh
+            sudo docker pull jawad4khan/devlake:${DEPLOY_VERSION}
+            sudo docker pull jawad4khan/devlake-config-ui:${DEPLOY_VERSION}
+            sudo ./deploy.sh
+

@@ -30,6 +30,7 @@ import (
 	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
 	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
+	developer_telemetry "github.com/apache/incubator-devlake/plugins/developer_telemetry/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
 	feishu "github.com/apache/incubator-devlake/plugins/feishu/impl"
 	gitee "github.com/apache/incubator-devlake/plugins/gitee/impl"
@@ -71,6 +72,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("argocd/models", argocd.ArgoCD{}.GetTablesInfo)
 	checker.FeedIn("customize/models", customize.Customize{}.GetTablesInfo)
 	checker.FeedIn("dbt", dbt.Dbt{}.GetTablesInfo)
+	checker.FeedIn("developer_telemetry/models", developer_telemetry.DeveloperTelemetry{}.GetTablesInfo)
 	checker.FeedIn("dora/models", dora.Dora{}.GetTablesInfo)
 	checker.FeedIn("feishu/models", feishu.Feishu{}.GetTablesInfo)
 	checker.FeedIn("gitee/models", gitee.Gitee{}.GetTablesInfo)
