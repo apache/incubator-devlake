@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -49,8 +48,8 @@ type copilotAssignee struct {
 
 // ExtractOrgMetrics parses org report data from the new report download API.
 // The org report uses the same flat format as enterprise reports (day, totals_by_*).
-// It extracts to GhCopilotOrgMetrics + GhCopilotLanguageMetrics tool-layer tables,
-// aggregating the flat breakdown data into the org-level summary format.
+// It writes to the same unified tables as ExtractEnterpriseMetrics so the
+// Grafana dashboard works identically for org-only and enterprise connections.
 func ExtractOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*GhCopilotTaskData)
 	if !ok {
@@ -71,27 +70,6 @@ func ExtractOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		Endpoint:     connection.Endpoint,
 	}
 
-	// Derive seat counts from extracted seat assignments
-	db := taskCtx.GetDal()
-	seatTotal, err := db.Count(dal.From(&models.GhCopilotSeat{}), dal.Where(
-		"connection_id = ? AND organization = ?",
-		data.Options.ConnectionId,
-		connection.Organization,
-	))
-	if err != nil {
-		seatTotal = 0
-	}
-	seatActive, err := db.Count(dal.From(&models.GhCopilotSeat{}), dal.Where(
-		"connection_id = ? AND organization = ? AND last_activity_at IS NOT NULL",
-		data.Options.ConnectionId,
-		connection.Organization,
-	))
-	if err != nil {
-		seatActive = 0
-	}
-
-	// Org reports use the same flat format as enterprise reports (enterpriseDayTotal struct).
-	// Each raw data row is one day's metrics with totals_by_* breakdowns.
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -109,62 +87,131 @@ func ExtractOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, errors.BadInput.Wrap(parseErr, "invalid day in org report")
 			}
 
-			// Aggregate code completions from feature breakdowns
-			completionSuggestions := 0
-			completionAcceptances := 0
-			completionLinesSuggested := 0
-			completionLinesAccepted := 0
-			for _, f := range dt.TotalsByFeature {
-				if f.Feature == "code_completion" {
-					completionSuggestions += f.CodeGenerationActivityCount
-					completionAcceptances += f.CodeAcceptanceActivityCount
-					completionLinesSuggested += f.LocSuggestedToAddSum
-					completionLinesAccepted += f.LocAddedSum
-				}
-			}
-
-			// Aggregate chat metrics from feature breakdowns
-			ideChats := 0
-			for _, f := range dt.TotalsByFeature {
-				if f.Feature == "chat_panel_ask_mode" || f.Feature == "chat_panel_agent_mode" ||
-					f.Feature == "chat_panel_edit_mode" || f.Feature == "chat_panel_custom_mode" ||
-					f.Feature == "chat_panel_unknown_mode" || f.Feature == "chat_inline" {
-					ideChats += f.UserInitiatedInteractionCount
-				}
-			}
-
 			var results []interface{}
 
-			results = append(results, &models.GhCopilotOrgMetrics{
-				ConnectionId:             data.Options.ConnectionId,
-				ScopeId:                  data.Options.ScopeId,
-				Date:                     day,
-				TotalActiveUsers:         dt.DailyActiveUsers,
-				TotalEngagedUsers:        0, // not available in flat format
-				CompletionSuggestions:    completionSuggestions,
-				CompletionAcceptances:    completionAcceptances,
-				CompletionLinesSuggested: completionLinesSuggested,
-				CompletionLinesAccepted:  completionLinesAccepted,
-				IdeChats:                 ideChats,
-				SeatTotal:                int(seatTotal),
-				SeatActiveCount:          int(seatActive),
-			})
+			// Main daily metrics — same model as enterprise extractor
+			dailyMetrics := &models.GhCopilotEnterpriseDailyMetrics{
+				ConnectionId:            data.Options.ConnectionId,
+				ScopeId:                 data.Options.ScopeId,
+				Day:                     day,
+				EnterpriseId:            "", // org-level, no enterprise
+				DailyActiveUsers:        dt.DailyActiveUsers,
+				WeeklyActiveUsers:       dt.WeeklyActiveUsers,
+				MonthlyActiveUsers:      dt.MonthlyActiveUsers,
+				MonthlyActiveChatUsers:  dt.MonthlyActiveChatUsers,
+				MonthlyActiveAgentUsers: dt.MonthlyActiveAgentUsers,
+				CopilotActivityMetrics: models.CopilotActivityMetrics{
+					UserInitiatedInteractionCount: dt.UserInitiatedInteractionCount,
+					CodeGenerationActivityCount:   dt.CodeGenerationActivityCount,
+					CodeAcceptanceActivityCount:   dt.CodeAcceptanceActivityCount,
+					LocSuggestedToAddSum:          dt.LocSuggestedToAddSum,
+					LocSuggestedToDeleteSum:       dt.LocSuggestedToDeleteSum,
+					LocAddedSum:                   dt.LocAddedSum,
+					LocDeletedSum:                 dt.LocDeletedSum,
+				},
+			}
+			if dt.PullRequests != nil {
+				dailyMetrics.PRTotalReviewed = dt.PullRequests.TotalReviewed
+				dailyMetrics.PRTotalCreated = dt.PullRequests.TotalCreated
+				dailyMetrics.PRTotalCreatedByCopilot = dt.PullRequests.TotalCreatedByCopilot
+				dailyMetrics.PRTotalReviewedByCopilot = dt.PullRequests.TotalReviewedByCopilot
+			}
+			results = append(results, dailyMetrics)
 
-			// Language metrics from totals_by_language_feature
+			// By IDE
+			for _, ide := range dt.TotalsByIde {
+				results = append(results, &models.GhCopilotMetricsByIde{
+					ConnectionId: data.Options.ConnectionId,
+					ScopeId:      data.Options.ScopeId,
+					Day:          day,
+					Ide:          ide.Ide,
+					CopilotActivityMetrics: models.CopilotActivityMetrics{
+						UserInitiatedInteractionCount: ide.UserInitiatedInteractionCount,
+						CodeGenerationActivityCount:   ide.CodeGenerationActivityCount,
+						CodeAcceptanceActivityCount:   ide.CodeAcceptanceActivityCount,
+						LocSuggestedToAddSum:          ide.LocSuggestedToAddSum,
+						LocSuggestedToDeleteSum:       ide.LocSuggestedToDeleteSum,
+						LocAddedSum:                   ide.LocAddedSum,
+						LocDeletedSum:                 ide.LocDeletedSum,
+					},
+				})
+			}
+
+			// By Feature
+			for _, f := range dt.TotalsByFeature {
+				results = append(results, &models.GhCopilotMetricsByFeature{
+					ConnectionId: data.Options.ConnectionId,
+					ScopeId:      data.Options.ScopeId,
+					Day:          day,
+					Feature:      f.Feature,
+					CopilotActivityMetrics: models.CopilotActivityMetrics{
+						UserInitiatedInteractionCount: f.UserInitiatedInteractionCount,
+						CodeGenerationActivityCount:   f.CodeGenerationActivityCount,
+						CodeAcceptanceActivityCount:   f.CodeAcceptanceActivityCount,
+						LocSuggestedToAddSum:          f.LocSuggestedToAddSum,
+						LocSuggestedToDeleteSum:       f.LocSuggestedToDeleteSum,
+						LocAddedSum:                   f.LocAddedSum,
+						LocDeletedSum:                 f.LocDeletedSum,
+					},
+				})
+			}
+
+			// By Language+Feature
 			for _, lf := range dt.TotalsByLanguageFeature {
-				if lf.Feature == "code_completion" {
-					results = append(results, &models.GhCopilotLanguageMetrics{
-						ConnectionId:   data.Options.ConnectionId,
-						ScopeId:        data.Options.ScopeId,
-						Date:           day,
-						Editor:         "all",
-						Language:       lf.Language,
-						Suggestions:    lf.CodeGenerationActivityCount,
-						Acceptances:    lf.CodeAcceptanceActivityCount,
-						LinesSuggested: lf.LocSuggestedToAddSum,
-						LinesAccepted:  lf.LocAddedSum,
-					})
-				}
+				results = append(results, &models.GhCopilotMetricsByLanguageFeature{
+					ConnectionId: data.Options.ConnectionId,
+					ScopeId:      data.Options.ScopeId,
+					Day:          day,
+					Language:     lf.Language,
+					Feature:      lf.Feature,
+					CopilotCodeMetrics: models.CopilotCodeMetrics{
+						CodeGenerationActivityCount: lf.CodeGenerationActivityCount,
+						CodeAcceptanceActivityCount: lf.CodeAcceptanceActivityCount,
+						LocSuggestedToAddSum:        lf.LocSuggestedToAddSum,
+						LocSuggestedToDeleteSum:     lf.LocSuggestedToDeleteSum,
+						LocAddedSum:                 lf.LocAddedSum,
+						LocDeletedSum:               lf.LocDeletedSum,
+					},
+				})
+			}
+
+			// By Language+Model
+			for _, lm := range dt.TotalsByLanguageModel {
+				results = append(results, &models.GhCopilotMetricsByLanguageModel{
+					ConnectionId: data.Options.ConnectionId,
+					ScopeId:      data.Options.ScopeId,
+					Day:          day,
+					Language:     lm.Language,
+					Model:        lm.Model,
+					CopilotCodeMetrics: models.CopilotCodeMetrics{
+						CodeGenerationActivityCount: lm.CodeGenerationActivityCount,
+						CodeAcceptanceActivityCount: lm.CodeAcceptanceActivityCount,
+						LocSuggestedToAddSum:        lm.LocSuggestedToAddSum,
+						LocSuggestedToDeleteSum:     lm.LocSuggestedToDeleteSum,
+						LocAddedSum:                 lm.LocAddedSum,
+						LocDeletedSum:               lm.LocDeletedSum,
+					},
+				})
+			}
+
+			// By Model+Feature
+			for _, mf := range dt.TotalsByModelFeature {
+				results = append(results, &models.GhCopilotMetricsByModelFeature{
+					ConnectionId: data.Options.ConnectionId,
+					ScopeId:      data.Options.ScopeId,
+					Day:          day,
+					Model:        mf.Model,
+					Feature:      mf.Feature,
+					CopilotActivityMetrics: models.CopilotActivityMetrics{
+						UserInitiatedInteractionCount: mf.UserInitiatedInteractionCount,
+						CodeGenerationActivityCount:   mf.CodeGenerationActivityCount,
+						CodeAcceptanceActivityCount:   mf.CodeAcceptanceActivityCount,
+						LocSuggestedToAddSum:          mf.LocSuggestedToAddSum,
+						LocSuggestedToDeleteSum:       mf.LocSuggestedToDeleteSum,
+						LocAddedSum:                   mf.LocAddedSum,
+						LocDeletedSum:                 mf.LocDeletedSum,
+					},
+				})
 			}
 
 			return results, nil

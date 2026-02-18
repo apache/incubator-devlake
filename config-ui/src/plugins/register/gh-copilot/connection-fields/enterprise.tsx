@@ -22,38 +22,29 @@ import { Input } from 'antd';
 import { Block } from '@/components';
 
 interface Props {
-  type: 'create' | 'update';
   initialValues: any;
   values: any;
   setValues: (value: any) => void;
-  setErrors: (value: any) => void;
 }
 
-export const Organization = ({ type, initialValues, values, setValues, setErrors }: Props) => {
+export const Enterprise = ({ initialValues, values, setValues }: Props) => {
   useEffect(() => {
-    setValues({ organization: initialValues.organization ?? '' });
-  }, [initialValues.organization]);
-
-  useEffect(() => {
-    setErrors({
-      organization: type === 'create' && !values.organization ? 'organization is required' : '',
-    });
-  }, [type, values.organization]);
+    setValues({ enterprise: initialValues.enterprise ?? '' });
+  }, [initialValues.enterprise]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({ organization: e.target.value });
+    setValues({ enterprise: e.target.value });
   };
 
   return (
     <Block
-      title="Organization"
-      description="Required. Enter the GitHub organization name. For enterprise-wide metrics and per-user data, also provide the Enterprise Slug below."
-      required
+      title="Enterprise Slug"
+      description='Optional. The GitHub enterprise slug (e.g. "my-enterprise"). When provided, enables enterprise-wide aggregate metrics and per-user daily metrics. Leave empty for organization-level metrics only.'
     >
       <Input
         style={{ width: 386 }}
-        placeholder="e.g. github"
-        value={values.organization ?? ''}
+        placeholder="e.g. my-enterprise"
+        value={values.enterprise ?? ''}
         onChange={handleChange}
       />
     </Block>

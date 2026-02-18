@@ -58,8 +58,8 @@ var ExtractOrgMetricsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractOrgMetrics,
 	EnabledByDefault: true,
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	Description:      "Extract Copilot org metrics into tool-layer tables",
-	Dependencies:     []*plugin.SubTaskMeta{&CollectOrgMetricsMeta, &ExtractSeatsMeta},
+	Description:      "Extract Copilot org metrics into unified daily metrics tables",
+	Dependencies:     []*plugin.SubTaskMeta{&CollectOrgMetricsMeta},
 }
 
 var ExtractSeatsMeta = plugin.SubTaskMeta{

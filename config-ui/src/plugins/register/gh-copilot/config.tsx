@@ -19,7 +19,7 @@
 import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
-import { Organization } from './connection-fields';
+import { Organization, Enterprise } from './connection-fields';
 
 export const GhCopilotConfig: IPluginConfig = {
   plugin: 'gh-copilot',
@@ -48,12 +48,9 @@ export const GhCopilotConfig: IPluginConfig = {
           setErrors={setErrors}
         />
       ),
-      {
-        key: 'enterprise',
-        label: 'GitHub Enterprise Slug',
-        subLabel:
-          'Optional. The enterprise slug for enterprise-level Copilot metrics (e.g., "my-enterprise"). When set, enterprise-level and user-level metrics will be collected.',
-      },
+      ({ initialValues, values, setValues }: any) => (
+        <Enterprise initialValues={initialValues} values={values} setValues={setValues} />
+      ),
       {
         key: 'token',
         label: 'GitHub Personal Access Token',
