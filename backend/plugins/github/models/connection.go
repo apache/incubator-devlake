@@ -259,15 +259,18 @@ func (connection *GithubConnection) BeforeSave(tx *gorm.DB) error {
 	if connection == nil {
 		return nil
 	}
-	if connection.TokenExpiresAt.IsZero() {
+	if connection.TokenExpiresAt == nil || connection.TokenExpiresAt.IsZero() {
 		if strings.TrimSpace(connection.RefreshToken) != "" {
-			connection.TokenExpiresAt = time.Now().UTC().Add(-1 * time.Minute)
+			t := time.Now().UTC().Add(-1 * time.Minute)
+			connection.TokenExpiresAt = &t
 		} else {
-			connection.TokenExpiresAt = time.Now().UTC().AddDate(100, 0, 0)
+			t := time.Now().UTC().AddDate(100, 0, 0)
+			connection.TokenExpiresAt = &t
 		}
 	}
-	if connection.RefreshTokenExpiresAt.IsZero() {
-		connection.RefreshTokenExpiresAt = time.Now().UTC().AddDate(100, 0, 0)
+	if connection.RefreshTokenExpiresAt == nil || connection.RefreshTokenExpiresAt.IsZero() {
+		t := time.Now().UTC().AddDate(100, 0, 0)
+		connection.RefreshTokenExpiresAt = &t
 	}
 	return nil
 }
