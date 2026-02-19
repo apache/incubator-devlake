@@ -16,10 +16,12 @@
  *
  */
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Input } from 'antd';
 
 import { Block } from '@/components';
+
+import * as S from './styled';
 
 interface Props {
   type: 'create' | 'update';
@@ -34,11 +36,16 @@ export const Organization = ({ type, initialValues, values, setValues, setErrors
     setValues({ organization: initialValues.organization ?? '' });
   }, [initialValues.organization]);
 
+  const error = useMemo(() => {
+    if (type === 'update') return '';
+    const hasOrg = !!values.organization?.trim();
+    const hasEnt = !!values.enterprise?.trim();
+    return hasOrg || hasEnt ? '' : 'At least one of Organization or Enterprise Slug is required';
+  }, [type, values.organization, values.enterprise]);
+
   useEffect(() => {
-    setErrors({
-      organization: type === 'create' && !values.organization ? 'organization is required' : '',
-    });
-  }, [type, values.organization]);
+    setErrors({ scopeIdentity: error });
+  }, [error]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ organization: e.target.value });
@@ -47,15 +54,16 @@ export const Organization = ({ type, initialValues, values, setValues, setErrors
   return (
     <Block
       title="Organization"
-      description="Required. Enter the GitHub organization name. For enterprise-wide metrics and per-user data, also provide the Enterprise Slug below."
-      required
+      description="Enter the GitHub organization name for org-level metrics and seat data. At least one of Organization or Enterprise Slug is required."
     >
       <Input
         style={{ width: 386 }}
         placeholder="e.g. github"
+        status={error ? 'error' : ''}
         value={values.organization ?? ''}
         onChange={handleChange}
       />
+      {error && <S.ErrorText>{error}</S.ErrorText>}
     </Block>
   );
 };

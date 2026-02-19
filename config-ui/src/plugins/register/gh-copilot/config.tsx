@@ -48,8 +48,14 @@ export const GhCopilotConfig: IPluginConfig = {
           setErrors={setErrors}
         />
       ),
-      ({ initialValues, values, setValues }: any) => (
-        <Enterprise initialValues={initialValues} values={values} setValues={setValues} />
+      ({ type, initialValues, values, setValues, setErrors }: any) => (
+        <Enterprise
+          type={type}
+          initialValues={initialValues}
+          values={values}
+          setValues={setValues}
+          setErrors={setErrors}
+        />
       ),
       {
         key: 'token',

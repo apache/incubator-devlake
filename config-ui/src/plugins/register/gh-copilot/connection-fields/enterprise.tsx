@@ -16,21 +16,36 @@
  *
  */
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Input } from 'antd';
 
 import { Block } from '@/components';
 
+import * as S from './styled';
+
 interface Props {
+  type: 'create' | 'update';
   initialValues: any;
   values: any;
   setValues: (value: any) => void;
+  setErrors: (value: any) => void;
 }
 
-export const Enterprise = ({ initialValues, values, setValues }: Props) => {
+export const Enterprise = ({ type, initialValues, values, setValues, setErrors }: Props) => {
   useEffect(() => {
     setValues({ enterprise: initialValues.enterprise ?? '' });
   }, [initialValues.enterprise]);
+
+  const error = useMemo(() => {
+    if (type === 'update') return '';
+    const hasOrg = !!values.organization?.trim();
+    const hasEnt = !!values.enterprise?.trim();
+    return hasOrg || hasEnt ? '' : 'At least one of Organization or Enterprise Slug is required';
+  }, [type, values.organization, values.enterprise]);
+
+  useEffect(() => {
+    setErrors({ scopeIdentity: error });
+  }, [error]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ enterprise: e.target.value });
@@ -39,14 +54,16 @@ export const Enterprise = ({ initialValues, values, setValues }: Props) => {
   return (
     <Block
       title="Enterprise Slug"
-      description='Optional. The GitHub enterprise slug (e.g. "my-enterprise"). When provided, enables enterprise-wide aggregate metrics and per-user daily metrics. Leave empty for organization-level metrics only.'
+      description="Enter the GitHub enterprise slug for enterprise-wide aggregate metrics and per-user data. At least one of Organization or Enterprise Slug is required. For the most complete data, provide both."
     >
       <Input
         style={{ width: 386 }}
         placeholder="e.g. my-enterprise"
+        status={error ? 'error' : ''}
         value={values.enterprise ?? ''}
         onChange={handleChange}
       />
+      {error && <S.ErrorText>{error}</S.ErrorText>}
     </Block>
   );
 };
