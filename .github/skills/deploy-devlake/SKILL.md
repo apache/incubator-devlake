@@ -18,7 +18,7 @@ Deploy Apache DevLake with two paths: **Official** (local or Azure) or **Custom*
     b) Deploy to Azure - ACI containers with managed MySQL
 
 2️⃣  Custom DevLake (build from source → Azure)
-    a) Clone a remote fork (e.g., ewega/incubator-devlake)
+    a) Clone a remote fork (e.g., DevExpGBB/incubator-devlake)
     b) Use a local repository path
     Build dev images → Deploy to Azure ACI/AKS
 
@@ -81,7 +81,7 @@ This builds images, creates all Azure resources, and deploys 3 containers. Takes
 .\.github\skills\azure-devlake-deployment\bicep\deploy.ps1 `
     -ResourceGroupName "devlake-rg" `
     -Location "eastus" `
-    -RepoUrl "https://github.com/ewega/incubator-devlake"
+    -RepoUrl "https://github.com/DevExpGBB/incubator-devlake"
 ```
 
 ### Option C: Step-by-Step CLI

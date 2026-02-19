@@ -33,7 +33,7 @@ This skill contains deployment methods, reference files, scripts, and templates.
 
 2️⃣  Custom DevLake (build from source)
     Step 1: Choose source
-      a) Clone a remote fork (e.g., ewega/incubator-devlake)
+      a) Clone a remote fork (e.g., DevExpGBB/incubator-devlake)
       b) Use a local repository path
     Step 2: Choose target
       1) Local Docker - build & run locally

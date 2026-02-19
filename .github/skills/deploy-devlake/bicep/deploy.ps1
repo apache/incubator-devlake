@@ -20,7 +20,7 @@
 
 .PARAMETER RepoUrl
     Clone a remote repository instead of using the local repo.
-    Useful for deploying from a fork (e.g., https://github.com/ewega/incubator-devlake)
+    Useful for deploying from a fork (e.g., https://github.com/DevExpGBB/incubator-devlake)
 
 .PARAMETER UseOfficialImages
     Use official Apache DevLake images from Docker Hub instead of building.
@@ -33,7 +33,7 @@
     .\deploy.ps1 -ResourceGroupName "devlake-rg" -Location "eastus" -SkipImageBuild
 
 .EXAMPLE
-    .\deploy.ps1 -ResourceGroupName "devlake-rg" -Location "eastus" -RepoUrl "https://github.com/ewega/incubator-devlake"
+    .\deploy.ps1 -ResourceGroupName "devlake-rg" -Location "eastus" -RepoUrl "https://github.com/DevExpGBB/incubator-devlake"
 
 .EXAMPLE
     .\deploy.ps1 -ResourceGroupName "devlake-rg" -Location "eastus" -UseOfficialImages
