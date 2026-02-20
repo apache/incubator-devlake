@@ -1,0 +1,3 @@
+connection_id,scope_id,date,total_active_users,total_engaged_users,completion_suggestions,completion_acceptances,completion_lines_suggested,completion_lines_accepted,ide_chats,ide_chat_copy_events,ide_chat_insertion_events,ide_chat_engaged_users,dotcom_chats,dotcom_chat_engaged_users,seat_active_count,seat_total
+1,octodemo,2025-09-01T00:00:00.000+00:00,10,8,150,30,420,90,8,3,1,3,5,2,1,2
+1,octodemo,2025-09-02T00:00:00.000+00:00,12,9,200,40,500,200,10,4,2,4,2,1,1,2
