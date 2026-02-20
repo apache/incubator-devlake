@@ -32,8 +32,8 @@ type CircleciPipeline struct {
 	Trigger           any    `gorm:"type:json"`
 	Vcs               any    `gorm:"type:json"`
 	State             string `gorm:"type:varchar(100)"`
-	UpdatedDate       *time.Time
-	CreatedDate       *time.Time
+	UpdatedAt         *time.Time
+	CreatedAt         *time.Time
 	archived.NoPKModel
 }
 

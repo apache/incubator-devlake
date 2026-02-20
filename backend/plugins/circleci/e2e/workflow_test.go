@@ -52,9 +52,8 @@ func TestCircleciWorkflow(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(
 		models.CircleciWorkflow{},
 		e2ehelper.TableOptions{
-			CSVRelPath:   "./snapshot_tables/_tool_circleci_workflows.csv",
-			IgnoreTypes:  []interface{}{common.NoPKModel{}},
-			IgnoreFields: []string{"started_at", "stopped_at"},
+			CSVRelPath:  "./snapshot_tables/_tool_circleci_workflows.csv",
+			IgnoreTypes: []interface{}{common.NoPKModel{}},
 		},
 	)
 
@@ -72,7 +71,7 @@ func TestCircleciWorkflow(t *testing.T) {
 		devops.CICDPipeline{},
 		e2ehelper.TableOptions{
 			CSVRelPath:   "./snapshot_tables/cicd_pipelines.csv",
-			IgnoreFields: []string{"finished_date", "created_date", "is_child"},
+			IgnoreFields: []string{"finished_date", "is_child"},
 			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
 		},
 	)
