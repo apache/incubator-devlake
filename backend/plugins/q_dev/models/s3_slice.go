@@ -33,6 +33,7 @@ type QDevS3Slice struct {
 	Id           string `json:"id" mapstructure:"id" gorm:"primaryKey;type:varchar(512)"`
 	Prefix       string `json:"prefix" mapstructure:"prefix" gorm:"type:varchar(512);not null"`
 	BasePath     string `json:"basePath" mapstructure:"basePath" gorm:"type:varchar(512)"`
+	AccountId    string `json:"accountId,omitempty" mapstructure:"accountId" gorm:"type:varchar(255)"`
 	Year         int    `json:"year" mapstructure:"year" gorm:"not null"`
 	Month        *int   `json:"month,omitempty" mapstructure:"month"`
 
@@ -61,6 +62,7 @@ func (s *QDevS3Slice) normalize(strict bool) error {
 	}
 
 	s.BasePath = cleanPath(s.BasePath)
+	s.AccountId = strings.TrimSpace(s.AccountId)
 	s.Prefix = cleanPath(selectNonEmpty(s.Prefix, s.Id))
 
 	if s.Year <= 0 {
@@ -81,23 +83,37 @@ func (s *QDevS3Slice) normalize(strict bool) error {
 		}
 	}
 
-	if s.Prefix == "" {
-		s.Prefix = buildPrefix(s.BasePath, s.Year, s.Month)
-	}
+	if s.AccountId != "" {
+		// New-style scope: construct a logical identifier from component parts
+		s.Prefix = buildPrefixWithAccount(s.BasePath, s.AccountId, s.Year, s.Month)
+	} else {
+		// Legacy scope: derive prefix from basePath + year + month
+		if s.Prefix == "" {
+			s.Prefix = buildPrefix(s.BasePath, s.Year, s.Month)
+		}
 
-	prefix := buildPrefix(s.BasePath, s.Year, s.Month)
-	if prefix != "" {
-		s.Prefix = prefix
+		prefix := buildPrefix(s.BasePath, s.Year, s.Month)
+		if prefix != "" {
+			s.Prefix = prefix
+		}
 	}
 
 	if s.Id == "" {
 		s.Id = s.Prefix
 	}
 
-	if s.Month != nil {
-		s.Name = fmt.Sprintf("%04d-%02d", s.Year, *s.Month)
-	} else if s.Year > 0 {
-		s.Name = fmt.Sprintf("%04d", s.Year)
+	if s.AccountId != "" {
+		if s.Month != nil {
+			s.Name = fmt.Sprintf("%s %04d-%02d", s.AccountId, s.Year, *s.Month)
+		} else if s.Year > 0 {
+			s.Name = fmt.Sprintf("%s %04d", s.AccountId, s.Year)
+		}
+	} else {
+		if s.Month != nil {
+			s.Name = fmt.Sprintf("%04d-%02d", s.Year, *s.Month)
+		} else if s.Year > 0 {
+			s.Name = fmt.Sprintf("%04d", s.Year)
+		}
 	}
 
 	if s.FullName == "" {
@@ -150,6 +166,14 @@ func (s QDevS3Slice) ScopeName() string {
 	if s.Name != "" {
 		return s.Name
 	}
+	if s.AccountId != "" {
+		if s.Month != nil {
+			return fmt.Sprintf("%s %04d-%02d", s.AccountId, s.Year, *s.Month)
+		}
+		if s.Year > 0 {
+			return fmt.Sprintf("%s %04d", s.AccountId, s.Year)
+		}
+	}
 	if s.Month != nil {
 		return fmt.Sprintf("%04d-%02d", s.Year, *s.Month)
 	}
@@ -185,6 +209,20 @@ type QDevS3SliceParams struct {
 }
 
 var _ plugin.ToolLayerScope = (*QDevS3Slice)(nil)
+
+func buildPrefixWithAccount(basePath string, accountId string, year int, month *int) string {
+	parts := splitPath(basePath)
+	if accountId != "" {
+		parts = append(parts, accountId)
+	}
+	if year > 0 {
+		parts = append(parts, fmt.Sprintf("%04d", year))
+	}
+	if month != nil {
+		parts = append(parts, fmt.Sprintf("%02d", *month))
+	}
+	return strings.Join(parts, "/")
+}
 
 func buildPrefix(basePath string, year int, month *int) string {
 	parts := splitPath(basePath)
