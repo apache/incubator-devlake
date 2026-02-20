@@ -54,7 +54,7 @@ func TestGhCopilotScopeConfig_BeforeSave_BaselinePeriodDays(t *testing.T) {
 			sc := &GhCopilotScopeConfig{
 				BaselinePeriodDays: tt.input,
 			}
-			err := sc.BeforeSave()
+			err := sc.BeforeSave(nil)
 			if err != nil {
 				t.Errorf("BeforeSave() error = %v, want nil", err)
 			}
@@ -72,7 +72,7 @@ func TestGhCopilotScopeConfig_BeforeSave_PreservesOtherFields(t *testing.T) {
 		BaselinePeriodDays: 60,
 	}
 
-	err := sc.BeforeSave()
+	err := sc.BeforeSave(nil)
 	if err != nil {
 		t.Errorf("BeforeSave() error = %v, want nil", err)
 	}

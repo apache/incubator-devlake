@@ -27,6 +27,18 @@ func TestGetTablesInfo(t *testing.T) {
 		(&GhCopilotScopeConfig{}).TableName():     false,
 		(&GhCopilotOrgMetrics{}).TableName():      false,
 		(&GhCopilotLanguageMetrics{}).TableName(): false,
+		(&GhCopilotEnterpriseDailyMetrics{}).TableName():      false,
+		(&GhCopilotMetricsByIde{}).TableName():               false,
+		(&GhCopilotMetricsByFeature{}).TableName():           false,
+		(&GhCopilotMetricsByLanguageFeature{}).TableName():   false,
+		(&GhCopilotMetricsByLanguageModel{}).TableName():     false,
+		(&GhCopilotMetricsByModelFeature{}).TableName():      false,
+		(&GhCopilotUserDailyMetrics{}).TableName():           false,
+		(&GhCopilotUserMetricsByIde{}).TableName():           false,
+		(&GhCopilotUserMetricsByFeature{}).TableName():       false,
+		(&GhCopilotUserMetricsByLanguageFeature{}).TableName(): false,
+		(&GhCopilotUserMetricsByLanguageModel{}).TableName(): false,
+		(&GhCopilotUserMetricsByModelFeature{}).TableName():  false,
 		(&GhCopilotSeat{}).TableName():            false,
 	}
 

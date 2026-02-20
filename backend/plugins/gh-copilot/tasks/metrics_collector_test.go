@@ -37,33 +37,33 @@ func TestParseRetryAfterHttpDate(t *testing.T) {
 	require.True(t, wait >= 4*time.Second && wait <= 6*time.Second)
 }
 
-func TestComputeMetricsDateRangeDefaultLookback(t *testing.T) {
+func TestComputeReportDateRangeDefaultLookback(t *testing.T) {
 	now := time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC)
-	start, until := computeMetricsDateRange(now, nil)
-	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), until)
-	require.Equal(t, time.Date(2024, 10, 3, 0, 0, 0, 0, time.UTC), start)
+	start, until := computeReportDateRange(now, nil)
+	require.Equal(t, time.Date(2025, 1, 9, 0, 0, 0, 0, time.UTC), until)
+	require.Equal(t, time.Date(2024, 1, 11, 0, 0, 0, 0, time.UTC), start)
 }
 
-func TestComputeMetricsDateRangeUsesSince(t *testing.T) {
+func TestComputeReportDateRangeUsesSince(t *testing.T) {
 	now := time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC)
 	since := time.Date(2025, 1, 3, 12, 0, 0, 0, time.UTC)
-	start, until := computeMetricsDateRange(now, &since)
-	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), until)
+	start, until := computeReportDateRange(now, &since)
+	require.Equal(t, time.Date(2025, 1, 9, 0, 0, 0, 0, time.UTC), until)
 	require.Equal(t, time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC), start)
 }
 
-func TestComputeMetricsDateRangeClampsToLookback(t *testing.T) {
+func TestComputeReportDateRangeClampsToLookback(t *testing.T) {
 	now := time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC)
 	since := time.Date(2024, 6, 24, 12, 0, 0, 0, time.UTC)
-	start, until := computeMetricsDateRange(now, &since)
-	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), until)
-	require.Equal(t, time.Date(2024, 10, 3, 0, 0, 0, 0, time.UTC), start)
+	start, until := computeReportDateRange(now, &since)
+	require.Equal(t, time.Date(2025, 1, 9, 0, 0, 0, 0, time.UTC), until)
+	require.Equal(t, time.Date(2024, 6, 24, 0, 0, 0, 0, time.UTC), start)
 }
 
-func TestComputeMetricsDateRangeClampsFutureSince(t *testing.T) {
+func TestComputeReportDateRangeClampsFutureSince(t *testing.T) {
 	now := time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC)
 	since := now.Add(24 * time.Hour)
-	start, until := computeMetricsDateRange(now, &since)
-	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), until)
-	require.Equal(t, time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC), start)
+	start, until := computeReportDateRange(now, &since)
+	require.Equal(t, time.Date(2025, 1, 9, 0, 0, 0, 0, time.UTC), until)
+	require.Equal(t, time.Date(2025, 1, 9, 0, 0, 0, 0, time.UTC), start)
 }
