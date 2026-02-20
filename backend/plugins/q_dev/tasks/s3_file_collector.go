@@ -30,81 +30,79 @@ import (
 
 var _ plugin.SubTaskEntryPoint = CollectQDevS3Files
 
-// CollectQDevS3Files 收集S3文件元数据
+// CollectQDevS3Files collects S3 file metadata
 func CollectQDevS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*QDevTaskData)
 	db := taskCtx.GetDal()
 
-	// 列出指定前缀下的所有对象
-	var continuationToken *string
-	prefix := data.Options.S3Prefix
-	if prefix != "" && !strings.HasSuffix(prefix, "/") {
-		prefix = prefix + "/"
-	}
-
 	taskCtx.SetProgress(0, -1)
 
-	for {
-		input := &s3.ListObjectsV2Input{
-			Bucket:            aws.String(data.S3Client.Bucket),
-			Prefix:            aws.String(prefix),
-			ContinuationToken: continuationToken,
+	for _, rawPrefix := range data.S3Prefixes {
+		prefix := rawPrefix
+		if prefix != "" && !strings.HasSuffix(prefix, "/") {
+			prefix = prefix + "/"
 		}
 
-		result, err := data.S3Client.S3.ListObjectsV2(input)
-		if err != nil {
-			return errors.Convert(err)
-		}
+		taskCtx.GetLogger().Info("Scanning S3 prefix: %s", prefix)
 
-		// 处理每个CSV文件
-		for _, object := range result.Contents {
-			// Only process CSV files
-			if !strings.HasSuffix(*object.Key, ".csv") {
-				taskCtx.GetLogger().Debug("Skipping non-CSV file: %s", *object.Key)
-				continue
+		var continuationToken *string
+		for {
+			input := &s3.ListObjectsV2Input{
+				Bucket:            aws.String(data.S3Client.Bucket),
+				Prefix:            aws.String(prefix),
+				ContinuationToken: continuationToken,
 			}
 
-			// Check if this file already exists in our database
-			existingFile := &models.QDevS3FileMeta{}
-			err = db.First(existingFile, dal.Where("connection_id = ? AND s3_path = ?",
-				data.Options.ConnectionId, *object.Key))
+			result, err := data.S3Client.S3.ListObjectsV2(input)
+			if err != nil {
+				return errors.Convert(err)
+			}
 
-			if err == nil {
-				// File already exists in database, skip it if it's already processed
-				if existingFile.Processed {
-					taskCtx.GetLogger().Debug("Skipping already processed file: %s", *object.Key)
+			for _, object := range result.Contents {
+				// Only process CSV files
+				if !strings.HasSuffix(*object.Key, ".csv") {
+					taskCtx.GetLogger().Debug("Skipping non-CSV file: %s", *object.Key)
 					continue
 				}
-				// Otherwise, we'll keep the existing record (which is still marked as unprocessed)
-				taskCtx.GetLogger().Debug("Found existing unprocessed file: %s", *object.Key)
-				continue
-			} else if !db.IsErrorNotFound(err) {
-				return errors.Default.Wrap(err, "failed to query existing file metadata")
+
+				// Check if this file already exists in our database
+				existingFile := &models.QDevS3FileMeta{}
+				err = db.First(existingFile, dal.Where("connection_id = ? AND s3_path = ?",
+					data.Options.ConnectionId, *object.Key))
+
+				if err == nil {
+					if existingFile.Processed {
+						taskCtx.GetLogger().Debug("Skipping already processed file: %s", *object.Key)
+						continue
+					}
+					taskCtx.GetLogger().Debug("Found existing unprocessed file: %s", *object.Key)
+					continue
+				} else if !db.IsErrorNotFound(err) {
+					return errors.Default.Wrap(err, "failed to query existing file metadata")
+				}
+
+				fileMeta := &models.QDevS3FileMeta{
+					ConnectionId: data.Options.ConnectionId,
+					FileName:     *object.Key,
+					S3Path:       *object.Key,
+					ScopeId:      data.Options.ScopeId,
+					Processed:    false,
+				}
+
+				err = db.Create(fileMeta)
+				if err != nil {
+					return errors.Default.Wrap(err, "failed to create file metadata")
+				}
+
+				taskCtx.IncProgress(1)
 			}
 
-			// This is a new file, save its metadata
-			fileMeta := &models.QDevS3FileMeta{
-				ConnectionId: data.Options.ConnectionId,
-				FileName:     *object.Key,
-				S3Path:       *object.Key,
-				ScopeId:      data.Options.ScopeId,
-				Processed:    false,
+			if !*result.IsTruncated {
+				break
 			}
 
-			err = db.Create(fileMeta)
-			if err != nil {
-				return errors.Default.Wrap(err, "failed to create file metadata")
-			}
-
-			taskCtx.IncProgress(1)
+			continuationToken = result.NextContinuationToken
 		}
-
-		// 如果没有更多对象，退出循环
-		if !*result.IsTruncated {
-			break
-		}
-
-		continuationToken = result.NextContinuationToken
 	}
 
 	return nil
