@@ -169,11 +169,11 @@ __debug_bin*
 # speckit
 .specify
 specs/
-# .github/agents/ - Commented out to allow custom deployment agents
-# But ignore speckit/copilot instruction templates (agent framework files)
-.github/agents/speckit.*.agent.md
-.github/agents/copilot-instructions.md
-.github/prompts/speckit.*.prompt.md
+
+# Local AI agent framework files (keep local, don't commit)
+.github/agents/
+.github/prompts/
+.github/skills/
 
 # Playwright / browser automation
 .playwright-cli/
