@@ -18,20 +18,34 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addS3SliceTable),
-		new(addScopeConfigIdToS3Slice),
-		new(addScopeIdFields),
-		new(addUserReportTable),
-		new(addAccountIdToS3Slice),
+var _ plugin.MigrationScript = (*addAccountIdToS3Slice)(nil)
+
+type addAccountIdToS3Slice struct{}
+
+func (*addAccountIdToS3Slice) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+
+	err := db.Exec(`
+		ALTER TABLE _tool_q_dev_s3_slices
+		ADD COLUMN IF NOT EXISTS account_id VARCHAR(255) DEFAULT NULL
+	`)
+	if err != nil {
+		// Try alternative syntax for databases that don't support IF NOT EXISTS
+		_ = db.Exec(`ALTER TABLE _tool_q_dev_s3_slices ADD COLUMN account_id VARCHAR(255) DEFAULT NULL`)
 	}
+
+	return nil
+}
+
+func (*addAccountIdToS3Slice) Version() uint64 {
+	return 20260220000001
+}
+
+func (*addAccountIdToS3Slice) Name() string {
+	return "add account_id column to _tool_q_dev_s3_slices for auto-constructing S3 prefixes"
 }

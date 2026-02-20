@@ -124,6 +124,14 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 		return errors.Convert(err)
 	}
 
+	// Auto-detect CSV format from headers
+	isNewFormat := detectUserReportFormat(headers)
+	if isNewFormat {
+		taskCtx.GetLogger().Debug("Detected new user_report CSV format")
+	} else {
+		taskCtx.GetLogger().Debug("Detected old by_user_analytic CSV format")
+	}
+
 	// 逐行读取数据
 	for {
 		record, err := csvReader.Read()
@@ -134,20 +142,133 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 			return errors.Convert(err)
 		}
 
-		// 创建用户数据对象 (updated to include display name resolution)
-		userData, err := createUserDataWithDisplayName(taskCtx.GetLogger(), headers, record, fileMeta, data.IdentityClient)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to create user data")
-		}
+		if isNewFormat {
+			reportData, err := createUserReportData(taskCtx.GetLogger(), headers, record, fileMeta, data.IdentityClient)
+			if err != nil {
+				return errors.Default.Wrap(err, "failed to create user report data")
+			}
+			err = db.Create(reportData)
+			if err != nil {
+				return errors.Default.Wrap(err, "failed to save user report data")
+			}
+		} else {
+			// 创建用户数据对象 (updated to include display name resolution)
+			userData, err := createUserDataWithDisplayName(taskCtx.GetLogger(), headers, record, fileMeta, data.IdentityClient)
+			if err != nil {
+				return errors.Default.Wrap(err, "failed to create user data")
+			}
 
-		// Save to database - no need to check for duplicates since we're processing each file only once
-		err = db.Create(userData)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to save user data")
+			// Save to database - no need to check for duplicates since we're processing each file only once
+			err = db.Create(userData)
+			if err != nil {
+				return errors.Default.Wrap(err, "failed to save user data")
+			}
 		}
 	}
 
 	return nil
+}
+
+// detectUserReportFormat checks CSV headers to determine if this is the new user_report format
+func detectUserReportFormat(headers []string) bool {
+	for _, h := range headers {
+		trimmed := strings.TrimSpace(h)
+		if trimmed == "Client_Type" || trimmed == "Credits_Used" {
+			return true
+		}
+	}
+	return false
+}
+
+// createUserReportData creates a QDevUserReport from a new-format CSV record
+func createUserReportData(logger interface {
+	Debug(format string, a ...interface{})
+}, headers []string, record []string, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver) (*models.QDevUserReport, errors.Error) {
+	report := &models.QDevUserReport{
+		ConnectionId: fileMeta.ConnectionId,
+		ScopeId:      fileMeta.ScopeId,
+	}
+
+	// Build field map
+	fieldMap := make(map[string]string)
+	for i, header := range headers {
+		if i < len(record) {
+			logger.Debug("Mapping header[%d]: '%s' -> '%s'", i, header, record[i])
+			fieldMap[header] = record[i]
+			trimmedHeader := strings.TrimSpace(header)
+			if trimmedHeader != header {
+				logger.Debug("Also adding trimmed header: '%s'", trimmedHeader)
+				fieldMap[trimmedHeader] = record[i]
+			}
+		}
+	}
+
+	// UserId
+	report.UserId = getStringField(fieldMap, "UserId")
+	if report.UserId == "" {
+		return nil, errors.Default.New("UserId not found in CSV record")
+	}
+
+	// DisplayName
+	report.DisplayName = resolveDisplayName(logger, report.UserId, identityClient)
+
+	// Date
+	dateStr := getStringField(fieldMap, "Date")
+	if dateStr == "" {
+		return nil, errors.Default.New("Date not found in CSV record")
+	}
+	var err error
+	report.Date, err = parseDate(dateStr)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "failed to parse date")
+	}
+
+	// String fields
+	report.ClientType = getStringField(fieldMap, "Client_Type")
+	report.SubscriptionTier = getStringField(fieldMap, "Subscription_Tier")
+	report.ProfileId = getStringField(fieldMap, "ProfileId")
+
+	// Numeric fields
+	report.ChatConversations = parseInt(fieldMap, "Chat_Conversations")
+	report.CreditsUsed = parseFloat(fieldMap, "Credits_Used")
+	report.OverageCap = parseFloat(fieldMap, "Overage_Cap")
+	report.OverageCreditsUsed = parseFloat(fieldMap, "Overage_Credits_Used")
+	report.OverageEnabled = parseBool(fieldMap, "Overage_Enabled")
+	report.TotalMessages = parseInt(fieldMap, "Total_Messages")
+
+	return report, nil
+}
+
+// getStringField returns the string value for a field, or empty string if not found
+func getStringField(fieldMap map[string]string, field string) string {
+	value, ok := fieldMap[field]
+	if !ok {
+		return ""
+	}
+	return value
+}
+
+// parseFloat extracts a float64 from the field map, returning 0 if missing or invalid
+func parseFloat(fieldMap map[string]string, field string) float64 {
+	value, ok := fieldMap[field]
+	if !ok {
+		return 0
+	}
+	f, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
+	if err != nil {
+		return 0
+	}
+	return f
+}
+
+// parseBool extracts a boolean from the field map, returning false if missing or invalid
+func parseBool(fieldMap map[string]string, field string) bool {
+	value, ok := fieldMap[field]
+	if !ok {
+		return false
+	}
+	trimmed := strings.TrimSpace(strings.ToLower(value))
+	return trimmed == "true" || trimmed == "1" || trimmed == "yes"
 }
 
 // UserDisplayNameResolver interface for resolving user display names

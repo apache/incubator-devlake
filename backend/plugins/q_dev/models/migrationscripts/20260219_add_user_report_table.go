@@ -15,38 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
 import (
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models/migrationscripts/archived"
 )
 
-type QDevApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
+type addUserReportTable struct{}
+
+func (*addUserReportTable) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.QDevUserReport{},
+	)
 }
 
-type QDevOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	S3Prefix     string `json:"s3Prefix"`
-	ScopeId      string `json:"scopeId"`
-	AccountId    string `json:"accountId"`
-	BasePath     string `json:"basePath"`
-	Year         int    `json:"year"`
-	Month        *int   `json:"month"`
+func (*addUserReportTable) Version() uint64 {
+	return 20260219000001
 }
 
-type QDevTaskData struct {
-	Options        *QDevOptions
-	S3Client       *QDevS3Client
-	IdentityClient *QDevIdentityClient
-	S3Prefixes     []string
-}
-
-type QDevS3Client struct {
-	S3     *s3.S3
-	Bucket string
-}
-
-func (client *QDevS3Client) Close() {
-	// S3客户端不需要特别关闭操作
+func (*addUserReportTable) Name() string {
+	return "Add user_report table for Kiro credits/subscription metrics"
 }

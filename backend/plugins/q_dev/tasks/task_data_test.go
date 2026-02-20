@@ -38,6 +38,7 @@ func TestQDevTaskData_WithIdentityClient(t *testing.T) {
 			StoreId: "d-1234567890",
 			Region:  "us-west-2",
 		},
+		S3Prefixes: []string{"test-prefix/"},
 	}
 
 	assert.NotNil(t, taskData.IdentityClient)
@@ -45,6 +46,7 @@ func TestQDevTaskData_WithIdentityClient(t *testing.T) {
 	assert.Equal(t, "us-west-2", taskData.IdentityClient.Region)
 	assert.NotNil(t, taskData.S3Client)
 	assert.NotNil(t, taskData.Options)
+	assert.Equal(t, []string{"test-prefix/"}, taskData.S3Prefixes)
 }
 
 func TestQDevTaskData_WithoutIdentityClient(t *testing.T) {
@@ -68,9 +70,14 @@ func TestQDevTaskData_WithoutIdentityClient(t *testing.T) {
 }
 
 func TestQDevTaskData_AllFields(t *testing.T) {
+	month := 3
 	options := &QDevOptions{
 		ConnectionId: 123,
 		S3Prefix:     "data/q-dev/",
+		AccountId:    "034362076319",
+		BasePath:     "user-report",
+		Year:         2026,
+		Month:        &month,
 	}
 
 	s3Client := &QDevS3Client{
@@ -87,6 +94,10 @@ func TestQDevTaskData_AllFields(t *testing.T) {
 		Options:        options,
 		S3Client:       s3Client,
 		IdentityClient: identityClient,
+		S3Prefixes: []string{
+			"user-report/AWSLogs/034362076319/KiroLogs/by_user_analytic/us-east-1/2026/03",
+			"user-report/AWSLogs/034362076319/KiroLogs/user_report/us-east-1/2026/03",
+		},
 	}
 
 	// Verify all fields are properly set
@@ -97,9 +108,14 @@ func TestQDevTaskData_AllFields(t *testing.T) {
 	// Verify nested field access
 	assert.Equal(t, uint64(123), taskData.Options.ConnectionId)
 	assert.Equal(t, "data/q-dev/", taskData.Options.S3Prefix)
+	assert.Equal(t, "034362076319", taskData.Options.AccountId)
+	assert.Equal(t, "user-report", taskData.Options.BasePath)
+	assert.Equal(t, 2026, taskData.Options.Year)
+	assert.Equal(t, &month, taskData.Options.Month)
 	assert.Equal(t, "my-data-bucket", taskData.S3Client.Bucket)
 	assert.Equal(t, "d-9876543210", taskData.IdentityClient.StoreId)
 	assert.Equal(t, "eu-west-1", taskData.IdentityClient.Region)
+	assert.Len(t, taskData.S3Prefixes, 2)
 }
 
 func TestQDevTaskData_EmptyStruct(t *testing.T) {

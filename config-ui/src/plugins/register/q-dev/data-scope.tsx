@@ -26,6 +26,7 @@ interface ScopeData {
   year?: number;
   month?: number | null;
   basePath?: string;
+  accountId?: string;
 }
 
 interface ScopeItem {
@@ -46,7 +47,7 @@ const CURRENT_YEAR = new Date().getUTCFullYear();
 const MONTHS = Array.from({ length: 12 }, (_, idx) => idx + 1);
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const DEFAULT_BASE_PATH = 'user-report/AWSLogs';
+const DEFAULT_BASE_PATH = 'user-report';
 
 const ensureLeadingZero = (value: number) => value.toString().padStart(2, '0');
 
@@ -92,11 +93,14 @@ const extractScopeMeta = (item: ScopeItem) => {
 
   const basePath = normalizeBasePath(data.basePath ?? (baseSegments.length ? baseSegments.join('/') : ''));
 
+  const accountId = data.accountId ?? '';
+
   return {
     basePath,
     year: typeof year === 'number' ? year : null,
     month,
     prefix,
+    accountId,
   };
 };
 
@@ -110,11 +114,24 @@ const deriveBasePathFromSelection = (items: ScopeItem[]) => {
   return undefined;
 };
 
-const buildPrefix = (basePath: string, year: number, month: number | null) => {
+const deriveAccountIdFromSelection = (items: ScopeItem[]) => {
+  for (const item of items) {
+    const meta = extractScopeMeta(item);
+    if (meta.accountId) {
+      return meta.accountId;
+    }
+  }
+  return undefined;
+};
+
+const buildPrefix = (basePath: string, year: number, month: number | null, accountId?: string) => {
   const segments = [] as string[];
   const sanitizedBase = normalizeBasePath(basePath);
   if (sanitizedBase) {
     segments.push(sanitizedBase);
+  }
+  if (accountId) {
+    segments.push(accountId);
   }
   segments.push(String(year));
   if (month !== null && month !== undefined) {
@@ -123,13 +140,14 @@ const buildPrefix = (basePath: string, year: number, month: number | null) => {
   return segments.join('/');
 };
 
-const createScopeItem = (basePath: string, year: number, month: number | null): ScopeItem => {
+const createScopeItem = (basePath: string, year: number, month: number | null, accountId?: string): ScopeItem => {
   const sanitizedBase = normalizeBasePath(basePath);
-  const prefix = buildPrefix(sanitizedBase, year, month);
+  const prefix = buildPrefix(sanitizedBase, year, month, accountId);
   const isFullYear = month === null;
-  const name = isFullYear
+  const timeLabel = isFullYear
     ? `${year} (Full Year)`
     : `${year}-${ensureLeadingZero(month as number)} (${MONTH_LABELS[(month as number) - 1]})`;
+  const name = accountId ? `${accountId} ${timeLabel}` : timeLabel;
 
   return {
     id: prefix,
@@ -137,6 +155,7 @@ const createScopeItem = (basePath: string, year: number, month: number | null): 
     fullName: prefix,
     data: {
       basePath: sanitizedBase,
+      accountId: accountId || undefined,
       prefix,
       year,
       month,
@@ -165,6 +184,7 @@ const MONTH_OPTIONS = MONTHS.map((value) => ({
 
 type FormValues = {
   basePath: string;
+  accountId: string;
   year: number;
   mode: 'year' | 'months';
   months?: number[];
@@ -185,6 +205,11 @@ export const QDevDataScope = ({
     [selectedItems],
   );
 
+  const derivedAccountId = useMemo(
+    () => deriveAccountIdFromSelection(selectedItems) ?? '',
+    [selectedItems],
+  );
+
   useEffect(() => {
     if (!form.isFieldsTouched(['basePath'])) {
       form.setFieldsValue({ basePath: derivedBasePath });
@@ -192,13 +217,20 @@ export const QDevDataScope = ({
   }, [derivedBasePath, form]);
 
   useEffect(() => {
+    if (!form.isFieldsTouched(['accountId'])) {
+      form.setFieldsValue({ accountId: derivedAccountId });
+    }
+  }, [derivedAccountId, form]);
+
+  useEffect(() => {
     form.setFieldsValue({ mode: 'year', year: form.getFieldValue('year') ?? CURRENT_YEAR });
   }, [form]);
 
   const handleAdd = async () => {
-    const { basePath, year, mode, months = [] } = await form.validateFields();
+    const { basePath, accountId, year, mode, months = [] } = await form.validateFields();
 
     const normalizedBase = normalizeBasePath(basePath ?? '');
+    const normalizedAccountId = (accountId ?? '').trim();
     const normalizedYear = Number(year);
     if (!normalizedYear || Number.isNaN(normalizedYear)) {
       return;
@@ -209,6 +241,7 @@ export const QDevDataScope = ({
       const meta = extractScopeMeta(item);
       return (
         meta.basePath === normalizedBase &&
+        meta.accountId === normalizedAccountId &&
         meta.year === normalizedYear &&
         (meta.month === null || meta.month === undefined)
       );
@@ -223,14 +256,14 @@ export const QDevDataScope = ({
 
       const hasMonths = selectedItems.some((item) => {
         const meta = extractScopeMeta(item);
-        return meta.basePath === normalizedBase && meta.year === normalizedYear && meta.month !== null;
+        return meta.basePath === normalizedBase && meta.accountId === normalizedAccountId && meta.year === normalizedYear && meta.month !== null;
       });
 
       if (hasMonths) {
         return;
       }
 
-      const item = createScopeItem(normalizedBase, normalizedYear, null);
+      const item = createScopeItem(normalizedBase, normalizedYear, null, normalizedAccountId || undefined);
       if (!currentIds.has(item.id) && !disabledIds.has(item.id)) {
         additions.push(item);
       }
@@ -249,7 +282,7 @@ export const QDevDataScope = ({
           return;
         }
 
-        const item = createScopeItem(normalizedBase, normalizedYear, month);
+        const item = createScopeItem(normalizedBase, normalizedYear, month, normalizedAccountId || undefined);
         if (currentIds.has(item.id) || disabledIds.has(item.id)) {
           return;
         }
@@ -282,24 +315,34 @@ export const QDevDataScope = ({
       render: (_: unknown, item) => formatScopeLabel(item),
     },
     {
-      title: 'S3 Prefix',
+      title: 'Scope Path',
       dataIndex: 'id',
       key: 'prefix',
       render: (_: unknown, item) => {
         const meta = extractScopeMeta(item);
+        if (meta.accountId) {
+          const timePart = meta.month
+            ? `${meta.year}/${ensureLeadingZero(meta.month)}`
+            : `${meta.year}`;
+          return (
+            <Tooltip title={`Scans both by_user_analytic and user_report under AWSLogs/${meta.accountId}/KiroLogs/…/${timePart}`}>
+              <Typography.Text code>{meta.basePath}/…/{meta.accountId}/…/{timePart}</Typography.Text>
+            </Tooltip>
+          );
+        }
         return <Typography.Text code>{meta.prefix}</Typography.Text>;
       },
     },
     {
-      title: 'Base Path',
+      title: 'Account ID',
       dataIndex: 'id',
-      key: 'basePath',
+      key: 'accountId',
       render: (_: unknown, item) => {
         const meta = extractScopeMeta(item);
-        return meta.basePath ? (
-          <Typography.Text>{meta.basePath}</Typography.Text>
+        return meta.accountId ? (
+          <Typography.Text>{meta.accountId}</Typography.Text>
         ) : (
-          <Typography.Text type="secondary">(bucket root)</Typography.Text>
+          <Typography.Text type="secondary">—</Typography.Text>
         );
       },
     },
@@ -335,6 +378,7 @@ export const QDevDataScope = ({
         layout="inline"
         initialValues={{
           basePath: derivedBasePath,
+          accountId: derivedAccountId,
           year: CURRENT_YEAR,
           mode: 'year',
           months: [],
@@ -346,9 +390,18 @@ export const QDevDataScope = ({
           label="Base Path"
           name="basePath"
           style={{ flex: 1 }}
-          tooltip="Common prefix in S3 between the bucket root and the year directory"
+          tooltip="S3 prefix before the AWSLogs directory (e.g. 'user-report')"
         >
-          <Input placeholder="user-report/AWSLogs/.../us-east-1" />
+          <Input placeholder="e.g. user-report" />
+        </Form.Item>
+
+        <Form.Item
+          label="AWS Account ID"
+          name="accountId"
+          style={{ width: 200 }}
+          tooltip="AWS Account ID used in the S3 export path. When set, both by_user_analytic and user_report paths are scanned automatically."
+        >
+          <Input placeholder="e.g. 034362076319" />
         </Form.Item>
 
         <Form.Item label="Year" name="year" rules={[{ required: true, message: 'Enter year' }]} style={{ width: 160 }}>

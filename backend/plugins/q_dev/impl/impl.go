@@ -57,6 +57,7 @@ func (p QDev) GetTablesInfo() []dal.Tabler {
 		&models.QDevUserData{},
 		&models.QDevS3FileMeta{},
 		&models.QDevS3Slice{},
+		&models.QDevUserReport{},
 	}
 }
 
@@ -117,10 +118,30 @@ func (p QDev) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		identityClient = nil
 	}
 
+	// Resolve S3 prefixes to scan
+	var s3Prefixes []string
+	if op.AccountId != "" {
+		// New-style scope: construct both report paths using region from connection
+		region := connection.Region
+		timePart := fmt.Sprintf("%04d", op.Year)
+		if op.Month != nil {
+			timePart = fmt.Sprintf("%04d/%02d", op.Year, *op.Month)
+		}
+		base := fmt.Sprintf("%s/AWSLogs/%s/KiroLogs", op.BasePath, op.AccountId)
+		s3Prefixes = []string{
+			fmt.Sprintf("%s/by_user_analytic/%s/%s", base, region, timePart),
+			fmt.Sprintf("%s/user_report/%s/%s", base, region, timePart),
+		}
+	} else {
+		// Legacy scope: use S3Prefix directly
+		s3Prefixes = []string{op.S3Prefix}
+	}
+
 	return &tasks.QDevTaskData{
 		Options:        &op,
 		S3Client:       s3Client,
 		IdentityClient: identityClient,
+		S3Prefixes:     s3Prefixes,
 	}, nil
 }
 
