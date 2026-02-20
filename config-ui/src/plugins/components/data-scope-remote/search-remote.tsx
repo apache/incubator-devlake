@@ -27,6 +27,7 @@ import { uniqBy } from 'lodash';
 import API from '@/api';
 import { Loading, Block } from '@/components';
 import { IPluginConfig } from '@/types';
+import { getPluginScopeName } from '@/plugins';
 
 import * as T from './types';
 import * as S from './styled';
@@ -93,7 +94,7 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
 
       newItems = (res.children ?? []).map((it) => ({
         ...it,
-        title: it.name,
+        title: getPluginScopeName(plugin, it) || it.name,
       }));
 
       nextPageToken = res.nextPageToken;
@@ -136,7 +137,7 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
 
     const newItems = (res.children ?? []).map((it) => ({
       ...it,
-      title: it.fullName ?? it.name,
+      title: getPluginScopeName(plugin, it) || it.fullName || it.name,
     }));
 
     setSearch((s) => ({
@@ -164,7 +165,7 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
                 closable
                 onClose={() => onChange(selectedScope.filter((it) => it.id !== sc.id))}
               >
-                {sc.fullName}
+                {getPluginScopeName(plugin, sc) || sc.fullName || sc.name || sc.id}
               </Tag>
             ))
           ) : (

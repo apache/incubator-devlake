@@ -40,6 +40,7 @@ import { IConnection } from '@/types';
 import { operator } from '@/utils';
 
 import * as S from './styled';
+import { getPluginScopeName } from '@/plugins';
 
 const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
@@ -92,7 +93,7 @@ export const Connection = () => {
     () => [
       data?.scopes.map((it: any) => ({
         id: getPluginScopeId(plugin, it.scope),
-        name: it.scope.fullName ?? it.scope.name,
+        name: getPluginScopeName(plugin, it.scope) || it.scope.fullName || it.scope.name,
         projects: it.blueprints?.map((bp: any) => bp.projectName) ?? [],
         configId: it.scopeConfig?.id,
         configName: it.scopeConfig?.name,

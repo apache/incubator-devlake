@@ -22,7 +22,7 @@ import dayjs from 'dayjs';
 
 import API from '@/api';
 import { Markdown } from '@/components';
-import { DataScopeRemote, getPluginScopeId } from '@/plugins';
+import { DataScopeRemote, getPluginScopeId, getPluginScopeName } from '@/plugins';
 import { operator, formatTime } from '@/utils';
 
 import { Context } from './context';
@@ -96,7 +96,7 @@ export const Step3 = () => {
                 ...it,
                 blueprintId: blueprint.id,
                 pipelineId: pipeline.pipelines[0].id,
-                scopeName: scopes[0]?.fullName ?? scopes[0].name,
+                scopeName: getPluginScopeName(plugin, scopes[0]) || scopes[0]?.fullName || scopes[0]?.name,
               },
         );
 
