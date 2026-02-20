@@ -88,6 +88,8 @@ func (p Azuredevops) GetTablesInfo() []dal.Tabler {
 		&models.AzuredevopsPrLabel{},
 		&models.AzuredevopsProject{},
 		&models.AzuredevopsPullRequest{},
+		&models.AzuredevopsRelease{},
+		&models.AzuredevopsReleaseDeployment{},
 		&models.AzuredevopsRepo{},
 		&models.AzuredevopsRepoCommit{},
 		&models.AzuredevopsScopeConfig{},
