@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
+	restTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractDeployments
@@ -74,6 +76,7 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 func convertGithubDeployment(deployment *GraphqlQueryDeploymentDeployment, connectionId uint64, githubId int) (*githubModels.GithubDeployment, errors.Error) {
+	finishedDate := getDeploymentFinishedDate(deployment)
 	ret := &githubModels.GithubDeployment{
 		ConnectionId:      connectionId,
 		GithubId:          githubId,
@@ -92,6 +95,7 @@ func convertGithubDeployment(deployment *GraphqlQueryDeploymentDeployment, conne
 		RepositoryUrl:     deployment.Repository.Url,
 		CreatedDate:       deployment.CreatedAt,
 		UpdatedDate:       deployment.UpdatedAt,
+		FinishedDate:      finishedDate,
 		LatestStatusState: deployment.LatestStatus.State,
 		LatestUpdatedDate: deployment.LatestStatus.UpdatedAt,
 	}
@@ -99,4 +103,31 @@ func convertGithubDeployment(deployment *GraphqlQueryDeploymentDeployment, conne
 		ret.RefName = deployment.Ref.Name
 	}
 	return ret, nil
+}
+
+func getDeploymentFinishedDate(deployment *GraphqlQueryDeploymentDeployment) *time.Time {
+	var latestSuccess *time.Time
+	var latestTerminal *time.Time
+
+	for _, s := range deployment.Statuses.Nodes {
+		if s.UpdatedAt == nil {
+			continue
+		}
+		switch s.State {
+		case restTasks.StatusSuccess:
+			if latestSuccess == nil || s.UpdatedAt.After(*latestSuccess) {
+				latestSuccess = s.UpdatedAt
+			}
+		case restTasks.StatusFailure, restTasks.StatusError, restTasks.StatusInactive, restTasks.StatusActive:
+			if latestTerminal == nil || s.UpdatedAt.After(*latestTerminal) {
+				latestTerminal = s.UpdatedAt
+			}
+		}
+	}
+
+	if latestSuccess != nil {
+		return latestSuccess
+	}
+
+	return latestTerminal
 }
