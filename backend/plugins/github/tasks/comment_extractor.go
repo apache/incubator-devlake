@@ -107,8 +107,19 @@ func ExtractApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 					Type:            "NORMAL",
 				}
 				if apiComment.User != nil {
+					// Filter bot comments by username
+					if shouldSkipByUsername(apiComment.User.Login) {
+						taskCtx.GetLogger().Debug("Skipping PR comment #%d from bot user: %s", apiComment.GithubId, apiComment.User.Login)
+						return nil, nil
+					}
 					githubPrComment.AuthorUsername = apiComment.User.Login
 					githubPrComment.AuthorUserId = apiComment.User.Id
+
+					githubAccount, err := convertAccount(apiComment.User, data.Options.GithubId, data.Options.ConnectionId)
+					if err != nil {
+						return nil, err
+					}
+					results = append(results, githubAccount)
 				}
 				results = append(results, githubPrComment)
 			} else {
@@ -121,17 +132,21 @@ func ExtractApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 					GithubUpdatedAt: apiComment.GithubUpdatedAt.ToTime(),
 				}
 				if apiComment.User != nil {
+					// Filter bot comments by username
+					if shouldSkipByUsername(apiComment.User.Login) {
+						taskCtx.GetLogger().Debug("Skipping issue comment #%d from bot user: %s", apiComment.GithubId, apiComment.User.Login)
+						return nil, nil
+					}
 					githubIssueComment.AuthorUsername = apiComment.User.Login
 					githubIssueComment.AuthorUserId = apiComment.User.Id
+
+					githubAccount, err := convertAccount(apiComment.User, data.Options.GithubId, data.Options.ConnectionId)
+					if err != nil {
+						return nil, err
+					}
+					results = append(results, githubAccount)
 				}
 				results = append(results, githubIssueComment)
-			}
-			if apiComment.User != nil {
-				githubAccount, err := convertAccount(apiComment.User, data.Options.GithubId, data.Options.ConnectionId)
-				if err != nil {
-					return nil, err
-				}
-				results = append(results, githubAccount)
 			}
 			return results, nil
 		},
