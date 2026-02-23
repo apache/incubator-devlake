@@ -22,14 +22,17 @@ import (
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
 type addScopeConfig20260121 struct{}
 
 type scopeConfig20260121 struct {
-	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	archived.Model
+	Entities           []string   `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`
+	ConnectionId       uint64     `json:"connectionId" gorm:"index" validate:"required" mapstructure:"connectionId,omitempty"`
+	Name               string     `mapstructure:"name" json:"name" gorm:"type:varchar(255);uniqueIndex" validate:"required"`
 	ImplementationDate *time.Time `json:"implementationDate" mapstructure:"implementationDate" gorm:"type:datetime"`
 	BaselinePeriodDays int        `json:"baselinePeriodDays" mapstructure:"baselinePeriodDays" gorm:"default:90"`
 }

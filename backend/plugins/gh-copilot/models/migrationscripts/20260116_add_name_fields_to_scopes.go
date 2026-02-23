@@ -18,20 +18,39 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 // addNameFieldsToScopes adds name and fullName columns to _tool_copilot_scopes.
 // These fields are required by the UI for displaying data scopes in the connection page.
 type addNameFieldsToScopes struct{}
 
+type ghCopilotScope20260116 struct {
+	archived.NoPKModel
+	ConnectionId       uint64     `json:"connectionId" gorm:"primaryKey"`
+	ScopeConfigId      uint64     `json:"scopeConfigId,omitempty"`
+	Id                 string     `json:"id" gorm:"primaryKey;type:varchar(255)"`
+	Organization       string     `json:"organization" gorm:"type:varchar(255)"`
+	Name               string     `json:"name" gorm:"type:varchar(255)"`
+	FullName           string     `json:"fullName" gorm:"type:varchar(255)"`
+	ImplementationDate *time.Time `json:"implementationDate" gorm:"type:datetime"`
+	BaselinePeriodDays int        `json:"baselinePeriodDays" gorm:"default:90"`
+	SeatsLastSyncedAt  *time.Time `json:"seatsLastSyncedAt" gorm:"type:datetime"`
+}
+
+func (ghCopilotScope20260116) TableName() string {
+	return "_tool_copilot_scopes"
+}
+
 func (script *addNameFieldsToScopes) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.GhCopilotScope{},
+		&ghCopilotScope20260116{},
 	)
 }
 

@@ -83,7 +83,9 @@ const pluginAliasMap: Record<string, string> = {
 };
 
 const aliasByTarget = Object.entries(pluginAliasMap).reduce<Record<string, string[]>>((acc, [alias, target]) => {
-  acc[target] ??= [];
+  if (!acc[target]) {
+    acc[target] = [];
+  }
   acc[target].push(alias);
   return acc;
 }, {});

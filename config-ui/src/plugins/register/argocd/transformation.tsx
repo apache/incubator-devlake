@@ -136,9 +136,9 @@ const renderCollapseItems = ({
             <HelpTooltip content="Optional: Additional regex pattern to identify production deployments." />
           </div>
           <div style={{ marginTop: 16, padding: '8px 12px', background: '#f0f7ff', borderRadius: '4px' }}>
-            <strong>Note:</strong> ArgoCD limits deployment history to the last 10 sync operations by default (controlled
-            by <code>revisionHistoryLimit</code>). Consider increasing this value in your ArgoCD application settings for
-            better historical metrics.
+            <strong>Note:</strong> ArgoCD limits deployment history to the last 10 sync operations by default
+            (controlled by <code>revisionHistoryLimit</code>). Consider increasing this value in your ArgoCD application
+            settings for better historical metrics.
           </div>
         </>
       ),

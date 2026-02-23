@@ -30,26 +30,26 @@ import (
 // --- User report JSONL structures (one line per user) ---
 
 type userDailyReport struct {
-	ReportStartDay                string                  `json:"report_start_day"`
-	ReportEndDay                  string                  `json:"report_end_day"`
-	Day                           string                  `json:"day"`
-	EnterpriseId                  string                  `json:"enterprise_id"`
-	UserId                        int64                   `json:"user_id"`
-	UserLogin                     string                  `json:"user_login"`
-	UserInitiatedInteractionCount int                     `json:"user_initiated_interaction_count"`
-	CodeGenerationActivityCount   int                     `json:"code_generation_activity_count"`
-	CodeAcceptanceActivityCount   int                     `json:"code_acceptance_activity_count"`
-	LocSuggestedToAddSum          int                     `json:"loc_suggested_to_add_sum"`
-	LocSuggestedToDeleteSum       int                     `json:"loc_suggested_to_delete_sum"`
-	LocAddedSum                   int                     `json:"loc_added_sum"`
-	LocDeletedSum                 int                     `json:"loc_deleted_sum"`
-	UsedAgent                     bool                    `json:"used_agent"`
-	UsedChat                      bool                    `json:"used_chat"`
-	TotalsByIde                   []userTotalsByIde       `json:"totals_by_ide"`
-	TotalsByFeature               []totalsByFeature       `json:"totals_by_feature"`
-	TotalsByLanguageFeature       []totalsByLangFeature   `json:"totals_by_language_feature"`
-	TotalsByLanguageModel         []totalsByLangModel     `json:"totals_by_language_model"`
-	TotalsByModelFeature          []totalsByModelFeature  `json:"totals_by_model_feature"`
+	ReportStartDay                string                 `json:"report_start_day"`
+	ReportEndDay                  string                 `json:"report_end_day"`
+	Day                           string                 `json:"day"`
+	EnterpriseId                  string                 `json:"enterprise_id"`
+	UserId                        int64                  `json:"user_id"`
+	UserLogin                     string                 `json:"user_login"`
+	UserInitiatedInteractionCount int                    `json:"user_initiated_interaction_count"`
+	CodeGenerationActivityCount   int                    `json:"code_generation_activity_count"`
+	CodeAcceptanceActivityCount   int                    `json:"code_acceptance_activity_count"`
+	LocSuggestedToAddSum          int                    `json:"loc_suggested_to_add_sum"`
+	LocSuggestedToDeleteSum       int                    `json:"loc_suggested_to_delete_sum"`
+	LocAddedSum                   int                    `json:"loc_added_sum"`
+	LocDeletedSum                 int                    `json:"loc_deleted_sum"`
+	UsedAgent                     bool                   `json:"used_agent"`
+	UsedChat                      bool                   `json:"used_chat"`
+	TotalsByIde                   []userTotalsByIde      `json:"totals_by_ide"`
+	TotalsByFeature               []totalsByFeature      `json:"totals_by_feature"`
+	TotalsByLanguageFeature       []totalsByLangFeature  `json:"totals_by_language_feature"`
+	TotalsByLanguageModel         []totalsByLangModel    `json:"totals_by_language_model"`
+	TotalsByModelFeature          []totalsByModelFeature `json:"totals_by_model_feature"`
 }
 
 type userTotalsByIde struct {

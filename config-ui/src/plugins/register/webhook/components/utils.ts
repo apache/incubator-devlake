@@ -20,8 +20,9 @@ import { IWebhook } from '@/types';
 
 export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
   return {
-    postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
-      }' -d '{
+    postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
+      apiKey ?? '{API_KEY}'
+    }' -d '{
       "issueKey":"DLK-1234",
       "title":"an incident from DLK",
       "type":"INCIDENT",
@@ -30,10 +31,12 @@ export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) 
       "createdDate":"2020-01-01T12:00:00+00:00",
       "updatedDate":"2020-01-01T12:00:00+00:00"
     }'`,
-    closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
-      }'`,
-    postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
-      }' -d '{
+    closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
+      apiKey ?? '{API_KEY}'
+    }'`,
+    postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
+      apiKey ?? '{API_KEY}'
+    }' -d '{
       "id": "Required. This will be the unique ID of the deployment",
       "startedDate": "2023-01-01T12:00:00+00:00",
       "finishedDate": "2023-01-01T12:00:00+00:00",
@@ -49,8 +52,9 @@ export const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) 
         }
       ]
     }'`,
-    postPullRequestsEndpoint: `curl ${prefix}${webhook.postPullRequestsEndpoint} -X 'POST' -H 'Authorization: Bearer ${apiKey ?? '{API_KEY}'
-      }' -d '{
+    postPullRequestsEndpoint: `curl ${prefix}${webhook.postPullRequestsEndpoint} -X 'POST' -H 'Authorization: Bearer ${
+      apiKey ?? '{API_KEY}'
+    }' -d '{
       "id": "Required. This will be the unique ID of the pull request",
       "baseRepoId": "your-repo-id",
       "headRepoId": "your-repo-id",

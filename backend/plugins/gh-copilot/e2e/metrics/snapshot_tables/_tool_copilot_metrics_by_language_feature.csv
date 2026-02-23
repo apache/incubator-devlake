@@ -1,0 +1,5 @@
+connection_id,scope_id,day,language,feature,code_generation_activity_count,code_acceptance_activity_count,loc_suggested_to_add_sum,loc_suggested_to_delete_sum,loc_added_sum,loc_deleted_sum
+1,octodemo,2025-09-01T00:00:00.000+00:00,python,code,100,20,300,0,60,0
+1,octodemo,2025-09-01T00:00:00.000+00:00,ruby,code,50,10,120,0,30,0
+1,octodemo,2025-09-02T00:00:00.000+00:00,python,code,180,36,450,0,180,0
+1,octodemo,2025-09-02T00:00:00.000+00:00,go,code,20,4,50,0,20,0

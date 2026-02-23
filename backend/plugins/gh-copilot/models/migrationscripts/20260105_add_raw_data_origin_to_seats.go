@@ -18,20 +18,42 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 // addRawDataOriginToCopilotSeats ensures _tool_copilot_seats includes RawDataOrigin columns.
 // This is required by ApiExtractor/StatefulApiExtractor, which attach provenance to extracted records.
 type addRawDataOriginToCopilotSeats struct{}
 
+type ghCopilotSeat20260105 struct {
+	ConnectionId            uint64 `gorm:"primaryKey"`
+	Organization            string `gorm:"primaryKey;type:varchar(255)"`
+	UserLogin               string `gorm:"primaryKey;type:varchar(255)"`
+	UserId                  int64  `gorm:"index"`
+	PlanType                string `gorm:"type:varchar(32)"`
+	CreatedAt               time.Time
+	LastActivityAt          *time.Time
+	LastActivityEditor      string
+	LastAuthenticatedAt     *time.Time
+	PendingCancellationDate *time.Time
+	UpdatedAt               time.Time
+
+	archived.RawDataOrigin
+}
+
+func (ghCopilotSeat20260105) TableName() string {
+	return "_tool_copilot_seats"
+}
+
 func (script *addRawDataOriginToCopilotSeats) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.GhCopilotSeat{},
+		&ghCopilotSeat20260105{},
 	)
 }
 

@@ -71,6 +71,11 @@ export const ScopeConfigForm = ({
 
   const config = useMemo(() => getPluginConfig(plugin), []);
 
+  const pluginDoc = DOC_URL.PLUGIN[config.plugin.toUpperCase() as keyof typeof DOC_URL.PLUGIN];
+
+  const transformationDoc =
+    typeof pluginDoc === 'object' && pluginDoc && 'TRANSFORMATION' in pluginDoc ? pluginDoc.TRANSFORMATION : undefined;
+
   useEffect(() => {
     setTransformation(config.scopeConfig?.transformation ?? {});
   }, [config.scopeConfig?.transformation]);
@@ -88,7 +93,7 @@ export const ScopeConfigForm = ({
         setName(forceCreate ? `${res.name}-copy` : res.name);
         setEntities(res.entities ?? []);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
-      } catch { }
+      } catch {}
     })();
   }, [scopeConfigId]);
 
@@ -119,15 +124,12 @@ export const ScopeConfigForm = ({
 
   return (
     <Flex vertical gap="middle">
-      {DOC_URL.PLUGIN[config.plugin.toUpperCase()]?.TRANSFORMATION && (
+      {transformationDoc && (
         <Alert
           message={
             <>
               To learn about how {config.name} transformation is used in DevLake,
-              <ExternalLink link={DOC_URL.PLUGIN[config.plugin.toUpperCase()]?.TRANSFORMATION}>
-                check out this doc
-              </ExternalLink>
-              .
+              <ExternalLink link={transformationDoc}>check out this doc</ExternalLink>.
             </>
           }
         />

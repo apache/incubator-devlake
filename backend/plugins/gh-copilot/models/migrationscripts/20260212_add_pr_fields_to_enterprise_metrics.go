@@ -22,7 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
@@ -70,7 +70,7 @@ type enterpriseDailyMetrics20260212v2 struct {
 	PRTotalCreated                int
 	PRTotalCreatedByCopilot       int
 	PRTotalReviewedByCopilot      int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (enterpriseDailyMetrics20260212v2) TableName() string {
@@ -89,7 +89,7 @@ type metricsByIde20260212v2 struct {
 	LocSuggestedToDeleteSum       int
 	LocAddedSum                   int
 	LocDeletedSum                 int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (metricsByIde20260212v2) TableName() string {
@@ -108,7 +108,7 @@ type metricsByFeature20260212v2 struct {
 	LocSuggestedToDeleteSum       int
 	LocAddedSum                   int
 	LocDeletedSum                 int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (metricsByFeature20260212v2) TableName() string {
@@ -116,18 +116,18 @@ func (metricsByFeature20260212v2) TableName() string {
 }
 
 type metricsByLanguageFeature20260212v2 struct {
-	ConnectionId            uint64    `gorm:"primaryKey"`
-	ScopeId                 string    `gorm:"primaryKey;type:varchar(255)"`
-	Day                     time.Time `gorm:"primaryKey;type:date"`
-	Language                string    `gorm:"primaryKey;type:varchar(50)"`
-	Feature                 string    `gorm:"primaryKey;type:varchar(100)"`
+	ConnectionId                uint64    `gorm:"primaryKey"`
+	ScopeId                     string    `gorm:"primaryKey;type:varchar(255)"`
+	Day                         time.Time `gorm:"primaryKey;type:date"`
+	Language                    string    `gorm:"primaryKey;type:varchar(50)"`
+	Feature                     string    `gorm:"primaryKey;type:varchar(100)"`
 	CodeGenerationActivityCount int
 	CodeAcceptanceActivityCount int
 	LocSuggestedToAddSum        int
 	LocSuggestedToDeleteSum     int
 	LocAddedSum                 int
 	LocDeletedSum               int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (metricsByLanguageFeature20260212v2) TableName() string {
@@ -135,18 +135,18 @@ func (metricsByLanguageFeature20260212v2) TableName() string {
 }
 
 type metricsByLanguageModel20260212v2 struct {
-	ConnectionId            uint64    `gorm:"primaryKey"`
-	ScopeId                 string    `gorm:"primaryKey;type:varchar(255)"`
-	Day                     time.Time `gorm:"primaryKey;type:date"`
-	Language                string    `gorm:"primaryKey;type:varchar(50)"`
-	Model                   string    `gorm:"primaryKey;type:varchar(100)"`
+	ConnectionId                uint64    `gorm:"primaryKey"`
+	ScopeId                     string    `gorm:"primaryKey;type:varchar(255)"`
+	Day                         time.Time `gorm:"primaryKey;type:date"`
+	Language                    string    `gorm:"primaryKey;type:varchar(50)"`
+	Model                       string    `gorm:"primaryKey;type:varchar(100)"`
 	CodeGenerationActivityCount int
 	CodeAcceptanceActivityCount int
 	LocSuggestedToAddSum        int
 	LocSuggestedToDeleteSum     int
 	LocAddedSum                 int
 	LocDeletedSum               int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (metricsByLanguageModel20260212v2) TableName() string {
@@ -166,7 +166,7 @@ type metricsByModelFeature20260212v2 struct {
 	LocSuggestedToDeleteSum       int
 	LocAddedSum                   int
 	LocDeletedSum                 int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (metricsByModelFeature20260212v2) TableName() string {
@@ -190,7 +190,7 @@ type userDailyMetrics20260212v2 struct {
 	LocSuggestedToDeleteSum       int
 	LocAddedSum                   int
 	LocDeletedSum                 int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userDailyMetrics20260212v2) TableName() string {
@@ -213,7 +213,7 @@ type userMetricsByIde20260212v2 struct {
 	LocSuggestedToDeleteSum       int
 	LocAddedSum                   int
 	LocDeletedSum                 int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByIde20260212v2) TableName() string {
@@ -233,7 +233,7 @@ type userMetricsByFeature20260212v2 struct {
 	LocSuggestedToDeleteSum       int
 	LocAddedSum                   int
 	LocDeletedSum                 int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByFeature20260212v2) TableName() string {
@@ -241,19 +241,19 @@ func (userMetricsByFeature20260212v2) TableName() string {
 }
 
 type userMetricsByLanguageFeature20260212v2 struct {
-	ConnectionId            uint64    `gorm:"primaryKey"`
-	ScopeId                 string    `gorm:"primaryKey;type:varchar(255)"`
-	Day                     time.Time `gorm:"primaryKey;type:date"`
-	UserId                  int64     `gorm:"primaryKey"`
-	Language                string    `gorm:"primaryKey;type:varchar(50)"`
-	Feature                 string    `gorm:"primaryKey;type:varchar(100)"`
+	ConnectionId                uint64    `gorm:"primaryKey"`
+	ScopeId                     string    `gorm:"primaryKey;type:varchar(255)"`
+	Day                         time.Time `gorm:"primaryKey;type:date"`
+	UserId                      int64     `gorm:"primaryKey"`
+	Language                    string    `gorm:"primaryKey;type:varchar(50)"`
+	Feature                     string    `gorm:"primaryKey;type:varchar(100)"`
 	CodeGenerationActivityCount int
 	CodeAcceptanceActivityCount int
 	LocSuggestedToAddSum        int
 	LocSuggestedToDeleteSum     int
 	LocAddedSum                 int
 	LocDeletedSum               int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByLanguageFeature20260212v2) TableName() string {
@@ -261,19 +261,19 @@ func (userMetricsByLanguageFeature20260212v2) TableName() string {
 }
 
 type userMetricsByLanguageModel20260212v2 struct {
-	ConnectionId            uint64    `gorm:"primaryKey"`
-	ScopeId                 string    `gorm:"primaryKey;type:varchar(255)"`
-	Day                     time.Time `gorm:"primaryKey;type:date"`
-	UserId                  int64     `gorm:"primaryKey"`
-	Language                string    `gorm:"primaryKey;type:varchar(50)"`
-	Model                   string    `gorm:"primaryKey;type:varchar(100)"`
+	ConnectionId                uint64    `gorm:"primaryKey"`
+	ScopeId                     string    `gorm:"primaryKey;type:varchar(255)"`
+	Day                         time.Time `gorm:"primaryKey;type:date"`
+	UserId                      int64     `gorm:"primaryKey"`
+	Language                    string    `gorm:"primaryKey;type:varchar(50)"`
+	Model                       string    `gorm:"primaryKey;type:varchar(100)"`
 	CodeGenerationActivityCount int
 	CodeAcceptanceActivityCount int
 	LocSuggestedToAddSum        int
 	LocSuggestedToDeleteSum     int
 	LocAddedSum                 int
 	LocDeletedSum               int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByLanguageModel20260212v2) TableName() string {
@@ -294,7 +294,7 @@ type userMetricsByModelFeature20260212v2 struct {
 	LocSuggestedToDeleteSum       int
 	LocAddedSum                   int
 	LocDeletedSum                 int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByModelFeature20260212v2) TableName() string {

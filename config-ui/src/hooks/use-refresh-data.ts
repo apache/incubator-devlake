@@ -26,7 +26,7 @@ export const useRefreshData = <T>(request: (signal: AbortSignal) => Promise<T>, 
     state: 'ready' | 'pending' | 'error';
     deps?: React.DependencyList;
     data?: T;
-    error?: unknown;  
+    error?: unknown;
     abortController?: AbortController;
     timer?: number;
   }>({
@@ -38,7 +38,7 @@ export const useRefreshData = <T>(request: (signal: AbortSignal) => Promise<T>, 
       data: ref.current.data,
       ready: ref.current.state === 'ready',
       pending: ref.current.state === 'pending',
-      error: ref.current.error,  
+      error: ref.current.error,
     };
   }
 

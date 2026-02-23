@@ -91,8 +91,8 @@ func CollectEnterpriseMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			q.Set("day", input.Day)
 			return q, nil
 		},
-		Incremental: true,
-		Concurrency: 1,
+		Incremental:   true,
+		Concurrency:   1,
 		AfterResponse: ignore404,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			// Parse metadata response to get download links
@@ -168,9 +168,4 @@ func (it *dayIterator) Fetch() (interface{}, errors.Error) {
 
 func (it *dayIterator) Close() errors.Error {
 	return nil
-}
-
-func mustMarshal(v interface{}) string {
-	b, _ := json.Marshal(v)
-	return string(b)
 }

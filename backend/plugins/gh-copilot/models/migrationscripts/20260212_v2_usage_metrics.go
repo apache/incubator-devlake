@@ -22,7 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
@@ -82,7 +82,7 @@ type enterpriseDailyMetrics20260212 struct {
 	MonthlyActiveChatUsers  int
 	MonthlyActiveAgentUsers int
 	activityMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (enterpriseDailyMetrics20260212) TableName() string {
@@ -95,7 +95,7 @@ type metricsByIde20260212 struct {
 	Day                     time.Time `gorm:"primaryKey;type:date"`
 	Ide                     string    `gorm:"primaryKey;type:varchar(50)"`
 	activityMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (metricsByIde20260212) TableName() string {
@@ -108,7 +108,7 @@ type metricsByFeature20260212 struct {
 	Day                     time.Time `gorm:"primaryKey;type:date"`
 	Feature                 string    `gorm:"primaryKey;type:varchar(100)"`
 	activityMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (metricsByFeature20260212) TableName() string {
@@ -116,13 +116,13 @@ func (metricsByFeature20260212) TableName() string {
 }
 
 type metricsByLanguageFeature20260212 struct {
-	ConnectionId         uint64    `gorm:"primaryKey"`
-	ScopeId              string    `gorm:"primaryKey;type:varchar(255)"`
-	Day                  time.Time `gorm:"primaryKey;type:date"`
-	Language             string    `gorm:"primaryKey;type:varchar(50)"`
-	Feature              string    `gorm:"primaryKey;type:varchar(100)"`
-	codeMetrics20260212  `gorm:"embedded"`
-	common.NoPKModel
+	ConnectionId        uint64    `gorm:"primaryKey"`
+	ScopeId             string    `gorm:"primaryKey;type:varchar(255)"`
+	Day                 time.Time `gorm:"primaryKey;type:date"`
+	Language            string    `gorm:"primaryKey;type:varchar(50)"`
+	Feature             string    `gorm:"primaryKey;type:varchar(100)"`
+	codeMetrics20260212 `gorm:"embedded"`
+	archived.NoPKModel
 }
 
 func (metricsByLanguageFeature20260212) TableName() string {
@@ -130,13 +130,13 @@ func (metricsByLanguageFeature20260212) TableName() string {
 }
 
 type metricsByLanguageModel20260212 struct {
-	ConnectionId         uint64    `gorm:"primaryKey"`
-	ScopeId              string    `gorm:"primaryKey;type:varchar(255)"`
-	Day                  time.Time `gorm:"primaryKey;type:date"`
-	Language             string    `gorm:"primaryKey;type:varchar(50)"`
-	Model                string    `gorm:"primaryKey;type:varchar(100)"`
-	codeMetrics20260212  `gorm:"embedded"`
-	common.NoPKModel
+	ConnectionId        uint64    `gorm:"primaryKey"`
+	ScopeId             string    `gorm:"primaryKey;type:varchar(255)"`
+	Day                 time.Time `gorm:"primaryKey;type:date"`
+	Language            string    `gorm:"primaryKey;type:varchar(50)"`
+	Model               string    `gorm:"primaryKey;type:varchar(100)"`
+	codeMetrics20260212 `gorm:"embedded"`
+	archived.NoPKModel
 }
 
 func (metricsByLanguageModel20260212) TableName() string {
@@ -150,7 +150,7 @@ type metricsByModelFeature20260212 struct {
 	Model                   string    `gorm:"primaryKey;type:varchar(100)"`
 	Feature                 string    `gorm:"primaryKey;type:varchar(100)"`
 	activityMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (metricsByModelFeature20260212) TableName() string {
@@ -169,7 +169,7 @@ type userDailyMetrics20260212 struct {
 	UsedAgent               bool
 	UsedChat                bool
 	activityMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userDailyMetrics20260212) TableName() string {
@@ -186,7 +186,7 @@ type userMetricsByIde20260212 struct {
 	LastKnownPluginVersion  string    `gorm:"type:varchar(50)"`
 	LastKnownIdeVersion     string    `gorm:"type:varchar(50)"`
 	activityMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByIde20260212) TableName() string {
@@ -200,7 +200,7 @@ type userMetricsByFeature20260212 struct {
 	UserId                  int64     `gorm:"primaryKey"`
 	Feature                 string    `gorm:"primaryKey;type:varchar(100)"`
 	activityMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByFeature20260212) TableName() string {
@@ -215,7 +215,7 @@ type userMetricsByLanguageFeature20260212 struct {
 	Language            string    `gorm:"primaryKey;type:varchar(50)"`
 	Feature             string    `gorm:"primaryKey;type:varchar(100)"`
 	codeMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByLanguageFeature20260212) TableName() string {
@@ -230,7 +230,7 @@ type userMetricsByLanguageModel20260212 struct {
 	Language            string    `gorm:"primaryKey;type:varchar(50)"`
 	Model               string    `gorm:"primaryKey;type:varchar(100)"`
 	codeMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByLanguageModel20260212) TableName() string {
@@ -245,7 +245,7 @@ type userMetricsByModelFeature20260212 struct {
 	Model                   string    `gorm:"primaryKey;type:varchar(100)"`
 	Feature                 string    `gorm:"primaryKey;type:varchar(100)"`
 	activityMetrics20260212 `gorm:"embedded"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (userMetricsByModelFeature20260212) TableName() string {
@@ -274,7 +274,7 @@ type orgDailyMetrics20260212 struct {
 	PREngagedUsers           int
 	SeatActiveCount          int
 	SeatTotal                int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (orgDailyMetrics20260212) TableName() string {
@@ -282,17 +282,17 @@ func (orgDailyMetrics20260212) TableName() string {
 }
 
 type orgLanguageMetrics20260212 struct {
-	ConnectionId uint64    `gorm:"primaryKey"`
-	ScopeId      string    `gorm:"primaryKey;type:varchar(255)"`
-	Date         time.Time `gorm:"primaryKey;type:date"`
-	Editor       string    `gorm:"primaryKey;type:varchar(50)"`
-	Language     string    `gorm:"primaryKey;type:varchar(50)"`
+	ConnectionId   uint64    `gorm:"primaryKey"`
+	ScopeId        string    `gorm:"primaryKey;type:varchar(255)"`
+	Date           time.Time `gorm:"primaryKey;type:date"`
+	Editor         string    `gorm:"primaryKey;type:varchar(50)"`
+	Language       string    `gorm:"primaryKey;type:varchar(50)"`
 	EngagedUsers   int
 	Suggestions    int
 	Acceptances    int
 	LinesSuggested int
 	LinesAccepted  int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (orgLanguageMetrics20260212) TableName() string {

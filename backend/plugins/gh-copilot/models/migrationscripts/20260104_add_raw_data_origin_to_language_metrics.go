@@ -18,20 +18,42 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 // addRawDataOriginToCopilotLanguageMetrics ensures _tool_copilot_language_metrics includes RawDataOrigin columns.
 // This is required by StatefulApiExtractor, which attaches provenance to extracted records.
 type addRawDataOriginToCopilotLanguageMetrics struct{}
 
+type ghCopilotLanguageMetrics20260104 struct {
+	ConnectionId uint64    `gorm:"primaryKey"`
+	ScopeId      string    `gorm:"primaryKey;type:varchar(255)"`
+	Date         time.Time `gorm:"primaryKey;type:date"`
+	Editor       string    `gorm:"primaryKey;type:varchar(50)"`
+	Language     string    `gorm:"primaryKey;type:varchar(50)"`
+
+	EngagedUsers   int `json:"engagedUsers"`
+	Suggestions    int `json:"suggestions"`
+	Acceptances    int `json:"acceptances"`
+	LinesSuggested int `json:"linesSuggested"`
+	LinesAccepted  int `json:"linesAccepted"`
+
+	archived.NoPKModel
+}
+
+func (ghCopilotLanguageMetrics20260104) TableName() string {
+	return "_tool_copilot_org_language_metrics"
+}
+
 func (script *addRawDataOriginToCopilotLanguageMetrics) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.GhCopilotLanguageMetrics{},
+		&ghCopilotLanguageMetrics20260104{},
 	)
 }
 

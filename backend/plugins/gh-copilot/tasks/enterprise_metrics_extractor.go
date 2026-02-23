@@ -29,34 +29,27 @@ import (
 
 // --- Enterprise report JSON structures ---
 
-type enterpriseReport struct {
-	ReportStartDay string                  `json:"report_start_day"`
-	ReportEndDay   string                  `json:"report_end_day"`
-	EnterpriseId   string                  `json:"enterprise_id"`
-	DayTotals      []enterpriseDayTotal    `json:"day_totals"`
-}
-
 type enterpriseDayTotal struct {
-	Day                           string                  `json:"day"`
-	EnterpriseId                  string                  `json:"enterprise_id"`
-	DailyActiveUsers              int                     `json:"daily_active_users"`
-	WeeklyActiveUsers             int                     `json:"weekly_active_users"`
-	MonthlyActiveUsers            int                     `json:"monthly_active_users"`
-	MonthlyActiveChatUsers        int                     `json:"monthly_active_chat_users"`
-	MonthlyActiveAgentUsers       int                     `json:"monthly_active_agent_users"`
-	UserInitiatedInteractionCount int                     `json:"user_initiated_interaction_count"`
-	CodeGenerationActivityCount   int                     `json:"code_generation_activity_count"`
-	CodeAcceptanceActivityCount   int                     `json:"code_acceptance_activity_count"`
-	LocSuggestedToAddSum          int                     `json:"loc_suggested_to_add_sum"`
-	LocSuggestedToDeleteSum       int                     `json:"loc_suggested_to_delete_sum"`
-	LocAddedSum                   int                     `json:"loc_added_sum"`
-	LocDeletedSum                 int                     `json:"loc_deleted_sum"`
-	TotalsByIde                   []totalsByIde           `json:"totals_by_ide"`
-	TotalsByFeature               []totalsByFeature       `json:"totals_by_feature"`
-	TotalsByLanguageFeature       []totalsByLangFeature   `json:"totals_by_language_feature"`
-	TotalsByLanguageModel         []totalsByLangModel     `json:"totals_by_language_model"`
-	TotalsByModelFeature          []totalsByModelFeature  `json:"totals_by_model_feature"`
-	PullRequests                  *pullRequestStats       `json:"pull_requests"`
+	Day                           string                 `json:"day"`
+	EnterpriseId                  string                 `json:"enterprise_id"`
+	DailyActiveUsers              int                    `json:"daily_active_users"`
+	WeeklyActiveUsers             int                    `json:"weekly_active_users"`
+	MonthlyActiveUsers            int                    `json:"monthly_active_users"`
+	MonthlyActiveChatUsers        int                    `json:"monthly_active_chat_users"`
+	MonthlyActiveAgentUsers       int                    `json:"monthly_active_agent_users"`
+	UserInitiatedInteractionCount int                    `json:"user_initiated_interaction_count"`
+	CodeGenerationActivityCount   int                    `json:"code_generation_activity_count"`
+	CodeAcceptanceActivityCount   int                    `json:"code_acceptance_activity_count"`
+	LocSuggestedToAddSum          int                    `json:"loc_suggested_to_add_sum"`
+	LocSuggestedToDeleteSum       int                    `json:"loc_suggested_to_delete_sum"`
+	LocAddedSum                   int                    `json:"loc_added_sum"`
+	LocDeletedSum                 int                    `json:"loc_deleted_sum"`
+	TotalsByIde                   []totalsByIde          `json:"totals_by_ide"`
+	TotalsByFeature               []totalsByFeature      `json:"totals_by_feature"`
+	TotalsByLanguageFeature       []totalsByLangFeature  `json:"totals_by_language_feature"`
+	TotalsByLanguageModel         []totalsByLangModel    `json:"totals_by_language_model"`
+	TotalsByModelFeature          []totalsByModelFeature `json:"totals_by_model_feature"`
+	PullRequests                  *pullRequestStats      `json:"pull_requests"`
 }
 
 type totalsByIde struct {
@@ -165,13 +158,13 @@ func ExtractEnterpriseMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 
 			// Main daily metrics
 			dailyMetrics := &models.GhCopilotEnterpriseDailyMetrics{
-				ConnectionId:        data.Options.ConnectionId,
-				ScopeId:             data.Options.ScopeId,
-				Day:                 day,
-				EnterpriseId:        dt.EnterpriseId,
-				DailyActiveUsers:    dt.DailyActiveUsers,
-				WeeklyActiveUsers:   dt.WeeklyActiveUsers,
-				MonthlyActiveUsers:  dt.MonthlyActiveUsers,
+				ConnectionId:            data.Options.ConnectionId,
+				ScopeId:                 data.Options.ScopeId,
+				Day:                     day,
+				EnterpriseId:            dt.EnterpriseId,
+				DailyActiveUsers:        dt.DailyActiveUsers,
+				WeeklyActiveUsers:       dt.WeeklyActiveUsers,
+				MonthlyActiveUsers:      dt.MonthlyActiveUsers,
 				MonthlyActiveChatUsers:  dt.MonthlyActiveChatUsers,
 				MonthlyActiveAgentUsers: dt.MonthlyActiveAgentUsers,
 				CopilotActivityMetrics: models.CopilotActivityMetrics{

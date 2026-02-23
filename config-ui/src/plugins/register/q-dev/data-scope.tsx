@@ -205,10 +205,7 @@ export const QDevDataScope = ({
     [selectedItems],
   );
 
-  const derivedAccountId = useMemo(
-    () => deriveAccountIdFromSelection(selectedItems) ?? '',
-    [selectedItems],
-  );
+  const derivedAccountId = useMemo(() => deriveAccountIdFromSelection(selectedItems) ?? '', [selectedItems]);
 
   useEffect(() => {
     if (!form.isFieldsTouched(['basePath'])) {
@@ -256,7 +253,12 @@ export const QDevDataScope = ({
 
       const hasMonths = selectedItems.some((item) => {
         const meta = extractScopeMeta(item);
-        return meta.basePath === normalizedBase && meta.accountId === normalizedAccountId && meta.year === normalizedYear && meta.month !== null;
+        return (
+          meta.basePath === normalizedBase &&
+          meta.accountId === normalizedAccountId &&
+          meta.year === normalizedYear &&
+          meta.month !== null
+        );
       });
 
       if (hasMonths) {
@@ -321,12 +323,14 @@ export const QDevDataScope = ({
       render: (_: unknown, item) => {
         const meta = extractScopeMeta(item);
         if (meta.accountId) {
-          const timePart = meta.month
-            ? `${meta.year}/${ensureLeadingZero(meta.month)}`
-            : `${meta.year}`;
+          const timePart = meta.month ? `${meta.year}/${ensureLeadingZero(meta.month)}` : `${meta.year}`;
           return (
-            <Tooltip title={`Scans both by_user_analytic and user_report under AWSLogs/${meta.accountId}/KiroLogs/…/${timePart}`}>
-              <Typography.Text code>{meta.basePath}/…/{meta.accountId}/…/{timePart}</Typography.Text>
+            <Tooltip
+              title={`Scans both by_user_analytic and user_report under AWSLogs/${meta.accountId}/KiroLogs/…/${timePart}`}
+            >
+              <Typography.Text code>
+                {meta.basePath}/…/{meta.accountId}/…/{timePart}
+              </Typography.Text>
             </Tooltip>
           );
         }

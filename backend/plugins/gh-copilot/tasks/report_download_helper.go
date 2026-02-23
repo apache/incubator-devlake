@@ -86,46 +86,6 @@ func computeReportDateRange(now time.Time, since *time.Time) (start, until time.
 	return start, until
 }
 
-// fetchReportMetadata calls a report metadata endpoint for a specific day and returns the download links.
-func fetchReportMetadata(
-	apiClient *helper.ApiAsyncClient,
-	endpoint string,
-	day time.Time,
-	logger log.Logger,
-) (*reportMetadataResponse, errors.Error) {
-	dayStr := day.Format("2006-01-02")
-	uri := fmt.Sprintf("%s?day=%s", endpoint, dayStr)
-
-	res, err := apiClient.Get(uri, nil, nil)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to fetch report metadata for %s", dayStr))
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode == http.StatusNotFound {
-		// Report not available for this day (data not yet processed or no activity)
-		if logger != nil {
-			logger.Info("No report available for %s (404), skipping", dayStr)
-		}
-		return nil, nil
-	}
-	if res.StatusCode >= 400 {
-		body, _ := io.ReadAll(res.Body)
-		return nil, buildGitHubApiError(res.StatusCode, "", body, res.Header.Get("Retry-After"))
-	}
-
-	body, readErr := io.ReadAll(res.Body)
-	if readErr != nil {
-		return nil, errors.Default.Wrap(readErr, "failed to read report metadata response")
-	}
-
-	var meta reportMetadataResponse
-	if jsonErr := json.Unmarshal(body, &meta); jsonErr != nil {
-		return nil, errors.Default.Wrap(jsonErr, fmt.Sprintf("failed to parse report metadata for %s", dayStr))
-	}
-	return &meta, nil
-}
-
 // downloadReport downloads a single report file from a signed URL and returns the raw body.
 // Returns nil, nil when the blob is not found (404) — the caller should skip such reports.
 func downloadReport(url string, logger log.Logger) ([]byte, errors.Error) {
