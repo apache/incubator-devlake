@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
-	restTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractDeployments
@@ -114,11 +113,11 @@ func getDeploymentFinishedDate(deployment *GraphqlQueryDeploymentDeployment) *ti
 			continue
 		}
 		switch s.State {
-		case restTasks.StatusSuccess:
+		case githubTasks.StatusSuccess:
 			if latestSuccess == nil || s.UpdatedAt.After(*latestSuccess) {
 				latestSuccess = s.UpdatedAt
 			}
-		case restTasks.StatusFailure, restTasks.StatusError, restTasks.StatusInactive, restTasks.StatusActive:
+		case githubTasks.StatusFailure, githubTasks.StatusError, githubTasks.StatusInactive, githubTasks.StatusActive:
 			if latestTerminal == nil || s.UpdatedAt.After(*latestTerminal) {
 				latestTerminal = s.UpdatedAt
 			}
