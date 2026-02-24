@@ -23,7 +23,7 @@ import (
 )
 
 func TestShouldSkipByUsername_EmptyList(t *testing.T) {
-	resetExcludedUsernamesForTest()
+	ResetExcludedUsernamesForTest()
 	os.Setenv("GITHUB_PR_EXCLUDELIST", "")
 	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
 
@@ -33,7 +33,7 @@ func TestShouldSkipByUsername_EmptyList(t *testing.T) {
 }
 
 func TestShouldSkipByUsername_SingleMatch(t *testing.T) {
-	resetExcludedUsernamesForTest()
+	ResetExcludedUsernamesForTest()
 	os.Setenv("GITHUB_PR_EXCLUDELIST", "renovate[bot]")
 	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
 
@@ -46,7 +46,7 @@ func TestShouldSkipByUsername_SingleMatch(t *testing.T) {
 }
 
 func TestShouldSkipByUsername_MultipleUsernames(t *testing.T) {
-	resetExcludedUsernamesForTest()
+	ResetExcludedUsernamesForTest()
 	os.Setenv("GITHUB_PR_EXCLUDELIST", "renovate[bot],dependabot[bot],github-actions[bot]")
 	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
 
@@ -65,7 +65,7 @@ func TestShouldSkipByUsername_MultipleUsernames(t *testing.T) {
 }
 
 func TestShouldSkipByUsername_CaseInsensitive(t *testing.T) {
-	resetExcludedUsernamesForTest()
+	ResetExcludedUsernamesForTest()
 	os.Setenv("GITHUB_PR_EXCLUDELIST", "renovate[bot]")
 	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
 
@@ -78,7 +78,7 @@ func TestShouldSkipByUsername_CaseInsensitive(t *testing.T) {
 }
 
 func TestShouldSkipByUsername_WhitespaceTrimming(t *testing.T) {
-	resetExcludedUsernamesForTest()
+	ResetExcludedUsernamesForTest()
 	os.Setenv("GITHUB_PR_EXCLUDELIST", " renovate[bot] , dependabot[bot] ")
 	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
 
@@ -91,7 +91,7 @@ func TestShouldSkipByUsername_WhitespaceTrimming(t *testing.T) {
 }
 
 func TestShouldSkipByUsername_EmptyUsername(t *testing.T) {
-	resetExcludedUsernamesForTest()
+	ResetExcludedUsernamesForTest()
 	os.Setenv("GITHUB_PR_EXCLUDELIST", "renovate[bot]")
 	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
 

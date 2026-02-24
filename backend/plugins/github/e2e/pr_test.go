@@ -179,6 +179,7 @@ func TestPrDataFlowWithBotFiltering(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
 	// Set up bot filtering
+	tasks.ResetExcludedUsernamesForTest()
 	os.Setenv("GITHUB_PR_EXCLUDELIST", "renovate[bot]")
 	defer os.Unsetenv("GITHUB_PR_EXCLUDELIST")
 

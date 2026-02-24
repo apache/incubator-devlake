@@ -57,8 +57,8 @@ func loadExcludedUsernames() {
 	}
 }
 
-// resetExcludedUsernamesForTest resets the cache for testing purposes
-func resetExcludedUsernamesForTest() {
+// ResetExcludedUsernamesForTest resets the cache for testing purposes
+func ResetExcludedUsernamesForTest() {
 	excludedUsernamesMu.Lock()
 	defer excludedUsernamesMu.Unlock()
 	excludedUsernames = nil
