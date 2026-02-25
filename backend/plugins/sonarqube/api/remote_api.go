@@ -48,7 +48,8 @@ func querySonarqubeProjects(
 	if page.Page == 0 {
 		page.Page = 1
 	}
-	res, err := apiClient.Get("projects/search", url.Values{
+	// Use components/search_projects so non-admin (Browse) tokens can list projects.
+	res, err := apiClient.Get("components/search_projects", url.Values{
 		"p":  {fmt.Sprintf("%v", page.Page)},
 		"ps": {fmt.Sprintf("%v", page.PageSize)},
 		"q":  {keyword},
