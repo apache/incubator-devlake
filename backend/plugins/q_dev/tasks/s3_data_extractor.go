@@ -147,7 +147,7 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 			if err != nil {
 				return errors.Default.Wrap(err, "failed to create user report data")
 			}
-			err = db.Create(reportData)
+			err = db.CreateOrUpdate(reportData)
 			if err != nil {
 				return errors.Default.Wrap(err, "failed to save user report data")
 			}
@@ -158,8 +158,7 @@ func processCSVData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadClo
 				return errors.Default.Wrap(err, "failed to create user data")
 			}
 
-			// Save to database - no need to check for duplicates since we're processing each file only once
-			err = db.Create(userData)
+			err = db.CreateOrUpdate(userData)
 			if err != nil {
 				return errors.Default.Wrap(err, "failed to save user data")
 			}
