@@ -15,16 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type QDevUserReport struct {
-	common.NoPKModel
+type QDevUserReportV2 struct {
+	archived.NoPKModel
 	ConnectionId       uint64    `gorm:"primaryKey"`
 	ScopeId            string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
 	UserId             string    `gorm:"primaryKey;type:varchar(255)" json:"userId"`
@@ -41,6 +41,6 @@ type QDevUserReport struct {
 	TotalMessages      int       `json:"totalMessages"`
 }
 
-func (QDevUserReport) TableName() string {
+func (QDevUserReportV2) TableName() string {
 	return "_tool_q_dev_user_report"
 }
