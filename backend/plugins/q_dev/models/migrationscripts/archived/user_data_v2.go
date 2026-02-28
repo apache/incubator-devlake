@@ -25,38 +25,38 @@ import (
 
 type QDevUserDataV2 struct {
 	archived.NoPKModel
-	ConnectionId                      uint64    `gorm:"primaryKey"`
-	ScopeId                           string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
-	UserId                            string    `gorm:"primaryKey;type:varchar(255)" json:"userId"`
-	Date                              time.Time `gorm:"primaryKey;type:date" json:"date"`
-	DisplayName                       string    `gorm:"type:varchar(255)" json:"displayName"`
-	CodeReview_FindingsCount          int
-	CodeReview_SucceededEventCount    int
-	InlineChat_AcceptanceEventCount   int
-	InlineChat_AcceptedLineAdditions  int
-	InlineChat_AcceptedLineDeletions  int
-	InlineChat_DismissalEventCount    int
-	InlineChat_DismissedLineAdditions int
-	InlineChat_DismissedLineDeletions int
-	InlineChat_RejectedLineAdditions  int
-	InlineChat_RejectedLineDeletions  int
-	InlineChat_RejectionEventCount    int
-	InlineChat_TotalEventCount        int
-	Inline_AICodeLines                int
-	Inline_AcceptanceCount            int
-	Inline_SuggestionsCount           int
-	Chat_AICodeLines                  int
-	Chat_MessagesInteracted           int
-	Chat_MessagesSent                 int
-	CodeFix_AcceptanceEventCount      int
-	CodeFix_AcceptedLines             int
-	CodeFix_GeneratedLines            int
-	CodeFix_GenerationEventCount      int
-	CodeReview_FailedEventCount       int
-	Dev_AcceptanceEventCount          int
-	Dev_AcceptedLines                 int
-	Dev_GeneratedLines                int
-	Dev_GenerationEventCount          int
+	ConnectionId                         uint64    `gorm:"primaryKey"`
+	ScopeId                              string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
+	UserId                               string    `gorm:"primaryKey;type:varchar(255)" json:"userId"`
+	Date                                 time.Time `gorm:"primaryKey;type:date" json:"date"`
+	DisplayName                          string    `gorm:"type:varchar(255)" json:"displayName"`
+	CodeReview_FindingsCount             int
+	CodeReview_SucceededEventCount       int
+	InlineChat_AcceptanceEventCount      int
+	InlineChat_AcceptedLineAdditions     int
+	InlineChat_AcceptedLineDeletions     int
+	InlineChat_DismissalEventCount       int
+	InlineChat_DismissedLineAdditions    int
+	InlineChat_DismissedLineDeletions    int
+	InlineChat_RejectedLineAdditions     int
+	InlineChat_RejectedLineDeletions     int
+	InlineChat_RejectionEventCount       int
+	InlineChat_TotalEventCount           int
+	Inline_AICodeLines                   int
+	Inline_AcceptanceCount               int
+	Inline_SuggestionsCount              int
+	Chat_AICodeLines                     int
+	Chat_MessagesInteracted              int
+	Chat_MessagesSent                    int
+	CodeFix_AcceptanceEventCount         int
+	CodeFix_AcceptedLines                int
+	CodeFix_GeneratedLines               int
+	CodeFix_GenerationEventCount         int
+	CodeReview_FailedEventCount          int
+	Dev_AcceptanceEventCount             int
+	Dev_AcceptedLines                    int
+	Dev_GeneratedLines                   int
+	Dev_GenerationEventCount             int
 	DocGeneration_AcceptedFileUpdates    int
 	DocGeneration_AcceptedFilesCreations int
 	DocGeneration_AcceptedLineAdditions  int
