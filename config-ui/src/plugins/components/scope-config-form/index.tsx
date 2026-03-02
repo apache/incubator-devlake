@@ -35,6 +35,7 @@ import { TapdTransformation } from '@/plugins/register/tapd';
 import { BambooTransformation } from '@/plugins/register/bamboo';
 import { CircleCITransformation } from '@/plugins/register/circleci';
 import { ArgoCDTransformation } from '@/plugins/register/argocd';
+import { GhCopilotTransformation } from '@/plugins/register/gh-copilot';
 import { DOC_URL } from '@/release';
 import { operator } from '@/utils';
 
@@ -70,6 +71,11 @@ export const ScopeConfigForm = ({
 
   const config = useMemo(() => getPluginConfig(plugin), []);
 
+  const pluginDoc = DOC_URL.PLUGIN[config.plugin.toUpperCase() as keyof typeof DOC_URL.PLUGIN];
+
+  const transformationDoc =
+    typeof pluginDoc === 'object' && pluginDoc && 'TRANSFORMATION' in pluginDoc ? pluginDoc.TRANSFORMATION : undefined;
+
   useEffect(() => {
     setTransformation(config.scopeConfig?.transformation ?? {});
   }, [config.scopeConfig?.transformation]);
@@ -87,7 +93,7 @@ export const ScopeConfigForm = ({
         setName(forceCreate ? `${res.name}-copy` : res.name);
         setEntities(res.entities ?? []);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
-      } catch { }
+      } catch {}
     })();
   }, [scopeConfigId]);
 
@@ -118,18 +124,16 @@ export const ScopeConfigForm = ({
 
   return (
     <Flex vertical gap="middle">
-      <Alert
-        message={
-          <>
-            To learn about how {config.name} transformation is used in DevLake,
-            {/* @ts-ignore */}
-            <ExternalLink link={DOC_URL.PLUGIN[config.plugin.toLocaleUpperCase()].TRANSFORMATION}>
-              check out this doc
-            </ExternalLink>
-            .
-          </>
-        }
-      />
+      {transformationDoc && (
+        <Alert
+          message={
+            <>
+              To learn about how {config.name} transformation is used in DevLake,
+              <ExternalLink link={transformationDoc}>check out this doc</ExternalLink>.
+            </>
+          }
+        />
+      )}
       {step === 1 && (
         <>
           <Card>
@@ -256,6 +260,14 @@ export const ScopeConfigForm = ({
                   transformation={transformation}
                   setTransformation={setTransformation}
                   setHasError={setHasError}
+                />
+              )}
+
+              {plugin === 'gh-copilot' && (
+                <GhCopilotTransformation
+                  entities={entities}
+                  transformation={transformation}
+                  setTransformation={setTransformation}
                 />
               )}
 

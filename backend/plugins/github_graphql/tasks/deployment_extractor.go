@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -74,6 +75,7 @@ func ExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 func convertGithubDeployment(deployment *GraphqlQueryDeploymentDeployment, connectionId uint64, githubId int) (*githubModels.GithubDeployment, errors.Error) {
+	finishedDate := getDeploymentFinishedDate(deployment)
 	ret := &githubModels.GithubDeployment{
 		ConnectionId:      connectionId,
 		GithubId:          githubId,
@@ -92,6 +94,7 @@ func convertGithubDeployment(deployment *GraphqlQueryDeploymentDeployment, conne
 		RepositoryUrl:     deployment.Repository.Url,
 		CreatedDate:       deployment.CreatedAt,
 		UpdatedDate:       deployment.UpdatedAt,
+		FinishedDate:      finishedDate,
 		LatestStatusState: deployment.LatestStatus.State,
 		LatestUpdatedDate: deployment.LatestStatus.UpdatedAt,
 	}
@@ -99,4 +102,31 @@ func convertGithubDeployment(deployment *GraphqlQueryDeploymentDeployment, conne
 		ret.RefName = deployment.Ref.Name
 	}
 	return ret, nil
+}
+
+func getDeploymentFinishedDate(deployment *GraphqlQueryDeploymentDeployment) *time.Time {
+	var latestSuccess *time.Time
+	var latestTerminal *time.Time
+
+	for _, s := range deployment.Statuses.Nodes {
+		if s.UpdatedAt == nil {
+			continue
+		}
+		switch s.State {
+		case githubTasks.StatusSuccess:
+			if latestSuccess == nil || s.UpdatedAt.After(*latestSuccess) {
+				latestSuccess = s.UpdatedAt
+			}
+		case githubTasks.StatusFailure, githubTasks.StatusError, githubTasks.StatusInactive, githubTasks.StatusActive:
+			if latestTerminal == nil || s.UpdatedAt.After(*latestTerminal) {
+				latestTerminal = s.UpdatedAt
+			}
+		}
+	}
+
+	if latestSuccess != nil {
+		return latestSuccess
+	}
+
+	return latestTerminal
 }

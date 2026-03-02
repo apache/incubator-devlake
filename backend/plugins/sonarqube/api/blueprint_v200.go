@@ -131,7 +131,8 @@ func GetApiProject(
 	}
 	query := url.Values{}
 	query.Set("q", projectKey)
-	res, err := apiClient.Get("projects/search", query, nil)
+	// Use components/search_projects for consistency and normal-token (Browse) support.
+	res, err := apiClient.Get("components/search_projects", query, nil)
 	if err != nil {
 		return nil, err
 	}

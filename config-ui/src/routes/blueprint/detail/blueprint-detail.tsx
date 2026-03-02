@@ -48,15 +48,12 @@ export const BlueprintDetail = ({ id, from }: Props) => {
   }, [state]);
 
   const { ready, data, error } = useRefreshData(async () => {
-    const [bpRes, pipelineRes] = await Promise.all([
-      API.blueprint.get(id),
-      API.blueprint.pipelines(id),
-    ]);
+    const [bpRes, pipelineRes] = await Promise.all([API.blueprint.get(id), API.blueprint.pipelines(id)]);
     return [bpRes, pipelineRes.pipelines[0]];
   }, [version]);
 
   useEffect(() => {
-     if (axios.isAxiosError(error) && error.response?.status === 404) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
       message.error(`Blueprint not found with id: ${id}`);
       navigate(PATHS.BLUEPRINTS(), { replace: true });
     }

@@ -56,12 +56,18 @@ export const QDevConnectionTest = ({ plugin, connectionId, values, initialValues
             return API.connection.test(plugin, connectionId, {
               authType: values.authType !== initialValues.authType ? values.authType : undefined,
               accessKeyId: values.accessKeyId !== initialValues.accessKeyId ? values.accessKeyId : undefined,
-              secretAccessKey: values.secretAccessKey !== initialValues.secretAccessKey ? values.secretAccessKey : undefined,
+              secretAccessKey:
+                values.secretAccessKey !== initialValues.secretAccessKey ? values.secretAccessKey : undefined,
               region: values.region !== initialValues.region ? values.region : undefined,
               bucket: values.bucket !== initialValues.bucket ? values.bucket : undefined,
-              identityStoreId: values.identityStoreId !== initialValues.identityStoreId ? values.identityStoreId : undefined,
-              identityStoreRegion: values.identityStoreRegion !== initialValues.identityStoreRegion ? values.identityStoreRegion : undefined,
-              rateLimitPerHour: values.rateLimitPerHour !== initialValues.rateLimitPerHour ? values.rateLimitPerHour : undefined,
+              identityStoreId:
+                values.identityStoreId !== initialValues.identityStoreId ? values.identityStoreId : undefined,
+              identityStoreRegion:
+                values.identityStoreRegion !== initialValues.identityStoreRegion
+                  ? values.identityStoreRegion
+                  : undefined,
+              rateLimitPerHour:
+                values.rateLimitPerHour !== initialValues.rateLimitPerHour ? values.rateLimitPerHour : undefined,
               proxy: values.proxy !== initialValues.proxy ? values.proxy : undefined,
             } as any);
           } else {
@@ -104,7 +110,7 @@ export const QDevConnectionTest = ({ plugin, connectionId, values, initialValues
       }
     } catch (error: any) {
       let errorMessage = 'Connection test failed. Please check your configuration.';
-      
+
       if (error?.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error?.message) {
@@ -121,7 +127,8 @@ export const QDevConnectionTest = ({ plugin, connectionId, values, initialValues
       } else if (errorMessage.includes('InvalidBucketName')) {
         errorMessage = 'Invalid S3 bucket name. Please check the bucket name format.';
       } else if (errorMessage.includes('NoCredentialsError')) {
-        errorMessage = 'AWS credentials not found. Please provide valid Access Key ID and Secret Access Key, or ensure IAM role is properly configured.';
+        errorMessage =
+          'AWS credentials not found. Please provide valid Access Key ID and Secret Access Key, or ensure IAM role is properly configured.';
       }
 
       setTestResult({
@@ -165,9 +172,7 @@ export const QDevConnectionTest = ({ plugin, connectionId, values, initialValues
             testResult?.success && testResult.details ? (
               <div>
                 <div>✓ S3 Access: Verified</div>
-                {testResult.details.identityCenterAccess && (
-                  <div>✓ IAM Identity Center: Configured</div>
-                )}
+                {testResult.details.identityCenterAccess && <div>✓ IAM Identity Center: Configured</div>}
                 {!values.identityStoreId && (
                   <div style={{ marginTop: 8, color: '#faad14' }}>
                     ⚠️ IAM Identity Center not configured - user display names will show as user IDs

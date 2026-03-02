@@ -34,7 +34,7 @@ func TestQDev_BasicPluginMethods(t *testing.T) {
 
 	// Test table info
 	tables := plugin.GetTablesInfo()
-	assert.Len(t, tables, 4)
+	assert.Len(t, tables, 5)
 
 	// Test subtask metas
 	subtasks := plugin.SubTaskMetas()
@@ -48,7 +48,7 @@ func TestQDev_BasicPluginMethods(t *testing.T) {
 }
 
 func TestQDev_TaskDataStructure(t *testing.T) {
-	// Test that QDevTaskData has the expected structure
+	// Test that QDevTaskData has the expected structure (legacy mode)
 	taskData := &tasks.QDevTaskData{
 		Options: &tasks.QDevOptions{
 			ConnectionId: 1,
@@ -61,6 +61,7 @@ func TestQDev_TaskDataStructure(t *testing.T) {
 			StoreId: "d-1234567890",
 			Region:  "us-west-2",
 		},
+		S3Prefixes: []string{"test/"},
 	}
 
 	assert.NotNil(t, taskData.Options)
@@ -72,6 +73,36 @@ func TestQDev_TaskDataStructure(t *testing.T) {
 	assert.Equal(t, "test-bucket", taskData.S3Client.Bucket)
 	assert.Equal(t, "d-1234567890", taskData.IdentityClient.StoreId)
 	assert.Equal(t, "us-west-2", taskData.IdentityClient.Region)
+	assert.Equal(t, []string{"test/"}, taskData.S3Prefixes)
+}
+
+func TestQDev_TaskDataWithAccountId(t *testing.T) {
+	// Test new-style scope with AccountId and multiple S3Prefixes
+	month := 1
+	taskData := &tasks.QDevTaskData{
+		Options: &tasks.QDevOptions{
+			ConnectionId: 1,
+			AccountId:    "034362076319",
+			BasePath:     "user-report",
+			Year:         2026,
+			Month:        &month,
+		},
+		S3Client: &tasks.QDevS3Client{
+			Bucket: "test-bucket",
+		},
+		S3Prefixes: []string{
+			"user-report/AWSLogs/034362076319/KiroLogs/by_user_analytic/us-east-1/2026/01",
+			"user-report/AWSLogs/034362076319/KiroLogs/user_report/us-east-1/2026/01",
+		},
+	}
+
+	assert.Equal(t, "034362076319", taskData.Options.AccountId)
+	assert.Equal(t, "user-report", taskData.Options.BasePath)
+	assert.Equal(t, 2026, taskData.Options.Year)
+	assert.Equal(t, &month, taskData.Options.Month)
+	assert.Len(t, taskData.S3Prefixes, 2)
+	assert.Contains(t, taskData.S3Prefixes[0], "by_user_analytic")
+	assert.Contains(t, taskData.S3Prefixes[1], "user_report")
 }
 
 func TestQDev_TaskDataWithoutIdentityClient(t *testing.T) {
@@ -83,10 +114,12 @@ func TestQDev_TaskDataWithoutIdentityClient(t *testing.T) {
 		S3Client: &tasks.QDevS3Client{
 			Bucket: "test-bucket",
 		},
-		IdentityClient: nil, // No identity client
+		IdentityClient: nil,
+		S3Prefixes:     []string{"some-prefix/"},
 	}
 
 	assert.NotNil(t, taskData.Options)
 	assert.NotNil(t, taskData.S3Client)
 	assert.Nil(t, taskData.IdentityClient)
+	assert.Len(t, taskData.S3Prefixes, 1)
 }
