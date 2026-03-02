@@ -66,6 +66,7 @@ You can set up Apache DevLake by following our step-by-step instructions for eit
 
 - [Install via Docker Compose](https://devlake.apache.org/docs/GettingStarted/DockerComposeSetup)
 - [Install via Helm](https://devlake.apache.org/docs/GettingStarted/HelmSetup)
+- [Install via gh-devlake CLI](https://github.com/DevExpGBB/gh-devlake) — A GitHub CLI extension that deploys, configures, and monitors DevLake entirely from the terminal. Supports local Docker and Azure deployments.
 
 ## 🤓 Usage
 
