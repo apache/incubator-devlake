@@ -26,6 +26,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+// tokenPrefix returns the first n characters of a token for safe logging.
+func tokenPrefix(token string, n int) string {
+	if len(token) <= n {
+		return token
+	}
+	return token[:n] + "..."
+}
+
 func refreshGitHubAppInstallationToken(tp *TokenProvider) errors.Error {
 	if tp == nil || tp.conn == nil {
 		return errors.Default.New("missing github connection for app token refresh")
@@ -37,9 +45,26 @@ func refreshGitHubAppInstallationToken(tp *TokenProvider) errors.Error {
 		return errors.Default.New("missing github endpoint for token refresh")
 	}
 
+	oldToken := tp.conn.Token
+	if tp.logger != nil {
+		expiresStr := "unknown"
+		if tp.conn.TokenExpiresAt != nil {
+			expiresStr = tp.conn.TokenExpiresAt.Format(time.RFC3339)
+		}
+		tp.logger.Info(
+			"Refreshing GitHub App installation token for connection %d (installation %d), old token=%s, expires_at=%s",
+			tp.conn.ID, tp.conn.InstallationID,
+			tokenPrefix(oldToken, 8),
+			expiresStr,
+		)
+	}
+
 	apiClient := newRefreshApiClient(tp.conn.Endpoint, tp.httpClient)
 	installationToken, err := tp.conn.GithubAppKey.GetInstallationAccessToken(apiClient)
 	if err != nil {
+		if tp.logger != nil {
+			tp.logger.Error(err, "Failed to refresh GitHub App installation token for connection %d", tp.conn.ID)
+		}
 		return err
 	}
 
@@ -48,6 +73,16 @@ func refreshGitHubAppInstallationToken(tp *TokenProvider) errors.Error {
 		expiresAt = &installationToken.ExpiresAt
 	}
 	tp.conn.UpdateToken(installationToken.Token, "", expiresAt, nil)
+
+	if tp.logger != nil {
+		tp.logger.Info(
+			"Successfully refreshed GitHub App installation token for connection %d, new token=%s, new expires_at=%s",
+			tp.conn.ID,
+			tokenPrefix(installationToken.Token, 8),
+			installationToken.ExpiresAt.Format(time.RFC3339),
+		)
+	}
+
 	persistAppToken(tp.dal, tp.conn, tp.logger)
 	return nil
 }
@@ -59,7 +94,11 @@ func persistAppToken(d dal.Dal, conn *models.GithubConnection, logger log.Logger
 	if err := d.UpdateColumns(conn, []dal.DalSet{
 		{ColumnName: "token", Value: conn.Token},
 		{ColumnName: "token_expires_at", Value: conn.TokenExpiresAt},
-	}); err != nil && logger != nil {
-		logger.Warn(err, "failed to persist refreshed app installation token")
+	}); err != nil {
+		if logger != nil {
+			logger.Warn(err, "Failed to persist refreshed app installation token for connection %d", conn.ID)
+		}
+	} else if logger != nil {
+		logger.Info("Persisted refreshed app installation token for connection %d", conn.ID)
 	}
 }

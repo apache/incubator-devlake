@@ -54,6 +54,8 @@ func CreateApiClient(taskCtx plugin.TaskContext, connection *models.GithubConnec
 
 		rt := token.NewRefreshRoundTripper(baseTransport, tp)
 		apiClient.GetClient().Transport = rt
+		logger.Info("Installed token refresh round tripper for connection %d (authMethod=%s)",
+			connection.ID, connection.AuthMethod)
 	}
 
 	// create rate limit calculator

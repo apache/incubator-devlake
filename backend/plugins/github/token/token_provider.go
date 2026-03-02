@@ -63,6 +63,10 @@ func NewTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Cli
 
 // NewAppInstallationTokenProvider creates a TokenProvider that refreshes GitHub App installation tokens.
 func NewAppInstallationTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Client, logger log.Logger) *TokenProvider {
+	if logger != nil {
+		logger.Info("Created AppInstallation token provider for connection %d (installation %d, token expires at %s)",
+			conn.ID, conn.InstallationID, conn.TokenExpiresAt.Format(time.RFC3339))
+	}
 	return &TokenProvider{
 		conn:       conn,
 		dal:        d,
@@ -77,6 +81,14 @@ func (tp *TokenProvider) GetToken() (string, errors.Error) {
 	defer tp.mu.Unlock()
 
 	if tp.needsRefresh() {
+		if tp.logger != nil {
+			expiresStr := "unknown"
+			if tp.conn.TokenExpiresAt != nil {
+				expiresStr = tp.conn.TokenExpiresAt.Format(time.RFC3339)
+			}
+			tp.logger.Info("Proactive token refresh triggered for connection %d (token expires at %s)",
+				tp.conn.ID, expiresStr)
+		}
 		if err := tp.refreshToken(); err != nil {
 			return "", err
 		}
@@ -205,8 +217,14 @@ func (tp *TokenProvider) ForceRefresh(oldToken string) errors.Error {
 	// If the token has changed since the request was made, it means another thread
 	// has already refreshed it.
 	if tp.conn.Token != oldToken {
+		if tp.logger != nil {
+			tp.logger.Info("Skipping reactive token refresh for connection %d — token already changed by another goroutine", tp.conn.ID)
+		}
 		return nil
 	}
 
+	if tp.logger != nil {
+		tp.logger.Info("Reactive token refresh triggered for connection %d (received 401)", tp.conn.ID)
+	}
 	return tp.refreshToken()
 }
