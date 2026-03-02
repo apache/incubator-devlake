@@ -35,14 +35,17 @@ func CreateApiClient(taskCtx plugin.TaskContext, connection *models.GithubConnec
 		return nil, err
 	}
 
-	// Inject TokenProvider if refresh token is present
+	logger := taskCtx.GetLogger()
+	db := taskCtx.GetDal()
+
+	// Inject TokenProvider for OAuth refresh or GitHub App installation tokens.
+	var tp *token.TokenProvider
 	if connection.RefreshToken != "" {
-		logger := taskCtx.GetLogger()
-		db := taskCtx.GetDal()
-
-		// Create TokenProvider
-		tp := token.NewTokenProvider(connection, db, apiClient.GetClient(), logger)
-
+		tp = token.NewTokenProvider(connection, db, apiClient.GetClient(), logger)
+	} else if connection.AuthMethod == models.AppKey && connection.InstallationID != 0 {
+		tp = token.NewAppInstallationTokenProvider(connection, db, apiClient.GetClient(), logger)
+	}
+	if tp != nil {
 		// Wrap the transport
 		baseTransport := apiClient.GetClient().Transport
 		if baseTransport == nil {

@@ -24,6 +24,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -97,6 +98,69 @@ func TestRoundTripper401Refresh(t *testing.T) {
 
 	body, _ := io.ReadAll(resp.Body)
 	assert.Equal(t, "Success", string(body))
+
+	mockRT.AssertExpectations(t)
+}
+
+func TestRoundTripper401WithAppKeyRefresh(t *testing.T) {
+	mockRT := new(MockRoundTripper)
+
+	expiry := time.Now().Add(10 * time.Minute) // Not expired (proactive refresh won't trigger)
+	conn := &models.GithubConnection{
+		GithubConn: models.GithubConn{
+			GithubAccessToken: models.GithubAccessToken{
+				AccessToken: api.AccessToken{
+					Token: "old_app_token",
+				},
+			},
+			TokenExpiresAt: &expiry,
+		},
+	}
+	// Use tokens slice so GetToken returns the current token
+	conn.UpdateToken("old_app_token", "", &expiry, nil)
+
+	// refreshFn simulates minting a new installation token
+	refreshCalled := 0
+	tp := &TokenProvider{
+		conn: conn,
+		refreshFn: func(tp *TokenProvider) errors.Error {
+			refreshCalled++
+			newExpiry := time.Now().Add(1 * time.Hour)
+			tp.conn.UpdateToken("new_app_token", "", &newExpiry, nil)
+			return nil
+		},
+	}
+
+	rt := NewRefreshRoundTripper(mockRT, tp)
+
+	req, _ := http.NewRequest("GET", "https://api.github.com/repos/test/test", nil)
+
+	// 1. First call returns 401
+	resp401 := &http.Response{
+		StatusCode: 401,
+		Body:       io.NopCloser(bytes.NewBufferString("Bad credentials")),
+	}
+	mockRT.On("RoundTrip", mock.MatchedBy(func(r *http.Request) bool {
+		return r.Header.Get("Authorization") == "Bearer old_app_token"
+	})).Return(resp401, nil).Once()
+
+	// 2. Retry call with new token (after refreshFn runs)
+	resp200 := &http.Response{
+		StatusCode: 200,
+		Body:       io.NopCloser(bytes.NewBufferString(`{"full_name":"test/test"}`)),
+	}
+	mockRT.On("RoundTrip", mock.MatchedBy(func(r *http.Request) bool {
+		return r.Header.Get("Authorization") == "Bearer new_app_token"
+	})).Return(resp200, nil).Once()
+
+	// Execute
+	resp, err := rt.RoundTrip(req)
+	assert.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, 1, refreshCalled, "refreshFn should have been called exactly once")
+
+	body, _ := io.ReadAll(resp.Body)
+	assert.Equal(t, `{"full_name":"test/test"}`, string(body))
 
 	mockRT.AssertExpectations(t)
 }

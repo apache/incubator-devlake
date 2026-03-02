@@ -46,6 +46,7 @@ type TokenProvider struct {
 	logger     log.Logger
 	mu         sync.Mutex
 	refreshURL string
+	refreshFn  func(*TokenProvider) errors.Error
 }
 
 // NewTokenProvider creates a TokenProvider for the given GitHub connection using
@@ -57,6 +58,17 @@ func NewTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Cli
 		httpClient: client,
 		logger:     logger,
 		refreshURL: "https://github.com/login/oauth/access_token",
+	}
+}
+
+// NewAppInstallationTokenProvider creates a TokenProvider that refreshes GitHub App installation tokens.
+func NewAppInstallationTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Client, logger log.Logger) *TokenProvider {
+	return &TokenProvider{
+		conn:       conn,
+		dal:        d,
+		httpClient: client,
+		logger:     logger,
+		refreshFn:  refreshGitHubAppInstallationToken,
 	}
 }
 
@@ -73,10 +85,6 @@ func (tp *TokenProvider) GetToken() (string, errors.Error) {
 }
 
 func (tp *TokenProvider) needsRefresh() bool {
-	if tp.conn.RefreshToken == "" {
-		return false
-	}
-
 	buffer := DefaultRefreshBuffer
 	if envBuffer := os.Getenv("GITHUB_TOKEN_REFRESH_BUFFER_MINUTES"); envBuffer != "" {
 		if val, err := strconv.Atoi(envBuffer); err == nil {
@@ -84,6 +92,16 @@ func (tp *TokenProvider) needsRefresh() bool {
 		}
 	}
 
+	if tp.refreshFn != nil {
+		if tp.conn.TokenExpiresAt == nil {
+			return false
+		}
+		return time.Now().Add(buffer).After(*tp.conn.TokenExpiresAt)
+	}
+
+	if tp.conn.RefreshToken == "" {
+		return false
+	}
 	if tp.conn.TokenExpiresAt == nil {
 		return false
 	}
@@ -91,6 +109,9 @@ func (tp *TokenProvider) needsRefresh() bool {
 }
 
 func (tp *TokenProvider) refreshToken() errors.Error {
+	if tp.refreshFn != nil {
+		return tp.refreshFn(tp)
+	}
 	tp.logger.Info("Refreshing GitHub token for connection %d", tp.conn.ID)
 
 	data := map[string]string{
