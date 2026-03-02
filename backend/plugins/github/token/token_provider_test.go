@@ -92,7 +92,7 @@ func TestTokenProviderConcurrency(t *testing.T) {
 	}
 
 	logger, _ := logruslog.NewDefaultLogger(logrus.New())
-	tp := NewTokenProvider(conn, nil, client, logger)
+	tp := NewTokenProvider(conn, nil, client, logger, "")
 
 	// Mock response for refresh
 	respBody := `{"access_token":"new_token","refresh_token":"new_refresh_token","expires_in":3600,"refresh_token_expires_in":3600}`

@@ -47,6 +47,21 @@ func newRefreshApiClient(endpoint string, client *http.Client) plugin.ApiClient 
 	}
 }
 
+// newRefreshApiClientWithTransport creates a refreshApiClient using a specific
+// http.RoundTripper instead of an existing *http.Client. This is critical for
+// avoiding deadlocks: the caller's *http.Client may have a RefreshRoundTripper
+// transport that re-enters GetToken() and deadlocks on the mutex.
+func newRefreshApiClientWithTransport(endpoint string, transport http.RoundTripper) plugin.ApiClient {
+	if transport == nil {
+		transport = http.DefaultTransport
+	}
+	return &refreshApiClient{
+		endpoint: endpoint,
+		client:   &http.Client{Transport: transport},
+		timeout:  10 * time.Second,
+	}
+}
+
 func (c *refreshApiClient) SetData(name string, data interface{}) {}
 
 func (c *refreshApiClient) GetData(name string) interface{} { return nil }

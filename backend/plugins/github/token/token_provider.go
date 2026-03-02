@@ -40,39 +40,57 @@ const (
 )
 
 type TokenProvider struct {
-	conn       *models.GithubConnection
-	dal        dal.Dal
-	httpClient *http.Client
-	logger     log.Logger
-	mu         sync.Mutex
-	refreshURL string
-	refreshFn  func(*TokenProvider) errors.Error
+	conn             *models.GithubConnection
+	dal              dal.Dal
+	encryptionSecret string
+	httpClient       *http.Client
+	baseTransport    http.RoundTripper // original transport, before RefreshRoundTripper wrapping
+	logger           log.Logger
+	mu               sync.Mutex
+	refreshURL       string
+	refreshFn        func(*TokenProvider) errors.Error
 }
 
 // NewTokenProvider creates a TokenProvider for the given GitHub connection using
 // the provided DAL, HTTP client, and logger, and returns a pointer to it.
-func NewTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Client, logger log.Logger) *TokenProvider {
+func NewTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Client, logger log.Logger, encryptionSecret string) *TokenProvider {
 	return &TokenProvider{
-		conn:       conn,
-		dal:        d,
-		httpClient: client,
-		logger:     logger,
-		refreshURL: "https://github.com/login/oauth/access_token",
+		conn:             conn,
+		dal:              d,
+		encryptionSecret: encryptionSecret,
+		httpClient:       client,
+		logger:           logger,
+		refreshURL:       "https://github.com/login/oauth/access_token",
 	}
 }
 
 // NewAppInstallationTokenProvider creates a TokenProvider that refreshes GitHub App installation tokens.
-func NewAppInstallationTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Client, logger log.Logger) *TokenProvider {
+// IMPORTANT: Call this BEFORE wrapping the client's transport with RefreshRoundTripper,
+// so that baseTransport captures the unwrapped transport and refresh calls don't deadlock.
+func NewAppInstallationTokenProvider(conn *models.GithubConnection, d dal.Dal, client *http.Client, logger log.Logger, encryptionSecret string) *TokenProvider {
 	if logger != nil {
+		expiresStr := "unknown"
+		if conn.TokenExpiresAt != nil {
+			expiresStr = conn.TokenExpiresAt.Format(time.RFC3339)
+		}
 		logger.Info("Created AppInstallation token provider for connection %d (installation %d, token expires at %s)",
-			conn.ID, conn.InstallationID, conn.TokenExpiresAt.Format(time.RFC3339))
+			conn.ID, conn.InstallationID, expiresStr)
+	}
+	// Capture the transport now, before the caller wraps it with RefreshRoundTripper.
+	// This avoids a deadlock: refresh calls must bypass the RefreshRoundTripper that
+	// holds the TokenProvider mutex during GetToken().
+	baseTransport := client.Transport
+	if baseTransport == nil {
+		baseTransport = http.DefaultTransport
 	}
 	return &TokenProvider{
-		conn:       conn,
-		dal:        d,
-		httpClient: client,
-		logger:     logger,
-		refreshFn:  refreshGitHubAppInstallationToken,
+		conn:             conn,
+		dal:              d,
+		encryptionSecret: encryptionSecret,
+		httpClient:       client,
+		baseTransport:    baseTransport,
+		logger:           logger,
+		refreshFn:        refreshGitHubAppInstallationToken,
 	}
 }
 
@@ -192,13 +210,12 @@ func (tp *TokenProvider) refreshToken() errors.Error {
 	)
 
 	if tp.dal != nil {
-		err := tp.dal.UpdateColumns(tp.conn, []dal.DalSet{
-			{ColumnName: "token", Value: tp.conn.Token},
-			{ColumnName: "refresh_token", Value: tp.conn.RefreshToken},
-			{ColumnName: "token_expires_at", Value: tp.conn.TokenExpiresAt},
-			{ColumnName: "refresh_token_expires_at", Value: tp.conn.RefreshTokenExpiresAt},
-		})
-		if err != nil {
+		// Manually encrypt and use UpdateColumns to persist only the token-related
+		// columns. We cannot use dal.Update (GORM Save) because it writes ALL fields
+		// including refresh_token_expires_at which may have Go zero time that MySQL
+		// rejects. We cannot use UpdateColumns with plaintext because it bypasses the
+		// GORM encdec serializer. So we encrypt manually and write the ciphertext.
+		if err := PersistEncryptedTokenColumns(tp.dal, tp.conn, tp.encryptionSecret, tp.logger, true); err != nil {
 			tp.logger.Warn(err, "failed to persist refreshed token")
 		}
 	}
