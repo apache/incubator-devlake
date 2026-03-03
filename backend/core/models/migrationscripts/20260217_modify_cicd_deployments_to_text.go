@@ -29,11 +29,11 @@ var _ plugin.MigrationScript = (*modifyCicdDeploymentsToText)(nil)
 
 type modifyCicdDeploymentsToText struct{}
 
-type cicdDeployment20250217 struct {
+type cicdDeployment20260217 struct {
 	Name string
 }
 
-func (cicdDeployment20250217) TableName() string {
+func (cicdDeployment20260217) TableName() string {
 	return "cicd_deployments"
 }
 
@@ -41,14 +41,14 @@ func (script *modifyCicdDeploymentsToText) Up(basicRes context.BasicRes) errors.
 	// cicd_deployments.name might be text, we ought to change the type
 	// for the column from `varchar(255)` to `text`
 	db := basicRes.GetDal()
-	return migrationhelper.ChangeColumnsType[cicdDeployment20250217](
+	return migrationhelper.ChangeColumnsType[cicdDeployment20260217](
 		basicRes,
 		script,
-		cicdDeployment20250217{}.TableName(),
+		cicdDeployment20260217{}.TableName(),
 		[]string{"name"},
 		func(tmpColumnParams []interface{}) errors.Error {
 			return db.UpdateColumn(
-				&cicdDeployment20250217{},
+				&cicdDeployment20260217{},
 				"name",
 				dal.DalClause{Expr: " ? ", Params: tmpColumnParams},
 				dal.Where("? != '' ", tmpColumnParams...),
@@ -58,7 +58,7 @@ func (script *modifyCicdDeploymentsToText) Up(basicRes context.BasicRes) errors.
 }
 
 func (*modifyCicdDeploymentsToText) Version() uint64 {
-	return 20250217145125
+	return 20260217145125
 }
 
 func (*modifyCicdDeploymentsToText) Name() string {
