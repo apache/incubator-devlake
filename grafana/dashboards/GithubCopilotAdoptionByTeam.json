@@ -194,7 +194,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(m.loc_added_sum) as \"Lines Added\"\nFROM _tool_copilot_user_daily_metrics m\nINNER JOIN _tool_copilot_team_users tu\n  ON tu.connection_id = m.connection_id AND tu.user_login = m.user_login\nINNER JOIN _tool_copilot_teams t\n  ON t.connection_id = tu.connection_id AND t.id = tu.team_id\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR t.slug = '${team:raw}')",
+          "rawSql": "SELECT SUM(m.loc_added_sum) as \"Lines Added\"\nFROM _tool_copilot_user_daily_metrics m\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND (\n    '${team:raw}' = 'All'\n    OR EXISTS (\n      SELECT 1\n      FROM _tool_copilot_team_users tu\n      INNER JOIN _tool_copilot_teams t\n        ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n      WHERE tu.connection_id = m.connection_id\n        AND tu.user_login = m.user_login\n        AND t.slug = '${team:raw}'\n    )\n  )",
           "refId": "A"
         }
       ],
@@ -248,7 +248,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(m.user_initiated_interaction_count) as \"User-Initiated Interactions\"\nFROM _tool_copilot_user_daily_metrics m\nINNER JOIN _tool_copilot_team_users tu\n  ON tu.connection_id = m.connection_id AND tu.user_login = m.user_login\nINNER JOIN _tool_copilot_teams t\n  ON t.connection_id = tu.connection_id AND t.id = tu.team_id\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR t.slug = '${team:raw}')",
+          "rawSql": "SELECT SUM(m.user_initiated_interaction_count) as \"User-Initiated Interactions\"\nFROM _tool_copilot_user_daily_metrics m\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND (\n    '${team:raw}' = 'All'\n    OR EXISTS (\n      SELECT 1\n      FROM _tool_copilot_team_users tu\n      INNER JOIN _tool_copilot_teams t\n        ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n      WHERE tu.connection_id = m.connection_id\n        AND tu.user_login = m.user_login\n        AND t.slug = '${team:raw}'\n    )\n  )",
           "refId": "A"
         }
       ],
@@ -483,6 +483,114 @@
     },
     {
       "datasource": "mysql",
+      "description": "Users who have used Copilot agent mode in the selected team(s)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 47,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT m.user_login) as \"Agent Users\"\nFROM _tool_copilot_user_daily_metrics m\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND m.used_agent = 1\n  AND (\n    '${team:raw}' = 'All'\n    OR EXISTS (\n      SELECT 1\n      FROM _tool_copilot_team_users tu\n      INNER JOIN _tool_copilot_teams t\n        ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n      WHERE tu.connection_id = m.connection_id\n        AND tu.user_login = m.user_login\n        AND t.slug = '${team:raw}'\n    )\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent Mode Adopters",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Users who have used Copilot chat in the selected team(s)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 8
+      },
+      "id": 48,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT m.user_login) as \"Chat Users\"\nFROM _tool_copilot_user_daily_metrics m\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND m.used_chat = 1\n  AND (\n    '${team:raw}' = 'All'\n    OR EXISTS (\n      SELECT 1\n      FROM _tool_copilot_team_users tu\n      INNER JOIN _tool_copilot_teams t\n        ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n      WHERE tu.connection_id = m.connection_id\n        AND tu.user_login = m.user_login\n        AND t.slug = '${team:raw}'\n    )\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "Chat Adopters",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
       "description": "Active users over time for the selected team(s)",
       "fieldConfig": {
         "defaults": {
@@ -538,7 +646,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 12
       },
       "id": 5,
       "options": {
@@ -623,7 +731,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 12
       },
       "id": 6,
       "options": {
@@ -708,7 +816,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 20
       },
       "id": 19,
       "options": {
@@ -764,7 +872,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 20
       },
       "id": 23,
       "options": {
@@ -793,12 +901,66 @@
       "type": "timeseries"
     },
     {
+      "datasource": "mysql",
+      "description": "Daily LOC yield trend for team members (added LOC / suggested LOC)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
+      "id": 49,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT m.day as time,\n  ROUND(SUM(m.loc_added_sum) / NULLIF(SUM(m.loc_suggested_to_add_sum), 0), 2) as \"LOC Yield\"\nFROM _tool_copilot_user_daily_metrics m\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND (\n    '${team:raw}' = 'All'\n    OR EXISTS (\n      SELECT 1\n      FROM _tool_copilot_team_users tu\n      INNER JOIN _tool_copilot_teams t\n        ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n      WHERE tu.connection_id = m.connection_id\n        AND tu.user_login = m.user_login\n        AND t.slug = '${team:raw}'\n    )\n  )\nGROUP BY m.day\nORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "LOC Yield Trend",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 36
       },
       "id": 40,
       "panels": [],
@@ -827,7 +989,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 37
       },
       "id": 41,
       "options": {
@@ -912,7 +1074,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 47
       },
       "id": 42,
       "options": {
@@ -965,7 +1127,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 55
       },
       "id": 43,
       "panels": [],
@@ -994,7 +1156,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 44
+        "y": 56
       },
       "id": 9,
       "options": {
@@ -1044,7 +1206,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 44
+        "y": 56
       },
       "id": 10,
       "options": {
@@ -1078,7 +1240,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 64
       },
       "id": 45,
       "panels": [],
@@ -1107,7 +1269,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 53
+        "y": 65
       },
       "id": 29,
       "options": {
@@ -1128,7 +1290,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT m.user_login as \"user_login\",\n  t.name as \"team\",\n  SUM(m.code_generation_activity_count) as \"suggestions\",\n  SUM(m.code_acceptance_activity_count) as \"acceptances\",\n  ROUND(SUM(m.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(m.code_generation_activity_count), 0), 1) as \"acceptance %\"\nFROM _tool_copilot_user_daily_metrics m\nINNER JOIN _tool_copilot_team_users tu\n  ON tu.connection_id = m.connection_id AND tu.user_login = m.user_login\nINNER JOIN _tool_copilot_teams t\n  ON t.connection_id = tu.connection_id AND t.id = tu.team_id\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR t.slug = '${team:raw}')\nGROUP BY m.user_login, t.name\nHAVING SUM(m.code_generation_activity_count) > 0\nORDER BY SUM(m.code_generation_activity_count) DESC\nLIMIT 25",
+          "rawSql": "SELECT m.user_login as \"user_login\",\n  (SELECT GROUP_CONCAT(DISTINCT t.name ORDER BY t.name SEPARATOR ', ')\n   FROM _tool_copilot_team_users tu\n   INNER JOIN _tool_copilot_teams t\n     ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n   WHERE tu.connection_id = m.connection_id\n     AND tu.user_login = m.user_login\n  ) as \"teams\",\n  SUM(m.code_generation_activity_count) as \"suggestions\",\n  SUM(m.code_acceptance_activity_count) as \"acceptances\",\n  ROUND(SUM(m.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(m.code_generation_activity_count), 0), 1) as \"acceptance %\"\nFROM _tool_copilot_user_daily_metrics m\nWHERE $__timeFilter(m.day)\n  AND m.connection_id = ${connection_id}\n  AND m.scope_id = '${scope_id}'\n  AND (\n    '${team:raw}' = 'All'\n    OR EXISTS (\n      SELECT 1\n      FROM _tool_copilot_team_users tu\n      INNER JOIN _tool_copilot_teams t\n        ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n      WHERE tu.connection_id = m.connection_id\n        AND tu.user_login = m.user_login\n        AND t.slug = '${team:raw}'\n    )\n  )\nGROUP BY m.user_login\nHAVING SUM(m.code_generation_activity_count) > 0\nORDER BY SUM(m.code_generation_activity_count) DESC\nLIMIT 25",
           "refId": "A"
         }
       ],
@@ -1192,7 +1354,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 53
+        "y": 65
       },
       "id": 30,
       "options": {
@@ -1277,7 +1439,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 73
       },
       "id": 31,
       "options": {
@@ -1311,7 +1473,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 81
       },
       "id": 46,
       "panels": [],
@@ -1340,7 +1502,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 70
+        "y": 82
       },
       "id": 33,
       "options": {
@@ -1401,7 +1563,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 70
+        "y": 82
       },
       "id": 34,
       "options": {
@@ -1451,7 +1613,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 70
+        "y": 82
       },
       "id": 35,
       "options": {
@@ -1472,7 +1634,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT s.user_login as \"user_login\",\n  t.name as \"team\",\n  s.last_activity_at as \"last_activity_at\",\n  s.plan_type as \"plan_type\"\nFROM _tool_copilot_seats s\nINNER JOIN _tool_copilot_team_users tu\n  ON tu.connection_id = s.connection_id AND tu.user_login = s.user_login\nINNER JOIN _tool_copilot_teams t\n  ON t.connection_id = tu.connection_id AND t.id = tu.team_id\nWHERE s.connection_id = ${connection_id}\n  AND ('${team:raw}' = 'All' OR t.slug = '${team:raw}')\n  AND (s.last_activity_at IS NULL OR s.last_activity_at < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 30 DAY))\nORDER BY s.last_activity_at IS NULL DESC, s.last_activity_at ASC\nLIMIT 100",
+          "rawSql": "SELECT s.user_login as \"user_login\",\n  (SELECT GROUP_CONCAT(DISTINCT t.name ORDER BY t.name SEPARATOR ', ')\n   FROM _tool_copilot_team_users tu\n   INNER JOIN _tool_copilot_teams t\n     ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n   WHERE tu.connection_id = s.connection_id\n     AND tu.user_login = s.user_login\n  ) as \"teams\",\n  s.last_activity_at as \"last_activity_at\",\n  s.plan_type as \"plan_type\"\nFROM _tool_copilot_seats s\nWHERE s.connection_id = ${connection_id}\n  AND (\n    '${team:raw}' = 'All'\n    OR EXISTS (\n      SELECT 1\n      FROM _tool_copilot_team_users tu\n      INNER JOIN _tool_copilot_teams t\n        ON t.connection_id = tu.connection_id AND t.id = tu.team_id\n      WHERE tu.connection_id = s.connection_id\n        AND tu.user_login = s.user_login\n        AND t.slug = '${team:raw}'\n    )\n  )\n  AND (s.last_activity_at IS NULL OR s.last_activity_at < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 30 DAY))\nORDER BY s.last_activity_at IS NULL DESC, s.last_activity_at ASC\nLIMIT 100",
           "refId": "A"
         }
       ],
