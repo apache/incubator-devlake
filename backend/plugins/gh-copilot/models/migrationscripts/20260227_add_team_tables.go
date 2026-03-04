@@ -15,27 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+)
 
-// GetSubTaskMetas returns the ordered list of Copilot subtasks.
-func GetSubTaskMetas() []plugin.SubTaskMeta {
-	return []plugin.SubTaskMeta{
-		// Collectors – metrics
-		CollectOrgMetricsMeta,
-		CollectCopilotSeatAssignmentsMeta,
-		CollectEnterpriseMetricsMeta,
-		CollectUserMetricsMeta,
-		// Collectors – teams (extract teams before collecting team users)
-		CollectTeamsMeta,
-		ExtractTeamsMeta,
-		CollectTeamUsersMeta,
-		ExtractTeamUsersMeta,
-		// Extractors – metrics
-		ExtractSeatsMeta,
-		ExtractOrgMetricsMeta,
-		ExtractEnterpriseMetricsMeta,
-		ExtractUserMetricsMeta,
-	}
+type addTeamTables struct{}
+
+func (script *addTeamTables) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&models.GhCopilotTeam{},
+		&models.GhCopilotTeamUser{},
+	)
+}
+
+func (*addTeamTables) Version() uint64 {
+	return 20260227000000
+}
+
+func (*addTeamTables) Name() string {
+	return "copilot add team and team_user tables"
 }
