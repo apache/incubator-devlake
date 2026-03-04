@@ -97,6 +97,7 @@ func (connection *GhCopilotConnection) MergeFromRequest(target *GhCopilotConnect
 		return nil
 	}
 	originalToken := target.Token
+	originalEnterprise := target.Enterprise
 	if err := helper.DecodeMapStruct(body, target, true); err != nil {
 		return err
 	}
@@ -104,6 +105,9 @@ func (connection *GhCopilotConnection) MergeFromRequest(target *GhCopilotConnect
 	if target.Token == "" || target.Token == sanitizedOriginal {
 		target.Token = originalToken
 	}
+	if _, ok := body["enterprise"]; !ok {
+        target.Enterprise = originalEnterprise
+    }
 	return nil
 }
 
