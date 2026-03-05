@@ -1640,6 +1640,788 @@
       ],
       "title": "Inactive Seats",
       "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Total PR summaries created by Copilot for selected team(s) in the time range",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 50,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(total_pr_summaries_created) as \"PRs by Copilot\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')",
+          "refId": "A"
+        }
+      ],
+      "title": "PRs Created by Copilot",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Proxy metric for PR review engagement in selected team(s) (team API exposes engaged users, not reviewed count)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 51,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(total_engaged_users) as \"PRs Reviewed by Copilot\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')",
+          "refId": "A"
+        }
+      ],
+      "title": "PRs Reviewed by Copilot",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "PR summary activity over time for selected team(s)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Pull Requests",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "id": 52,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT date as time,\n  SUM(total_pr_summaries_created) as \"PRs Created by Copilot\",\n  SUM(total_engaged_users) as \"PR Engaged Users\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\nGROUP BY date\nORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "PR Activity Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Weekly activity mix by Copilot capability for selected team(s)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Interactions",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 0,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 90
+      },
+      "id": 53,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "stacking": {
+          "mode": "normal",
+          "group": "A"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT time, metric, SUM(value) as value\nFROM (\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    'Code Completions' as metric,\n    SUM(total_code_suggestions) as value\n  FROM _tool_copilot_team_completions\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY))\n\n  UNION ALL\n\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    'IDE Chat' as metric,\n    SUM(total_chats) as value\n  FROM _tool_copilot_team_ide_chat\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY))\n\n  UNION ALL\n\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    'Dotcom Chat' as metric,\n    SUM(total_chats) as value\n  FROM _tool_copilot_team_dotcom_chat\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY))\n\n  UNION ALL\n\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    'Dotcom Pull Requests' as metric,\n    SUM(total_pr_summaries_created) as value\n  FROM _tool_copilot_team_dotcom_prs\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY))\n) feature_mix\nGROUP BY time, metric\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Feature Mix Over Time",
+      "type": "timeseries",
+      "transformations": [
+        {
+          "id": "prepareTimeSeries",
+          "options": {
+            "format": "many"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^value (.+)$",
+            "renamePattern": "$1"
+          }
+        }
+      ]
+    },
+    {
+      "datasource": "mysql",
+      "description": "Weekly IDE activity for selected team(s)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Weekly Interactions",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 0,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 90
+      },
+      "id": 54,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "stacking": {
+          "mode": "normal",
+          "group": "A"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT time, metric, SUM(value) as value\nFROM (\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    editor as metric,\n    SUM(total_code_suggestions + total_code_acceptances) as value\n  FROM _tool_copilot_team_completions\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)), editor\n\n  UNION ALL\n\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    editor as metric,\n    SUM(total_chats) as value\n  FROM _tool_copilot_team_ide_chat\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)), editor\n) ide_adoption\nGROUP BY time, metric\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "IDE Adoption Over Time",
+      "type": "timeseries",
+      "transformations": [
+        {
+          "id": "prepareTimeSeries",
+          "options": {
+            "format": "many"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^value (.+)$",
+            "renamePattern": "$1"
+          }
+        }
+      ]
+    },
+    {
+      "datasource": "mysql",
+      "description": "Matrix-style breakdown of completion suggestions and acceptances by language for selected team(s)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 98
+      },
+      "id": 55,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT language as \"Language\",\n  'code_completions' as \"Feature\",\n  SUM(total_code_suggestions) as \"Suggestions\",\n  SUM(total_code_acceptances) as \"Acceptances\"\nFROM _tool_copilot_team_completions\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\nGROUP BY language\nHAVING SUM(total_code_suggestions) > 0\nORDER BY language",
+          "refId": "A"
+        }
+      ],
+      "title": "Feature x Language Matrix",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Acceptance ratio by Copilot feature for selected team members",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 106
+      },
+      "id": 56,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT f.feature as \"Feature\",\n  SUM(f.code_generation_activity_count) as \"Suggestions\",\n  SUM(f.code_acceptance_activity_count) as \"Acceptances\",\n  ROUND(SUM(f.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(f.code_generation_activity_count), 0), 1) as \"Acceptance Rate %\"\nFROM _tool_copilot_user_metrics_by_feature f\nINNER JOIN _tool_copilot_user_daily_metrics udm\n  ON udm.connection_id = f.connection_id AND udm.user_id = f.user_id AND udm.day = f.day AND udm.scope_id = f.scope_id\nINNER JOIN _tool_copilot_team_users tu\n  ON tu.connection_id = f.connection_id AND tu.user_login = udm.user_login\nINNER JOIN _tool_copilot_teams t\n  ON t.connection_id = tu.connection_id AND t.id = tu.team_id\nWHERE $__timeFilter(f.day)\n  AND f.connection_id = ${connection_id}\n  AND f.scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR t.slug = '${team:raw}')\nGROUP BY f.feature\nHAVING SUM(f.code_generation_activity_count) > 0\nORDER BY ROUND(SUM(f.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(f.code_generation_activity_count), 0), 1) DESC, SUM(f.code_generation_activity_count) DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "Acceptance Rate by Feature",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Acceptance ratio by programming language for selected team members",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 106
+      },
+      "id": 57,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT lf.language as \"Language\",\n  SUM(lf.code_generation_activity_count) as \"Suggestions\",\n  SUM(lf.code_acceptance_activity_count) as \"Acceptances\",\n  ROUND(SUM(lf.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(lf.code_generation_activity_count), 0), 1) as \"Acceptance Rate %\"\nFROM _tool_copilot_user_metrics_by_language_feature lf\nINNER JOIN _tool_copilot_user_daily_metrics udm\n  ON udm.connection_id = lf.connection_id AND udm.user_id = lf.user_id AND udm.day = lf.day AND udm.scope_id = lf.scope_id\nINNER JOIN _tool_copilot_team_users tu\n  ON tu.connection_id = lf.connection_id AND tu.user_login = udm.user_login\nINNER JOIN _tool_copilot_teams t\n  ON t.connection_id = tu.connection_id AND t.id = tu.team_id\nWHERE $__timeFilter(lf.day)\n  AND lf.connection_id = ${connection_id}\n  AND lf.scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR t.slug = '${team:raw}')\nGROUP BY lf.language\nHAVING SUM(lf.code_generation_activity_count) > 0\nORDER BY ROUND(SUM(lf.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(lf.code_generation_activity_count), 0), 1) DESC, SUM(lf.code_generation_activity_count) DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "Acceptance Rate by Language",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Acceptance ratio by model for selected team members",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 106
+      },
+      "id": 58,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT mf.model as \"Model\",\n  SUM(mf.code_generation_activity_count) as \"Suggestions\",\n  SUM(mf.code_acceptance_activity_count) as \"Acceptances\",\n  ROUND(SUM(mf.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(mf.code_generation_activity_count), 0), 1) as \"Acceptance Rate %\"\nFROM _tool_copilot_user_metrics_by_model_feature mf\nINNER JOIN _tool_copilot_user_daily_metrics udm\n  ON udm.connection_id = mf.connection_id AND udm.user_id = mf.user_id AND udm.day = mf.day AND udm.scope_id = mf.scope_id\nINNER JOIN _tool_copilot_team_users tu\n  ON tu.connection_id = mf.connection_id AND tu.user_login = udm.user_login\nINNER JOIN _tool_copilot_teams t\n  ON t.connection_id = tu.connection_id AND t.id = tu.team_id\nWHERE $__timeFilter(mf.day)\n  AND mf.connection_id = ${connection_id}\n  AND mf.scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR t.slug = '${team:raw}')\nGROUP BY mf.model\nHAVING SUM(mf.code_generation_activity_count) > 0\nORDER BY ROUND(SUM(mf.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(mf.code_generation_activity_count), 0), 1) DESC, SUM(mf.code_generation_activity_count) DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "Acceptance Rate by Model",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 114
+      },
+      "id": 59,
+      "panels": [],
+      "title": "Diagnostics",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Latest available team metrics day freshness",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 115
+      },
+      "id": 60,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(TIMESTAMPDIFF(DAY, MAX(date), UTC_DATE()), 9999) as \"Days Since Latest Data\"\nFROM _tool_copilot_team_daily_metrics\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Freshness",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Share of PR summaries tied to unknown model taxonomy in selected team(s)",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 115
+      },
+      "id": 61,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(\n  SUM(CASE WHEN LOWER(COALESCE(model, '')) = 'unknown' THEN total_pr_summaries_created ELSE 0 END) * 100.0\n  / NULLIF(SUM(total_pr_summaries_created), 0),\n  2\n) as \"Unknown Taxonomy %\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')",
+          "refId": "A"
+        }
+      ],
+      "title": "Unknown Taxonomy Share",
+      "type": "gauge"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Row counts for team Copilot metrics tables",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 115
+      },
+      "id": 62,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT *\nFROM (\n  SELECT '_tool_copilot_team_daily_metrics' as table_name,\n    COUNT(*) as row_count\n  FROM _tool_copilot_team_daily_metrics\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}' AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n\n  UNION ALL\n\n  SELECT '_tool_copilot_team_completions' as table_name,\n    COUNT(*) as row_count\n  FROM _tool_copilot_team_completions\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}' AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n\n  UNION ALL\n\n  SELECT '_tool_copilot_team_ide_chat' as table_name,\n    COUNT(*) as row_count\n  FROM _tool_copilot_team_ide_chat\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}' AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n\n  UNION ALL\n\n  SELECT '_tool_copilot_team_dotcom_chat' as table_name,\n    COUNT(*) as row_count\n  FROM _tool_copilot_team_dotcom_chat\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}' AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n\n  UNION ALL\n\n  SELECT '_tool_copilot_team_dotcom_prs' as table_name,\n    COUNT(*) as row_count\n  FROM _tool_copilot_team_dotcom_prs\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}' AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')\n) data_volume\nORDER BY row_count DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Volume by Table",
+      "type": "table"
     }
   ],
   "refresh": "",
@@ -1725,6 +2507,6 @@
   "timezone": "utc",
   "title": "GitHub Copilot Adoption by Team",
   "uid": "copilot_adoption_by_team",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

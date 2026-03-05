@@ -17,19 +17,30 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+)
 
-// All returns the ordered list of migration scripts for the Copilot plugin.
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addCopilotInitialTables),
-		new(addRawDataOriginToCopilotSeats),
-		new(addRawDataOriginToCopilotLanguageMetrics),
-		new(addNameFieldsToScopes),
-		new(addScopeConfig20260121),
-		new(migrateToUsageMetricsV2),
-		new(addPRFieldsToEnterpriseMetrics),
-		new(addTeamTables),
-		new(addTeamMetricsTables),
-	}
+type addTeamMetricsTables struct{}
+
+func (script *addTeamMetricsTables) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&models.GhCopilotTeamDailyMetrics{},
+		&models.GhCopilotTeamCompletions{},
+		&models.GhCopilotTeamIdeChat{},
+		&models.GhCopilotTeamDotcomChat{},
+		&models.GhCopilotTeamDotcomPrs{},
+	)
+}
+
+func (*addTeamMetricsTables) Version() uint64 {
+	return 20260305000000
+}
+
+func (*addTeamMetricsTables) Name() string {
+	return "copilot add team metrics tables"
 }

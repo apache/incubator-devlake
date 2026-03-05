@@ -48,5 +48,11 @@ func GetTablesInfo() []dal.Tabler {
 		// Team / team-member tables (org-level)
 		&GhCopilotTeam{},
 		&GhCopilotTeamUser{},
+		// Team-level Copilot metrics
+		&GhCopilotTeamDailyMetrics{},
+		&GhCopilotTeamCompletions{},
+		&GhCopilotTeamIdeChat{},
+		&GhCopilotTeamDotcomChat{},
+		&GhCopilotTeamDotcomPrs{},
 	}
 }

@@ -42,6 +42,11 @@ func TestGetTablesInfo(t *testing.T) {
 		(&GhCopilotSeat{}).TableName():                         false,
 		(&GhCopilotTeam{}).TableName():                         false,
 		(&GhCopilotTeamUser{}).TableName():                     false,
+		(&GhCopilotTeamDailyMetrics{}).TableName():             false,
+		(&GhCopilotTeamCompletions{}).TableName():              false,
+		(&GhCopilotTeamIdeChat{}).TableName():                  false,
+		(&GhCopilotTeamDotcomChat{}).TableName():               false,
+		(&GhCopilotTeamDotcomPrs{}).TableName():                false,
 	}
 
 	if len(tables) != len(expected) {

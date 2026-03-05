@@ -69,6 +69,20 @@ type ideVersion struct {
 	IdeVersion string `json:"ide_version"`
 }
 
+const lastKnownPluginVersionMaxLength = 50
+const lastKnownIdeVersionMaxLength = 50
+
+func truncateToMaxLength(input string, maxLength int) string {
+	if maxLength <= 0 {
+		return ""
+	}
+	runes := []rune(input)
+	if len(runes) <= maxLength {
+		return input
+	}
+	return string(runes[:maxLength])
+}
+
 // ExtractUserMetrics parses user report JSONL records and extracts to tool-layer tables.
 func ExtractUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*GhCopilotTaskData)
@@ -150,10 +164,10 @@ func ExtractUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				if ide.LastKnownPluginVersion != nil {
 					rec.LastKnownPluginName = ide.LastKnownPluginVersion.Plugin
-					rec.LastKnownPluginVersion = ide.LastKnownPluginVersion.PluginVersion
+					rec.LastKnownPluginVersion = truncateToMaxLength(ide.LastKnownPluginVersion.PluginVersion, lastKnownPluginVersionMaxLength)
 				}
 				if ide.LastKnownIdeVersion != nil {
-					rec.LastKnownIdeVersion = ide.LastKnownIdeVersion.IdeVersion
+					rec.LastKnownIdeVersion = truncateToMaxLength(ide.LastKnownIdeVersion.IdeVersion, lastKnownIdeVersionMaxLength)
 				}
 				results = append(results, rec)
 			}
