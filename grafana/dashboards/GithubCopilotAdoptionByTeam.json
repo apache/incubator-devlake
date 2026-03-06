@@ -1688,7 +1688,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(total_pr_summaries_created) as \"PRs by Copilot\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:raw}' = 'All' OR team_slug = '${team:raw}')",
+          "rawSql": "SELECT CASE\n  WHEN '${team:raw}' = 'All' THEN (\n    SELECT SUM(e.pr_total_created_by_copilot)\n    FROM _tool_copilot_enterprise_daily_metrics e\n    WHERE $__timeFilter(e.day)\n      AND e.connection_id = ${connection_id}\n      AND e.scope_id = '${scope_id}'\n  )\n  ELSE (\n    SELECT SUM(t.total_pr_summaries_created)\n    FROM _tool_copilot_team_dotcom_prs t\n    WHERE $__timeFilter(t.date)\n      AND t.connection_id = ${connection_id}\n      AND t.scope_id = '${scope_id}'\n      AND t.team_slug = '${team:raw}'\n  )\nEND as \"PRs by Copilot\"",
           "refId": "A"
         }
       ],
