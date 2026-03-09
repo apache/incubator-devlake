@@ -42,7 +42,7 @@ func TestRefreshApiClientPost(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := newRefreshApiClient(server.URL, server.Client())
+	client := newRefreshApiClientWithTransport(server.URL, server.Client().Transport)
 
 	headers := http.Header{
 		"Authorization": []string{"Bearer jwt_token_here"},
@@ -72,7 +72,7 @@ func TestRefreshApiClientGet(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := newRefreshApiClient(server.URL, server.Client())
+	client := newRefreshApiClientWithTransport(server.URL, server.Client().Transport)
 
 	resp, err := client.Get("/test", map[string][]string{"page": {"2"}}, nil)
 	assert.Nil(t, err)
@@ -91,7 +91,7 @@ func TestRefreshApiClientTimeout(t *testing.T) {
 	defer server.Close()
 
 	// Use a client without its own timeout so the context timeout is the only constraint
-	client := newRefreshApiClient(server.URL, &http.Client{})
+	client := newRefreshApiClientWithTransport(server.URL, http.DefaultTransport)
 	// Override the timeout to something short for the test
 	client.(*refreshApiClient).timeout = 100 * time.Millisecond
 

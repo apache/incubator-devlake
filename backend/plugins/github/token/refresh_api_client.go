@@ -36,17 +36,6 @@ type refreshApiClient struct {
 	timeout  time.Duration
 }
 
-func newRefreshApiClient(endpoint string, client *http.Client) plugin.ApiClient {
-	if client == nil {
-		client = http.DefaultClient
-	}
-	return &refreshApiClient{
-		endpoint: endpoint,
-		client:   client,
-		timeout:  10 * time.Second,
-	}
-}
-
 // newRefreshApiClientWithTransport creates a refreshApiClient using a specific
 // http.RoundTripper instead of an existing *http.Client. This is critical for
 // avoiding deadlocks: the caller's *http.Client may have a RefreshRoundTripper
