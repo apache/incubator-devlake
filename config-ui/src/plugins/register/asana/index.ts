@@ -16,23 +16,5 @@
  *
  */
 
-/// <reference types="vite/client" />
-/// <reference types="vite-plugin-svgr/client" />
-
-interface ImportMetaEnv {
-  readonly DEVLAKE_BRAND_NAME: string;
-  readonly DEVLAKE_PATH_PREFIX: string;
-  readonly DEVLAKE_TITLE_CUSTOM: string;
-  readonly DEVLAKE_COLOR_CUSTOM: string;
-  readonly DEVLAKE_COPYRIGHT_HIDE: boolean;
-  readonly DEVLAKE_PLUGINS: string;
-  readonly DEVLAKE_DASHBOARD_URL_GITHUB: string;
-  readonly DEVLAKE_DASHBOARD_URL_GITLAB: string;
-  readonly DEVLAKE_DASHBOARD_URL_BITBUCKET: string;
-  readonly DEVLAKE_DASHBOARD_URL_AZUREDEVOPS: string;
-  readonly DEVLAKE_DASHBOARD_URL_ASANA: string;
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
+export * from './config';
+export * from './transformation';
