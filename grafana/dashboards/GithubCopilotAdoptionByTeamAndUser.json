@@ -18,8 +18,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": 49,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "datasource": "mysql",
@@ -31,8 +31,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "yellow",
@@ -59,6 +58,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -70,7 +70,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -89,15 +89,13 @@
       "fieldConfig": {
         "defaults": {
           "mappings": [],
-          "min": 0,
           "max": 100,
-          "unit": "percent",
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "yellow",
@@ -108,7 +106,8 @@
                 "value": 40
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -134,7 +133,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -157,8 +156,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -177,6 +175,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -188,7 +187,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -211,8 +210,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "purple",
-                "value": null
+                "color": "purple"
               }
             ]
           }
@@ -231,6 +229,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -242,7 +241,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -265,8 +264,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -285,6 +283,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -296,7 +295,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -319,8 +318,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -339,6 +337,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -350,7 +349,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -373,8 +372,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -393,6 +391,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -404,7 +403,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -423,15 +422,13 @@
       "fieldConfig": {
         "defaults": {
           "mappings": [],
-          "min": 0,
           "max": 100,
-          "unit": "percent",
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "yellow",
@@ -442,7 +439,8 @@
                 "value": 75
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -468,7 +466,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -491,8 +489,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "purple",
-                "value": null
+                "color": "purple"
               }
             ]
           }
@@ -511,6 +508,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -522,7 +520,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -545,8 +543,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "orange",
-                "value": null
+                "color": "orange"
               }
             ]
           }
@@ -565,6 +562,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -576,7 +574,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -587,6 +585,114 @@
         }
       ],
       "title": "Chat Adopters",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Total PR summaries created by Copilot for selected team(s) in the time range Team-level aggregate; returns no data when User filter is applied.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 50,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(total_pr_summaries_created) as \"PRs by Copilot\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n  AND '${user:csv}' = '0'",
+          "refId": "A"
+        }
+      ],
+      "title": "PRs Created by Copilot",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Proxy metric for PR review engagement in selected team(s) (team API exposes engaged users, not reviewed count) Team-level aggregate; returns no data when User filter is applied.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 51,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(total_engaged_users) as \"PRs Reviewed by Copilot\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n  AND '${user:csv}' = '0'",
+          "refId": "A"
+        }
+      ],
+      "title": "PRs Reviewed by Copilot",
       "type": "stat"
     },
     {
@@ -604,6 +710,7 @@
             "axisLabel": "Users",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -634,8 +741,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -657,11 +763,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -689,6 +796,7 @@
             "axisLabel": "Count",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -719,8 +827,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -742,11 +849,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -774,6 +882,7 @@
             "axisLabel": "Lines of Code",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -804,8 +913,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -827,11 +935,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -852,19 +961,51 @@
           "color": {
             "mode": "palette-classic"
           },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "mappings": [],
           "max": 1,
           "min": 0,
-          "unit": "percentunit",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
-          }
+          },
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -883,11 +1024,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -908,14 +1050,46 @@
           "color": {
             "mode": "palette-classic"
           },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "mappings": [],
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -937,11 +1111,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -952,6 +1127,92 @@
         }
       ],
       "title": "LOC Yield Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "PR summary activity over time for selected team(s) Team-level aggregate; returns no data when User filter is applied.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Pull Requests",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "id": 52,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT date as time,\n  SUM(total_pr_summaries_created) as \"PRs Created by Copilot\",\n  SUM(total_engaged_users) as \"PR Engaged Users\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n  AND '${user:csv}' = '0'\nGROUP BY date\nORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "PR Activity Over Time",
       "type": "timeseries"
     },
     {
@@ -972,13 +1233,19 @@
       "description": "Side-by-side comparison of key metrics across all teams (users in multiple teams are counted once per team)",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1004,7 +1271,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1032,6 +1299,7 @@
             "axisLabel": "Users",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -1050,8 +1318,8 @@
             "showPoints": "never",
             "spanNulls": false,
             "stacking": {
-              "mode": "normal",
-              "group": "A"
+              "group": "A",
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -1062,8 +1330,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1084,16 +1351,17 @@
           "placement": "bottom",
           "showLegend": true
         },
+        "stacking": {
+          "group": "A",
+          "mode": "normal"
+        },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
-        },
-        "stacking": {
-          "mode": "normal",
-          "group": "A"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1104,7 +1372,6 @@
         }
       ],
       "title": "Weekly Active Users by Team",
-      "type": "timeseries",
       "transformations": [
         {
           "id": "prepareTimeSeries",
@@ -1119,7 +1386,8 @@
             "renamePattern": "$1"
           }
         }
-      ]
+      ],
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -1139,13 +1407,19 @@
       "description": "Acceptance ratio by language for team members",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1171,7 +1445,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1189,13 +1463,19 @@
       "description": "Acceptance ratio by model for team members",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1221,7 +1501,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1252,13 +1532,19 @@
       "description": "Top users by code generation activity in the selected team(s)",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1284,7 +1570,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1312,6 +1598,7 @@
             "axisLabel": "Users",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -1342,8 +1629,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1365,11 +1651,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1397,6 +1684,7 @@
             "axisLabel": "Users",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -1427,8 +1715,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1450,11 +1737,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1485,16 +1773,17 @@
       "description": "Seat activity by editor for team members",
       "fieldConfig": {
         "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
         },
         "overrides": []
       },
@@ -1524,11 +1813,12 @@
           "values": false
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1546,13 +1836,19 @@
       "description": "Total, active, and inactive seats for team members",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1578,7 +1874,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1596,13 +1892,19 @@
       "description": "Inactive seats for team members",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1628,7 +1930,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -1643,200 +1945,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Total PR summaries created by Copilot for selected team(s) in the time range Team-level aggregate; returns no data when User filter is applied.",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 8
-      },
-      "id": 50,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT SUM(total_pr_summaries_created) as \"PRs by Copilot\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n  AND '${user:csv}' = '0'",
-          "refId": "A"
-        }
-      ],
-      "title": "PRs Created by Copilot",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "Proxy metric for PR review engagement in selected team(s) (team API exposes engaged users, not reviewed count) Team-level aggregate; returns no data when User filter is applied.",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 8
-      },
-      "id": 51,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT SUM(total_engaged_users) as \"PRs Reviewed by Copilot\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n  AND '${user:csv}' = '0'",
-          "refId": "A"
-        }
-      ],
-      "title": "PRs Reviewed by Copilot",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "description": "PR summary activity over time for selected team(s) Team-level aggregate; returns no data when User filter is applied.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Pull Requests",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 28
-      },
-      "id": 52,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT date as time,\n  SUM(total_pr_summaries_created) as \"PRs Created by Copilot\",\n  SUM(total_engaged_users) as \"PR Engaged Users\"\nFROM _tool_copilot_team_dotcom_prs\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n  AND '${user:csv}' = '0'\nGROUP BY date\nORDER BY 1",
-          "refId": "A"
-        }
-      ],
-      "title": "PR Activity Over Time",
-      "type": "timeseries"
-    },
-    {
-      "datasource": "mysql",
-      "description": "Weekly activity mix by Copilot capability for selected team(s) Team-level aggregate; returns no data when User filter is applied.",
+      "description": "Weekly user-initiated interactions by top Copilot features for the selected team(s) and user(s), using per-user metrics as the source of truth.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1849,6 +1958,7 @@
             "axisLabel": "Interactions",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -1867,8 +1977,8 @@
             "showPoints": "never",
             "spanNulls": false,
             "stacking": {
-              "mode": "normal",
-              "group": "A"
+              "group": "A",
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -1879,8 +1989,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1901,27 +2010,27 @@
           "placement": "bottom",
           "showLegend": true
         },
+        "stacking": {
+          "group": "A",
+          "mode": "normal"
+        },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
-        },
-        "stacking": {
-          "mode": "normal",
-          "group": "A"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT time, metric, SUM(value) as value\nFROM (\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    'Code Completions' as metric,\n    SUM(total_code_suggestions) as value\n  FROM _tool_copilot_team_completions\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n    AND '${user:csv}' = '0'\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY))\n\n  UNION ALL\n\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    'IDE Chat' as metric,\n    SUM(total_chats) as value\n  FROM _tool_copilot_team_ide_chat\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n    AND '${user:csv}' = '0'\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY))\n\n  UNION ALL\n\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    'Dotcom Chat' as metric,\n    SUM(total_chats) as value\n  FROM _tool_copilot_team_dotcom_chat\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n    AND '${user:csv}' = '0'\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY))\n\n  UNION ALL\n\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    'Dotcom Pull Requests' as metric,\n    SUM(total_pr_summaries_created) as value\n  FROM _tool_copilot_team_dotcom_prs\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n    AND '${user:csv}' = '0'\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY))\n) feature_mix\nGROUP BY time, metric\nORDER BY time",
+          "rawSql": "SELECT DATE(DATE_SUB(f.day, INTERVAL WEEKDAY(f.day) DAY)) as time,\n  CASE\n    WHEN f.feature IN (\n      SELECT feature FROM (\n        SELECT f2.feature\n        FROM _tool_copilot_user_metrics_by_feature f2\n        INNER JOIN _tool_copilot_user_daily_metrics udm2\n          ON udm2.connection_id = f2.connection_id AND udm2.user_id = f2.user_id AND udm2.day = f2.day AND udm2.scope_id = f2.scope_id\n        LEFT JOIN (\n          SELECT DISTINCT connection_id, user_login\n          FROM _tool_copilot_team_users\n          WHERE '${team:csv}' = '0' OR team_slug IN (${team:sqlstring})\n        ) tu2\n          ON tu2.connection_id = udm2.connection_id AND tu2.user_login = udm2.user_login\n        WHERE $__timeFilter(f2.day)\n          AND f2.connection_id = ${connection_id}\n          AND f2.scope_id = '${scope_id}'\n          AND ('${team:csv}' = '0' OR tu2.user_login IS NOT NULL)\n          AND ('${user:csv}' = '0' OR udm2.user_login IN (${user:sqlstring}))\n        GROUP BY f2.feature\n        HAVING SUM(f2.user_initiated_interaction_count) > 0\n        ORDER BY SUM(f2.user_initiated_interaction_count) DESC\n        LIMIT 4\n      ) top_features\n    ) THEN REPLACE(REPLACE(f.feature, 'chat_panel_', ''), '_mode', '')\n    ELSE 'Other'\n  END as metric,\n  SUM(f.user_initiated_interaction_count) as value\nFROM _tool_copilot_user_metrics_by_feature f\nINNER JOIN _tool_copilot_user_daily_metrics udm\n  ON udm.connection_id = f.connection_id AND udm.user_id = f.user_id AND udm.day = f.day AND udm.scope_id = f.scope_id\nLEFT JOIN (\n  SELECT DISTINCT connection_id, user_login\n  FROM _tool_copilot_team_users\n  WHERE '${team:csv}' = '0' OR team_slug IN (${team:sqlstring})\n) tu\n  ON tu.connection_id = udm.connection_id AND tu.user_login = udm.user_login\nWHERE $__timeFilter(f.day)\n  AND f.connection_id = ${connection_id}\n  AND f.scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR tu.user_login IS NOT NULL)\n  AND ('${user:csv}' = '0' OR udm.user_login IN (${user:sqlstring}))\nGROUP BY time, metric\nORDER BY time",
           "refId": "A"
         }
       ],
       "title": "Feature Mix Over Time",
-      "type": "timeseries",
       "transformations": [
         {
           "id": "prepareTimeSeries",
@@ -1936,11 +2045,12 @@
             "renamePattern": "$1"
           }
         }
-      ]
+      ],
+      "type": "timeseries"
     },
     {
       "datasource": "mysql",
-      "description": "Weekly IDE activity for selected team(s) Team-level aggregate; returns no data when User filter is applied.",
+      "description": "Weekly IDE activity for selected team(s) and user(s), using per-user IDE metrics as the source of truth.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1953,6 +2063,7 @@
             "axisLabel": "Weekly Interactions",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -1971,8 +2082,8 @@
             "showPoints": "never",
             "spanNulls": false,
             "stacking": {
-              "mode": "normal",
-              "group": "A"
+              "group": "A",
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -1983,8 +2094,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2005,27 +2115,27 @@
           "placement": "bottom",
           "showLegend": true
         },
+        "stacking": {
+          "group": "A",
+          "mode": "normal"
+        },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
-        },
-        "stacking": {
-          "mode": "normal",
-          "group": "A"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT time, metric, SUM(value) as value\nFROM (\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    editor as metric,\n    SUM(total_code_suggestions + total_code_acceptances) as value\n  FROM _tool_copilot_team_completions\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n    AND '${user:csv}' = '0'\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)), editor\n\n  UNION ALL\n\n  SELECT DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)) as time,\n    editor as metric,\n    SUM(total_chats) as value\n  FROM _tool_copilot_team_ide_chat\n  WHERE $__timeFilter(date)\n    AND connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n    AND '${user:csv}' = '0'\n  GROUP BY DATE(DATE_SUB(date, INTERVAL WEEKDAY(date) DAY)), editor\n) ide_adoption\nGROUP BY time, metric\nORDER BY time",
+          "rawSql": "SELECT DATE(DATE_SUB(ui.day, INTERVAL WEEKDAY(ui.day) DAY)) as time,\n  ui.ide as metric,\n  SUM(ui.user_initiated_interaction_count + ui.code_generation_activity_count + ui.code_acceptance_activity_count) as value\nFROM _tool_copilot_user_metrics_by_ide ui\nINNER JOIN _tool_copilot_user_daily_metrics udm\n  ON udm.connection_id = ui.connection_id AND udm.user_id = ui.user_id AND udm.day = ui.day AND udm.scope_id = ui.scope_id\nLEFT JOIN (\n  SELECT DISTINCT connection_id, user_login\n  FROM _tool_copilot_team_users\n  WHERE '${team:csv}' = '0' OR team_slug IN (${team:sqlstring})\n) tu\n  ON tu.connection_id = udm.connection_id AND tu.user_login = udm.user_login\nWHERE $__timeFilter(ui.day)\n  AND ui.connection_id = ${connection_id}\n  AND ui.scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR tu.user_login IS NOT NULL)\n  AND ('${user:csv}' = '0' OR udm.user_login IN (${user:sqlstring}))\nGROUP BY time, ui.ide\nORDER BY time",
           "refId": "A"
         }
       ],
       "title": "IDE Adoption Over Time",
-      "type": "timeseries",
       "transformations": [
         {
           "id": "prepareTimeSeries",
@@ -2040,20 +2150,27 @@
             "renamePattern": "$1"
           }
         }
-      ]
+      ],
+      "type": "timeseries"
     },
     {
       "datasource": "mysql",
-      "description": "Matrix-style breakdown of completion suggestions and acceptances by language for selected team(s) Team-level aggregate; returns no data when User filter is applied.",
+      "description": "Matrix-style breakdown of completion suggestions and acceptances by language for selected team(s) and user(s), using per-user language metrics as the source of truth.",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2079,14 +2196,32 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
+          "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT language as \"Language\",\n  'code_completions' as \"Feature\",\n  SUM(total_code_suggestions) as \"Suggestions\",\n  SUM(total_code_acceptances) as \"Acceptances\"\nFROM _tool_copilot_team_completions\nWHERE $__timeFilter(date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND ('${team:csv}' = '0' OR team_slug IN (${team:sqlstring}))\n  AND '${user:csv}' = '0'\nGROUP BY language\nHAVING SUM(total_code_suggestions) > 0\nORDER BY language",
-          "refId": "A"
+          "rawSql": "SELECT lf.language as \"Language\",\n  'code_completions' as \"Feature\",\n  SUM(lf.code_generation_activity_count) as \"Suggestions\",\n  SUM(lf.code_acceptance_activity_count) as \"Acceptances\"\nFROM _tool_copilot_user_metrics_by_language_feature lf\nINNER JOIN _tool_copilot_user_daily_metrics udm\n  ON udm.connection_id = lf.connection_id AND udm.user_id = lf.user_id AND udm.day = lf.day AND udm.scope_id = lf.scope_id\nLEFT JOIN (\n  SELECT DISTINCT connection_id, user_login\n  FROM _tool_copilot_team_users\n  WHERE '${team:csv}' = '0' OR team_slug IN (${team:sqlstring})\n) tu\n  ON tu.connection_id = udm.connection_id AND tu.user_login = udm.user_login\nWHERE $__timeFilter(lf.day)\n  AND lf.connection_id = ${connection_id}\n  AND lf.scope_id = '${scope_id}'\n  AND ('${user:csv}' = '0' OR udm.user_login IN (${user:sqlstring}))\nGROUP BY lf.language\nHAVING SUM(lf.code_generation_activity_count) > 0\nORDER BY lf.language",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "title": "Feature x Language Matrix",
@@ -2097,13 +2232,19 @@
       "description": "Acceptance ratio by Copilot feature for selected team members",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2129,7 +2270,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -2147,13 +2288,19 @@
       "description": "Acceptance ratio by programming language for selected team members",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2179,7 +2326,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -2197,13 +2344,19 @@
       "description": "Acceptance ratio by model for selected team members",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2229,7 +2382,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -2265,8 +2418,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2285,6 +2437,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -2296,7 +2449,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -2315,15 +2468,13 @@
       "fieldConfig": {
         "defaults": {
           "mappings": [],
-          "min": 0,
           "max": 100,
-          "unit": "percent",
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "yellow",
@@ -2334,7 +2485,8 @@
                 "value": 20
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -2360,7 +2512,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -2378,13 +2530,19 @@
       "description": "Row counts for team Copilot metrics tables Team-level aggregate; returns no data when User filter is applied.",
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2410,7 +2568,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": "mysql",
@@ -2424,8 +2582,9 @@
       "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 38,
+  "schemaVersion": 41,
   "tags": [
     "copilot",
     "devlake",
@@ -2436,55 +2595,44 @@
     "list": [
       {
         "current": {
-          "selected": false,
           "text": "",
           "value": ""
         },
         "datasource": "mysql",
         "definition": "SELECT DISTINCT connection_id FROM _tool_copilot_scopes ORDER BY connection_id DESC",
-        "hide": 0,
         "includeAll": false,
         "label": "Connection ID",
-        "multi": false,
         "name": "connection_id",
         "options": [],
         "query": "SELECT DISTINCT connection_id FROM _tool_copilot_scopes ORDER BY connection_id DESC",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
         "current": {
-          "selected": false,
           "text": "",
           "value": ""
         },
         "datasource": "mysql",
         "definition": "SELECT DISTINCT id as scope_id FROM _tool_copilot_scopes WHERE connection_id = ${connection_id} ORDER BY 1",
-        "hide": 0,
         "includeAll": false,
         "label": "Scope ID",
-        "multi": false,
         "name": "scope_id",
         "options": [],
         "query": "SELECT DISTINCT id as scope_id FROM _tool_copilot_scopes WHERE connection_id = ${connection_id} ORDER BY 1",
         "refresh": 2,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
+        "allValue": "0",
         "current": {
-          "selected": false,
           "text": "All",
           "value": "0"
         },
         "datasource": "mysql",
         "definition": "SELECT slug as __value, name as __text FROM _tool_copilot_teams WHERE connection_id = ${connection_id} ORDER BY name",
-        "hide": 0,
         "includeAll": true,
         "label": "Team",
         "multi": true,
@@ -2493,20 +2641,16 @@
         "query": "SELECT slug as __value, name as __text FROM _tool_copilot_teams WHERE connection_id = ${connection_id} ORDER BY name",
         "refresh": 2,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query",
-        "allValue": "0"
+        "type": "query"
       },
       {
+        "allValue": "0",
         "current": {
-          "selected": false,
           "text": "All",
           "value": "0"
         },
         "datasource": "mysql",
         "definition": "SELECT DISTINCT m.user_login as __value, m.user_login as __text FROM _tool_copilot_user_daily_metrics m WHERE m.connection_id = ${connection_id} AND m.scope_id = '${scope_id}' AND ('${team:csv}' = '0' OR EXISTS (SELECT 1 FROM _tool_copilot_team_users tu INNER JOIN _tool_copilot_teams t ON t.connection_id = tu.connection_id AND t.id = tu.team_id WHERE tu.connection_id = m.connection_id AND tu.user_login = m.user_login AND t.slug IN (${team:sqlstring}))) ORDER BY m.user_login",
-        "hide": 0,
         "includeAll": true,
         "label": "User",
         "multi": true,
@@ -2515,10 +2659,7 @@
         "query": "SELECT DISTINCT m.user_login as __value, m.user_login as __text FROM _tool_copilot_user_daily_metrics m WHERE m.connection_id = ${connection_id} AND m.scope_id = '${scope_id}' AND ('${team:csv}' = '0' OR EXISTS (SELECT 1 FROM _tool_copilot_team_users tu INNER JOIN _tool_copilot_teams t ON t.connection_id = tu.connection_id AND t.id = tu.team_id WHERE tu.connection_id = m.connection_id AND tu.user_login = m.user_login AND t.slug IN (${team:sqlstring}))) ORDER BY m.user_login",
         "refresh": 2,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query",
-        "allValue": "0"
+        "type": "query"
       }
     ]
   },
@@ -2530,6 +2671,5 @@
   "timezone": "utc",
   "title": "GitHub Copilot Adoption by Team and User",
   "uid": "copilot_adoption_by_team_and_user",
-  "version": 1,
-  "weekStart": ""
+  "version": 7
 }
