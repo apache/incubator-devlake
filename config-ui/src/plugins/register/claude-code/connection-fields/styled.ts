@@ -16,18 +16,10 @@
  *
  */
 
-export const EntitiesLabel: Record<string, string> = {
-  CODE: 'Source Code Management',
-  TICKET: 'Issue Tracking',
-  CODEREVIEW: 'Code Review',
-  CICD: 'CI/CD',
-  CROSS: 'Cross Domain',
-  CLAUDE_CODE: 'Claude Code',
-  CODEQUALITY: 'Code Quality Domain',
-};
+import styled from 'styled-components';
 
-export const transformEntities = (entities: string[]) =>
-  entities.map((it) => ({
-    label: EntitiesLabel[it],
-    value: it,
-  }));
+export const ErrorText = styled.div`
+  margin-top: 4px;
+  color: #f5222d;
+  font-size: 12px;
+`;

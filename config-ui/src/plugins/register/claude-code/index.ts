@@ -16,18 +16,4 @@
  *
  */
 
-export const EntitiesLabel: Record<string, string> = {
-  CODE: 'Source Code Management',
-  TICKET: 'Issue Tracking',
-  CODEREVIEW: 'Code Review',
-  CICD: 'CI/CD',
-  CROSS: 'Cross Domain',
-  CLAUDE_CODE: 'Claude Code',
-  CODEQUALITY: 'Code Quality Domain',
-};
-
-export const transformEntities = (entities: string[]) =>
-  entities.map((it) => ({
-    label: EntitiesLabel[it],
-    value: it,
-  }));
+export * from './config';
