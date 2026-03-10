@@ -30,6 +30,7 @@ export const create = (data: any) =>
     data,
   });
 
+  
 export const remove = (id: ID) => request(`/blueprints/${id}`, { method: 'delete' });
 
 export const update = (id: ID, data: Partial<IBlueprint>) => request(`/blueprints/${id}`, { method: 'patch', data });
