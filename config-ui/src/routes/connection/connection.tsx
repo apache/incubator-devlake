@@ -40,6 +40,7 @@ import { IConnection } from '@/types';
 import { operator } from '@/utils';
 
 import * as S from './styled';
+import { getPluginScopeName } from '@/plugins';
 
 const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
@@ -92,7 +93,7 @@ export const Connection = () => {
     () => [
       data?.scopes.map((it: any) => ({
         id: getPluginScopeId(plugin, it.scope),
-        name: it.scope.fullName ?? it.scope.name,
+        name: getPluginScopeName(plugin, it.scope) || it.scope.fullName || it.scope.name,
         projects: it.blueprints?.map((bp: any) => bp.projectName) ?? [],
         configId: it.scopeConfig?.id,
         configName: it.scopeConfig?.name,
@@ -245,9 +246,8 @@ export const Connection = () => {
     setOperating(false);
     setVersion((v) => v + 1);
     setScopeIds([]);
-    setPage(1)
+    setPage(1);
   };
-
 
   const handleAssociateScopeConfig = async (trId: ID) => {
     const [success] = await operator(
@@ -316,12 +316,14 @@ export const Connection = () => {
             </Button>
           )}
           {dataSource.length > 0 && (
-            <Button style={{ marginLeft: 8 }}
+            <Button
+              style={{ marginLeft: 8 }}
               danger
               type="primary"
               disabled={!scopeIds.length}
               icon={<DeleteOutlined />}
-              onClick={() => setType('confirmDeleteSelectedScopes')}>
+              onClick={() => setType('confirmDeleteSelectedScopes')}
+            >
               Delete Data Scope
             </Button>
           )}
@@ -593,19 +595,15 @@ export const Connection = () => {
         >
           <Message content="This operation cannot be undone. All selected scopes and their historical data will be permanently removed." />
           <div style={{ marginTop: 12 }}>
-            <div>You are about to delete <strong>{scopeIds.length}</strong> data scopes:</div>
+            <div>
+              You are about to delete <strong>{scopeIds.length}</strong> data scopes:
+            </div>
             <ul style={{ marginTop: 8, paddingLeft: 20 }}>
               {scopeIds.slice(0, 5).map((id) => {
                 const scope = dataSource.find((s) => s.id === id);
-                return (
-                  <li key={id}>
-                    {scope?.name || `Scope ID ${id}`}
-                  </li>
-                );
+                return <li key={id}>{scope?.name || `Scope ID ${id}`}</li>;
               })}
-              {scopeIds.length > 5 && (
-                <li>...and {scopeIds.length - 5} more</li>
-              )}
+              {scopeIds.length > 5 && <li>...and {scopeIds.length - 5} more</li>}
             </ul>
           </div>
         </Modal>
@@ -621,9 +619,7 @@ export const Connection = () => {
           cancelButtonProps={{ style: { display: 'none' } }}
           onOk={handleHideDialog}
         >
-          <Message
-            content="This will delete all selected data scopes. This operation cannot be undone. If any scope fails to delete, it will be listed below after the operation."
-          />
+          <Message content="This will delete all selected data scopes. This operation cannot be undone. If any scope fails to delete, it will be listed below after the operation." />
 
           <div style={{ marginTop: 16, fontWeight: 500 }}>
             Progress: {bulkDeleteProgress.completed}/{bulkDeleteProgress.total}

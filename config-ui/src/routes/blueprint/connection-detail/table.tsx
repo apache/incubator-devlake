@@ -21,7 +21,7 @@ import { Table } from 'antd';
 
 import API from '@/api';
 import { useRefreshData } from '@/hooks';
-import { getPluginScopeId, ScopeConfig } from '@/plugins';
+import { getPluginScopeId, getPluginScopeName, ScopeConfig } from '@/plugins';
 
 interface Props {
   plugin: string;
@@ -36,7 +36,7 @@ export const BlueprintConnectionDetailTable = ({ plugin, connectionId, scopeIds 
     const scopes = await Promise.all(scopeIds.map((scopeId) => API.scope.get(plugin, connectionId, scopeId)));
     return scopes.map((sc) => ({
       id: getPluginScopeId(plugin, sc.scope),
-      name: sc.scope.fullName ?? sc.scope.name,
+      name: getPluginScopeName(plugin, sc.scope) || sc.scope.fullName || sc.scope.name,
       scopeConfigId: sc.scopeConfig?.id,
       scopeConfigName: sc.scopeConfig?.name,
     }));

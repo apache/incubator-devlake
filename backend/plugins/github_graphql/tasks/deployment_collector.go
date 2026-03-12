@@ -26,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/merico-dev/graphql"
+	"github.com/merico-ai/graphql"
 )
 
 var _ plugin.SubTaskEntryPoint = CollectDeployments
@@ -70,6 +70,12 @@ type GraphqlQueryDeploymentDeployment struct {
 		Name   string `graphql:"name"`
 		Prefix string `graphql:"prefix"`
 	} `graphql:"ref"`
+	Statuses struct {
+		Nodes []struct {
+			State     string     `graphql:"state"`
+			UpdatedAt *time.Time `graphql:"updatedAt"`
+		} `graphql:"nodes"`
+	} `graphql:"statuses(first: 100)"`
 	LatestStatus struct {
 		Id        string     `graphql:"id"`
 		State     string     `graphql:"state"`

@@ -27,7 +27,7 @@ import API from '@/api';
 import { PATHS } from '@/config';
 import { Loading, Block, ExternalLink, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
-import { getPluginScopeId } from '@/plugins';
+import { getPluginScopeId, getPluginScopeName } from '@/plugins';
 
 interface Props {
   plugin: string;
@@ -70,7 +70,7 @@ export const DataScopeSelect = ({
       ...res.scopes.map((sc) => ({
         parentId: null,
         id: getPluginScopeId(plugin, sc.scope),
-        title: sc.scope.fullName ?? sc.scope.name,
+        title: getPluginScopeName(plugin, sc.scope) || sc.scope.fullName || sc.scope.name,
         data: sc.scope,
       })),
     ]);
@@ -93,7 +93,7 @@ export const DataScopeSelect = ({
   const searchOptions = useMemo(
     () =>
       data?.scopes.map((sc) => ({
-        label: sc.scope.fullName ?? sc.scope.name,
+        label: getPluginScopeName(plugin, sc.scope) || sc.scope.fullName || sc.scope.name,
         value: getPluginScopeId(plugin, sc.scope),
       })) ?? [],
     [data],

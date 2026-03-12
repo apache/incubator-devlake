@@ -419,6 +419,173 @@ func TestParseDate(t *testing.T) {
 	}
 }
 
+func TestDetectUserReportFormat(t *testing.T) {
+	// New format: contains Client_Type
+	assert.True(t, detectUserReportFormat([]string{"UserId", "Date", "Client_Type", "Credits_Used"}))
+	// New format: contains Credits_Used
+	assert.True(t, detectUserReportFormat([]string{"UserId", "Date", "Credits_Used", "Total_Messages"}))
+	// Old format: code-level metrics
+	assert.False(t, detectUserReportFormat([]string{"UserId", "Date", "Chat_AICodeLines", "Inline_AICodeLines"}))
+	// Old format: no new-format indicators
+	assert.False(t, detectUserReportFormat([]string{"UserId", "Date", "CodeReview_FindingsCount"}))
+	// Empty headers
+	assert.False(t, detectUserReportFormat([]string{}))
+	// Whitespace-padded header still detected
+	assert.True(t, detectUserReportFormat([]string{"UserId", " Client_Type ", "Date"}))
+}
+
+func TestCreateUserReportData_Success(t *testing.T) {
+	headers := []string{
+		"UserId", "Date", "Client_Type", "Subscription_Tier", "ProfileId",
+		"Chat_Conversations", "Credits_Used", "Overage_Cap", "Overage_Credits_Used",
+		"Overage_Enabled", "Total_Messages",
+	}
+	record := []string{
+		"user-abc", "2026-01-15", "KIRO_IDE", "Pro", "profile-xyz",
+		"12", "45.5", "100.0", "5.25",
+		"true", "87",
+	}
+	fileMeta := &models.QDevS3FileMeta{
+		ConnectionId: 1,
+		ScopeId:      "scope-1",
+	}
+
+	mockIdentityClient := &MockIdentityClient{}
+	mockIdentityClient.On("ResolveUserDisplayName", "user-abc").Return("Alice Bob", nil)
+
+	mockLogger := &MockLogger{}
+	mockLogger.On("Debug", mock.Anything, mock.Anything).Return()
+
+	report, err := createUserReportData(mockLogger, headers, record, fileMeta, mockIdentityClient)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, report)
+	assert.Equal(t, "user-abc", report.UserId)
+	assert.Equal(t, "Alice Bob", report.DisplayName)
+	assert.Equal(t, uint64(1), report.ConnectionId)
+	assert.Equal(t, "scope-1", report.ScopeId)
+	assert.Equal(t, "KIRO_IDE", report.ClientType)
+	assert.Equal(t, "Pro", report.SubscriptionTier)
+	assert.Equal(t, "profile-xyz", report.ProfileId)
+	assert.Equal(t, 12, report.ChatConversations)
+	assert.Equal(t, 45.5, report.CreditsUsed)
+	assert.Equal(t, 100.0, report.OverageCap)
+	assert.Equal(t, 5.25, report.OverageCreditsUsed)
+	assert.True(t, report.OverageEnabled)
+	assert.Equal(t, 87, report.TotalMessages)
+
+	expectedDate, _ := time.Parse("2006-01-02", "2026-01-15")
+	assert.Equal(t, expectedDate, report.Date)
+
+	mockIdentityClient.AssertExpectations(t)
+}
+
+func TestCreateUserReportData_MissingUserId(t *testing.T) {
+	headers := []string{"Date", "Client_Type", "Credits_Used"}
+	record := []string{"2026-01-15", "KIRO_IDE", "10.0"}
+	fileMeta := &models.QDevS3FileMeta{ConnectionId: 1}
+
+	mockLogger := &MockLogger{}
+	mockLogger.On("Debug", mock.Anything, mock.Anything).Return()
+
+	report, err := createUserReportData(mockLogger, headers, record, fileMeta, nil)
+
+	assert.Error(t, err)
+	assert.Nil(t, report)
+	assert.Contains(t, err.Error(), "UserId not found")
+}
+
+func TestCreateUserReportData_MissingDate(t *testing.T) {
+	headers := []string{"UserId", "Client_Type", "Credits_Used"}
+	record := []string{"user-abc", "KIRO_IDE", "10.0"}
+	fileMeta := &models.QDevS3FileMeta{ConnectionId: 1}
+
+	mockLogger := &MockLogger{}
+	mockLogger.On("Debug", mock.Anything, mock.Anything).Return()
+
+	report, err := createUserReportData(mockLogger, headers, record, fileMeta, nil)
+
+	assert.Error(t, err)
+	assert.Nil(t, report)
+	assert.Contains(t, err.Error(), "Date not found")
+}
+
+func TestCreateUserReportData_OverageDisabled(t *testing.T) {
+	headers := []string{"UserId", "Date", "Overage_Enabled", "Credits_Used"}
+	record := []string{"user-abc", "2026-01-15", "false", "10.0"}
+	fileMeta := &models.QDevS3FileMeta{ConnectionId: 1}
+
+	mockLogger := &MockLogger{}
+	mockLogger.On("Debug", mock.Anything, mock.Anything).Return()
+
+	report, err := createUserReportData(mockLogger, headers, record, fileMeta, nil)
+
+	assert.NoError(t, err)
+	assert.False(t, report.OverageEnabled)
+}
+
+func TestCreateUserReportData_InvalidNumericValues(t *testing.T) {
+	headers := []string{"UserId", "Date", "Credits_Used", "Chat_Conversations", "Total_Messages"}
+	record := []string{"user-abc", "2026-01-15", "not-a-float", "not-an-int", ""}
+	fileMeta := &models.QDevS3FileMeta{ConnectionId: 1}
+
+	mockLogger := &MockLogger{}
+	mockLogger.On("Debug", mock.Anything, mock.Anything).Return()
+
+	report, err := createUserReportData(mockLogger, headers, record, fileMeta, nil)
+
+	assert.NoError(t, err)
+	assert.Equal(t, float64(0), report.CreditsUsed)
+	assert.Equal(t, 0, report.ChatConversations)
+	assert.Equal(t, 0, report.TotalMessages)
+}
+
+func TestParseFloat(t *testing.T) {
+	fieldMap := map[string]string{
+		"ValidFloat":    "3.14",
+		"ZeroFloat":     "0",
+		"NegativeFloat": "-2.5",
+		"IntegerValue":  "42",
+		"InvalidFloat":  "not-a-number",
+		"EmptyString":   "",
+		"Whitespace":    "  1.5  ",
+	}
+
+	assert.Equal(t, 3.14, parseFloat(fieldMap, "ValidFloat"))
+	assert.Equal(t, float64(0), parseFloat(fieldMap, "ZeroFloat"))
+	assert.Equal(t, -2.5, parseFloat(fieldMap, "NegativeFloat"))
+	assert.Equal(t, float64(42), parseFloat(fieldMap, "IntegerValue"))
+	assert.Equal(t, float64(0), parseFloat(fieldMap, "InvalidFloat"))
+	assert.Equal(t, float64(0), parseFloat(fieldMap, "EmptyString"))
+	assert.Equal(t, 1.5, parseFloat(fieldMap, "Whitespace"))
+	assert.Equal(t, float64(0), parseFloat(fieldMap, "NonExistentField"))
+}
+
+func TestParseBool(t *testing.T) {
+	fieldMap := map[string]string{
+		"TrueValue":     "true",
+		"TrueUpper":     "True",
+		"TrueOne":       "1",
+		"TrueYes":       "yes",
+		"FalseValue":    "false",
+		"FalseZero":     "0",
+		"EmptyString":   "",
+		"InvalidBool":   "maybe",
+		"WhitespaceVal": "  true  ",
+	}
+
+	assert.True(t, parseBool(fieldMap, "TrueValue"))
+	assert.True(t, parseBool(fieldMap, "TrueUpper"))
+	assert.True(t, parseBool(fieldMap, "TrueOne"))
+	assert.True(t, parseBool(fieldMap, "TrueYes"))
+	assert.False(t, parseBool(fieldMap, "FalseValue"))
+	assert.False(t, parseBool(fieldMap, "FalseZero"))
+	assert.False(t, parseBool(fieldMap, "EmptyString"))
+	assert.False(t, parseBool(fieldMap, "InvalidBool"))
+	assert.True(t, parseBool(fieldMap, "WhitespaceVal"))
+	assert.False(t, parseBool(fieldMap, "NonExistentField"))
+}
+
 func TestParseInt(t *testing.T) {
 	fieldMap := map[string]string{
 		"ValidInt":    "42",

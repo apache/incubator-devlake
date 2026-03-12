@@ -42,14 +42,12 @@ export const TestmoConfig: IPluginConfig = {
         label: 'API Token',
         type: 'password',
         placeholder: 'Enter your Testmo API token',
-        subLabel:
-          'Generate an API token from your Testmo account settings: Settings → API',
+        subLabel: 'Generate an API token from your Testmo account settings: Settings → API',
       },
       'proxy',
       {
         key: 'rateLimitPerHour',
-        subLabel:
-          'By default, DevLake will not limit API requests per hour. But you can set a number if you want to.',
+        subLabel: 'By default, DevLake will not limit API requests per hour. But you can set a number if you want to.',
         learnMore: 'https://devlake.apache.org/docs/Configuration/Testmo/#rate-limit-api-requests-per-hour',
         externalInfo: 'Testmo does not specify a maximum number of requests per hour.',
         defaultValue: 10000,

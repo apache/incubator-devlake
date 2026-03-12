@@ -26,6 +26,7 @@ import { useDebounce } from 'ahooks';
 import API from '@/api';
 import { Loading, Block, Message } from '@/components';
 import { IPluginConfig } from '@/types';
+import { getPluginScopeName } from '@/plugins';
 
 import * as T from './types';
 import * as S from './styled';
@@ -197,7 +198,7 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
                 closable
                 onClose={() => onChange(selectedScope.filter((it) => it.id !== sc.id))}
               >
-                {sc.fullName ?? sc.name}
+                {getPluginScopeName(plugin, sc) || sc.fullName || sc.name || sc.id}
               </Tag>
             ))
           ) : (

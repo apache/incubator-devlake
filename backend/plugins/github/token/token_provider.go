@@ -84,7 +84,10 @@ func (tp *TokenProvider) needsRefresh() bool {
 		}
 	}
 
-	return time.Now().Add(buffer).After(tp.conn.TokenExpiresAt)
+	if tp.conn.TokenExpiresAt == nil {
+		return false
+	}
+	return time.Now().Add(buffer).After(*tp.conn.TokenExpiresAt)
 }
 
 func (tp *TokenProvider) refreshToken() errors.Error {
@@ -145,11 +148,14 @@ func (tp *TokenProvider) refreshToken() errors.Error {
 		return errors.Default.New(fmt.Sprintf("empty access token returned; response body: %s", bodyStr))
 	}
 
+	tokenExpiredAt := time.Now().Add(time.Duration(result.ExpiresIn) * time.Second)
+	refreshTokenExpiredAt := time.Now().Add(time.Duration(result.RefreshTokenExpiresIn) * time.Second)
+
 	tp.conn.UpdateToken(
 		result.AccessToken,
 		result.RefreshToken,
-		time.Now().Add(time.Duration(result.ExpiresIn)*time.Second),
-		time.Now().Add(time.Duration(result.RefreshTokenExpiresIn)*time.Second),
+		&tokenExpiredAt,
+		&refreshTokenExpiredAt,
 	)
 
 	if tp.dal != nil {

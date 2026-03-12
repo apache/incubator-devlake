@@ -72,6 +72,10 @@ func makeDataSourcePipelinePlanV200(
 			ConnectionId: s3Slice.ConnectionId,
 			S3Prefix:     s3Slice.Prefix,
 			ScopeId:      s3Slice.Id,
+			AccountId:    s3Slice.AccountId,
+			BasePath:     s3Slice.BasePath,
+			Year:         s3Slice.Year,
+			Month:        s3Slice.Month,
 		}
 
 		// Pass empty entities array to enable all subtasks

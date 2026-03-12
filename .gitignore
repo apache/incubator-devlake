@@ -150,6 +150,9 @@ bin
 libgit2
 .air.toml
 
+# Playwright CLI snapshots/logs (local dev)
+.playwright-cli/
+
 # auto generated code
 backend/mocks/
 backend/server/api/docs/swagger.json

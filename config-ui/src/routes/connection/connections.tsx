@@ -165,7 +165,7 @@ export const Connections = () => {
           footer={null}
           onCancel={handleHideDialog}
         >
-          <ConnectionList plugin={pluginConfig.plugin} onCreate={handleShowFormDialog} />
+          <ConnectionList plugin={plugin} onCreate={handleShowFormDialog} />
         </Modal>
       )}
       {type === 'form' && pluginConfig && (
@@ -182,10 +182,7 @@ export const Connections = () => {
           footer={null}
           onCancel={handleHideDialog}
         >
-          <ConnectionForm
-            plugin={pluginConfig.plugin}
-            onSuccess={(id) => handleSuccessAfter(pluginConfig.plugin, id)}
-          />
+          <ConnectionForm plugin={plugin} onSuccess={(id) => handleSuccessAfter(plugin, id)} />
         </Modal>
       )}
     </S.Wrapper>

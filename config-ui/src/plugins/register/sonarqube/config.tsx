@@ -55,7 +55,11 @@ export const SonarQubeConfig: IPluginConfig = {
           setErrors={setErrors}
         />
       ),
-      'token',
+      {
+        key: 'token',
+        subLabel:
+          'A token with Browse permission on the projects you want is sufficient for listing projects and collecting issues, hotspots, and file metrics. Listing Accounts (users) may require a system admin token on some SonarQube instances.',
+      },
       'proxy',
       {
         key: 'rateLimitPerHour',

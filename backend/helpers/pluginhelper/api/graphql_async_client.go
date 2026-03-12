@@ -27,7 +27,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/merico-dev/graphql"
+	"github.com/merico-ai/graphql"
 )
 
 // GraphqlAsyncClient send graphql one by one

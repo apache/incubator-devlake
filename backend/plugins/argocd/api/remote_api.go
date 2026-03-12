@@ -63,6 +63,9 @@ func listArgocdRemoteScopes(
 				} `json:"metadata"`
 				Spec struct {
 					Project string `json:"project"`
+					Source  struct {
+						RepoURL string `json:"repoURL"`
+					} `json:"source"`
 				} `json:"spec"`
 			} `json:"items"`
 		}
@@ -107,6 +110,9 @@ func listArgocdRemoteScopes(
 			} `json:"metadata"`
 			Spec struct {
 				Project string `json:"project"`
+				Source  struct {
+					RepoURL string `json:"repoURL"`
+				} `json:"source"`
 			} `json:"spec"`
 		} `json:"items"`
 	}
@@ -126,6 +132,7 @@ func listArgocdRemoteScopes(
 				Name:      item.Metadata.Name,
 				Namespace: item.Metadata.Namespace,
 				Project:   item.Spec.Project,
+				RepoURL:   item.Spec.Source.RepoURL,
 			}
 			app.ConnectionId = connection.ID
 

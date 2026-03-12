@@ -23,9 +23,14 @@ const URLS = {
   },
   DORA: 'https://devlake.apache.org/docs/DORA/',
   PLUGIN: {
+    ASANA: {
+      BASIS: 'https://devlake.apache.org/docs/Configuration/Asana',
+      TRANSFORMATION: 'https://devlake.apache.org/docs/Configuration/Asana',
+    },
     ARGOCD: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/ArgoCD',
-      TRANSFORMATION: 'https://devlake.apache.org/docs/Configuration/ArgoCD#step-3---adding-transformation-rules-optional',
+      TRANSFORMATION:
+        'https://devlake.apache.org/docs/Configuration/ArgoCD#step-3---adding-transformation-rules-optional',
     },
     AZUREDEVOPS: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/AzureDevOps',

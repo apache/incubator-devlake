@@ -387,8 +387,8 @@ github.com/mattn/go-isatty v0.0.19 h1:JITubQf0MOLdlGRuRq+jtsDlekdYPia9ZFsB8h/APP
 github.com/mattn/go-isatty v0.0.19/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-sqlite3 v1.14.5 h1:1IdxlwTNazvbKJQSxoJ5/9ECbEeaTTyeU7sEAZ5KKTQ=
 github.com/mattn/go-sqlite3 v1.14.5/go.mod h1:WVKg1VTActs4Qso6iwGbiFih2UIHo0ENGwNd0Lj+XmI=
-github.com/merico-dev/graphql v0.0.0-20240807070533-1cafa544cd5d h1:FpP+YRQudZtnrnIaFvVc87D/WVI7tWi0hBrnRCY8wmQ=
-github.com/merico-dev/graphql v0.0.0-20240807070533-1cafa544cd5d/go.mod h1:dcDqG8HXVtfEhTCipFMa0Q+RTKTtDKIO2vJt+JVzHEQ=
+github.com/merico-ai/graphql v0.0.0-20260206020408-b7fd267bcfac h1:J3wm8OohrRkYf/+Zy5GxqvhzcP2qHGJRduxTUUbBMdw=
+github.com/merico-ai/graphql v0.0.0-20260206020408-b7fd267bcfac/go.mod h1:4WSOgvd/Sv6eLKJE6fvrXlmxePBDGhbwRYKEBeqJr8g=
 github.com/miekg/dns v1.0.14/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/mitchellh/cli v1.0.0/go.mod h1:hNIlj7HEI86fIcpObd7a0FcrxTWetlwJDGcceTlRvqc=
 github.com/mitchellh/go-homedir v1.0.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=

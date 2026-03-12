@@ -38,7 +38,7 @@ import (
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/github_graphql/model/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
-	"github.com/merico-dev/graphql"
+	"github.com/merico-ai/graphql"
 	"golang.org/x/oauth2"
 )
 

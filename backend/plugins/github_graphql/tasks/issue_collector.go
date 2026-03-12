@@ -30,7 +30,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/merico-dev/graphql"
+	"github.com/merico-ai/graphql"
 )
 
 const RAW_ISSUES_TABLE = "github_graphql_issues"

@@ -36,6 +36,7 @@ func TestRoundTripper401Refresh(t *testing.T) {
 	mockRT := new(MockRoundTripper)
 	client := &http.Client{Transport: mockRT}
 
+	expiry := time.Now().Add(10 * time.Minute) // Not expired
 	conn := &models.GithubConnection{
 		GithubConn: models.GithubConn{
 			RefreshToken: "refresh_token",
@@ -44,7 +45,7 @@ func TestRoundTripper401Refresh(t *testing.T) {
 					Token: "old_token",
 				},
 			},
-			TokenExpiresAt: time.Now().Add(10 * time.Minute), // Not expired
+			TokenExpiresAt: &expiry,
 			GithubAppKey: models.GithubAppKey{
 				AppKey: api.AppKey{
 					AppId:     "123",

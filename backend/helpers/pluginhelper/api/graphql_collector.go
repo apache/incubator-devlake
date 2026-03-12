@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/merico-dev/graphql"
+	"github.com/merico-ai/graphql"
 )
 
 // CursorPager contains pagination information for a graphql request

@@ -1,0 +1,3 @@
+id,params,data,url,input,created_at
+1,"{""ConnectionId"":1,""Name"":""test/repo""}","{""id"":5001,""user"":{""login"":""renovate[bot]"",""id"":29139614},""body"":""LGTM"",""state"":""APPROVED"",""commit_id"":""abc123"",""submitted_at"":""2024-01-01T00:00:00Z""}",https://api.github.com/repos/test/repo/pulls/1/reviews,"{""GithubId"":1,""Number"":1}",2024-01-01 00:00:00
+2,"{""ConnectionId"":1,""Name"":""test/repo""}","{""id"":5002,""user"":{""login"":""human-reviewer"",""id"":12345},""body"":""Looks good"",""state"":""APPROVED"",""commit_id"":""abc123"",""submitted_at"":""2024-01-02T00:00:00Z""}",https://api.github.com/repos/test/repo/pulls/1/reviews,"{""GithubId"":1,""Number"":1}",2024-01-02 00:00:00

@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/merico-dev/graphql"
+	"github.com/merico-ai/graphql"
 )
 
 const RAW_RELEASE_TABLE = "github_graphql_release"

@@ -29,12 +29,17 @@ type QDevOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
 	S3Prefix     string `json:"s3Prefix"`
 	ScopeId      string `json:"scopeId"`
+	AccountId    string `json:"accountId"`
+	BasePath     string `json:"basePath"`
+	Year         int    `json:"year"`
+	Month        *int   `json:"month"`
 }
 
 type QDevTaskData struct {
 	Options        *QDevOptions
 	S3Client       *QDevS3Client
-	IdentityClient *QDevIdentityClient // New field for Identity Center client
+	IdentityClient *QDevIdentityClient
+	S3Prefixes     []string
 }
 
 type QDevS3Client struct {

@@ -31,7 +31,7 @@ type ArgocdApplication struct {
 	Name           string     `gorm:"type:varchar(255);primaryKey" json:"name" mapstructure:"name" validate:"required"`
 	Namespace      string     `gorm:"type:varchar(255)" json:"namespace" mapstructure:"namespace"`
 	Project        string     `gorm:"type:varchar(255)" json:"project" mapstructure:"project"`
-	RepoURL        string     `gorm:"type:varchar(500)" json:"repoUrl" mapstructure:"repoUrl"`
+	RepoURL        string     `gorm:"type:varchar(500)" json:"repoURL" mapstructure:"repoURL"`
 	Path           string     `gorm:"type:varchar(255)" json:"path" mapstructure:"path"`
 	TargetRevision string     `gorm:"type:varchar(255)" json:"targetRevision" mapstructure:"targetRevision"`
 	DestServer     string     `gorm:"type:varchar(255)" json:"destServer" mapstructure:"destServer"`

@@ -31,5 +31,9 @@ func All() []plugin.MigrationScript {
 		new(addS3SliceTable),
 		new(addScopeConfigIdToS3Slice),
 		new(addScopeIdFields),
+		new(addUserReportTable),
+		new(addAccountIdToS3Slice),
+		new(fixDedupUserTables),
+		new(resetS3FileMetaProcessed),
 	}
 }
