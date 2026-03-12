@@ -546,7 +546,7 @@ func (s *Service) qaTestCaseExecutionHandler(qaProjectId string) func(record map
 }
 
 // issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commits` table
-// ths issueCommitsFields is used to filter the fields that should be inserted into the `issue_commits` table
+// the issueCommitsFields is used to filter the fields that should be inserted into the `issue_commits` table
 func (s *Service) issueRepoCommitHandler(record map[string]interface{}) errors.Error {
 	err := s.dal.CreateWithMap(&crossdomain.IssueRepoCommit{}, record)
 	if err != nil {
