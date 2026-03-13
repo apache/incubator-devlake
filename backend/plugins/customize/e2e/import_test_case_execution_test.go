@@ -71,6 +71,7 @@ func TestImportQaTestCaseExecutionsDataFlow(t *testing.T) {
 			"start_time",
 			"finish_time",
 			"creator_id",
+			"is_invalid",
 			"status",
 		})
 	dataflowTester.VerifyTableWithRawData(
@@ -104,6 +105,7 @@ func TestImportQaTestCaseExecutionsDataFlow(t *testing.T) {
 			"start_time",
 			"finish_time",
 			"creator_id",
+			"is_invalid",
 			"status",
 		})
 

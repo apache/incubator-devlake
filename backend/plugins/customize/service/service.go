@@ -541,6 +541,10 @@ func (s *Service) qaTestCaseExecutionHandler(qaProjectId string) func(record map
 		}
 		delete(record, "creator_name")
 		record["qa_project_id"] = qaProjectId
+		// Set default value for is_invalid if not present in the CSV
+		if _, exists := record["is_invalid"]; !exists {
+			record["is_invalid"] = false
+		}
 		return s.dal.CreateWithMap(&qa.QaTestCaseExecution{}, record)
 	}
 }
