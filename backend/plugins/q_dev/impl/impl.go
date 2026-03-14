@@ -58,6 +58,8 @@ func (p QDev) GetTablesInfo() []dal.Tabler {
 		&models.QDevS3FileMeta{},
 		&models.QDevS3Slice{},
 		&models.QDevUserReport{},
+		&models.QDevChatLog{},
+		&models.QDevCompletionLog{},
 	}
 }
 
@@ -85,6 +87,7 @@ func (p QDev) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectQDevS3FilesMeta,
 		tasks.ExtractQDevS3DataMeta,
+		tasks.ExtractQDevLoggingDataMeta,
 	}
 }
 
@@ -131,6 +134,8 @@ func (p QDev) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		s3Prefixes = []string{
 			fmt.Sprintf("%s/by_user_analytic/%s/%s", base, region, timePart),
 			fmt.Sprintf("%s/user_report/%s/%s", base, region, timePart),
+			fmt.Sprintf("%s/GenerateAssistantResponse/%s/%s", base, region, timePart),
+			fmt.Sprintf("%s/GenerateCompletions/%s/%s", base, region, timePart),
 		}
 	} else {
 		// Legacy scope: use S3Prefix directly
