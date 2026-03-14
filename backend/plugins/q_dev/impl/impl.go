@@ -189,12 +189,9 @@ func (p QDev) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scopes/*scopeId": {
-			"GET":    api.GetScope,
+			"GET":    api.GetScopeDispatcher,
 			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
-		},
-		"connections/:connectionId/scopes/*scopeId/latest-sync-state": {
-			"GET": api.GetScopeLatestSyncState,
 		},
 	}
 }
