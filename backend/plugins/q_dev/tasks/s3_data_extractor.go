@@ -40,10 +40,11 @@ func ExtractQDevS3Data(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*QDevTaskData)
 	db := taskCtx.GetDal()
 
-	// 查询未处理的文件元数据
+	// 查询未处理的CSV文件元数据（排除.json.gz日志文件）
 	cursor, err := db.Cursor(
 		dal.From(&models.QDevS3FileMeta{}),
-		dal.Where("connection_id = ? AND processed = ?", data.Options.ConnectionId, false),
+		dal.Where("connection_id = ? AND processed = ? AND file_name LIKE ?",
+			data.Options.ConnectionId, false, "%.csv"),
 	)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to get file metadata cursor")
