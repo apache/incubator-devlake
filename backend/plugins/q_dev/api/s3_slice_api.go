@@ -18,8 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -61,38 +59,22 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	return dsHelper.ScopeApi.GetPage(input)
 }
 
-// GetScopeDispatcher routes GET requests for *scopeId catch-all.
-// When scopeId ends with /latest-sync-state, dispatches to GetScopeLatestSyncState.
-// Otherwise dispatches to GetScope.
-func GetScopeDispatcher(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	scopeIdWithSuffix := strings.TrimLeft(input.Params["scopeId"], "/")
-	if strings.HasSuffix(scopeIdWithSuffix, "/latest-sync-state") {
-		input.Params["scopeId"] = strings.TrimSuffix(scopeIdWithSuffix, "/latest-sync-state")
-		return GetScopeLatestSyncState(input)
-	}
-	return GetScope(input)
-}
-
 // GetScope returns a single scope record
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // PatchScope updates a scope record
 func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return dsHelper.ScopeApi.Patch(input)
 }
 
 // DeleteScope removes a scope and optionally associated data.
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return dsHelper.ScopeApi.Delete(input)
 }
 
 // GetScopeLatestSyncState returns scope sync state info
 func GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return dsHelper.ScopeApi.GetScopeLatestSyncState(input)
 }
