@@ -131,11 +131,16 @@ func (p QDev) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 			timePart = fmt.Sprintf("%04d/%02d", op.Year, *op.Month)
 		}
 		base := fmt.Sprintf("%s/AWSLogs/%s/KiroLogs", op.BasePath, op.AccountId)
+		loggingBasePath := op.LoggingBasePath
+		if loggingBasePath == "" {
+			loggingBasePath = "logging"
+		}
+		loggingBase := fmt.Sprintf("%s/AWSLogs/%s/KiroLogs", loggingBasePath, op.AccountId)
 		s3Prefixes = []string{
 			fmt.Sprintf("%s/by_user_analytic/%s/%s", base, region, timePart),
 			fmt.Sprintf("%s/user_report/%s/%s", base, region, timePart),
-			fmt.Sprintf("%s/GenerateAssistantResponse/%s/%s", base, region, timePart),
-			fmt.Sprintf("%s/GenerateCompletions/%s/%s", base, region, timePart),
+			fmt.Sprintf("%s/GenerateAssistantResponse/%s/%s", loggingBase, region, timePart),
+			fmt.Sprintf("%s/GenerateCompletions/%s/%s", loggingBase, region, timePart),
 		}
 	} else {
 		// Legacy scope: use S3Prefix directly
