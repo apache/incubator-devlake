@@ -26,14 +26,13 @@ type QDevApiParams struct {
 }
 
 type QDevOptions struct {
-	ConnectionId    uint64 `json:"connectionId"`
-	S3Prefix        string `json:"s3Prefix"`
-	ScopeId         string `json:"scopeId"`
-	AccountId       string `json:"accountId"`
-	BasePath        string `json:"basePath"`
-	LoggingBasePath string `json:"loggingBasePath"`
-	Year            int    `json:"year"`
-	Month           *int   `json:"month"`
+	ConnectionId uint64 `json:"connectionId"`
+	S3Prefix     string `json:"s3Prefix"`
+	ScopeId      string `json:"scopeId"`
+	AccountId    string `json:"accountId"`
+	BasePath     string `json:"basePath"`
+	Year         int    `json:"year"`
+	Month        *int   `json:"month"`
 }
 
 type QDevTaskData struct {
