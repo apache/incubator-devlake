@@ -439,7 +439,7 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 		pipeline.Status = models.TASK_CANCELLED
 		err = db.Update(pipeline)
 		if err != nil {
-			return errors.Default.Wrap(err, "faile to update pipeline")
+			return errors.Default.Wrap(err, "failed to update pipeline")
 		}
 		// now, with RunPipelineInQueue being block and target pipeline got updated
 		// we should update the related tasks as well
@@ -449,7 +449,7 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 			dal.Where("pipeline_id = ?", pipelineId),
 		)
 		if err != nil {
-			return errors.Default.Wrap(err, "faile to update pipeline tasks")
+			return errors.Default.Wrap(err, "failed to update pipeline tasks")
 		}
 		// the target pipeline is pending, no running, no need to perform the actual cancel operation
 		return nil
@@ -563,7 +563,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 		rerunTasks = append(rerunTasks, rerunTask)
 	}
 
-	// mark pipline rerun
+	// mark pipeline rerun
 	err = tx.UpdateColumn(&models.Pipeline{},
 		"status", models.TASK_RERUN,
 		dal.Where("id = ?", pipelineId),
