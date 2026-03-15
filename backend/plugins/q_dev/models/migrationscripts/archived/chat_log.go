@@ -24,7 +24,7 @@ import (
 )
 
 type QDevChatLog struct {
-	archived.Model
+	archived.NoPKModel
 	ConnectionId     uint64    `gorm:"primaryKey"`
 	ScopeId          string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
 	RequestId        string    `gorm:"primaryKey;type:varchar(255)" json:"requestId"`
