@@ -394,6 +394,7 @@ func putBatchData(c plugin.SubTaskContext, starrocksTmpTable, table string, data
 		return err
 	}
 	client := http.Client{
+		Timeout: 60 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
