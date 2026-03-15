@@ -40,7 +40,11 @@ func AutoMigrateTables(basicRes context.BasicRes, dst ...interface{}) errors.Err
 		if err != nil {
 			return err
 		}
-		_ = db.First(entity)
+		// Load one record to verify the table is readable after migration.
+		// NotFound is expected for empty tables and can be safely ignored.
+		if err = db.First(entity); err != nil && !db.IsErrorNotFound(err) {
+			return errors.Default.Wrap(err, "failed to verify table after migration")
+		}
 	}
 	return nil
 }

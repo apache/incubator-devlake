@@ -462,9 +462,11 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 		return nil
 	}
 	for _, pendingTask := range pendingTasks {
-		_ = CancelTask(pendingTask.ID)
+		if cancelErr := CancelTask(pendingTask.ID); cancelErr != nil {
+			globalPipelineLog.Error(cancelErr, "failed to cancel task #%d of pipeline #%d", pendingTask.ID, pipelineId)
+		}
 	}
-	return errors.Convert(err)
+	return nil
 }
 
 // getPipelineLogsPath gets the logs directory of this pipeline
