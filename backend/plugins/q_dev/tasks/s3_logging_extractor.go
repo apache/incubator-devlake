@@ -196,12 +196,13 @@ func processChatRecord(taskCtx plugin.SubTaskContext, db dal.Dal, raw json.RawMe
 		ts = time.Now()
 	}
 
+	userId := normalizeUserId(record.Request.UserID)
 	chatLog := &models.QDevChatLog{
 		ConnectionId:     fileMeta.ConnectionId,
 		ScopeId:          fileMeta.ScopeId,
 		RequestId:        record.Response.RequestID,
-		UserId:           record.Request.UserID,
-		DisplayName:      resolveDisplayName(taskCtx.GetLogger(), record.Request.UserID, identityClient),
+		UserId:           userId,
+		DisplayName:      resolveDisplayName(taskCtx.GetLogger(), userId, identityClient),
 		Timestamp:        ts,
 		ChatTriggerType:  record.Request.ChatTriggerType,
 		HasCustomization: record.Request.CustomizationArn != nil && *record.Request.CustomizationArn != "",
@@ -282,12 +283,13 @@ func processCompletionRecord(taskCtx plugin.SubTaskContext, db dal.Dal, raw json
 		ts = time.Now()
 	}
 
+	userId := normalizeUserId(record.Request.UserID)
 	completionLog := &models.QDevCompletionLog{
 		ConnectionId:     fileMeta.ConnectionId,
 		ScopeId:          fileMeta.ScopeId,
 		RequestId:        record.Response.RequestID,
-		UserId:           record.Request.UserID,
-		DisplayName:      resolveDisplayName(taskCtx.GetLogger(), record.Request.UserID, identityClient),
+		UserId:           userId,
+		DisplayName:      resolveDisplayName(taskCtx.GetLogger(), userId, identityClient),
 		Timestamp:        ts,
 		FileName:         record.Request.FileName,
 		FileExtension:    filepath.Ext(record.Request.FileName),
@@ -296,6 +298,16 @@ func processCompletionRecord(taskCtx plugin.SubTaskContext, db dal.Dal, raw json
 	}
 
 	return errors.Default.Wrap(db.CreateOrUpdate(completionLog), "failed to save completion log")
+}
+
+// normalizeUserId strips the "d-{directoryId}." prefix from Identity Center user IDs
+// so that logging user IDs match the short UUID format used in user-report CSVs.
+// e.g. "d-9067deb161.6478a4a8-60a1-70d9-37bc-6aae85f6746a" → "6478a4a8-60a1-70d9-37bc-6aae85f6746a"
+func normalizeUserId(userId string) string {
+	if idx := strings.LastIndex(userId, "."); idx != -1 && strings.HasPrefix(userId, "d-") {
+		return userId[idx+1:]
+	}
+	return userId
 }
 
 var ExtractQDevLoggingDataMeta = plugin.SubTaskMeta{
