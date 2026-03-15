@@ -203,8 +203,8 @@ func createUserReportData(logger interface {
 		}
 	}
 
-	// UserId
-	report.UserId = getStringField(fieldMap, "UserId")
+	// UserId (normalize to strip "d-{directoryId}." prefix if present)
+	report.UserId = normalizeUserId(getStringField(fieldMap, "UserId"))
 	if report.UserId == "" {
 		return nil, errors.Default.New("UserId not found in CSV record")
 	}
@@ -304,11 +304,12 @@ func createUserDataWithDisplayName(logger interface {
 	var err error
 	var ok bool
 
-	// 设置UserId
-	userData.UserId, ok = fieldMap["UserId"]
+	// 设置UserId (normalize to strip "d-{directoryId}." prefix if present)
+	rawUserId, ok := fieldMap["UserId"]
 	if !ok {
 		return nil, errors.Default.New("UserId not found in CSV record")
 	}
+	userData.UserId = normalizeUserId(rawUserId)
 
 	// 设置DisplayName (new functionality)
 	userData.DisplayName = resolveDisplayName(logger, userData.UserId, identityClient)
