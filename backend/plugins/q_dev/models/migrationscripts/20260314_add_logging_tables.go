@@ -18,23 +18,26 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models/migrationscripts/archived"
 )
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addS3SliceTable),
-		new(addScopeConfigIdToS3Slice),
-		new(addScopeIdFields),
-		new(addUserReportTable),
-		new(addAccountIdToS3Slice),
-		new(fixDedupUserTables),
-		new(resetS3FileMetaProcessed),
-		new(addLoggingTables),
-	}
+type addLoggingTables struct{}
+
+func (*addLoggingTables) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.QDevChatLog{},
+		&archived.QDevCompletionLog{},
+	)
+}
+
+func (*addLoggingTables) Version() uint64 {
+	return 20260314000001
+}
+
+func (*addLoggingTables) Name() string {
+	return "Add chat_log and completion_log tables for Kiro logging data"
 }
