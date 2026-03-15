@@ -159,7 +159,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  hour_of_day as 'Hour',\n  SUM(chat_count) as 'Chat Events',\n  SUM(completion_count) as 'Completion Events'\nFROM (\n  SELECT HOUR(timestamp) as hour_of_day, COUNT(*) as chat_count, 0 as completion_count\n  FROM lake._tool_q_dev_chat_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n  UNION ALL\n  SELECT HOUR(timestamp) as hour_of_day, 0 as chat_count, COUNT(*) as completion_count\n  FROM lake._tool_q_dev_completion_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n) combined\nGROUP BY hour_of_day\nORDER BY hour_of_day",
+          "rawSql": "SELECT\n  LPAD(CAST(hour_of_day AS CHAR), 2, '0') as 'Hour',\n  SUM(chat_count) as 'Chat Events',\n  SUM(completion_count) as 'Completion Events'\nFROM (\n  SELECT HOUR(timestamp) as hour_of_day, COUNT(*) as chat_count, 0 as completion_count\n  FROM lake._tool_q_dev_chat_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n  UNION ALL\n  SELECT HOUR(timestamp) as hour_of_day, 0 as chat_count, COUNT(*) as completion_count\n  FROM lake._tool_q_dev_completion_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n) combined\nGROUP BY hour_of_day\nORDER BY hour_of_day",
           "refId": "A"
         }
       ],
