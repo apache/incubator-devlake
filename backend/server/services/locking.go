@@ -18,7 +18,6 @@ limitations under the License.
 package services
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -61,6 +60,6 @@ func lockDatabase() {
 	select {
 	case <-c:
 	case <-time.After(10 * time.Second):
-		panic(fmt.Errorf("locking _devlake_locking_stub timeout, the database might be locked by another devlake instance"))
+		errors.Must(errors.Default.New("locking _devlake_locking_stub timeout, the database might be locked by another devlake instance"))
 	}
 }

@@ -267,7 +267,7 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	where_status := dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN, models.TASK_RESUME})
 	err = tx.Pluck("priority", &top_priorities, dal.From(pipeline), where_status, dal.Orderby("priority DESC"), dal.Limit(1))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if len(top_priorities) > 0 {
 		top_priority = top_priorities[0]
@@ -303,7 +303,7 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 			{ColumnName: "began_at", Value: pipeline.BeganAt},
 		}, dal.Where("id = ?", pipeline.ID))
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 
 		return
@@ -341,7 +341,9 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 
 		err = fillPipelineDetail(dbPipeline)
 		if err != nil {
-			panic(err)
+			globalPipelineLog.Error(err, "failed to fill pipeline detail for pipeline #%d", dbPipeline.ID)
+			sema.Release(1)
+			continue
 		}
 		// add pipelineParallelLabels to runningParallelLabels
 		var pipelineParallelLabels []string
