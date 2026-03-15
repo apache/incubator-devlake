@@ -150,8 +150,8 @@ func collectMultiBranchJobApiBuilds(taskCtx plugin.SubTaskContext) errors.Error 
 	clauses := []dal.Clause{
 		dal.Select("j.full_name,j.name,j.path,j.class,j.url"),
 		dal.From("_tool_jenkins_jobs as j"),
-		dal.Where(`j.connection_id = ? and j.class = ? and j._raw_data_table = ?`,
-			data.Options.ConnectionId, WORKFLOW_JOB, fmt.Sprintf("_raw_%s", RAW_JOB_TABLE)),
+		dal.Where(`j.connection_id = ? and j.class = ? and j._raw_data_table = ? and j.full_name like ?`,
+			data.Options.ConnectionId, WORKFLOW_JOB, fmt.Sprintf("_raw_%s", RAW_JOB_TABLE), fmt.Sprintf("%s%%", data.Options.JobFullName)),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
