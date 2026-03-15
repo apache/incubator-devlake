@@ -541,7 +541,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(u.display_name, u.user_id) as 'User',\n  u.user_id as 'User ID',\n  u.chat_events as 'Chat Events',\n  u.conversations as 'Conversations',\n  ROUND(u.chat_events / NULLIF(u.conversations, 0), 1) as 'Avg Turns',\n  COALESCE(c.completion_events, 0) as 'Completion Events',\n  COALESCE(c.files_count, 0) as 'Distinct Files',\n  ROUND(u.avg_prompt_len) as 'Avg Prompt Len',\n  ROUND(u.avg_response_len) as 'Avg Response Len',\n  u.steering_count as 'Steering Uses',\n  u.spec_count as 'Spec Mode Uses',\n  u.first_seen as 'First Seen',\n  GREATEST(u.last_seen, COALESCE(c.last_seen, u.last_seen)) as 'Last Seen'\nFROM (\n  SELECT\n    user_id,\n    MAX(display_name) as display_name,\n    COUNT(*) as chat_events,\n    COUNT(DISTINCT CASE WHEN conversation_id != '' THEN conversation_id END) as conversations,\n    AVG(prompt_length) as avg_prompt_len,\n    AVG(response_length) as avg_response_len,\n    SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) as steering_count,\n    SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) as spec_count,\n    MIN(timestamp) as first_seen,\n    MAX(timestamp) as last_seen\n  FROM lake._tool_q_dev_chat_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY user_id\n) u\nLEFT JOIN (\n  SELECT\n    user_id,\n    COUNT(*) as completion_events,\n    COUNT(DISTINCT file_name) as files_count,\n    MAX(timestamp) as last_seen\n  FROM lake._tool_q_dev_completion_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY user_id\n) c ON u.user_id = c.user_id\nORDER BY u.user_id",
+          "rawSql": "SELECT\n  COALESCE(u.display_name, u.user_id) as 'User',\n  u.user_id as 'User ID',\n  u.chat_events as 'Chat Events',\n  u.conversations as 'Conversations',\n  ROUND(u.chat_events / NULLIF(u.conversations, 0), 1) as 'Avg Turns',\n  COALESCE(c.completion_events, 0) as 'Completion Events',\n  COALESCE(c.files_count, 0) as 'Distinct Files',\n  ROUND(u.avg_prompt_len) as 'Avg Prompt Len',\n  ROUND(u.avg_response_len) as 'Avg Response Len',\n  u.steering_count as 'Steering Uses',\n  u.spec_count as 'Spec Mode Uses',\n  u.models_used as 'Models Used',\n  u.first_seen as 'First Seen',\n  GREATEST(u.last_seen, COALESCE(c.last_seen, u.last_seen)) as 'Last Seen'\nFROM (\n  SELECT\n    user_id,\n    MAX(display_name) as display_name,\n    COUNT(*) as chat_events,\n    COUNT(DISTINCT CASE WHEN conversation_id != '' THEN conversation_id END) as conversations,\n    AVG(prompt_length) as avg_prompt_len,\n    AVG(response_length) as avg_response_len,\n    GROUP_CONCAT(DISTINCT CASE WHEN model_id != '' AND model_id IS NOT NULL THEN model_id END ORDER BY model_id SEPARATOR ', ') as models_used,\n    SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) as steering_count,\n    SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) as spec_count,\n    MIN(timestamp) as first_seen,\n    MAX(timestamp) as last_seen\n  FROM lake._tool_q_dev_chat_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY user_id\n) u\nLEFT JOIN (\n  SELECT\n    user_id,\n    COUNT(*) as completion_events,\n    COUNT(DISTINCT file_name) as files_count,\n    MAX(timestamp) as last_seen\n  FROM lake._tool_q_dev_completion_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY user_id\n) c ON u.user_id = c.user_id\nORDER BY u.user_id",
           "refId": "A"
         }
       ],
@@ -775,6 +775,68 @@
       ],
       "title": "Prompt & Response Length Trends",
       "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Per-user breakdown of model usage in chat events",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(MAX(display_name), user_id) as 'User',\n  CASE WHEN model_id = '' OR model_id IS NULL THEN '(unknown)' ELSE model_id END as 'Model',\n  COUNT(*) as 'Requests',\n  ROUND(AVG(prompt_length)) as 'Avg Prompt Len',\n  ROUND(AVG(response_length)) as 'Avg Response Len'\nFROM lake._tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY user_id, model_id\nORDER BY user_id, COUNT(*) DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Per-User Model Usage",
+      "type": "table"
     }
   ],
   "preload": false,
