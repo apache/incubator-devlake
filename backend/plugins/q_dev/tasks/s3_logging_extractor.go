@@ -20,10 +20,9 @@ package tasks
 import (
 	"compress/gzip"
 	"encoding/json"
-	"fmt"
-	"io"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -35,6 +34,20 @@ import (
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractQDevLoggingData
+
+const (
+	loggingBatchSize   = 50 // number of files to process per DB transaction
+	s3DownloadWorkers  = 10 // parallel S3 download goroutines
+	s3DownloadChanSize = 20 // buffered channel size for download results
+)
+
+// downloadResult holds the parsed records from one S3 file
+type downloadResult struct {
+	FileMeta *models.QDevS3FileMeta
+	ChatLogs []*models.QDevChatLog
+	CompLogs []*models.QDevCompletionLog
+	Err      error
+}
 
 // ExtractQDevLoggingData extracts logging data from S3 JSON.gz files
 func ExtractQDevLoggingData(taskCtx plugin.SubTaskContext) errors.Error {
@@ -51,54 +64,188 @@ func ExtractQDevLoggingData(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	taskCtx.SetProgress(0, -1)
-
+	// Collect all file metas first
+	var fileMetas []*models.QDevS3FileMeta
 	for cursor.Next() {
-		fileMeta := &models.QDevS3FileMeta{}
-		err = db.Fetch(cursor, fileMeta)
-		if err != nil {
+		fm := &models.QDevS3FileMeta{}
+		if err := db.Fetch(cursor, fm); err != nil {
 			return errors.Default.Wrap(err, "failed to fetch file metadata")
 		}
+		fileMetas = append(fileMetas, fm)
+	}
 
-		getInput := &s3.GetObjectInput{
-			Bucket: aws.String(data.S3Client.Bucket),
-			Key:    aws.String(fileMeta.S3Path),
+	if len(fileMetas) == 0 {
+		return nil
+	}
+
+	taskCtx.SetProgress(0, len(fileMetas))
+	taskCtx.GetLogger().Info("Processing %d logging files with %d workers", len(fileMetas), s3DownloadWorkers)
+
+	// Display name cache to avoid repeated IAM calls
+	displayNameCache := &sync.Map{}
+
+	// Process in batches
+	for batchStart := 0; batchStart < len(fileMetas); batchStart += loggingBatchSize {
+		batchEnd := batchStart + loggingBatchSize
+		if batchEnd > len(fileMetas) {
+			batchEnd = len(fileMetas)
+		}
+		batch := fileMetas[batchStart:batchEnd]
+
+		// Parallel download and parse
+		results := parallelDownloadAndParse(taskCtx, data, batch, displayNameCache)
+
+		// Check for download errors
+		for _, r := range results {
+			if r.Err != nil {
+				return errors.Default.Wrap(errors.Convert(r.Err),
+					"failed to download/parse "+r.FileMeta.FileName)
+			}
 		}
 
-		getResult, err := data.S3Client.S3.GetObject(getInput)
-		if err != nil {
-			return errors.Convert(err)
-		}
-
+		// Batch write to DB in a single transaction
 		tx := db.Begin()
-		processErr := processLoggingData(taskCtx, tx, getResult.Body, fileMeta)
-		if processErr != nil {
-			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				taskCtx.GetLogger().Error(rollbackErr, "failed to rollback transaction")
+		for _, r := range results {
+			for _, chatLog := range r.ChatLogs {
+				if err := tx.CreateOrUpdate(chatLog); err != nil {
+					tx.Rollback()
+					return errors.Default.Wrap(err, "failed to save chat log")
+				}
 			}
-			return errors.Default.Wrap(processErr, fmt.Sprintf("failed to process logging file %s", fileMeta.FileName))
-		}
-
-		fileMeta.Processed = true
-		now := time.Now()
-		fileMeta.ProcessedTime = &now
-		err = tx.Update(fileMeta)
-		if err != nil {
-			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				taskCtx.GetLogger().Error(rollbackErr, "failed to rollback transaction")
+			for _, compLog := range r.CompLogs {
+				if err := tx.CreateOrUpdate(compLog); err != nil {
+					tx.Rollback()
+					return errors.Default.Wrap(err, "failed to save completion log")
+				}
 			}
-			return errors.Default.Wrap(err, "failed to update file metadata")
+			// Mark file as processed
+			r.FileMeta.Processed = true
+			now := time.Now()
+			r.FileMeta.ProcessedTime = &now
+			if err := tx.Update(r.FileMeta); err != nil {
+				tx.Rollback()
+				return errors.Default.Wrap(err, "failed to update file metadata")
+			}
+		}
+		if err := tx.Commit(); err != nil {
+			return errors.Default.Wrap(err, "failed to commit batch")
 		}
 
-		err = tx.Commit()
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to commit transaction")
-		}
-
-		taskCtx.IncProgress(1)
+		taskCtx.IncProgress(len(batch))
 	}
 
 	return nil
+}
+
+// parallelDownloadAndParse downloads and parses S3 files concurrently
+func parallelDownloadAndParse(
+	taskCtx plugin.SubTaskContext,
+	data *QDevTaskData,
+	fileMetas []*models.QDevS3FileMeta,
+	displayNameCache *sync.Map,
+) []downloadResult {
+	results := make([]downloadResult, len(fileMetas))
+	jobs := make(chan int, s3DownloadChanSize)
+	var wg sync.WaitGroup
+
+	// Start workers
+	for w := 0; w < s3DownloadWorkers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range jobs {
+				fm := fileMetas[idx]
+				result := downloadAndParseFile(taskCtx, data, fm, displayNameCache)
+				results[idx] = result
+			}
+		}()
+	}
+
+	// Send jobs
+	for i := range fileMetas {
+		jobs <- i
+	}
+	close(jobs)
+	wg.Wait()
+
+	return results
+}
+
+// downloadAndParseFile downloads one S3 file and parses it into model records
+func downloadAndParseFile(
+	taskCtx plugin.SubTaskContext,
+	data *QDevTaskData,
+	fileMeta *models.QDevS3FileMeta,
+	displayNameCache *sync.Map,
+) downloadResult {
+	result := downloadResult{FileMeta: fileMeta}
+
+	getResult, err := data.S3Client.S3.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(data.S3Client.Bucket),
+		Key:    aws.String(fileMeta.S3Path),
+	})
+	if err != nil {
+		result.Err = err
+		return result
+	}
+	defer getResult.Body.Close()
+
+	gzReader, err := gzip.NewReader(getResult.Body)
+	if err != nil {
+		result.Err = err
+		return result
+	}
+	defer gzReader.Close()
+
+	var logFile loggingFile
+	if err := json.NewDecoder(gzReader).Decode(&logFile); err != nil {
+		result.Err = err
+		return result
+	}
+
+	isChatLog := strings.Contains(fileMeta.S3Path, "GenerateAssistantResponse")
+
+	for _, rawRecord := range logFile.Records {
+		if isChatLog {
+			chatLog, err := parseChatRecord(rawRecord, fileMeta, data.IdentityClient, displayNameCache)
+			if err != nil {
+				result.Err = err
+				return result
+			}
+			if chatLog != nil {
+				result.ChatLogs = append(result.ChatLogs, chatLog)
+			}
+		} else {
+			compLog, err := parseCompletionRecord(rawRecord, fileMeta, data.IdentityClient, displayNameCache)
+			if err != nil {
+				result.Err = err
+				return result
+			}
+			if compLog != nil {
+				result.CompLogs = append(result.CompLogs, compLog)
+			}
+		}
+	}
+
+	return result
+}
+
+// cachedResolveDisplayName resolves display name with caching
+func cachedResolveDisplayName(userId string, identityClient UserDisplayNameResolver, cache *sync.Map) string {
+	if v, ok := cache.Load(userId); ok {
+		return v.(string)
+	}
+	if identityClient == nil {
+		cache.Store(userId, userId)
+		return userId
+	}
+	displayName, err := identityClient.ResolveUserDisplayName(userId)
+	if err != nil || displayName == "" {
+		cache.Store(userId, userId)
+		return userId
+	}
+	cache.Store(userId, displayName)
+	return displayName
 }
 
 // JSON structures for logging data
@@ -147,48 +294,14 @@ type completionLogResponse struct {
 	Completions []json.RawMessage `json:"completions"`
 }
 
-func processLoggingData(taskCtx plugin.SubTaskContext, db dal.Dal, reader io.ReadCloser, fileMeta *models.QDevS3FileMeta) errors.Error {
-	defer reader.Close()
-
-	data := taskCtx.GetData().(*QDevTaskData)
-
-	gzReader, err := gzip.NewReader(reader)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	defer gzReader.Close()
-
-	var logFile loggingFile
-	decoder := json.NewDecoder(gzReader)
-	if err := decoder.Decode(&logFile); err != nil {
-		return errors.Convert(err)
-	}
-
-	isChatLog := strings.Contains(fileMeta.S3Path, "GenerateAssistantResponse")
-
-	for _, rawRecord := range logFile.Records {
-		if isChatLog {
-			if err := processChatRecord(taskCtx, db, rawRecord, fileMeta, data.IdentityClient); err != nil {
-				return err
-			}
-		} else {
-			if err := processCompletionRecord(taskCtx, db, rawRecord, fileMeta, data.IdentityClient); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func processChatRecord(taskCtx plugin.SubTaskContext, db dal.Dal, raw json.RawMessage, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver) errors.Error {
+func parseChatRecord(raw json.RawMessage, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver, cache *sync.Map) (*models.QDevChatLog, error) {
 	var record chatLogRecord
 	if err := json.Unmarshal(raw, &record); err != nil {
-		return errors.Convert(err)
+		return nil, err
 	}
 
 	if record.Request == nil || record.Response == nil {
-		return nil
+		return nil, nil
 	}
 
 	ts, err := time.Parse(time.RFC3339Nano, record.Request.Timestamp)
@@ -202,7 +315,7 @@ func processChatRecord(taskCtx plugin.SubTaskContext, db dal.Dal, raw json.RawMe
 		ScopeId:          fileMeta.ScopeId,
 		RequestId:        record.Response.RequestID,
 		UserId:           userId,
-		DisplayName:      resolveDisplayName(taskCtx.GetLogger(), userId, identityClient),
+		DisplayName:      cachedResolveDisplayName(userId, identityClient, cache),
 		Timestamp:        ts,
 		ChatTriggerType:  record.Request.ChatTriggerType,
 		HasCustomization: record.Request.CustomizationArn != nil && *record.Request.CustomizationArn != "",
@@ -225,7 +338,7 @@ func processChatRecord(taskCtx plugin.SubTaskContext, db dal.Dal, raw json.RawMe
 		chatLog.UtteranceId = *record.Response.MessageMetadata.UtteranceID
 	}
 
-	return errors.Default.Wrap(db.CreateOrUpdate(chatLog), "failed to save chat log")
+	return chatLog, nil
 }
 
 // countOpenFiles counts <file name="..."> tags within <OPEN-EDITOR-FILES> block
@@ -253,7 +366,6 @@ func parseActiveFile(prompt string) (string, string) {
 		return "", ""
 	}
 	block := prompt[start : start+end]
-	// Find <file name="..." />
 	nameStart := strings.Index(block, "name=\"")
 	if nameStart == -1 {
 		return "", ""
@@ -268,14 +380,14 @@ func parseActiveFile(prompt string) (string, string) {
 	return fileName, ext
 }
 
-func processCompletionRecord(taskCtx plugin.SubTaskContext, db dal.Dal, raw json.RawMessage, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver) errors.Error {
+func parseCompletionRecord(raw json.RawMessage, fileMeta *models.QDevS3FileMeta, identityClient UserDisplayNameResolver, cache *sync.Map) (*models.QDevCompletionLog, error) {
 	var record completionLogRecord
 	if err := json.Unmarshal(raw, &record); err != nil {
-		return errors.Convert(err)
+		return nil, err
 	}
 
 	if record.Request == nil || record.Response == nil {
-		return nil
+		return nil, nil
 	}
 
 	ts, err := time.Parse(time.RFC3339Nano, record.Request.Timestamp)
@@ -284,25 +396,22 @@ func processCompletionRecord(taskCtx plugin.SubTaskContext, db dal.Dal, raw json
 	}
 
 	userId := normalizeUserId(record.Request.UserID)
-	completionLog := &models.QDevCompletionLog{
+	return &models.QDevCompletionLog{
 		ConnectionId:     fileMeta.ConnectionId,
 		ScopeId:          fileMeta.ScopeId,
 		RequestId:        record.Response.RequestID,
 		UserId:           userId,
-		DisplayName:      resolveDisplayName(taskCtx.GetLogger(), userId, identityClient),
+		DisplayName:      cachedResolveDisplayName(userId, identityClient, cache),
 		Timestamp:        ts,
 		FileName:         record.Request.FileName,
 		FileExtension:    filepath.Ext(record.Request.FileName),
 		HasCustomization: record.Request.CustomizationArn != nil && *record.Request.CustomizationArn != "",
 		CompletionsCount: len(record.Response.Completions),
-	}
-
-	return errors.Default.Wrap(db.CreateOrUpdate(completionLog), "failed to save completion log")
+	}, nil
 }
 
 // normalizeUserId strips the "d-{directoryId}." prefix from Identity Center user IDs
 // so that logging user IDs match the short UUID format used in user-report CSVs.
-// e.g. "d-9067deb161.6478a4a8-60a1-70d9-37bc-6aae85f6746a" → "6478a4a8-60a1-70d9-37bc-6aae85f6746a"
 func normalizeUserId(userId string) string {
 	if idx := strings.LastIndex(userId, "."); idx != -1 && strings.HasPrefix(userId, "d-") {
 		return userId[idx+1:]
