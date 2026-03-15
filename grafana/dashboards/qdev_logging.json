@@ -775,68 +775,6 @@
       ],
       "title": "Prompt & Response Length Trends",
       "type": "timeseries"
-    },
-    {
-      "datasource": "mysql",
-      "description": "Per-user breakdown of model usage in chat events",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": true,
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 64
-      },
-      "id": 11,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": []
-      },
-      "pluginVersion": "11.6.2",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(MAX(display_name), user_id) as 'User',\n  CASE WHEN model_id = '' OR model_id IS NULL THEN '(unknown)' ELSE model_id END as 'Model',\n  COUNT(*) as 'Requests',\n  ROUND(AVG(prompt_length)) as 'Avg Prompt Len',\n  ROUND(AVG(response_length)) as 'Avg Response Len'\nFROM lake._tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY user_id, model_id\nORDER BY user_id, COUNT(*) DESC",
-          "refId": "A"
-        }
-      ],
-      "title": "Per-User Model Usage",
-      "type": "table"
     }
   ],
   "preload": false,
