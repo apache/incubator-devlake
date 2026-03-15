@@ -105,27 +105,36 @@ func ExtractQDevLoggingData(taskCtx plugin.SubTaskContext) errors.Error {
 
 		// Batch write to DB in a single transaction
 		tx := db.Begin()
+		var txErr errors.Error
 		for _, r := range results {
 			for _, chatLog := range r.ChatLogs {
-				if err := tx.CreateOrUpdate(chatLog); err != nil {
-					tx.Rollback()
-					return errors.Default.Wrap(err, "failed to save chat log")
+				if txErr = tx.CreateOrUpdate(chatLog); txErr != nil {
+					break
 				}
+			}
+			if txErr != nil {
+				break
 			}
 			for _, compLog := range r.CompLogs {
-				if err := tx.CreateOrUpdate(compLog); err != nil {
-					tx.Rollback()
-					return errors.Default.Wrap(err, "failed to save completion log")
+				if txErr = tx.CreateOrUpdate(compLog); txErr != nil {
+					break
 				}
 			}
-			// Mark file as processed
+			if txErr != nil {
+				break
+			}
 			r.FileMeta.Processed = true
 			now := time.Now()
 			r.FileMeta.ProcessedTime = &now
-			if err := tx.Update(r.FileMeta); err != nil {
-				tx.Rollback()
-				return errors.Default.Wrap(err, "failed to update file metadata")
+			if txErr = tx.Update(r.FileMeta); txErr != nil {
+				break
 			}
+		}
+		if txErr != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				taskCtx.GetLogger().Error(rbErr, "failed to rollback transaction")
+			}
+			return errors.Default.Wrap(txErr, "failed to write logging batch")
 		}
 		if err := tx.Commit(); err != nil {
 			return errors.Default.Wrap(err, "failed to commit batch")
