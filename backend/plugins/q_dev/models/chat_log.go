@@ -26,12 +26,12 @@ import (
 // QDevChatLog stores parsed data from GenerateAssistantResponse logging events
 type QDevChatLog struct {
 	common.NoPKModel
-	ConnectionId     uint64    `gorm:"primaryKey"`
-	ScopeId          string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
-	RequestId        string    `gorm:"primaryKey;type:varchar(255)" json:"requestId"`
-	UserId           string    `gorm:"index;type:varchar(255)" json:"userId"`
-	DisplayName      string    `gorm:"type:varchar(255)" json:"displayName"`
-	Timestamp        time.Time `gorm:"index" json:"timestamp"`
+	ConnectionId        uint64    `gorm:"primaryKey"`
+	ScopeId             string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
+	RequestId           string    `gorm:"primaryKey;type:varchar(255)" json:"requestId"`
+	UserId              string    `gorm:"index;type:varchar(255)" json:"userId"`
+	DisplayName         string    `gorm:"type:varchar(255)" json:"displayName"`
+	Timestamp           time.Time `gorm:"index" json:"timestamp"`
 	ChatTriggerType     string    `gorm:"type:varchar(50)" json:"chatTriggerType"`
 	HasCustomization    bool      `json:"hasCustomization"`
 	ConversationId      string    `gorm:"type:varchar(255)" json:"conversationId"`
