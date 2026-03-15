@@ -1,0 +1,958 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "description": "Distinct users with chat activity in the last 7 days",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT user_id) as 'WAU'\nFROM lake._tool_q_dev_chat_log\nWHERE timestamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Active Users",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Average credits spent per accepted line of code",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(r.credits_used) / NULLIF(SUM(d.inline_ai_code_lines + d.chat_ai_code_lines + d.code_fix_accepted_lines + d.dev_accepted_lines), 0), 2) as 'Credits per Accepted Line'\nFROM lake._tool_q_dev_user_report r\nJOIN lake._tool_q_dev_user_data d ON r.user_id = d.user_id AND r.date = d.date\nWHERE $__timeFilter(r.date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Credits Efficiency",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Percentage of inline suggestions accepted",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) * 100, 1) as 'Acceptance %'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Inline Acceptance Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Percentage of users using steering rules",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CONCAT(ROUND(COUNT(DISTINCT CASE WHEN has_steering = 1 THEN user_id END) / NULLIF(COUNT(DISTINCT user_id), 0) * 100, 0), '%') as 'Users with Steering'\nFROM lake._tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)",
+          "refId": "A"
+        }
+      ],
+      "title": "Steering Adoption",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Weekly active user count over time",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  STR_TO_DATE(CONCAT(YEARWEEK(timestamp, 1), ' Monday'), '%X%V %W') as time,\n  COUNT(DISTINCT user_id) as 'Active Users'\nFROM lake._tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY YEARWEEK(timestamp, 1)\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Active Users Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "New vs returning users by week",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  week as time,\n  SUM(CASE WHEN is_new = 1 THEN 1 ELSE 0 END) as 'New Users',\n  SUM(CASE WHEN is_new = 0 THEN 1 ELSE 0 END) as 'Returning Users'\nFROM (\n  SELECT\n    u.user_id,\n    STR_TO_DATE(CONCAT(YEARWEEK(u.timestamp, 1), ' Monday'), '%X%V %W') as week,\n    CASE WHEN STR_TO_DATE(CONCAT(YEARWEEK(u.timestamp, 1), ' Monday'), '%X%V %W') = STR_TO_DATE(CONCAT(YEARWEEK(f.first_seen, 1), ' Monday'), '%X%V %W') THEN 1 ELSE 0 END as is_new\n  FROM lake._tool_q_dev_chat_log u\n  JOIN (SELECT user_id, MIN(timestamp) as first_seen FROM lake._tool_q_dev_chat_log GROUP BY user_id) f ON u.user_id = f.user_id\n  WHERE $__timeFilter(u.timestamp)\n  GROUP BY u.user_id, YEARWEEK(u.timestamp, 1), f.first_seen\n) weekly\nGROUP BY week\nORDER BY week",
+          "refId": "A"
+        }
+      ],
+      "title": "New vs Returning Users (Weekly)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Number of users who used each feature",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 7,
+      "options": {
+        "barRadius": 0.1,
+        "barWidth": 0.8,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  'Chat' as Feature, COUNT(DISTINCT CASE WHEN chat_messages_sent > 0 THEN user_id END) as Users FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Inline Suggestions', COUNT(DISTINCT CASE WHEN inline_suggestions_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Code Fix', COUNT(DISTINCT CASE WHEN code_fix_generation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Code Review', COUNT(DISTINCT CASE WHEN code_review_succeeded_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Doc Generation', COUNT(DISTINCT CASE WHEN doc_generation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Test Generation', COUNT(DISTINCT CASE WHEN test_generation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Dev (Agentic)', COUNT(DISTINCT CASE WHEN dev_generation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Steering', COUNT(DISTINCT CASE WHEN has_steering = 1 THEN user_id END) FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp)\nUNION ALL SELECT 'Spec Mode', COUNT(DISTINCT CASE WHEN is_spec_mode = 1 THEN user_id END) FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "refId": "A"
+        }
+      ],
+      "title": "Feature Adoption Funnel",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Cumulative credits this month vs projected total",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date as time,\n  SUM(SUM(credits_used)) OVER (ORDER BY date) as 'Cumulative Credits',\n  (SELECT SUM(credits_used) / COUNT(DISTINCT date) * DAY(LAST_DAY(CURDATE()))\n   FROM lake._tool_q_dev_user_report\n   WHERE YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())) as 'Projected Monthly'\nFROM lake._tool_q_dev_user_report\nWHERE YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())\nGROUP BY date\nORDER BY date",
+          "refId": "A"
+        }
+      ],
+      "title": "Credits Pace vs Projected (This Month)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Acceptance rates for inline suggestions, code fix, and inline chat over time",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date as time,\n  SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) as 'Inline Suggestions',\n  SUM(code_fix_acceptance_event_count) / NULLIF(SUM(code_fix_generation_event_count), 0) as 'Code Fix',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Inline Chat'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "refId": "A"
+        }
+      ],
+      "title": "Acceptance Rate Trends",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Code review findings and test generation metrics over time",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date as time,\n  SUM(code_review_findings_count) as 'Review Findings',\n  SUM(test_generation_event_count) as 'Test Gen Events',\n  SUM(test_generation_accepted_tests) as 'Tests Accepted'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "refId": "A"
+        }
+      ],
+      "title": "Code Review Findings & Test Generation",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Per-user productivity and efficiency metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(MAX(d.display_name), d.user_id) as 'User',\n  COALESCE(MAX(r.subscription_tier), '') as 'Tier',\n  ROUND(SUM(r.credits_used), 1) as 'Credits Used',\n  SUM(d.chat_ai_code_lines + d.inline_ai_code_lines + d.code_fix_accepted_lines + d.dev_accepted_lines) as 'Total Accepted Lines',\n  CASE WHEN SUM(d.chat_ai_code_lines + d.inline_ai_code_lines + d.code_fix_accepted_lines + d.dev_accepted_lines) > 0\n    THEN ROUND(SUM(r.credits_used) / SUM(d.chat_ai_code_lines + d.inline_ai_code_lines + d.code_fix_accepted_lines + d.dev_accepted_lines), 2)\n    ELSE NULL END as 'Credits/Line',\n  CONCAT(ROUND(SUM(d.inline_acceptance_count) / NULLIF(SUM(d.inline_suggestions_count), 0) * 100, 1), '%') as 'Accept Rate',\n  SUM(d.code_review_findings_count) as 'Review Findings',\n  SUM(d.test_generation_event_count) as 'Test Gen Events',\n  SUM(d.dev_accepted_lines) as 'Agentic Lines',\n  MIN(d.date) as 'First Active',\n  MAX(d.date) as 'Last Active'\nFROM lake._tool_q_dev_user_data d\nLEFT JOIN lake._tool_q_dev_user_report r ON d.user_id = r.user_id AND d.date = r.date\nWHERE $__timeFilter(d.date)\nGROUP BY d.user_id\nORDER BY SUM(r.credits_used) DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "User Productivity & Efficiency",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Power tier users with no activity in the last 14 days",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.6.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(MAX(display_name), user_id) as 'User',\n  MAX(subscription_tier) as 'Tier',\n  ROUND(SUM(credits_used), 1) as 'Total Credits Used',\n  MAX(date) as 'Last Activity'\nFROM lake._tool_q_dev_user_report\nWHERE $__timeFilter(date)\n  AND subscription_tier = 'POWER'\nGROUP BY user_id\nHAVING MAX(date) < DATE_SUB(NOW(), INTERVAL 14 DAY)\nORDER BY MAX(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Idle Power Users (No Activity in 14 Days)",
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "5m",
+  "schemaVersion": 41,
+  "tags": [
+    "q_dev",
+    "executive",
+    "kiro"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "Kiro Executive Dashboard",
+  "uid": "qdev_executive",
+  "version": 1
+}
