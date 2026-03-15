@@ -57,7 +57,7 @@ func (l *TxHelper[E]) LockTablesTimeout(timeout time.Duration, lockTables dal.Lo
 	select {
 	case err := <-c:
 		if err != nil {
-			panic(err)
+			return err
 		}
 	case <-time.After(timeout):
 		return errors.Timeout.New("lock tables timeout: " + fmt.Sprintf("%v", lockTables))

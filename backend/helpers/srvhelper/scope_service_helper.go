@@ -270,7 +270,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) getAffectedTables() ([]string, errors.
 	}
 	pluginModel, ok := meta.(plugin.PluginModel)
 	if !ok {
-		panic(errors.Default.New(fmt.Sprintf("plugin \"%s\" does not implement listing its tables", scopeSrv.pluginName)))
+		return nil, errors.Default.New(fmt.Sprintf("plugin \"%s\" does not implement listing its tables", scopeSrv.pluginName))
 	}
 	// Unfortunately, can't cache the tables because Python creates some tables on a per-demand basis, so such a cache would possibly get outdated.
 	// It's a rare scenario in practice, but might as well play it safe and sacrifice some performance here
