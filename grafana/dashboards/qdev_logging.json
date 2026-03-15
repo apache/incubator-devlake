@@ -210,10 +210,10 @@
         "pieType": "donut",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
-          "fields": "",
-          "values": false
+          "fields": "/^Requests$/",
+          "values": true
         },
         "tooltip": {
           "mode": "single",
@@ -278,10 +278,10 @@
         "pieType": "pie",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
-          "values": false
+          "values": true
         },
         "tooltip": {
           "mode": "single",
@@ -592,10 +592,10 @@
         "pieType": "donut",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
-          "values": false
+          "values": true
         },
         "tooltip": {
           "mode": "single",
@@ -660,10 +660,10 @@
         "pieType": "pie",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
-          "values": false
+          "values": true
         },
         "tooltip": {
           "mode": "single",
