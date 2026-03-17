@@ -148,7 +148,7 @@ RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
     python3 -m pip install --no-cache pipx && \
     python3 -m pipx ensurepath && \
-    pipx install poetry && \
+    python3 -m pipx install poetry && \
     python3 -m pip install --upgrade pip
 
 ENV PATH="$PATH:/app/.local/bin"
