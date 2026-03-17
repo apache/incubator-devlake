@@ -143,18 +143,17 @@ RUN mkdir logs
 VOLUME /app/logs
 
 # Setup Python
-COPY python/ /app/python/
+COPY --chown=devlake:devlake python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
-    python3 -m pip install --no-cache pipx && \
-    python3 -m pipx install poetry && \
+    python3 -m pip install --no-cache uv && \
     python3 -m pip install --upgrade pip
 
+# uv installs to ~/.local/bin, add to PATH
 ENV PATH="/app/.local/bin:$PATH"
 
 # Build Python plugins
-# Set longer timeout for poetry to handle CI resource constraints
-RUN POETRY_REQUESTS_TIMEOUT=120 /app/python/build.sh
+RUN /app/python/build.sh
 
 FROM base as devlake-base
 ARG DEBUG=
