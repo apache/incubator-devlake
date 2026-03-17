@@ -147,14 +147,12 @@ COPY python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
     python3 -m pip install --no-cache pipx && \
-    python3 -m pipx ensurepath && \
     python3 -m pipx install poetry && \
     python3 -m pip install --upgrade pip
 
-ENV PATH="$PATH:/app/.local/bin"
+ENV PATH="/app/.local/bin:$PATH"
 
-# Build Python plugins, make sure the scripts has execute permission
-# RUN find /app/python/ -name "*.sh" | xargs -I{} chmod +x {}
+# Build Python plugins
 RUN /app/python/build.sh
 
 FROM base as devlake-base
