@@ -153,7 +153,8 @@ RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
 ENV PATH="/app/.local/bin:$PATH"
 
 # Build Python plugins
-RUN /app/python/build.sh
+# Set longer timeout for poetry to handle CI resource constraints
+RUN POETRY_REQUESTS_TIMEOUT=120 /app/python/build.sh
 
 FROM base as devlake-base
 ARG DEBUG=
