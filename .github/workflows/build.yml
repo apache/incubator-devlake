@@ -27,6 +27,11 @@ on:
       - main
       - release-*
       - fix-clear-docker-images-before-build
+  pull_request:
+    paths:
+      - 'backend/Dockerfile'
+      - 'config-ui/Dockerfile'
+      - 'grafana/Dockerfile'
 
 jobs:
   build-and-push-builder:
