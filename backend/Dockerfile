@@ -146,10 +146,11 @@ VOLUME /app/logs
 COPY python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
+    python3 -m pip install --no-cache pipx && \
+    python3 -m pipx ensurepath && \
+    pipx install poetry && \
     python3 -m pip install --upgrade pip
 
-# Setup Python Poetry package manager
-RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$PATH:/app/.local/bin"
 
 # Build Python plugins, make sure the scripts has execute permission
