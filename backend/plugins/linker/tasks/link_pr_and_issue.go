@@ -18,10 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -97,7 +98,7 @@ func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
 		Enrich: func(pullRequest *code.PullRequest) ([]interface{}, errors.Error) {
 
 			var issueKeys []string
-			for _, text := range []string{pullRequest.Title, pullRequest.Description} {
+			for _, text := range []string{pullRequest.Title, pullRequest.Description, pullRequest.HeadRef} {
 				foundIssueKeys := data.PrToIssueRegexp.FindAllString(text, -1)
 				if len(foundIssueKeys) > 0 {
 					for _, issueKey := range foundIssueKeys {
