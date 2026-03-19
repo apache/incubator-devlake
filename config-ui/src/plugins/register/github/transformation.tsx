@@ -206,7 +206,7 @@ const renderCollapseItems = ({
             label={
               <>
                 <span style={{ marginRight: 4 }}>Issue Severity</span>
-                <HelpTooltip content="Labels that match the RegEx will be set as the serverity of an issue." />
+                <HelpTooltip content="Labels that match the RegEx will be set as the severity of an issue." />
               </>
             }
           >

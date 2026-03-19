@@ -129,7 +129,7 @@ export const Onboard = ({ logo, title }: Props) => {
                 {[1, 2, 3].includes(step) && (
                   <S.Step>
                     {steps.map((it) => (
-                      <S.StepItem key={it.step} $actived={it.step === step} $activedColor={colorPrimary}>
+                      <S.StepItem key={it.step} $activated={it.step === step} $activatedColor={colorPrimary}>
                         <span>{it.step}</span>
                         <span>{it.title}</span>
                       </S.StepItem>
