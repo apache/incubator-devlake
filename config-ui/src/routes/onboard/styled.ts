@@ -49,7 +49,7 @@ export const Step = styled.ul`
   margin-bottom: 50px;
 `;
 
-export const StepItem = styled.li<{ $actived: boolean; $activedColor: string }>`
+export const StepItem = styled.li<{ $activated: boolean; $activatedColor: string }>`
   display: flex;
   align-items: center;
   position: relative;
@@ -65,19 +65,19 @@ export const StepItem = styled.li<{ $actived: boolean; $activedColor: string }>`
     border: 1px solid rgba(0, 0, 0, 0.25);
     border-radius: 50%;
 
-    ${({ $actived, $activedColor }) =>
-      $actived
+    ${({ $activated, $activatedColor }) =>
+      $activated
         ? `
           color: #fff;
-          background-color: ${$activedColor};
+          background-color: ${$activatedColor};
           border: none;
           `
         : ''}
   }
 
   span:last-child {
-    ${({ $actived }) =>
-      $actived
+    ${({ $activated }) =>
+      $activated
         ? `
     font-size: 24px;
     font-weight: 600;`

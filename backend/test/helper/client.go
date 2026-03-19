@@ -345,7 +345,7 @@ func runWithTimeout(timeout time.Duration, f func() (bool, errors.Error)) errors
 		select {
 		case <-timer:
 			if !resp.completed {
-				return errors.Default.New(fmt.Sprintf("timed out calling function after %d miliseconds", timeout.Milliseconds()))
+				return errors.Default.New(fmt.Sprintf("timed out calling function after %d milliseconds", timeout.Milliseconds()))
 			}
 			return nil
 		case resp = <-resChan:
