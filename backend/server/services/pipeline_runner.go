@@ -106,8 +106,8 @@ func runPipeline(pipelineId uint64) errors.Error {
 	return NotifyExternal(pipelineId)
 }
 
-// ComputePipelineStatus determines pipleline status by its latest(rerun included) tasks statuses
-// 1. TASK_COMPLETED: all tasks were executed sucessfully
+// ComputePipelineStatus determines pipeline status by its latest(rerun included) tasks statuses
+// 1. TASK_COMPLETED: all tasks were executed successfully
 // 2. TASK_FAILED: SkipOnFail=false with failed task(s)
 // 3. TASK_PARTIAL: SkipOnFail=true with failed task(s)
 func ComputePipelineStatus(pipeline *models.Pipeline, isCancelled bool) (string, errors.Error) {
