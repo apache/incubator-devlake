@@ -299,8 +299,8 @@ type completionLogRequest struct {
 	Timestamp        string  `json:"timeStamp"`
 	FileName         string  `json:"fileName"`
 	CustomizationArn *string `json:"customizationArn"`
-	LeftContext       string  `json:"leftContext"`
-	RightContext      string  `json:"rightContext"`
+	LeftContext      string  `json:"leftContext"`
+	RightContext     string  `json:"rightContext"`
 }
 
 type completionLogResponse struct {
