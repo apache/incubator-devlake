@@ -29,6 +29,7 @@ import (
 func TestValidateConnection_Success(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
+			AuthType:            "access_key",
 			AccessKeyId:         "AKIAIOSFODNN7EXAMPLE",
 			SecretAccessKey:     "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 			Region:              "us-east-1",
@@ -43,9 +44,68 @@ func TestValidateConnection_Success(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestValidateConnection_IAMRoleSuccess(t *testing.T) {
+	connection := &models.QDevConnection{
+		QDevConn: models.QDevConn{
+			AuthType: "iam_role",
+			Region:   "us-east-1",
+			Bucket:   "my-q-dev-bucket",
+		},
+	}
+
+	err := validateConnection(connection)
+	assert.NoError(t, err)
+}
+
+func TestValidateConnection_IAMRoleNoCredentialsRequired(t *testing.T) {
+	connection := &models.QDevConnection{
+		QDevConn: models.QDevConn{
+			AuthType:        "iam_role",
+			AccessKeyId:     "", // Should not be required
+			SecretAccessKey: "", // Should not be required
+			Region:          "us-east-1",
+			Bucket:          "my-q-dev-bucket",
+		},
+	}
+
+	err := validateConnection(connection)
+	assert.NoError(t, err)
+}
+
+func TestValidateConnection_DefaultsToAccessKey(t *testing.T) {
+	connection := &models.QDevConnection{
+		QDevConn: models.QDevConn{
+			AuthType:        "", // Should default to access_key
+			AccessKeyId:     "AKIAIOSFODNN7EXAMPLE",
+			SecretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+			Region:          "us-east-1",
+			Bucket:          "my-q-dev-bucket",
+		},
+	}
+
+	err := validateConnection(connection)
+	assert.NoError(t, err)
+	assert.Equal(t, "access_key", connection.AuthType)
+}
+
+func TestValidateConnection_InvalidAuthType(t *testing.T) {
+	connection := &models.QDevConnection{
+		QDevConn: models.QDevConn{
+			AuthType: "invalid",
+			Region:   "us-east-1",
+			Bucket:   "my-q-dev-bucket",
+		},
+	}
+
+	err := validateConnection(connection)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "AuthType must be")
+}
+
 func TestValidateConnection_MissingAccessKeyId(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
+			AuthType:            "access_key",
 			AccessKeyId:         "", // Missing
 			SecretAccessKey:     "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 			Region:              "us-east-1",
@@ -63,6 +123,7 @@ func TestValidateConnection_MissingAccessKeyId(t *testing.T) {
 func TestValidateConnection_MissingSecretAccessKey(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
+			AuthType:            "access_key",
 			AccessKeyId:         "AKIAIOSFODNN7EXAMPLE",
 			SecretAccessKey:     "", // Missing
 			Region:              "us-east-1",

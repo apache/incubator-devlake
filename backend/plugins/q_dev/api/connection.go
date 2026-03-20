@@ -108,12 +108,22 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 
 // validateConnection validates connection parameters including Identity Store fields
 func validateConnection(connection *models.QDevConnection) error {
-	// Validate AWS credentials
-	if connection.AccessKeyId == "" {
-		return errors.Default.New("AccessKeyId is required")
+	// Default to access_key auth type if not specified
+	if connection.AuthType == "" {
+		connection.AuthType = "access_key"
 	}
-	if connection.SecretAccessKey == "" {
-		return errors.Default.New("SecretAccessKey is required")
+	if connection.AuthType != "access_key" && connection.AuthType != "iam_role" {
+		return errors.Default.New("AuthType must be 'access_key' or 'iam_role'")
+	}
+
+	// Validate AWS credentials only for access_key auth type
+	if !connection.IsIAMRoleAuth() {
+		if connection.AccessKeyId == "" {
+			return errors.Default.New("AccessKeyId is required")
+		}
+		if connection.SecretAccessKey == "" {
+			return errors.Default.New("SecretAccessKey is required")
+		}
 	}
 	if connection.Region == "" {
 		return errors.Default.New("Region is required")

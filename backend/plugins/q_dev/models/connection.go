@@ -24,9 +24,11 @@ import (
 
 // QDevConn holds the essential information to connect to AWS S3
 type QDevConn struct {
-	// AccessKeyId for AWS
+	// AuthType determines how to authenticate with AWS: "access_key" or "iam_role"
+	AuthType string `mapstructure:"authType" json:"authType"`
+	// AccessKeyId for AWS (required when AuthType is "access_key")
 	AccessKeyId string `mapstructure:"accessKeyId" json:"accessKeyId"`
-	// SecretAccessKey for AWS
+	// SecretAccessKey for AWS (required when AuthType is "access_key")
 	SecretAccessKey string `mapstructure:"secretAccessKey" json:"secretAccessKey"`
 	// Region for AWS S3
 	Region string `mapstructure:"region" json:"region"`
@@ -40,6 +42,11 @@ type QDevConn struct {
 	IdentityStoreId string `mapstructure:"identityStoreId" json:"identityStoreId"`
 	// IdentityStoreRegion for AWS IAM Identity Center (required, may differ from S3 region)
 	IdentityStoreRegion string `mapstructure:"identityStoreRegion" json:"identityStoreRegion"`
+}
+
+// IsIAMRoleAuth returns true if the connection uses IAM role authentication
+func (conn *QDevConn) IsIAMRoleAuth() bool {
+	return conn.AuthType == "iam_role"
 }
 
 func (conn *QDevConn) Sanitize() QDevConn {

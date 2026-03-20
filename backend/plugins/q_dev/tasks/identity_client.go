@@ -48,14 +48,18 @@ func NewQDevIdentityClient(connection *models.QDevConnection) (*QDevIdentityClie
 	}
 
 	// Create AWS session with Identity Store region and credentials
-	sess, err := session.NewSession(&aws.Config{
+	cfg := &aws.Config{
 		Region: aws.String(connection.IdentityStoreRegion),
-		Credentials: credentials.NewStaticCredentials(
+	}
+	// Only set static credentials for access_key auth; IAM role uses the default credential chain
+	if !connection.IsIAMRoleAuth() {
+		cfg.Credentials = credentials.NewStaticCredentials(
 			connection.AccessKeyId,
 			connection.SecretAccessKey,
-			"", // No session token
-		),
-	})
+			"",
+		)
+	}
+	sess, err := session.NewSession(cfg)
 	if err != nil {
 		return nil, err
 	}

@@ -29,10 +29,14 @@ import (
 
 func NewQDevS3Client(taskCtx plugin.TaskContext, connection *models.QDevConnection) (*QDevS3Client, errors.Error) {
 	// 创建AWS session
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(connection.Region),
-		Credentials: credentials.NewStaticCredentials(connection.AccessKeyId, connection.SecretAccessKey, ""),
-	})
+	cfg := &aws.Config{
+		Region: aws.String(connection.Region),
+	}
+	// Only set static credentials for access_key auth; IAM role uses the default credential chain
+	if !connection.IsIAMRoleAuth() {
+		cfg.Credentials = credentials.NewStaticCredentials(connection.AccessKeyId, connection.SecretAccessKey, "")
+	}
+	sess, err := session.NewSession(cfg)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
