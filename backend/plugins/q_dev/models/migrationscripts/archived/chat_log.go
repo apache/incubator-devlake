@@ -43,6 +43,9 @@ type QDevChatLog struct {
 	ActiveFileExtension string    `gorm:"type:varchar(50)" json:"activeFileExtension"`
 	HasSteering         bool      `json:"hasSteering"`
 	IsSpecMode          bool      `json:"isSpecMode"`
+	CodeReferenceCount  int       `json:"codeReferenceCount"`
+	WebLinkCount        int       `json:"webLinkCount"`
+	HasFollowupPrompts  bool      `json:"hasFollowupPrompts"`
 }
 
 func (QDevChatLog) TableName() string {

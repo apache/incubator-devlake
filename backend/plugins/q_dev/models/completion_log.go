@@ -34,8 +34,10 @@ type QDevCompletionLog struct {
 	Timestamp        time.Time `gorm:"index" json:"timestamp"`
 	FileName         string    `gorm:"type:varchar(512)" json:"fileName"`
 	FileExtension    string    `gorm:"type:varchar(50)" json:"fileExtension"`
-	HasCustomization bool      `json:"hasCustomization"`
-	CompletionsCount int       `json:"completionsCount"`
+	HasCustomization   bool      `json:"hasCustomization"`
+	CompletionsCount   int       `json:"completionsCount"`
+	LeftContextLength  int       `json:"leftContextLength"`
+	RightContextLength int       `json:"rightContextLength"`
 }
 
 func (QDevCompletionLog) TableName() string {
