@@ -26,16 +26,18 @@ import (
 // QDevCompletionLog stores parsed data from GenerateCompletions logging events
 type QDevCompletionLog struct {
 	common.NoPKModel
-	ConnectionId     uint64    `gorm:"primaryKey"`
-	ScopeId          string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
-	RequestId        string    `gorm:"primaryKey;type:varchar(255)" json:"requestId"`
-	UserId           string    `gorm:"index;type:varchar(255)" json:"userId"`
-	DisplayName      string    `gorm:"type:varchar(255)" json:"displayName"`
-	Timestamp        time.Time `gorm:"index" json:"timestamp"`
-	FileName         string    `gorm:"type:varchar(512)" json:"fileName"`
-	FileExtension    string    `gorm:"type:varchar(50)" json:"fileExtension"`
-	HasCustomization bool      `json:"hasCustomization"`
-	CompletionsCount int       `json:"completionsCount"`
+	ConnectionId       uint64    `gorm:"primaryKey"`
+	ScopeId            string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
+	RequestId          string    `gorm:"primaryKey;type:varchar(255)" json:"requestId"`
+	UserId             string    `gorm:"index;type:varchar(255)" json:"userId"`
+	DisplayName        string    `gorm:"type:varchar(255)" json:"displayName"`
+	Timestamp          time.Time `gorm:"index" json:"timestamp"`
+	FileName           string    `gorm:"type:varchar(512)" json:"fileName"`
+	FileExtension      string    `gorm:"type:varchar(50)" json:"fileExtension"`
+	HasCustomization   bool      `json:"hasCustomization"`
+	CompletionsCount   int       `json:"completionsCount"`
+	LeftContextLength  int       `json:"leftContextLength"`
+	RightContextLength int       `json:"rightContextLength"`
 }
 
 func (QDevCompletionLog) TableName() string {
