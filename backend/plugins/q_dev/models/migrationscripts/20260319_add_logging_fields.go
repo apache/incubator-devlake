@@ -18,24 +18,28 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models/migrationscripts/archived"
 )
 
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addS3SliceTable),
-		new(addScopeConfigIdToS3Slice),
-		new(addScopeIdFields),
-		new(addUserReportTable),
-		new(addAccountIdToS3Slice),
-		new(fixDedupUserTables),
-		new(resetS3FileMetaProcessed),
-		new(addLoggingTables),
-		new(addLoggingFields),
-	}
+var _ = (*addLoggingFields)(nil)
+
+type addLoggingFields struct{}
+
+func (*addLoggingFields) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.QDevChatLog{},
+		&archived.QDevCompletionLog{},
+	)
+}
+
+func (*addLoggingFields) Version() uint64 {
+	return 20260319000001
+}
+
+func (*addLoggingFields) Name() string {
+	return "Add code_reference_count, web_link_count, has_followup_prompts to chat_log; left/right_context_length to completion_log"
 }
