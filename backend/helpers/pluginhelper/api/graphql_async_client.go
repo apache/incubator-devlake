@@ -47,6 +47,8 @@ type GraphqlAsyncClient struct {
 	getRateCost      func(q interface{}) int
 }
 
+const defaultRateLimit = 5000
+
 // CreateAsyncGraphqlClient creates a new GraphqlAsyncClient
 func CreateAsyncGraphqlClient(
 	taskCtx plugin.TaskContext,
@@ -68,9 +70,11 @@ func CreateAsyncGraphqlClient(
 	if getRateRemaining != nil {
 		rateRemaining, resetAt, err := getRateRemaining(taskCtx.GetContext(), graphqlClient, logger)
 		if err != nil {
-			panic(err)
+			graphqlAsyncClient.logger.Warn(err, "failed to fetch initial graphql rate limit, fallback to default")
+			graphqlAsyncClient.updateRateRemaining(defaultRateLimit, nil)
+		} else {
+			graphqlAsyncClient.updateRateRemaining(rateRemaining, resetAt)
 		}
-		graphqlAsyncClient.updateRateRemaining(rateRemaining, resetAt)
 	}
 
 	// load retry/timeout from configuration
@@ -126,7 +130,9 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 		case <-time.After(nextDuring):
 			newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
 			if err != nil {
-				panic(err)
+				apiClient.logger.Warn(err, "failed to update graphql rate limit, will retry next cycle")
+				apiClient.updateRateRemaining(apiClient.rateRemaining, nil)
+				return
 			}
 			apiClient.updateRateRemaining(newRateRemaining, newResetAt)
 		}
