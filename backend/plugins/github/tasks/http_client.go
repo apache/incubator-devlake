@@ -48,17 +48,27 @@ func CreateAuthenticatedHttpClient(
 		tp = token.NewAppInstallationTokenProvider(connection, db, baseClient, logger, encryptionSecret)
 	}
 
-	if tp != nil {
-		baseTransport := baseClient.Transport
-		if baseTransport == nil {
-			baseTransport = http.DefaultTransport
-		}
+	baseTransport := baseClient.Transport
+	if baseTransport == nil {
+		baseTransport = http.DefaultTransport
+	}
 
+	if tp != nil {
 		baseClient.Transport = token.NewRefreshRoundTripper(baseTransport, tp)
 		logger.Info(
 			"Installed token refresh round tripper for connection %d (authMethod=%s)",
 			connection.ID,
 			connection.AuthMethod,
+		)
+
+	} else if connection.Token != "" {
+		baseClient.Transport = token.NewStaticRoundTripper(
+			baseTransport,
+			connection.Token,
+		)
+		logger.Info(
+			"Installed static token round tripper for connection %d",
+			connection.ID,
 		)
 	}
 
@@ -73,6 +83,7 @@ func CreateAuthenticatedHttpClient(
 			logger.Info("Persisted initial token for connection %d", connection.ID)
 		}
 	}
+	println("http client HIT3")
 
 	return baseClient, nil
 }

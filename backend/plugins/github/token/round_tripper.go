@@ -93,3 +93,26 @@ func (rt *RefreshRoundTripper) roundTripWithRetry(req *http.Request, refreshAtte
 
 	return resp, nil
 }
+
+// StaticRoundTripper is an HTTP transport that injects a fixed bearer token.
+// Unlike RefreshRoundTripper, it does NOT attempt refresh or retries.
+type StaticRoundTripper struct {
+	base  http.RoundTripper
+	token string
+}
+
+func NewStaticRoundTripper(base http.RoundTripper, token string) *StaticRoundTripper {
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	return &StaticRoundTripper{
+		base:  base,
+		token: token,
+	}
+}
+
+func (rt *StaticRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	reqClone := req.Clone(req.Context())
+	reqClone.Header.Set("Authorization", "Bearer "+rt.token)
+	return rt.base.RoundTrip(reqClone)
+}
