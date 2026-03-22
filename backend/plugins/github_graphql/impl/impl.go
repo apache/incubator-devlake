@@ -20,7 +20,6 @@ package impl
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"reflect"
 	"time"
 
@@ -177,19 +176,9 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 		return nil, err
 	}
 
-	endpoint, err := errors.Convert01(url.Parse(connection.Endpoint))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("malformed connection endpoint supplied: %s", connection.Endpoint))
-	}
-	// github.com and github enterprise have different graphql endpoints
-	endpoint.Path = "/graphql" // see https://docs.github.com/en/graphql/guides/forming-calls-with-graphql
-	if endpoint.Hostname() != "api.github.com" {
-		// see https://docs.github.com/en/enterprise-server@3.11/graphql/guides/forming-calls-with-graphql
-		endpoint.Path = "/api/graphql"
-	}
-
-	client := graphql.NewClient(endpoint.String(), apiClient.GetClient())
-	graphqlClient, err := helper.CreateAsyncGraphqlClient(taskCtx, client, taskCtx.GetLogger(),
+	graphqlClient, err := tasks.CreateGraphqlClient(
+		taskCtx,
+		connection,
 		func(ctx context.Context, client *graphql.Client, logger log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
 			var query GraphQueryRateLimit
 			dataErrors, err := errors.Convert01(client.Query(taskCtx.GetContext(), &query, nil))
