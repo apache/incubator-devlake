@@ -15,27 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+import { defineConfig } from '@playwright/test';
 
-import (
-	"github.com/apache/incubator-devlake/core/plugin"
-)
-
-// All return all migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(initTables),
-		new(modifyFileMetaTable),
-		new(addDisplayNameFields),
-		new(addMissingMetrics),
-		new(addS3SliceTable),
-		new(addScopeConfigIdToS3Slice),
-		new(addScopeIdFields),
-		new(addUserReportTable),
-		new(addAccountIdToS3Slice),
-		new(fixDedupUserTables),
-		new(resetS3FileMetaProcessed),
-		new(addLoggingTables),
-		new(addLoggingFields),
-	}
-}
+export default defineConfig({
+  testDir: '.',
+  testMatch: '*.spec.ts',
+  timeout: 180000,
+  expect: {
+    timeout: 10000,
+  },
+  use: {
+    baseURL: 'http://localhost:4000',
+    screenshot: 'on',
+    trace: 'on-first-retry',
+  },
+  reporter: [['html', { open: 'never' }], ['list']],
+  projects: [
+    {
+      name: 'chromium',
+      use: { browserName: 'chromium', viewport: { width: 1440, height: 900 } },
+    },
+  ],
+});
