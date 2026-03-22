@@ -48,8 +48,8 @@ func ExtractWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 			toolL := userRes
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.ProjectSlug = data.Options.ProjectSlug
-			if userRes.CreatedAt != nil && userRes.StoppedAt != nil {
-				startTime := userRes.CreatedAt.ToTime()
+			if userRes.CreatedDate != nil && userRes.StoppedAt != nil {
+				startTime := userRes.CreatedDate.ToTime()
 				endTime := userRes.StoppedAt.ToTime()
 				toolL.DurationSec = float64(endTime.Sub(startTime).Milliseconds() / 1e3)
 			}

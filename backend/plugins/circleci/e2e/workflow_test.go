@@ -19,6 +19,7 @@ package e2e
 
 import (
 	"testing"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -72,7 +73,7 @@ func TestCircleciWorkflow(t *testing.T) {
 		devops.CICDPipeline{},
 		e2ehelper.TableOptions{
 			CSVRelPath:   "./snapshot_tables/cicd_pipelines.csv",
-			IgnoreFields: []string{"finished_date", "created_date", "is_child"},
+			IgnoreFields: []string{"finished_date", "is_child"},
 			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
 		},
 	)
