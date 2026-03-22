@@ -19,7 +19,6 @@ package e2e
 
 import (
 	"testing"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
