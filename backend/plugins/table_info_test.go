@@ -52,6 +52,7 @@ import (
 	slack "github.com/apache/incubator-devlake/plugins/slack/impl"
 	sonarqube "github.com/apache/incubator-devlake/plugins/sonarqube/impl"
 	starrocks "github.com/apache/incubator-devlake/plugins/starrocks/impl"
+	taiga "github.com/apache/incubator-devlake/plugins/taiga/impl"
 	tapd "github.com/apache/incubator-devlake/plugins/tapd/impl"
 	teambition "github.com/apache/incubator-devlake/plugins/teambition/impl"
 	testmo "github.com/apache/incubator-devlake/plugins/testmo/impl"
@@ -90,6 +91,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("slack/models", slack.Slack{}.GetTablesInfo)
 	checker.FeedIn("sonarqube/models", sonarqube.Sonarqube{}.GetTablesInfo)
 	checker.FeedIn("starrocks", starrocks.StarRocks{}.GetTablesInfo)
+	checker.FeedIn("taiga/models", taiga.Taiga{}.GetTablesInfo)
 	checker.FeedIn("tapd/models", tapd.Tapd{}.GetTablesInfo)
 	checker.FeedIn("teambition/models", teambition.Teambition{}.GetTablesInfo)
 	checker.FeedIn("testmo/models", testmo.Testmo{}.GetTablesInfo)
