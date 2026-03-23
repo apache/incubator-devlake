@@ -65,5 +65,7 @@ func CreateGraphqlClient(
 		gqlClient,
 		taskCtx.GetLogger(),
 		getRateRemaining,
+		// GitHub GraphQL default fallback aligns with GitHub's standard rate limit (~5000)
+		helper.WithFallbackRateLimit(5000),
 	)
 }

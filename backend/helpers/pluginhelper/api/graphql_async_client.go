@@ -24,11 +24,15 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/merico-ai/graphql"
 )
+
+// GraphqlClientOption is a function that configures a GraphqlAsyncClient
+type GraphqlClientOption func(*GraphqlAsyncClient)
 
 // GraphqlAsyncClient send graphql one by one
 type GraphqlAsyncClient struct {
@@ -47,7 +51,10 @@ type GraphqlAsyncClient struct {
 	getRateCost      func(q interface{}) int
 }
 
-const defaultRateLimit = 5000
+// defaultRateLimitConst is the generic fallback rate limit for GraphQL requests.
+// It is used as the initial remaining quota when dynamic rate limit
+// information is unavailable from the provider.
+const defaultRateLimitConst = 1000
 
 // CreateAsyncGraphqlClient creates a new GraphqlAsyncClient
 func CreateAsyncGraphqlClient(
@@ -55,26 +62,37 @@ func CreateAsyncGraphqlClient(
 	graphqlClient *graphql.Client,
 	logger log.Logger,
 	getRateRemaining func(context.Context, *graphql.Client, log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error),
+	opts ...GraphqlClientOption,
 ) (*GraphqlAsyncClient, errors.Error) {
 	ctxWithCancel, cancel := context.WithCancel(taskCtx.GetContext())
+
+	rateLimit := resolveRateLimit(taskCtx, logger)
+
 	graphqlAsyncClient := &GraphqlAsyncClient{
 		ctx:              ctxWithCancel,
 		cancel:           cancel,
 		client:           graphqlClient,
 		logger:           logger,
 		rateExhaustCond:  sync.NewCond(&sync.Mutex{}),
-		rateRemaining:    0,
+		rateRemaining:    rateLimit,
 		getRateRemaining: getRateRemaining,
+	}
+
+	// apply options
+	for _, opt := range opts {
+		opt(graphqlAsyncClient)
 	}
 
 	if getRateRemaining != nil {
 		rateRemaining, resetAt, err := getRateRemaining(taskCtx.GetContext(), graphqlClient, logger)
 		if err != nil {
 			graphqlAsyncClient.logger.Warn(err, "failed to fetch initial graphql rate limit, fallback to default")
-			graphqlAsyncClient.updateRateRemaining(defaultRateLimit, nil)
+			graphqlAsyncClient.updateRateRemaining(graphqlAsyncClient.rateRemaining, nil)
 		} else {
 			graphqlAsyncClient.updateRateRemaining(rateRemaining, resetAt)
 		}
+	} else {
+		graphqlAsyncClient.updateRateRemaining(graphqlAsyncClient.rateRemaining, nil)
 	}
 
 	// load retry/timeout from configuration
@@ -119,6 +137,10 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 		apiClient.rateExhaustCond.Signal()
 	}
 	go func() {
+		if apiClient.getRateRemaining == nil {
+			return
+		}
+
 		nextDuring := 3 * time.Minute
 		if resetAt != nil && resetAt.After(time.Now()) {
 			nextDuring = time.Until(*resetAt)
@@ -223,4 +245,30 @@ func (apiClient *GraphqlAsyncClient) Wait() {
 // Release will release the ApiAsyncClient with scheduler
 func (apiClient *GraphqlAsyncClient) Release() {
 	apiClient.cancel()
+}
+
+// WithFallbackRateLimit sets the initial/fallback rate limit used when
+// rate limit information cannot be fetched dynamically.
+// This value may be overridden later by getRateRemaining.
+func WithFallbackRateLimit(limit int) GraphqlClientOption {
+	return func(c *GraphqlAsyncClient) {
+		if limit > 0 {
+			c.rateRemaining = limit
+		}
+	}
+}
+
+// resolveRateLimit determines the rate limit for GraphQL requests using task configuration -> else default constant.
+func resolveRateLimit(taskCtx plugin.TaskContext, logger log.Logger) int {
+	rateLimit := defaultRateLimitConst
+
+	if v := taskCtx.GetConfig("GRAPHQL_RATE_LIMIT"); v != "" {
+		if parsed, err := strconv.Atoi(v); err == nil {
+			rateLimit = parsed
+		} else {
+			logger.Warn(err, "invalid GRAPHQL_RATE_LIMIT, using default")
+		}
+	}
+
+	return rateLimit
 }
