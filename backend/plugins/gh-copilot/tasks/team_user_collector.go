@@ -99,7 +99,7 @@ func CollectTeamUsers(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:   apiClient,
 		Input:       iterator,
 		PageSize:    100,
-		UrlTemplate: "/orgs/{{ .Input.OrgLogin }}/teams/{{ .Input.Slug }}/members",
+		UrlTemplate: "orgs/{{ .Input.OrgLogin }}/teams/{{ .Input.Slug }}/members",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
