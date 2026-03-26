@@ -32,5 +32,6 @@ func All() []plugin.MigrationScript {
 		new(addTeamTables),
 		new(addOrganizationIdToUserMetrics),
 		new(addTeamTables),
+		new(addOrganizationIdToUserMetrics),
 	}
 }
