@@ -52,13 +52,23 @@ func clearHistoryData(db dal.Dal, data *LinkerTaskData) errors.Error {
 		WHERE pull_request_id IN (
 			SELECT pr.id
 				FROM pull_requests pr
-					LEFT JOIN project_mapping pm
+					INNER JOIN project_mapping pm
 					ON pm.table = 'repos'
 						AND pm.row_id = pr.base_repo_id
-						AND pm.project_name = ?
-	)
+				WHERE pm.project_name = ?
+		)
+		AND issue_id IN (
+			SELECT bi.issue_id
+				FROM board_issues bi
+					INNER JOIN project_mapping pm2
+					ON pm2.table = 'boards'
+						AND pm2.row_id = bi.board_id
+				WHERE pm2.project_name = ?
+		)
+		AND (_raw_data_table = '' OR _raw_data_table IS NULL)
+		AND _raw_data_remark LIKE '%pull_requests,%'
 `
-	return db.Exec(sql, data.Options.ProjectName)
+	return db.Exec(sql, data.Options.ProjectName, data.Options.ProjectName)
 }
 
 func LinkPrToIssue(taskCtx plugin.SubTaskContext) errors.Error {
