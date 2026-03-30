@@ -24,14 +24,16 @@
 #it does indicate that the project has yet to be fully endorsed by the ASF.
 
 FROM --platform=linux/amd64 debian:bookworm as debian-amd64
-RUN apt-get update
-RUN apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
+RUN apt-get update && \
+    apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 FROM --platform=linux/arm64 debian:bookworm as debian-arm64
-RUN apt-get update
-RUN apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
+RUN apt-get update && \
+    apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-FROM --platform=$BUILDPLATFORM golang:1.20.5-bookworm as builder
+FROM --platform=$BUILDPLATFORM golang:1.22-bookworm as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t mericodev/lake .
 ARG GOPROXY=
@@ -39,8 +41,9 @@ ARG GOPROXY=
 ARG HTTP_PROXY=
 ARG HTTPS_PROXY=
 
-RUN apt-get update
-RUN apt-get install -y gcc binutils libfindbin-libs-perl cmake libssh2-1-dev libssl-dev zlib1g-dev
+RUN apt-get update && \
+    apt-get install -y gcc binutils libfindbin-libs-perl cmake libssh2-1-dev libssl-dev zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN if [ "$(arch)" != "aarch64" ] ; then \
         apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu ; \
@@ -91,6 +94,7 @@ ARG SHA=
 ARG GO_PLUGINS=
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
     if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then \
         ln -s /usr/local/deps/aarch64 /usr/local/deps/target && \
         export CC=aarch64-linux-gnu-gcc && \

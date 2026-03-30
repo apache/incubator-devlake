@@ -34,6 +34,9 @@ on:
       - "test/**"
       - "e2e/**"
       - "devops/**"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   e2e-mysql:
     runs-on: ubuntu-latest
@@ -45,11 +48,13 @@ jobs:
           MYSQL_USER: merico
           MYSQL_PASSWORD: merico
           MYSQL_ROOT_PASSWORD: root
+    # TODO: Pin to specific version tag for reproducibility (e.g., mericodev/lake-builder:builder-vX.X.X)
     container: mericodev/lake-builder:latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: git config --global --add safe.directory $(pwd)
+      # TODO: Consider including pre-built Python in the lake-builder image to avoid duplicating this step across jobs
       - name: Build Python
         run: |
           cd backend
@@ -57,7 +62,7 @@ jobs:
           make build-python
       - name: Cache test-e2e
         id: cache-test-e2e
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/go-build
@@ -85,10 +90,11 @@ jobs:
           POSTGRES_DB: lake
           POSTGRES_USER: merico
           POSTGRES_PASSWORD: merico
+    # TODO: Pin to specific version tag for reproducibility (e.g., mericodev/lake-builder:builder-vX.X.X)
     container: mericodev/lake-builder:latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: git config --global --add safe.directory $(pwd)
       - name: Build Python
         run: |
@@ -97,7 +103,7 @@ jobs:
           make build-python
       - name: Cache test-e2e-pg
         id: cache-test-e2e-pg
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/go-build

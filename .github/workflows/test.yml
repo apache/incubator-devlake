@@ -34,17 +34,20 @@ on:
       - 'test/**'
   schedule:
     - cron: '0 0 * * *' # run ci every night
-
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     strategy:
       matrix:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    # TODO: Pin to specific version tag for reproducibility (e.g., mericodev/lake-builder:builder-vX.X.X)
     container: mericodev/lake-builder:latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Set git config
       run: git config --global --add safe.directory $(pwd)
     - name: Build Python
@@ -54,7 +57,7 @@ jobs:
         make build-python
     - name: Cache unit-test
       id: cache-unit-test
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/go-build

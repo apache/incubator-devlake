@@ -23,13 +23,17 @@ on:
     branches:
       - main
   pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   migration-script-lint:
     name: migration-script-lint
     runs-on: ubuntu-latest
+    # TODO: Pin to specific version tag for reproducibility (e.g., mericodev/lake-builder:builder-vX.X.X)
     container: mericodev/lake-builder:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: migration script linting
         run: |
           go version

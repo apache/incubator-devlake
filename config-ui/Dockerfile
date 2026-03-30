@@ -26,9 +26,9 @@
 FROM node:18-bookworm-slim as builder
 
 WORKDIR /home/node/code
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 COPY . .
-
-RUN yarn install
 RUN yarn build
 
 FROM nginxinc/nginx-unprivileged:1.29
