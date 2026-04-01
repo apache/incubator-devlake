@@ -43,15 +43,23 @@ var ExtractSyncOperationsMeta = plugin.SubTaskMeta{
 	ProductTables:    []string{models.ArgocdSyncOperation{}.TableName()},
 }
 
+// ArgocdApiSyncSource represents a single source in a multi-source ArgoCD application.
+type ArgocdApiSyncSource struct {
+	RepoURL string `json:"repoURL"`
+	Chart   string `json:"chart"`
+}
+
 type ArgocdApiSyncOperation struct {
 	// For history entries
 	ID              int64      `json:"id"`
 	Revision        string     `json:"revision"`
+	Revisions       []string   `json:"revisions"` // multi-source apps populate this instead of revision
 	DeployedAt      time.Time  `json:"deployedAt"`
 	DeployStartedAt *time.Time `json:"deployStartedAt"`
 	Source          struct {
 		RepoURL string `json:"repoURL"`
 	} `json:"source"`
+	Sources     []ArgocdApiSyncSource `json:"sources"` // multi-source apps populate this instead of source
 	InitiatedBy struct {
 		Username  string `json:"username"`
 		Automated bool   `json:"automated"`
@@ -66,6 +74,7 @@ type ArgocdApiSyncOperation struct {
 	FinishedAt *time.Time `json:"finishedAt"`
 	SyncResult struct {
 		Revision  string                      `json:"revision"`
+		Revisions []string                    `json:"revisions"` // multi-source apps
 		Resources []ArgocdApiSyncResourceItem `json:"resources"`
 	} `json:"syncResult"`
 }
@@ -179,6 +188,11 @@ func ExtractSyncOperations(taskCtx plugin.SubTaskContext) errors.Error {
 
 			isOperationState := apiOp.Phase != ""
 
+			// For multi-source apps ArgoCD sets revisions[] instead of revision. Resolve
+			// the single commit SHA we care about before deciding whether to skip this entry.
+			if apiOp.Revision == "" {
+				apiOp.Revision = resolveMultiSourceRevision(apiOp.Revisions, apiOp.Sources)
+			}
 			if !isOperationState && apiOp.DeployedAt.IsZero() && apiOp.Revision == "" {
 				return nil, nil
 			}
@@ -190,7 +204,14 @@ func ExtractSyncOperations(taskCtx plugin.SubTaskContext) errors.Error {
 				} else {
 					syncOp.DeploymentId = time.Now().Unix()
 				}
-				syncOp.Revision = apiOp.SyncResult.Revision
+				// Prefer the top-level resolved revision; fall back to syncResult.
+				syncOp.Revision = apiOp.Revision
+				if syncOp.Revision == "" {
+					syncOp.Revision = resolveMultiSourceRevision(apiOp.SyncResult.Revisions, apiOp.Sources)
+				}
+				if syncOp.Revision == "" {
+					syncOp.Revision = apiOp.SyncResult.Revision
+				}
 				syncOp.StartedAt = start
 				syncOp.FinishedAt = normalizePtr(apiOp.FinishedAt)
 				syncOp.Phase = apiOp.Phase
@@ -375,6 +396,87 @@ func stringSlicesEqual(a, b []string) bool {
 	}
 	for i := range a {
 		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// resolveMultiSourceRevision picks the git commit SHA from a multi-source ArgoCD
+// application's revisions slice. ArgoCD multi-source apps store one revision per
+// source: Helm chart sources carry a semver tag while git sources carry a 40-hex
+// commit SHA. We prefer the first git-hosted source (github.com / gitlab.com /
+// bitbucket.org) and fall back to any entry that looks like a 40-character hex SHA.
+//
+// Single-source apps already populate the top-level "revision" field, so this
+// function is only called when that field is empty.
+func resolveMultiSourceRevision(revisions []string, sources []ArgocdApiSyncSource) string {
+	if len(revisions) == 0 {
+		return ""
+	}
+
+	// Pass 1: prefer a revision whose corresponding source is a git hosting service.
+	for i, rev := range revisions {
+		if i >= len(sources) {
+			break
+		}
+		repoURL := sources[i].RepoURL
+		if isGitHostedURL(repoURL) && isCommitSHA(rev) {
+			return rev
+		}
+	}
+
+	// Pass 2: accept any revision that looks like a full commit SHA regardless of
+	// source type (covers self-hosted Gitea / Forgejo / etc.).
+	for _, rev := range revisions {
+		if isCommitSHA(rev) {
+			return rev
+		}
+	}
+
+	return ""
+}
+
+// isGitHostedURL returns true when the URL belongs to a known git hosting service
+// or is clearly not a Helm chart registry.
+func isGitHostedURL(repoURL string) bool {
+	if repoURL == "" {
+		return false
+	}
+	gitHosts := []string{
+		"github.com",
+		"gitlab.com",
+		"bitbucket.org",
+		"dev.azure.com",
+		"ssh.dev.azure.com",
+		"gitea.",
+		"forgejo.",
+	}
+	lower := strings.ToLower(repoURL)
+	for _, host := range gitHosts {
+		if strings.Contains(lower, host) {
+			return true
+		}
+	}
+	// Any https/ssh git URL that is not a chart registry (gs://, oci://, https://*.azurecr.io, etc.)
+	chartPrefixes := []string{"gs://", "oci://", "s3://"}
+	for _, pfx := range chartPrefixes {
+		if strings.HasPrefix(lower, pfx) {
+			return false
+		}
+	}
+	// .git suffix is a strong signal
+	return strings.HasSuffix(strings.TrimSpace(repoURL), ".git")
+}
+
+// isCommitSHA returns true for a 40-character lowercase hexadecimal string,
+// which is the standard representation of a Git commit SHA-1.
+func isCommitSHA(s string) bool {
+	if len(s) != 40 {
+		return false
+	}
+	for _, c := range s {
+		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
 			return false
 		}
 	}
