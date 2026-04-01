@@ -147,6 +147,59 @@ func TestIsCommitSHA(t *testing.T) {
 	assert.False(t, isCommitSHA("5dd95b4efd7e9b668c361bbddb8d7f1e56c32ac12")) // 41 chars
 }
 
+// ── resolveGitRepoURL ─────────────────────────────────────────────────────────
+
+func TestResolveGitRepoURL_SingleSource(t *testing.T) {
+	// Single-source app: singleSourceURL is used directly, sources ignored.
+	got := resolveGitRepoURL("https://github.com/example/my-app", nil)
+	assert.Equal(t, "https://github.com/example/my-app", got)
+}
+
+func TestResolveGitRepoURL_MultiSourceGitHubWins(t *testing.T) {
+	// Multi-source pattern: GCS chart + GitHub values ref.
+	sources := []ArgocdApiSyncSource{
+		{RepoURL: "gs://charts-example-net/infra/stable", Chart: "generic-service"},
+		{RepoURL: "https://github.com/example/my-app"},
+	}
+	got := resolveGitRepoURL("", sources)
+	assert.Equal(t, "https://github.com/example/my-app", got)
+}
+
+func TestResolveGitRepoURL_MultiSourceOCIChart(t *testing.T) {
+	// OCI chart + GitLab values repo.
+	sources := []ArgocdApiSyncSource{
+		{RepoURL: "oci://registry.example.com/charts", Chart: "app"},
+		{RepoURL: "https://gitlab.com/org/config"},
+	}
+	got := resolveGitRepoURL("", sources)
+	assert.Equal(t, "https://gitlab.com/org/config", got)
+}
+
+func TestResolveGitRepoURL_FallbackNonChartURL(t *testing.T) {
+	// No known git host but a non-chart HTTPS URL is still better than nothing.
+	sources := []ArgocdApiSyncSource{
+		{RepoURL: "gs://bucket/charts"},
+		{RepoURL: "https://git.acme-corp.internal/team/config"},
+	}
+	got := resolveGitRepoURL("", sources)
+	assert.Equal(t, "https://git.acme-corp.internal/team/config", got)
+}
+
+func TestResolveGitRepoURL_AllChartSources(t *testing.T) {
+	// All sources are chart registries — returns empty string.
+	sources := []ArgocdApiSyncSource{
+		{RepoURL: "gs://charts-example-net/infra/stable"},
+		{RepoURL: "oci://registry.example.com/charts"},
+	}
+	got := resolveGitRepoURL("", sources)
+	assert.Equal(t, "", got)
+}
+
+func TestResolveGitRepoURL_EmptySources(t *testing.T) {
+	assert.Equal(t, "", resolveGitRepoURL("", nil))
+	assert.Equal(t, "", resolveGitRepoURL("", []ArgocdApiSyncSource{}))
+}
+
 // ── isGitHostedURL ────────────────────────────────────────────────────────────
 
 func TestIsGitHostedURL(t *testing.T) {

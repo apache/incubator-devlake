@@ -197,6 +197,12 @@ func ExtractSyncOperations(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, nil
 			}
 
+			// Resolve the git repo URL at extraction time so the convertor can set
+			// cicd_deployment_commits.repo_url correctly even when
+			// _tool_argocd_applications.repo_url is empty (e.g. for multi-source apps
+			// whose collectApplications subtask was skipped due to state caching).
+			syncOp.RepoURL = resolveGitRepoURL(apiOp.Source.RepoURL, apiOp.Sources)
+
 			if isOperationState {
 				start := normalize(apiOp.StartedAt)
 				if start != nil {
@@ -467,6 +473,52 @@ func isGitHostedURL(repoURL string) bool {
 	}
 	// .git suffix is a strong signal
 	return strings.HasSuffix(strings.TrimSpace(repoURL), ".git")
+}
+
+// resolveGitRepoURL returns the best git repository URL from a sync operation's
+// source metadata. For single-source apps the source.repoURL is used directly.
+// For multi-source apps (sources[]) the first URL that matches a known git
+// hosting service is preferred; if none match the heuristic, the first non-chart
+// HTTPS/SSH URL is used as a fallback so that cicd_deployment_commits.repo_url
+// is never left as the deployment-name placeholder.
+//
+// This is called during extractSyncOperations which always runs, providing
+// reliable repo_url population even when extractApplications is skipped due
+// to the collector state cache.
+func resolveGitRepoURL(singleSourceURL string, sources []ArgocdApiSyncSource) string {
+	// Single-source app: use the URL directly.
+	if singleSourceURL != "" {
+		return singleSourceURL
+	}
+
+	// Multi-source app: pass 1 — prefer a known git host.
+	for _, src := range sources {
+		if isGitHostedURL(src.RepoURL) {
+			return src.RepoURL
+		}
+	}
+
+	// Pass 2 — fall back to the first non-chart URL (covers self-hosted instances
+	// not in the known-host list, e.g. on-prem GitLab with a custom domain).
+	chartPrefixes := []string{"gs://", "oci://", "s3://"}
+	for _, src := range sources {
+		if src.RepoURL == "" {
+			continue
+		}
+		lower := strings.ToLower(src.RepoURL)
+		isChart := false
+		for _, pfx := range chartPrefixes {
+			if strings.HasPrefix(lower, pfx) {
+				isChart = true
+				break
+			}
+		}
+		if !isChart {
+			return src.RepoURL
+		}
+	}
+
+	return ""
 }
 
 // isCommitSHA returns true for a 40-character lowercase hexadecimal string,
