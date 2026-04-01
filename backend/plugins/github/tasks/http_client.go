@@ -83,7 +83,6 @@ func CreateAuthenticatedHttpClient(
 			logger.Info("Persisted initial token for connection %d", connection.ID)
 		}
 	}
-	println("http client HIT3")
 
 	return baseClient, nil
 }
