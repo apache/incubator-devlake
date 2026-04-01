@@ -22,28 +22,22 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/log"
 	"net/url"
+	"net/http"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-ai/graphql"
 )
 
 func CreateGraphqlClient(
 	taskCtx plugin.TaskContext,
 	connection *models.GithubConnection,
+	httpClient *http.Client,
 	getRateRemaining func(context.Context, *graphql.Client, log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error),
 ) (*helper.GraphqlAsyncClient, errors.Error) {
-
-	// inject the shared auth layer
-	httpClient, err := githubTasks.CreateAuthenticatedHttpClient(taskCtx, connection, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	// Build endpoint
 	endpoint, err := errors.Convert01(url.Parse(connection.Endpoint))
 	if err != nil {

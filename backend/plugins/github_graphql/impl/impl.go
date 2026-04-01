@@ -179,6 +179,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	graphqlClient, err := tasks.CreateGraphqlClient(
 		taskCtx,
 		connection,
+		apiClient.ApiClient.GetClient(),
 		func(ctx context.Context, client *graphql.Client, logger log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
 			var query GraphQueryRateLimit
 			dataErrors, err := errors.Convert01(client.Query(taskCtx.GetContext(), &query, nil))
