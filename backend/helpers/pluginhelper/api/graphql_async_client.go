@@ -66,21 +66,25 @@ func CreateAsyncGraphqlClient(
 ) (*GraphqlAsyncClient, errors.Error) {
 	ctxWithCancel, cancel := context.WithCancel(taskCtx.GetContext())
 
-	rateLimit := resolveRateLimit(taskCtx, logger)
-
 	graphqlAsyncClient := &GraphqlAsyncClient{
 		ctx:              ctxWithCancel,
 		cancel:           cancel,
 		client:           graphqlClient,
 		logger:           logger,
 		rateExhaustCond:  sync.NewCond(&sync.Mutex{}),
-		rateRemaining:    rateLimit,
+		rateRemaining:    defaultRateLimitConst,
 		getRateRemaining: getRateRemaining,
 	}
 
 	// apply options
 	for _, opt := range opts {
 		opt(graphqlAsyncClient)
+	}
+
+	// Env config wins over everything, only if explicitly set
+	if rateLimit := resolveRateLimit(taskCtx, logger); rateLimit != -1 {
+    	logger.Info("GRAPHQL_RATE_LIMIT env override applied: %d (was %d)", rateLimit, graphqlAsyncClient.rateRemaining)
+		graphqlAsyncClient.rateRemaining = rateLimit
 	}
 
 	if getRateRemaining != nil {
@@ -258,17 +262,13 @@ func WithFallbackRateLimit(limit int) GraphqlClientOption {
 	}
 }
 
-// resolveRateLimit determines the rate limit for GraphQL requests using task configuration -> else default constant.
+// resolveRateLimit returns -1 if GRAPHQL_RATE_LIMIT is not set or invalid
 func resolveRateLimit(taskCtx plugin.TaskContext, logger log.Logger) int {
-	rateLimit := defaultRateLimitConst
-
-	if v := taskCtx.GetConfig("GRAPHQL_RATE_LIMIT"); v != "" {
-		if parsed, err := strconv.Atoi(v); err == nil {
-			rateLimit = parsed
-		} else {
-			logger.Warn(err, "invalid GRAPHQL_RATE_LIMIT, using default")
-		}
-	}
-
-	return rateLimit
+    if v := taskCtx.GetConfig("GRAPHQL_RATE_LIMIT"); v != "" {
+        if parsed, err := strconv.Atoi(v); err == nil {
+            return parsed
+        }
+        logger.Warn(nil, "invalid GRAPHQL_RATE_LIMIT, using default")
+    }
+    return -1
 }
