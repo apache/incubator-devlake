@@ -90,6 +90,15 @@ type GraphqlQueryIssue struct {
 
 type missingGithubIssueRef struct {
 	ConnectionId  uint64
+	RepoId        int
+	GithubId      int
+	Number        int
+	RawDataOrigin common.RawDataOrigin
+}
+
+type missingGithubIssueCleanupScope struct {
+	ConnectionId  uint64
+	RepoId        int
 	GithubId      int
 	Number        int
 	RawDataOrigin common.RawDataOrigin
@@ -195,6 +204,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				issueUpdatedAt[inputIssue.Number] = inputIssue.GithubUpdatedAt
 				query.requestedIssues[inputIssue.Number] = missingGithubIssueRef{
 					ConnectionId:  inputIssue.ConnectionId,
+					RepoId:        inputIssue.RepoId,
 					GithubId:      inputIssue.GithubId,
 					Number:        inputIssue.Number,
 					RawDataOrigin: inputIssue.RawDataOrigin,
@@ -261,8 +271,13 @@ func findMissingGithubIssues(requestedIssues map[int]missingGithubIssueRef, reso
 func cleanupMissingGithubIssues(db dal.Dal, logger log.Logger, issues []missingGithubIssueRef) errors.Error {
 	var allErrors []error
 	for _, issue := range issues {
-		logger.Warn(nil, "GitHub issue #%d no longer resolves from the source API, deleting stale local data", issue.Number)
-		err := cleanupMissingGithubIssue(db, issue)
+		scope, ok := buildMissingGithubIssueCleanupScope(issue)
+		if !ok {
+			logger.Warn(nil, "GitHub issue #%d no longer resolves from the source API, but source scope is incomplete so stale cleanup is skipped", issue.Number)
+			continue
+		}
+		logger.Warn(nil, "GitHub issue #%d no longer resolves from the source API, deleting stale local data for the current repository scope", issue.Number)
+		err := cleanupMissingGithubIssue(db, scope)
 		if err != nil {
 			allErrors = append(allErrors, err)
 		}
@@ -270,9 +285,68 @@ func cleanupMissingGithubIssues(db dal.Dal, logger log.Logger, issues []missingG
 	return errors.Default.Combine(allErrors)
 }
 
-func cleanupMissingGithubIssue(db dal.Dal, issue missingGithubIssueRef) errors.Error {
+func buildMissingGithubIssueCleanupScope(issue missingGithubIssueRef) (*missingGithubIssueCleanupScope, bool) {
+	if issue.ConnectionId == 0 || issue.RepoId == 0 || issue.GithubId == 0 || issue.RawDataOrigin.RawDataTable == "" || issue.RawDataOrigin.RawDataParams == "" {
+		return nil, false
+	}
+	return &missingGithubIssueCleanupScope{
+		ConnectionId:  issue.ConnectionId,
+		RepoId:        issue.RepoId,
+		GithubId:      issue.GithubId,
+		Number:        issue.Number,
+		RawDataOrigin: issue.RawDataOrigin,
+	}, true
+}
+
+func (scope *missingGithubIssueCleanupScope) issueScopedClauses() []dal.Clause {
+	return []dal.Clause{
+		dal.Where(
+			"connection_id = ? AND issue_id = ? AND _raw_data_table = ? AND _raw_data_params = ?",
+			scope.ConnectionId,
+			scope.GithubId,
+			scope.RawDataOrigin.RawDataTable,
+			scope.RawDataOrigin.RawDataParams,
+		),
+	}
+}
+
+func (scope *missingGithubIssueCleanupScope) assigneeScopedClauses() []dal.Clause {
+	return []dal.Clause{
+		dal.Where(
+			"connection_id = ? AND repo_id = ? AND issue_id = ? AND _raw_data_table = ? AND _raw_data_params = ?",
+			scope.ConnectionId,
+			scope.RepoId,
+			scope.GithubId,
+			scope.RawDataOrigin.RawDataTable,
+			scope.RawDataOrigin.RawDataParams,
+		),
+	}
+}
+
+func (scope *missingGithubIssueCleanupScope) githubIssueScopedClauses() []dal.Clause {
+	return []dal.Clause{
+		dal.Where(
+			"connection_id = ? AND repo_id = ? AND github_id = ? AND _raw_data_table = ? AND _raw_data_params = ?",
+			scope.ConnectionId,
+			scope.RepoId,
+			scope.GithubId,
+			scope.RawDataOrigin.RawDataTable,
+			scope.RawDataOrigin.RawDataParams,
+		),
+	}
+}
+
+func (scope *missingGithubIssueCleanupScope) rawDataScopedClauses() []dal.Clause {
+	if scope.RawDataOrigin.RawDataId == 0 {
+		return nil
+	}
+	return []dal.Clause{dal.Where("id = ?", scope.RawDataOrigin.RawDataId)}
+}
+
+func cleanupMissingGithubIssue(db dal.Dal, scope *missingGithubIssueCleanupScope) errors.Error {
 	deleteByIssueId := func(model any, table string) errors.Error {
-		err := db.Delete(model, dal.From(table), dal.Where("connection_id = ? AND issue_id = ?", issue.ConnectionId, issue.GithubId))
+		clauses := append([]dal.Clause{dal.From(table)}, scope.issueScopedClauses()...)
+		err := db.Delete(model, clauses...)
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to delete stale github issue data from "+table)
 		}
@@ -291,31 +365,31 @@ func cleanupMissingGithubIssue(db dal.Dal, issue missingGithubIssueRef) errors.E
 	if err != nil {
 		return err
 	}
-	err = deleteByIssueId(&models.GithubIssueAssignee{}, models.GithubIssueAssignee{}.TableName())
+	err = db.Delete(
+		&models.GithubIssueAssignee{},
+		append([]dal.Clause{dal.From(models.GithubIssueAssignee{}.TableName())}, scope.assigneeScopedClauses()...)...,
+	)
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "failed to delete stale github issue assignees")
 	}
 	err = db.Delete(
 		&models.GithubPrIssue{},
-		dal.From(models.GithubPrIssue{}.TableName()),
-		dal.Where("connection_id = ? AND issue_id = ?", issue.ConnectionId, issue.GithubId),
+		append([]dal.Clause{dal.From(models.GithubPrIssue{}.TableName())}, scope.issueScopedClauses()...)...,
 	)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to delete stale github pull request issue links")
 	}
 	err = db.Delete(
 		&models.GithubIssue{},
-		dal.From(models.GithubIssue{}.TableName()),
-		dal.Where("connection_id = ? AND github_id = ?", issue.ConnectionId, issue.GithubId),
+		append([]dal.Clause{dal.From(models.GithubIssue{}.TableName())}, scope.githubIssueScopedClauses()...)...,
 	)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to delete stale github issue")
 	}
-	if issue.RawDataOrigin.RawDataTable != "" && issue.RawDataOrigin.RawDataId != 0 {
+	if rawDataClauses := scope.rawDataScopedClauses(); len(rawDataClauses) > 0 {
 		err = db.Delete(
 			&api.RawData{},
-			dal.From(issue.RawDataOrigin.RawDataTable),
-			dal.Where("id = ?", issue.RawDataOrigin.RawDataId),
+			append([]dal.Clause{dal.From(scope.RawDataOrigin.RawDataTable)}, rawDataClauses...)...,
 		)
 		if err != nil {
 			return errors.Default.Wrap(err, "failed to delete stale raw github issue")
