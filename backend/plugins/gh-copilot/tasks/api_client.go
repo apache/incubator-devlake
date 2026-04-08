@@ -65,7 +65,7 @@ func CreateApiClient(taskCtx plugin.TaskContext, connection *models.GhCopilotCon
 
 	apiClient.SetHeaders(map[string]string{
 		"Accept":               "application/vnd.github+json",
-		"X-GitHub-Api-Version": "2022-11-28",
+		"X-GitHub-Api-Version": "2026-03-10",
 	})
 
 	rateLimiter := &helper.ApiRateLimitCalculator{UserRateLimitPerHour: connection.RateLimitPerHour}
