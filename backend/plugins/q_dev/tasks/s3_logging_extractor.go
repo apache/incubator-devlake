@@ -280,10 +280,13 @@ type chatLogRequest struct {
 type chatLogResponse struct {
 	RequestID         string `json:"requestId"`
 	AssistantResponse string `json:"assistantResponse"`
+	FollowupPrompts   string `json:"followupPrompts"`
 	MessageMetadata   struct {
 		ConversationID *string `json:"conversationId"`
 		UtteranceID    *string `json:"utteranceId"`
 	} `json:"messageMetadata"`
+	CodeReferenceEvents        []json.RawMessage `json:"codeReferenceEvents"`
+	SupplementaryWebLinksEvent []json.RawMessage `json:"supplementaryWebLinksEvent"`
 }
 
 type completionLogRecord struct {
@@ -296,6 +299,8 @@ type completionLogRequest struct {
 	Timestamp        string  `json:"timeStamp"`
 	FileName         string  `json:"fileName"`
 	CustomizationArn *string `json:"customizationArn"`
+	LeftContext      string  `json:"leftContext"`
+	RightContext     string  `json:"rightContext"`
 }
 
 type completionLogResponse struct {
@@ -346,6 +351,11 @@ func parseChatRecord(raw json.RawMessage, fileMeta *models.QDevS3FileMeta, ident
 	if record.Response.MessageMetadata.UtteranceID != nil {
 		chatLog.UtteranceId = *record.Response.MessageMetadata.UtteranceID
 	}
+
+	// New fields from docs: codeReferenceEvents, supplementaryWebLinksEvent, followupPrompts
+	chatLog.CodeReferenceCount = len(record.Response.CodeReferenceEvents)
+	chatLog.WebLinkCount = len(record.Response.SupplementaryWebLinksEvent)
+	chatLog.HasFollowupPrompts = record.Response.FollowupPrompts != ""
 
 	return chatLog, nil
 }
@@ -406,16 +416,18 @@ func parseCompletionRecord(raw json.RawMessage, fileMeta *models.QDevS3FileMeta,
 
 	userId := normalizeUserId(record.Request.UserID)
 	return &models.QDevCompletionLog{
-		ConnectionId:     fileMeta.ConnectionId,
-		ScopeId:          fileMeta.ScopeId,
-		RequestId:        record.Response.RequestID,
-		UserId:           userId,
-		DisplayName:      cachedResolveDisplayName(userId, identityClient, cache),
-		Timestamp:        ts,
-		FileName:         record.Request.FileName,
-		FileExtension:    filepath.Ext(record.Request.FileName),
-		HasCustomization: record.Request.CustomizationArn != nil && *record.Request.CustomizationArn != "",
-		CompletionsCount: len(record.Response.Completions),
+		ConnectionId:       fileMeta.ConnectionId,
+		ScopeId:            fileMeta.ScopeId,
+		RequestId:          record.Response.RequestID,
+		UserId:             userId,
+		DisplayName:        cachedResolveDisplayName(userId, identityClient, cache),
+		Timestamp:          ts,
+		FileName:           record.Request.FileName,
+		FileExtension:      filepath.Ext(record.Request.FileName),
+		HasCustomization:   record.Request.CustomizationArn != nil && *record.Request.CustomizationArn != "",
+		CompletionsCount:   len(record.Response.Completions),
+		LeftContextLength:  len(record.Request.LeftContext),
+		RightContextLength: len(record.Request.RightContext),
 	}, nil
 }
 
