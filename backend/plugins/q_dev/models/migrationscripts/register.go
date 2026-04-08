@@ -36,5 +36,6 @@ func All() []plugin.MigrationScript {
 		new(fixDedupUserTables),
 		new(resetS3FileMetaProcessed),
 		new(addLoggingTables),
+		new(addLoggingFields),
 	}
 }

@@ -62,6 +62,14 @@ func ignoreNoContent(res *http.Response) errors.Error {
 	return nil
 }
 
+// isEmptyReport returns true when the GitHub API returned an HTTP 200 but the
+// body carries no usable report data.  For dates before Copilot usage data was
+// available the API responds with "" (empty JSON string) instead of a 404.
+func isEmptyReport(body []byte) bool {
+	b := bytes.TrimSpace(body)
+	return len(b) == 0 || string(b) == `""` || string(b) == "null"
+}
+
 // reportMetadataResponse represents the JSON returned by the report metadata endpoints.
 type reportMetadataResponse struct {
 	DownloadLinks []string `json:"download_links"`

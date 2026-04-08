@@ -99,6 +99,9 @@ func CollectUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			if readErr != nil {
 				return nil, errors.Default.Wrap(readErr, "failed to read report metadata")
 			}
+			if isEmptyReport(body) {
+				return nil, nil
+			}
 
 			var meta reportMetadataResponse
 			if jsonErr := json.Unmarshal(body, &meta); jsonErr != nil {
