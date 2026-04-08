@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/q_dev/models"
 )
 
 var _ plugin.MigrationScript = (*addAuthTypeToConnection)(nil)
@@ -38,7 +39,7 @@ func (*addAuthTypeToConnection) Up(basicRes context.BasicRes) errors.Error {
 	}
 
 	// Default existing rows to "access_key" since they were created before IAM role support
-	if err := db.Exec("UPDATE _tool_q_dev_connections SET auth_type = 'access_key' WHERE auth_type IS NULL OR auth_type = ''"); err != nil {
+	if err := db.Exec("UPDATE _tool_q_dev_connections SET auth_type = ? WHERE auth_type IS NULL OR auth_type = ''", models.AuthTypeAccessKey); err != nil {
 		return errors.Default.Wrap(err, "failed to set default auth_type for existing connections")
 	}
 

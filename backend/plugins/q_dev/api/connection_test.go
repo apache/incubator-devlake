@@ -29,7 +29,7 @@ import (
 func TestValidateConnection_Success(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
-			AuthType:            "access_key",
+			AuthType:            models.AuthTypeAccessKey,
 			AccessKeyId:         "AKIAIOSFODNN7EXAMPLE",
 			SecretAccessKey:     "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 			Region:              "us-east-1",
@@ -47,7 +47,7 @@ func TestValidateConnection_Success(t *testing.T) {
 func TestValidateConnection_IAMRoleSuccess(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
-			AuthType: "iam_role",
+			AuthType: models.AuthTypeIAMRole,
 			Region:   "us-east-1",
 			Bucket:   "my-q-dev-bucket",
 		},
@@ -60,7 +60,7 @@ func TestValidateConnection_IAMRoleSuccess(t *testing.T) {
 func TestValidateConnection_IAMRoleNoCredentialsRequired(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
-			AuthType:        "iam_role",
+			AuthType:        models.AuthTypeIAMRole,
 			AccessKeyId:     "", // Should not be required
 			SecretAccessKey: "", // Should not be required
 			Region:          "us-east-1",
@@ -83,9 +83,10 @@ func TestValidateConnection_DefaultsToAccessKey(t *testing.T) {
 		},
 	}
 
+	normalizeConnection(connection)
 	err := validateConnection(connection)
 	assert.NoError(t, err)
-	assert.Equal(t, "access_key", connection.AuthType)
+	assert.Equal(t, models.AuthTypeAccessKey, connection.AuthType)
 }
 
 func TestValidateConnection_InvalidAuthType(t *testing.T) {
@@ -105,7 +106,7 @@ func TestValidateConnection_InvalidAuthType(t *testing.T) {
 func TestValidateConnection_MissingAccessKeyId(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
-			AuthType:            "access_key",
+			AuthType:            models.AuthTypeAccessKey,
 			AccessKeyId:         "", // Missing
 			SecretAccessKey:     "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 			Region:              "us-east-1",
@@ -123,7 +124,7 @@ func TestValidateConnection_MissingAccessKeyId(t *testing.T) {
 func TestValidateConnection_MissingSecretAccessKey(t *testing.T) {
 	connection := &models.QDevConnection{
 		QDevConn: models.QDevConn{
-			AuthType:            "access_key",
+			AuthType:            models.AuthTypeAccessKey,
 			AccessKeyId:         "AKIAIOSFODNN7EXAMPLE",
 			SecretAccessKey:     "", // Missing
 			Region:              "us-east-1",
@@ -150,6 +151,7 @@ func TestValidateConnection_MissingRegion(t *testing.T) {
 		},
 	}
 
+	normalizeConnection(connection)
 	err := validateConnection(connection)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "Region is required")
@@ -167,6 +169,7 @@ func TestValidateConnection_MissingBucket(t *testing.T) {
 		},
 	}
 
+	normalizeConnection(connection)
 	err := validateConnection(connection)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "Bucket is required")
@@ -184,6 +187,7 @@ func TestValidateConnection_EmptyIdentityStoreOk(t *testing.T) {
 		},
 	}
 
+	normalizeConnection(connection)
 	err := validateConnection(connection)
 	assert.NoError(t, err)
 }
@@ -200,6 +204,7 @@ func TestValidateConnection_IdentityStoreRegionWithoutId(t *testing.T) {
 		},
 	}
 
+	normalizeConnection(connection)
 	err := validateConnection(connection)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "IdentityStoreRegion")
@@ -217,6 +222,7 @@ func TestValidateConnection_IdentityStoreIdWithoutRegion(t *testing.T) {
 		},
 	}
 
+	normalizeConnection(connection)
 	err := validateConnection(connection)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "IdentityStoreId provided but IdentityStoreRegion is empty")
@@ -235,6 +241,7 @@ func TestValidateConnection_InvalidRateLimit(t *testing.T) {
 		},
 	}
 
+	normalizeConnection(connection)
 	err := validateConnection(connection)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "RateLimitPerHour must be positive")
@@ -253,6 +260,7 @@ func TestValidateConnection_DefaultRateLimit(t *testing.T) {
 		},
 	}
 
+	normalizeConnection(connection)
 	err := validateConnection(connection)
 	assert.NoError(t, err)
 	assert.Equal(t, 20000, connection.RateLimitPerHour) // Should be set to default

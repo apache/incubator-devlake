@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/identitystore"
 
 	"github.com/apache/incubator-devlake/plugins/q_dev/models"
@@ -48,18 +46,7 @@ func NewQDevIdentityClient(connection *models.QDevConnection) (*QDevIdentityClie
 	}
 
 	// Create AWS session with Identity Store region and credentials
-	cfg := &aws.Config{
-		Region: aws.String(connection.IdentityStoreRegion),
-	}
-	// Only set static credentials for access_key auth; IAM role uses the default credential chain
-	if !connection.IsIAMRoleAuth() {
-		cfg.Credentials = credentials.NewStaticCredentials(
-			connection.AccessKeyId,
-			connection.SecretAccessKey,
-			"",
-		)
-	}
-	sess, err := session.NewSession(cfg)
+	sess, err := newAWSSession(connection, connection.IdentityStoreRegion)
 	if err != nil {
 		return nil, err
 	}

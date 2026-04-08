@@ -22,6 +22,12 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+// Auth type constants for AWS authentication
+const (
+	AuthTypeAccessKey = "access_key"
+	AuthTypeIAMRole   = "iam_role"
+)
+
 // QDevConn holds the essential information to connect to AWS S3
 type QDevConn struct {
 	// AuthType determines how to authenticate with AWS: "access_key" or "iam_role"
@@ -46,7 +52,7 @@ type QDevConn struct {
 
 // IsIAMRoleAuth returns true if the connection uses IAM role authentication
 func (conn *QDevConn) IsIAMRoleAuth() bool {
-	return conn.AuthType == "iam_role"
+	return conn.AuthType == AuthTypeIAMRole
 }
 
 func (conn *QDevConn) Sanitize() QDevConn {

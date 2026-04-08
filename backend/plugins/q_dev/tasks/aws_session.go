@@ -18,24 +18,25 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+
 	"github.com/apache/incubator-devlake/plugins/q_dev/models"
-	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func NewQDevS3Client(taskCtx plugin.TaskContext, connection *models.QDevConnection) (*QDevS3Client, errors.Error) {
-	// Create AWS session
-	sess, err := newAWSSession(connection, connection.Region)
-	if err != nil {
-		return nil, errors.Convert(err)
+// newAWSSession creates an AWS session for the given connection and region.
+// For access_key auth, static credentials are used; for iam_role, the default credential chain is used.
+func newAWSSession(conn *models.QDevConnection, region string) (*session.Session, error) {
+	cfg := &aws.Config{
+		Region: aws.String(region),
 	}
-
-	// 创建S3服务客户端
-	s3Client := s3.New(sess)
-
-	return &QDevS3Client{
-		S3:     s3Client,
-		Bucket: connection.Bucket,
-	}, nil
+	if !conn.IsIAMRoleAuth() {
+		cfg.Credentials = credentials.NewStaticCredentials(
+			conn.AccessKeyId,
+			conn.SecretAccessKey,
+			"",
+		)
+	}
+	return session.NewSession(cfg)
 }
