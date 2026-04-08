@@ -20,19 +20,17 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
 	"strconv"
 	"sync"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
+
 	"github.com/merico-ai/graphql"
 )
-
-// GraphqlClientOption is a function that configures a GraphqlAsyncClient
-type GraphqlClientOption func(*GraphqlAsyncClient)
 
 // GraphqlAsyncClient send graphql one by one
 type GraphqlAsyncClient struct {
@@ -62,7 +60,7 @@ func CreateAsyncGraphqlClient(
 	graphqlClient *graphql.Client,
 	logger log.Logger,
 	getRateRemaining func(context.Context, *graphql.Client, log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error),
-	opts ...GraphqlClientOption,
+	opts ...func(*GraphqlAsyncClient),
 ) (*GraphqlAsyncClient, errors.Error) {
 	ctxWithCancel, cancel := context.WithCancel(taskCtx.GetContext())
 
@@ -83,7 +81,7 @@ func CreateAsyncGraphqlClient(
 
 	// Env config wins over everything, only if explicitly set
 	if rateLimit := resolveRateLimit(taskCtx, logger); rateLimit != -1 {
-    	logger.Info("GRAPHQL_RATE_LIMIT env override applied: %d (was %d)", rateLimit, graphqlAsyncClient.rateRemaining)
+		logger.Info("GRAPHQL_RATE_LIMIT env override applied: %d (was %d)", rateLimit, graphqlAsyncClient.rateRemaining)
 		graphqlAsyncClient.rateRemaining = rateLimit
 	}
 
@@ -156,7 +154,7 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 		case <-time.After(nextDuring):
 			newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
 			if err != nil {
-				apiClient.logger.Warn(err, "failed to update graphql rate limit, will retry next cycle")
+				apiClient.logger.Info("failed to update graphql rate limit, will retry next cycle: %v", err)
 				apiClient.updateRateRemaining(apiClient.rateRemaining, nil)
 				return
 			}
@@ -254,7 +252,7 @@ func (apiClient *GraphqlAsyncClient) Release() {
 // WithFallbackRateLimit sets the initial/fallback rate limit used when
 // rate limit information cannot be fetched dynamically.
 // This value may be overridden later by getRateRemaining.
-func WithFallbackRateLimit(limit int) GraphqlClientOption {
+func WithFallbackRateLimit(limit int) func(*GraphqlAsyncClient) {
 	return func(c *GraphqlAsyncClient) {
 		if limit > 0 {
 			c.rateRemaining = limit
@@ -264,11 +262,11 @@ func WithFallbackRateLimit(limit int) GraphqlClientOption {
 
 // resolveRateLimit returns -1 if GRAPHQL_RATE_LIMIT is not set or invalid
 func resolveRateLimit(taskCtx plugin.TaskContext, logger log.Logger) int {
-    if v := taskCtx.GetConfig("GRAPHQL_RATE_LIMIT"); v != "" {
-        if parsed, err := strconv.Atoi(v); err == nil {
-            return parsed
-        }
-        logger.Warn(nil, "invalid GRAPHQL_RATE_LIMIT, using default")
-    }
-    return -1
+	if v := taskCtx.GetConfig("GRAPHQL_RATE_LIMIT"); v != "" {
+		if parsed, err := strconv.Atoi(v); err == nil {
+			return parsed
+		}
+		logger.Warn(nil, "invalid GRAPHQL_RATE_LIMIT, using default")
+	}
+	return -1
 }
