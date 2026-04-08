@@ -87,7 +87,7 @@ func CollectOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Incremental:   true,
 		Concurrency:   1,
-		AfterResponse: ignore404,
+		AfterResponse: ignoreNoContent,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, readErr := io.ReadAll(res.Body)
 			res.Body.Close()
@@ -97,7 +97,17 @@ func CollectOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 
 			var meta reportMetadataResponse
 			if jsonErr := json.Unmarshal(body, &meta); jsonErr != nil {
+				snippet := string(body)
+				if len(snippet) > 200 {
+					snippet = snippet[:200]
+				}
+				logger.Error(jsonErr, "failed to parse report metadata, body=%s", snippet)
 				return nil, errors.Default.Wrap(jsonErr, "failed to parse report metadata")
+			}
+
+			if len(meta.DownloadLinks) == 0 {
+				logger.Info("No download links for report day=%s, skipping", meta.ReportDay)
+				return nil, nil
 			}
 
 			var results []json.RawMessage
