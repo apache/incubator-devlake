@@ -190,7 +190,6 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 				return 0, nil, errors.Default.Wrap(dataErrors[0], `query rate limit fail`)
 			}
 			if query.RateLimit == nil {
-				logger.Info(`github graphql rate limit unavailable, using fallback rate limit`)
 				return 0, nil, errors.Default.New("rate limit unavailable")
 			}
 			logger.Info(`github graphql init success with remaining %d/%d and will reset at %s`,

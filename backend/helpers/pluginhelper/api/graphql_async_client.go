@@ -90,7 +90,7 @@ func CreateAsyncGraphqlClient(
 	if getRateRemaining != nil {
 		rateRemaining, resetAt, err := getRateRemaining(taskCtx.GetContext(), graphqlClient, logger)
 		if err != nil {
-			graphqlAsyncClient.logger.Warn(err, "failed to fetch initial graphql rate limit, fallback to default")
+			graphqlAsyncClient.logger.Info("failed to fetch initial graphql rate limit, fallback to default: %v", err)
 			graphqlAsyncClient.updateRateRemaining(graphqlAsyncClient.rateRemaining, nil)
 		} else {
 			graphqlAsyncClient.updateRateRemaining(rateRemaining, resetAt)
