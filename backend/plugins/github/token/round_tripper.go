@@ -20,7 +20,7 @@ package token
 import (
 	"net/http"
 	"strings"
-    "sync/atomic"
+	"sync/atomic"
 )
 
 // RefreshRoundTripper is an HTTP transport middleware that automatically manages OAuth token refreshes.

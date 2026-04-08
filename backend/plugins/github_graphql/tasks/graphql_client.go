@@ -20,16 +20,17 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/log"
-	"net/url"
 	"net/http"
+	"net/url"
 	"time"
 
+	"github.com/merico-ai/graphql"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/merico-ai/graphql"
 )
 
 func CreateGraphqlClient(
