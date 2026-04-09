@@ -56,9 +56,7 @@ export const getPluginScopeName = (plugin: string, scope: any) => {
   if (plugin === 'claude_code') {
     const scopeData = scope.data ?? scope;
 
-    return `${
-      scopeData.organization ?? scope.organization ?? scope.fullName ?? scope.name ?? scope.id ?? ''
-    }`.trim();
+    return `${scopeData.organization ?? scope.organization ?? scope.fullName ?? scope.name ?? scope.id ?? ''}`.trim();
   }
 
   if (plugin === 'gh-copilot') {

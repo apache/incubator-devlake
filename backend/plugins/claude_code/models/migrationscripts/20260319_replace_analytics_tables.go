@@ -27,8 +27,8 @@ import (
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// replaceClaudeCodeAnalyticsTables drops the old deprecated endpoint tables and
-// creates the five new analytics endpoint tables.
+// replaceClaudeCodeAnalyticsTables creates the five analytics endpoint tables
+// and their raw ingestion tables for the updated API surface.
 type replaceClaudeCodeAnalyticsTables struct{}
 
 func (*replaceClaudeCodeAnalyticsTables) Up(basicRes context.BasicRes) errors.Error {

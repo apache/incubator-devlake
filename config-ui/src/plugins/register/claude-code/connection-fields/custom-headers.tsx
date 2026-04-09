@@ -21,6 +21,8 @@ import { Button, Input } from 'antd';
 
 import { Block } from '@/components';
 
+import * as S from './styled';
+
 interface Props {
   type: 'create' | 'update';
   initialValues: any;
@@ -29,12 +31,27 @@ interface Props {
   setErrors: (value: any) => void;
 }
 
-export const CustomHeaders = ({ type, initialValues, values, setValues }: Props) => {
+export const CustomHeaders = ({ type, initialValues, values, setValues, setErrors }: Props) => {
   const headers: Array<{ key: string; value: string }> = values.customHeaders ?? [];
+  const hasIncompleteHeaders = headers.some((header) => {
+    const hasKey = !!header.key?.trim();
+    const hasValue = !!header.value?.trim();
+    return hasKey !== hasValue;
+  });
 
   useEffect(() => {
-    setValues({ customHeaders: initialValues.customHeaders ?? [] });
+    setValues({
+      customHeaders: (initialValues.customHeaders ?? []).filter(
+        (header: { key: string; value: string }) => header.key?.trim() || header.value?.trim(),
+      ),
+    });
   }, [type, initialValues.customHeaders]);
+
+  useEffect(() => {
+    setErrors({
+      customHeaders: hasIncompleteHeaders ? 'Each custom header must include both a name and a value.' : '',
+    });
+  }, [hasIncompleteHeaders]);
 
   const addHeader = () => {
     setValues({ customHeaders: [...headers, { key: '', value: '' }] });
@@ -56,7 +73,10 @@ export const CustomHeaders = ({ type, initialValues, values, setValues }: Props)
       description="Add custom HTTP headers for middleware or proxy authentication (e.g. Ocp-Apim-Subscription-Key). Required when not using an Anthropic API Key."
     >
       {headers.map((header, index) => (
-        <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+        <div
+          key={`${header.key}:${header.value}`}
+          style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}
+        >
           <Input
             style={{ width: 180 }}
             placeholder="Header name"
@@ -72,6 +92,7 @@ export const CustomHeaders = ({ type, initialValues, values, setValues }: Props)
           <Button onClick={() => removeHeader(index)}>Remove</Button>
         </div>
       ))}
+      {hasIncompleteHeaders && <S.ErrorText>Each custom header must include both a name and a value.</S.ErrorText>}
       <Button onClick={addHeader}>+ Add Header</Button>
     </Block>
   );

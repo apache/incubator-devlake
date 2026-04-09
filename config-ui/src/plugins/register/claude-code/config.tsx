@@ -49,13 +49,7 @@ export const ClaudeCodeConfig: IPluginConfig = {
         />
       ),
       ({ type, initialValues, values, setValues, setErrors }: any) => (
-        <Token
-          type={type}
-          initialValues={initialValues}
-          values={values}
-          setValues={setValues}
-          setErrors={setErrors}
-        />
+        <Token type={type} initialValues={initialValues} values={values} setValues={setValues} setErrors={setErrors} />
       ),
       ({ type, initialValues, values, setValues, setErrors }: any) => (
         <CustomHeaders

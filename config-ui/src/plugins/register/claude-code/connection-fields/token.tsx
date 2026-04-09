@@ -33,16 +33,20 @@ interface Props {
 
 export const Token = ({ type, initialValues, values, setValues, setErrors }: Props) => {
   useEffect(() => {
-    setValues({ token: type === 'create' ? (initialValues.token ?? '') : undefined });
+    setValues({ token: type === 'create' ? initialValues.token ?? '' : undefined });
   }, [type, initialValues.token]);
 
-  const hasCustomHeaders = (values.customHeaders ?? []).length > 0;
+  const customHeaders: Array<{ key: string; value: string }> = values.customHeaders ?? [];
+  const hasValidCustomHeaders = customHeaders.some((h) => h.key?.trim() && h.value?.trim());
+  const hasIncompleteCustomHeaders = !hasValidCustomHeaders && customHeaders.length > 0;
 
   const error = useMemo(() => {
     if (type === 'update') return '';
-    if (hasCustomHeaders) return '';
+    if (hasIncompleteCustomHeaders)
+      return 'Custom headers are present but none have both a key and a value. Please complete or remove them, or provide an Anthropic API Key.';
+    if (hasValidCustomHeaders) return '';
     return values.token?.trim() ? '' : 'Anthropic API Key is required (unless custom headers are configured)';
-  }, [type, values.token, hasCustomHeaders]);
+  }, [type, values.token, hasValidCustomHeaders, hasIncompleteCustomHeaders]);
 
   useEffect(() => {
     setErrors({ token: error });
@@ -52,7 +56,7 @@ export const Token = ({ type, initialValues, values, setValues, setErrors }: Pro
     <Block
       title="Anthropic API Key"
       description="Use an Anthropic API key with permission to read Claude Code usage reports for the selected organization."
-      required={!hasCustomHeaders}
+      required={!hasValidCustomHeaders}
     >
       <Input.Password
         style={{ width: 386 }}

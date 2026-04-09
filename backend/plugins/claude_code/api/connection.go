@@ -96,7 +96,10 @@ func validateConnection(connection *models.ClaudeCodeConnection) errors.Error {
 		return errors.BadInput.New("connection is required")
 	}
 	hasToken := strings.TrimSpace(connection.Token) != ""
-	hasCustomHeaders := len(connection.CustomHeaders) > 0
+	if connection.HasIncompleteCustomHeaders() {
+		return errors.BadInput.New("custom headers must include both key and value")
+	}
+	hasCustomHeaders := connection.HasUsableCustomHeaders()
 	if !hasToken && !hasCustomHeaders {
 		return errors.BadInput.New("either token or at least one custom header is required")
 	}

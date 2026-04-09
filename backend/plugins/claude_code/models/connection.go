@@ -50,6 +50,32 @@ type ClaudeCodeConn struct {
 	CustomHeaders []CustomHeader `mapstructure:"customHeaders" json:"customHeaders" gorm:"type:json;serializer:json"`
 }
 
+func (conn *ClaudeCodeConn) HasUsableCustomHeaders() bool {
+	if conn == nil {
+		return false
+	}
+	for _, header := range conn.CustomHeaders {
+		if strings.TrimSpace(header.Key) != "" && strings.TrimSpace(header.Value) != "" {
+			return true
+		}
+	}
+	return false
+}
+
+func (conn *ClaudeCodeConn) HasIncompleteCustomHeaders() bool {
+	if conn == nil {
+		return false
+	}
+	for _, header := range conn.CustomHeaders {
+		hasKey := strings.TrimSpace(header.Key) != ""
+		hasValue := strings.TrimSpace(header.Value) != ""
+		if hasKey != hasValue {
+			return true
+		}
+	}
+	return false
+}
+
 // SetupAuthentication implements plugin.ApiAuthenticator so helper.NewApiClientFromConnection
 // can attach the required headers for Anthropic Admin API requests.
 //
@@ -68,7 +94,7 @@ func (conn *ClaudeCodeConn) SetupAuthentication(request *http.Request) errors.Er
 	}
 
 	for _, h := range conn.CustomHeaders {
-		if strings.TrimSpace(h.Key) != "" {
+		if strings.TrimSpace(h.Key) != "" && strings.TrimSpace(h.Value) != "" {
 			request.Header.Set(h.Key, h.Value)
 		}
 	}
@@ -117,6 +143,16 @@ func (connection *ClaudeCodeConnection) Normalize() {
 	if connection.RateLimitPerHour <= 0 {
 		connection.RateLimitPerHour = DefaultRateLimitPerHour
 	}
+	normalizedHeaders := make([]CustomHeader, 0, len(connection.CustomHeaders))
+	for _, header := range connection.CustomHeaders {
+		key := strings.TrimSpace(header.Key)
+		value := strings.TrimSpace(header.Value)
+		if key == "" && value == "" {
+			continue
+		}
+		normalizedHeaders = append(normalizedHeaders, CustomHeader{Key: key, Value: header.Value})
+	}
+	connection.CustomHeaders = normalizedHeaders
 }
 
 // MergeFromRequest applies a partial update from an HTTP PATCH body,

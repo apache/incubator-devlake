@@ -88,6 +88,38 @@ func TestValidateConnectionCustomHeadersWithoutToken(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestValidateConnectionRejectsBlankCustomHeaders(t *testing.T) {
+	connection := &models.ClaudeCodeConnection{
+		ClaudeCodeConn: models.ClaudeCodeConn{
+			Organization: testOrganization,
+			CustomHeaders: []models.CustomHeader{
+				{Key: "", Value: ""},
+			},
+		},
+	}
+	connection.Normalize()
+
+	err := validateConnection(connection)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "either token or at least one custom header is required")
+}
+
+func TestValidateConnectionRejectsIncompleteCustomHeaders(t *testing.T) {
+	connection := &models.ClaudeCodeConnection{
+		ClaudeCodeConn: models.ClaudeCodeConn{
+			Organization: testOrganization,
+			CustomHeaders: []models.CustomHeader{
+				{Key: "Ocp-Apim-Subscription-Key", Value: ""},
+			},
+		},
+	}
+	connection.Normalize()
+
+	err := validateConnection(connection)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "custom headers must include both key and value")
+}
+
 func TestValidateConnectionInvalidRateLimit(t *testing.T) {
 	connection := &models.ClaudeCodeConnection{
 		ClaudeCodeConn: models.ClaudeCodeConn{

@@ -49,12 +49,15 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 	connection.Normalize()
 
 	hasToken := strings.TrimSpace(connection.Token) != ""
-	hasCustomHeaders := len(connection.CustomHeaders) > 0
+	if connection.HasIncompleteCustomHeaders() {
+		return nil, errors.BadInput.New("custom headers must include both key and value")
+	}
+	hasCustomHeaders := connection.HasUsableCustomHeaders()
 	if !hasToken && !hasCustomHeaders {
 		return nil, errors.BadInput.New("either token or at least one custom header is required")
 	}
 	if strings.TrimSpace(connection.Organization) == "" {
-		return nil, errors.BadInput.New("organizationId is required")
+		return nil, errors.BadInput.New("organization is required")
 	}
 
 	apiClient, err := helper.NewApiClientFromConnection(ctx, br, connection)
@@ -62,9 +65,9 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 		return nil, err
 	}
 
-	// Use today's date for the test request.
-	today := time.Now().UTC().Format("2006-01-02")
-	endpoint := fmt.Sprintf("v1/organizations/usage_report/claude_code?starting_at=%s&limit=1", today)
+	// Use a date safely outside the analytics availability lag window for the test request.
+	testDate := time.Now().UTC().AddDate(0, 0, -7).Format("2006-01-02")
+	endpoint := fmt.Sprintf("v1/organizations/usage_report/claude_code?starting_at=%s&limit=1", testDate)
 
 	res, err := apiClient.Get(endpoint, nil, nil)
 	if err != nil {
