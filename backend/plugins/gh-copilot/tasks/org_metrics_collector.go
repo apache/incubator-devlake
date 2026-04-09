@@ -20,7 +20,6 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -70,6 +69,7 @@ func CollectOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 
 	now := time.Now().UTC()
 	start, until := computeReportDateRange(now, collector.GetSince())
+	start = clampDailyMetricsStartForBackfill(start, until)
 	logger := taskCtx.GetLogger()
 
 	dayIter := newDayIterator(start, until)
@@ -89,32 +89,7 @@ func CollectOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		Concurrency:   1,
 		AfterResponse: ignore404,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			body, readErr := io.ReadAll(res.Body)
-			res.Body.Close()
-			if readErr != nil {
-				return nil, errors.Default.Wrap(readErr, "failed to read report metadata")
-			}
-			if isEmptyReport(body) {
-				return nil, nil
-			}
-
-			var meta reportMetadataResponse
-			if jsonErr := json.Unmarshal(body, &meta); jsonErr != nil {
-				return nil, errors.Default.Wrap(jsonErr, "failed to parse report metadata")
-			}
-
-			var results []json.RawMessage
-			for _, link := range meta.DownloadLinks {
-				reportBody, dlErr := downloadReport(link, logger)
-				if dlErr != nil {
-					return nil, dlErr
-				}
-				if reportBody == nil {
-					continue // blob not found, skip
-				}
-				results = append(results, json.RawMessage(reportBody))
-			}
-			return results, nil
+			return parseRawReportResponse(res, logger)
 		},
 	})
 	if err != nil {
