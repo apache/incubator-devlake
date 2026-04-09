@@ -20,10 +20,46 @@ import { redirect } from 'react-router-dom';
 import { intersection } from 'lodash';
 
 import API from '@/api';
+import { PATHS } from '@/config';
 import { getRegisterPlugins } from '@/plugins';
 
 type Props = {
   request: Request;
+};
+
+const normalizePath = (path: string) => (path.length > 1 ? path.replace(/\/+$/, '') : path);
+
+const isOrgManagementPath = (path: string) => {
+  const normalizedPath = normalizePath(path);
+  return [normalizePath(PATHS.TEAMS()), normalizePath(PATHS.USERS())].includes(normalizedPath);
+};
+
+const parseEnabledPlugins = (plugins: string[]) => {
+  const envPlugins = import.meta.env.DEVLAKE_PLUGINS;
+
+  if (typeof envPlugins !== 'string') {
+    return plugins;
+  }
+
+  const enabledPlugins = envPlugins
+    .split(',')
+    .map((plugin: string) => plugin.trim())
+    .filter(Boolean);
+
+  if (!enabledPlugins.length) {
+    return plugins;
+  }
+
+  return plugins.filter((plugin) => enabledPlugins.includes(plugin));
+};
+
+const hasOrgApis = async () => {
+  const [teamsResult, usersResult] = await Promise.allSettled([
+    API.team.list({ page: 1, pageSize: 1, grouped: false }),
+    API.user.list({ page: 1, pageSize: 1 }),
+  ]);
+
+  return teamsResult.status === 'fulfilled' && usersResult.status === 'fulfilled';
 };
 
 export const layoutLoader = async ({ request }: Props) => {
@@ -33,21 +69,20 @@ export const layoutLoader = async ({ request }: Props) => {
     return redirect('/onboard');
   }
 
-  let fePlugins = getRegisterPlugins();
+  const fePlugins = parseEnabledPlugins(getRegisterPlugins());
   const bePlugins = await API.plugin.list();
+  const bePluginNames = bePlugins.map((it) => it.plugin);
+  const orgCapabilityAvailable = bePluginNames.includes('org') && (await hasOrgApis());
 
-  try {
-    const envPlugins = import.meta.env.DEVLAKE_PLUGINS.split(',').filter(Boolean);
-    fePlugins = fePlugins.filter((plugin) => !envPlugins.length || envPlugins.includes(plugin));
-  } catch (err) {}
+  if (!orgCapabilityAvailable && isOrgManagementPath(new URL(request.url).pathname)) {
+    return redirect(PATHS.CONNECTIONS());
+  }
 
   const res = await API.version(request.signal);
 
   return {
     version: res.version,
-    plugins: intersection(
-      fePlugins,
-      bePlugins.map((it) => it.plugin),
-    ),
+    plugins: intersection(fePlugins, bePluginNames),
+    orgCapabilityAvailable,
   };
 };

@@ -28,6 +28,8 @@ import {
   Connection,
   ProjectHomePage,
   ProjectDetailPage,
+  TeamsHomePage,
+  UsersHomePage,
   BlueprintHomePage,
   BlueprintDetailPage,
   BlueprintConnectionDetailPage,
@@ -73,6 +75,14 @@ export const router = createBrowserRouter([
       {
         path: 'projects/:pname/:unique',
         element: <BlueprintConnectionDetailPage />,
+      },
+      {
+        path: 'teams',
+        element: <TeamsHomePage />,
+      },
+      {
+        path: 'users',
+        element: <UsersHomePage />,
       },
       {
         path: 'connections',

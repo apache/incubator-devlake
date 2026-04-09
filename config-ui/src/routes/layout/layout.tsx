@@ -22,6 +22,7 @@ import { Helmet } from 'react-helmet';
 import { Layout as AntdLayout, Menu, Divider } from 'antd';
 
 import { PageLoading, Logo, ExternalLink } from '@/components';
+import { PATHS } from '@/config';
 import { init, selectError, selectStatus } from '@/features';
 import { OnboardCard } from '@/routes/onboard/components';
 import { useAppDispatch, useAppSelector } from '@/hooks';
@@ -32,11 +33,17 @@ const { Sider, Header, Content, Footer } = AntdLayout;
 
 const brandName = import.meta.env.DEVLAKE_BRAND_NAME ?? 'DevLake';
 
+type LayoutLoaderData = {
+  version: string;
+  plugins: string[];
+  orgCapabilityAvailable: boolean;
+};
+
 export const Layout = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
+  const { version, plugins, orgCapabilityAvailable } = useLoaderData() as LayoutLoaderData;
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -75,6 +82,37 @@ export const Layout = () => {
     return curMenuItem?.label ?? '';
   }, [pathname]);
 
+  const filteredMenuItems = useMemo(() => {
+    if (orgCapabilityAvailable) {
+      return menuItems;
+    }
+
+    const hiddenMenuKeys = new Set([PATHS.TEAMS(), PATHS.USERS()]);
+
+    return menuItems
+      .map((item) => {
+        if (hiddenMenuKeys.has(item.key)) {
+          return null;
+        }
+
+        if (!item.children) {
+          return item;
+        }
+
+        const children = item.children.filter((child) => !hiddenMenuKeys.has(child.key));
+
+        if (children.length === 0) {
+          return null;
+        }
+
+        return {
+          ...item,
+          children,
+        };
+      })
+      .filter((item): item is (typeof menuItems)[number] => item !== null);
+  }, [orgCapabilityAvailable]);
+
   if (['idle', 'loading'].includes(status)) {
     return <PageLoading />;
   }
@@ -102,7 +140,7 @@ export const Layout = () => {
         <Menu
           mode="inline"
           theme="dark"
-          items={menuItems}
+          items={filteredMenuItems}
           openKeys={openKeys}
           selectedKeys={selectedKeys}
           onClick={({ key }) => navigate(key)}
