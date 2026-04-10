@@ -84,7 +84,7 @@ unit-test-go:
 	scripts/unit-test-go.sh
 
 build-pydevlake:
-	poetry install -C python/pydevlake
+	sh python/uv.sh sync python/pydevlake
 
 unit-test-python: build-pydevlake
 	sh python/build.sh python/test &&\

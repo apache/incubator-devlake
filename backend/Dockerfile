@@ -143,14 +143,14 @@ RUN mkdir logs
 VOLUME /app/logs
 
 # Setup Python
-COPY python/ /app/python/
+COPY --chown=devlake:devlake python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
     python3 -m pip install --upgrade pip
 
-# Setup Python Poetry package manager
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 2.2.1
-ENV PATH="$PATH:/app/.local/bin"
+# Setup Python package manager
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL=/app/.local/bin sh
+ENV PATH="/app/.local/bin:${PATH}"
 
 # Build Python plugins, make sure the scripts has execute permission
 # RUN find /app/python/ -name "*.sh" | xargs -I{} chmod +x {}
@@ -182,4 +182,3 @@ USER devlake
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["lake"]
-
