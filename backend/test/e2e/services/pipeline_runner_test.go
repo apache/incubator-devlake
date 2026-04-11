@@ -163,4 +163,21 @@ func TestComputePipelineStatus(t *testing.T) {
 	status, err = services.ComputePipelineStatus(pipeline, false)
 	assert.Nil(t, err)
 	assert.Equal(t, models.TASK_PARTIAL, status)
+
+	// pipeline.status == "cancelled" if the pipeline was cancelled by the user
+	// regardless of individual task statuses
+	task_row1_col1_rerun.Status = models.TASK_COMPLETED
+	err = db.Update(task_row1_col1_rerun)
+	assert.Nil(t, err)
+	status, err = services.ComputePipelineStatus(pipeline, true)
+	assert.Nil(t, err)
+	assert.Equal(t, models.TASK_CANCELLED, status)
+
+	// pipeline.status == "cancelled" even when some tasks failed
+	task_row1_col1_rerun.Status = models.TASK_FAILED
+	err = db.Update(task_row1_col1_rerun)
+	assert.Nil(t, err)
+	status, err = services.ComputePipelineStatus(pipeline, true)
+	assert.Nil(t, err)
+	assert.Equal(t, models.TASK_CANCELLED, status)
 }
