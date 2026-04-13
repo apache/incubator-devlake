@@ -461,39 +461,54 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 	if count == 0 {
 		return nil
 	}
-	// Separate running tasks (need context cancellation) from non-running tasks
-	// (non-running tasks have no context to cancel; update their status directly in DB)
-	var nonRunningTaskIds []uint64
-	var failedCancels int
-	for _, pendingTask := range pendingTasks {
-		if pendingTask.Status == models.TASK_RUNNING {
-			if err := CancelTask(pendingTask.ID); err != nil {
-				if err.As(errors.NotFound) != nil {
-					// Task already finished between our DB read and cancel attempt
-					continue
-				}
-				globalPipelineLog.Error(err, "failed to cancel running task #%d", pendingTask.ID)
-				failedCancels++
-			}
+	var runningTaskIds []uint64
+	var pendingTaskIds []uint64
+	for _, task := range pendingTasks {
+		if task.Status == models.TASK_RUNNING {
+			runningTaskIds = append(runningTaskIds, task.ID)
 		} else {
-			nonRunningTaskIds = append(nonRunningTaskIds, pendingTask.ID)
+			pendingTaskIds = append(pendingTaskIds, task.ID)
 		}
 	}
-	if len(nonRunningTaskIds) > 0 {
-		err = db.UpdateColumn(
-			&models.Task{},
-			"status", models.TASK_CANCELLED,
-			dal.Where("id IN ? AND status IN ?", nonRunningTaskIds, []string{models.TASK_CREATED, models.TASK_RERUN}),
-		)
-		if err != nil {
-			globalPipelineLog.Error(err, "failed to cancel %d pending tasks in DB", len(nonRunningTaskIds))
-			failedCancels += len(nonRunningTaskIds)
-		}
-	}
+	failedCancels := cancelRunningTasks(runningTaskIds) + cancelPendingTasksInDB(pendingTaskIds)
 	if failedCancels > 0 {
-		return errors.Default.New(fmt.Sprintf("failed to cancel %d task(s)", failedCancels))
+		return errors.Default.New(fmt.Sprintf("failed to cancel %d task(s) for pipeline #%d", failedCancels, pipelineId))
 	}
 	return nil
+}
+
+// cancelRunningTasks cancels tasks that are actively running by triggering
+// their context cancellation. Returns the number of tasks that failed to cancel.
+func cancelRunningTasks(taskIds []uint64) int {
+	failCount := 0
+	for _, taskId := range taskIds {
+		if err := CancelTask(taskId); err != nil {
+			if err.GetType() == errors.NotFound {
+				continue // task no longer tracked in-memory (finished or context lost after restart)
+			}
+			globalPipelineLog.Error(err, "failed to cancel running task #%d", taskId)
+			failCount++
+		}
+	}
+	return failCount
+}
+
+// cancelPendingTasksInDB marks non-running pending tasks as cancelled directly
+// in the database. Returns the number of tasks that failed to update.
+func cancelPendingTasksInDB(taskIds []uint64) int {
+	if len(taskIds) == 0 {
+		return 0
+	}
+	err := db.UpdateColumn(
+		&models.Task{},
+		"status", models.TASK_CANCELLED,
+		dal.Where("id IN ? AND status IN ?", taskIds, []string{models.TASK_CREATED, models.TASK_RERUN, models.TASK_RESUME}),
+	)
+	if err != nil {
+		globalPipelineLog.Error(err, "failed to cancel %d pending tasks in DB", len(taskIds))
+		return len(taskIds)
+	}
+	return 0
 }
 
 // getPipelineLogsPath gets the logs directory of this pipeline
