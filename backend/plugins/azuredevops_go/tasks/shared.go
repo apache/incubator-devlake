@@ -148,13 +148,6 @@ func change203To401(res *http.Response) errors.Error {
 	return nil
 }
 
-func ignoreDeletedBuilds(res *http.Response) errors.Error {
-	if res.StatusCode == http.StatusNotFound {
-		return api.ErrIgnoreAndContinue
-	}
-	return nil
-}
-
 // ignoreInvalidTimelineResponse is an AfterResponse handler for the Timeline API.
 // It skips builds whose timeline response is missing or unparseable (e.g. builds
 // that failed due to a YAML syntax error never produce a usable timeline), instead
