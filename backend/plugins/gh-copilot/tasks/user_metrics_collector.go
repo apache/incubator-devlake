@@ -92,12 +92,15 @@ func CollectUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Incremental:   true,
 		Concurrency:   1,
-		AfterResponse: ignore404,
+		AfterResponse: ignoreNoContent,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, readErr := io.ReadAll(res.Body)
 			res.Body.Close()
 			if readErr != nil {
 				return nil, errors.Default.Wrap(readErr, "failed to read report metadata")
+			}
+			if isEmptyReport(body) {
+				return nil, nil
 			}
 
 			var meta reportMetadataResponse

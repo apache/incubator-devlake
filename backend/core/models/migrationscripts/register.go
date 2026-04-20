@@ -143,5 +143,6 @@ func All() []plugin.MigrationScript {
 		new(addPipelinePriority),
 		new(fixNullPriority),
 		new(modifyCicdDeploymentsToText),
+		new(increaseCqIssuesProjectKeyLength),
 	}
 }
