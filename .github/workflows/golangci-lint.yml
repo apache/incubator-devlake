@@ -23,16 +23,20 @@ on:
     branches:
       - main
   pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   golangci:
     name: lint
     runs-on: ubuntu-latest
+    # TODO: Pin to specific version tag for reproducibility (e.g., mericodev/lake-builder:builder-vX.X.X)
     container: mericodev/lake-builder:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Cache golangci-lint
         id: cache-golangci-lint
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: golangci-lint
           key: ${{ runner.os }}-backend-golangci-lint
@@ -44,5 +48,5 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.53.3
+          version: v1.63.4
           working-directory: ./backend

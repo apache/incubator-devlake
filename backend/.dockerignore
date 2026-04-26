@@ -1,0 +1,6 @@
+mocks/
+bin/
+*.test
+.env
+.env.*
+logs/

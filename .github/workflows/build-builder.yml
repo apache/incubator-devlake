@@ -25,8 +25,8 @@ jobs:
     name: Build lake-builder image
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+    - uses: actions/checkout@v4
+    - uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}

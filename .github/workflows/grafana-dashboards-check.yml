@@ -21,14 +21,16 @@ on:
     branches:
       - main
       - release-*
-
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   check-grafana-dashboards:
     name: check grafana dashboards
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Check grafana dashboards whether using mysql uid
         run: |
           if grep '"type": "mysql"' grafana/dashboards/*; then
