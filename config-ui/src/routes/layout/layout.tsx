@@ -19,8 +19,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Layout as AntdLayout, Menu, Divider } from 'antd';
+import { Layout as AntdLayout, Menu, Divider, Dropdown, Button } from 'antd';
+import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 
+import API from '@/api';
 import { PageLoading, Logo, ExternalLink } from '@/components';
 import { init, selectError, selectStatus } from '@/features';
 import { OnboardCard } from '@/routes/onboard/components';
@@ -36,7 +38,24 @@ export const Layout = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const { version, plugins } = useLoaderData() as { version: string; plugins: string[] };
+  const { version, plugins, user } = useLoaderData() as {
+    version: string;
+    plugins: string[];
+    user: { authenticated: boolean; name: string; email: string } | null;
+  };
+
+  const handleLogout = async () => {
+    try {
+      const res = await API.auth.logout();
+      if (res.logoutUrl) {
+        window.location.href = res.logoutUrl;
+        return;
+      }
+    } catch (e) {
+      // fall through to /login regardless
+    }
+    window.location.href = '/login';
+  };
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -134,6 +153,28 @@ export const Layout = () => {
                 {i !== arr.length - 1 && <Divider type="vertical" />}
               </ExternalLink>
             ))}
+          {user?.authenticated && (
+            <>
+              <Divider type="vertical" />
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'logout',
+                      icon: <LogoutOutlined />,
+                      label: 'Sign out',
+                      onClick: handleLogout,
+                    },
+                  ],
+                }}
+                placement="bottomRight"
+              >
+                <Button type="text" icon={<UserOutlined />}>
+                  {user.name || user.email || 'Account'}
+                </Button>
+              </Dropdown>
+            </>
+          )}
         </Header>
         <Content style={{ overflowY: 'auto' }}>
           <div style={{ padding: 24, margin: '0 auto', maxWidth: 1280 }}>

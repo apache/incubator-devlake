@@ -16,14 +16,29 @@
  *
  */
 
-export * from './api-keys';
-export * from './blueprint';
-export * from './connection';
-export * from './db-migrate';
-export * from './error';
-export * from './layout';
-export * from './login';
-export * from './not-found';
-export * from './onboard';
-export * from './pipeline';
-export * from './project';
+import { request } from '@/utils';
+
+export type Provider = {
+  name: string;
+  displayName: string;
+  loginUrl: string;
+};
+
+export type Methods = {
+  providers?: Provider[];
+  apiKey?: {
+    enabled: boolean;
+  };
+};
+
+export type UserInfo = {
+  authenticated: boolean;
+  name: string;
+  email: string;
+};
+
+export const methods = (): Promise<Methods> => request('/auth/methods');
+
+export const userinfo = (): Promise<UserInfo> => request('/auth/userinfo');
+
+export const logout = (): Promise<{ ok: boolean; logoutUrl?: string }> => request('/auth/logout', { method: 'POST' });
