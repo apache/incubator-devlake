@@ -21,8 +21,27 @@ import { request } from '@/utils';
 
 import { SubTasksRes } from './types';
 
+type CreatePipelineTask = {
+  plugin: string;
+  subtasks?: string[];
+  options?: Record<string, unknown>;
+};
+
+type CreatePipelineRequest = {
+  name: string;
+  plan: CreatePipelineTask[][];
+  labels?: string[];
+  priority?: number;
+};
+
 export const list = (params: Pagination): Promise<{ count: number; pipelines: IPipeline[] }> =>
   request('/pipelines', { data: params });
+
+export const create = (data: CreatePipelineRequest): Promise<IPipeline> =>
+  request('/pipelines', {
+    method: 'post',
+    data,
+  });
 
 export const get = (id: ID) => request(`/pipelines/${id}`);
 

@@ -16,15 +16,18 @@
  *
  */
 
-export * from './api-keys';
-export * from './blueprint';
-export * from './connection';
-export * from './db-migrate';
-export * from './error';
-export * from './layout';
-export * from './not-found';
-export * from './onboard';
-export * from './pipeline';
-export * from './project';
-export * from './teams';
-export * from './users';
+export interface ITeam {
+  id: string;
+  name: string;
+  alias: string;
+  parentId: string;
+  sortingIndex: number;
+  userCount?: number;
+  children?: ITeam[];
+}
+
+export interface ITeamUsers {
+  teamId: string;
+  userIds: string[];
+  count: number;
+}

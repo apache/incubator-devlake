@@ -19,6 +19,7 @@
 import {
   AppstoreOutlined,
   ProjectOutlined,
+  TeamOutlined,
   ExperimentOutlined,
   KeyOutlined,
   DashboardOutlined,
@@ -49,6 +50,21 @@ export const menuItems: MenuItem[] = [
     key: `${PATH_PREFIX}/connections`,
     label: 'Connections',
     icon: <AppstoreOutlined />,
+  },
+  {
+    key: `${PATH_PREFIX}/organization`,
+    label: 'Organization',
+    icon: <TeamOutlined />,
+    children: [
+      {
+        key: `${PATH_PREFIX}/teams`,
+        label: 'Teams',
+      },
+      {
+        key: `${PATH_PREFIX}/users`,
+        label: 'Users',
+      },
+    ],
   },
   {
     key: `${PATH_PREFIX}/advanced`,

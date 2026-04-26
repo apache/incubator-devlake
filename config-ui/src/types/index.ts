@@ -26,4 +26,6 @@ export * from './project';
 export * from './scope-config';
 export * from './status';
 export * from './task';
+export * from './team';
+export * from './user';
 export * from './webhook';

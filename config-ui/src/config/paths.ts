@@ -34,4 +34,6 @@ export const PATHS = {
     `${PATH_PREFIX}/advanced/blueprints/${bid}/${plugin}-${connectionId}`,
   PIPELINES: () => `${PATH_PREFIX}/advanced/pipelines`,
   APIKEYS: () => `${PATH_PREFIX}/keys`,
+  TEAMS: () => `${PATH_PREFIX}/teams`,
+  USERS: () => `${PATH_PREFIX}/users`,
 };

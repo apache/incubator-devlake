@@ -78,10 +78,10 @@ var fakeProjectMapping = []projectMapping{
 }
 
 type user struct {
-	Id      string
-	Name    string
-	Email   string
-	TeamIds string
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	TeamIds string `json:"teamIds"`
 }
 
 func (*user) fromDomainLayer(users []crossdomain.User, teamUsers []crossdomain.TeamUser) []user {
@@ -205,11 +205,11 @@ func (au *userAccount) fromDomainLayer(accountUsers []crossdomain.UserAccount) [
 }
 
 type team struct {
-	Id           string
-	Name         string
-	Alias        string
-	ParentId     string
-	SortingIndex int
+	Id           string `json:"id"`
+	Name         string `json:"name"`
+	Alias        string `json:"alias"`
+	ParentId     string `json:"parentId"`
+	SortingIndex int    `json:"sortingIndex"`
 }
 
 func (*team) fromDomainLayer(tt []crossdomain.Team) []team {

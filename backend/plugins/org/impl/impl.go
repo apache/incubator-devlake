@@ -121,5 +121,31 @@ func (p Org) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": p.handlers.GetProjectMapping,
 			"PUT": p.handlers.CreateProjectMapping,
 		},
+		"teams": {
+			"GET":  p.handlers.ListTeams,
+			"POST": p.handlers.CreateTeams,
+		},
+		"teams/:teamId": {
+			"GET":    p.handlers.GetTeamById,
+			"PUT":    p.handlers.UpdateTeamById,
+			"DELETE": p.handlers.DeleteTeamById,
+		},
+		"teams/:teamId/users": {
+			"GET": p.handlers.GetTeamUsersByTeamId,
+			"PUT": p.handlers.UpdateTeamUsersByTeamId,
+		},
+		"users": {
+			"GET":  p.handlers.ListUsers,
+			"POST": p.handlers.CreateUsers,
+		},
+		"users/:userId": {
+			"GET":    p.handlers.GetUserById,
+			"PUT":    p.handlers.UpdateUserById,
+			"DELETE": p.handlers.DeleteUserById,
+		},
+		"users/:userId/teams": {
+			"GET": p.handlers.GetUserTeamsByUserId,
+			"PUT": p.handlers.UpdateUserTeamsByUserId,
+		},
 	}
 }
