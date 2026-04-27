@@ -76,7 +76,7 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			if stateManager.IsIncremental() {
 				since := stateManager.GetSince()
 				if since != nil {
-					clauses = append(clauses, dal.Where("gc.authored_date >= ?", since))
+					clauses = append(clauses, dal.Where("(gc.updated_at >= ? OR grc.updated_at >= ?)", since, since))
 				}
 			}
 			return db.Cursor(clauses...)
