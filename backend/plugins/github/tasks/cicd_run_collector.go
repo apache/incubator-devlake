@@ -24,10 +24,12 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 func init() {
@@ -89,6 +91,24 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	// `windowStart` past the previously collected second (inclusive-both-ends), while
 	// fullsync + TimeAfter keeps the user-specified bound inclusive.
 	createdAfter := manager.GetSince()
+	sinceSource := "state_since"
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
+	if createdAfter == nil {
+		sinceSource = "none"
+	}
+	if createdAfter == nil && (syncPolicy == nil || !syncPolicy.FullSync) {
+		fallbackSince, err := loadLatestRunUpdatedAt(taskCtx, data.Options.ConnectionId, data.Options.GithubId)
+		if err != nil {
+			return err
+		}
+		if fallbackSince != nil {
+			createdAfter = fallbackSince
+			sinceSource = "tool_runs_fallback"
+			logger.Info("cicd_run_collector: collector state missing; bootstrapping since from existing _tool_github_runs at %s", fallbackSince.UTC().Format(time.RFC3339))
+		} else {
+			logger.Debug("cicd_run_collector: collector state missing and no _tool_github_runs timestamp found")
+		}
+	}
 	untilPtr := manager.GetUntil()
 	*untilPtr = untilPtr.Truncate(time.Second)
 	until := *untilPtr
@@ -102,12 +122,14 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	} else {
 		// 2018-01-01 conservatively predates GitHub Actions' late-2019 GA.
 		windowStart = time.Date(2018, 1, 1, 0, 0, 0, 0, time.UTC)
+		sinceSource = "epoch_fullsync"
 	}
 
-	logger.Info("cicd_run_collector: collecting workflow runs in [%s, %s] (incremental=%v)",
+	logger.Info("cicd_run_collector: collecting workflow runs in [%s, %s] (incremental=%v, since_source=%s)",
 		windowStart.Format(githubTimeLayout),
 		until.Format(githubTimeLayout),
-		manager.IsIncremental())
+		manager.IsIncremental(),
+		sinceSource)
 
 	leafWindows, err := newLeafWindowBuilder(taskCtx, data).build(windowStart, until)
 	if err != nil {
@@ -120,6 +142,28 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return manager.Execute()
+}
+
+func loadLatestRunUpdatedAt(taskCtx plugin.SubTaskContext, connectionId uint64, repoId int) (*time.Time, errors.Error) {
+	db := taskCtx.GetDal()
+	latest := &models.GithubRun{}
+	err := db.First(
+		latest,
+		dal.Where("connection_id = ? AND repo_id = ? AND github_updated_at IS NOT NULL", connectionId, repoId),
+		dal.Orderby("github_updated_at DESC"),
+		dal.Limit(1),
+	)
+	if err != nil {
+		if db.IsErrorNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if latest.GithubUpdatedAt == nil {
+		return nil, nil
+	}
+	fallback := latest.GithubUpdatedAt.UTC()
+	return &fallback, nil
 }
 
 // buildRunsQuery assembles the filtered-mode query for a single leaf TimeWindow.
