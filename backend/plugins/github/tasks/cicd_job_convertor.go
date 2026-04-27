@@ -53,6 +53,7 @@ type SimpleBranch struct {
 
 func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Options.GithubId
 
@@ -72,13 +73,13 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{
 				dal.From(&models.GithubJob{}),
-				dal.Join("left join _tool_github_runs on _tool_github_runs.id = _tool_github_jobs.run_id and _tool_github_runs.connection_id = _tool_github_jobs.connection_id"),
 				dal.Where("_tool_github_jobs.repo_id = ? and _tool_github_jobs.connection_id = ?", repoId, data.Options.ConnectionId),
 			}
 			if stateManager.IsIncremental() {
 				since := stateManager.GetSince()
 				if since != nil {
-					clauses = append(clauses, dal.Where("_tool_github_runs.github_updated_at >= ?", since))
+					logger.Info("[Convert Jobs] incremental mode using _tool_github_jobs.updated_at >= %v", since)
+					clauses = append(clauses, dal.Where("_tool_github_jobs.updated_at >= ?", since))
 				}
 			}
 			return db.Cursor(clauses...)
