@@ -187,3 +187,94 @@ func TestSubtaskStateManager(t *testing.T) {
 		})
 	}
 }
+
+func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
+	latest := errors.Must1(time.Parse(time.RFC3339, "2026-04-27T18:05:31Z"))
+	timeAfter := errors.Must1(time.Parse(time.RFC3339, "2024-12-20T00:00:00Z"))
+
+	t.Run("bootstrap prev_started_at and time_after from collector state", func(t *testing.T) {
+		mockDal := new(mockdal.Dal)
+		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.CollectorLatestState)
+			dst.LatestSuccessStart = &latest
+			dst.TimeAfter = &timeAfter
+		}).Return(nil).Once()
+
+		state := &models.SubtaskState{
+			Plugin:  "github",
+			Subtask: "Convert Jobs",
+			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+		}
+		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
+
+		bootstrapped, err := bootstrapStateFromCollectorStateIfNeeded(mockDal, state, args)
+		assert.Nil(t, err)
+		if assert.NotNil(t, bootstrapped.PrevStartedAt) {
+			assert.True(t, bootstrapped.PrevStartedAt.Equal(latest))
+		}
+		if assert.NotNil(t, bootstrapped.TimeAfter) {
+			assert.True(t, bootstrapped.TimeAfter.Equal(timeAfter))
+		}
+		mockDal.AssertExpectations(t)
+	})
+
+	t.Run("do not overwrite existing prev_started_at", func(t *testing.T) {
+		mockDal := new(mockdal.Dal)
+
+		existing := errors.Must1(time.Parse(time.RFC3339, "2026-04-27T18:06:37Z"))
+		state := &models.SubtaskState{
+			Plugin:        "github",
+			Subtask:       "Convert Jobs",
+			Params:        `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+			PrevStartedAt: &existing,
+		}
+		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
+
+		bootstrapped, err := bootstrapStateFromCollectorStateIfNeeded(mockDal, state, args)
+		assert.Nil(t, err)
+		if assert.NotNil(t, bootstrapped.PrevStartedAt) {
+			assert.True(t, bootstrapped.PrevStartedAt.Equal(existing))
+		}
+		mockDal.AssertNotCalled(t, "First", mock.Anything, mock.Anything)
+	})
+
+	t.Run("ignore not found collector state", func(t *testing.T) {
+		mockDal := new(mockdal.Dal)
+		notFoundErr := errors.Default.New("record not found")
+		mockDal.On("First", mock.Anything, mock.Anything).Return(notFoundErr).Once()
+		mockDal.On("IsErrorNotFound", notFoundErr).Return(true).Once()
+
+		state := &models.SubtaskState{
+			Plugin:  "github",
+			Subtask: "Convert Jobs",
+			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+		}
+		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
+
+		bootstrapped, err := bootstrapStateFromCollectorStateIfNeeded(mockDal, state, args)
+		assert.Nil(t, err)
+		assert.Nil(t, bootstrapped.PrevStartedAt)
+		assert.Nil(t, bootstrapped.TimeAfter)
+		mockDal.AssertExpectations(t)
+	})
+
+	t.Run("return error when collector state query fails", func(t *testing.T) {
+		mockDal := new(mockdal.Dal)
+		dbErr := errors.Default.New("db unavailable")
+		mockDal.On("First", mock.Anything, mock.Anything).Return(dbErr).Once()
+		mockDal.On("IsErrorNotFound", dbErr).Return(false).Once()
+
+		state := &models.SubtaskState{
+			Plugin:  "github",
+			Subtask: "Convert Jobs",
+			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+		}
+		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
+
+		bootstrapped, err := bootstrapStateFromCollectorStateIfNeeded(mockDal, state, args)
+		assert.Nil(t, bootstrapped)
+		assert.NotNil(t, err)
+		assert.Contains(t, err.Error(), "failed to load collector state for subtask bootstrap")
+		mockDal.AssertExpectations(t)
+	})
+}
