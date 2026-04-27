@@ -453,9 +453,7 @@ const renderCollapseItems = ({
               value={(transformation.prSizeExcludedFileExtensions || []).join(',')}
               onChange={(e) => {
                 // Don't filter during onChange to allow typing commas freely
-                const extensions = e.target.value
-                  .split(',')
-                  .map((s: string) => s.trim());
+                const extensions = e.target.value.split(',').map((s: string) => s.trim());
                 onChangeTransformation({
                   ...transformation,
                   prSizeExcludedFileExtensions: extensions,

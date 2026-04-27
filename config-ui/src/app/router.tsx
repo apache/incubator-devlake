@@ -24,6 +24,7 @@ import {
   Error,
   Layout,
   layoutLoader,
+  Login,
   Connections,
   Connection,
   ProjectHomePage,
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
   {
     path: `${PATH_PREFIX}/db-migrate`,
     element: <DBMigrate />,
+  },
+  {
+    path: `${PATH_PREFIX}/login`,
+    element: <Login />,
   },
   {
     path: `${PATH_PREFIX}/onboard`,
