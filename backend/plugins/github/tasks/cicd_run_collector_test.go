@@ -34,6 +34,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
