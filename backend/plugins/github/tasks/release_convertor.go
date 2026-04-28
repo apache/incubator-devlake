@@ -48,7 +48,11 @@ var ConvertReleasesMeta = plugin.SubTaskMeta{
 
 func ConvertRelease(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_RELEASE_TABLE)
+	data := taskCtx.GetData().(*GithubTaskData)
+	params := GithubApiParams{
+		ConnectionId: data.Options.ConnectionId,
+		Name:         data.Options.Name,
+	}
 
 	releaseIdGen := didgen.NewDomainIdGenerator(&models.GithubRelease{})
 	releaseScopeIdGen := didgen.NewDomainIdGenerator(&models.GithubRepo{})
@@ -56,8 +60,8 @@ func ConvertRelease(taskCtx plugin.SubTaskContext) errors.Error {
 	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GithubRelease]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: taskCtx,
-			Table:          rawDataSubTaskArgs.Table,
-			Params:         rawDataSubTaskArgs.Params,
+			Table:          RAW_RELEASE_TABLE,
+			Params:         params,
 		},
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{

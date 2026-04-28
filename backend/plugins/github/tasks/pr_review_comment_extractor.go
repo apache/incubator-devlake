@@ -49,7 +49,7 @@ var ExtractApiPrReviewCommentsMeta = plugin.SubTaskMeta{
 }
 
 type GithubPrReviewCommentBody struct {
-	GithubId        int                `json:"id"`
+	GithubId        int `json:"id"`
 	Body            json.RawMessage
 	User            *GithubAccountResponse
 	PrUrl           string             `json:"pull_request_url"`
