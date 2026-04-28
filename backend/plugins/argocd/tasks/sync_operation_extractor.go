@@ -188,6 +188,13 @@ func ExtractSyncOperations(taskCtx plugin.SubTaskContext) errors.Error {
 
 			isOperationState := apiOp.Phase != ""
 
+			// *** THE FIX ***
+			// operationState always represents the same sync as the latest history entry
+			// (when phase=Succeeded). Skip it to avoid the duplicate DeploymentId.
+			if isOperationState && apiOp.Phase == "Succeeded" {
+				return nil, nil
+			}
+
 			// For multi-source apps ArgoCD sets revisions[] instead of revision. Resolve
 			// the single commit SHA we care about before deciding whether to skip this entry.
 			if apiOp.Revision == "" {
