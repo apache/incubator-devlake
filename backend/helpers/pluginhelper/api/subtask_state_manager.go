@@ -20,6 +20,7 @@ package api
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -150,7 +151,7 @@ func bootstrapStateFromCollectorStateIfNeeded(db dal.Dal, preState *models.Subta
 		dal.Where("raw_data_table = ? AND raw_data_params = ?", rawTable, preState.Params),
 	)
 	if err != nil {
-		if db.IsErrorNotFound(err) {
+		if db.IsErrorNotFound(err) || isTableNotExistError(err) {
 			return preState, nil
 		}
 		return nil, errors.Default.Wrap(err, "failed to load collector state for subtask bootstrap")
@@ -164,6 +165,17 @@ func bootstrapStateFromCollectorStateIfNeeded(db dal.Dal, preState *models.Subta
 	}
 
 	return preState, nil
+}
+
+func isTableNotExistError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "doesn't exist") ||
+		strings.Contains(msg, "does not exist") ||
+		strings.Contains(msg, "unknown table") ||
+		strings.Contains(msg, "no such table")
 }
 
 // calculateStateManagerIncrementalMode tries to calculate whether state manager should run in incremental mode and returns the state manager's 'since' time.
