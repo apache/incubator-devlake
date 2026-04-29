@@ -34,11 +34,63 @@ import (
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
+
+func TestCicdRunLoadLatestRunUpdatedAt_ReturnsLatestTimestamp(t *testing.T) {
+	connectionId := uint64(1)
+	repoId := 101
+	latestTs := time.Date(2025, 4, 1, 10, 11, 12, 0, time.UTC)
+
+	mockDal := new(mockdal.Dal)
+	mockDal.On("First", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(0).(*models.GithubRun)
+		dst.ConnectionId = connectionId
+		dst.RepoId = repoId
+		dst.GithubUpdatedAt = &latestTs
+	}).Return(nil).Once()
+
+	ctx := unithelper.DummySubTaskContext(mockDal)
+	since, err := loadLatestRunUpdatedAt(ctx, connectionId, repoId)
+
+	require.Nil(t, err)
+	require.NotNil(t, since)
+	assert.True(t, since.Equal(latestTs))
+	mockDal.AssertExpectations(t)
+}
+
+func TestCicdRunLoadLatestRunUpdatedAt_NotFoundReturnsNil(t *testing.T) {
+	mockDal := new(mockdal.Dal)
+	notFoundErr := errors.Default.New("record not found")
+	mockDal.On("First", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(notFoundErr).Once()
+	mockDal.On("IsErrorNotFound", notFoundErr).Return(true).Once()
+
+	ctx := unithelper.DummySubTaskContext(mockDal)
+	since, err := loadLatestRunUpdatedAt(ctx, 1, 101)
+
+	require.Nil(t, err)
+	assert.Nil(t, since)
+	mockDal.AssertExpectations(t)
+}
+
+func TestCicdRunLoadLatestRunUpdatedAt_PropagatesError(t *testing.T) {
+	mockDal := new(mockdal.Dal)
+	dbErr := errors.Default.New("db unavailable")
+	mockDal.On("First", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(dbErr).Once()
+	mockDal.On("IsErrorNotFound", dbErr).Return(false).Once()
+
+	ctx := unithelper.DummySubTaskContext(mockDal)
+	since, err := loadLatestRunUpdatedAt(ctx, 1, 101)
+
+	assert.Nil(t, since)
+	require.NotNil(t, err)
+	assert.Contains(t, err.Error(), "db unavailable")
+	mockDal.AssertExpectations(t)
+}
 
 // newTestBuilder constructs a leafWindowBuilder with a stubbed probe for unit testing.
 func newTestBuilder(probe probeFunc) *leafWindowBuilder {
