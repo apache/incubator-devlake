@@ -30,6 +30,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const testGithubScopeParams = `{"ConnectionId":1,"Name":"test/repo"}`
+
 func TestSubtaskStateManager(t *testing.T) {
 	time0 := errors.Must1(time.Parse(time.RFC3339, "2020-01-01T00:00:00Z"))
 	time1 := errors.Must1(time.Parse(time.RFC3339, "2021-01-01T00:00:00Z"))
@@ -204,7 +206,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		state := &models.SubtaskState{
 			Plugin:  "github",
 			Subtask: "Convert Jobs",
-			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+			Params:  testGithubScopeParams,
 		}
 		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
 
@@ -226,7 +228,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		state := &models.SubtaskState{
 			Plugin:        "github",
 			Subtask:       "Convert Jobs",
-			Params:        `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+			Params:        testGithubScopeParams,
 			PrevStartedAt: &existing,
 		}
 		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
@@ -250,7 +252,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		state := &models.SubtaskState{
 			Plugin:  "github",
 			Subtask: "Convert Jobs",
-			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+			Params:  testGithubScopeParams,
 		}
 		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
 
@@ -271,7 +273,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		state := &models.SubtaskState{
 			Plugin:  "github",
 			Subtask: "Convert Jobs",
-			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+			Params:  testGithubScopeParams,
 		}
 		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
 
@@ -292,7 +294,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		state := &models.SubtaskState{
 			Plugin:  "github",
 			Subtask: "Convert Jobs",
-			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+			Params:  testGithubScopeParams,
 		}
 		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
 
@@ -314,7 +316,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		state := &models.SubtaskState{
 			Plugin:  "github",
 			Subtask: "Convert Jobs",
-			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+			Params:  testGithubScopeParams,
 		}
 		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
 
@@ -332,7 +334,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		state := &models.SubtaskState{
 			Plugin:  "github",
 			Subtask: "Convert Jobs",
-			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+			Params:  testGithubScopeParams,
 		}
 		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
 
