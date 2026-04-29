@@ -194,6 +194,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 
 	t.Run("bootstrap prev_started_at and time_after from collector state", func(t *testing.T) {
 		mockDal := new(mockdal.Dal)
+		mockDal.On("HasTable", mock.Anything).Return(true).Once()
 		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.CollectorLatestState)
 			dst.LatestSuccessStart = &latest
@@ -235,12 +236,14 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		if assert.NotNil(t, bootstrapped.PrevStartedAt) {
 			assert.True(t, bootstrapped.PrevStartedAt.Equal(existing))
 		}
+		mockDal.AssertNotCalled(t, "HasTable", mock.Anything)
 		mockDal.AssertNotCalled(t, "First", mock.Anything, mock.Anything)
 	})
 
 	t.Run("ignore not found collector state", func(t *testing.T) {
 		mockDal := new(mockdal.Dal)
 		notFoundErr := errors.Default.New("record not found")
+		mockDal.On("HasTable", mock.Anything).Return(true).Once()
 		mockDal.On("First", mock.Anything, mock.Anything).Return(notFoundErr).Once()
 		mockDal.On("IsErrorNotFound", notFoundErr).Return(true).Once()
 
@@ -261,6 +264,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 	t.Run("return error when collector state query fails", func(t *testing.T) {
 		mockDal := new(mockdal.Dal)
 		dbErr := errors.Default.New("db unavailable")
+		mockDal.On("HasTable", mock.Anything).Return(true).Once()
 		mockDal.On("First", mock.Anything, mock.Anything).Return(dbErr).Once()
 		mockDal.On("IsErrorNotFound", dbErr).Return(false).Once()
 
@@ -280,6 +284,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 
 	t.Run("ignore missing collector table errors", func(t *testing.T) {
 		mockDal := new(mockdal.Dal)
+		mockDal.On("HasTable", mock.Anything).Return(true).Once()
 		tableErr := errors.Default.New("Error 1146 (42S02): Table 'lake._devlake_collector_latest_state' doesn't exist")
 		mockDal.On("First", mock.Anything, mock.Anything).Return(tableErr).Once()
 		mockDal.On("IsErrorNotFound", tableErr).Return(false).Once()
@@ -301,6 +306,7 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 
 	t.Run("do not ignore missing unrelated table errors", func(t *testing.T) {
 		mockDal := new(mockdal.Dal)
+		mockDal.On("HasTable", mock.Anything).Return(true).Once()
 		tableErr := errors.Default.New("Error 1146 (42S02): Table 'lake._tool_github_issues' doesn't exist")
 		mockDal.On("First", mock.Anything, mock.Anything).Return(tableErr).Once()
 		mockDal.On("IsErrorNotFound", tableErr).Return(false).Once()
@@ -316,6 +322,26 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		assert.Nil(t, bootstrapped)
 		assert.NotNil(t, err)
 		assert.Contains(t, err.Error(), "failed to load collector state for subtask bootstrap")
+		mockDal.AssertExpectations(t)
+	})
+
+	t.Run("skip collector lookup when collector state table does not exist", func(t *testing.T) {
+		mockDal := new(mockdal.Dal)
+		mockDal.On("HasTable", mock.Anything).Return(false).Once()
+
+		state := &models.SubtaskState{
+			Plugin:  "github",
+			Subtask: "Convert Jobs",
+			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+		}
+		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
+
+		bootstrapped, err := bootstrapStateFromCollectorStateIfNeeded(mockDal, state, args)
+		assert.Nil(t, err)
+		assert.NotNil(t, bootstrapped)
+		assert.Nil(t, bootstrapped.PrevStartedAt)
+		assert.Nil(t, bootstrapped.TimeAfter)
+		mockDal.AssertNotCalled(t, "First", mock.Anything, mock.Anything)
 		mockDal.AssertExpectations(t)
 	})
 }

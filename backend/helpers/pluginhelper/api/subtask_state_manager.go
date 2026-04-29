@@ -139,6 +139,9 @@ func bootstrapStateFromCollectorStateIfNeeded(db dal.Dal, preState *models.Subta
 	if args == nil || args.Table == "" {
 		return preState, nil
 	}
+	if !db.HasTable(&models.CollectorLatestState{}) {
+		return preState, nil
+	}
 
 	rawTable := args.GetRawDataTable()
 	if rawTable == "" {
