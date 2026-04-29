@@ -66,12 +66,14 @@ func ConvertIssueAssignee(taskCtx plugin.SubTaskContext) errors.Error {
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{
 				dal.From(&models.GithubIssueAssignee{}),
-				dal.Join(`left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_assignees.issue_id and _tool_github_issues.connection_id = _tool_github_issue_assignees.connection_id`),
-				dal.Where("_tool_github_issues.repo_id = ? and _tool_github_issue_assignees.connection_id = ?", repoId, data.Options.ConnectionId),
+				dal.Where("_tool_github_issue_assignees.repo_id = ? and _tool_github_issue_assignees.connection_id = ?", repoId, data.Options.ConnectionId),
 			}
 			if stateManager.IsIncremental() {
 				since := stateManager.GetSince()
 				if since != nil {
+					clauses = append(clauses,
+						dal.Join(`left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_assignees.issue_id and _tool_github_issues.connection_id = _tool_github_issue_assignees.connection_id`),
+					)
 					clauses = append(clauses, dal.Where("_tool_github_issues.github_updated_at >= ?", since))
 				}
 			}
