@@ -298,12 +298,33 @@ func TestBootstrapStateFromCollectorStateIfNeeded(t *testing.T) {
 		assert.Nil(t, bootstrapped.TimeAfter)
 		mockDal.AssertExpectations(t)
 	})
+
+	t.Run("do not ignore missing unrelated table errors", func(t *testing.T) {
+		mockDal := new(mockdal.Dal)
+		tableErr := errors.Default.New("Error 1146 (42S02): Table 'lake._tool_github_issues' doesn't exist")
+		mockDal.On("First", mock.Anything, mock.Anything).Return(tableErr).Once()
+		mockDal.On("IsErrorNotFound", tableErr).Return(false).Once()
+
+		state := &models.SubtaskState{
+			Plugin:  "github",
+			Subtask: "Convert Jobs",
+			Params:  `{"ConnectionId":1,"Name":"AkerBP/autogration"}`,
+		}
+		args := &SubtaskCommonArgs{Table: "github_api_jobs"}
+
+		bootstrapped, err := bootstrapStateFromCollectorStateIfNeeded(mockDal, state, args)
+		assert.Nil(t, bootstrapped)
+		assert.NotNil(t, err)
+		assert.Contains(t, err.Error(), "failed to load collector state for subtask bootstrap")
+		mockDal.AssertExpectations(t)
+	})
 }
 
-func TestIsTableNotExistError(t *testing.T) {
-	assert.False(t, isTableNotExistError(nil))
-	assert.True(t, isTableNotExistError(errors.Default.New("Error 1146 (42S02): Table 'lake._devlake_collector_latest_state' doesn't exist")))
-	assert.True(t, isTableNotExistError(errors.Default.New("pq: relation \"_devlake_collector_latest_state\" does not exist")))
-	assert.True(t, isTableNotExistError(errors.Default.New("no such table: _devlake_collector_latest_state")))
-	assert.False(t, isTableNotExistError(errors.Default.New("db unavailable")))
+func TestIsStateTableNotReadyError(t *testing.T) {
+	assert.False(t, isStateTableNotReadyError(nil))
+	assert.True(t, isStateTableNotReadyError(errors.Default.New("Error 1146 (42S02): Table 'lake._devlake_collector_latest_state' doesn't exist")))
+	assert.True(t, isStateTableNotReadyError(errors.Default.New("pq: relation \"_devlake_collector_latest_state\" does not exist")))
+	assert.True(t, isStateTableNotReadyError(errors.Default.New("no such table: _devlake_collector_latest_state")))
+	assert.False(t, isStateTableNotReadyError(errors.Default.New("Error 1146 (42S02): Table 'lake._tool_github_issues' doesn't exist")))
+	assert.False(t, isStateTableNotReadyError(errors.Default.New("db unavailable")))
 }
