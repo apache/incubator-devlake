@@ -39,7 +39,7 @@ func TestSafeReturnURL(t *testing.T) {
 		{"missing leading slash", "projects", "/"},
 		{"javascript scheme", "javascript:alert(1)", "/"},
 		{"data scheme", "data:text/html,x", "/"},
-		{"unparseable", "://", "/"},
+		{"unparsable", "://", "/"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

@@ -277,7 +277,7 @@ const renderCollapseItems = ({
                 })
               }
             />
-            <i style={{ marginRight: 4, color: '#E34040' }}>*</i>
+            <i style={{ marginRight: 4, color: 'var(--devlake-color-error-alt)' }}>*</i>
             <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
           </div>
           <div style={{ margin: '8px 0', paddingLeft: 28 }}>
@@ -368,12 +368,12 @@ const renderCollapseItems = ({
                   content={
                     <>
                       <div>
-                        <CheckCircleOutlined rev="" style={{ marginRight: 4, color: '#4DB764' }} />
+                        <CheckCircleOutlined rev="" style={{ marginRight: 4, color: 'var(--devlake-color-success)' }} />
                         Example 1: PR #321 body contains "<strong>Closes #1234</strong>" (PR #321 and issue #1234 will
                         be mapped by the following RegEx)
                       </div>
                       <div>
-                        <CloseCircleOutlined rev="" style={{ marginRight: 4, color: '#E34040' }} />
+                        <CloseCircleOutlined rev="" style={{ marginRight: 4, color: 'var(--devlake-color-error-alt)' }} />
                         Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234
                         will NOT be mapped by the following RegEx)
                       </div>

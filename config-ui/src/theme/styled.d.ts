@@ -16,30 +16,12 @@
  *
  */
 
-import styled from 'styled-components';
+import 'styled-components';
+import type { AppThemeColors, ResolvedTheme } from './tokens';
 
-export const Label = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-export const LabelInfo = styled.i`
-  color: ${({ theme }) => theme.colors.secondary};
-`;
-
-export const LabelDescription = styled.p`
-  margin: 0;
-`;
-
-export const RateLimit = styled.div`
-  display: flex;
-  align-items: center;
-
-  & > span {
-    margin-left: 8px;
+declare module 'styled-components' {
+  export interface DefaultTheme {
+    mode: ResolvedTheme;
+    colors: AppThemeColors;
   }
-`;
-
-export const RateLimitInfo = styled.p`
-  white-space: pre-line;
-`;
+}
