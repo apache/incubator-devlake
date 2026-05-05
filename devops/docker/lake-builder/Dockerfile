@@ -71,6 +71,5 @@ ENV GOPATH=/go
 ENV GOROOT=
 ENV PATH=${GOPATH}/bin:${PATH}
 
-# Python Poetry package manager
-RUN curl -sSL https://install.python-poetry.org | python3 -
-RUN ln -sf /root/.local/bin/poetry /usr/local/bin
+# Python package manager
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL=/usr/local/bin sh
