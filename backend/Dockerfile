@@ -63,8 +63,8 @@ COPY --from=debian-arm64 /lib/aarch64-linux-gnu /rootfs-arm64/lib/aarch64-linux-
 
 RUN for arch in aarch64 x86_64 ; do \
         mkdir -p /tmp/build/${arch} && cd /tmp/build/${arch} && \
-        wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.2.tar.gz -O - | tar -xz && \
-        cd libgit2-1.3.2 && \
+        wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O - | tar -xz && \
+        cd libgit2-1.3.0 && \
         mkdir build && cd build && \
         if [ "$arch" = "aarch64" ] ; then \
             cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
