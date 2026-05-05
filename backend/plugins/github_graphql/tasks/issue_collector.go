@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -52,8 +53,7 @@ type GraphqlQueryIssueWrapper struct {
 }
 
 type GraphqlQueryIssueDetailWrapper struct {
-	requestedIssues map[int]missingGithubIssueRef
-	RateLimit       struct {
+	RateLimit struct {
 		Cost int
 	}
 	Repository struct {
@@ -182,6 +182,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	issueUpdatedAt := make(map[int]time.Time)
+	requestedIssuesByQuery := sync.Map{}
 	err = apiCollector.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		Input:         iterator,
@@ -195,14 +196,14 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			ownerName := strings.Split(data.Options.Name, "/")
 			inputIssues := reqData.Input.([]interface{})
 			outputIssues := []map[string]interface{}{}
-			query.requestedIssues = make(map[int]missingGithubIssueRef, len(inputIssues))
+			requestedIssues := make(map[int]missingGithubIssueRef, len(inputIssues))
 			for _, i := range inputIssues {
 				inputIssue := i.(*models.GithubIssue)
 				outputIssues = append(outputIssues, map[string]interface{}{
 					`number`: graphql.Int(inputIssue.Number),
 				})
 				issueUpdatedAt[inputIssue.Number] = inputIssue.GithubUpdatedAt
-				query.requestedIssues[inputIssue.Number] = missingGithubIssueRef{
+				requestedIssues[inputIssue.Number] = missingGithubIssueRef{
 					ConnectionId:  inputIssue.ConnectionId,
 					RepoId:        inputIssue.RepoId,
 					GithubId:      inputIssue.GithubId,
@@ -210,6 +211,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 					RawDataOrigin: inputIssue.RawDataOrigin,
 				}
 			}
+			requestedIssuesByQuery.Store(query, requestedIssues)
 			variables := map[string]interface{}{
 				"issue": outputIssues,
 				"owner": graphql.String(ownerName[0]),
@@ -219,6 +221,11 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		ResponseParser: func(queryWrapper any) (messages []json.RawMessage, err errors.Error) {
 			query := queryWrapper.(*GraphqlQueryIssueDetailWrapper)
+			v, ok := requestedIssuesByQuery.LoadAndDelete(query)
+			var requestedIssues map[int]missingGithubIssueRef
+			if ok {
+				requestedIssues = v.(map[int]missingGithubIssueRef)
+			}
 			issues := query.Repository.Issues
 			for _, rawL := range issues {
 				if rawL.DatabaseId == 0 || rawL.Number == 0 {
@@ -228,7 +235,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 					messages = append(messages, errors.Must1(json.Marshal(rawL)))
 				}
 			}
-			missingIssues := findMissingGithubIssues(query.requestedIssues, issues)
+			missingIssues := findMissingGithubIssues(requestedIssues, issues)
 			if len(missingIssues) > 0 {
 				err = cleanupMissingGithubIssues(db, taskCtx.GetLogger(), missingIssues)
 			}

@@ -1,0 +1,86 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package oidchelper
+
+import (
+	"reflect"
+	"testing"
+)
+
+func TestParseScopes(t *testing.T) {
+	cases := map[string][]string{
+		"":                           {"openid", "profile", "email"},
+		"   ":                        {"openid", "profile", "email"},
+		"openid":                     {"openid"},
+		"openid,profile":             {"openid", "profile"},
+		" openid , profile , email ": {"openid", "profile", "email"},
+		"openid,,email":              {"openid", "email"},
+	}
+	for input, want := range cases {
+		got := parseScopes(input)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("parseScopes(%q) = %v, want %v", input, got, want)
+		}
+	}
+}
+
+func TestValueOr(t *testing.T) {
+	if got := valueOr("hello", "fallback"); got != "hello" {
+		t.Errorf("valueOr(hello) = %q", got)
+	}
+	if got := valueOr("", "fallback"); got != "fallback" {
+		t.Errorf("valueOr(empty) = %q", got)
+	}
+	if got := valueOr("   ", "fallback"); got != "fallback" {
+		t.Errorf("valueOr(whitespace) = %q", got)
+	}
+}
+
+func TestParseProviderNames(t *testing.T) {
+	cases := map[string][]string{
+		"":                {},
+		"  ":              {},
+		"entra":           {"entra"},
+		"entra,google":    {"entra", "google"},
+		" Entra , GOOGLE": {"entra", "google"},
+		"entra,,google":   {"entra", "google"},
+		"entra,entra":     {"entra"},
+		"Entra,entra":     {"entra"},
+	}
+	for input, want := range cases {
+		got := parseProviderNames(input)
+		if len(got) == 0 && len(want) == 0 {
+			continue
+		}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("parseProviderNames(%q) = %v, want %v", input, got, want)
+		}
+	}
+}
+
+func TestProviderNamesSorted(t *testing.T) {
+	c := &Config{
+		Providers: map[string]*ProviderConfig{
+			"google": {Name: "google"},
+			"entra":  {Name: "entra"},
+		},
+	}
+	if names := c.ProviderNames(); !reflect.DeepEqual(names, []string{"entra", "google"}) {
+		t.Errorf("ProviderNames = %v, want sorted [entra google]", names)
+	}
+}
