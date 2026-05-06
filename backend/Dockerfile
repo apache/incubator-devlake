@@ -63,8 +63,8 @@ COPY --from=debian-arm64 /lib/aarch64-linux-gnu /rootfs-arm64/lib/aarch64-linux-
 
 RUN for arch in aarch64 x86_64 ; do \
         mkdir -p /tmp/build/${arch} && cd /tmp/build/${arch} && \
-        wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.2.tar.gz -O - | tar -xz && \
-        cd libgit2-1.3.2 && \
+        wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O - | tar -xz && \
+        cd libgit2-1.3.0 && \
         mkdir build && cd build && \
         if [ "$arch" = "aarch64" ] ; then \
             cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
@@ -143,14 +143,14 @@ RUN mkdir logs
 VOLUME /app/logs
 
 # Setup Python
-COPY python/ /app/python/
+COPY --chown=devlake:devlake python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
     python3 -m pip install --upgrade pip
 
-# Setup Python Poetry package manager
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 2.2.1
-ENV PATH="$PATH:/app/.local/bin"
+# Setup Python package manager
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL=/app/.local/bin sh
+ENV PATH="/app/.local/bin:${PATH}"
 
 # Build Python plugins, make sure the scripts has execute permission
 # RUN find /app/python/ -name "*.sh" | xargs -I{} chmod +x {}
@@ -182,4 +182,3 @@ USER devlake
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["lake"]
-
