@@ -49,8 +49,8 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 	filterId := boardConfig.Filter.ID
 	logger.Info("collect board filter:%s", filterId)
 
-	if boardConfig.SubQuery != "" {
-		logger.Warn(nil, "board %d has kanban sub-filter: %s — using saved filter JQL for collection to avoid silent issue exclusion", data.Options.BoardId, boardConfig.SubQuery)
+	if boardConfig.SubQuery.Query != "" {
+		logger.Warn(nil, "board %d has kanban sub-filter: %s — using saved filter JQL for collection to avoid silent issue exclusion", data.Options.BoardId, boardConfig.SubQuery.Query)
 	}
 
 	filterInfo, err := getBoardFilterJql(data, filterId)
@@ -68,7 +68,7 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// Store filter ID and sub-query on task data for downstream subtasks
 	data.FilterId = filterId
-	record.SubQuery = boardConfig.SubQuery
+	record.SubQuery = boardConfig.SubQuery.Query
 
 	// full sync
 	syncPolicy := taskCtx.TaskContext().SyncPolicy()
@@ -152,7 +152,9 @@ type BoardConfiguration struct {
 	Name     string `json:"name"`
 	Type     string `json:"type"`
 	Self     string `json:"self"`
-	SubQuery string `json:"subQuery"`
+	SubQuery struct {
+		Query string `json:"query"`
+	} `json:"subQuery"`
 	Location struct {
 		Type string `json:"type"`
 		Key  string `json:"key"`

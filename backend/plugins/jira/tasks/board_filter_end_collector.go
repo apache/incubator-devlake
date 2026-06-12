@@ -71,10 +71,10 @@ func CollectBoardFilterEnd(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Warn(nil, "connection_id:%d board_id:%d filter jql changed during collection (previous: %s, now: %s)", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql)
 	}
 
-	if record.SubQuery != boardConfig.SubQuery {
-		logger.Warn(nil, "connection_id:%d board_id:%d board sub-filter changed during collection (previous: %s, now: %s)", data.Options.ConnectionId, data.Options.BoardId, record.SubQuery, boardConfig.SubQuery)
+	if record.SubQuery != boardConfig.SubQuery.Query {
+		logger.Warn(nil, "connection_id:%d board_id:%d board sub-filter changed during collection (previous: %s, now: %s)", data.Options.ConnectionId, data.Options.BoardId, record.SubQuery, boardConfig.SubQuery.Query)
 		if !autoRefresh {
-			return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d board sub-filter has changed during collection, please use fullSync mode. Previous sub-filter: %s, now: %s", data.Options.ConnectionId, data.Options.BoardId, record.SubQuery, boardConfig.SubQuery))
+			return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d board sub-filter has changed during collection, please use fullSync mode. Previous sub-filter: %s, now: %s", data.Options.ConnectionId, data.Options.BoardId, record.SubQuery, boardConfig.SubQuery.Query))
 		}
 	}
 
