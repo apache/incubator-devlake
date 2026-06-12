@@ -61,3 +61,45 @@ func Test_buildJQL(t *testing.T) {
 		})
 	}
 }
+
+func Test_buildFilterJQL(t *testing.T) {
+	tests := []struct {
+		name           string
+		filterId       string
+		incrementalJql string
+		want           string
+	}{
+		{
+			name:           "full sync with filter",
+			filterId:       "12345",
+			incrementalJql: "ORDER BY created ASC",
+			want:           "filter = 12345 ORDER BY created ASC",
+		},
+		{
+			name:           "incremental sync with filter",
+			filterId:       "12345",
+			incrementalJql: "updated >= '2021/02/05 12:05' ORDER BY created ASC",
+			want:           "filter = 12345 AND updated >= '2021/02/05 12:05' ORDER BY created ASC",
+		},
+		{
+			name:           "empty filter id falls back to incremental only",
+			filterId:       "",
+			incrementalJql: "ORDER BY created ASC",
+			want:           "ORDER BY created ASC",
+		},
+		{
+			name:           "empty filter id with incremental clause",
+			filterId:       "",
+			incrementalJql: "updated >= '2024/01/01 00:00' ORDER BY created ASC",
+			want:           "updated >= '2024/01/01 00:00' ORDER BY created ASC",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := buildFilterJQL(tt.filterId, tt.incrementalJql); got != tt.want {
+				t.Errorf("buildFilterJQL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -37,6 +37,7 @@ type JiraTaskData struct {
 	Options        *JiraOptions
 	ApiClient      *api.ApiAsyncClient
 	JiraServerInfo models.JiraServerInfo
+	FilterId       string
 }
 
 type JiraApiParams models.JiraApiParams
