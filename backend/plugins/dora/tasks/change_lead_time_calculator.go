@@ -288,16 +288,17 @@ func batchFetchFirstReviews(projectName string, db dal.Dal) (map[string]*code.Pu
 func batchFetchDeployments(projectName string, db dal.Dal) (map[string]*devops.CicdDeploymentCommit, errors.Error) {
 	var results []*deploymentCommitWithMergeSha
 
-	// Query finds the first deployment for each merge commit by using a window function
-	// to rank deployments by started_date, then filtering to keep only rank 1.
+	// Query finds the first deployment for each merge commit.
+	// Only deployments with a previous successful deployment can define a valid change
+	// range; the first deployment is a seed deployment and should not be linked to
+	// historical merge requests.
 	err := db.All(
 		&results,
 		dal.Select("dc.*, cd.commit_sha as merge_sha"),
 		dal.From("cicd_deployment_commits dc"),
-		dal.Join("LEFT JOIN cicd_deployment_commits p ON dc.prev_success_deployment_commit_id = p.id"),
-		dal.Join("INNER JOIN commits_diffs cd ON cd.new_commit_sha = dc.commit_sha AND cd.old_commit_sha = COALESCE(p.commit_sha, '')"),
+		dal.Join("INNER JOIN cicd_deployment_commits p ON dc.prev_success_deployment_commit_id = p.id"),
+		dal.Join("INNER JOIN commits_diffs cd ON cd.new_commit_sha = dc.commit_sha AND cd.old_commit_sha = p.commit_sha"),
 		dal.Join("LEFT JOIN project_mapping pm ON pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id"),
-		dal.Where("dc.prev_success_deployment_commit_id <> ''"),
 		dal.Where("dc.environment = 'PRODUCTION'"), // TODO: remove this when multi-environment is supported
 		dal.Where("dc.result = ? AND pm.project_name = ?", devops.RESULT_SUCCESS, projectName),
 		dal.Orderby("cd.commit_sha, dc.started_date ASC, dc.id ASC"),
