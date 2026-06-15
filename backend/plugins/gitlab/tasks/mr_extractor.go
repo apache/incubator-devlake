@@ -65,6 +65,13 @@ type MergeRequestRes struct {
 	Assignees        []Assignee
 	FirstCommentTime common.Iso8601Time
 	Labels           []string `json:"labels"`
+	DiffStats        struct {
+
+		Additions int `json:"additions"`
+
+		Deletions int `json:"deletions"`
+
+	} `json:"diff_stats"`
 }
 
 type Reviewer struct {
@@ -245,6 +252,8 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 		AuthorUserId:     mr.Author.Id,
+		Additions:        mr.DiffStats.Additions,
+		Deletions:        mr.DiffStats.Deletions,
 	}
 	return gitlabMergeRequest, nil
 }
