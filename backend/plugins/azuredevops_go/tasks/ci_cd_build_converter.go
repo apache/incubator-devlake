@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
-	"reflect"
 )
 
 func init() {
@@ -47,14 +48,21 @@ var ConvertBuildsMeta = plugin.SubTaskMeta{
 type JoinedBuild struct {
 	models.AzuredevopsBuild
 
-	URL string
+	RepoUrl string
+}
+
+func getBuildDisplayTitle(build *JoinedBuild) string {
+	if build.BuildNumber != "" {
+		return build.BuildNumber
+	}
+	return build.Name
 }
 
 func ConvertBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RawPullRequestTable)
 	clauses := []dal.Clause{
-		dal.Select("_tool_azuredevops_go_builds.*, _tool_azuredevops_go_repos.url"),
+		dal.Select("_tool_azuredevops_go_builds.*, _tool_azuredevops_go_repos.url as repo_url"),
 		dal.From(&models.AzuredevopsBuild{}),
 		dal.Join(`left join _tool_azuredevops_go_repos
 			on _tool_azuredevops_go_builds.repository_id = _tool_azuredevops_go_repos.id`),
@@ -82,19 +90,23 @@ func ConvertBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if build.FinishTime != nil {
 				duration = float64(build.FinishTime.Sub(*build.StartTime).Milliseconds() / 1e3)
 			}
+			displayTitle := getBuildDisplayTitle(build)
+			regexTargets := displayTitle + ";" + build.Name + ";" + build.Tags
 
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: buildIdGen.Generate(data.Options.ConnectionId, build.AzuredevopsId),
 				},
 				Name:           build.Name,
+				DisplayTitle:   displayTitle,
+				Url:            build.Url,
 				Result:         devops.GetResult(&cicdBuildResultRule, build.Result),
 				Status:         devops.GetStatus(&cicdBuildStatusRule, build.Status),
 				OriginalStatus: build.Status,
 				OriginalResult: build.Result,
 				CicdScopeId:    repoIdGen.Generate(data.Options.ConnectionId, build.RepositoryId),
-				Environment:    data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, build.Name+";"+build.Tags),
-				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, build.Name+";"+build.Tags),
+				Environment:    data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, regexTargets),
+				Type:           data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, regexTargets),
 				DurationSec:    duration,
 				TaskDatesInfo: devops.TaskDatesInfo{
 					CreatedDate:  *build.QueueTime,
@@ -105,11 +117,13 @@ func ConvertBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			pipelineCommit := &devops.CiCDPipelineCommit{
-				PipelineId: domainPipeline.Id,
-				CommitSha:  build.SourceVersion,
-				Branch:     build.SourceBranch,
-				RepoId:     build.RepositoryId,
-				RepoUrl:    build.URL,
+				PipelineId:   domainPipeline.Id,
+				CommitSha:    build.SourceVersion,
+				Branch:       build.SourceBranch,
+				DisplayTitle: displayTitle,
+				Url:          build.Url,
+				RepoId:       build.RepositoryId,
+				RepoUrl:      build.RepoUrl,
 			}
 
 			return []interface{}{

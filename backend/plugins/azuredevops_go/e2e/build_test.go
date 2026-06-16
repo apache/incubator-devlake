@@ -67,6 +67,8 @@ func TestAzuredevopsBuildDataFlow(t *testing.T) {
 			"status",
 			"result",
 			"name",
+			"build_number",
+			"url",
 			"source_branch",
 			"source_version",
 			"tags",
@@ -85,6 +87,8 @@ func TestAzuredevopsBuildDataFlow(t *testing.T) {
 		[]string{
 			"id",
 			"name",
+			"display_title",
+			"url",
 			"result",
 			"status",
 			"original_status",
