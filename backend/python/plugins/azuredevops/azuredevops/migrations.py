@@ -247,3 +247,15 @@ def add_updated_url_column_length_in_raw_azuredevops_builds(b: MigrationScriptBu
     END $$;
     """, Dialect.POSTGRESQL)
 
+
+@migration(20251231120000, name="add job fields added in environment_pattern feature")
+def add_job_fields_for_environment_pattern(b: MigrationScriptBuilder):
+    table = '_tool_azuredevops_jobs'
+    b.add_column(table, 'identifier', 'varchar(255)')
+    b.add_column(table, 'type', 'varchar(255)')
+    b.add_column(table, 'parent_id', 'varchar(255)')
+
+
+@migration(20251231120001, name="add environment_pattern to gitrepositoryconfigs")
+def add_environment_pattern_to_gitrepositoryconfigs(b: MigrationScriptBuilder):
+    b.add_column('_tool_azuredevops_gitrepositoryconfigs', 'environment_pattern', 'text')
