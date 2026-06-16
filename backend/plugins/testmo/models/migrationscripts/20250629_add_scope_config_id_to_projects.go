@@ -27,7 +27,7 @@ import (
 type addScopeConfigIdToProjects struct{}
 
 type TestmoProject20250629 struct {
-	ScopeConfigId uint64 `gorm:"type:BIGINT NOT NULL DEFAULT 0"`
+	ScopeConfigId uint64 `gorm:"not null;default:0"`
 }
 
 func (TestmoProject20250629) TableName() string {
