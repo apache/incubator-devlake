@@ -113,6 +113,26 @@ func PostIssueByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return postIssue(input, err, connection)
 }
 
+// PostIssuesByProjectName
+// @Summary create issue by project name
+// @Description Create issue by project name. The webhook connection will be created automatically if it does not exist.<br/>
+// @Description example: {"url":"","issue_key":"DLK-1234","title":"a feature from DLK","description":"","epic_key":"","type":"BUG","status":"TODO","original_status":"created","story_point":0,"resolution_date":null,"created_date":"2020-01-01T12:00:00+00:00","updated_date":null,"lead_time_minutes":0,"parent_issue_key":"DLK-1200","priority":"","original_estimate_minutes":0,"time_spent_minutes":0,"time_remaining_minutes":0,"creator_id":"user1131","creator_name":"Nick name 1","assignee_id":"user1132","assignee_name":"Nick name 2","severity":"","component":""}
+// @Tags plugins/webhook
+// @Param body body WebhookIssueRequest true "json body"
+// @Success 200  {string} noResponse ""
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 403  {string} errcode.Error "Forbidden"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /projects/:projectName/issues [POST]
+func PostIssuesByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// find or create the connection for this project
+	connection, err, shouldReturn := getOrCreateConnection(input, "issues")
+	if shouldReturn {
+		return nil, err
+	}
+	return postIssue(input, err, connection)
+}
+
 func postIssue(input *plugin.ApiResourceInput, err errors.Error, connection *models.WebhookConnection) (*plugin.ApiResourceOutput, errors.Error) {
 	if err != nil {
 		return nil, err
@@ -334,6 +354,12 @@ func closeIssue(input *plugin.ApiResourceInput, err errors.Error, connection *mo
 	if domainIssue.ResolutionDate == nil {
 		domainIssue.ResolutionDate = &now
 	}
+	if domainIssue.LeadTimeMinutes == nil || *domainIssue.LeadTimeMinutes == 0 {
+		if domainIssue.CreatedDate != nil {
+			temp := uint(domainIssue.ResolutionDate.Sub(*domainIssue.CreatedDate).Minutes())
+			domainIssue.LeadTimeMinutes = &temp
+		}
+	}
 	// save
 	err = tx.Update(domainIssue)
 	if err != nil {
@@ -349,6 +375,12 @@ func closeIssue(input *plugin.ApiResourceInput, err errors.Error, connection *mo
 			domainIncident.OriginalStatus = ``
 			if domainIncident.ResolutionDate == nil {
 				domainIncident.ResolutionDate = &now
+			}
+			if domainIncident.LeadTimeMinutes == nil || *domainIncident.LeadTimeMinutes == 0 {
+				if domainIncident.CreatedDate != nil {
+					temp := uint(domainIncident.ResolutionDate.Sub(*domainIncident.CreatedDate).Minutes())
+					domainIncident.LeadTimeMinutes = &temp
+				}
 			}
 			// save
 			err = tx.Update(domainIncident)
