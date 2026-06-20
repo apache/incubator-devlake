@@ -142,7 +142,9 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 				}
 			}
 		default:
-			return nil
+			// orphaned/NULL raw data (LEFT JOIN found no matching raw record): skip this
+			// row and keep scanning, instead of aborting the whole subtask.
+			continue
 		}
 
 		if len(updates) > 0 {
