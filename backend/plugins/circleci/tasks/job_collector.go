@@ -73,8 +73,10 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					dal.Where("connection_id = ? and project_slug = ?", data.Options.ConnectionId, data.Options.ProjectSlug),
 				}
 
-				if isIncremental {
-					clauses = append(clauses, dal.Where("created_date > ?", createdAfter))
+				// Incremental: workflows newer than last successful collectJobs.
+				// Full sync: workflows within SyncPolicy.TimeAfter window.
+				if createdAfter != nil {
+					clauses = append(clauses, dal.Where("created_date >= ?", createdAfter))
 				}
 
 				db := taskCtx.GetDal()
@@ -88,7 +90,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate:    "/v2/workflow/{{ .Input.Id }}/job",
 				Query:          BuildQueryParamsWithPageToken,
 				ResponseParser: ParseCircleciPageTokenResp,
-				AfterResponse:  ignoreDeletedBuilds, // Ignore the 404 response if a workflow has been deleted
+				AfterResponse:  ignoreDeletedOrBrokenBuilds,
 			},
 			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
 				var job struct { // Individual job response lacks created_at field, so have to use started_at
@@ -105,7 +107,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate:    "/v2/workflow/{{ .Input.Id }}/job", // The individual job endpoint has different fields so need to recollect all jobs for a workflow
 				Query:          BuildQueryParamsWithPageToken,
 				ResponseParser: ParseCircleciPageTokenResp,
-				AfterResponse:  ignoreDeletedBuilds,
+				AfterResponse:  ignoreDeletedOrBrokenBuilds,
 			},
 			BuildInputIterator: func() (api.Iterator, errors.Error) {
 				db := taskCtx.GetDal()
