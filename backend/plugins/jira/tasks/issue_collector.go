@@ -135,6 +135,12 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			err = json.Unmarshal(blob, &data)
 			if err != nil {
+				// By default surface the error so it's visible. Set JIRA_SKIP_UNPARSEABLE_ISSUES=true
+				// to skip unparseable pages instead of failing the collection.
+				if taskCtx.GetConfigReader().GetBool("JIRA_SKIP_UNPARSEABLE_ISSUES") {
+					logger.Warn(err, "skipping unparseable Jira issue page")
+					return nil, nil
+				}
 				return nil, errors.Convert(err)
 			}
 			return data.Issues, nil
