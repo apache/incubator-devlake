@@ -34,6 +34,11 @@ import (
 )
 
 const maxTreeResponseSize = 5 << 20
+// Upstream convention: each submissions/{org}/{repo}/ directory contains timestamped
+// assessment files plus an assessment-latest.json symlink pointing to the most recent one.
+// We only collect the symlink to avoid duplicate DB rows per repo. The GitHub Contents API
+// follows symlinks transparently, so no special handling is needed.
+const latestAssessmentFilename = "assessment-latest.json"
 
 var CollectSubmissionsMeta = plugin.SubTaskMeta{
 	Name:             "collectSubmissions",
@@ -190,6 +195,10 @@ func ParseSubmissionEntries(tree []GithubTreeEntry, submissionsPath string) []Su
 		relPath := strings.TrimPrefix(entry.Path, prefix)
 		parts := strings.SplitN(relPath, "/", 4)
 		if len(parts) != 3 {
+			continue
+		}
+
+		if parts[2] != latestAssessmentFilename {
 			continue
 		}
 

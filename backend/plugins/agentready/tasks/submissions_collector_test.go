@@ -28,9 +28,11 @@ import (
 
 func TestParseSubmissionEntries(t *testing.T) {
 	tree := []GithubTreeEntry{
-		{Path: "submissions/org1/repo1/2026-02-07T14-42-31-assessment.json", Type: "blob"},
-		{Path: "submissions/org1/repo1/2026-03-01T10-00-00-assessment.json", Type: "blob"},
-		{Path: "submissions/org2/repoA/2026-01-15T09-00-00-assessment.json", Type: "blob"},
+		{Path: "submissions/org1/repo1/assessment-20260207-144231.json", Type: "blob"},
+		{Path: "submissions/org1/repo1/assessment-20260301-100000.json", Type: "blob"},
+		{Path: "submissions/org1/repo1/assessment-latest.json", Type: "blob"},
+		{Path: "submissions/org2/repoA/assessment-20260115-090000.json", Type: "blob"},
+		{Path: "submissions/org2/repoA/assessment-latest.json", Type: "blob"},
 		{Path: "submissions/.trigger", Type: "blob"},
 		{Path: "submissions/org1", Type: "tree"},
 		{Path: "submissions/org1/repo1", Type: "tree"},
@@ -41,57 +43,54 @@ func TestParseSubmissionEntries(t *testing.T) {
 
 	entries := ParseSubmissionEntries(tree, "submissions")
 
-	if len(entries) != 3 {
-		t.Fatalf("expected 3 entries, got %d", len(entries))
+	if len(entries) != 2 {
+		t.Fatalf("expected 2 entries, got %d", len(entries))
 	}
 
-	// First match
 	if entries[0].Org != "org1" {
 		t.Errorf("entries[0].Org = %q, want %q", entries[0].Org, "org1")
 	}
 	if entries[0].Repo != "repo1" {
 		t.Errorf("entries[0].Repo = %q, want %q", entries[0].Repo, "repo1")
 	}
-	if entries[0].Filename != "2026-02-07T14-42-31-assessment.json" {
-		t.Errorf("entries[0].Filename = %q, want %q", entries[0].Filename, "2026-02-07T14-42-31-assessment.json")
+	if entries[0].Filename != "assessment-latest.json" {
+		t.Errorf("entries[0].Filename = %q, want %q", entries[0].Filename, "assessment-latest.json")
 	}
-	if entries[0].TreePath != "submissions/org1/repo1/2026-02-07T14-42-31-assessment.json" {
-		t.Errorf("entries[0].TreePath = %q, want %q", entries[0].TreePath, "submissions/org1/repo1/2026-02-07T14-42-31-assessment.json")
-	}
-
-	// Second match
-	if entries[1].Org != "org1" {
-		t.Errorf("entries[1].Org = %q, want %q", entries[1].Org, "org1")
-	}
-	if entries[1].Repo != "repo1" {
-		t.Errorf("entries[1].Repo = %q, want %q", entries[1].Repo, "repo1")
-	}
-	if entries[1].Filename != "2026-03-01T10-00-00-assessment.json" {
-		t.Errorf("entries[1].Filename = %q, want %q", entries[1].Filename, "2026-03-01T10-00-00-assessment.json")
-	}
-	if entries[1].TreePath != "submissions/org1/repo1/2026-03-01T10-00-00-assessment.json" {
-		t.Errorf("entries[1].TreePath = %q, want %q", entries[1].TreePath, "submissions/org1/repo1/2026-03-01T10-00-00-assessment.json")
+	if entries[0].TreePath != "submissions/org1/repo1/assessment-latest.json" {
+		t.Errorf("entries[0].TreePath = %q, want %q", entries[0].TreePath, "submissions/org1/repo1/assessment-latest.json")
 	}
 
-	// Third match
-	if entries[2].Org != "org2" {
-		t.Errorf("entries[2].Org = %q, want %q", entries[2].Org, "org2")
+	if entries[1].Org != "org2" {
+		t.Errorf("entries[1].Org = %q, want %q", entries[1].Org, "org2")
 	}
-	if entries[2].Repo != "repoA" {
-		t.Errorf("entries[2].Repo = %q, want %q", entries[2].Repo, "repoA")
+	if entries[1].Repo != "repoA" {
+		t.Errorf("entries[1].Repo = %q, want %q", entries[1].Repo, "repoA")
 	}
-	if entries[2].Filename != "2026-01-15T09-00-00-assessment.json" {
-		t.Errorf("entries[2].Filename = %q, want %q", entries[2].Filename, "2026-01-15T09-00-00-assessment.json")
+	if entries[1].Filename != "assessment-latest.json" {
+		t.Errorf("entries[1].Filename = %q, want %q", entries[1].Filename, "assessment-latest.json")
 	}
-	if entries[2].TreePath != "submissions/org2/repoA/2026-01-15T09-00-00-assessment.json" {
-		t.Errorf("entries[2].TreePath = %q, want %q", entries[2].TreePath, "submissions/org2/repoA/2026-01-15T09-00-00-assessment.json")
+	if entries[1].TreePath != "submissions/org2/repoA/assessment-latest.json" {
+		t.Errorf("entries[1].TreePath = %q, want %q", entries[1].TreePath, "submissions/org2/repoA/assessment-latest.json")
+	}
+}
+
+func TestParseSubmissionEntries_SkipsTimestampedFiles(t *testing.T) {
+	tree := []GithubTreeEntry{
+		{Path: "submissions/org1/repo1/assessment-20260207-144231.json", Type: "blob"},
+		{Path: "submissions/org1/repo1/assessment-20260301-100000.json", Type: "blob"},
+	}
+
+	entries := ParseSubmissionEntries(tree, "submissions")
+
+	if len(entries) != 0 {
+		t.Fatalf("expected 0 entries for timestamped-only directory, got %d", len(entries))
 	}
 }
 
 func TestParseSubmissionEntries_CustomPath(t *testing.T) {
 	tree := []GithubTreeEntry{
-		{Path: "data/assessments/org1/repo1/test.json", Type: "blob"},
-		{Path: "submissions/org1/repo1/test.json", Type: "blob"},
+		{Path: "data/assessments/org1/repo1/assessment-latest.json", Type: "blob"},
+		{Path: "submissions/org1/repo1/assessment-latest.json", Type: "blob"},
 	}
 
 	entries := ParseSubmissionEntries(tree, "data/assessments")
@@ -105,8 +104,8 @@ func TestParseSubmissionEntries_CustomPath(t *testing.T) {
 	if entries[0].Repo != "repo1" {
 		t.Errorf("Repo = %q, want %q", entries[0].Repo, "repo1")
 	}
-	if entries[0].TreePath != "data/assessments/org1/repo1/test.json" {
-		t.Errorf("TreePath = %q, want %q", entries[0].TreePath, "data/assessments/org1/repo1/test.json")
+	if entries[0].TreePath != "data/assessments/org1/repo1/assessment-latest.json" {
+		t.Errorf("TreePath = %q, want %q", entries[0].TreePath, "data/assessments/org1/repo1/assessment-latest.json")
 	}
 }
 

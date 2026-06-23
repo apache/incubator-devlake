@@ -39,5 +39,6 @@ func All() []plugin.MigrationScript {
 		new(addLineCountsToCommitCoverages),
 		new(fixCommitsDedupAndDropId),
 		new(addRepoConfigTable),
+		new(dedupRawTables),
 	}
 }
