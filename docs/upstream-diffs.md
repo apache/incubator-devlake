@@ -26,7 +26,24 @@ directory leak in `doubleClone()`.
 **Rebase notes:** Touches clone strategy selection in `clone_gitcli.go`.
 Watch for upstream changes to `CloneRepo()`, `shallowClone()`, or `doubleClone()`.
 
- ## jira: Scope collectParentIssues to current board
+## gitlab: Map WorkInProgress to IsDraft in MR converter
+
+**Files:**
+- `backend/plugins/gitlab/tasks/mr_convertor.go`
+
+**Reason:** `WorkInProgress` (from the GitLab API `work_in_progress` field) was extracted and
+stored in `_tool_gitlab_merge_requests` but never forwarded to `code.PullRequest.IsDraft`
+in the converter. This meant draft/WIP MRs were indistinguishable from non-draft MRs at the
+domain layer. One-liner fix: `IsDraft: gitlabMr.WorkInProgress`.
+
+**Upstream status:** Pending — should be contributed upstream as a bug fix.
+**Upstream PR:** none yet
+**Owner:** @fmuntean
+
+**Rebase notes:** Change is isolated to the struct literal in `mr_convertor.go`'s `Convert` func.
+No conflicts expected unless upstream touches the same field mapping block.
+
+## jira: Scope collectParentIssues to current board
   
   **Files:**
   - `backend/plugins/jira/tasks/parent_issue_collector.go` 
