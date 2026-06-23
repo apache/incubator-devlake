@@ -286,8 +286,6 @@ func batchFetchFirstReviews(projectName string, db dal.Dal) (map[string]*code.Pu
 // skip the first deployment (prev_success_deployment_commit_id == '') to avoid over-mapping.
 func batchFetchDeployments(projectName string, db dal.Dal) (map[string]*devops.CicdDeploymentCommit, errors.Error) {
 	deploymentMap := make(map[string]*devops.CicdDeploymentCommit)
-	// Phase 1: direct match — deployment.commit_sha == PR.merge_commit_sha.
-	// Safe to include even the first deployment; no risk of over-mapping.
 	var directResults []*devops.CicdDeploymentCommit
 	err := db.All(
 		&directResults,
@@ -307,9 +305,6 @@ func batchFetchDeployments(projectName string, db dal.Dal) (map[string]*devops.C
 			deploymentMap[dc.CommitSha] = &deploymentCopy
 		}
 	}
-	// Phase 2: diff-based mapping — deliberately excludes deployments with no
-	// prev_success_deployment_commit_id to prevent the first deployment from
-	// absorbing all historical PRs.
 	var diffResults []*deploymentCommitWithMergeSha
 	err = db.All(
 		&diffResults,
@@ -327,7 +322,6 @@ func batchFetchDeployments(projectName string, db dal.Dal) (map[string]*devops.C
 		return nil, errors.Default.Wrap(err, "failed to batch fetch diff-based deployments")
 	}
 	for _, result := range diffResults {
-		// Phase 1 takes priority; only fill gaps not already resolved by direct match.
 		if _, exists := deploymentMap[result.MergeSha]; !exists {
 			deploymentCopy := result.CicdDeploymentCommit
 			deploymentMap[result.MergeSha] = &deploymentCopy
