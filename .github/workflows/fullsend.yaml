@@ -1,0 +1,79 @@
+# lint-workflow-size: max-lines=280
+# fullsend shim workflow (workflow_call mode)
+# Routes events to agent workflows in .fullsend via workflow_call.
+# No secrets are needed in the enrolled repo — agents fetch scoped tokens
+# from the centralized token mint using GitHub OIDC.
+#
+# Security: pull_request_target runs the BASE branch version of this workflow,
+# preventing PRs from modifying it to exfiltrate credentials.
+# This shim never checks out PR code, so it is not vulnerable to "pwn request"
+# attacks.
+#
+# konflux-ci is replaced by reconcile-repos.sh at deploy time.
+#
+# Routing: this shim forwards the raw event context to dispatch.yml, which
+# determines the stage from event_type + event_action + payload fields.
+# Adding a new stage requires only a case branch in dispatch.yml — zero
+# changes to enrolled repos.
+name: fullsend
+
+permissions:
+  actions: write
+  id-token: write
+  contents: read
+  pull-requests: read
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, synchronize, ready_for_review, closed]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  dispatch:
+    concurrency:
+      group: fullsend-dispatch-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: false
+    if: >-
+      github.event_name != 'issue_comment'
+      || github.event.comment.user.type != 'Bot'
+    uses: konflux-ci/.fullsend/.github/workflows/dispatch.yml@main
+    with:
+      event_action: ${{ github.event.action }}
+
+  stop-fix:
+    if: >-
+      github.event_name == 'issue_comment'
+        && github.event.issue.pull_request
+        && github.event.comment.user.type != 'Bot'
+        && github.event.comment.body == '/fs-fix-stop'
+        && (
+          github.event.comment.author_association == 'OWNER'
+          || github.event.comment.author_association == 'MEMBER'
+          || github.event.comment.author_association == 'COLLABORATOR'
+          || github.event.comment.author_association == 'CONTRIBUTOR'
+          || github.event.comment.user.login == github.event.issue.user.login
+        )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Add fullsend-no-fix label and notify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh label create "fullsend-no-fix" --repo "$REPO" \
+            --description "Skip bot-triggered fix agent runs" --color "FBCA04" \
+            --force 2>/dev/null || true
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --add-label "fullsend-no-fix"
+          gh pr comment "$PR_NUMBER" --repo "$REPO" \
+            --body "Fix agent disabled for this PR. Remove the \`fullsend-no-fix\` label or use \`/fs-fix\` to re-engage."
