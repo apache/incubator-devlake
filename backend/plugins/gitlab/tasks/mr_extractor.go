@@ -65,13 +65,11 @@ type MergeRequestRes struct {
 	Assignees        []Assignee
 	FirstCommentTime common.Iso8601Time
 	Labels           []string `json:"labels"`
-	DiffStats        struct {
-
+	DiffStats *struct {
 		Additions int `json:"additions"`
-
 		Deletions int `json:"deletions"`
-
 	} `json:"diff_stats"`
+	ChangesCount string `json:"changes_count"`
 }
 
 type Reviewer struct {
@@ -252,8 +250,19 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 		AuthorUserId:     mr.Author.Id,
-		Additions:        mr.DiffStats.Additions,
-		Deletions:        mr.DiffStats.Deletions,
+	}
+	// Use diff_stats when available (GitLab 13.0+); fall back to changes_count
+	// for older self-managed instances that don't support include_diff_stats
+	if mr.DiffStats != nil && (mr.DiffStats.Additions > 0 || mr.DiffStats.Deletions > 0) {
+		gitlabMergeRequest.Additions = mr.DiffStats.Additions
+		gitlabMergeRequest.Deletions = mr.DiffStats.Deletions
+	}
+	else if mr.ChangesCount != "" && mr.ChangesCount != "0" {
+		count, err := strconv.Atoi(mr.ChangesCount)
+		if err == nil {
+			// changes_count is cumulative (bug source), but better than zero
+			gitlabMergeRequest.Additions = count
+		}
 	}
 	return gitlabMergeRequest, nil
 }
