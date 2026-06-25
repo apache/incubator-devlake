@@ -18,29 +18,27 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type CheckmarxoneFinding struct {
 	ConnectionId uint64    `gorm:"primaryKey" json:"connectionId"`
-	ProjectId    string    `gorm:"primaryKey" json:"projectId"`
-	FindingId    string    `gorm:"primaryKey" json:"findingId"`
-	Name         string    `json:"name"`
-	Severity     string    `json:"severity"`
-	Status       string    `json:"status"`
-	Description  string    `json:"description"`
+	ProjectId    string    `gorm:"primaryKey;type:varchar(255)" json:"projectId"`
+	FindingId    string    `gorm:"primaryKey;type:varchar(255)" json:"findingId"`
+	Name         string    `gorm:"type:varchar(255)" json:"name"`
+	Severity     string    `gorm:"type:varchar(50)" json:"severity"`
+	Status       string    `gorm:"type:varchar(50)" json:"status"`
+	Description  string    `gorm:"type:text" json:"description"`
 	FirstFound   time.Time `json:"firstFound"`
 	LastFound    time.Time `json:"lastFound"`
-	State        string    `json:"state"`
-	Type         string    `json:"type"`
+	State        string    `gorm:"type:varchar(50)" json:"state"`
+	Type         string    `gorm:"type:varchar(100)" json:"type"`
 	Count        int       `json:"count"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-
-	models.NoPKModel
+	common.NoPKModel
 }
 
 func (CheckmarxoneFinding) TableName() string {
-	return "checkmarxone_findings"
+	return "_tool_checkmarxone_findings"
 }

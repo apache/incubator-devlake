@@ -17,3 +17,35 @@ limitations under the License.
 
 package api
 
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
+	"github.com/apache/incubator-devlake/plugins/checkmarxone/models"
+	"github.com/go-playground/validator/v10"
+)
+
+var vld *validator.Validate
+var basicRes context.BasicRes
+var dsHelper *api.DsHelper[models.CheckmarxoneConnection, models.CheckmarxoneProject, srvhelper.NoScopeConfig]
+
+// Init initialises the api package variables
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+	basicRes = br
+	vld = validator.New()
+	dsHelper = api.NewDataSourceHelper[
+		models.CheckmarxoneConnection,
+		models.CheckmarxoneProject,
+		srvhelper.NoScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
+		func(c models.CheckmarxoneConnection) models.CheckmarxoneConnection {
+			return c.Sanitize()
+		},
+		nil,
+		nil,
+	)
+}

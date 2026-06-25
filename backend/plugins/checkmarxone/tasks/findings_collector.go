@@ -18,8 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/checkmarxone/models"
 )
 
 const RAW_FINDINGS_TABLE = "checkmarxone_api_findings"
@@ -29,7 +33,7 @@ var CollectFindingsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectFindings,
 	EnabledByDefault: true,
 	Description:      "Collect findings from CheckmarxOne API",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
 func CollectFindings(taskCtx plugin.SubTaskContext) errors.Error {
@@ -42,17 +46,37 @@ func CollectFindings(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	params := models.CheckmarxoneApiParams{
+		ConnectionId: data.Options.ConnectionId,
+		ProjectId:    data.Options.ProjectId,
+	}
+
 	for _, finding := range findings {
 		select {
 		case <-taskCtx.GetContext().Done():
-			return taskCtx.GetContext().Err()
+			return errors.Convert(taskCtx.GetContext().Err())
 		default:
 		}
 
-		err := taskCtx.SaveRawData(RAW_FINDINGS_TABLE, finding)
-		if err != nil {
-			logger.Error(err, "failed to save raw data")
-			return err
+		b, jsonErr := json.Marshal(finding)
+		if jsonErr != nil {
+			return errors.Convert(jsonErr)
+		}
+
+		paramsBytes, jsonErr := json.Marshal(params)
+		if jsonErr != nil {
+			return errors.Convert(jsonErr)
+		}
+
+		rawData := &helper.RawData{
+			Params: string(paramsBytes),
+			Data:   b,
+			Table:  RAW_FINDINGS_TABLE,
+		}
+
+		if saveErr := taskCtx.GetDal().Create(rawData); saveErr != nil {
+			logger.Error(saveErr, "failed to save raw data")
+			return saveErr
 		}
 	}
 

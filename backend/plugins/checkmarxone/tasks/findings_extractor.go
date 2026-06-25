@@ -18,78 +18,74 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	checkmarxoneModels "github.com/apache/incubator-devlake/plugins/checkmarxone/models"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/checkmarxone/models"
 )
 
 var ExtractFindingsMeta = plugin.SubTaskMeta{
 	Name:             "extractFindings",
 	EntryPoint:       ExtractFindings,
 	EnabledByDefault: true,
-	Description:      "Extract findings data",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY},
-}
-
-var ExtractFindingsMeta = plugin.SubTaskMeta{
-	Name:             "extractFindings",
-	EntryPoint:       ExtractFindings,
-	EnabledByDefault: true,
-	Description:      "Extract findings data",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY},
+	Description:      "Extract findings data from CheckmarxOne",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
 func ExtractFindings(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*CheckmarxoneTaskData)
-	logger := taskCtx.GetLogger()
 
-	extractor, err := plugin.NewDataConverter(plugin.DataConverterArgs{
-		RawDataSubTaskArgs: plugin.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Table:   RAW_FINDINGS_TABLE,
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx:   taskCtx,
+			Table: RAW_FINDINGS_TABLE,
+			Params: models.CheckmarxoneApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
+			},
 		},
-		InputRowType: func() interface{} {
-			return make(map[string]interface{})
-		},
-		Input: nil,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			rawData := inputRow.(map[string]interface{})
+		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
+			rawMap := make(map[string]interface{})
+			if e := json.Unmarshal(resData.Data, &rawMap); e != nil {
+				return nil, errors.Convert(e)
+			}
 
-			finding := checkmarxoneModels.CheckmarxoneFinding{
+			finding := &models.CheckmarxoneFinding{
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			}
 
-			if id, ok := rawData["id"].(string); ok {
+			if id, ok := rawMap["id"].(string); ok {
 				finding.FindingId = id
 			}
-			if name, ok := rawData["name"].(string); ok {
+			if name, ok := rawMap["name"].(string); ok {
 				finding.Name = name
 			}
-			if severity, ok := rawData["severity"].(string); ok {
+			if severity, ok := rawMap["severity"].(string); ok {
 				finding.Severity = severity
 			}
-			if status, ok := rawData["status"].(string); ok {
+			if status, ok := rawMap["status"].(string); ok {
 				finding.Status = status
 			}
-			if desc, ok := rawData["description"].(string); ok {
+			if desc, ok := rawMap["description"].(string); ok {
 				finding.Description = desc
 			}
-			if state, ok := rawData["state"].(string); ok {
+			if state, ok := rawMap["state"].(string); ok {
 				finding.State = state
 			}
-			if fType, ok := rawData["type"].(string); ok {
+			if fType, ok := rawMap["type"].(string); ok {
 				finding.Type = fType
 			}
-			if count, ok := rawData["count"].(float64); ok {
+			if count, ok := rawMap["count"].(float64); ok {
 				finding.Count = int(count)
 			}
 
-			return []interface{}{&finding}, nil
+			return []interface{}{finding}, nil
 		},
 	})
 	if err != nil {
-		logger.Error(err, "failed to create converter")
 		return err
 	}
 

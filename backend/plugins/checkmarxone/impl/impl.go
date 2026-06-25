@@ -22,11 +22,14 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/checkmarxone/api"
 	"github.com/apache/incubator-devlake/plugins/checkmarxone/models"
 	"github.com/apache/incubator-devlake/plugins/checkmarxone/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/checkmarxone/tasks"
 )
 
+// compile-time interface assertion
 var _ interface {
 	plugin.PluginMeta
 	plugin.PluginInit
@@ -41,33 +44,20 @@ var _ interface {
 
 type CheckmarxOne struct{}
 
-func (p CheckmarxOne) Name() string {
-	return "checkmarxone"
-}
-
-func (p CheckmarxOne) Description() string {
-	return "collect security findings from CheckmarxOne"
-}
-
+func (p CheckmarxOne) Name() string        { return "checkmarxone" }
+func (p CheckmarxOne) Description() string { return "collect security findings from CheckmarxOne" }
 func (p CheckmarxOne) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/checkmarxone"
 }
 
 func (p CheckmarxOne) Init(basicRes context.BasicRes) errors.Error {
+	api.Init(basicRes, p)
 	return nil
 }
 
-func (p CheckmarxOne) Connection() dal.Tabler {
-	return &models.CheckmarxoneConnection{}
-}
-
-func (p CheckmarxOne) Scope() plugin.ToolLayerScope {
-	return &models.CheckmarxoneProject{}
-}
-
-func (p CheckmarxOne) ScopeConfig() dal.Tabler {
-	return nil
-}
+func (p CheckmarxOne) Connection() dal.Tabler      { return &models.CheckmarxoneConnection{} }
+func (p CheckmarxOne) Scope() plugin.ToolLayerScope { return &models.CheckmarxoneProject{} }
+func (p CheckmarxOne) ScopeConfig() dal.Tabler     { return nil }
 
 func (p CheckmarxOne) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
@@ -83,16 +73,14 @@ func (p CheckmarxOne) SubTaskMetas() []plugin.SubTaskMeta {
 
 func (p CheckmarxOne) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.CheckmarxoneOptions
-	err := plugin.Helper.JsonToModel(options, &op)
-	if err != nil {
+	if err := helper.Decode(options, &op, nil); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid options")
 	}
 
-	basicRes := taskCtx.GetContext().Value(plugin.CTX_KEY_BASIC_RES).(plugin.BasicRes)
+	connectionHelper := helper.NewConnectionHelper(taskCtx, nil, p.Name())
 	connection := &models.CheckmarxoneConnection{}
-	err = basicRes.GetDal().First(connection, map[string]interface{}{"id": op.ConnectionId})
-	if err != nil {
-		return nil, errors.NotFound.Wrap(err, "connection not found")
+	if err := connectionHelper.FirstById(connection, op.ConnectionId); err != nil {
+		return nil, errors.Default.Wrap(err, "connection not found")
 	}
 
 	logger := taskCtx.GetLogger()
@@ -109,7 +97,7 @@ func (p CheckmarxOne) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 }
 
 func (p CheckmarxOne) MigrationScripts() []plugin.MigrationScript {
-	return migrationscripts.MigrationScripts{}.MigrationScripts()
+	return migrationscripts.All()
 }
 
 func (p CheckmarxOne) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -139,30 +127,24 @@ func (p CheckmarxOne) MakeDataSourcePipelinePlanV200(
 	scopes []plugin.Scope,
 	syncPolicy plugin.BlueprintSyncPolicy,
 ) (plugin.PipelinePlan, errors.Error) {
-	var err errors.Error
 	plan := plugin.PipelinePlan{}
-
 	for _, scope := range scopes {
 		scopeItem, ok := scope.(*models.CheckmarxoneProject)
 		if !ok {
 			return nil, errors.BadInput.New("invalid scope item")
 		}
-
 		stage := plugin.PipelineStage{}
 		for _, task := range p.SubTaskMetas() {
-			options := map[string]interface{}{
-				"connectionId": connectionId,
-				"projectId":    scopeItem.ProjectId,
-			}
 			stage = append(stage, &plugin.PipelineTask{
 				Plugin:   p.Name(),
 				Subtasks: []string{task.Name},
-				Options:  options,
+				Options: map[string]interface{}{
+					"connectionId": connectionId,
+					"projectId":    scopeItem.ProjectId,
+				},
 			})
 		}
-
 		plan = append(plan, stage)
 	}
-
-	return plan, err
+	return plan, nil
 }

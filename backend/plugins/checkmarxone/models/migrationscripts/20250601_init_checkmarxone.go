@@ -17,11 +17,28 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/checkmarxone/models/migrationscripts/archived"
+)
 
-// All returns all the migration scripts for checkmarxone plugin
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-	}
+type addInitTables struct{}
+
+func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.CheckmarxoneConnection{},
+		&archived.CheckmarxoneProject{},
+		&archived.CheckmarxoneFinding{},
+	)
+}
+
+func (*addInitTables) Version() uint64 {
+	return 20250601000001
+}
+
+func (*addInitTables) Name() string {
+	return "checkmarxone init schemas"
 }

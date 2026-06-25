@@ -19,126 +19,118 @@ package tasks
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/plugins/checkmarxone/models"
-	"net/http"
-	"time"
 )
 
+// CheckmarxoneApiClient is a simple HTTP client for CheckmarxOne API
 type CheckmarxoneApiClient struct {
-	client     *http.Client
-	headers    map[string]string
-	logger     log.Logger
-	serverUrl  string
-	username   string
-	password   string
-	clientId   string
+	client       *http.Client
+	logger       log.Logger
+	serverUrl    string
+	clientId     string
 	clientSecret string
-	token      string
-	tokenExpire time.Time
+	token        string
+	tokenExpire  time.Time
 }
 
+// NewCheckmarxoneApiClient creates a new authenticated API client
 func NewCheckmarxoneApiClient(logger log.Logger, connection *models.CheckmarxoneConnection) (*CheckmarxoneApiClient, errors.Error) {
-	client := &CheckmarxoneApiClient{
+	c := &CheckmarxoneApiClient{
 		client:       &http.Client{Timeout: 30 * time.Second},
 		logger:       logger,
 		serverUrl:    connection.ServerUrl,
-		username:     connection.Username,
-		password:     connection.Password,
 		clientId:     connection.ClientId,
 		clientSecret: connection.ClientSecret,
-		headers: map[string]string{
-			"Accept": "application/json",
-		},
 	}
-
-	err := client.authenticate()
-	if err != nil {
+	if err := c.authenticate(); err != nil {
 		return nil, err
 	}
-
-	return client, nil
+	return c, nil
 }
 
 func (c *CheckmarxoneApiClient) authenticate() errors.Error {
+	tokenURL := fmt.Sprintf("%s/auth/oauth/token", c.serverUrl)
 	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", c.clientId, c.clientSecret)))
 
-	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Basic %s", auth),
-		"Content-Type":  "application/x-www-form-urlencoded",
-	}
+	body := url.Values{}
+	body.Set("grant_type", "client_credentials")
 
-	res, err := utils.HTTPRequest(
-		"POST",
-		fmt.Sprintf("%s/auth/oauth/token", c.serverUrl),
-		nil,
-		map[string]string{"grant_type": "client_credentials"},
-		headers,
-		c.client,
-		false,
-	)
+	req, err := http.NewRequest("POST", tokenURL, strings.NewReader(body.Encode()))
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to create auth request")
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", auth))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	res, err := c.client.Do(req)
 	if err != nil {
 		return errors.Default.Wrap(err, "failed to authenticate with CheckmarxOne")
 	}
+	defer res.Body.Close()
 
-	if res.StatusCode != 200 {
-		return errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("failed to authenticate: %s", res.Body))
+	if res.StatusCode != http.StatusOK {
+		return errors.HttpStatus(res.StatusCode).New("CheckmarxOne authentication failed")
 	}
 
 	type TokenResponse struct {
 		AccessToken string `json:"access_token"`
 		ExpiresIn   int    `json:"expires_in"`
 	}
-
 	var tokenResp TokenResponse
-	err = utils.UnmarshalResponse(res, &tokenResp)
-	if err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&tokenResp); err != nil {
 		return errors.Default.Wrap(err, "failed to parse token response")
 	}
 
 	c.token = tokenResp.AccessToken
 	c.tokenExpire = time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
-	c.headers["Authorization"] = fmt.Sprintf("Bearer %s", c.token)
-
 	return nil
 }
 
-func (c *CheckmarxoneApiClient) GetProjects() ([]map[string]interface{}, errors.Error) {
-	url := fmt.Sprintf("%s/api/projects", c.serverUrl)
-	return c.fetch(url)
-}
-
+// GetFindings fetches findings for a project
 func (c *CheckmarxoneApiClient) GetFindings(projectId string) ([]map[string]interface{}, errors.Error) {
-	url := fmt.Sprintf("%s/api/projects/%s/results-summary", c.serverUrl, projectId)
-	return c.fetch(url)
+	endpoint := fmt.Sprintf("%s/api/projects/%s/results-summary", c.serverUrl, projectId)
+	return c.fetch(endpoint)
 }
 
-func (c *CheckmarxoneApiClient) fetch(url string) ([]map[string]interface{}, errors.Error) {
-	err := c.checkAndRefreshToken()
-	if err != nil {
+func (c *CheckmarxoneApiClient) fetch(endpoint string) ([]map[string]interface{}, errors.Error) {
+	if err := c.checkAndRefreshToken(); err != nil {
 		return nil, err
 	}
 
-	res, err := utils.HTTPRequest("GET", url, nil, nil, c.headers, c.client, false)
+	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to fetch data from CheckmarxOne")
+		return nil, errors.Default.Wrap(err, "failed to build request")
 	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
+	req.Header.Set("Accept", "application/json")
 
-	if res.StatusCode != 200 {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("failed to fetch: %s", res.Body))
+	res, err := c.client.Do(req)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "HTTP request failed")
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(res.Body)
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("API error: %s", string(b)))
 	}
 
 	type DataResponse struct {
 		Results []map[string]interface{} `json:"results"`
 		Data    []map[string]interface{} `json:"data"`
 	}
-
 	var dataResp DataResponse
-	err = utils.UnmarshalResponse(res, &dataResp)
-	if err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&dataResp); err != nil {
 		return nil, errors.Default.Wrap(err, "failed to parse response")
 	}
 
@@ -155,6 +147,7 @@ func (c *CheckmarxoneApiClient) checkAndRefreshToken() errors.Error {
 	return c.authenticate()
 }
 
+// Close releases idle connections
 func (c *CheckmarxoneApiClient) Close() {
 	c.client.CloseIdleConnections()
 }

@@ -18,21 +18,45 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models"
-	"time"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type CheckmarxoneProject struct {
-	ConnectionId uint64    `gorm:"primaryKey" json:"connectionId"`
-	ProjectId    string    `gorm:"primaryKey" json:"projectId"`
-	Name         string    `json:"name"`
-	Description  string    `json:"description"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
+// compile-time interface check
+var _ plugin.ToolLayerScope = (*CheckmarxoneProject)(nil)
 
-	models.NoPKModel
+type CheckmarxoneProject struct {
+	common.Scope `mapstructure:",squash"`
+	ProjectId    string `json:"projectId" gorm:"primaryKey;type:varchar(255)" mapstructure:"projectId"`
+	Name         string `json:"name" gorm:"type:varchar(255)"`
+	Description  string `json:"description" gorm:"type:text"`
 }
 
 func (CheckmarxoneProject) TableName() string {
-	return "checkmarxone_projects"
+	return "_tool_checkmarxone_projects"
+}
+
+func (p CheckmarxoneProject) ScopeId() string {
+	return p.ProjectId
+}
+
+func (p CheckmarxoneProject) ScopeName() string {
+	return p.Name
+}
+
+func (p CheckmarxoneProject) ScopeFullName() string {
+	return p.Name
+}
+
+func (p CheckmarxoneProject) ScopeParams() interface{} {
+	return CheckmarxoneApiParams{
+		ConnectionId: p.ConnectionId,
+		ProjectId:    p.ProjectId,
+	}
+}
+
+// CheckmarxoneApiParams identifies a unique set of data for raw data storage
+type CheckmarxoneApiParams struct {
+	ConnectionId uint64 `json:"connectionId"`
+	ProjectId    string `json:"projectId"`
 }
