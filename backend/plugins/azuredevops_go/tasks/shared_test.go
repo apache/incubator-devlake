@@ -41,6 +41,12 @@ func TestIgnoreInvalidTimelineResponse_404(t *testing.T) {
 	assert.Equal(t, api.ErrIgnoreAndContinue, err, "404 should return ErrIgnoreAndContinue")
 }
 
+func TestIgnoreInvalidTimelineResponse_204(t *testing.T) {
+	res := makeResponse(http.StatusNoContent, "")
+	err := ignoreInvalidTimelineResponse(res)
+	assert.Equal(t, api.ErrIgnoreAndContinue, err, "204 No Content should return ErrIgnoreAndContinue")
+}
+
 func TestIgnoreInvalidTimelineResponse_EmptyBody(t *testing.T) {
 	res := makeResponse(http.StatusOK, "")
 	err := ignoreInvalidTimelineResponse(res)
