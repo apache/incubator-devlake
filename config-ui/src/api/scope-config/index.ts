@@ -38,5 +38,5 @@ export const update = (plugin: string, connectionId: ID, id: ID, data: any) =>
     data,
   });
 
-export const check = (plugin: string, id: ID): Promise<ICheck> =>
+export const check = (plugin: string, connectionId: ID, id: ID): Promise<ICheck> =>
   request(`/plugins/${plugin}/scope-config/${id}/projects`);

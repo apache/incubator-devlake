@@ -54,7 +54,7 @@ func MakeDataSourcePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, bpScopes, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -69,6 +69,7 @@ func MakeDataSourcePipelinePlanV200(
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	scopeDetails []*srvhelper.ScopeDetail[models.JiraBoard, models.JiraScopeConfig],
+	bpScopes []*coreModels.BlueprintScope,
 	connection *models.JiraConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
@@ -79,6 +80,10 @@ func makeDataSourcePipelinePlanV200(
 		}
 
 		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
+		projectName := ""
+		if i < len(bpScopes) {
+			projectName = bpScopes[i].ProjectName
+		}
 		// construct task options for Jira
 		task, err := helper.MakePipelinePlanTask(
 			"jira",
@@ -87,6 +92,7 @@ func makeDataSourcePipelinePlanV200(
 			JiraTaskOptions{
 				ConnectionId: scope.ConnectionId,
 				BoardId:      scope.BoardId,
+				ProjectName:  projectName,
 			},
 		)
 		if err != nil {

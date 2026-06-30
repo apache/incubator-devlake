@@ -59,6 +59,19 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(conne
 	return scopeConfigs, err
 }
 
+// FindByScopeConfigId loads a scope config by its autoincrement ID without requiring connectionId.
+func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) FindByScopeConfigId(id uint64) (*SC, errors.Error) {
+	var config SC
+	err := scopeConfigSrv.db.First(&config, dal.Where("id = ?", id))
+	if err != nil {
+		if scopeConfigSrv.db.IsErrorNotFound(err) {
+			return nil, errors.NotFound.New("scope config not found")
+		}
+		return nil, err
+	}
+	return &config, nil
+}
+
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(pluginName string, scopeConfig *SC) (*models.ProjectScopeOutput, errors.Error) {
 	s := new(S)
 	// find out the primary key of the scope model
@@ -88,7 +101,7 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetProjectsByScopeConfig(p
 		dal.From("_devlake_blueprint_scopes bps"),
 		dal.Join("LEFT JOIN _devlake_blueprints bp ON (bp.id = bps.blueprint_id)"),
 		dal.Join(join),
-		dal.Where("bps.plugin_name = ? AND bps.connection_id = ? AND scope_config_id = ?", pluginName, (*scopeConfig).ScopeConfigConnectionId(), (*scopeConfig).ScopeConfigId()),
+		dal.Where(fmt.Sprintf("bps.plugin_name = ? AND bps.connection_id = ? AND %s.scope_config_id = ?", scopeTable), pluginName, (*scopeConfig).ScopeConfigConnectionId(), (*scopeConfig).ScopeConfigId()),
 	))
 	projectScopeMap := make(map[string]*models.ProjectScope)
 	for _, bps := range bpss {

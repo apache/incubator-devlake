@@ -81,6 +81,25 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	if apiCollector.GetSince() != nil {
 		jql = buildJQL(*apiCollector.GetSince(), loc)
 	}
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.FilterByProjectName {
+		projectName := strings.TrimSpace(data.Options.ProjectName)
+		if projectName != "" {
+			filter := fmt.Sprintf("component = '%s'", projectName)
+			parts := strings.SplitN(jql, " ORDER BY ", 2)
+			if len(parts) == 2 {
+				whereClause := strings.TrimSpace(parts[0])
+				orderClause := "ORDER BY " + strings.TrimSpace(parts[1])
+				if whereClause == "" {
+					jql = fmt.Sprintf("%s %s", filter, orderClause)
+				} else {
+					jql = fmt.Sprintf("(%s) AND %s %s", whereClause, filter, orderClause)
+				}
+			} else {
+				jql = fmt.Sprintf("(%s) AND %s", jql, filter)
+			}
+		}
+	}
+	logger.Info("collecting Jira issues with JQL: %s", jql)
 
 	err = apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient: data.ApiClient,

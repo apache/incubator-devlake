@@ -53,6 +53,10 @@ func GeneratePlanJsonV200(
 		}
 		if pluginBp, ok := p.(plugin.DataSourcePluginBlueprintV200); ok {
 			var pluginScopes []plugin.Scope
+			// Propagate the DevLake project name into each scope so plugins can apply per-project filters dynamically.
+			for _, scope := range connection.Scopes {
+				scope.ProjectName = projectName
+			}
 			sourcePlans[i], pluginScopes, err = pluginBp.MakeDataSourcePipelinePlanV200(
 				connection.ConnectionId,
 				connection.Scopes,

@@ -169,3 +169,4 @@ venv
 /backend/plugins/gitextractor/parser/demo_repo/
 
 __debug_bin*
+.copilot-specs-cache/

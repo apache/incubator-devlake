@@ -77,6 +77,8 @@ type BlueprintScope struct {
 	PluginName   string `json:"-" gorm:"primaryKey;type:varchar(255)" validate:"required"`
 	ConnectionId uint64 `json:"-" gorm:"primaryKey" validate:"required"`
 	ScopeId      string `json:"scopeId" gorm:"primaryKey;type:varchar(255)" validate:"required"`
+	// ProjectName is set at plan-build time from the blueprint project name; not persisted.
+	ProjectName string `json:"projectName,omitempty" gorm:"-"`
 }
 
 func (BlueprintScope) TableName() string {

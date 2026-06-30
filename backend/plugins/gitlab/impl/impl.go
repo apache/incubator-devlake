@@ -273,6 +273,9 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
 		},
+		"connections/:connectionId/scope-configs/:scopeConfigId/projects": {
+			"GET": api.GetProjectsByScopeConfig,
+		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},

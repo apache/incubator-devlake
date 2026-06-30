@@ -61,6 +61,7 @@ export const JiraConfig: IPluginConfig = {
     entities: ['TICKET', 'CROSS'],
     transformation: {
       storyPointField: '',
+      filterByProjectName: false,
       typeMappings: {},
       remotelinkCommitShaPattern: '',
       remotelinkRepoPattern: [],

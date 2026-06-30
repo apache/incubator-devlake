@@ -19,7 +19,7 @@
 import { useState, useEffect } from 'react';
 import { uniqWith } from 'lodash';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { theme, Collapse, Tag, Form, Select } from 'antd';
+import { theme, Collapse, Tag, Form, Select, Checkbox } from 'antd';
 
 import API from '@/api';
 import { PageLoading, HelpTooltip, ExternalLink } from '@/components';
@@ -264,6 +264,26 @@ const renderCollapseItems = ({
                 })
               }
             />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span>Filter by Project</span>
+                <HelpTooltip content="When enabled, Jira issues are filtered by component = the DevLake project name at collection time. One scope config works across all projects automatically." />
+              </>
+            }
+          >
+            <Checkbox
+              checked={transformation.filterByProjectName ?? false}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  filterByProjectName: e.target.checked,
+                })
+              }
+            >
+              Filter issues by component = &lt;project name&gt;
+            </Checkbox>
           </Form.Item>
         </Form>
       ),

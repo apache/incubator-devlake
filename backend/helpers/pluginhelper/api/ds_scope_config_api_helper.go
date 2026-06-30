@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -58,8 +60,15 @@ func (connApi *DsScopeConfigApiHelper[C, S, SC]) GetAll(input *plugin.ApiResourc
 }
 
 func (connApi *DsScopeConfigApiHelper[C, S, SC]) GetProjectsByScopeConfig(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
-	var scopeConfig *SC
-	scopeConfig, err = connApi.FindByPk(input)
+	scopeConfigIdStr, ok := input.Params["scopeConfigId"]
+	if !ok {
+		return nil, errors.BadInput.New("missing scopeConfigId")
+	}
+	scopeConfigId, e := strconv.ParseUint(scopeConfigIdStr, 10, 64)
+	if e != nil {
+		return nil, errors.BadInput.New("invalid scopeConfigId")
+	}
+	scopeConfig, err := connApi.ScopeConfigSrvHelper.FindByScopeConfigId(scopeConfigId)
 	if err != nil {
 		return nil, err
 	}
