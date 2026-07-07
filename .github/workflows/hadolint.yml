@@ -15,30 +15,26 @@
 # limitations under the License.
 #
 
-name: migration-script-lint
+name: hadolint
 on:
-  push:
-    tags:
-      - v*
-    branches:
-      - main
   pull_request:
     branches: [main]
     paths:
-      - 'backend/**/migrationscripts/**'
+      - '**/Dockerfile*'
+      - '.hadolint.yaml'
 
 permissions:
   contents: read
 
 jobs:
-  migration-script-lint:
-    name: migration-script-lint
+  hadolint:
+    name: Dockerfile lint
     runs-on: ubuntu-latest
-    container: mericodev/lake-builder:latest
     steps:
       - uses: actions/checkout@v6
-      - name: migration script linting
-        run: |
-          go version
-          cd backend
-          go run core/migration/linter/main.go -p backend $(find . -path "**/migrationscripts/**.go")
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true
+          config: .hadolint.yaml

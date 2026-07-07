@@ -74,7 +74,7 @@ jobs:
     - name: Python unit tests
       run: |
         cd backend
-        COVERAGE_OUTPUT_DIR=coverage make unit-test-python || echo "::warning::Python unit tests had failures (coverage still uploaded)"
+        COVERAGE_OUTPUT_DIR=python/coverage make unit-test-python || echo "::warning::Python unit tests had failures (coverage still uploaded)"
     - name: Install gpg for Codecov
       if: always()
       run: apt-get update -qq && apt-get install -y -qq gpg > /dev/null 2>&1

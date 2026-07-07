@@ -20,14 +20,27 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '.yamllint'
   pull_request:
+    branches: [main]
+    paths:
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '.yamllint'
+
+permissions:
+  contents: read
+
 jobs:
   yaml-lint:
     name: lint for yamls
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: github/super-linter/slim@v4
-        env:
-          FILTER_REGEX_INCLUDE: workspace/(docker-compose.yml|deployment/k8s/k8s-deploy.yaml)
-
+      - name: Lint YAML files
+        run: |
+          pip install yamllint==1.38.0
+          yamllint .

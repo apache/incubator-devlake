@@ -16,7 +16,6 @@
  *
  */
 
-export { ProjectSelect } from './project-select';
 export { GitHubConnectionSelect } from './github-connection-select';
 export { SubmissionsRepo } from './submissions-repo';
 export { SubmissionsPath } from './submissions-path';

@@ -15,30 +15,41 @@
 # limitations under the License.
 #
 
-name: migration-script-lint
+name: gitleaks
 on:
-  push:
-    tags:
-      - v*
-    branches:
-      - main
   pull_request:
     branches: [main]
-    paths:
-      - 'backend/**/migrationscripts/**'
 
 permissions:
   contents: read
 
 jobs:
-  migration-script-lint:
-    name: migration-script-lint
+  gitleaks:
+    name: secret detection
     runs-on: ubuntu-latest
-    container: mericodev/lake-builder:latest
     steps:
       - uses: actions/checkout@v6
-      - name: migration script linting
+        with:
+          fetch-depth: 0
+
+      - name: Install Gitleaks
         run: |
-          go version
-          cd backend
-          go run core/migration/linter/main.go -p backend $(find . -path "**/migrationscripts/**.go")
+          set -o errexit -o nounset -o pipefail
+          version="8.30.1"
+          archive="gitleaks_${version}_linux_x64.tar.gz"
+          curl -sSfLO "https://github.com/gitleaks/gitleaks/releases/download/v${version}/${archive}"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${version}/gitleaks_${version}_checksums.txt" \
+            | grep "$archive" | sha256sum --check --strict
+          tar -xzf "$archive"
+          sudo mv gitleaks /usr/local/bin/
+          rm -f "$archive"
+
+      - name: Run Gitleaks
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: >-
+          gitleaks detect
+          --source .
+          --config .gitleaks.toml
+          --redact
+          --log-opts="${BASE_SHA}...HEAD"

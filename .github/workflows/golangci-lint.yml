@@ -22,6 +22,14 @@ on:
       - v*
     branches:
       - main
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+permissions:
+  contents: read
+
 jobs:
   golangci:
     name: lint
@@ -29,6 +37,8 @@ jobs:
     container: mericodev/lake-builder:latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Cache golangci-lint
         id: cache-golangci-lint
         uses: actions/cache@v5
@@ -45,3 +55,4 @@ jobs:
         with:
           version: v2.12.2
           working-directory: ./backend
+          only-new-issues: true

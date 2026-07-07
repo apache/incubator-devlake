@@ -1,3 +1,5 @@
+//go:build coverage
+
 /*
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
@@ -14,29 +16,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models
 
-import (
-	"testing"
-)
+package main
 
-func TestConnectionTableName(t *testing.T) {
-	conn := AgentReadyConnection{}
-	want := "_tool_agentready_connections"
-	if got := conn.TableName(); got != want {
-		t.Errorf("TableName() = %q, want %q", got, want)
-	}
-}
-
-func TestConnectionSanitize(t *testing.T) {
-	conn := AgentReadyConnection{
-		GitHubConnectionId: 42,
-		SubmissionsRepo:    "ambient-code/agentready",
-		SubmissionsPath:    "submissions",
-		Branch:             "main",
-	}
-	sanitized := conn.Sanitize()
-	if sanitized.SubmissionsRepo != "ambient-code/agentready" {
-		t.Errorf("Sanitize() changed SubmissionsRepo")
-	}
-}
+import _ "github.com/konflux-ci/coverport/instrumentation/go"

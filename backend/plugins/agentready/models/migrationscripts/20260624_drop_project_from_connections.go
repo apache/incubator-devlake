@@ -14,29 +14,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models
+package migrationscripts
 
 import (
-	"testing"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-func TestConnectionTableName(t *testing.T) {
-	conn := AgentReadyConnection{}
-	want := "_tool_agentready_connections"
-	if got := conn.TableName(); got != want {
-		t.Errorf("TableName() = %q, want %q", got, want)
-	}
+var _ plugin.MigrationScript = (*dropProjectFromConnections)(nil)
+
+type dropProjectFromConnections struct{}
+
+func (script *dropProjectFromConnections) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().DropColumns("_tool_agentready_connections", "project")
 }
 
-func TestConnectionSanitize(t *testing.T) {
-	conn := AgentReadyConnection{
-		GitHubConnectionId: 42,
-		SubmissionsRepo:    "ambient-code/agentready",
-		SubmissionsPath:    "submissions",
-		Branch:             "main",
-	}
-	sanitized := conn.Sanitize()
-	if sanitized.SubmissionsRepo != "ambient-code/agentready" {
-		t.Errorf("Sanitize() changed SubmissionsRepo")
-	}
+func (script *dropProjectFromConnections) Version() uint64 {
+	return 20260624000001
+}
+
+func (script *dropProjectFromConnections) Name() string {
+	return "agentready drop unused project column from connections"
 }

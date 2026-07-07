@@ -25,6 +25,7 @@ linters:
   enable:
     - errcheck
     - goheader
+    - gosec
     - govet
     - importas
     - ineffassign
@@ -35,6 +36,16 @@ linters:
   settings:
     goheader:
       template-path: .golangci-goheader.template
+    gosec:
+      excludes:
+        # G115: integer overflow conversion — too noisy for legitimate type conversions
+        - G115
+        # G401: use of weak crypto primitive (md5/sha1) — used for non-security ID hashing
+        - G401
+        # G501: blocklisted import crypto/md5 — same rationale as G401
+        - G501
+        # G505: blocklisted import crypto/sha1 — same rationale as G401
+        - G505
     govet:
       disable:
         - inline
@@ -239,6 +250,37 @@ linters:
       - linters:
           - revive
         path: plugins/([^hc].*|.[^eo].*|..[^lr].*|...[^pe].*|....[^e].*|.....[^r].*)
+      # Baselined gosec findings in pre-existing code. Track for future resolution.
+      # G402 (TLS InsecureSkipVerify) — configurable API client option
+      - linters:
+          - gosec
+        text: "G402"
+        path: helpers/pluginhelper/
+      # G107 (SSRF via variable URL) — standard HTTP client usage in plugins
+      - linters:
+          - gosec
+        text: "G107"
+        path: plugins/(gh-copilot|taiga)/|server/services/
+      # G204 (subprocess with variable args) — plugin execution patterns
+      - linters:
+          - gosec
+        text: "G204"
+        path: plugins/(dbt|testregistry)/
+      # G703 (path traversal via taint) — controlled file paths
+      - linters:
+          - gosec
+        text: "G703"
+        path: plugins/(github|testregistry)/
+      # G124 (insecure cookie attributes) — OIDC helper
+      - linters:
+          - gosec
+        text: "G124"
+        path: helpers/oidchelper/
+      # G122 (filepath.Walk race) — controlled directory traversal
+      - linters:
+          - gosec
+        text: "G122"
+        path: plugins/testregistry/
     paths:
       - third_party$
       - builtin$

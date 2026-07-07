@@ -1,3 +1,4 @@
+#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -14,36 +15,32 @@
 # limitations under the License.
 #
 
-# This docker-compose file is intended for local development testing to be used quickly for IT tests
-version: "3"
+# E2E coverage overlay — use with:
+#   docker compose -f docker-compose-dev.yml -f docker-compose-e2e-coverage.yml up -d
+#
+# WARNING: Sets AUTH_ENABLED=false — do not use outside CI/test environments.
+#
+# Backend: built with -cover + coverport HTTP server on port 9095.
 services:
+  mysql:
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-umerico", "-pmerico"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
-  mysql-test:
-    image: mysql:8.0.26
-    platform: linux/x86_64
-    volumes:
-      - mysql-test-storage:/var/lib/mysql
-    restart: always
+  devlake:
+    build:
+      context: backend
+      args:
+        DEVLAKE_COVER: "1"
+    depends_on:
+      mysql:
+        condition: service_healthy
     ports:
-      - "3307:3306"
+      - "9095:9095"
     environment:
-      MYSQL_ROOT_PASSWORD: admin
-      MYSQL_DATABASE: lake
-      MYSQL_USER: merico
-      MYSQL_PASSWORD: merico
-
-  postgres-test:
-    image: postgres:14.2-alpine
-    restart: always
-    ports:
-      - "3308:5432"
-    volumes:
-      - postgres-test-storage:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: lake
-      POSTGRES_USER: merico
-      POSTGRES_PASSWORD: merico
-
-volumes:
-  mysql-test-storage:
-  postgres-test-storage:
+      COVERAGE_PORT: "9095"
+      DB_URL: mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC
+      FORCE_MIGRATION: "true"
+      AUTH_ENABLED: "false"

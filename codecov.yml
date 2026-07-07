@@ -46,6 +46,16 @@ flags:
       - backend/plugins/aireview/
       - backend/plugins/codecov/
       - backend/plugins/testregistry/
+  unit-tests-python:
+    carryforward: true
+    paths:
+      - backend/python/
+  e2e-go:
+    carryforward: true
+    paths:
+      - backend/plugins/aireview/
+      - backend/plugins/codecov/
+      - backend/plugins/testregistry/
 
 comment:
   layout: "reach,diff,flags,files,footer"

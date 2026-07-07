@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,32 +12,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-name: migration-script-lint
-on:
-  push:
-    tags:
-      - v*
-    branches:
-      - main
-  pull_request:
-    branches: [main]
-    paths:
-      - 'backend/**/migrationscripts/**'
+title = "devlake gitleaks config"
 
-permissions:
-  contents: read
+[extend]
+useDefault = true
 
-jobs:
-  migration-script-lint:
-    name: migration-script-lint
-    runs-on: ubuntu-latest
-    container: mericodev/lake-builder:latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: migration script linting
-        run: |
-          go version
-          cd backend
-          go run core/migration/linter/main.go -p backend $(find . -path "**/migrationscripts/**.go")
+[allowlist]
+description = "Global allowlist"
+paths = [
+  '''^vendor/''',
+  '''^backend/vendor/''',
+  # Test fixtures and mock data
+  '''^backend/.*/testdata/''',
+  '''^backend/.*/e2e/''',
+  # Generated mocks
+  '''^backend/mocks/''',
+  # Grafana dashboard JSON (contains example data, not secrets)
+  # Provisioning configs under grafana/provisioning/ are NOT excluded
+  '''^grafana/dashboards/''',
+]

@@ -27,11 +27,12 @@ describe('EntitiesLabel', () => {
     expect(EntitiesLabel.CODEREVIEW).toBe('Code Review');
     expect(EntitiesLabel.CICD).toBe('CI/CD');
     expect(EntitiesLabel.CROSS).toBe('Cross Domain');
+    expect(EntitiesLabel.CLAUDE_CODE).toBe('Claude Code');
     expect(EntitiesLabel.CODEQUALITY).toBe('Code Quality Domain');
   });
 
-  it('contains exactly 6 entity types', () => {
-    expect(Object.keys(EntitiesLabel)).toHaveLength(6);
+  it('contains exactly 7 entity types', () => {
+    expect(Object.keys(EntitiesLabel)).toHaveLength(7);
   });
 });
 

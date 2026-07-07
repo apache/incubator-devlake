@@ -19,7 +19,12 @@ name: check-Apache-license-header
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   check-ASF-header:

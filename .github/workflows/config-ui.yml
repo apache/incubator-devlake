@@ -18,9 +18,13 @@
 name: config-ui
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'config-ui/**'
+
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest

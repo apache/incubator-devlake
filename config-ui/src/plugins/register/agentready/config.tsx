@@ -19,13 +19,7 @@
 import { IPluginConfig } from '@/types';
 
 import Icon from './assets/icon.svg?react';
-import {
-  ProjectSelect,
-  GitHubConnectionSelect,
-  SubmissionsRepo,
-  SubmissionsPath,
-  BranchInput,
-} from './connection-fields';
+import { GitHubConnectionSelect, SubmissionsRepo, SubmissionsPath, BranchInput } from './connection-fields';
 
 export const AgentReadyConfig: IPluginConfig = {
   plugin: 'agentready',
@@ -33,18 +27,9 @@ export const AgentReadyConfig: IPluginConfig = {
   icon: ({ color }) => <Icon fill={color} />,
   sort: 16,
   connection: {
-    docLink: '',
+    docLink: 'https://github.com/konflux-ci/devlake/tree/main/backend/plugins/agentready#connection-model',
     fields: [
       'name',
-      ({ initialValues, values, errors, setValues, setErrors }: any) => (
-        <ProjectSelect
-          initialValue={initialValues?.project ?? values?.project ?? ''}
-          value={values?.project ?? ''}
-          error={errors?.project ?? ''}
-          setValue={(value: string) => setValues({ project: value })}
-          setError={(error: string) => setErrors({ project: error })}
-        />
-      ),
       ({ initialValues, values, errors, setValues, setErrors }: any) => (
         <GitHubConnectionSelect
           initialValue={initialValues?.githubConnectionId ?? values?.githubConnectionId ?? 0}

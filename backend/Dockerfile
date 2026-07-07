@@ -72,6 +72,7 @@ ARG TARGETPLATFORM
 ARG TAG=
 ARG SHA=
 ARG GO_PLUGINS=
+ARG DEVLAKE_COVER=
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
     ln -s /usr/local/deps/aarch64 /usr/local/deps/target && \
@@ -79,6 +80,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     export GOARCH=arm64 && \
     export PKG_CONFIG_PATH=/usr/local/deps/target/lib/pkgconfig && \
     export CGO_ENABLED=1 && \
+    export DEVLAKE_COVER="$DEVLAKE_COVER" && \
     DEVLAKE_PLUGINS="$GO_PLUGINS" make all
 
 # remove symlink in lib, we will recreate in final image

@@ -154,6 +154,7 @@ libgit2
 .playwright-cli/
 
 # auto generated code
+backend/coverage.out
 backend/mocks/
 backend/server/api/docs/swagger.json
 backend/server/api/docs/swagger.yaml
@@ -180,3 +181,9 @@ custom-ca.crt
 
 # agentready assessment reports
 .agentready/
+
+# E2E coverage data
+e2e-coverage/
+e2e/coverage/
+e2e/playwright-report/
+e2e/test-results/

@@ -47,10 +47,12 @@ require (
 	github.com/gin-contrib/cors v1.7.2
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
+	github.com/konflux-ci/coverport/instrumentation/go v0.0.0-20260625095013-f8efda237236
 	github.com/merico-ai/graphql v0.0.0-20260206020408-b7fd267bcfac
 	github.com/rogpeppe/go-internal v1.11.0
 	golang.org/x/mod v0.17.0
 	google.golang.org/api v0.149.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -146,5 +148,4 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
