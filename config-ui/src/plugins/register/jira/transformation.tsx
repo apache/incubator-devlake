@@ -275,7 +275,7 @@ const renderCollapseItems = ({
             extra='Tip: use Go template variables to make this dynamic, e.g. owner = "{{.BoardName}}"'
           >
             <Input
-              placeholder='e.g. component = "{{.DevLakeProjectName}}" or project = "my-project"'
+              placeholder='e.g. component = "my-project"'
               value={transformation.extraJql}
               onChange={(e) =>
                 onChangeTransformation({
