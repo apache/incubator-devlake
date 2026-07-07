@@ -143,11 +143,10 @@ func Test_buildFilterJQL(t *testing.T) {
 }
 
 func Test_renderExtraJQL(t *testing.T) {
-	makeData := func(boardId uint64, boardName string, projectName string) *JiraTaskData {
+	makeData := func(boardId uint64, boardName string, _ string) *JiraTaskData {
 		return &JiraTaskData{
-			Options:            &JiraOptions{BoardId: boardId},
-			Board:              &models.JiraBoard{BoardId: boardId, Name: boardName},
-			DevLakeProjectName: projectName,
+			Options: &JiraOptions{BoardId: boardId},
+			Board:   &models.JiraBoard{BoardId: boardId, Name: boardName},
 		}
 	}
 
@@ -175,12 +174,6 @@ func Test_renderExtraJQL(t *testing.T) {
 			tmpl: `cf[10001] = {{.BoardId}}`,
 			data: makeData(99, "Some Board", ""),
 			want: `cf[10001] = 99`,
-		},
-		{
-			name: "DevLakeProjectName substitution",
-			tmpl: `component = "{{.DevLakeProjectName}}"`,
-			data: makeData(1, "Big Shared Board", "payments-service"),
-			want: `component = "payments-service"`,
 		},
 		{
 			name: "nil Board falls back to empty BoardName",

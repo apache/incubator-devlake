@@ -25,8 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/api"
@@ -252,21 +250,6 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
 		Board:          scope,
-	}
-
-	// Look up the DevLake project this board belongs to via project_mapping.
-	// This is best-effort: if the board is not yet mapped (e.g. first run or
-	// manual trigger outside a blueprint) we leave DevLakeProjectName empty.
-	if scope != nil {
-		domainBoardId := didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(scope.ConnectionId, scope.BoardId)
-		var pm crossdomain.ProjectMapping
-		if lookupErr := db.First(&pm, dal.Where(
-			"`table` = ? AND row_id = ?", "boards", domainBoardId,
-		)); lookupErr == nil {
-			taskData.DevLakeProjectName = pm.ProjectName
-		} else if !db.IsErrorNotFound(lookupErr) {
-			logger.Warn(lookupErr, "failed to look up project mapping for board %d", scope.BoardId)
-		}
 	}
 
 	return taskData, nil

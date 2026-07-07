@@ -269,10 +269,10 @@ const renderCollapseItems = ({
             label={
               <>
                 <span>Extra JQL</span>
-                <HelpTooltip content="Additional JQL clause ANDed into every issue query. Supports Go text/template syntax. Available variables: {{.DevLakeProjectName}} (DevLake project name — empty string if the board has no project mapping), {{.BoardName}} (Jira board display name), {{.BoardId}} (numeric board ID). Example: component = &quot;{{.DevLakeProjectName}}&quot;" />
+                <HelpTooltip content="Additional JQL clause ANDed into every issue query. Supports Go text/template syntax. Available variables: {{.BoardName}} (Jira board display name), {{.BoardId}} (numeric board ID)." />
               </>
             }
-            extra='Tip: use Go template variables to make this dynamic, e.g. component = "{{.DevLakeProjectName}}"'
+            extra='Tip: use Go template variables to make this dynamic, e.g. owner = "{{.BoardName}}"'
           >
             <Input
               placeholder='e.g. component = "{{.DevLakeProjectName}}" or project = "my-project"'
