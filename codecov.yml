@@ -38,6 +38,12 @@ ignore:
   - "**/*_mock.go"
   - "**/*_test.go"
   - "**/*_test.py"
+  - ".github/**"
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/*.toml"
+  - "**/*.sh"
+  - "**/*.md"
 
 flags:
   unit-tests-go:
