@@ -31,6 +31,7 @@ import (
 	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
 	claudeCode "github.com/apache/incubator-devlake/plugins/claude_code/impl"
 	clickup "github.com/apache/incubator-devlake/plugins/clickup/impl"
+	cursor "github.com/apache/incubator-devlake/plugins/cursor/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
 	feishu "github.com/apache/incubator-devlake/plugins/feishu/impl"
@@ -107,6 +108,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("webhook/models", webhook.Webhook{}.GetTablesInfo)
 	checker.FeedIn("zentao/models", zentao.Zentao{}.GetTablesInfo)
 	checker.FeedIn("claude_code/models", claudeCode.ClaudeCode{}.GetTablesInfo)
+	checker.FeedIn("cursor/models", cursor.Cursor{}.GetTablesInfo)
 	checker.FeedIn("circleci/models", circleci.Circleci{}.GetTablesInfo)
 	checker.FeedIn("clickup/models", clickup.ClickUp{}.GetTablesInfo)
 	checker.FeedIn("opsgenie/models", opsgenie.Opsgenie{}.GetTablesInfo)
