@@ -50,7 +50,7 @@ func CollectMembers(taskCtx plugin.SubTaskContext) errors.Error {
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: rawArgs,
 		ApiClient:          apiClient,
-		PageSize:           1,
+		PageSize:           0,
 		UrlTemplate:        "teams/members",
 		ResponseParser:     parseMembersResponse,
 	})
