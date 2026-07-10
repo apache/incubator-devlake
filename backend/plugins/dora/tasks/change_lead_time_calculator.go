@@ -283,7 +283,7 @@ func batchFetchFirstReviews(projectName string, db dal.Dal) (map[string]*code.Pu
 // directly equals a PR's merge_commit_sha. Safe even for the very first deployment.
 //
 // Phase 2 - Diff-based fallback: use the commits_diffs join strategy, but deliberately
-// skip the first deployment (prev_success_deployment_commit_id == '') to avoid over-mapping.
+// skip the first deployment (prev_success_deployment_commit_id == "") to avoid over-mapping.
 func batchFetchDeployments(projectName string, db dal.Dal) (map[string]*devops.CicdDeploymentCommit, errors.Error) {
 	deploymentMap := make(map[string]*devops.CicdDeploymentCommit)
 	var directResults []*devops.CicdDeploymentCommit
