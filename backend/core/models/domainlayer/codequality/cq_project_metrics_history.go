@@ -25,19 +25,19 @@ import (
 
 type CqProjectMetricsHistory struct {
 	domainlayer.DomainEntity
-	ProjectKey            string    `gorm:"index;type:varchar(500)"`
-	AnalysisDate          time.Time `gorm:"index"`
-	Coverage              *float64
-	Ncloc                 *int
-	Bugs                  *int
-	ReliabilityRating     string `gorm:"type:varchar(5)"`
-	CodeSmells            *int
-	SqaleRating           string `gorm:"type:varchar(5)"`
-	Complexity            *int
-	CognitiveComplexity   *int
-	Vulnerabilities       *int
-	SecurityRating        string `gorm:"type:varchar(5)"`
-	SecurityHotspots      *int
+	ProjectKey             string    `gorm:"index;type:varchar(500)"`
+	AnalysisDate           time.Time `gorm:"index"`
+	Coverage               *float64
+	Ncloc                  *int
+	Bugs                   *int
+	ReliabilityRating      string `gorm:"type:varchar(5)"`
+	CodeSmells             *int
+	SqaleRating            string `gorm:"type:varchar(5)"`
+	Complexity             *int
+	CognitiveComplexity    *int
+	Vulnerabilities        *int
+	SecurityRating         string `gorm:"type:varchar(5)"`
+	SecurityHotspots       *int
 	DuplicatedLinesDensity *float64
 }
 

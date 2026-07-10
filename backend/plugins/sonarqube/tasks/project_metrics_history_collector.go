@@ -54,8 +54,8 @@ func CollectProjectMetricsHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
-		ApiClient: data.ApiClient,
-		PageSize:  1000,
+		ApiClient:   data.ApiClient,
+		PageSize:    1000,
 		UrlTemplate: "measures/search_history",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

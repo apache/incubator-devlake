@@ -51,8 +51,8 @@ func CollectProjectAnalyses(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	err = apiCollector.InitCollector(helper.ApiCollectorArgs{
-		ApiClient: data.ApiClient,
-		PageSize:  500,
+		ApiClient:   data.ApiClient,
+		PageSize:    500,
 		UrlTemplate: "project_analyses/search",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
