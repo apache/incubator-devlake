@@ -60,8 +60,10 @@ func CollectWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					dal.Where("connection_id = ? AND project_slug = ?", data.Options.ConnectionId, data.Options.ProjectSlug),
 				}
 
-				if isIncremental {
-					clauses = append(clauses, dal.Where("created_date > ?", createdAfter))
+				// Incremental: pipelines newer than last successful collectWorkflows.
+				// Full sync: pipelines within SyncPolicy.TimeAfter window.
+				if createdAfter != nil {
+					clauses = append(clauses, dal.Where("created_date >= ?", createdAfter))
 				}
 
 				db := taskCtx.GetDal()
@@ -75,7 +77,7 @@ func CollectWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate:    "/v2/pipeline/{{ .Input.Id }}/workflow",
 				Query:          BuildQueryParamsWithPageToken,
 				ResponseParser: ParseCircleciPageTokenResp,
-				AfterResponse:  ignoreDeletedBuilds, // Ignore the 404 response if a workflow has been deleted
+				AfterResponse:  ignoreDeletedOrBrokenBuilds,
 			},
 			GetCreated: extractCreatedAt,
 		},
@@ -88,7 +90,7 @@ func CollectWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					err := api.UnmarshalResponse(res, &data)
 					return []json.RawMessage{data}, err
 				},
-				AfterResponse: ignoreDeletedBuilds,
+				AfterResponse: ignoreDeletedOrBrokenBuilds,
 			},
 			BuildInputIterator: func() (api.Iterator, errors.Error) {
 				clauses := []dal.Clause{

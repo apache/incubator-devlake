@@ -29,7 +29,7 @@ build-config-ui-image:
 	cd config-ui; docker build -t $(IMAGE_REPO)/devlake-config-ui:$(TAG) --file ./Dockerfile .
 
 build-grafana-image:
-	cd grafana; docker build -t $(IMAGE_REPO)/devlake-dashboard:$(TAG) --file ./backend/Dockerfile .
+	cd grafana; docker build -t $(IMAGE_REPO)/devlake-dashboard:$(TAG) --file ./Dockerfile .
 
 build-images: build-server-image build-config-ui-image build-grafana-image
 
