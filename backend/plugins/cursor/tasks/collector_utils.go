@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/plugins/cursor/models"
 )
 
 const (
@@ -48,6 +49,19 @@ type cursorRawParams struct {
 
 func (p cursorRawParams) GetParams() any {
 	return p
+}
+
+func rawParamsFromTaskData(data *CursorTaskData) cursorRawParams {
+	endpoint := models.DefaultEndpoint
+	if data.Connection != nil {
+		data.Connection.Normalize()
+		endpoint = data.Connection.Endpoint
+	}
+	return cursorRawParams{
+		ConnectionId: data.Options.ConnectionId,
+		ScopeId:      data.Options.ScopeId,
+		Endpoint:     endpoint,
+	}
 }
 
 type cursorTimeRangeInput struct {
@@ -176,8 +190,8 @@ func parseEventTimestampMs(raw string) (time.Time, errors.Error) {
 	return time.UnixMilli(ms).UTC(), nil
 }
 
-func computeEventId(timestamp, userEmail, conversationId, model string, chargedCents float64, requestsCosts int) string {
-	payload := fmt.Sprintf("%s|%s|%s|%s|%v|%d", timestamp, userEmail, conversationId, model, chargedCents, requestsCosts)
+func computeEventId(timestamp, userEmail, conversationId, model string, chargedCents, requestsCosts float64) string {
+	payload := fmt.Sprintf("%s|%s|%s|%s|%v|%v", timestamp, userEmail, conversationId, model, chargedCents, requestsCosts)
 	sum := sha256.Sum256([]byte(payload))
 	return hex.EncodeToString(sum[:])
 }

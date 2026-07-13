@@ -50,10 +50,7 @@ func ExtractUserSpend(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx:   taskCtx,
 			Table: rawUserSpendTable,
-			Options: cursorRawParams{
-				ConnectionId: data.Options.ConnectionId,
-				ScopeId:      data.Options.ScopeId,
-			},
+			Options: rawParamsFromTaskData(data),
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var wrapped spendRawRecord

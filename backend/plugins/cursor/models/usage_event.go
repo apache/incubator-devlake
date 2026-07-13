@@ -35,7 +35,7 @@ type CursorUsageEvent struct {
 	Kind             string  `json:"kind" gorm:"type:varchar(100)"`
 	ConversationId   string  `json:"conversationId" gorm:"type:varchar(64);index"`
 	ChargedCents     float64 `json:"chargedCents"`
-	RequestsCosts    int     `json:"requestsCosts"`
+	RequestsCosts    float64 `json:"requestsCosts"`
 	IsTokenBasedCall bool    `json:"isTokenBasedCall"`
 	IsChargeable     bool    `json:"isChargeable"`
 	MaxMode          bool    `json:"maxMode"`

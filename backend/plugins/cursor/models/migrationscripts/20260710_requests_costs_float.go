@@ -17,12 +17,23 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+)
 
-// All returns the ordered list of migration scripts for the Cursor plugin.
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addCursorInitialTables),
-		new(changeCursorRequestsCostsToFloat),
+type changeCursorRequestsCostsToFloat struct{}
+
+func (script *changeCursorRequestsCostsToFloat) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if !db.HasTable("_tool_cursor_usage_events") {
+		return nil
 	}
+	return db.Exec("ALTER TABLE _tool_cursor_usage_events MODIFY COLUMN requests_costs DOUBLE")
+}
+
+func (*changeCursorRequestsCostsToFloat) Version() uint64 { return 20260710120000 }
+
+func (*changeCursorRequestsCostsToFloat) Name() string {
+	return "cursor change requests_costs column to double"
 }

@@ -32,7 +32,7 @@ type usageEventRecord struct {
 	Model            string           `json:"model"`
 	Kind             string           `json:"kind"`
 	MaxMode          bool             `json:"maxMode"`
-	RequestsCosts    int              `json:"requestsCosts"`
+	RequestsCosts    float64          `json:"requestsCosts"`
 	IsTokenBasedCall bool             `json:"isTokenBasedCall"`
 	TokenUsage       *usageTokenUsage `json:"tokenUsage"`
 	UserEmail        string           `json:"userEmail"`
@@ -64,10 +64,7 @@ func ExtractUsageEvents(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx:   taskCtx,
 			Table: rawUsageEventsTable,
-			Options: cursorRawParams{
-				ConnectionId: data.Options.ConnectionId,
-				ScopeId:      data.Options.ScopeId,
-			},
+			Options: rawParamsFromTaskData(data),
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var record usageEventRecord

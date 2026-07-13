@@ -97,22 +97,15 @@ func CollectUserSpend(taskCtx plugin.SubTaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New("task data is not CursorTaskData")
 	}
-	connection := data.Connection
-	connection.Normalize()
-
-	apiClient, err := CreateApiClient(taskCtx.TaskContext(), connection)
+	apiClient, err := CreateApiClient(taskCtx.TaskContext(), data.Connection)
 	if err != nil {
 		return err
 	}
 
 	rawArgs := helper.RawDataSubTaskArgs{
-		Ctx:   taskCtx,
-		Table: rawUserSpendTable,
-		Options: cursorRawParams{
-			ConnectionId: data.Options.ConnectionId,
-			ScopeId:      data.Options.ScopeId,
-			Endpoint:     connection.Endpoint,
-		},
+		Ctx:     taskCtx,
+		Table:   rawUserSpendTable,
+		Options: rawParamsFromTaskData(data),
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

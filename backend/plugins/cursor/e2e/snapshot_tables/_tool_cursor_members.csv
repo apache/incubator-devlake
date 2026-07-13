@@ -1,0 +1,2 @@
+connection_id,scope_id,user_id,email,name,role,is_removed
+1,team,user_example123,user@example.com,Example User,member,0
