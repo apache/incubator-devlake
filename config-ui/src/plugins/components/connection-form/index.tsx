@@ -111,7 +111,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
 
   const {
     name,
-    connection: { docLink, fields, initialValues },
+    connection: { docLink, fields, initialValues = {} },
   } = getPluginConfig(plugin) ?? {};
 
   const disabled = useMemo(() => {

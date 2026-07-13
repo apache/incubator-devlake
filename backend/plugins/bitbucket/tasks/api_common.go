@@ -238,7 +238,10 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusUnauthorized {
 		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 	}
-	if res.StatusCode == http.StatusNotFound {
+	// 404: repo has no issue tracker. 410 Gone: Bitbucket has sunset the issue
+	// tracker/wiki API, so the endpoint is permanently removed for the repo.
+	// Both mean "nothing to collect" — skip gracefully instead of retrying.
+	if res.StatusCode == http.StatusNotFound || res.StatusCode == http.StatusGone {
 		return api.ErrIgnoreAndContinue
 	}
 	return nil

@@ -64,6 +64,7 @@ export const JiraConfig: IPluginConfig = {
       typeMappings: {},
       remotelinkCommitShaPattern: '',
       remotelinkRepoPattern: [],
+      extraJql: '',
     },
   },
 };

@@ -117,17 +117,15 @@ type WorkspaceResponse struct {
 	Values  []GroupResponse `json:"values"`
 }
 
+// GroupResponse maps an entry from GET /2.0/user/workspaces, the supported
+// replacement after Bitbucket CHANGE-2770 removed the cross-workspace
+// GET /2.0/user/permissions/workspaces and deprecated GET /2.0/workspaces.
+// Each value nests the workspace slug/name under a "workspace" object.
 type GroupResponse struct {
-	//Type       string `json:"type"`
-	//Permission string `json:"permission"`
-	//LastAccessed time.Time `json:"last_accessed"`
-	//AddedOn      time.Time `json:"added_on"`
 	Workspace WorkspaceItem `json:"workspace"`
 }
 
 type WorkspaceItem struct {
-	//Type string `json:"type"`
-	//Uuid string `json:"uuid"`
 	Slug string `json:"slug" group:"id"`
 	Name string `json:"name" group:"name"`
 }

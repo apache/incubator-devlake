@@ -40,14 +40,13 @@ func CollectBoardFilterEnd(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger.Info("collect board in collectBoardFilterEnd: %d", data.Options.BoardId)
 
-	// get board filter id
-	filterId, err := getBoardFilterId(data)
+	boardConfig, err := getBoardConfiguration(data)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter id for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting board configuration for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
+	filterId := boardConfig.Filter.ID
 	logger.Info("collect board filter:%s", filterId)
 
-	// get board filter jql
 	filterInfo, err := getBoardFilterJql(data, filterId)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter jql for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
@@ -55,7 +54,6 @@ func CollectBoardFilterEnd(taskCtx plugin.SubTaskContext) errors.Error {
 	jql := filterInfo.Jql
 	logger.Info("collect board filter jql:%s", jql)
 
-	// should not change
 	var record models.JiraBoard
 	err = db.First(&record, dal.Where("connection_id = ? AND board_id = ? ", data.Options.ConnectionId, data.Options.BoardId))
 	if err != nil {
@@ -63,11 +61,20 @@ func CollectBoardFilterEnd(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	logger.Info("get board filter jql:%s", record.Jql)
 
+	cfg := taskCtx.GetConfigReader()
+	autoRefresh := cfg.GetBool("JIRA_JQL_AUTO_FULL_REFRESH")
+
 	if record.Jql != jql {
-		cfg := taskCtx.GetConfigReader()
-		flag := cfg.GetBool("JIRA_JQL_AUTO_FULL_REFRESH")
-		if !flag {
+		if !autoRefresh {
 			return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
+		}
+		logger.Warn(nil, "connection_id:%d board_id:%d filter jql changed during collection (previous: %s, now: %s)", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql)
+	}
+
+	if record.SubQuery != boardConfig.SubQuery.Query {
+		logger.Warn(nil, "connection_id:%d board_id:%d board sub-filter changed during collection (previous: %s, now: %s)", data.Options.ConnectionId, data.Options.BoardId, record.SubQuery, boardConfig.SubQuery.Query)
+		if !autoRefresh {
+			return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d board sub-filter has changed during collection, please use fullSync mode. Previous sub-filter: %s, now: %s", data.Options.ConnectionId, data.Options.BoardId, record.SubQuery, boardConfig.SubQuery.Query))
 		}
 	}
 

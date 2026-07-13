@@ -1,0 +1,224 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": "postgresql",
+      "description": "Per-team and per-user Copilot activity in the selected time range",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "postgresql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ut.team_slug as \"Team\", udm.user_login as \"User\", SUM(udm.user_initiated_interaction_count) as \"Interactions\", SUM(udm.code_generation_activity_count) as \"Suggestions\", SUM(udm.code_acceptance_activity_count) as \"Acceptances\", ROUND(SUM(udm.code_acceptance_activity_count) * 100.0 / NULLIF(SUM(udm.code_generation_activity_count), 0), 1) as \"Acceptance Rate %\" FROM _tool_copilot_user_teams ut JOIN _tool_copilot_user_daily_metrics udm ON ut.connection_id = udm.connection_id AND ut.scope_id = udm.scope_id AND ut.day = udm.day AND ut.user_id = udm.user_id WHERE ut.connection_id = ${connection_id} AND ut.scope_id = '${scope_id}' AND $__timeFilter(ut.day) GROUP BY ut.team_slug, udm.user_login HAVING SUM(udm.code_generation_activity_count) > 0 ORDER BY \"Suggestions\" DESC LIMIT 50",
+          "refId": "A"
+        }
+      ],
+      "title": "Team and User Breakdown",
+      "type": "table"
+    },
+    {
+      "datasource": "postgresql",
+      "description": "Weekly suggestions by team over the selected time range",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "postgresql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT DATE(DATE_SUB(ut.day, INTERVAL WEEKDAY(ut.day) DAY)) as time, ut.team_slug as metric, SUM(udm.code_generation_activity_count) as value FROM _tool_copilot_user_teams ut JOIN _tool_copilot_user_daily_metrics udm ON ut.connection_id = udm.connection_id AND ut.scope_id = udm.scope_id AND ut.day = udm.day AND ut.user_id = udm.user_id WHERE ut.connection_id = ${connection_id} AND ut.scope_id = '${scope_id}' AND $__timeFilter(ut.day) GROUP BY time, ut.team_slug ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Teams by Weekly Suggestions",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "copilot",
+    "team",
+    "gh-copilot"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "datasource": "postgresql",
+        "definition": "SELECT DISTINCT connection_id FROM _tool_copilot_enterprise_daily_metrics ORDER BY 1",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Connection ID",
+        "multi": false,
+        "name": "connection_id",
+        "options": [],
+        "query": "SELECT DISTINCT connection_id FROM _tool_copilot_scopes ORDER BY connection_id DESC",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "datasource": "postgresql",
+        "definition": "SELECT DISTINCT id as scope_id FROM _tool_copilot_scopes WHERE connection_id = ${connection_id} ORDER BY 1",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Scope ID",
+        "multi": false,
+        "name": "scope_id",
+        "options": [],
+        "query": "SELECT DISTINCT id as scope_id FROM _tool_copilot_scopes WHERE connection_id = ${connection_id} ORDER BY 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "GitHub Copilot Adoption by Team and User",
+  "uid": "github-copilot-adoption-by-team-and-user",
+  "version": 1,
+  "weekStart": ""
+}
