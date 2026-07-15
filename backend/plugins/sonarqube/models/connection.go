@@ -21,12 +21,19 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/utils"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+)
+
+const (
+	userTokenPrefix            = "squ_"
+	globalAnalysisTokenPrefix  = "sqa_"
+	projectAnalysisTokenPrefix = "sqp_"
 )
 
 type SonarqubeAccessToken helper.AccessToken
@@ -92,7 +99,40 @@ func (connection *SonarqubeConnection) MergeFromRequest(target *SonarqubeConnect
 	return nil
 }
 
-func (connection *SonarqubeConnection) IsCloud() bool {
+// ValidateUserTokenPrefix ensures the token is a SonarQube User token on Server
+// instances. Global (sqa_) and Project (sqp_) analysis tokens authenticate but
+// cannot call read APIs such as measures/component_tree.
+func (connection SonarqubeConn) ValidateUserTokenPrefix() errors.Error {
+	if connection.IsCloud() {
+		return nil
+	}
+	token := strings.TrimSpace(connection.Token)
+	if token == "" {
+		return errors.BadInput.New("token is required")
+	}
+	switch {
+	case strings.HasPrefix(token, globalAnalysisTokenPrefix):
+		return errors.BadInput.New(
+			"DevLake requires a User token (squ_ prefix). " +
+				"Global Analysis tokens (sqa_) can push scan results but cannot read project metrics via the Web API. " +
+				"Create a User token under My Account > Security in SonarQube.",
+		)
+	case strings.HasPrefix(token, projectAnalysisTokenPrefix):
+		return errors.BadInput.New(
+			"DevLake requires a User token (squ_ prefix). " +
+				"Project Analysis tokens (sqp_) can push scan results but cannot read project metrics via the Web API. " +
+				"Create a User token under My Account > Security in SonarQube.",
+		)
+	case !strings.HasPrefix(token, userTokenPrefix):
+		return errors.BadInput.New(
+			"DevLake requires a User token (squ_ prefix) for SonarQube Server. " +
+				"Create one under My Account > Security in SonarQube.",
+		)
+	}
+	return nil
+}
+
+func (connection SonarqubeConn) IsCloud() bool {
 	return connection.Endpoint == "https://sonarcloud.io/api/"
 }
 
