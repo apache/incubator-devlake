@@ -47,7 +47,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "- Use Cases: This dashboard shows the code quality metrics from SonarCloud.\n- Data Source Required: SonarCloud\n- This dashboard does not honor the time filter on the top-right side as SonarQube metrics are all from the latest scan.",
+        "content": "- Use Cases: This dashboard shows the code quality metrics from SonarCloud.\n- Data Source Required: SonarCloud\n- Snapshot panels (Software Quality, Security Review, Test, etc.) show the latest scan and do not honor the time filter.\n- **Historical Trends** panels at the bottom respond to the time range selector and show metric history over time.",
         "mode": "markdown"
       },
       "pluginVersion": "11.2.0",
@@ -1428,6 +1428,271 @@
       ],
       "title": "Code Quality Metrics by Files (Top 20 order by Bugs)",
       "type": "table"
+    },
+    {
+      "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
+      "id": 27,
+      "panels": [
+        {
+          "datasource": "postgresql",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 2,
+                "fillOpacity": 10,
+                "spanNulls": true,
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "pointSize": 5
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 45
+          },
+          "id": 28,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": "postgresql",
+              "editorMode": "code",
+              "format": "time_series",
+              "rawQuery": true,
+              "rawSql": "SELECT pmh.analysis_date AS time, pmh.coverage AS \"Coverage %\" FROM cq_project_metrics_history AS pmh WHERE ('${project_id:csv}' = '' OR pmh.project_key::text = ANY(ARRAY[${project_id:singlequote}]::text[])) AND $__timeFilter(pmh.analysis_date) ORDER BY pmh.analysis_date ASC NULLS FIRST",
+              "refId": "A"
+            }
+          ],
+          "title": "Coverage Trend",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "postgresql",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 2,
+                "fillOpacity": 10,
+                "spanNulls": true,
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "pointSize": 5
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 45
+          },
+          "id": 29,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": "postgresql",
+              "editorMode": "code",
+              "format": "time_series",
+              "rawQuery": true,
+              "rawSql": "SELECT pmh.analysis_date AS time, pmh.bugs AS \"Bugs\", pmh.vulnerabilities AS \"Vulnerabilities\" FROM cq_project_metrics_history AS pmh WHERE ('${project_id:csv}' = '' OR pmh.project_key::text = ANY(ARRAY[${project_id:singlequote}]::text[])) AND $__timeFilter(pmh.analysis_date) ORDER BY pmh.analysis_date ASC NULLS FIRST",
+              "refId": "A"
+            }
+          ],
+          "title": "Bugs & Vulnerabilities Trend",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "postgresql",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 2,
+                "fillOpacity": 10,
+                "spanNulls": true,
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "pointSize": 5
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 53
+          },
+          "id": 30,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": "postgresql",
+              "editorMode": "code",
+              "format": "time_series",
+              "rawQuery": true,
+              "rawSql": "SELECT pmh.analysis_date AS time, pmh.code_smells AS \"Code Smells\" FROM cq_project_metrics_history AS pmh WHERE ('${project_id:csv}' = '' OR pmh.project_key::text = ANY(ARRAY[${project_id:singlequote}]::text[])) AND $__timeFilter(pmh.analysis_date) ORDER BY pmh.analysis_date ASC NULLS FIRST",
+              "refId": "A"
+            }
+          ],
+          "title": "Code Smells Trend",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "postgresql",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 2,
+                "fillOpacity": 10,
+                "spanNulls": true,
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "pointSize": 5
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 53
+          },
+          "id": 31,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": "postgresql",
+              "editorMode": "code",
+              "format": "time_series",
+              "rawQuery": true,
+              "rawSql": "SELECT pmh.analysis_date AS time, pmh.duplicated_lines_density AS \"Duplication %\" FROM cq_project_metrics_history AS pmh WHERE ('${project_id:csv}' = '' OR pmh.project_key::text = ANY(ARRAY[${project_id:singlequote}]::text[])) AND $__timeFilter(pmh.analysis_date) ORDER BY pmh.analysis_date ASC NULLS FIRST",
+              "refId": "A"
+            }
+          ],
+          "title": "Duplication Trend",
+          "type": "timeseries"
+        }
+      ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "Historical Trends",
+      "type": "row"
     }
   ],
   "refresh": "",
@@ -1491,7 +1756,7 @@
     ]
   },
   "time": {
-    "from": "now",
+    "from": "now-6M",
     "to": "now"
   },
   "timepicker": {},
