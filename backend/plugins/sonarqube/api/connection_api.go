@@ -44,6 +44,9 @@ func testConnection(ctx context.Context, connection models.SonarqubeConn) (*plug
 			return nil, errors.Default.Wrap(err, "error validating target")
 		}
 	}
+	if err := connection.ValidateUserTokenPrefix(); err != nil {
+		return nil, err
+	}
 	apiClient, err := api.NewApiClientFromConnection(ctx, basicRes, &connection)
 	if err != nil {
 		return nil, err

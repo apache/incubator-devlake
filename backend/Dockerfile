@@ -50,7 +50,7 @@ RUN if [ "$(arch)" != "x86_64" ] ; then \
     fi
 
 RUN go install github.com/vektra/mockery/v2@v2.53.6
-RUN go install github.com/swaggo/swag/cmd/swag@v1.16.1
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
 COPY --from=debian-amd64 /usr/include /rootfs-amd64/usr/include
 COPY --from=debian-amd64 /usr/lib/x86_64-linux-gnu /rootfs-amd64/usr/lib/x86_64-linux-gnu

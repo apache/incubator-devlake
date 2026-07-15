@@ -146,5 +146,6 @@ func All() []plugin.MigrationScript {
 		new(increaseCqIssuesProjectKeyLength),
 		new(addAuthSessions),
 		new(changeIssueComponentToText),
+		new(addCqProjectMetricsHistory),
 	}
 }
