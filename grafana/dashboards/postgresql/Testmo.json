@@ -77,7 +77,7 @@
         "content": "- Use Cases: This dashboard shows comprehensive test management metrics from Testmo.\n- Data Source Required: Testmo\n- Metrics: Test execution, success rates, coverage, and performance analytics",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -116,7 +116,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total number of test runs executed in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -158,10 +158,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -176,7 +176,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Percentage of test runs that passed successfully",
       "fieldConfig": {
         "defaults": {
@@ -227,10 +227,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -245,7 +245,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Test execution results over time showing pass/fail/skip distribution",
       "fieldConfig": {
         "defaults": {
@@ -363,10 +363,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -380,7 +380,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total number of Testmo runs (new data source)",
       "fieldConfig": {
         "defaults": {
@@ -422,10 +422,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -439,7 +439,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Average execution time per test run in minutes",
       "fieldConfig": {
         "defaults": {
@@ -491,10 +491,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -508,7 +508,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily count of test runs from the new runs data source",
       "fieldConfig": {
         "defaults": {
@@ -599,7 +599,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -613,7 +613,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Test coverage across different projects",
       "fieldConfig": {
         "defaults": {
@@ -684,7 +684,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -723,7 +723,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Success rate trend over time",
       "fieldConfig": {
         "defaults": {
@@ -797,7 +797,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -810,7 +810,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Average test execution time trend",
       "fieldConfig": {
         "defaults": {
@@ -882,7 +882,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -895,7 +895,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Comparison between automation runs and regular test runs over time",
       "fieldConfig": {
         "defaults": {
@@ -1001,7 +1001,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -1010,7 +1010,7 @@
           "refId": "A"
         },
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -1023,7 +1023,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Test runs that take the longest time to execute",
       "fieldConfig": {
         "defaults": {
@@ -1113,10 +1113,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1149,7 +1149,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -1181,7 +1181,7 @@
             "$__all"
           ]
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT name || '--' || id FROM _tool_testmo_connections",
         "hide": 0,
         "includeAll": true,
@@ -1202,7 +1202,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT name FROM _tool_testmo_projects WHERE ('${connection_id:csv}' = '' OR connection_id::text = ANY(ARRAY[${connection_id:singlequote}]::text[]))",
         "hide": 0,
         "includeAll": true,

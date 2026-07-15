@@ -22,7 +22,7 @@
   "liveNow": false,
   "panels": [
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Latest daily active users count",
       "fieldConfig": {
         "defaults": {
@@ -70,10 +70,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT daily_active_users AS \"Daily Active Users\" FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY day DESC NULLS LAST LIMIT 1",
@@ -84,7 +84,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Code acceptance rate across the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -134,10 +134,10 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) AS \"Acceptance Rate %\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -148,7 +148,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total lines of code added by Copilot in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -188,10 +188,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT SUM(loc_added_sum) AS \"Lines Added\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -202,7 +202,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total pull requests created by Copilot in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -242,10 +242,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT SUM(pr_total_created_by_copilot) AS \"PRs by Copilot\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -256,7 +256,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Latest weekly active users count",
       "fieldConfig": {
         "defaults": {
@@ -296,10 +296,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(DISTINCT user_login) AS \"Weekly Active Users\" FROM _tool_copilot_user_daily_metrics WHERE day >= CURRENT_DATE - INTERVAL '7 DAY' AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -310,7 +310,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Latest monthly active users count",
       "fieldConfig": {
         "defaults": {
@@ -350,10 +350,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(DISTINCT user_login) AS \"Monthly Active Users\" FROM _tool_copilot_user_daily_metrics WHERE day >= CURRENT_DATE - INTERVAL '28 DAY' AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -364,7 +364,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total pull requests reviewed by Copilot in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -404,10 +404,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT SUM(pr_total_reviewed_by_copilot) AS \"PRs Reviewed by Copilot\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -418,7 +418,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total user-initiated interactions in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -458,10 +458,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT SUM(user_initiated_interaction_count) AS \"User-Initiated Interactions\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -472,7 +472,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily and monthly active users over time",
       "fieldConfig": {
         "defaults": {
@@ -543,10 +543,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT day AS time, daily_active_users AS \"Daily Active\", monthly_active_users AS \"Monthly Active\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY 1 NULLS FIRST",
@@ -557,7 +557,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Code suggestions generated vs accepted over time",
       "fieldConfig": {
         "defaults": {
@@ -628,10 +628,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT day AS time, code_generation_activity_count AS \"Suggestions\", code_acceptance_activity_count AS \"Acceptances\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY 1 NULLS FIRST",
@@ -642,7 +642,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Lines of code suggested to add versus lines added over time",
       "fieldConfig": {
         "defaults": {
@@ -713,10 +713,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT day AS time, loc_suggested_to_add_sum AS \"LOC Suggested\", loc_added_sum AS \"LOC Added\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY 1 NULLS FIRST",
@@ -727,7 +727,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Pull request activity over time",
       "fieldConfig": {
         "defaults": {
@@ -798,10 +798,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT day AS time, pr_total_created AS \"PRs Created\", pr_total_created_by_copilot AS \"PRs Created by Copilot\", pr_total_reviewed AS \"PRs Reviewed\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY 1 NULLS FIRST",
@@ -812,7 +812,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Weekly user-initiated interactions by top Copilot features",
       "fieldConfig": {
         "defaults": {
@@ -887,10 +887,10 @@
           "group": "A"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT CAST(day - (EXTRACT(ISODOW FROM day) - 1) * INTERVAL '1 day' AS DATE) AS time, CASE WHEN feature IN (SELECT feature FROM (SELECT feature FROM _tool_copilot_metrics_by_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"feature\" HAVING SUM(user_initiated_interaction_count) > 0 ORDER BY SUM(user_initiated_interaction_count) DESC NULLS LAST LIMIT 4) AS top_features) THEN REPLACE(REPLACE(feature, 'chat_panel_', ''), '_mode', '') ELSE 'Other' END AS metric, SUM(user_initiated_interaction_count) AS value FROM _tool_copilot_metrics_by_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"time\", \"metric\" ORDER BY time NULLS FIRST",
@@ -916,7 +916,7 @@
       ]
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Weekly user-initiated interactions by top IDEs (Top 5 + Other)",
       "fieldConfig": {
         "defaults": {
@@ -991,10 +991,10 @@
           "group": "A"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT CAST(day - (EXTRACT(ISODOW FROM day) - 1) * INTERVAL '1 day' AS DATE) AS time, CASE WHEN ide IN (SELECT ide FROM (SELECT ide FROM _tool_copilot_metrics_by_ide WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"ide\" HAVING SUM(user_initiated_interaction_count) > 0 ORDER BY SUM(user_initiated_interaction_count) DESC NULLS LAST LIMIT 4) AS top_ides) THEN ide ELSE 'Other' END AS metric, SUM(user_initiated_interaction_count) AS value FROM _tool_copilot_metrics_by_ide WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"time\", \"metric\" ORDER BY time NULLS FIRST",
@@ -1020,7 +1020,7 @@
       ]
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Top languages ranked by code acceptance rate",
       "fieldConfig": {
         "defaults": {
@@ -1056,10 +1056,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT language AS \"Language\", SUM(code_generation_activity_count) AS \"Suggestions\", SUM(code_acceptance_activity_count) AS \"Acceptances\", ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) AS \"Acceptance Rate %\" FROM _tool_copilot_metrics_by_language_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"language\" HAVING SUM(code_generation_activity_count) > 0 ORDER BY ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) DESC NULLS LAST, SUM(code_generation_activity_count) DESC NULLS LAST LIMIT 15",
@@ -1070,7 +1070,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Top models ranked by code acceptance rate",
       "fieldConfig": {
         "defaults": {
@@ -1106,10 +1106,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT model AS \"Model\", SUM(code_generation_activity_count) AS \"Suggestions\", SUM(code_acceptance_activity_count) AS \"Acceptances\", ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) AS \"Acceptance Rate %\" FROM _tool_copilot_metrics_by_model_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"model\" HAVING SUM(code_generation_activity_count) > 0 ORDER BY ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) DESC NULLS LAST, SUM(code_generation_activity_count) DESC NULLS LAST LIMIT 10",
@@ -1120,7 +1120,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Matrix-style breakdown of suggestions and acceptances by language and feature",
       "fieldConfig": {
         "defaults": {
@@ -1156,10 +1156,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT language AS \"Language\", feature AS \"Feature\", SUM(code_generation_activity_count) AS \"Suggestions\", SUM(code_acceptance_activity_count) AS \"Acceptances\" FROM _tool_copilot_metrics_by_language_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"language\", \"feature\" HAVING SUM(code_generation_activity_count) > 0 ORDER BY language NULLS FIRST, SUM(code_generation_activity_count) DESC NULLS LAST LIMIT 100",
@@ -1170,7 +1170,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Count of distinct users active in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -1210,10 +1210,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(DISTINCT user_login) AS \"Unique Users\" FROM _tool_copilot_user_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -1224,7 +1224,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Users who have used Copilot agent mode",
       "fieldConfig": {
         "defaults": {
@@ -1264,10 +1264,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(DISTINCT user_login) AS \"Agent Users\" FROM _tool_copilot_user_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND used_agent = 1",
@@ -1278,7 +1278,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Users who have used Copilot chat",
       "fieldConfig": {
         "defaults": {
@@ -1318,10 +1318,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(DISTINCT user_login) AS \"Chat Users\" FROM _tool_copilot_user_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND used_chat = 1",
@@ -1332,7 +1332,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Percentage of seats with recorded activity",
       "fieldConfig": {
         "defaults": {
@@ -1382,10 +1382,10 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT CAST(COUNT(CASE WHEN NOT last_activity_at IS NULL THEN 1 END) * 100.0 AS NUMERIC) / NULLIF(NULLIF(COUNT(*), 0), 0) AS \"Utilization %\" FROM _tool_copilot_seats WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}')",
@@ -1409,7 +1409,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily acceptance rate trend computed as acceptances divided by suggestions",
       "fieldConfig": {
         "defaults": {
@@ -1451,10 +1451,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT day AS time, CAST(code_acceptance_activity_count AS NUMERIC) / NULLIF(NULLIF(code_generation_activity_count, 0), 0) AS \"Acceptance Rate\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY 1 NULLS FIRST",
@@ -1465,7 +1465,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily LOC yield trend computed as added LOC divided by suggested LOC",
       "fieldConfig": {
         "defaults": {
@@ -1505,10 +1505,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT day AS time, ROUND(CAST(loc_added_sum AS NUMERIC) / NULLIF(NULLIF(loc_suggested_to_add_sum, 0), 0), 2) AS \"LOC Yield\" FROM _tool_copilot_enterprise_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY 1 NULLS FIRST",
@@ -1519,7 +1519,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Acceptance ratio by Copilot feature",
       "fieldConfig": {
         "defaults": {
@@ -1555,10 +1555,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT feature AS \"Feature\", SUM(code_generation_activity_count) AS \"Suggestions\", SUM(code_acceptance_activity_count) AS \"Acceptances\", ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) AS \"Acceptance Rate %\" FROM _tool_copilot_metrics_by_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"feature\" HAVING SUM(code_generation_activity_count) > 0 ORDER BY ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) DESC NULLS LAST, SUM(code_generation_activity_count) DESC NULLS LAST LIMIT 20",
@@ -1569,7 +1569,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Acceptance ratio by programming language",
       "fieldConfig": {
         "defaults": {
@@ -1605,10 +1605,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT language AS \"Language\", SUM(code_generation_activity_count) AS \"Suggestions\", SUM(code_acceptance_activity_count) AS \"Acceptances\", ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) AS \"Acceptance Rate %\" FROM _tool_copilot_metrics_by_language_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"language\" HAVING SUM(code_generation_activity_count) > 0 ORDER BY ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) DESC NULLS LAST, SUM(code_generation_activity_count) DESC NULLS LAST LIMIT 20",
@@ -1619,7 +1619,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Acceptance ratio by model",
       "fieldConfig": {
         "defaults": {
@@ -1655,10 +1655,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT model AS \"Model\", SUM(code_generation_activity_count) AS \"Suggestions\", SUM(code_acceptance_activity_count) AS \"Acceptances\", ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) AS \"Acceptance Rate %\" FROM _tool_copilot_metrics_by_model_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"model\" HAVING SUM(code_generation_activity_count) > 0 ORDER BY ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) DESC NULLS LAST, SUM(code_generation_activity_count) DESC NULLS LAST LIMIT 20",
@@ -1682,7 +1682,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Top users ranked by code generation activity in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -1718,10 +1718,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT user_login AS \"user_login\", SUM(code_generation_activity_count) AS \"suggestions\", SUM(code_acceptance_activity_count) AS \"acceptances\", ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) AS \"acceptance %\" FROM _tool_copilot_user_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"user_login\" HAVING SUM(code_generation_activity_count) > 0 ORDER BY SUM(code_generation_activity_count) DESC NULLS LAST LIMIT 25",
@@ -1732,7 +1732,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily trend of distinct users engaging with agent mode versus chat",
       "fieldConfig": {
         "defaults": {
@@ -1803,10 +1803,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT day AS time, COUNT(DISTINCT CASE WHEN used_agent = 1 THEN user_login END) AS \"Agent Users\", COUNT(DISTINCT CASE WHEN used_chat = 1 THEN user_login END) AS \"Chat Users\" FROM _tool_copilot_user_daily_metrics WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY \"day\" ORDER BY 1 NULLS FIRST",
@@ -1817,7 +1817,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "First-seen daily trend of users becoming active for the first time",
       "fieldConfig": {
         "defaults": {
@@ -1888,10 +1888,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT first_day AS time, COUNT(*) AS \"New Active Users\" FROM (SELECT user_login, MIN(day) AS first_day FROM _tool_copilot_user_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY user_login) AS first_seen WHERE $__timeFilter(first_day) GROUP BY first_day ORDER BY 1 NULLS FIRST",
@@ -1915,7 +1915,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Distribution of seat activity by last recorded editor",
       "fieldConfig": {
         "defaults": {
@@ -1962,10 +1962,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(NULLIF(last_activity_editor, ''), 'unknown') AS \"Editor\", COUNT(*) AS \"Seats\" FROM _tool_copilot_seats WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND ('${scope_id}' = '' OR organization = '${scope_id}' OR organization = '') GROUP BY COALESCE(NULLIF(last_activity_editor, ''), 'unknown') ORDER BY COUNT(*) DESC NULLS LAST",
@@ -1976,7 +1976,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total, active (last 30 days), and inactive seats for the selected scope",
       "fieldConfig": {
         "defaults": {
@@ -2012,10 +2012,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(*) AS \"total_seats\", SUM(CASE WHEN NOT last_activity_at IS NULL AND last_activity_at >= CURRENT_TIMESTAMP - INTERVAL '30 DAY' THEN 1 ELSE 0 END) AS \"active_seats\", SUM(CASE WHEN last_activity_at IS NULL OR last_activity_at < CURRENT_TIMESTAMP - INTERVAL '30 DAY' THEN 1 ELSE 0 END) AS \"inactive_seats\" FROM _tool_copilot_seats WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND ('${scope_id}' = '' OR organization = '${scope_id}' OR organization = '')",
@@ -2026,7 +2026,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Seats with no activity or activity older than 30 days",
       "fieldConfig": {
         "defaults": {
@@ -2062,10 +2062,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT user_login AS \"user_login\", last_activity_at AS \"last_activity_at\", plan_type AS \"plan_type\" FROM _tool_copilot_seats WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND ('${scope_id}' = '' OR organization = '${scope_id}' OR organization = '') AND (last_activity_at IS NULL OR last_activity_at < CURRENT_TIMESTAMP - INTERVAL '30 DAY') ORDER BY last_activity_at IS NULL DESC NULLS LAST, last_activity_at ASC NULLS FIRST LIMIT 100",
@@ -2089,7 +2089,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Latest available day in enterprise-level Copilot metrics",
       "fieldConfig": {
         "defaults": {
@@ -2129,10 +2129,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE((EXTRACT(EPOCH FROM (CURRENT_DATE AT TIME ZONE 'UTC' - MAX(day)))/86400), 9999) AS \"Days Since Latest Data\" FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -2143,7 +2143,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Share of generated suggestions tied to unknown model/feature taxonomy",
       "fieldConfig": {
         "defaults": {
@@ -2193,10 +2193,10 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT ROUND(CAST(SUM(CASE WHEN LOWER(COALESCE(model, '')) = 'unknown' OR LOWER(COALESCE(feature, '')) LIKE '%unknown%' THEN code_generation_activity_count ELSE 0 END) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 2) AS \"Unknown Taxonomy %\" FROM _tool_copilot_metrics_by_model_feature WHERE $__timeFilter(day) AND ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}'",
@@ -2207,7 +2207,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Row counts for core Copilot metrics tables",
       "fieldConfig": {
         "defaults": {
@@ -2243,10 +2243,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT * FROM (SELECT '_tool_copilot_enterprise_daily_metrics' AS table_name, COUNT(*) AS row_count FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' UNION ALL SELECT '_tool_copilot_user_daily_metrics' AS table_name, COUNT(*) AS row_count FROM _tool_copilot_user_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' UNION ALL SELECT '_tool_copilot_metrics_by_feature' AS table_name, COUNT(*) AS row_count FROM _tool_copilot_metrics_by_feature WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' UNION ALL SELECT '_tool_copilot_metrics_by_model_feature' AS table_name, COUNT(*) AS row_count FROM _tool_copilot_metrics_by_model_feature WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' UNION ALL SELECT '_tool_copilot_seats' AS table_name, COUNT(*) AS row_count FROM _tool_copilot_seats WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND ('${scope_id}' = '' OR organization = '${scope_id}' OR organization = '')) AS data_volume ORDER BY row_count DESC NULLS LAST",
@@ -2271,7 +2271,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT connection_id FROM _tool_copilot_enterprise_daily_metrics ORDER BY 1 NULLS FIRST",
         "hide": 0,
         "includeAll": false,
@@ -2292,7 +2292,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT id AS scope_id FROM _tool_copilot_scopes WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') ORDER BY 1 NULLS FIRST",
         "hide": 0,
         "includeAll": false,

@@ -50,7 +50,7 @@
         "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from Bamboo, such as [Build Count](https://devlake.apache.org/docs/Metrics/BuildCount), [Build Duration](https://devlake.apache.org/docs/Metrics/BuildDuration) and [Build Success Rate](https://devlake.apache.org/docs/Metrics/BuildSuccessRate). A build in Bamboo is an execution of a Bamboo Plan.\n- Data Source Required: Bamboo",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -65,7 +65,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Number of builds executed in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -111,10 +111,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -165,7 +165,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Number of successful builds / Number of total builds",
       "fieldConfig": {
         "defaults": {
@@ -214,10 +214,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -268,7 +268,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -401,10 +401,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -455,7 +455,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Number of successful builds / Number of total builds",
       "fieldConfig": {
         "defaults": {
@@ -502,10 +502,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -556,7 +556,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -639,10 +639,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -694,7 +694,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "1. Mean Build success rate over time.\n2. The builds being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -797,10 +797,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -851,7 +851,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -964,10 +964,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "group": [],
           "hide": false,
@@ -1001,7 +1001,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1100,10 +1100,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -1157,7 +1157,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -1189,7 +1189,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "select concat(name, '--', id) as text from cicd_scopes where id like \"bamboo%\" ",
         "hide": 0,
         "includeAll": true,
