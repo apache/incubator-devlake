@@ -16,7 +16,7 @@
 name: devlake-postgresql
 
 services:
-  postgres:
+  postgres: 
     image: postgres:17.2
     volumes:
       - postgres-storage:/var/lib/postgresql
