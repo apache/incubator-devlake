@@ -29,6 +29,7 @@ export const JiraConfig: IPluginConfig = {
   sort: 9,
   connection: {
     docLink: DOC_URL.PLUGIN.JIRA.BASIS,
+    initialValues: {},
     fields: [
       'name',
       ({ type, initialValues, values, errors, setValues, setErrors }: any) => (
