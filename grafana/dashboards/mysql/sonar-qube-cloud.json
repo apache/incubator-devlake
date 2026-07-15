@@ -50,7 +50,7 @@
         "content": "- Use Cases: This dashboard shows the code quality metrics from SonarCloud.\n- Data Source Required: SonarCloud\n- Snapshot panels (Software Quality, Security Review, Test, etc.) show the latest scan and do not honor the time filter.\n- **Historical Trends** panels at the bottom respond to the time range selector and show metric history over time.",
         "mode": "markdown"
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -89,7 +89,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -144,11 +144,11 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -177,7 +177,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -232,11 +232,11 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -265,7 +265,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -320,11 +320,11 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -366,7 +366,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -422,11 +422,11 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -455,7 +455,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -511,11 +511,11 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -570,7 +570,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -626,11 +626,11 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -659,7 +659,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -716,11 +716,11 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -749,7 +749,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -806,11 +806,11 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -865,7 +865,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -921,11 +921,11 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -954,7 +954,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1010,11 +1010,11 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -1056,7 +1056,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1113,11 +1113,11 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -1146,7 +1146,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1203,11 +1203,11 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -1236,7 +1236,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1293,11 +1293,11 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -1339,7 +1339,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1397,11 +1397,11 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "dataset": "lake",
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -1705,7 +1705,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "select concat(name, '--', id) as text from cq_projects",
         "hide": 0,
         "includeAll": true,
@@ -1730,7 +1730,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "select distinct severity from cq_issues where id like 'sonar%'",
         "hide": 0,
         "includeAll": true,

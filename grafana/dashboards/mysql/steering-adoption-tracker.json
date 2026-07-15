@@ -19,7 +19,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -38,7 +38,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT ROUND(COUNT(DISTINCT CASE WHEN has_steering = 1 THEN user_id END) * 100.0 / NULLIF(COUNT(DISTINCT user_id), 0), 0) AS 'value'\nFROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
@@ -49,7 +49,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -68,7 +68,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT ROUND(COUNT(DISTINCT CASE WHEN is_spec_mode = 1 THEN user_id END) * 100.0 / NULLIF(COUNT(DISTINCT user_id), 0), 0) AS 'value'\nFROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
@@ -79,7 +79,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -98,7 +98,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT ROUND(SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS 'value'\nFROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
@@ -109,7 +109,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Weekly trend of steering and spec mode adoption rate",
       "fieldConfig": {
         "defaults": {
@@ -131,7 +131,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY) AS time,\n  SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) / COUNT(*) AS 'Steering Rate',\n  SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) / COUNT(*) AS 'Spec Mode Rate'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY)\nORDER BY time",
@@ -142,7 +142,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Compare prompt and response quality between steering and non-steering sessions",
       "fieldConfig": {
         "defaults": {
@@ -161,7 +161,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT 'With Steering' AS 'Mode', ROUND(AVG(prompt_length)) AS 'Avg Prompt', ROUND(AVG(response_length)) AS 'Avg Response'\nFROM _tool_q_dev_chat_log WHERE has_steering = 1 AND $__timeFilter(timestamp)\nUNION ALL\nSELECT 'Without Steering', ROUND(AVG(prompt_length)), ROUND(AVG(response_length))\nFROM _tool_q_dev_chat_log WHERE has_steering = 0 AND $__timeFilter(timestamp)",
@@ -172,7 +172,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Per-user steering and spec mode usage",
       "fieldConfig": {
         "defaults": {
@@ -187,7 +187,7 @@
       "options": { "cellHeight": "sm", "showHeader": true },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT\n  COALESCE(MAX(display_name), user_id) AS 'User',\n  COUNT(*) AS 'Total Chats',\n  SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) AS 'Steering',\n  SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) AS 'Spec Mode',\n  ROUND(SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS 'Steering %'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY user_id\nORDER BY COUNT(*) DESC",

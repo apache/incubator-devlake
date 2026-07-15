@@ -22,7 +22,7 @@
   "liveNow": false,
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Latest daily active user count from the organization summary feed",
       "fieldConfig": {
         "defaults": {
@@ -62,10 +62,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT daily_active_user_count as \"Daily Active Users\"\nFROM _tool_claude_code_activity_summary\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY `date` DESC\nLIMIT 1",
@@ -76,7 +76,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Latest weekly active user count from the organization summary feed",
       "fieldConfig": {
         "defaults": {
@@ -116,10 +116,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT weekly_active_user_count as \"Weekly Active Users\"\nFROM _tool_claude_code_activity_summary\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY `date` DESC\nLIMIT 1",
@@ -130,7 +130,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Latest monthly active user count from the organization summary feed",
       "fieldConfig": {
         "defaults": {
@@ -170,10 +170,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT monthly_active_user_count as \"Monthly Active Users\"\nFROM _tool_claude_code_activity_summary\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY `date` DESC\nLIMIT 1",
@@ -184,7 +184,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Latest assigned seat count from the organization summary feed",
       "fieldConfig": {
         "defaults": {
@@ -224,10 +224,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT assigned_seat_count as \"Assigned Seats\"\nFROM _tool_claude_code_activity_summary\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY `date` DESC\nLIMIT 1",
@@ -238,7 +238,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Latest pending invite count from the organization summary feed",
       "fieldConfig": {
         "defaults": {
@@ -278,10 +278,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT pending_invite_count as \"Pending Invites\"\nFROM _tool_claude_code_activity_summary\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY `date` DESC\nLIMIT 1",
@@ -292,7 +292,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Distinct Claude Code users with code activity on the most recent available analytics date",
       "fieldConfig": {
         "defaults": {
@@ -332,10 +332,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(DISTINCT user_id) as \"Active Claude Code Users\"\nFROM _tool_claude_code_user_activity\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND `date` = (\n    SELECT MAX(`date`)\n    FROM _tool_claude_code_user_activity\n    WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  )\n  AND (\n    cc_session_count > 0\n    OR cc_commit_count > 0\n    OR cc_pull_request_count > 0\n    OR cc_lines_added > 0\n    OR cc_lines_removed > 0\n    OR edit_tool_accepted + edit_tool_rejected + multi_edit_tool_accepted + multi_edit_tool_rejected + write_tool_accepted + write_tool_rejected + notebook_edit_tool_accepted + notebook_edit_tool_rejected > 0\n  )",
@@ -346,7 +346,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Total Claude Code sessions in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -386,10 +386,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT SUM(cc_session_count) as \"Sessions\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
@@ -400,7 +400,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Accepted tool actions as a percentage of all accepted and rejected tool actions",
       "fieldConfig": {
         "defaults": {
@@ -450,10 +450,10 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT ROUND(\n  SUM(edit_tool_accepted + multi_edit_tool_accepted + write_tool_accepted + notebook_edit_tool_accepted) * 100.0\n    / NULLIF(\n        SUM(\n          edit_tool_accepted + multi_edit_tool_accepted + write_tool_accepted + notebook_edit_tool_accepted\n          + edit_tool_rejected + multi_edit_tool_rejected + write_tool_rejected + notebook_edit_tool_rejected\n        ),\n        0\n      ),\n  1\n) as \"Acceptance Rate %\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
@@ -464,7 +464,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Total lines added by Claude Code across the organization in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -504,10 +504,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT SUM(cc_lines_added) as \"Lines Added\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
@@ -518,7 +518,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Total commits attributed to Claude Code in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -558,10 +558,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT SUM(cc_commit_count) as \"Commits\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
@@ -572,7 +572,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Total pull requests attributed to Claude Code in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -612,10 +612,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT SUM(cc_pull_request_count) as \"PRs\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
@@ -626,7 +626,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "How many days have elapsed since the newest row across the migrated Claude analytics tables; Anthropic analytics normally lag by about 3 days",
       "fieldConfig": {
         "defaults": {
@@ -674,10 +674,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(TIMESTAMPDIFF(DAY, MAX(latest_date), UTC_DATE()), 9999) as \"Days Since Latest Data\"\nFROM (\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_user_activity\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_activity_summary\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_chat_project\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_skill_usage\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_connector_usage\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n) latest_dates",
@@ -688,7 +688,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Daily, weekly, and monthly active user counts over time from the organization summary feed",
       "fieldConfig": {
         "defaults": {
@@ -758,10 +758,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as time,\n  daily_active_user_count as \"Daily Active Users\",\n  weekly_active_user_count as \"Weekly Active Users\",\n  monthly_active_user_count as \"Monthly Active Users\"\nFROM _tool_claude_code_activity_summary\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY 1",
@@ -772,7 +772,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Daily Claude Code sessions and distinct users with code activity over time",
       "fieldConfig": {
         "defaults": {
@@ -842,10 +842,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as time,\n  SUM(cc_session_count) as \"Sessions\",\n  COUNT(DISTINCT CASE\n    WHEN (\n      cc_session_count > 0\n      OR cc_commit_count > 0\n      OR cc_pull_request_count > 0\n      OR cc_lines_added > 0\n      OR cc_lines_removed > 0\n      OR edit_tool_accepted + edit_tool_rejected + multi_edit_tool_accepted + multi_edit_tool_rejected + write_tool_accepted + write_tool_rejected + notebook_edit_tool_accepted + notebook_edit_tool_rejected > 0\n    ) THEN user_id\n    ELSE NULL\n  END) as \"Active Users\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY `date`\nORDER BY 1",
@@ -856,7 +856,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Lines added and removed over time",
       "fieldConfig": {
         "defaults": {
@@ -926,10 +926,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as time,\n  SUM(cc_lines_added) as \"Lines Added\",\n  SUM(cc_lines_removed) as \"Lines Removed\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY `date`\nORDER BY 1",
@@ -940,7 +940,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Assigned seats and pending invites over time from the organization summary feed",
       "fieldConfig": {
         "defaults": {
@@ -1010,10 +1010,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as time,\n  assigned_seat_count as \"Assigned Seats\",\n  pending_invite_count as \"Pending Invites\"\nFROM _tool_claude_code_activity_summary\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY 1",
@@ -1024,7 +1024,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Accepted and rejected tool actions, grouped by Claude Code tool",
       "fieldConfig": {
         "defaults": {
@@ -1051,10 +1051,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT tool_name as \"Tool\",\n  SUM(accepted) as \"Accepted\",\n  SUM(rejected) as \"Rejected\",\n  ROUND(SUM(accepted) * 100.0 / NULLIF(SUM(accepted + rejected), 0), 1) as \"Acceptance Rate %\"\nFROM (\n  SELECT `date`, connection_id, scope_id, 'edit_tool' as tool_name, edit_tool_accepted as accepted, edit_tool_rejected as rejected\n  FROM _tool_claude_code_user_activity\n  UNION ALL\n  SELECT `date`, connection_id, scope_id, 'multi_edit_tool' as tool_name, multi_edit_tool_accepted as accepted, multi_edit_tool_rejected as rejected\n  FROM _tool_claude_code_user_activity\n  UNION ALL\n  SELECT `date`, connection_id, scope_id, 'write_tool' as tool_name, write_tool_accepted as accepted, write_tool_rejected as rejected\n  FROM _tool_claude_code_user_activity\n  UNION ALL\n  SELECT `date`, connection_id, scope_id, 'notebook_edit_tool' as tool_name, notebook_edit_tool_accepted as accepted, notebook_edit_tool_rejected as rejected\n  FROM _tool_claude_code_user_activity\n) tool_actions\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY tool_name\nORDER BY SUM(accepted + rejected) DESC, tool_name",
@@ -1065,7 +1065,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Peak daily users and session counts grouped by Claude skill usage",
       "fieldConfig": {
         "defaults": {
@@ -1092,10 +1092,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT skill_name as \"Skill\",\n  MAX(distinct_user_count) as \"Peak Daily Users\",\n  SUM(chat_conversation_count) as \"Chat Conversations\",\n  SUM(cc_session_count) as \"Claude Code Sessions\"\nFROM _tool_claude_code_skill_usage\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY skill_name\nORDER BY SUM(cc_session_count + chat_conversation_count) DESC, skill_name",
@@ -1106,7 +1106,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Peak daily users and session counts grouped by connector usage",
       "fieldConfig": {
         "defaults": {
@@ -1133,10 +1133,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT connector_name as \"Connector\",\n  MAX(distinct_user_count) as \"Peak Daily Users\",\n  SUM(chat_conversation_count) as \"Chat Conversations\",\n  SUM(cc_session_count) as \"Claude Code Sessions\"\nFROM _tool_claude_code_connector_usage\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY connector_name\nORDER BY SUM(cc_session_count + chat_conversation_count) DESC, connector_name",
@@ -1147,7 +1147,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Project-level chat adoption with only project aggregates; user identifiers are intentionally excluded from this org dashboard",
       "fieldConfig": {
         "defaults": {
@@ -1174,10 +1174,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(NULLIF(project_name, ''), project_id) as \"Project\",\n  MAX(distinct_user_count) as \"Peak Daily Users\",\n  SUM(conversation_count) as \"Conversations\",\n  SUM(message_count) as \"Messages\"\nFROM _tool_claude_code_chat_project\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY COALESCE(NULLIF(project_name, ''), project_id)\nORDER BY SUM(message_count + conversation_count) DESC, 1\nLIMIT 25",
@@ -1188,7 +1188,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Diagnostics table for row counts and freshest available date per Claude metric table",
       "fieldConfig": {
         "defaults": {
@@ -1215,10 +1215,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT *\nFROM (\n  SELECT '_tool_claude_code_activity_summary' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_activity_summary\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT '_tool_claude_code_user_activity' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_user_activity\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT '_tool_claude_code_skill_usage' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_skill_usage\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT '_tool_claude_code_connector_usage' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_connector_usage\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT '_tool_claude_code_chat_project' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_chat_project\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n) data_volume\nORDER BY row_count DESC, table_name",
@@ -1244,7 +1244,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "SELECT DISTINCT connection_id FROM _tool_claude_code_scopes ORDER BY connection_id DESC",
         "hide": 0,
         "includeAll": false,
@@ -1265,7 +1265,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "SELECT DISTINCT id as scope_id FROM _tool_claude_code_scopes WHERE connection_id = ${connection_id} ORDER BY 1",
         "hide": 0,
         "includeAll": false,

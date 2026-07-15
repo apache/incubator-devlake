@@ -19,7 +19,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Chat and completion events by hour of day",
       "fieldConfig": {
         "defaults": {
@@ -40,7 +40,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT LPAD(CAST(hr AS CHAR), 2, '0') AS 'Hour',\n  SUM(chat) AS 'Chat Events', SUM(comp) AS 'Completion Events'\nFROM (\n  SELECT HOUR(timestamp) AS hr, COUNT(*) AS chat, 0 AS comp\n  FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n  UNION ALL\n  SELECT HOUR(timestamp) AS hr, 0 AS chat, COUNT(*) AS comp\n  FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n) t GROUP BY hr ORDER BY hr",
@@ -51,7 +51,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Average prompt complexity and response richness by hour",
       "fieldConfig": {
         "defaults": {
@@ -73,7 +73,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT LPAD(CAST(HOUR(timestamp) AS CHAR), 2, '0') AS 'Hour',\n  ROUND(AVG(prompt_length)) AS 'Avg Prompt Length',\n  ROUND(AVG(response_length)) AS 'Avg Response Length'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY HOUR(timestamp)\nORDER BY HOUR(timestamp)",
@@ -84,7 +84,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Steering and spec mode usage concentration by hour",
       "fieldConfig": {
         "defaults": {
@@ -105,7 +105,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT LPAD(CAST(HOUR(timestamp) AS CHAR), 2, '0') AS 'Hour',\n  SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) AS 'Steering',\n  SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) AS 'Spec Mode',\n  SUM(CASE WHEN has_steering = 0 AND is_spec_mode = 0 THEN 1 ELSE 0 END) AS 'Plain Chat'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY HOUR(timestamp)\nORDER BY HOUR(timestamp)",
@@ -116,7 +116,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Day-of-week activity pattern",
       "fieldConfig": {
         "defaults": {
@@ -137,7 +137,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT\n  CASE DAYOFWEEK(timestamp)\n    WHEN 1 THEN 'Sun' WHEN 2 THEN 'Mon' WHEN 3 THEN 'Tue'\n    WHEN 4 THEN 'Wed' WHEN 5 THEN 'Thu' WHEN 6 THEN 'Fri' WHEN 7 THEN 'Sat'\n  END AS 'Day',\n  SUM(chat) AS 'Chat Events', SUM(comp) AS 'Completions'\nFROM (\n  SELECT timestamp, COUNT(*) AS chat, 0 AS comp FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY timestamp\n  UNION ALL\n  SELECT timestamp, 0, COUNT(*) FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY timestamp\n) t\nGROUP BY DAYOFWEEK(timestamp)\nORDER BY DAYOFWEEK(timestamp)",
