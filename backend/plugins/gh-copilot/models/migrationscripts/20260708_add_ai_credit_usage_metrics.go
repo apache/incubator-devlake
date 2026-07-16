@@ -20,24 +20,24 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
 
 type addAiCreditUsageMetrics struct{}
 
-func (u *addAiCreditUsageMetrics) Up(baseCtx context.BasicContext) errors.Error {
-	return migrationhelper.AutoMigrate(
-		baseCtx,
+func (u *addAiCreditUsageMetrics) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		&models.GhCopilotEnterpriseAiCreditUsage{},
 		&models.GhCopilotOrgAiCreditUsage{},
 		&models.GhCopilotUserAiCreditUsage{},
+		&models.GhCopilotUserDailyMetrics{},
 	)
 }
 
-func (u *addAiCreditUsageMetrics) Version() string {
-	return "20260708_add_ai_credit_usage_metrics"
+func (u *addAiCreditUsageMetrics) Version() uint64 {
+	return 20260708000000
 }
 
 func (u *addAiCreditUsageMetrics) Name() string {

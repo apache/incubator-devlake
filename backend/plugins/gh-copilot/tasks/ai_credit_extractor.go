@@ -2,7 +2,7 @@
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
 this work for additional information regarding copyright ownership.
-The ASF licenses this file to You under the Apache License, Version 2.0
+the ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
 
@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -70,14 +69,18 @@ func ExtractAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 	connection := data.Connection
 	connection.Normalize()
 
-	extractor, err := helper.NewApiExtractor(taskCtx, rawAiCreditUsageTable)
-	if err != nil {
-		return err
-	}
-
-	err = extractor.Extract(
-		rawAiCreditUsageTable,
-		func(row *helper.RawData) ([]interface{}, errors.Error) {
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx:     taskCtx,
+			Table:   rawAiCreditUsageTable,
+			Options: copilotRawParams{
+				ConnectionId: data.Options.ConnectionId,
+				ScopeId:      data.Options.ScopeId,
+				Organization: connection.Organization,
+				Endpoint:     connection.Endpoint,
+			},
+		},
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// Parse raw data
 			var record aiCreditUsageRecord
 			err := json.Unmarshal(row.Data, &record)
@@ -87,18 +90,15 @@ func ExtractAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 
 			// Extract wrapper info from row context
 			var wrapper aiCreditResponseWrapper
-			if scopeAttr, ok := row.Params["scope"]; ok {
-				if connection.HasEnterprise() {
-					wrapper.Enterprise = scopeAttr.(string)
-				} else if connection.Organization != "" {
-					wrapper.Organization = scopeAttr.(string)
-				}
+			if connection.HasEnterprise() {
+				wrapper.Enterprise = connection.Enterprise
+			} else if connection.Organization != "" {
+				wrapper.Organization = connection.Organization
 			}
 			wrapper.Product = record.Product
 			wrapper.Model = record.Model
 
-			// Parse date from row (need to extract from response context)
-			// For now, use current date - this should be enhanced to parse from API response
+			// Parse date from row (use current time or parsed period)
 			now := time.Now().UTC()
 			wrapper.TimePeriod.Year = now.Year()
 			wrapper.TimePeriod.Month = int(now.Month())
@@ -158,7 +158,7 @@ func ExtractAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 					Year:             wrapper.TimePeriod.Year,
 					Month:            wrapper.TimePeriod.Month,
 					Day:              wrapper.TimePeriod.Day,
-					User:             connection.GetEmail(), // Use authenticated user
+					User:             connection.Name, // Use connection display name
 					Model:            record.Model,
 					Product:          record.Product,
 					GrossQuantity:    record.GrossQuantity,
@@ -174,7 +174,10 @@ func ExtractAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 
 			return results, nil
 		},
-	)
+	})
+	if err != nil {
+		return err
+	}
 
-	return err
+	return extractor.Execute()
 }

@@ -38,6 +38,7 @@ type GhCopilotUserDailyMetrics struct {
 	UsedCli                      bool   `json:"usedCli" gorm:"comment:Whether user used Copilot CLI"`
 	UsedCopilotCodeReviewActive  bool   `json:"usedCopilotCodeReviewActive" gorm:"comment:Whether user actively used code review"`
 	UsedCopilotCodeReviewPassive bool   `json:"usedCopilotCodeReviewPassive" gorm:"comment:Whether user passively used code review"`
+	AiCreditsUsed                float64 `json:"aiCreditsUsed" gorm:"comment:AI credits consumed on this day"`
 
 	CopilotActivityMetrics `mapstructure:",squash"`
 	CopilotCliMetrics      `mapstructure:",squash"`

@@ -30,14 +30,14 @@ type GhCopilotEnterpriseAiCreditUsage struct {
 	Month        int    `gorm:"primaryKey" json:"month"`
 	Day          int    `gorm:"primaryKey" json:"day"`
 
-	Enterprise   string `gorm:"primaryKey;type:varchar(255)" json:"enterprise" gorm:"comment:Enterprise slug"`
-	Model        string `gorm:"primaryKey;type:varchar(255)" json:"model" gorm:"comment:AI model name (e.g., gpt-4.1)"`
-	Organization string `gorm:"index;type:varchar(255)" json:"organization" gorm:"comment:Organization within enterprise, if specified"`
-	User         string `gorm:"index;type:varchar(255)" json:"user" gorm:"comment:Username, if specified"`
+	Enterprise   string `gorm:"primaryKey;type:varchar(255);comment:Enterprise slug" json:"enterprise"`
+	Model        string `gorm:"primaryKey;type:varchar(255);comment:AI model name (e.g., gpt-4.1)" json:"model"`
+	Organization string `gorm:"index;type:varchar(255);comment:Organization within enterprise, if specified" json:"organization"`
+	User         string `gorm:"index;type:varchar(255);comment:Username, if specified" json:"user"`
 
-	Product        string `gorm:"type:varchar(32)" json:"product" gorm:"comment:Product name (e.g., copilot)"`
-	CostCenterId   string `gorm:"index;type:varchar(255)" json:"costCenterId" gorm:"comment:Cost center identifier"`
-	CostCenterName string `gorm:"type:varchar(255)" json:"costCenterName" gorm:"comment:Cost center display name"`
+	Product        string `gorm:"type:varchar(32);comment:Product name (e.g., copilot)" json:"product"`
+	CostCenterId   string `gorm:"index;type:varchar(255);comment:Cost center identifier" json:"costCenterId"`
+	CostCenterName string `gorm:"type:varchar(255);comment:Cost center display name" json:"costCenterName"`
 
 	// Credit usage breakdown
 	GrossQuantity    float64 `json:"grossQuantity" gorm:"comment:Raw credits consumed"`

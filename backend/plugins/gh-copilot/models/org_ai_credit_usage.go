@@ -30,11 +30,11 @@ type GhCopilotOrgAiCreditUsage struct {
 	Month        int    `gorm:"primaryKey" json:"month"`
 	Day          int    `gorm:"primaryKey" json:"day"`
 
-	Organization string `gorm:"primaryKey;type:varchar(255)" json:"organization" gorm:"comment:Organization name"`
-	Model        string `gorm:"primaryKey;type:varchar(255)" json:"model" gorm:"comment:AI model name (e.g., gpt-4.1)"`
-	User         string `gorm:"index;type:varchar(255)" json:"user" gorm:"comment:Username consuming the credits"`
+	Organization string `gorm:"primaryKey;type:varchar(255);comment:Organization name" json:"organization"`
+	Model        string `gorm:"primaryKey;type:varchar(255);comment:AI model name (e.g., gpt-4.1)" json:"model"`
+	User         string `gorm:"index;type:varchar(255);comment:Username consuming the credits" json:"user"`
 
-	Product string `gorm:"type:varchar(32)" json:"product" gorm:"comment:Product name (e.g., copilot)"`
+	Product string `gorm:"type:varchar(32);comment:Product name (e.g., copilot)" json:"product"`
 
 	// Credit usage breakdown
 	GrossQuantity    float64 `json:"grossQuantity" gorm:"comment:Raw credits consumed"`
