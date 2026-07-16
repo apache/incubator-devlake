@@ -24,5 +24,6 @@ func All() []plugin.MigrationScript {
 	return []plugin.MigrationScript{
 		new(addCursorInitialTables),
 		new(changeCursorRequestsCostsToFloat),
+		new(addCursorDailyUsage),
 	}
 }

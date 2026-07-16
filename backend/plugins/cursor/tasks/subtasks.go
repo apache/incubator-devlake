@@ -69,3 +69,20 @@ var ExtractMembersMeta = plugin.SubTaskMeta{
 	Description:      "Extract team member roster into tool-layer tables",
 	Dependencies:     []*plugin.SubTaskMeta{&CollectMembersMeta},
 }
+
+var CollectDailyUsageMeta = plugin.SubTaskMeta{
+	Name:             "collectDailyUsage",
+	EntryPoint:       CollectDailyUsage,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Collect per-user per-day adoption metrics from the Cursor Admin API",
+}
+
+var ExtractDailyUsageMeta = plugin.SubTaskMeta{
+	Name:             "extractDailyUsage",
+	EntryPoint:       ExtractDailyUsage,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Extract per-user per-day adoption metrics into tool-layer tables",
+	Dependencies:     []*plugin.SubTaskMeta{&CollectDailyUsageMeta},
+}

@@ -14,7 +14,7 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -27,19 +27,19 @@
     },
     {
       "datasource": "mysql",
-      "description": "Sum of chargedCents for billable usage events in the selected time range",
+      "description": "Total charged amount for billable usage events in the selected time range",
       "fieldConfig": {
         "defaults": {
           "decimals": 2,
           "unit": "currencyUSD",
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
       "id": 1,
       "options": {
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -57,54 +57,24 @@
           "refId": "A"
         }
       ],
-      "title": "Charged Spend (Period)",
+      "title": "Charged Amount (Selected Period)",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "Distinct users with usage events in the selected time range",
+      "description": "Total usage events in selected period from filtered-usage-events API",
       "fieldConfig": {
         "defaults": {
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }
+          "unit": "locale",
+          "decimals": 0,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(DISTINCT user_email) AS \"Active Users\"\nFROM _tool_cursor_usage_events\nWHERE $__timeFilter(event_time)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
-          "refId": "A"
-        }
-      ],
-      "title": "Active Users (Period)",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
       "id": 3,
       "options": {
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -122,21 +92,22 @@
           "refId": "A"
         }
       ],
-      "title": "Usage Events (Period)",
+      "title": "Usage Events (Selected Period)",
       "type": "stat"
     },
     {
       "datasource": "mysql",
+      "description": "Active roster count from /teams/members where is_removed = 0",
       "fieldConfig": {
         "defaults": {
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
       "id": 4,
       "options": {
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -159,19 +130,17 @@
     },
     {
       "datasource": "mysql",
-      "description": "Current billing cycle on-demand spend from /teams/spend",
+      "description": "Team members with zero active days in the trailing 7-day window (relative to latest collected usage_date)",
       "fieldConfig": {
         "defaults": {
-          "decimals": 2,
-          "unit": "currencyUSD",
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] }
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
-      "id": 5,
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 303,
       "options": {
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -185,15 +154,121 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(spend_cents) / 100 AS \"Charged Amount\"\nFROM _tool_cursor_user_spend\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
+          "rawSql": "SELECT COUNT(*) AS \"Inactive Users\"\nFROM (\n  SELECT user_id\n  FROM _tool_cursor_daily_usage\n  WHERE connection_id = ${connection_id}\n    AND scope_id = '${scope_id}'\n    AND usage_date >= DATE_SUB(\n      (SELECT MAX(usage_date) FROM _tool_cursor_daily_usage\n       WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'),\n      INTERVAL 6 DAY\n    )\n  GROUP BY user_id\n  HAVING MAX(is_active) = 0\n) t",
           "refId": "A"
         }
       ],
-      "title": "Billing Cycle Spend",
+      "title": "Inactive Users (Last 7 Days)",
       "type": "stat"
     },
     {
       "datasource": "mysql",
+      "description": "Current billing cycle on-demand spend from /teams/spend",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "unit": "currencyUSD",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 5 },
+      "id": 5,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(SUM(spend_cents), 0) / 100 AS \"On-Demand Spend\"\nFROM _tool_cursor_user_spend\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
+          "refId": "A"
+        }
+      ],
+      "title": "On-Demand Spend (Current Cycle)",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Current billing cycle included (non-on-demand) spend from /teams/spend",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "unit": "currencyUSD",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 5 },
+      "id": 301,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(SUM(included_spend_cents), 0) / 100 AS \"Included Spend\"\nFROM _tool_cursor_user_spend\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
+          "refId": "A"
+        }
+      ],
+      "title": "Included Spend (Current Cycle)",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Difference between /teams/spend total and sum of chargedCents for events since billing_cycle_start. Positive means spend exceeds collected events (backfill may be incomplete).",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "unit": "currencyUSD",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 5 },
+      "id": 302,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT (\n  COALESCE((SELECT SUM(spend_cents) FROM _tool_cursor_user_spend\n    WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'), 0)\n  - COALESCE((SELECT SUM(charged_cents) FROM _tool_cursor_usage_events\n    WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n      AND event_time >= (SELECT MIN(billing_cycle_start) FROM _tool_cursor_user_spend\n        WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}')), 0)\n) / 100 AS \"Reconciliation Delta\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Reconciliation Delta",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Days since most recent usage event; green < 2d, yellow 2-6d, red >= 7d",
       "fieldConfig": {
         "defaults": {
           "thresholds": {
@@ -207,7 +282,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 5 },
       "id": 6,
       "options": {
         "colorMode": "value",
@@ -233,7 +308,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
       "id": 101,
       "title": "Cost Trends",
       "type": "row"
@@ -243,7 +318,7 @@
       "description": "Daily charged spend from usage events",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": { "fixedColor": "blue", "mode": "fixed" },
           "custom": {
             "axisLabel": "USD",
             "drawStyle": "bars",
@@ -252,11 +327,12 @@
             "showPoints": "never",
             "stacking": { "group": "A", "mode": "none" }
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "decimals": 2
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
       "id": 10,
       "options": {
         "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
@@ -287,14 +363,20 @@
             "stacking": { "group": "A", "mode": "normal" }
           }
         },
-        "overrides": []
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Usage-based" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Included in Business" }, "properties": [{ "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Free" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Errored, Not Charged" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Aborted, Not Charged" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "User API Key" }, "properties": [{ "id": "color", "value": { "fixedColor": "text", "mode": "fixed" } }] }
+        ]
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
       "id": 11,
       "options": {
         "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "none" },
-        "stacking": { "mode": "normal", "group": "A" }
+        "tooltip": { "mode": "multi", "sort": "none" }
       },
       "pluginVersion": "11.0.0",
       "targets": [
@@ -315,53 +397,17 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
       "id": 102,
       "title": "Breakdowns",
       "type": "row"
     },
     {
       "datasource": "mysql",
+      "description": "Average cost per event, total charged, event count, and share of total events by model for the selected period. Table defaults to charged spend descending. Events and Usage % columns sort numerically; Charged and Avg Cost use formatted USD strings.",
       "fieldConfig": {
         "defaults": {
           "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
-        },
-        "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "Charged" },
-            "properties": [
-              { "id": "custom.align", "value": "right" },
-              { "id": "custom.width", "value": 90 }
-            ]
-          }
-        ]
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 15 },
-      "id": 20,
-      "options": {
-        "cellHeight": "sm",
-        "footer": { "show": false },
-        "showHeader": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": "mysql",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COALESCE(MAX(NULLIF(m.name, '')), e.user_email) AS \"User\",\n  CONCAT('$', FORMAT(SUM(e.charged_cents) / 100, 2)) AS \"Charged\"\nFROM _tool_cursor_usage_events e\nLEFT JOIN _tool_cursor_members m\n  ON e.user_email = m.email\n AND e.connection_id = m.connection_id\n AND e.scope_id = m.scope_id\n AND m.is_removed = 0\nWHERE $__timeFilter(e.event_time)\n  AND e.connection_id = ${connection_id}\n  AND e.scope_id = '${scope_id}'\nGROUP BY e.user_email\nORDER BY SUM(e.charged_cents) DESC\nLIMIT 25",
-          "refId": "A"
-        }
-      ],
-      "title": "Cost by User",
-      "type": "table"
-    },
-    {
-      "datasource": "mysql",
-      "fieldConfig": {
-        "defaults": {
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
-          "decimals": 0
         },
         "overrides": [
           {
@@ -369,31 +415,40 @@
             "properties": [{ "id": "custom.width", "value": 320 }]
           },
           {
-            "matcher": { "id": "byName", "options": "Model Cost" },
+            "matcher": { "id": "byName", "options": "Avg Cost" },
             "properties": [
-              { "id": "unit", "value": "currencyUSD" },
-              { "id": "decimals", "value": 4 },
-              { "id": "custom.width", "value": 110 }
+              { "id": "custom.width", "value": 120 },
+              { "id": "custom.align", "value": "right" }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Charged" },
             "properties": [
-              { "id": "unit", "value": "currencyUSD" },
-              { "id": "decimals", "value": 2 },
-              { "id": "custom.width", "value": 90 }
+              { "id": "custom.width", "value": 140 },
+              { "id": "custom.align", "value": "right" }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Events" },
             "properties": [
-              { "id": "unit", "value": "short" },
-              { "id": "custom.width", "value": 90 }
+              { "id": "unit", "value": "locale" },
+              { "id": "decimals", "value": 0 },
+              { "id": "custom.width", "value": 100 },
+              { "id": "custom.align", "value": "right" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Usage %" },
+            "properties": [
+              { "id": "unit", "value": "percent" },
+              { "id": "decimals", "value": 1 },
+              { "id": "custom.width", "value": 80 },
+              { "id": "custom.align", "value": "right" }
             ]
           }
         ]
       },
-      "gridPos": { "h": 8, "w": 10, "x": 6, "y": 15 },
+      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 19 },
       "id": 21,
       "options": {
         "cellHeight": "sm",
@@ -406,7 +461,7 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT model AS \"Model\",\n  SUM(total_cents) / COUNT(*) / 100 AS \"Model Cost\",\n  SUM(charged_cents) / 100 AS \"Charged\",\n  COUNT(*) AS \"Events\"\nFROM _tool_cursor_usage_events\nWHERE $__timeFilter(event_time)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY model\nORDER BY SUM(charged_cents) DESC",
+          "rawSql": "SELECT model AS \"Model\",\n  CONCAT('$', FORMAT(SUM(total_cents) / COUNT(*) / 100, 4)) AS \"Avg Cost\",\n  CONCAT('$', FORMAT(SUM(charged_cents) / 100, 2)) AS \"Charged\",\n  COUNT(*) AS \"Events\",\n  COUNT(*) * 100.0 / SUM(COUNT(*)) OVER () AS \"Usage %\"\nFROM _tool_cursor_usage_events\nWHERE $__timeFilter(event_time)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY model\nORDER BY SUM(charged_cents) DESC",
           "refId": "A"
         }
       ],
@@ -415,35 +470,31 @@
     },
     {
       "datasource": "mysql",
+      "description": "Total charged spend by billing kind for the selected period",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "color": { "mode": "fixed", "fixedColor": "blue" }
         },
         "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "Charged" },
-            "properties": [
-              { "id": "unit", "value": "currencyUSD" },
-              { "id": "decimals", "value": 2 }
-            ]
-          }
+          { "matcher": { "id": "byName", "options": "Usage-based" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Included in Business" }, "properties": [{ "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Free" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Errored, Not Charged" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Aborted, Not Charged" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "User API Key" }, "properties": [{ "id": "color", "value": { "fixedColor": "text", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+      "gridPos": { "h": 8, "w": 10, "x": 14, "y": 19 },
       "id": 22,
       "options": {
-        "displayLabels": ["name", "percent"],
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "values": ["value"]
-        },
-        "pieType": "donut",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": true },
-        "tooltip": { "mode": "single", "sort": "none" }
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "showUnfilled": false,
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
+        "text": {}
       },
       "pluginVersion": "11.0.0",
       "targets": [
@@ -456,42 +507,47 @@
         }
       ],
       "title": "Cost by Kind",
-      "type": "piechart"
+      "type": "bargauge",
+      "transformations": [
+        {
+          "id": "rowsToFields",
+          "options": {
+            "mappings": [
+              { "fieldName": "Kind", "handlerKey": "field.name" },
+              { "fieldName": "Charged", "handlerKey": "field.value" }
+            ]
+          }
+        }
+      ]
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
-      "id": 103,
-      "title": "Billing Cycle & Reconciliation",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "id": 200,
+      "title": "Adoption (Daily Usage)",
       "type": "row"
     },
     {
       "datasource": "mysql",
-      "description": "Per-user billing cycle snapshot from POST /teams/spend",
+      "description": "Daily active users based on isActive flag from /teams/daily-usage-data",
       "fieldConfig": {
         "defaults": {
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
-        },
-        "overrides": [
-          {
-            "matcher": { "id": "byRegexp", "options": "On-Demand|Included" },
-            "properties": [
-              { "id": "unit", "value": "currencyUSD" },
-              { "id": "decimals", "value": 2 }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Premium Reqs" },
-            "properties": [{ "id": "unit", "value": "short" }]
+          "color": { "fixedColor": "blue", "mode": "fixed" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "lineWidth": 2,
+            "showPoints": "auto",
+            "pointSize": 4
           }
-        ]
+        },
+        "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
-      "id": 30,
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 28 },
+      "id": 201,
       "options": {
-        "cellHeight": "sm",
-        "footer": { "show": false },
-        "showHeader": true
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single", "sort": "none" }
       },
       "pluginVersion": "11.0.0",
       "targets": [
@@ -499,40 +555,36 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT email AS \"User\",\n  name AS \"Name\",\n  role AS \"Role\",\n  spend_cents / 100 AS \"On-Demand\",\n  included_spend_cents / 100 AS \"Included\",\n  fast_premium_requests AS \"Premium Reqs\"\nFROM _tool_cursor_user_spend\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY spend_cents DESC\nLIMIT 50",
+          "rawSql": "SELECT usage_date AS time,\n  COUNT(DISTINCT user_id) AS \"Active Users\"\nFROM _tool_cursor_daily_usage\nWHERE $__timeFilter(usage_date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND is_active = 1\nGROUP BY usage_date\nORDER BY 1",
           "refId": "A"
         }
       ],
-      "title": "Billing Cycle Spend by User",
-      "type": "table"
+      "title": "Daily Active Users (DAU)",
+      "type": "timeseries"
     },
     {
       "datasource": "mysql",
-      "description": "Compare billing cycle spend vs sum(chargedCents) since cycle start. Requires full event backfill for accurate reconciliation.",
+      "description": "Tab completion acceptance rate: accepted / shown",
       "fieldConfig": {
         "defaults": {
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
-        },
-        "overrides": [
-          {
-            "matcher": { "id": "byRegexp", "options": "Cycle Spend|Event Charged" },
-            "properties": [
-              { "id": "unit", "value": "currencyUSD" },
-              { "id": "decimals", "value": 2 }
-            ]
+          "color": { "fixedColor": "blue", "mode": "fixed" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "showPoints": "auto",
+            "pointSize": 4
           },
-          {
-            "matcher": { "id": "byName", "options": "Events Since Cycle Start" },
-            "properties": [{ "id": "unit", "value": "short" }]
-          }
-        ]
+          "unit": "percent",
+          "decimals": 1
+        },
+        "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
-      "id": 31,
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 28 },
+      "id": 202,
       "options": {
-        "cellHeight": "sm",
-        "footer": { "show": false },
-        "showHeader": true
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single", "sort": "none" }
       },
       "pluginVersion": "11.0.0",
       "targets": [
@@ -540,42 +592,82 @@
           "datasource": "mysql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT s.email AS \"User\",\n  s.spend_cents / 100 AS \"Cycle Spend\",\n  COALESCE(SUM(e.charged_cents), 0) / 100 AS \"Event Charged\",\n  COUNT(e.event_id) AS \"Events Since Cycle Start\"\nFROM _tool_cursor_user_spend s\nLEFT JOIN _tool_cursor_usage_events e\n  ON s.email = e.user_email\n AND e.event_time >= s.billing_cycle_start\n AND e.connection_id = s.connection_id\n AND e.scope_id = s.scope_id\nWHERE s.connection_id = ${connection_id}\n  AND s.scope_id = '${scope_id}'\nGROUP BY s.email, s.spend_cents\nHAVING COUNT(e.event_id) > 0 OR s.spend_cents > 0\nORDER BY s.spend_cents DESC\nLIMIT 50",
+          "rawSql": "SELECT usage_date AS time,\n  ROUND(SUM(tabs_accepted) * 100.0 / NULLIF(SUM(tabs_shown), 0), 1) AS \"Acceptance Rate\"\nFROM _tool_cursor_daily_usage\nWHERE $__timeFilter(usage_date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND is_active = 1\nGROUP BY usage_date\nORDER BY 1",
           "refId": "A"
         }
       ],
-      "title": "Spend vs Events Reconciliation",
-      "type": "table"
+      "title": "Tab Acceptance Rate",
+      "type": "timeseries"
     },
     {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "datasource": "mysql",
+      "description": "Weekly request volume by feature type (Agent, Chat, Composer)",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "stacking": { "group": "A", "mode": "normal" }
+          }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Agent" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Chat" }, "properties": [{ "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Composer" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 28 },
+      "id": 203,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT DATE(DATE_SUB(usage_date, INTERVAL WEEKDAY(usage_date) DAY)) AS time,\n  SUM(agent_requests) AS \"Agent\",\n  SUM(chat_requests) AS \"Chat\",\n  SUM(composer_requests) AS \"Composer\"\nFROM _tool_cursor_daily_usage\nWHERE $__timeFilter(usage_date)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nGROUP BY 1\nORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Feature Adoption (Weekly)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
       "id": 104,
       "title": "Diagnostics",
-      "type": "row"
-    },
-    {
-      "datasource": "mysql",
-      "fieldConfig": { "defaults": {}, "overrides": [] },
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 33 },
-      "id": 40,
-      "options": {
-        "cellHeight": "sm",
-        "footer": { "show": false },
-        "showHeader": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
+      "type": "row",
+      "panels": [
         {
           "datasource": "mysql",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT '_tool_cursor_usage_events' AS table_name, COUNT(*) AS row_count, MAX(event_time) AS latest\nFROM _tool_cursor_usage_events\nWHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\nUNION ALL\nSELECT '_tool_cursor_user_spend', COUNT(*), MAX(collected_at)\nFROM _tool_cursor_user_spend\nWHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\nUNION ALL\nSELECT '_tool_cursor_members', COUNT(*), NULL\nFROM _tool_cursor_members\nWHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'",
-          "refId": "A"
+          "description": "Row counts and latest timestamps per _tool_cursor_* table for pipeline health monitoring",
+          "fieldConfig": { "defaults": {}, "overrides": [] },
+          "gridPos": { "h": 6, "w": 12, "x": 0, "y": 45 },
+          "id": 40,
+          "options": {
+            "cellHeight": "sm",
+            "footer": { "show": false },
+            "showHeader": true
+          },
+          "pluginVersion": "11.0.0",
+          "targets": [
+            {
+              "datasource": "mysql",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT '_tool_cursor_usage_events' AS table_name, COUNT(*) AS row_count, MAX(event_time) AS latest\nFROM _tool_cursor_usage_events\nWHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\nUNION ALL\nSELECT '_tool_cursor_user_spend', COUNT(*), MAX(collected_at)\nFROM _tool_cursor_user_spend\nWHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\nUNION ALL\nSELECT '_tool_cursor_members', COUNT(*), NULL\nFROM _tool_cursor_members\nWHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\nUNION ALL\nSELECT '_tool_cursor_daily_usage', COUNT(*), MAX(usage_date)\nFROM _tool_cursor_daily_usage\nWHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'",
+              "refId": "A"
+            }
+          ],
+          "title": "Data Volume",
+          "type": "table"
         }
-      ],
-      "title": "Data Volume",
-      "type": "table"
+      ]
     }
   ],
   "refresh": "",
@@ -620,6 +712,6 @@
   "timezone": "utc",
   "title": "Cursor Usage & Cost",
   "uid": "cursor_usage",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }

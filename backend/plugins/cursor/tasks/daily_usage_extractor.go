@@ -1,0 +1,111 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package tasks
+
+import (
+	"encoding/json"
+	"strings"
+	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/cursor/models"
+)
+
+type dailyUsageRecord struct {
+	Day                      string `json:"day"`
+	UserId                   string `json:"userId"`
+	Email                    string `json:"email"`
+	IsActive                 bool   `json:"isActive"`
+	Completions              int    `json:"completions"`
+	PremiumRequests          int    `json:"premiumRequests"`
+	AgentRequests            int    `json:"agentRequests"`
+	ChatRequests             int    `json:"chatRequests"`
+	ComposerRequests         int    `json:"composerRequests"`
+	TotalTabsAccepted        int    `json:"totalTabsAccepted"`
+	TotalTabsShown           int    `json:"totalTabsShown"`
+	UsageBasedReqs           int    `json:"usageBasedReqs"`
+	SubscriptionIncludedReqs int    `json:"subscriptionIncludedReqs"`
+	MostUsedModel            string `json:"mostUsedModel"`
+	ClientVersion            string `json:"clientVersion"`
+	LinesAdded               int    `json:"linesAdded"`
+	LinesDeleted             int    `json:"linesDeleted"`
+}
+
+// ExtractDailyUsage parses raw daily usage records into tool-layer tables.
+func ExtractDailyUsage(taskCtx plugin.SubTaskContext) errors.Error {
+	data, ok := taskCtx.TaskContext().GetData().(*CursorTaskData)
+	if !ok {
+		return errors.Default.New("task data is not CursorTaskData")
+	}
+
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx:     taskCtx,
+			Table:   rawDailyUsageTable,
+			Options: rawParamsFromTaskData(data),
+		},
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
+			var record dailyUsageRecord
+			if err := errors.Convert(json.Unmarshal(row.Data, &record)); err != nil {
+				return nil, err
+			}
+
+			userId := strings.TrimSpace(record.UserId)
+			if userId == "" {
+				userId = strings.TrimSpace(record.Email)
+			}
+			if userId == "" {
+				return nil, nil
+			}
+
+			usageDate, parseErr := time.Parse("2006-01-02", strings.TrimSpace(record.Day))
+			if parseErr != nil {
+				return nil, errors.BadInput.Wrap(parseErr, "invalid day format in daily usage record")
+			}
+
+			usage := &models.CursorDailyUsage{
+				ConnectionId:             data.Options.ConnectionId,
+				ScopeId:                  data.Options.ScopeId,
+				UserId:                   userId,
+				UsageDate:                usageDate,
+				Email:                    strings.TrimSpace(record.Email),
+				IsActive:                 record.IsActive,
+				Completions:              record.Completions,
+				PremiumRequests:          record.PremiumRequests,
+				AgentRequests:            record.AgentRequests,
+				ChatRequests:             record.ChatRequests,
+				ComposerRequests:         record.ComposerRequests,
+				TabsAccepted:             record.TotalTabsAccepted,
+				TabsShown:                record.TotalTabsShown,
+				UsageBasedReqs:           record.UsageBasedReqs,
+				SubscriptionIncludedReqs: record.SubscriptionIncludedReqs,
+				MostUsedModel:            strings.TrimSpace(record.MostUsedModel),
+				ClientVersion:            strings.TrimSpace(record.ClientVersion),
+				LinesAdded:               record.LinesAdded,
+				LinesDeleted:             record.LinesDeleted,
+			}
+			return []interface{}{usage}, nil
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return extractor.Execute()
+}

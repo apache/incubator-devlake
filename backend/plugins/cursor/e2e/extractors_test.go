@@ -59,14 +59,17 @@ func TestCursorExtractorsDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_cursor_usage_events.csv", "_raw_cursor_usage_events")
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_cursor_members.csv", "_raw_cursor_members")
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_cursor_user_spend.csv", "_raw_cursor_user_spend")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_cursor_daily_usage.csv", "_raw_cursor_daily_usage")
 
 	dataflowTester.FlushTabler(&models.CursorUsageEvent{})
 	dataflowTester.FlushTabler(&models.CursorMember{})
 	dataflowTester.FlushTabler(&models.CursorUserSpend{})
+	dataflowTester.FlushTabler(&models.CursorDailyUsage{})
 
 	dataflowTester.Subtask(tasks.ExtractMembersMeta, taskData)
 	dataflowTester.Subtask(tasks.ExtractUsageEventsMeta, taskData)
 	dataflowTester.Subtask(tasks.ExtractUserSpendMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractDailyUsageMeta, taskData)
 
 	dataflowTester.VerifyTableWithOptions(&models.CursorUsageEvent{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_cursor_usage_events.csv",
@@ -80,6 +83,11 @@ func TestCursorExtractorsDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTableWithOptions(&models.CursorUserSpend{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_cursor_user_spend.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.VerifyTableWithOptions(&models.CursorDailyUsage{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_cursor_daily_usage.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }

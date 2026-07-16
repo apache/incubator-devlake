@@ -36,9 +36,12 @@ const (
 	rawUsageEventsTable = "cursor_usage_events"
 	rawUserSpendTable   = "cursor_user_spend"
 	rawMembersTable     = "cursor_members"
+	rawDailyUsageTable  = "cursor_daily_usage"
 
 	cursorApiPageSize         = 100
 	cursorInitialBackfillDays = 90
+	// cursorDailyUsageMaxDays is the maximum span allowed by POST /teams/daily-usage-data.
+	cursorDailyUsageMaxDays = 30
 )
 
 type cursorRawParams struct {
@@ -92,6 +95,34 @@ func computeUsageTimeRangeMs(since *time.Time, now time.Time) (int64, int64) {
 	return start.UnixMilli(), end.UnixMilli()
 }
 
+// splitDailyUsageTimeRangeMs splits [startMs, endMs] into chunks of at most maxDays for
+// POST /teams/daily-usage-data (API limit: date range cannot exceed 30 days).
+func splitDailyUsageTimeRangeMs(startMs, endMs int64, maxDays int) []cursorTimeRangeInput {
+	if startMs >= endMs || maxDays <= 0 {
+		return nil
+	}
+	maxDuration := time.Duration(maxDays) * 24 * time.Hour
+	chunkStart := time.UnixMilli(startMs).UTC()
+	end := time.UnixMilli(endMs).UTC()
+
+	var chunks []cursorTimeRangeInput
+	for chunkStart.Before(end) {
+		chunkEnd := chunkStart.Add(maxDuration)
+		if chunkEnd.After(end) {
+			chunkEnd = end
+		}
+		chunks = append(chunks, cursorTimeRangeInput{
+			StartDateMs: chunkStart.UnixMilli(),
+			EndDateMs:   chunkEnd.UnixMilli(),
+		})
+		if !chunkEnd.Before(end) {
+			break
+		}
+		chunkStart = chunkEnd.Add(time.Millisecond)
+	}
+	return chunks
+}
+
 func parseUsageEventsResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	body, err := readResponseBody(res)
 	if err != nil {
@@ -118,6 +149,20 @@ func parseSpendMembersResponse(res *http.Response) ([]json.RawMessage, errors.Er
 		return nil, errors.Default.Wrap(errors.Convert(jsonErr), "failed to decode spend response")
 	}
 	return response.TeamMemberSpend, nil
+}
+
+func parseDailyUsageResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
+	body, err := readResponseBody(res)
+	if err != nil {
+		return nil, err
+	}
+	var response struct {
+		Data []json.RawMessage `json:"data"`
+	}
+	if jsonErr := json.Unmarshal(body, &response); jsonErr != nil {
+		return nil, errors.Default.Wrap(errors.Convert(jsonErr), "failed to decode daily usage response")
+	}
+	return response.Data, nil
 }
 
 func parseMembersResponse(res *http.Response) ([]json.RawMessage, errors.Error) {

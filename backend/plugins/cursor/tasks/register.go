@@ -28,5 +28,7 @@ func GetSubTaskMetas() []plugin.SubTaskMeta {
 		ExtractUsageEventsMeta,
 		CollectUserSpendMeta,
 		ExtractUserSpendMeta,
+		CollectDailyUsageMeta,
+		ExtractDailyUsageMeta,
 	}
 }
