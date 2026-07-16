@@ -44,6 +44,11 @@ func CollectConnectorUsage(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 
+	if connection.IsConsoleApiKey() {
+		taskCtx.GetLogger().Info("Console API key detected, skipping connector usage collection (no equivalent endpoint)")
+		return nil
+	}
+
 	apiClient, err := CreateApiClient(taskCtx.TaskContext(), connection)
 	if err != nil {
 		return err

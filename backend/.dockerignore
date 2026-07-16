@@ -1,0 +1,24 @@
+# Build artifacts: regenerated inside the image (GOBIN=/app/bin + make build-plugin/build-server).
+# Shipping the host's pre-built bin/ (multiple GB of plugin .so files) bloats the
+# build context and the builder layer, which can exhaust the Docker VM and crash BuildKit.
+bin/
+
+# Generated mocks (regenerated via make mock inside the image)
+mocks/
+
+# Runtime logs
+logs/
+
+# Python build/venv artifacts (regenerated; Dockerfile.server reinstalls from
+# requirements.txt / pyproject and runs python/build.sh). Source under python/ is kept.
+**/.venv/
+**/__pycache__/
+**/*.pyc
+python/.devlake-python-build-root/
+
+# Test / coverage output
+*.out
+coverage.txt
+
+# OS / editor junk
+.DS_Store

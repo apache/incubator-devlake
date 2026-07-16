@@ -59,6 +59,7 @@ const buildUpdateTestPayload = (connection: any, values: any, customHeaders: ICu
   dbUrl: isEqual(connection?.dbUrl, values.dbUrl) ? undefined : values.dbUrl,
   companyId: isEqual(connection?.companyId, values.companyId) ? undefined : values.companyId,
   organization: isEqual(connection?.organization, values.organization) ? undefined : values.organization,
+  enterprise: isEqual(connection?.enterprise, values.enterprise) ? undefined : values.enterprise,
   customHeaders: isEqual(connection?.customHeaders, customHeaders) ? undefined : customHeaders,
 });
 
@@ -85,6 +86,7 @@ const buildCreateTestPayload = (initialValues: any, values: any, customHeaders: 
     'dbUrl',
     'companyId',
     'organization',
+    'enterprise',
     'customHeaders',
   ]);
 

@@ -86,6 +86,8 @@ func (p Sonarqube) GetTablesInfo() []dal.Tabler {
 		&models.SonarqubeFileMetrics{},
 		&models.SonarqubeAccount{},
 		&models.SonarqubeScopeConfig{},
+		&models.SonarqubeProjectMetricsHistory{},
+		&models.SonarqubeProjectAnalysis{},
 	}
 }
 
@@ -108,6 +110,11 @@ func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertHotspotsMeta,
 		tasks.ConvertFileMetricsMeta,
 		tasks.ConvertAccountsMeta,
+		tasks.CollectProjectMetricsHistoryMeta,
+		tasks.ExtractProjectMetricsHistoryMeta,
+		tasks.CollectProjectAnalysesMeta,
+		tasks.ExtractProjectAnalysesMeta,
+		tasks.ConvertProjectMetricsHistoryMeta,
 	}
 }
 

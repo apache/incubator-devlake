@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -76,10 +75,9 @@ func CollectOrgMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	dayIter := newDayIterator(start, until)
 
 	err = collector.InitCollector(helper.ApiCollectorArgs{
-		ApiClient: apiClient,
-		Input:     dayIter,
-		UrlTemplate: fmt.Sprintf("orgs/%s/copilot/metrics/reports/organization-1-day",
-			connection.Organization),
+		ApiClient:   apiClient,
+		Input:       dayIter,
+		UrlTemplate: copilotAPIPath("orgs", connection.Organization, "copilot/metrics/reports/organization-1-day"),
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			input := reqData.Input.(*dayInput)
 			q := url.Values{}

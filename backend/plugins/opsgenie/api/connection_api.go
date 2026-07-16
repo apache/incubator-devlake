@@ -48,7 +48,7 @@ func testOpsgenieConn(ctx context.Context, connection models.OpsgenieConn) (*plu
 	}
 
 	if response.StatusCode == http.StatusForbidden {
-		return nil, errors.HttpStatus(http.StatusForbidden).New("API Key need 'Read' and 'Configuration access' Access rights")
+		return nil, errors.HttpStatus(http.StatusForbidden).New("API Key needs 'Read', 'Create/Update', and 'Configuration Access' access rights")
 	}
 
 	if response.StatusCode == http.StatusOK || response.StatusCode == http.StatusAccepted {
