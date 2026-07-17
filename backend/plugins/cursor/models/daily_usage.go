@@ -24,6 +24,8 @@ import (
 )
 
 // CursorDailyUsage stores per-user per-day adoption metrics from POST /teams/daily-usage-data.
+// Line fields map from acceptedLinesAdded/totalLinesAdded (etc.); LinesAdded/LinesDeleted
+// duplicate accepted_lines_added/accepted_lines_deleted for backward compatibility.
 type CursorDailyUsage struct {
 	ConnectionId             uint64    `gorm:"primaryKey" json:"connectionId"`
 	ScopeId                  string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
@@ -43,6 +45,13 @@ type CursorDailyUsage struct {
 	SubscriptionIncludedReqs int    `json:"subscriptionIncludedReqs"`
 	MostUsedModel            string `json:"mostUsedModel" gorm:"type:varchar(255)"`
 	ClientVersion            string `json:"clientVersion" gorm:"type:varchar(100)"`
+	AcceptedLinesAdded       int    `json:"acceptedLinesAdded"`
+	AcceptedLinesDeleted     int    `json:"acceptedLinesDeleted"`
+	TotalLinesAdded          int    `json:"totalLinesAdded"`
+	TotalLinesDeleted        int    `json:"totalLinesDeleted"`
+	TotalApplies             int    `json:"totalApplies"`
+	TotalAccepts             int    `json:"totalAccepts"`
+	TotalRejects             int    `json:"totalRejects"`
 	LinesAdded               int    `json:"linesAdded"`
 	LinesDeleted             int    `json:"linesDeleted"`
 

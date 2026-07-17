@@ -44,8 +44,13 @@ type dailyUsageRecord struct {
 	SubscriptionIncludedReqs int    `json:"subscriptionIncludedReqs"`
 	MostUsedModel            string `json:"mostUsedModel"`
 	ClientVersion            string `json:"clientVersion"`
-	LinesAdded               int    `json:"linesAdded"`
-	LinesDeleted             int    `json:"linesDeleted"`
+	TotalLinesAdded          int    `json:"totalLinesAdded"`
+	TotalLinesDeleted        int    `json:"totalLinesDeleted"`
+	AcceptedLinesAdded       int    `json:"acceptedLinesAdded"`
+	AcceptedLinesDeleted     int    `json:"acceptedLinesDeleted"`
+	TotalApplies             int    `json:"totalApplies"`
+	TotalAccepts             int    `json:"totalAccepts"`
+	TotalRejects             int    `json:"totalRejects"`
 }
 
 // ExtractDailyUsage parses raw daily usage records into tool-layer tables.
@@ -98,8 +103,15 @@ func ExtractDailyUsage(taskCtx plugin.SubTaskContext) errors.Error {
 				SubscriptionIncludedReqs: record.SubscriptionIncludedReqs,
 				MostUsedModel:            strings.TrimSpace(record.MostUsedModel),
 				ClientVersion:            strings.TrimSpace(record.ClientVersion),
-				LinesAdded:               record.LinesAdded,
-				LinesDeleted:             record.LinesDeleted,
+				AcceptedLinesAdded:       record.AcceptedLinesAdded,
+				AcceptedLinesDeleted:     record.AcceptedLinesDeleted,
+				TotalLinesAdded:          record.TotalLinesAdded,
+				TotalLinesDeleted:        record.TotalLinesDeleted,
+				TotalApplies:             record.TotalApplies,
+				TotalAccepts:             record.TotalAccepts,
+				TotalRejects:             record.TotalRejects,
+				LinesAdded:               record.AcceptedLinesAdded,
+				LinesDeleted:             record.AcceptedLinesDeleted,
 			}
 			return []interface{}{usage}, nil
 		},
