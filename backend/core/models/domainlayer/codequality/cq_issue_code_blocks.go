@@ -22,7 +22,7 @@ import "github.com/apache/incubator-devlake/core/models/domainlayer"
 type CqIssueCodeBlock struct {
 	domainlayer.DomainEntity
 	IssueKey    string `json:"key" gorm:"index"`
-	Component   string `gorm:"index"`
+	Component   string `gorm:"type:text"`
 	StartLine   int
 	EndLine     int
 	StartOffset int

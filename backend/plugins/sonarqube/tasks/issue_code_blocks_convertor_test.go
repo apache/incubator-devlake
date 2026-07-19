@@ -15,23 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package tasks
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import (
+	"reflect"
+	"testing"
 
-type SonarqubeIssueCodeBlock struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           string `gorm:"primaryKey"`
-	IssueKey     string `gorm:"index"`
-	Component    string `gorm:"type:text"`
-	StartLine    int
-	EndLine      int
-	StartOffset  int
-	EndOffset    int
-	Msg          string
-	common.NoPKModel
-}
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/stretchr/testify/require"
+)
 
-func (SonarqubeIssueCodeBlock) TableName() string {
-	return "_tool_sonarqube_issue_code_blocks"
+func TestIssueCodeBlockComponentIsText(t *testing.T) {
+	testCases := []struct {
+		name  string
+		model interface{}
+	}{
+		{name: "tool layer", model: models.SonarqubeIssueCodeBlock{}},
+		{name: "domain layer", model: codequality.CqIssueCodeBlock{}},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			field, ok := reflect.TypeOf(testCase.model).FieldByName("Component")
+			require.True(t, ok)
+			require.Equal(t, "type:text", field.Tag.Get("gorm"))
+		})
+	}
 }
