@@ -28,7 +28,7 @@ all: build
 
 go-dep:
 	go install github.com/vektra/mockery/v2@v2.53.6
-	go install github.com/swaggo/swag/cmd/swag@v1.16.1
+	go install github.com/swaggo/swag/cmd/swag@v1.16.6
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
 
 go-dev-tools:
