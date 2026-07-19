@@ -530,7 +530,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(CAST((SUM(lines_to_cover) - SUM(uncovered_lines)) AS NUMERIC) / NULLIF(SUM(lines_to_cover), 0) * 100, 1) || '% ' || 'Coverage on ' || ROUND(CAST(CAST(SUM(lines_to_cover) AS NUMERIC) / NULLIF(1000, 0) AS DECIMAL), 0) || 'k Lines to cover' FROM cq_file_metrics WHERE ('${project_id:csv}' = '' OR project_key::text = ANY(ARRAY[${project_id:singlequote}]::text[]))",
+          "rawSql": "SELECT ROUND(CAST(SUM(coverage * lines_to_cover) AS NUMERIC) / NULLIF(SUM(lines_to_cover), 0), 1) || '% ' || 'Coverage on ' || ROUND(CAST(CAST(SUM(lines_to_cover) AS NUMERIC) / NULLIF(1000, 0) AS DECIMAL), 0) || 'k Lines to cover' FROM cq_file_metrics WHERE ('${project_id:csv}' = '' OR project_key::text = ANY(ARRAY[${project_id:singlequote}]::text[]))",
           "refId": "A",
           "sql": {
             "columns": [
