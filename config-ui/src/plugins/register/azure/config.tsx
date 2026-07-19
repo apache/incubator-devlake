@@ -30,6 +30,7 @@ export const AzureConfig: IPluginConfig = {
   sort: 2,
   connection: {
     docLink: DOC_URL.PLUGIN.AZUREDEVOPS.BASIS,
+    initialValues: {},
     fields: [
       'name',
       () => <BaseURL key="base-url" />,
@@ -82,6 +83,7 @@ export const AzureGoConfig: IPluginConfig = {
   isBeta: true,
   connection: {
     docLink: DOC_URL.PLUGIN.AZUREDEVOPS.BASIS,
+    initialValues: {},
     fields: [
       'name',
       () => <BaseURL key="base-url" />,
