@@ -14,7 +14,7 @@
         "type": "dashboard"
       },
       {
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "enable": true,
         "hide": false,
         "iconColor": "purple",
@@ -51,7 +51,7 @@
         "content": "## GitHub Copilot + DORA Correlation Dashboard\n\n**Purpose**: Analyze the **correlation** between GitHub Copilot adoption levels and engineering productivity metrics.\n\n**How it works**:\n- \ud83d\udcc8 **Primary Analysis**: Continuous correlation showing how DORA metrics trend alongside GitHub Copilot adoption intensity\n- \ud83d\udcca **Adoption Tiers**: Metrics grouped by adoption level (<25%, 25-50%, 50-75%, >75% of seats active)\n- \ud83d\udccd **Optional Milestone**: Configure a rollout date to add annotation markers on charts\n\n**Prerequisites**:\n- Ensure **GitHub Copilot metrics** are being collected via the GitHub Copilot plugin\n- Ensure **PR data** exists in DevLake from GitHub/GitLab plugins\n- For DORA metrics (CFR, MTTR): Configure deployments and incidents\n- For Code Quality: Configure SonarQube integration (optional)\n\n**\u26a0\ufe0f Disclaimer**: Correlation does not imply causation. Other factors may influence the metrics shown.",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -66,7 +66,7 @@
       "type": "text"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Weekly GitHub Copilot adoption percentage (active users / total seats) over time. Higher adoption correlates with expected productivity improvements.",
       "fieldConfig": {
         "defaults": {
@@ -147,10 +147,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, active_users, total_seats, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, ROUND(CAST(AVG(adoption_pct) AS DECIMAL), 1) AS adoption_pct, ROUND(CAST(AVG(active_users) AS DECIMAL), 0) AS avg_active_users, ROUND(CAST(AVG(total_seats) AS DECIMAL), 0) AS avg_total_seats FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day') SELECT week_start AS time, adoption_pct AS \"Adoption %\" FROM _adoption_weekly ORDER BY week_start NULLS FIRST",
@@ -161,7 +161,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Pearson correlation coefficient (r) between GitHub Copilot adoption % and PR cycle time. Negative values indicate inverse correlation (higher adoption \u2192 faster PRs). |r| > 0.7 = strong, 0.3-0.7 = moderate, < 0.3 = weak.",
       "fieldConfig": {
         "defaults": {
@@ -268,10 +268,10 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _pr_metrics_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_cycle_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_cycle_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day'), _correlation_data AS (SELECT aw.week_start, aw.adoption_pct, pm.avg_cycle_time_hours FROM _adoption_weekly AS aw INNER JOIN _pr_metrics_weekly AS pm ON aw.week_start = pm.week_start WHERE NOT aw.adoption_pct IS NULL AND NOT pm.avg_cycle_time_hours IS NULL), _stats AS (SELECT COUNT(*) AS n, AVG(adoption_pct) AS mean_x, AVG(avg_cycle_time_hours) AS mean_y, STDDEV_POP(adoption_pct) AS stddev_x, STDDEV_POP(avg_cycle_time_hours) AS stddev_y FROM _correlation_data), _pearson AS (SELECT CASE WHEN s.n < 4 THEN NULL WHEN s.stddev_x = '0' OR s.stddev_y = '0' THEN 0 ELSE (SELECT CAST(SUM((cd.adoption_pct - s.mean_x) * (cd.avg_cycle_time_hours - s.mean_y)) AS NUMERIC) / NULLIF((s.n * s.stddev_x * s.stddev_y), 0) FROM _correlation_data AS cd) END AS r FROM _stats AS s) SELECT ROUND(r, 2) AS value FROM _pearson",
@@ -282,7 +282,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Current week's GitHub Copilot adoption percentage (active users / total seats)",
       "fieldConfig": {
         "defaults": {
@@ -339,10 +339,10 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS value FROM (SELECT daily_active_users AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY day DESC NULLS LAST LIMIT 1) AS _ent UNION ALL SELECT ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS value FROM (SELECT total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' ORDER BY date DESC NULLS LAST LIMIT 1) AS _org LIMIT 1",
@@ -373,7 +373,7 @@
         "content": "### Interpreting Correlation (r)\n\n| Value | Meaning |\n|-------|--------|\n| **-1 to -0.7** | \ud83d\udfe2 Strong inverse (higher adoption \u2192 faster PRs) |\n| **-0.7 to -0.3** | \ud83d\udfe1 Moderate inverse |\n| **-0.3 to 0.3** | \u26aa Weak/No correlation |\n| **0.3 to 0.7** | \ud83d\udfe0 Moderate positive |\n| **0.7 to 1** | \ud83d\udd34 Strong positive (unexpected) |\n\n*Note: r < 0 is expected (adoption \u2191 = cycle time \u2193)*",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -401,7 +401,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Percentage difference in PR cycle time between high adoption weeks (>50%) and low adoption weeks (<50%). Negative values indicate improvement (faster PRs during high adoption).",
       "fieldConfig": {
         "defaults": {
@@ -454,10 +454,10 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _pr_metrics_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_cycle_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_cycle_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day'), _adoption_pr_joined AS (SELECT aw.week_start, aw.adoption_pct, pm.avg_cycle_time_hours, CASE WHEN aw.adoption_pct >= 50 THEN 'high' ELSE 'low' END AS adoption_tier FROM _adoption_weekly AS aw INNER JOIN _pr_metrics_weekly AS pm ON aw.week_start = pm.week_start), _tier_averages AS (SELECT adoption_tier, AVG(avg_cycle_time_hours) AS avg_cycle_time FROM _adoption_pr_joined GROUP BY adoption_tier) SELECT ROUND(CAST(((SELECT avg_cycle_time FROM _tier_averages WHERE adoption_tier = 'high') - (SELECT avg_cycle_time FROM _tier_averages WHERE adoption_tier = 'low')) AS NUMERIC) / NULLIF(NULLIF((SELECT avg_cycle_time FROM _tier_averages WHERE adoption_tier = 'low'), 0), 0) * 100, 1) AS value",
@@ -468,7 +468,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Dual-axis chart showing weekly GitHub Copilot adoption % (left axis) and PR cycle time in hours (right axis). Look for inverse correlation - adoption up, cycle time down.",
       "fieldConfig": {
         "defaults": {
@@ -596,17 +596,17 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day') SELECT week_start AS time, ROUND(adoption_pct, 1) AS \"Adoption %\" FROM _adoption_weekly ORDER BY week_start NULLS FIRST",
           "refId": "Adoption"
         },
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "WITH _pr_metrics_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_cycle_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_cycle_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day') SELECT week_start AS time, ROUND(avg_cycle_time_hours, 1) AS \"PR Cycle Time (hrs)\" FROM _pr_metrics_weekly ORDER BY week_start NULLS FIRST",
@@ -617,7 +617,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Average PR cycle time by adoption tier. Lower times in higher adoption tiers suggest positive Copilot impact.",
       "fieldConfig": {
         "defaults": {
@@ -680,10 +680,10 @@
           }
         }
       ],
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _pr_metrics_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_cycle_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_cycle_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day'), _adoption_pr_joined AS (SELECT aw.adoption_pct, pm.avg_cycle_time_hours, CASE WHEN aw.adoption_pct < 25 THEN '1. <25%' WHEN aw.adoption_pct < 50 THEN '2. 25-50%' WHEN aw.adoption_pct < 75 THEN '3. 50-75%' ELSE '4. >75%' END AS adoption_tier FROM _adoption_weekly AS aw INNER JOIN _pr_metrics_weekly AS pm ON aw.week_start = pm.week_start) SELECT adoption_tier AS metric, ROUND(CAST(AVG(avg_cycle_time_hours) AS DECIMAL), 1) AS value FROM _adoption_pr_joined GROUP BY adoption_tier ORDER BY adoption_tier NULLS FIRST",
@@ -714,7 +714,7 @@
         "content": "**Cycle Time Components** break down PR lifecycle into three phases:\n\n- **Coding Time**: PR creation \u2192 first commit (development speed)\n- **Pickup Time**: PR creation \u2192 first review (reviewer responsiveness)\n- **Review Time**: First review \u2192 merge (actual review duration)\n\nComparing <50% vs \u226550% adoption periods shows which phase improved most with Copilot. For example, if Coding Time shrinks significantly, Copilot accelerates development.",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -729,7 +729,7 @@
       "type": "text"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Scatter plot showing weekly data points. Each point = one week. X-axis = adoption %, Y-axis = PR cycle time. Downward trend line indicates positive Copilot impact.",
       "fieldConfig": {
         "defaults": {
@@ -792,10 +792,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _pr_metrics_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_cycle_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_cycle_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day') SELECT ROUND(aw.adoption_pct, 1) AS adoption_pct, ROUND(pm.avg_cycle_time_hours, 1) AS cycle_time_hours FROM _adoption_weekly AS aw INNER JOIN _pr_metrics_weekly AS pm ON aw.week_start = pm.week_start ORDER BY aw.adoption_pct NULLS FIRST",
@@ -806,7 +806,7 @@
       "type": "xychart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "PR cycle time breakdown during low adoption periods (<50%). Compare with high adoption to see which components improved.",
       "fieldConfig": {
         "defaults": {
@@ -851,10 +851,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _low_adoption_weeks AS (SELECT week_start FROM _adoption_weekly WHERE adoption_pct < 50) SELECT 'Coding Time' AS component, ROUND(CAST(CAST(AVG(pr_coding_time) AS NUMERIC) / NULLIF(60.0, 0) AS DECIMAL), 1) AS value FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' IN (SELECT week_start FROM _low_adoption_weeks) UNION ALL SELECT 'Pickup Time' AS component, ROUND(CAST(CAST(AVG(pr_pickup_time) AS NUMERIC) / NULLIF(60.0, 0) AS DECIMAL), 1) AS value FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' IN (SELECT week_start FROM _low_adoption_weeks) UNION ALL SELECT 'Review Time' AS component, ROUND(CAST(CAST(AVG(pr_review_time) AS NUMERIC) / NULLIF(60.0, 0) AS DECIMAL), 1) AS value FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' IN (SELECT week_start FROM _low_adoption_weeks)",
@@ -865,7 +865,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "PR cycle time breakdown during high adoption periods (>=50%). Compare with low adoption to see which components improved.",
       "fieldConfig": {
         "defaults": {
@@ -910,10 +910,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _high_adoption_weeks AS (SELECT week_start FROM _adoption_weekly WHERE adoption_pct >= 50) SELECT 'Coding Time' AS component, ROUND(CAST(CAST(AVG(pr_coding_time) AS NUMERIC) / NULLIF(60.0, 0) AS DECIMAL), 1) AS value FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' IN (SELECT week_start FROM _high_adoption_weeks) UNION ALL SELECT 'Pickup Time' AS component, ROUND(CAST(CAST(AVG(pr_pickup_time) AS NUMERIC) / NULLIF(60.0, 0) AS DECIMAL), 1) AS value FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' IN (SELECT week_start FROM _high_adoption_weeks) UNION ALL SELECT 'Review Time' AS component, ROUND(CAST(CAST(AVG(pr_review_time) AS NUMERIC) / NULLIF(60.0, 0) AS DECIMAL), 1) AS value FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' IN (SELECT week_start FROM _high_adoption_weeks)",
@@ -937,7 +937,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Dual-axis chart showing GitHub Copilot adoption percentage and deployment frequency over time. Look for correlation patterns - does higher adoption correlate with more frequent deployments?",
       "fieldConfig": {
         "defaults": {
@@ -1065,10 +1065,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _deployments_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS deploy_count FROM cicd_deployment_commits WHERE result = 'SUCCESS' AND $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day') SELECT EXTRACT(EPOCH FROM aw.week_start) AS time_sec, aw.adoption_pct AS \"Adoption %\", COALESCE(dw.deploy_count, 0) AS \"Deployments\" FROM _adoption_weekly AS aw LEFT JOIN _deployments_weekly AS dw ON aw.week_start = dw.week_start ORDER BY aw.week_start NULLS FIRST",
@@ -1079,7 +1079,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Deployment frequency grouped by GitHub Copilot adoption tier. Higher adoption should correlate with more frequent deployments if Copilot accelerates development velocity.",
       "fieldConfig": {
         "defaults": {
@@ -1138,10 +1138,10 @@
           }
         }
       ],
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct, CASE WHEN AVG(adoption_pct) < 25 THEN '1: <25%' WHEN AVG(adoption_pct) < 50 THEN '2: 25-50%' WHEN AVG(adoption_pct) < 75 THEN '3: 50-75%' ELSE '4: >75%' END AS adoption_tier FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _deployments_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS deploy_count FROM cicd_deployment_commits WHERE result = 'SUCCESS' AND $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day') SELECT aw.adoption_tier AS \"Adoption Tier\", ROUND(CAST(AVG(COALESCE(dw.deploy_count, 0)) AS DECIMAL), 1) AS \"Deploys/Week\" FROM _adoption_weekly AS aw LEFT JOIN _deployments_weekly AS dw ON aw.week_start = dw.week_start GROUP BY aw.adoption_tier ORDER BY aw.adoption_tier NULLS FIRST",
@@ -1152,7 +1152,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Pearson correlation coefficient (r) between GitHub Copilot adoption % and weekly deployment count. Positive values indicate higher adoption correlates with more deployments.",
       "fieldConfig": {
         "defaults": {
@@ -1214,10 +1214,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _deployments_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS deploy_count FROM cicd_deployment_commits WHERE result = 'SUCCESS' AND $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day'), _joined AS (SELECT aw.adoption_pct, COALESCE(dw.deploy_count, 0) AS deploy_count FROM _adoption_weekly AS aw LEFT JOIN _deployments_weekly AS dw ON aw.week_start = dw.week_start) SELECT ROUND(CAST(CAST((COUNT(*) * SUM(adoption_pct * deploy_count) - SUM(adoption_pct) * SUM(deploy_count)) AS NUMERIC) / NULLIF(NULLIF(SQRT((COUNT(*) * SUM(adoption_pct * adoption_pct) - POWER(SUM(adoption_pct), 2)) * (COUNT(*) * SUM(deploy_count * deploy_count) - POWER(SUM(deploy_count), 2))), 0), 0) AS DECIMAL), 2) AS correlation_r FROM _joined WHERE NOT adoption_pct IS NULL",
@@ -1228,7 +1228,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Percentage change in deployment frequency between low adoption (<50%) and high adoption (\u226550%) periods.",
       "fieldConfig": {
         "defaults": {
@@ -1290,10 +1290,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _deployments_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS deploy_count FROM cicd_deployment_commits WHERE result = 'SUCCESS' AND $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day'), _adoption_deploy AS (SELECT CASE WHEN aw.adoption_pct < 50 THEN 'low' ELSE 'high' END AS tier, COALESCE(dw.deploy_count, 0) AS deploy_count FROM _adoption_weekly AS aw LEFT JOIN _deployments_weekly AS dw ON aw.week_start = dw.week_start), _tier_avg AS (SELECT tier, AVG(deploy_count) AS avg_deploys FROM _adoption_deploy GROUP BY tier) SELECT ROUND(CAST(((SELECT avg_deploys FROM _tier_avg WHERE tier = 'high') - (SELECT avg_deploys FROM _tier_avg WHERE tier = 'low')) AS NUMERIC) / NULLIF(NULLIF((SELECT avg_deploys FROM _tier_avg WHERE tier = 'low'), 0), 0) * 100, 1) AS change_pct",
@@ -1317,7 +1317,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Comprehensive comparison of all DORA metrics across GitHub Copilot adoption tiers. Lower values (green) are better for cycle time, CFR, and MTTR. Higher values (green) are better for deployment frequency.",
       "fieldConfig": {
         "defaults": {
@@ -1363,10 +1363,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _adoption_tiers AS (SELECT week_start, \"adoption_pct\", CASE WHEN adoption_pct < 25 THEN '<25%' WHEN adoption_pct < 50 THEN '25-50%' WHEN adoption_pct < 75 THEN '50-75%' ELSE '>75%' END AS tier FROM _adoption_weekly), _pr_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, AVG(CAST(pr_cycle_time AS NUMERIC) / NULLIF(60, 0)) AS cycle_time_hrs FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND NOT pr_merged_date IS NULL AND $__timeFilter(pr_merged_date) GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day'), _deploy_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS deploy_count, SUM(CASE WHEN result = 'FAILURE' THEN 1 ELSE 0 END) AS failed_deploys FROM cicd_deployment_commits WHERE $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day'), _cfr_weekly AS (SELECT week_start, ROUND(CAST(failed_deploys * 100.0 AS NUMERIC) / NULLIF(NULLIF(deploy_count, 0), 0), 1) AS cfr_pct FROM _deploy_weekly), _mttr_weekly AS (SELECT CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, AVG((EXTRACT(EPOCH FROM (resolution_date - created_date))/3600)) AS mttr_hours FROM issues WHERE type = 'INCIDENT' AND NOT resolution_date IS NULL AND $__timeFilter(resolution_date) GROUP BY CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day'), _tier_metrics AS (SELECT at.tier, ROUND(CAST(AVG(pw.cycle_time_hrs) AS DECIMAL), 1) AS pr_cycle_time, ROUND(CAST(AVG(dw.deploy_count) AS DECIMAL), 1) AS deploy_freq, ROUND(CAST(AVG(cfr.cfr_pct) AS DECIMAL), 1) AS cfr_pct, ROUND(CAST(AVG(mttr.mttr_hours) AS DECIMAL), 1) AS mttr_hours FROM _adoption_tiers AS at LEFT JOIN _pr_weekly AS pw ON at.week_start = pw.week_start LEFT JOIN _deploy_weekly AS dw ON at.week_start = dw.week_start LEFT JOIN _cfr_weekly AS cfr ON at.week_start = cfr.week_start LEFT JOIN _mttr_weekly AS mttr ON at.week_start = mttr.week_start GROUP BY at.tier) SELECT tier AS \"Adoption Tier\", COALESCE(pr_cycle_time, 0) AS \"PR Cycle Time (hrs)\", COALESCE(deploy_freq, 0) AS \"Deploys/Week\", COALESCE(cfr_pct, 0) AS \"CFR %\", COALESCE(mttr_hours, 0) AS \"MTTR (hours)\" FROM _tier_metrics ORDER BY CASE tier WHEN '<25%' THEN 1 WHEN '25-50%' THEN 2 WHEN '50-75%' THEN 3 WHEN '>75%' THEN 4 END NULLS FIRST",
@@ -1390,7 +1390,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Dual-axis chart showing GitHub Copilot adoption percentage and Change Failure Rate over time. CFR should decrease (improve) as adoption increases if Copilot improves code quality.",
       "fieldConfig": {
         "defaults": {
@@ -1518,10 +1518,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _deployments_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS total_deploys, SUM(CASE WHEN result = 'FAILURE' THEN 1 ELSE 0 END) AS failed_deploys FROM cicd_deployment_commits WHERE $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day') SELECT EXTRACT(EPOCH FROM aw.week_start) AS time_sec, aw.adoption_pct AS \"Adoption %\", ROUND(CAST(dw.failed_deploys * 100.0 AS NUMERIC) / NULLIF(NULLIF(dw.total_deploys, 0), 0), 1) AS \"CFR %\" FROM _adoption_weekly AS aw LEFT JOIN _deployments_weekly AS dw ON aw.week_start = dw.week_start ORDER BY aw.week_start NULLS FIRST",
@@ -1532,7 +1532,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Change Failure Rate grouped by GitHub Copilot adoption tier. Lower CFR at higher adoption indicates Copilot improves code quality and reduces failures.",
       "fieldConfig": {
         "defaults": {
@@ -1595,10 +1595,10 @@
           }
         }
       ],
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct, CASE WHEN AVG(adoption_pct) < 25 THEN '1: <25%' WHEN AVG(adoption_pct) < 50 THEN '2: 25-50%' WHEN AVG(adoption_pct) < 75 THEN '3: 50-75%' ELSE '4: >75%' END AS adoption_tier FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _deployments_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS total_deploys, SUM(CASE WHEN result = 'FAILURE' THEN 1 ELSE 0 END) AS failed_deploys FROM cicd_deployment_commits WHERE $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day') SELECT aw.adoption_tier AS \"Adoption Tier\", ROUND(CAST(AVG(CAST(dw.failed_deploys * 100.0 AS NUMERIC) / NULLIF(NULLIF(dw.total_deploys, 0), 0)) AS DECIMAL), 1) AS \"CFR %\" FROM _adoption_weekly AS aw LEFT JOIN _deployments_weekly AS dw ON aw.week_start = dw.week_start GROUP BY aw.adoption_tier ORDER BY aw.adoption_tier NULLS FIRST",
@@ -1609,7 +1609,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Pearson correlation coefficient (r) between GitHub Copilot adoption % and Change Failure Rate. NEGATIVE values are good - they indicate higher adoption correlates with lower failure rates.",
       "fieldConfig": {
         "defaults": {
@@ -1671,10 +1671,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _deployments_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS total_deploys, SUM(CASE WHEN result = 'FAILURE' THEN 1 ELSE 0 END) AS failed_deploys FROM cicd_deployment_commits WHERE $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day'), _joined AS (SELECT aw.adoption_pct, (CAST(dw.failed_deploys * 100.0 AS NUMERIC) / NULLIF(NULLIF(dw.total_deploys, 0), 0)) AS cfr_pct FROM _adoption_weekly AS aw LEFT JOIN _deployments_weekly AS dw ON aw.week_start = dw.week_start WHERE dw.total_deploys > 0) SELECT ROUND(CAST(CAST((COUNT(*) * SUM(adoption_pct * cfr_pct) - SUM(adoption_pct) * SUM(cfr_pct)) AS NUMERIC) / NULLIF(NULLIF(SQRT((COUNT(*) * SUM(adoption_pct * adoption_pct) - POWER(SUM(adoption_pct), 2)) * (COUNT(*) * SUM(cfr_pct * cfr_pct) - POWER(SUM(cfr_pct), 2))), 0), 0) AS DECIMAL), 2) AS correlation_r FROM _joined",
@@ -1685,7 +1685,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Percentage change in Change Failure Rate between low adoption (<50%) and high adoption (\u226550%) periods. Negative values indicate improvement.",
       "fieldConfig": {
         "defaults": {
@@ -1747,10 +1747,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _deployments_weekly AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS total_deploys, SUM(CASE WHEN result = 'FAILURE' THEN 1 ELSE 0 END) AS failed_deploys FROM cicd_deployment_commits WHERE $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM CAST(finished_date AS DATE)) - 1) * INTERVAL '1 day'), _adoption_cfr AS (SELECT CASE WHEN aw.adoption_pct < 50 THEN 'low' ELSE 'high' END AS tier, (CAST(dw.failed_deploys * 100.0 AS NUMERIC) / NULLIF(NULLIF(dw.total_deploys, 0), 0)) AS cfr_pct FROM _adoption_weekly AS aw LEFT JOIN _deployments_weekly AS dw ON aw.week_start = dw.week_start WHERE dw.total_deploys > 0), _tier_avg AS (SELECT tier, AVG(cfr_pct) AS avg_cfr FROM _adoption_cfr GROUP BY tier) SELECT ROUND(CAST(((SELECT avg_cfr FROM _tier_avg WHERE tier = 'high') - (SELECT avg_cfr FROM _tier_avg WHERE tier = 'low')) AS NUMERIC) / NULLIF(NULLIF((SELECT avg_cfr FROM _tier_avg WHERE tier = 'low'), 0), 0) * 100, 1) AS change_pct",
@@ -1774,7 +1774,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Dual-axis chart showing GitHub Copilot adoption percentage and Mean Time to Recovery (MTTR) over time. MTTR should decrease (improve) as adoption increases if Copilot helps faster incident resolution.",
       "fieldConfig": {
         "defaults": {
@@ -1902,17 +1902,17 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day') SELECT week_start AS time, ROUND(adoption_pct, 1) AS \"Adoption %\" FROM _adoption_weekly ORDER BY week_start NULLS FIRST",
           "refId": "Adoption"
         },
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "WITH _incidents_weekly AS (SELECT CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, AVG((EXTRACT(EPOCH FROM (resolution_date - created_date))/3600)) AS mttr_hours FROM issues WHERE type = 'INCIDENT' AND NOT resolution_date IS NULL AND $__timeFilter(resolution_date) GROUP BY CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day') SELECT week_start AS time, ROUND(mttr_hours, 1) AS \"MTTR (hours)\" FROM _incidents_weekly ORDER BY week_start NULLS FIRST",
@@ -1923,7 +1923,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Mean Time to Recovery grouped by GitHub Copilot adoption tier. Lower MTTR at higher adoption indicates Copilot helps faster incident resolution.",
       "fieldConfig": {
         "defaults": {
@@ -1986,10 +1986,10 @@
           }
         }
       ],
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct, CASE WHEN AVG(adoption_pct) < 25 THEN '1: <25%' WHEN AVG(adoption_pct) < 50 THEN '2: 25-50%' WHEN AVG(adoption_pct) < 75 THEN '3: 50-75%' ELSE '4: >75%' END AS adoption_tier FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _incidents_weekly AS (SELECT CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, AVG((EXTRACT(EPOCH FROM (resolution_date - created_date))/3600)) AS mttr_hours FROM issues WHERE type = 'INCIDENT' AND NOT resolution_date IS NULL AND $__timeFilter(resolution_date) GROUP BY CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day') SELECT aw.adoption_tier AS \"Adoption Tier\", ROUND(CAST(AVG(iw.mttr_hours) AS DECIMAL), 1) AS \"MTTR (hours)\" FROM _adoption_weekly AS aw LEFT JOIN _incidents_weekly AS iw ON aw.week_start = iw.week_start WHERE NOT iw.mttr_hours IS NULL GROUP BY aw.adoption_tier ORDER BY aw.adoption_tier NULLS FIRST",
@@ -2000,7 +2000,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Pearson correlation coefficient (r) between GitHub Copilot adoption % and MTTR. NEGATIVE values are good - they indicate higher adoption correlates with faster recovery.",
       "fieldConfig": {
         "defaults": {
@@ -2062,10 +2062,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _incidents_weekly AS (SELECT CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, AVG((EXTRACT(EPOCH FROM (resolution_date - created_date))/3600)) AS mttr_hours FROM issues WHERE type = 'INCIDENT' AND NOT resolution_date IS NULL AND $__timeFilter(resolution_date) GROUP BY CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day'), _joined AS (SELECT aw.adoption_pct, iw.mttr_hours FROM _adoption_weekly AS aw INNER JOIN _incidents_weekly AS iw ON aw.week_start = iw.week_start) SELECT ROUND(CAST(CAST((COUNT(*) * SUM(adoption_pct * mttr_hours) - SUM(adoption_pct) * SUM(mttr_hours)) AS NUMERIC) / NULLIF(NULLIF(SQRT((COUNT(*) * SUM(adoption_pct * adoption_pct) - POWER(SUM(adoption_pct), 2)) * (COUNT(*) * SUM(mttr_hours * mttr_hours) - POWER(SUM(mttr_hours), 2))), 0), 0) AS DECIMAL), 2) AS correlation_r FROM _joined",
@@ -2076,7 +2076,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Percentage change in MTTR between low adoption (<50%) and high adoption (\u226550%) periods. Negative values indicate faster recovery.",
       "fieldConfig": {
         "defaults": {
@@ -2138,10 +2138,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _incidents_weekly AS (SELECT CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, AVG((EXTRACT(EPOCH FROM (resolution_date - created_date))/3600)) AS mttr_hours FROM issues WHERE type = 'INCIDENT' AND NOT resolution_date IS NULL AND $__timeFilter(resolution_date) GROUP BY CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM CAST(resolution_date AS DATE)) - 1) * INTERVAL '1 day'), _adoption_mttr AS (SELECT CASE WHEN aw.adoption_pct < 50 THEN 'low' ELSE 'high' END AS tier, iw.mttr_hours FROM _adoption_weekly AS aw INNER JOIN _incidents_weekly AS iw ON aw.week_start = iw.week_start), _tier_avg AS (SELECT tier, AVG(mttr_hours) AS avg_mttr FROM _adoption_mttr GROUP BY tier) SELECT ROUND(CAST(((SELECT avg_mttr FROM _tier_avg WHERE tier = 'high') - (SELECT avg_mttr FROM _tier_avg WHERE tier = 'low')) AS NUMERIC) / NULLIF(NULLIF((SELECT avg_mttr FROM _tier_avg WHERE tier = 'low'), 0), 0) * 100, 1) AS change_pct",
@@ -2165,7 +2165,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Code review time (time from first review request to merge) grouped by GitHub Copilot adoption tier. Shorter review times at higher adoption may indicate Copilot-assisted code is easier to review.",
       "fieldConfig": {
         "defaults": {
@@ -2228,10 +2228,10 @@
           }
         }
       ],
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct, CASE WHEN AVG(adoption_pct) < 25 THEN '1: <25%' WHEN AVG(adoption_pct) < 50 THEN '2: 25-50%' WHEN AVG(adoption_pct) < 75 THEN '3: 50-75%' ELSE '4: >75%' END AS adoption_tier FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _pr_review_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_review_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_review_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) AND pr_review_time > 0 GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day') SELECT aw.adoption_tier AS \"Adoption Tier\", ROUND(CAST(AVG(prw.avg_review_time_hours) AS DECIMAL), 1) AS \"Review Time (hours)\" FROM _adoption_weekly AS aw LEFT JOIN _pr_review_weekly AS prw ON aw.week_start = prw.week_start WHERE NOT prw.avg_review_time_hours IS NULL GROUP BY aw.adoption_tier ORDER BY aw.adoption_tier NULLS FIRST",
@@ -2242,7 +2242,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Dual-axis chart showing GitHub Copilot adoption % and average code review time over time. Look for patterns indicating whether Copilot-assisted PRs get reviewed faster.",
       "fieldConfig": {
         "defaults": {
@@ -2370,10 +2370,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _pr_review_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_review_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_review_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) AND pr_review_time > 0 GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day') SELECT EXTRACT(EPOCH FROM aw.week_start) AS time_sec, aw.adoption_pct AS \"Adoption %\", ROUND(prw.avg_review_time_hours, 1) AS \"Review Time (h)\" FROM _adoption_weekly AS aw LEFT JOIN _pr_review_weekly AS prw ON aw.week_start = prw.week_start ORDER BY aw.week_start NULLS FIRST",
@@ -2384,7 +2384,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Percentage change in code review time between low adoption (<50%) and high adoption (\u226550%) periods. Negative values indicate faster reviews.",
       "fieldConfig": {
         "defaults": {
@@ -2446,10 +2446,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _pr_review_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_review_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_review_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) AND pr_review_time > 0 GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day'), _adoption_review AS (SELECT CASE WHEN aw.adoption_pct < 50 THEN 'low' ELSE 'high' END AS tier, prw.avg_review_time_hours FROM _adoption_weekly AS aw INNER JOIN _pr_review_weekly AS prw ON aw.week_start = prw.week_start), _tier_avg AS (SELECT tier, AVG(avg_review_time_hours) AS avg_review FROM _adoption_review GROUP BY tier) SELECT ROUND(CAST(((SELECT avg_review FROM _tier_avg WHERE tier = 'high') - (SELECT avg_review FROM _tier_avg WHERE tier = 'low')) AS NUMERIC) / NULLIF(NULLIF((SELECT avg_review FROM _tier_avg WHERE tier = 'low'), 0), 0) * 100, 1) AS change_pct",
@@ -2460,7 +2460,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Pearson correlation coefficient (r) between GitHub Copilot adoption % and code review time. NEGATIVE values indicate higher adoption correlates with faster reviews.",
       "fieldConfig": {
         "defaults": {
@@ -2522,10 +2522,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(day) GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' AND $__timeFilter(date)) AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _pr_review_weekly AS (SELECT CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day' AS week_start, CAST(AVG(pr_review_time) AS NUMERIC) / NULLIF(60.0, 0) AS avg_review_time_hours FROM project_pr_metrics WHERE ('${project:sqlstring}' = '' OR project_name::text = '${project:sqlstring}') AND $__timeFilter(pr_merged_date) AND pr_review_time > 0 GROUP BY CAST(pr_merged_date AS DATE) - (EXTRACT(ISODOW FROM CAST(pr_merged_date AS DATE)) - 1) * INTERVAL '1 day'), _joined AS (SELECT aw.adoption_pct, prw.avg_review_time_hours FROM _adoption_weekly AS aw INNER JOIN _pr_review_weekly AS prw ON aw.week_start = prw.week_start) SELECT ROUND(CAST(CAST((COUNT(*) * SUM(adoption_pct * avg_review_time_hours) - SUM(adoption_pct) * SUM(avg_review_time_hours)) AS NUMERIC) / NULLIF(NULLIF(SQRT((COUNT(*) * SUM(adoption_pct * adoption_pct) - POWER(SUM(adoption_pct), 2)) * (COUNT(*) * SUM(avg_review_time_hours * avg_review_time_hours) - POWER(SUM(avg_review_time_hours), 2))), 0), 0) AS DECIMAL), 2) AS correlation_r FROM _joined",
@@ -2549,7 +2549,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Bug count per file by GitHub Copilot adoption tier. Lower is better. Requires SonarQube integration.",
       "fieldConfig": {
         "defaults": {
@@ -2601,10 +2601,10 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH _copilot_adoption AS (SELECT metric_date, ROUND(CAST(active_users * 100.0 AS NUMERIC) / NULLIF(NULLIF(total_seats, 0), 0), 1) AS adoption_pct FROM (SELECT day AS metric_date, SUM(daily_active_users) AS active_users, (SELECT COUNT(*) FROM _tool_copilot_seats AS s WHERE ('${connection_id}' = '' OR s.connection_id::text = '${connection_id}') AND COALESCE(s.organization, '') = COALESCE((SELECT sc.organization FROM _tool_copilot_scopes AS sc WHERE ('${connection_id}' = '' OR sc.connection_id::text = '${connection_id}') AND sc.id = '${scope_id}' LIMIT 1), '')) AS total_seats FROM _tool_copilot_enterprise_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}' GROUP BY day UNION ALL SELECT date AS metric_date, total_active_users AS active_users, seat_total AS total_seats FROM _tool_copilot_org_daily_metrics WHERE ('${connection_id}' = '' OR connection_id::text = '${connection_id}') AND scope_id = '${scope_id}') AS _unified), _adoption_weekly AS (SELECT metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day' AS week_start, AVG(adoption_pct) AS adoption_pct FROM _copilot_adoption GROUP BY metric_date - (EXTRACT(ISODOW FROM metric_date) - 1) * INTERVAL '1 day'), _adoption_tiers AS (SELECT week_start, CASE WHEN adoption_pct < 25 THEN '<25%' WHEN adoption_pct < 50 THEN '25-50%' WHEN adoption_pct < 75 THEN '50-75%' ELSE '>75%' END AS tier FROM _adoption_weekly) SELECT 'N/A - Configure SonarQube' AS \"Tier\", 0 AS \"Bugs/File\" FROM (SELECT 1) AS d WHERE NOT EXISTS(SELECT 1 FROM cq_file_metrics LIMIT 1)",
@@ -2615,7 +2615,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Code smell count per file by GitHub Copilot adoption tier. Lower is better. Requires SonarQube integration.",
       "fieldConfig": {
         "defaults": {
@@ -2667,10 +2667,10 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT 'N/A - Configure SonarQube' AS \"Tier\", 0 AS \"Code Smells/File\" FROM (SELECT 1) AS d WHERE NOT EXISTS(SELECT 1 FROM cq_file_metrics LIMIT 1)",
@@ -2681,7 +2681,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Code complexity by GitHub Copilot adoption tier. Lower is better. Requires SonarQube integration.",
       "fieldConfig": {
         "defaults": {
@@ -2733,10 +2733,10 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT 'N/A - Configure SonarQube' AS \"Tier\", 0 AS \"Complexity\" FROM (SELECT 1) AS d WHERE NOT EXISTS(SELECT 1 FROM cq_file_metrics LIMIT 1)",
@@ -2747,7 +2747,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Code coverage percentage by GitHub Copilot adoption tier. Higher is better. Requires SonarQube integration.",
       "fieldConfig": {
         "defaults": {
@@ -2802,10 +2802,10 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT 'N/A - Configure SonarQube' AS \"Tier\", 0 AS \"Coverage\" FROM (SELECT 1) AS d WHERE NOT EXISTS(SELECT 1 FROM cq_file_metrics LIMIT 1)",
@@ -2832,7 +2832,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT connection_id FROM _tool_copilot_scopes ORDER BY 1 NULLS FIRST",
         "hide": 0,
         "includeAll": false,
@@ -2853,7 +2853,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT id FROM _tool_copilot_scopes WHERE connection_id = CAST('${connection_id}' AS BIGINT) ORDER BY 1 NULLS FIRST",
         "hide": 0,
         "includeAll": false,
@@ -2874,7 +2874,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT project_name FROM project_pr_metrics ORDER BY 1 NULLS FIRST",
         "hide": 0,
         "includeAll": false,

@@ -77,7 +77,7 @@
         "content": "- Use Cases: This dashboard shows project management metrics from Taiga across all issue types (User Stories, Tasks, Issues/Requirements, Epics).\n- Data Source Required: Taiga\n- Metrics: Issue throughput (filtered by type), lead time, story points (User Stories), milestone progress, assignee breakdown and issue type breakdown.\n- Use the **Issue Type** variable to filter panels to a specific type, or select All to see all types together.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -116,7 +116,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Total number of user stories created in the selected time range and board.",
       "fieldConfig": {
         "defaults": {
@@ -165,10 +165,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -218,7 +218,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Total number of issues that have been marked as Done/Closed in the selected time range.",
       "fieldConfig": {
         "defaults": {
@@ -268,10 +268,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -321,7 +321,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Monthly distribution of open vs. closed issues.",
       "fieldConfig": {
         "defaults": {
@@ -404,10 +404,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -439,7 +439,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Issue Delivery Rate = count(Closed Issues) / count(All Issues)",
       "fieldConfig": {
         "defaults": {
@@ -493,10 +493,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -528,7 +528,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Monthly trend of issue delivery rate.",
       "fieldConfig": {
         "defaults": {
@@ -609,10 +609,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -670,7 +670,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Average number of days from story creation to resolution.",
       "fieldConfig": {
         "defaults": {
@@ -721,10 +721,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -755,7 +755,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "80% of stories are resolved within this many days.",
       "fieldConfig": {
         "defaults": {
@@ -805,10 +805,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -839,7 +839,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Mean lead time per month for resolved stories.",
       "fieldConfig": {
         "defaults": {
@@ -920,10 +920,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -954,7 +954,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "The cumulative distribution of story lead time. Each point shows the percent rank of a given lead time value.",
       "fieldConfig": {
         "defaults": {
@@ -1033,10 +1033,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 100
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -1121,7 +1121,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Total story points for all user stories in the selected time range.",
       "fieldConfig": {
         "defaults": {
@@ -1164,10 +1164,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1206,7 +1206,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Total story points for closed/completed user stories.",
       "fieldConfig": {
         "defaults": {
@@ -1249,10 +1249,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1291,7 +1291,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Story points allocated to each milestone/sprint. Requires milestone data from Taiga.",
       "fieldConfig": {
         "defaults": {
@@ -1361,10 +1361,10 @@
         "xTickLabelRotation": -15,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1395,7 +1395,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Story points distributed across assignees.",
       "fieldConfig": {
         "defaults": {
@@ -1465,10 +1465,10 @@
         "xTickLabelRotation": -15,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1499,7 +1499,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Distribution of story points across open vs. closed stories.",
       "fieldConfig": {
         "defaults": {
@@ -1550,10 +1550,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1610,7 +1610,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Breakdown of all Taiga issues by their current status, across all issue types (User Story, Task, Issue/Requirement, Epic).",
       "fieldConfig": {
         "defaults": {
@@ -1657,10 +1657,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  now() as time,\n  count(distinct case when i.status = 'TODO' then i.id end) as 'To Do',\n  count(distinct case when i.status = 'IN_PROGRESS' then i.id end) as 'In Progress',\n  count(distinct case when i.status = 'DONE' then i.id end) as 'Done',\n  count(distinct case when i.status not in ('TODO','IN_PROGRESS','DONE') then i.id end) as 'Other'\nFROM issues i\n  join board_issues bi on i.id = bi.issue_id\nWHERE bi.board_id in (${board_id})",
@@ -1671,7 +1671,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Number of user stories assigned to each team member.",
       "fieldConfig": {
         "defaults": {
@@ -1740,10 +1740,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1774,7 +1774,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Number of user stories in each milestone/sprint.",
       "fieldConfig": {
         "defaults": {
@@ -1843,10 +1843,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1877,7 +1877,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Milestone progress: open vs. closed user stories per sprint.",
       "fieldConfig": {
         "defaults": {
@@ -1945,10 +1945,10 @@
         "xTickLabelRotation": -15,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1999,7 +1999,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -2039,7 +2039,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Distribution of all Taiga items across issue types (User Story, Task, Issue/Requirement, Epic).",
       "fieldConfig": {
         "defaults": {
@@ -2063,10 +2063,10 @@
         "pieType": "pie",
         "tooltip": { "mode": "single", "sort": "none" }
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  now() as time,\n  count(distinct case when i.type = 'USER_STORY' then i.id end) as 'User Story',\n  count(distinct case when i.type = 'TASK' then i.id end) as 'Task',\n  count(distinct case when i.type = 'REQUIREMENT' then i.id end) as 'Issue',\n  count(distinct case when i.type = 'EPIC' then i.id end) as 'Epic'\nFROM issues i\n  join board_issues bi on i.id = bi.issue_id\nWHERE bi.board_id in (${board_id})",
@@ -2077,7 +2077,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Open vs closed count for each Taiga issue type in the selected time range.",
       "fieldConfig": {
         "defaults": {
@@ -2118,10 +2118,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -2133,7 +2133,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Monthly count of items created, broken down by issue type (User Stories, Tasks, Issues, Epics).",
       "fieldConfig": {
         "defaults": {
@@ -2172,10 +2172,10 @@
         "legend": { "calcs": ["sum"], "displayMode": "list", "placement": "bottom", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "none" }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  DATE_ADD(date(i.created_date), INTERVAL -DAYOFMONTH(date(i.created_date))+1 DAY) as time,\n  count(distinct case when i.type='USER_STORY' then i.id end) as 'User Stories',\n  count(distinct case when i.type='TASK' then i.id end) as 'Tasks',\n  count(distinct case when i.type='REQUIREMENT' then i.id end) as 'Issues',\n  count(distinct case when i.type='EPIC' then i.id end) as 'Epics'\nFROM issues i\n  join board_issues bi on i.id = bi.issue_id\nWHERE\n  bi.board_id in (${board_id})\n  AND $__timeFilter(i.created_date)\nGROUP BY 1\nORDER BY 1",
@@ -2186,7 +2186,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Average lead time in days from creation to resolution, broken down by issue type (resolved issues only).",
       "fieldConfig": {
         "defaults": {
@@ -2228,10 +2228,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -2261,7 +2261,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "select concat(name, '--', id) from boards where id like 'taiga%'",
         "hide": 0,
         "includeAll": true,
@@ -2286,7 +2286,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "select distinct i.type from issues i join board_issues bi on i.id = bi.issue_id where bi.board_id like 'taiga%'",
         "hide": 0,
         "includeAll": true,

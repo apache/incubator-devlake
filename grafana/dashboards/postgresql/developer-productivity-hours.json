@@ -19,7 +19,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Chat and completion events by hour of day",
       "fieldConfig": {
         "defaults": {
@@ -63,7 +63,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT LPAD(CAST(hr AS TEXT), 2, '0') AS \"Hour\", SUM(chat) AS \"Chat Events\", SUM(comp) AS \"Completion Events\" FROM (SELECT EXTRACT(HOUR FROM timestamp) AS hr, COUNT(*) AS chat, 0 AS comp FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY EXTRACT(HOUR FROM timestamp) UNION ALL SELECT EXTRACT(HOUR FROM timestamp) AS hr, 0 AS chat, COUNT(*) AS comp FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY EXTRACT(HOUR FROM timestamp)) AS t GROUP BY hr ORDER BY hr NULLS FIRST",
@@ -74,7 +74,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Average prompt complexity and response richness by hour",
       "fieldConfig": {
         "defaults": {
@@ -122,7 +122,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT LPAD(CAST(EXTRACT(HOUR FROM timestamp) AS TEXT), 2, '0') AS \"Hour\", ROUND(AVG(prompt_length)) AS \"Avg Prompt Length\", ROUND(AVG(response_length)) AS \"Avg Response Length\" FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY EXTRACT(HOUR FROM timestamp) ORDER BY EXTRACT(HOUR FROM timestamp) NULLS FIRST",
@@ -133,7 +133,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Steering and spec mode usage concentration by hour",
       "fieldConfig": {
         "defaults": {
@@ -177,7 +177,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT LPAD(CAST(EXTRACT(HOUR FROM timestamp) AS TEXT), 2, '0') AS \"Hour\", SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS \"Steering\", SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS \"Spec Mode\", SUM(CASE WHEN has_steering = FALSE AND is_spec_mode = FALSE THEN 1 ELSE 0 END) AS \"Plain Chat\" FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY EXTRACT(HOUR FROM timestamp) ORDER BY EXTRACT(HOUR FROM timestamp) NULLS FIRST",
@@ -188,7 +188,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Day-of-week activity pattern",
       "fieldConfig": {
         "defaults": {
@@ -232,7 +232,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT CASE EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) WHEN 1 THEN 'Sun' WHEN 2 THEN 'Mon' WHEN 3 THEN 'Tue' WHEN 4 THEN 'Wed' WHEN 5 THEN 'Thu' WHEN 6 THEN 'Fri' WHEN 7 THEN 'Sat' END AS \"Day\", SUM(chat) AS \"Chat Events\", SUM(comp) AS \"Completions\" FROM (SELECT timestamp, COUNT(*) AS chat, 0 AS comp FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY timestamp UNION ALL SELECT timestamp, 0, COUNT(*) FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY timestamp) AS t GROUP BY EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) ORDER BY EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) NULLS FIRST",
