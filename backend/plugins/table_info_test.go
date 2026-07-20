@@ -30,6 +30,7 @@ import (
 	bitbucket_server "github.com/apache/incubator-devlake/plugins/bitbucket_server/impl"
 	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
 	claudeCode "github.com/apache/incubator-devlake/plugins/claude_code/impl"
+	clickup "github.com/apache/incubator-devlake/plugins/clickup/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
 	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
@@ -107,6 +108,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("zentao/models", zentao.Zentao{}.GetTablesInfo)
 	checker.FeedIn("claude_code/models", claudeCode.ClaudeCode{}.GetTablesInfo)
 	checker.FeedIn("circleci/models", circleci.Circleci{}.GetTablesInfo)
+	checker.FeedIn("clickup/models", clickup.ClickUp{}.GetTablesInfo)
 	checker.FeedIn("opsgenie/models", opsgenie.Opsgenie{}.GetTablesInfo)
 	checker.FeedIn("linker/models", linker.Linker{}.GetTablesInfo)
 	checker.FeedIn("issue_trace/models", issueTrace.IssueTrace{}.GetTablesInfo)
