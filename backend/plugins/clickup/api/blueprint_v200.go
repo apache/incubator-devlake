@@ -53,7 +53,7 @@ func MakePipelinePlanV200(
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopeDetails []*srvhelper.ScopeDetail[models.ClickUpList, models.ClickUpScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.ClickUpFolder, models.ClickUpScopeConfig],
 	connection *models.ClickUpConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(scopeDetails))
@@ -69,7 +69,7 @@ func makePipelinePlanV200(
 			scopeConfig.Entities,
 			tasks.ClickUpOptions{
 				ConnectionId:  connection.ID,
-				ListId:        scope.ListId,
+				FolderId:      scope.FolderId,
 				ScopeConfigId: scope.ScopeConfigId,
 			},
 		)
@@ -83,14 +83,14 @@ func makePipelinePlanV200(
 }
 
 func makeScopesV200(
-	scopeDetails []*srvhelper.ScopeDetail[models.ClickUpList, models.ClickUpScopeConfig],
+	scopeDetails []*srvhelper.ScopeDetail[models.ClickUpFolder, models.ClickUpScopeConfig],
 	connection *models.ClickUpConnection,
 ) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0, len(scopeDetails))
-	idgen := didgen.NewDomainIdGenerator(&models.ClickUpList{})
+	idgen := didgen.NewDomainIdGenerator(&models.ClickUpFolder{})
 	for _, scopeDetail := range scopeDetails {
 		scope, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
-		id := idgen.Generate(connection.ID, scope.ListId)
+		id := idgen.Generate(connection.ID, scope.FolderId)
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			scopes = append(scopes, ticket.NewBoard(id, scope.Name))
 		}

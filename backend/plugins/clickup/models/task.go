@@ -28,6 +28,7 @@ type ClickUpTask struct {
 	ConnectionId uint64     `gorm:"primaryKey"`
 	Id           string     `gorm:"primaryKey;type:varchar(255)" json:"id"`
 	ListId       string     `gorm:"index;type:varchar(255)" json:"listId"`
+	FolderId     string     `gorm:"index;type:varchar(255)" json:"folderId"`
 	SpaceId      string     `gorm:"type:varchar(255)" json:"spaceId"`
 	CustomId     string     `gorm:"type:varchar(255)" json:"customId"`
 	Name         string     `json:"name"`
@@ -41,6 +42,7 @@ type ClickUpTask struct {
 	AssigneeId   string     `gorm:"type:varchar(255)" json:"assigneeId"`
 	AssigneeName string     `gorm:"type:varchar(255)" json:"assigneeName"`
 	ParentId     string     `gorm:"type:varchar(255)" json:"parentId"`
+	StoryPoint   *float64   `json:"storyPoint"`
 	CreatedDate  *time.Time `json:"createdDate"`
 	UpdatedDate  *time.Time `gorm:"index" json:"updatedDate"`
 	ClosedDate   *time.Time `json:"closedDate"`

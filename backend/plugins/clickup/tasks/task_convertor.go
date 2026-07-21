@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -34,10 +35,10 @@ var ConvertTaskMeta = plugin.SubTaskMeta{
 	Name:             "Convert Tasks",
 	EntryPoint:       ConvertTasks,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table _tool_clickup_tasks into domain layer tables issues and board_issues",
+	Description:      "Convert tool layer table _tool_clickup_tasks into domain layer tables issues, board_issues and sprint_issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
-	DependencyTables: []string{models.ClickUpTask{}.TableName(), RAW_TASK_TABLE},
-	ProductTables:    []string{ticket.Issue{}.TableName(), ticket.BoardIssue{}.TableName(), ticket.IssueAssignee{}.TableName()},
+	DependencyTables: []string{models.ClickUpTask{}.TableName(), models.ClickUpList{}.TableName(), RAW_TASK_TABLE},
+	ProductTables:    []string{ticket.Issue{}.TableName(), ticket.BoardIssue{}.TableName(), ticket.SprintIssue{}.TableName(), ticket.IssueAssignee{}.TableName()},
 }
 
 var _ plugin.SubTaskEntryPoint = ConvertTasks
@@ -49,18 +50,31 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 
 	issueIdGen := didgen.NewDomainIdGenerator(&models.ClickUpTask{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.ClickUpUser{})
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ClickUpList{})
-	boardId := boardIdGen.Generate(connectionId, data.Options.ListId)
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ClickUpFolder{})
+	sprintIdGen := didgen.NewDomainIdGenerator(&models.ClickUpList{})
+	boardId := boardIdGen.Generate(connectionId, data.Options.FolderId)
+
+	// Set of sprint list ids so a task in a sprint list also produces a
+	// sprint_issue (velocity/throughput). Non-sprint lists (Backlog / Bug
+	// Tracking) contribute only board_issues.
+	sprintListIds, err := loadSprintListIds(db, connectionId, data.Options.FolderId)
+	if err != nil {
+		return err
+	}
 
 	statusMapper := newStatusMapper(data.ScopeConfig)
 	typeMatcher, err := newIssueTypeMatcher(data.ScopeConfig)
 	if err != nil {
 		return err
 	}
+	defaultType := ""
+	if data.ScopeConfig != nil && data.ScopeConfig.DefaultIssueType != "" {
+		defaultType = strings.ToUpper(strings.TrimSpace(data.ScopeConfig.DefaultIssueType))
+	}
 
 	cursor, err := db.Cursor(
 		dal.From(&models.ClickUpTask{}),
-		dal.Where("connection_id = ? AND list_id = ?", connectionId, data.Options.ListId),
+		dal.Where("connection_id = ? AND folder_id = ?", connectionId, data.Options.FolderId),
 	)
 	if err != nil {
 		return err
@@ -72,7 +86,7 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: ClickUpApiParams{
 				ConnectionId: connectionId,
-				ListId:       data.Options.ListId,
+				FolderId:     data.Options.FolderId,
 			},
 			Table: RAW_TASK_TABLE,
 		},
@@ -86,17 +100,23 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				issueKey = task.Id
 			}
 
+			issueType := typeMatcher.typeOf(task.Type)
+			if defaultType != "" {
+				issueType = defaultType
+			}
+
 			domainIssue := &ticket.Issue{
 				DomainEntity:   domainlayer.DomainEntity{Id: issueIdGen.Generate(connectionId, task.Id)},
 				IssueKey:       issueKey,
 				Title:          task.Name,
 				Description:    task.Description,
 				Url:            task.Url,
-				Type:           typeMatcher.typeOf(task.Type),
+				Type:           issueType,
 				OriginalType:   task.Type,
 				Status:         statusMapper.statusOf(task.Status, task.StatusType),
 				OriginalStatus: task.Status,
 				Priority:       task.Priority,
+				StoryPoint:     task.StoryPoint,
 				CreatedDate:    task.CreatedDate,
 				UpdatedDate:    task.UpdatedDate,
 				ResolutionDate: task.ClosedDate,
@@ -121,11 +141,16 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				domainIssue.LeadTimeMinutes = &minutes
 			}
 
-			boardIssue := &ticket.BoardIssue{
-				BoardId: boardId,
-				IssueId: domainIssue.Id,
+			results := []interface{}{
+				domainIssue,
+				&ticket.BoardIssue{BoardId: boardId, IssueId: domainIssue.Id},
 			}
-			results := []interface{}{domainIssue, boardIssue}
+			if task.ListId != "" && sprintListIds[task.ListId] {
+				results = append(results, &ticket.SprintIssue{
+					SprintId: sprintIdGen.Generate(connectionId, task.ListId),
+					IssueId:  domainIssue.Id,
+				})
+			}
 			if domainIssue.AssigneeId != "" {
 				results = append(results, &ticket.IssueAssignee{
 					IssueId:      domainIssue.Id,
@@ -140,4 +165,22 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	return converter.Execute()
+}
+
+// loadSprintListIds returns the set of list ids in the folder that are sprint
+// lists, so the task convertor can emit sprint_issues for their tasks.
+func loadSprintListIds(db dal.Dal, connectionId uint64, folderId string) (map[string]bool, errors.Error) {
+	var lists []models.ClickUpList
+	if err := db.All(&lists,
+		dal.Select("list_id"),
+		dal.From(&models.ClickUpList{}),
+		dal.Where("connection_id = ? AND folder_id = ? AND is_sprint = ?", connectionId, folderId, true),
+	); err != nil {
+		return nil, err
+	}
+	ids := make(map[string]bool, len(lists))
+	for _, l := range lists {
+		ids[l.ListId] = true
+	}
+	return ids, nil
 }

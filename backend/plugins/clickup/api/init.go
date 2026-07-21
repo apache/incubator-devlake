@@ -27,15 +27,15 @@ import (
 
 var vld *validator.Validate
 var basicRes context.BasicRes
-var dsHelper *api.DsHelper[models.ClickUpConnection, models.ClickUpList, models.ClickUpScopeConfig]
+var dsHelper *api.DsHelper[models.ClickUpConnection, models.ClickUpFolder, models.ClickUpScopeConfig]
 var raProxy *api.DsRemoteApiProxyHelper[models.ClickUpConnection]
-var raScopeList *api.DsRemoteApiScopeListHelper[models.ClickUpConnection, models.ClickUpList, ClickUpRemotePagination]
+var raScopeList *api.DsRemoteApiScopeListHelper[models.ClickUpConnection, models.ClickUpFolder, ClickUpRemotePagination]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
 	vld = validator.New()
 	dsHelper = api.NewDataSourceHelper[
-		models.ClickUpConnection, models.ClickUpList, models.ClickUpScopeConfig,
+		models.ClickUpConnection, models.ClickUpFolder, models.ClickUpScopeConfig,
 	](
 		br,
 		p.Name(),
@@ -47,5 +47,5 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 	)
 	raProxy = api.NewDsRemoteApiProxyHelper[models.ClickUpConnection](dsHelper.ConnApi.ModelApiHelper)
-	raScopeList = api.NewDsRemoteApiScopeListHelper[models.ClickUpConnection, models.ClickUpList, ClickUpRemotePagination](raProxy, listClickUpRemoteScopes)
+	raScopeList = api.NewDsRemoteApiScopeListHelper[models.ClickUpConnection, models.ClickUpFolder, ClickUpRemotePagination](raProxy, listClickUpRemoteScopes)
 }

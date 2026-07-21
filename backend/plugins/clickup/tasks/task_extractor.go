@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"encoding/json"
+	"strconv"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -61,15 +63,26 @@ type ClickUpApiTask struct {
 	Priority *struct {
 		Priority string `json:"priority"`
 	} `json:"priority"`
-	Parent   string `json:"parent"`
-	Url      string `json:"url"`
-	TaskType string `json:"task_type"`
-	List     *struct {
+	Parent string `json:"parent"`
+	Url    string `json:"url"`
+	// Points is ClickUp's native sprint points field (Fibonacci LOE for these
+	// teams). It is the default story-point source.
+	Points       *float64             `json:"points"`
+	CustomFields []clickUpCustomField `json:"custom_fields"`
+	TaskType     string               `json:"task_type"`
+	List         *struct {
 		Id string `json:"id"`
 	} `json:"list"`
 	Space *struct {
 		Id string `json:"id"`
 	} `json:"space"`
+}
+
+// clickUpCustomField is one entry of a task's custom_fields array. Value is left
+// raw because ClickUp encodes it as a number or a string depending on the field.
+type clickUpCustomField struct {
+	Name  string          `json:"name"`
+	Value json.RawMessage `json:"value"`
 }
 
 func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
@@ -79,7 +92,7 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: ClickUpApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				ListId:       data.Options.ListId,
+				FolderId:     data.Options.FolderId,
 			},
 			Table: RAW_TASK_TABLE,
 		},
@@ -95,19 +108,21 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 			if description == "" {
 				description = apiTask.TextContent
 			}
-			listId := data.Options.ListId
-			if apiTask.List != nil && apiTask.List.Id != "" {
+			listId := ""
+			if apiTask.List != nil {
 				listId = apiTask.List.Id
 			}
 			task := &models.ClickUpTask{
 				ConnectionId: data.Options.ConnectionId,
 				Id:           apiTask.Id,
 				ListId:       listId,
+				FolderId:     data.Options.FolderId,
 				CustomId:     apiTask.CustomId,
 				Name:         apiTask.Name,
 				Description:  description,
 				Type:         apiTask.TaskType,
 				ParentId:     parentOf(apiTask.Parent),
+				StoryPoint:   storyPointOf(apiTask, data.ScopeConfig),
 				Url:          apiTask.Url,
 				CreatedDate:  parseClickUpTime(apiTask.DateCreated),
 				UpdatedDate:  parseClickUpTime(apiTask.DateUpdated),
@@ -149,4 +164,33 @@ func parentOf(parent string) string {
 		return ""
 	}
 	return parent
+}
+
+// storyPointOf resolves a task's story points. Default source is ClickUp's
+// native sprint points field. When the scope config names a custom field, that
+// field's numeric value wins (teams that track Fibonacci LOE in a custom field).
+func storyPointOf(apiTask *ClickUpApiTask, sc *models.ClickUpScopeConfig) *float64 {
+	if sc != nil && sc.StoryPointField != "" {
+		for _, cf := range apiTask.CustomFields {
+			if strings.EqualFold(cf.Name, sc.StoryPointField) {
+				return numericValue(cf.Value)
+			}
+		}
+		return nil
+	}
+	return apiTask.Points
+}
+
+// numericValue coerces a raw custom-field value (JSON number or quoted string)
+// into a float pointer; returns nil for empty / non-numeric values.
+func numericValue(raw json.RawMessage) *float64 {
+	s := strings.TrimSpace(strings.Trim(string(raw), `"`))
+	if s == "" || s == "null" {
+		return nil
+	}
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return nil
+	}
+	return &f
 }

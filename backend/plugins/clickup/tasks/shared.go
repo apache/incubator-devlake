@@ -45,6 +45,88 @@ func parseClickUpTime(ms string) *time.Time {
 	return &t
 }
 
+// defaultSprintNamePattern identifies sprint lists by name. ClickUp teams name
+// sprint lists like "v4.3.0 Sprint 40 (7/6/26 - 7/19/26)" or "Sprint 31 (7/6 -
+// 7/19)", so any list whose name contains "Sprint <n>" is treated as a sprint.
+const defaultSprintNamePattern = `(?i)sprint\s*\d+`
+
+// sprintDateRange captures the "(start - end)" span embedded in a sprint list
+// name. Group 1 = start token, group 2 = end token (each m/d[/yy] or d/m[/yy]).
+var sprintDateRange = regexp.MustCompile(`\(\s*([\d/]+)\s*-\s*([\d/]+)\s*\)`)
+
+type sprintInfo struct {
+	name  string
+	start *time.Time
+	end   *time.Time
+}
+
+// sprintDetector classifies a list name as a sprint (or not) using the scope
+// config's SprintNamePattern (default defaultSprintNamePattern).
+type sprintDetector struct {
+	re *regexp.Regexp
+}
+
+func newSprintDetector(sc *models.ClickUpScopeConfig) (*sprintDetector, errors.Error) {
+	pattern := defaultSprintNamePattern
+	if sc != nil && sc.SprintNamePattern != "" {
+		pattern = sc.SprintNamePattern
+	}
+	re, err := errors.Convert01(regexp.Compile(pattern))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "invalid sprintNamePattern")
+	}
+	return &sprintDetector{re: re}, nil
+}
+
+// detect returns sprint info for a matching list name, or nil for a non-sprint
+// (backlog / bug / other) list.
+func (d *sprintDetector) detect(name string) *sprintInfo {
+	if !d.re.MatchString(name) {
+		return nil
+	}
+	start, end := parseSprintDates(name)
+	return &sprintInfo{name: name, start: start, end: end}
+}
+
+// parseSprintDates extracts the start/end dates from a sprint list name's
+// "(m/d/yy - m/d/yy)" span. Teams differ on ordering (Toto uses M/D/YY,
+// Blockchain D/M/YY), so the order is disambiguated per token: a component > 12
+// must be the day. Genuinely ambiguous tokens (both <= 12) default to M/D.
+// Tokens without a year are left unset (nil) rather than guessed.
+func parseSprintDates(name string) (*time.Time, *time.Time) {
+	m := sprintDateRange.FindStringSubmatch(name)
+	if m == nil {
+		return nil, nil
+	}
+	return parseSprintDate(m[1]), parseSprintDate(m[2])
+}
+
+func parseSprintDate(token string) *time.Time {
+	parts := strings.Split(strings.TrimSpace(token), "/")
+	if len(parts) != 3 {
+		// No year component -> cannot form a reliable date.
+		return nil
+	}
+	a, errA := strconv.Atoi(parts[0])
+	b, errB := strconv.Atoi(parts[1])
+	y, errY := strconv.Atoi(parts[2])
+	if errA != nil || errB != nil || errY != nil {
+		return nil
+	}
+	month, day := a, b
+	if a > 12 { // first component can't be a month -> D/M ordering
+		month, day = b, a
+	}
+	if month < 1 || month > 12 || day < 1 || day > 31 {
+		return nil
+	}
+	if y < 100 {
+		y += 2000
+	}
+	t := time.Date(y, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	return &t
+}
+
 // statusFromType maps a ClickUp status.type onto a DevLake standard issue
 // status. ClickUp's status types are standardized:
 //

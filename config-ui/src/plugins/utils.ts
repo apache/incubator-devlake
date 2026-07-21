@@ -47,6 +47,8 @@ export const getPluginScopeId = (plugin: string, scope: any) => {
       return `${scope.gid}`;
     case 'linear':
       return `${scope.teamId}`;
+    case 'clickup':
+      return `${scope.folderId}`;
     default:
       return `${scope.id}`;
   }

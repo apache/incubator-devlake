@@ -26,27 +26,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/clickup/models"
 )
 
-var ExtractUserMeta = plugin.SubTaskMeta{
-	Name:             "Extract Users",
-	EntryPoint:       ExtractUsers,
+var ExtractListMeta = plugin.SubTaskMeta{
+	Name:             "Extract Lists",
+	EntryPoint:       ExtractLists,
 	EnabledByDefault: true,
-	Description:      "Extract raw member data into the tool layer table _tool_clickup_users",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Extract raw folder lists into _tool_clickup_lists, classifying sprint lists",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-var _ plugin.SubTaskEntryPoint = ExtractUsers
+var _ plugin.SubTaskEntryPoint = ExtractLists
 
-// ClickUpApiUser is the subset of a ClickUp member JSON that the extractor reads.
-type ClickUpApiUser struct {
-	Id             json.Number `json:"id"`
-	Username       string      `json:"username"`
-	Email          string      `json:"email"`
-	Color          string      `json:"color"`
-	ProfilePicture string      `json:"profilePicture"`
+// ClickUpApiList is the subset of a ClickUp list JSON the extractor reads.
+type ClickUpApiList struct {
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Archived bool   `json:"archived"`
+	Folder   *struct {
+		Id string `json:"id"`
+	} `json:"folder"`
+	Space *struct {
+		Id string `json:"id"`
+	} `json:"space"`
 }
 
-func ExtractUsers(taskCtx plugin.SubTaskContext) errors.Error {
+func ExtractLists(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ClickUpTaskData)
+	detector, err := newSprintDetector(data.ScopeConfig)
+	if err != nil {
+		return err
+	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -54,26 +62,37 @@ func ExtractUsers(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				FolderId:     data.Options.FolderId,
 			},
-			Table: RAW_USER_TABLE,
+			Table: RAW_LIST_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			apiUser := &ClickUpApiUser{}
-			if err := errors.Convert(json.Unmarshal(row.Data, apiUser)); err != nil {
+			apiList := &ClickUpApiList{}
+			if err := errors.Convert(json.Unmarshal(row.Data, apiList)); err != nil {
 				return nil, err
 			}
-			id := apiUser.Id.String()
-			if id == "" {
+			if apiList.Id == "" {
 				return nil, nil
 			}
-			user := &models.ClickUpUser{
-				ConnectionId:   data.Options.ConnectionId,
-				Id:             id,
-				Username:       apiUser.Username,
-				Email:          apiUser.Email,
-				Color:          apiUser.Color,
-				ProfilePicture: apiUser.ProfilePicture,
+			folderId := data.Options.FolderId
+			if apiList.Folder != nil && apiList.Folder.Id != "" {
+				folderId = apiList.Folder.Id
 			}
-			return []interface{}{user}, nil
+			list := &models.ClickUpList{
+				ConnectionId: data.Options.ConnectionId,
+				ListId:       apiList.Id,
+				FolderId:     folderId,
+				Name:         apiList.Name,
+				Archived:     apiList.Archived,
+			}
+			if apiList.Space != nil {
+				list.SpaceId = apiList.Space.Id
+			}
+			if sprint := detector.detect(apiList.Name); sprint != nil {
+				list.IsSprint = true
+				list.SprintName = sprint.name
+				list.StartDate = sprint.start
+				list.EndDate = sprint.end
+			}
+			return []interface{}{list}, nil
 		},
 	})
 	if err != nil {

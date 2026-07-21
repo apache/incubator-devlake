@@ -69,7 +69,7 @@ func (p ClickUp) Connection() dal.Tabler {
 }
 
 func (p ClickUp) Scope() plugin.ToolLayerScope {
-	return &models.ClickUpList{}
+	return &models.ClickUpFolder{}
 }
 
 func (p ClickUp) ScopeConfig() dal.Tabler {
@@ -84,6 +84,7 @@ func (p ClickUp) MigrationScripts() []plugin.MigrationScript {
 func (p ClickUp) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.ClickUpConnection{},
+		&models.ClickUpFolder{},
 		&models.ClickUpList{},
 		&models.ClickUpScopeConfig{},
 		&models.ClickUpUser{},
@@ -93,15 +94,19 @@ func (p ClickUp) GetTablesInfo() []dal.Tabler {
 }
 
 // SubTaskMetas lists subtasks in dependency order: collect/extract before
-// convert; users before tasks (issues reference accounts); lists (boards)
-// before board_issues.
+// convert; the folder's lists (which classify sprints) before tasks; users
+// before tasks (issues reference accounts); the folder-board + sprints before
+// board_issues/sprint_issues.
 func (p ClickUp) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CollectListMeta,
+		tasks.ExtractListMeta,
 		tasks.CollectUserMeta,
 		tasks.ExtractUserMeta,
 		tasks.CollectTaskMeta,
 		tasks.ExtractTaskMeta,
-		tasks.ConvertListMeta,
+		tasks.ConvertFolderMeta,
+		tasks.ConvertSprintMeta,
 		tasks.ConvertUserMeta,
 		tasks.ConvertTaskMeta,
 	}
@@ -115,8 +120,8 @@ func (p ClickUp) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("clickup connectionId is invalid")
 	}
-	if op.ListId == "" {
-		return nil, errors.BadInput.New("clickup listId is required")
+	if op.FolderId == "" {
+		return nil, errors.BadInput.New("clickup folderId is required")
 	}
 
 	connection := &models.ClickUpConnection{}

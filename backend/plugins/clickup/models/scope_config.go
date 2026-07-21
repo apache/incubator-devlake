@@ -44,6 +44,20 @@ type ClickUpScopeConfig struct {
 	IssueTypeRequirement  string   `mapstructure:"issueTypeRequirement,omitempty" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
 	IssueTypeBug          string   `mapstructure:"issueTypeBug,omitempty" json:"issueTypeBug" gorm:"type:varchar(255)"`
 	IssueTypeIncident     string   `mapstructure:"issueTypeIncident,omitempty" json:"issueTypeIncident" gorm:"type:varchar(255)"`
+	// SprintNamePattern is a regex identifying which lists in the folder are
+	// sprint lists (converted to ticket.Sprint; their tasks become
+	// sprint_issues). Lists not matching are plain board issues. Empty ->
+	// defaultSprintNamePattern.
+	SprintNamePattern string `mapstructure:"sprintNamePattern,omitempty" json:"sprintNamePattern" gorm:"type:varchar(255)"`
+	// StoryPointField selects where a task's story points come from. Empty
+	// defaults to ClickUp's native sprint points field ("points"). Set to a
+	// custom-field name to read Fibonacci/LOE from a custom field instead.
+	StoryPointField string `mapstructure:"storyPointField,omitempty" json:"storyPointField" gorm:"type:varchar(255)"`
+	// DefaultIssueType, when set (REQUIREMENT/BUG/INCIDENT), forces every issue
+	// on this board to that type — used to flag a whole folder as incidents
+	// (e.g. the "Security Incidents & Response" folder feeding DORA CFR/MTTR).
+	// Empty -> per-task type detection (IssueType* patterns) applies.
+	DefaultIssueType string `mapstructure:"defaultIssueType,omitempty" json:"defaultIssueType" gorm:"type:varchar(100)"`
 }
 
 func (ClickUpScopeConfig) TableName() string {

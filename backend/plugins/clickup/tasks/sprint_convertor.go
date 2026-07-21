@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -30,34 +31,38 @@ import (
 	"github.com/apache/incubator-devlake/plugins/clickup/models"
 )
 
-// RAW_LIST_TABLE labels the raw-data lineage for the list-scope-derived board.
-// Lists are added as scopes (no collector), so this is a logical tag only.
-const RAW_LIST_TABLE = "clickup_lists"
+// Sprint status values follow the convention used by the Jira plugin.
+const (
+	sprintStatusFuture = "FUTURE"
+	sprintStatusActive = "ACTIVE"
+	sprintStatusClosed = "CLOSED"
+)
 
-var ConvertListMeta = plugin.SubTaskMeta{
-	Name:             "Convert Lists",
-	EntryPoint:       ConvertLists,
+var ConvertSprintMeta = plugin.SubTaskMeta{
+	Name:             "Convert Sprints",
+	EntryPoint:       ConvertSprints,
 	EnabledByDefault: true,
-	Description:      "Convert the ClickUp list scope (_tool_clickup_lists) into the domain layer table boards",
+	Description:      "Convert sprint lists (_tool_clickup_lists where is_sprint) into domain tables sprints and board_sprints",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{models.ClickUpList{}.TableName()},
-	ProductTables:    []string{ticket.Board{}.TableName()},
+	ProductTables:    []string{ticket.Sprint{}.TableName(), ticket.BoardSprint{}.TableName()},
 }
 
-var _ plugin.SubTaskEntryPoint = ConvertLists
+var _ plugin.SubTaskEntryPoint = ConvertSprints
 
-func ConvertLists(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertSprints(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ClickUpTaskData)
 	connectionId := data.Options.ConnectionId
 
-	// boardId must be generated identically to the task convertor so the board
-	// joins to the board_issues that reference it.
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ClickUpList{})
+	sprintIdGen := didgen.NewDomainIdGenerator(&models.ClickUpList{})
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ClickUpFolder{})
+	boardId := boardIdGen.Generate(connectionId, data.Options.FolderId)
+	now := time.Now()
 
 	cursor, err := db.Cursor(
 		dal.From(&models.ClickUpList{}),
-		dal.Where("connection_id = ? AND list_id = ?", connectionId, data.Options.ListId),
+		dal.Where("connection_id = ? AND folder_id = ? AND is_sprint = ?", connectionId, data.Options.FolderId, true),
 	)
 	if err != nil {
 		return err
@@ -69,7 +74,7 @@ func ConvertLists(taskCtx plugin.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: ClickUpApiParams{
 				ConnectionId: connectionId,
-				ListId:       data.Options.ListId,
+				FolderId:     data.Options.FolderId,
 			},
 			Table: RAW_LIST_TABLE,
 		},
@@ -77,16 +82,43 @@ func ConvertLists(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			list := inputRow.(*models.ClickUpList)
-			board := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{Id: boardIdGen.Generate(connectionId, list.ListId)},
-				Name:         list.ScopeFullName(),
-				Type:         "clickup",
+			sprintId := sprintIdGen.Generate(connectionId, list.ListId)
+			sprint := &ticket.Sprint{
+				DomainEntity:    domainlayer.DomainEntity{Id: sprintId},
+				Name:            list.SprintName,
+				Status:          sprintStatus(list, now),
+				StartedDate:     list.StartDate,
+				EndedDate:       list.EndDate,
+				OriginalBoardID: boardId,
 			}
-			return []interface{}{board}, nil
+			if sprint.Status == sprintStatusClosed {
+				sprint.CompletedDate = list.EndDate
+			}
+			boardSprint := &ticket.BoardSprint{
+				BoardId:  boardId,
+				SprintId: sprintId,
+			}
+			return []interface{}{sprint, boardSprint}, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
 	return converter.Execute()
+}
+
+// sprintStatus derives a sprint's lifecycle from its dates and archived flag.
+// Archived sprint lists are always closed; otherwise the current time relative
+// to the parsed start/end window decides. Missing dates default to ACTIVE.
+func sprintStatus(list *models.ClickUpList, now time.Time) string {
+	if list.Archived {
+		return sprintStatusClosed
+	}
+	if list.EndDate != nil && now.After(*list.EndDate) {
+		return sprintStatusClosed
+	}
+	if list.StartDate != nil && now.Before(*list.StartDate) {
+		return sprintStatusFuture
+	}
+	return sprintStatusActive
 }

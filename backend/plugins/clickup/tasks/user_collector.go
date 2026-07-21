@@ -51,12 +51,12 @@ func CollectUsers(taskCtx plugin.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: ClickUpApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				ListId:       data.Options.ListId,
+				FolderId:     data.Options.FolderId,
 			},
 			Table: RAW_USER_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		UrlTemplate: "list/{{ .Params.ListId }}/member",
+		UrlTemplate: "folder/{{ .Params.FolderId }}/member",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var resp clickUpMemberListResponse
 			if err := api.UnmarshalResponse(res, &resp); err != nil {

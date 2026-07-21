@@ -23,33 +23,42 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/clickup/models"
 )
 
-var ConvertUserMeta = plugin.SubTaskMeta{
-	Name:             "Convert Users",
-	EntryPoint:       ConvertUsers,
+// RAW_FOLDER_TABLE labels the raw-data lineage for the folder-scope-derived
+// board. The folder is added as a scope (no collector), so this is a logical
+// tag only.
+const RAW_FOLDER_TABLE = "clickup_folders"
+
+var ConvertFolderMeta = plugin.SubTaskMeta{
+	Name:             "Convert Folders",
+	EntryPoint:       ConvertFolders,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table _tool_clickup_users into domain layer table accounts",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	DependencyTables: []string{models.ClickUpUser{}.TableName()},
-	ProductTables:    []string{crossdomain.Account{}.TableName()},
+	Description:      "Convert the ClickUp folder scope (_tool_clickup_folders) into the domain layer table boards",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{models.ClickUpFolder{}.TableName()},
+	ProductTables:    []string{ticket.Board{}.TableName()},
 }
 
-var _ plugin.SubTaskEntryPoint = ConvertUsers
+var _ plugin.SubTaskEntryPoint = ConvertFolders
 
-func ConvertUsers(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertFolders(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ClickUpTaskData)
-	accountIdGen := didgen.NewDomainIdGenerator(&models.ClickUpUser{})
+	connectionId := data.Options.ConnectionId
+
+	// boardId must be generated identically to the task/sprint convertors so the
+	// board joins to the board_issues/board_sprints that reference it.
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ClickUpFolder{})
 
 	cursor, err := db.Cursor(
-		dal.From(&models.ClickUpUser{}),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
+		dal.From(&models.ClickUpFolder{}),
+		dal.Where("connection_id = ? AND folder_id = ?", connectionId, data.Options.FolderId),
 	)
 	if err != nil {
 		return err
@@ -60,25 +69,21 @@ func ConvertUsers(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ClickUpApiParams{
-				ConnectionId: data.Options.ConnectionId,
+				ConnectionId: connectionId,
 				FolderId:     data.Options.FolderId,
 			},
-			Table: RAW_USER_TABLE,
+			Table: RAW_FOLDER_TABLE,
 		},
-		InputRowType: reflect.TypeOf(models.ClickUpUser{}),
+		InputRowType: reflect.TypeOf(models.ClickUpFolder{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			user := inputRow.(*models.ClickUpUser)
-			domainAccount := &crossdomain.Account{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: accountIdGen.Generate(data.Options.ConnectionId, user.Id),
-				},
-				UserName:  user.Username,
-				FullName:  user.Username,
-				Email:     user.Email,
-				AvatarUrl: user.ProfilePicture,
+			folder := inputRow.(*models.ClickUpFolder)
+			board := &ticket.Board{
+				DomainEntity: domainlayer.DomainEntity{Id: boardIdGen.Generate(connectionId, folder.FolderId)},
+				Name:         folder.ScopeFullName(),
+				Type:         "clickup",
 			}
-			return []interface{}{domainAccount}, nil
+			return []interface{}{board}, nil
 		},
 	})
 	if err != nil {

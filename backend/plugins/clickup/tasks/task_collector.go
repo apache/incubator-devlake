@@ -21,28 +21,37 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/clickup/models"
 )
 
 const RAW_TASK_TABLE = "clickup_tasks"
 
-// clickUpTaskListResponse mirrors the envelope returned by
-// GET /list/{id}/task. ClickUp uses zero-based page numbers and signals the end
-// of the collection with `last_page: true` (and/or an empty `tasks` array).
+// clickUpTaskListResponse mirrors the envelope returned by GET /list/{id}/task.
+// ClickUp uses zero-based page numbers and signals the end of the collection
+// with `last_page: true` (and/or an empty `tasks` array).
 type clickUpTaskListResponse struct {
 	Tasks    []json.RawMessage `json:"tasks"`
 	LastPage bool              `json:"last_page"`
+}
+
+// listInput is the per-list iterator element driving task collection: tasks are
+// collected list-by-list across every list in the scoped folder.
+type listInput struct {
+	ListId string `gorm:"column:list_id"`
 }
 
 var CollectTaskMeta = plugin.SubTaskMeta{
 	Name:             "Collect Tasks",
 	EntryPoint:       CollectTasks,
 	EnabledByDefault: true,
-	Description:      "Collect tasks for a ClickUp list (page-based pagination)",
+	Description:      "Collect tasks for every list in the scoped ClickUp folder (page-based pagination)",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
@@ -50,18 +59,35 @@ var _ plugin.SubTaskEntryPoint = CollectTasks
 
 func CollectTasks(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ClickUpTaskData)
+	db := taskCtx.GetDal()
+
+	// Iterate every list of this folder collected by CollectLists.
+	cursor, err := db.Cursor(
+		dal.Select("list_id"),
+		dal.From(&models.ClickUpList{}),
+		dal.Where("connection_id = ? AND folder_id = ?", data.Options.ConnectionId, data.Options.FolderId),
+	)
+	if err != nil {
+		return err
+	}
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(listInput{}))
+	if err != nil {
+		return err
+	}
+
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ClickUpApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				ListId:       data.Options.ListId,
+				FolderId:     data.Options.FolderId,
 			},
 			Table: RAW_TASK_TABLE,
 		},
 		ApiClient:   data.ApiClient,
+		Input:       iterator,
 		PageSize:    100,
-		UrlTemplate: "list/{{ .Params.ListId }}/task",
+		UrlTemplate: "list/{{ .Input.ListId }}/task",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("subtasks", "true")

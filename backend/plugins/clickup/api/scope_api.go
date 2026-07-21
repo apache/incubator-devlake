@@ -24,8 +24,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/clickup/models"
 )
 
-type PutScopesReqBody api.PutScopesReqBody[models.ClickUpList]
-type ScopeDetail api.ScopeDetail[models.ClickUpList, models.ClickUpScopeConfig]
+type PutScopesReqBody api.PutScopesReqBody[models.ClickUpFolder]
+type ScopeDetail api.ScopeDetail[models.ClickUpFolder, models.ClickUpScopeConfig]
 
 // PutScopes create or update clickup lists
 // @Summary create or update clickup lists
@@ -34,7 +34,7 @@ type ScopeDetail api.ScopeDetail[models.ClickUpList, models.ClickUpScopeConfig]
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param scope body PutScopesReqBody true "json"
-// @Success 200  {object} []models.ClickUpList
+// @Success 200  {object} []models.ClickUpFolder
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/clickup/connections/{connectionId}/scopes [PUT]
@@ -49,8 +49,8 @@ func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param scopeId path string false "list ID"
-// @Param scope body models.ClickUpList true "json"
-// @Success 200  {object} models.ClickUpList
+// @Param scope body models.ClickUpFolder true "json"
+// @Success 200  {object} models.ClickUpFolder
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/clickup/connections/{connectionId}/scopes/{scopeId} [PATCH]

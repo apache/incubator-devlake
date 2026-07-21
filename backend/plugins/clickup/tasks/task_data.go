@@ -27,7 +27,7 @@ import (
 // ClickUpOptions are the per-scope options passed to a pipeline task.
 type ClickUpOptions struct {
 	ConnectionId  uint64 `json:"connectionId" mapstructure:"connectionId,omitempty"`
-	ListId        string `json:"listId" mapstructure:"listId,omitempty"`
+	FolderId      string `json:"folderId" mapstructure:"folderId,omitempty"`
 	ScopeConfigId uint64 `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	// TimeAfter limits collection to data created/updated after this time.
 	TimeAfter string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
