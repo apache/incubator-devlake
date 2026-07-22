@@ -453,6 +453,9 @@ func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
 // DropIndexes drops indexes for specified table
 func (d *Dalgorm) DropIndexes(table string, indexNames ...string) errors.Error {
 	for _, indexName := range indexNames {
+		if !d.db.Migrator().HasIndex(table, indexName) {
+			continue
+		}
 		err := d.db.Migrator().DropIndex(table, indexName)
 		if err != nil {
 			return d.convertGormError(err)
