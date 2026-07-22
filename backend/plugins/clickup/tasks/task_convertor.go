@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -62,6 +63,15 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	// listTypes maps a list id -> forced issue type (BUG/INCIDENT) when the
+	// list name matches the scope-config's Bug/IncidentListPattern. ClickUp
+	// tasks often carry no per-task type, so bugs are grouped in a list (e.g.
+	// "QA Bugs") rather than tagged; this types them by list.
+	listTypes, err := loadListTypeOverrides(db, connectionId, data.Options.FolderId, data.ScopeConfig)
+	if err != nil {
+		return err
+	}
+
 	statusMapper := newStatusMapper(data.ScopeConfig)
 	typeMatcher, err := newIssueTypeMatcher(data.ScopeConfig)
 	if err != nil {
@@ -100,7 +110,12 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 				issueKey = task.Id
 			}
 
+			// Precedence: forced DefaultIssueType > list-name pattern >
+			// per-task type detection.
 			issueType := typeMatcher.typeOf(task.Type)
+			if lt, ok := listTypes[task.ListId]; ok {
+				issueType = lt
+			}
 			if defaultType != "" {
 				issueType = defaultType
 			}
@@ -183,4 +198,57 @@ func loadSprintListIds(db dal.Dal, connectionId uint64, folderId string) (map[st
 		ids[l.ListId] = true
 	}
 	return ids, nil
+}
+
+// loadListTypeOverrides compiles the scope-config's Bug/IncidentListPattern and
+// returns a map of list id -> forced issue type (INCIDENT beats BUG when a list
+// matches both). Returns an empty map when neither pattern is set.
+func loadListTypeOverrides(db dal.Dal, connectionId uint64, folderId string, sc *models.ClickUpScopeConfig) (map[string]string, errors.Error) {
+	if sc == nil || (sc.BugListPattern == "" && sc.IncidentListPattern == "") {
+		return map[string]string{}, nil
+	}
+	var bugRe, incidentRe *regexp.Regexp
+	if sc.BugListPattern != "" {
+		re, e := regexp.Compile(sc.BugListPattern)
+		if e != nil {
+			return nil, errors.Convert(e)
+		}
+		bugRe = re
+	}
+	if sc.IncidentListPattern != "" {
+		re, e := regexp.Compile(sc.IncidentListPattern)
+		if e != nil {
+			return nil, errors.Convert(e)
+		}
+		incidentRe = re
+	}
+	var lists []models.ClickUpList
+	if err := db.All(&lists,
+		dal.Select("list_id, name"),
+		dal.From(&models.ClickUpList{}),
+		dal.Where("connection_id = ? AND folder_id = ?", connectionId, folderId),
+	); err != nil {
+		return nil, err
+	}
+	out := make(map[string]string)
+	for _, l := range lists {
+		if t := listTypeFor(l.Name, bugRe, incidentRe); t != "" {
+			out[l.ListId] = t
+		}
+	}
+	return out, nil
+}
+
+// listTypeFor returns the forced issue type for a list name: INCIDENT when it
+// matches incidentRe, else BUG when it matches bugRe, else "" (no override).
+// INCIDENT is checked first so it wins when a name matches both.
+func listTypeFor(name string, bugRe, incidentRe *regexp.Regexp) string {
+	switch {
+	case incidentRe != nil && incidentRe.MatchString(name):
+		return ticket.INCIDENT
+	case bugRe != nil && bugRe.MatchString(name):
+		return ticket.BUG
+	default:
+		return ""
+	}
 }

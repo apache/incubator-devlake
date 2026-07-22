@@ -124,6 +124,32 @@ export const ClickUpTransformation = ({ transformation, setTransformation }: Pro
               </Form.Item>
 
               <p style={{ margin: '8px 0 16px' }}>
+                Type by list name (optional). ClickUp often has no per-task type, so teams group bugs/incidents in a
+                dedicated list. Tasks in a list whose name matches these RegEx are classified accordingly; Incident
+                takes precedence over Bug. This overrides per-task detection above (but a forced board type still wins).
+              </p>
+              <Form.Item
+                label="Bug list name pattern"
+                extra="Tasks in matching lists become BUG — e.g. a QA Bugs / Bug Tracking list."
+              >
+                <Input
+                  placeholder="(?i)bug"
+                  value={transformation.bugListPattern ?? ''}
+                  onChange={(e) => set({ bugListPattern: e.target.value })}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Incident list name pattern"
+                extra="Tasks in matching lists become INCIDENT (DORA CFR/MTTR)."
+              >
+                <Input
+                  placeholder="(?i)incident"
+                  value={transformation.incidentListPattern ?? ''}
+                  onChange={(e) => set({ incidentListPattern: e.target.value })}
+                />
+              </Form.Item>
+
+              <p style={{ margin: '8px 0 16px' }}>
                 Status mapping (optional). ClickUp statuses are auto-mapped by their type (open/unstarted → To Do,
                 custom → In Progress, done/closed → Done). List raw status names below to override.
               </p>

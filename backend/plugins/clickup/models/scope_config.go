@@ -58,6 +58,15 @@ type ClickUpScopeConfig struct {
 	// (e.g. the "Security Incidents & Response" folder feeding DORA CFR/MTTR).
 	// Empty -> per-task type detection (IssueType* patterns) applies.
 	DefaultIssueType string `mapstructure:"defaultIssueType,omitempty" json:"defaultIssueType" gorm:"type:varchar(100)"`
+	// BugListPattern is a regex matched against a LIST name in the folder; tasks
+	// in a matching list are classified BUG. ClickUp frequently carries no
+	// per-task type, so teams group bugs in a dedicated list (e.g. "QA Bugs")
+	// instead of tagging each task — this types them by list. Empty -> no
+	// list-based BUG typing.
+	BugListPattern string `mapstructure:"bugListPattern,omitempty" json:"bugListPattern" gorm:"type:varchar(255)"`
+	// IncidentListPattern is the INCIDENT counterpart of BugListPattern and
+	// takes precedence over it for a list matching both. Empty -> none.
+	IncidentListPattern string `mapstructure:"incidentListPattern,omitempty" json:"incidentListPattern" gorm:"type:varchar(255)"`
 }
 
 func (ClickUpScopeConfig) TableName() string {
