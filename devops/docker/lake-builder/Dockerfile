@@ -32,8 +32,8 @@ COPY --from=debian-amd64 /lib/x86_64-linux-gnu /rootfs-amd64/lib/x86_64-linux-gn
 ## Build libs/headers needed for gitextractor plugin
 RUN \
     mkdir -p /tmp/build/x86_64 && cd /tmp/build/x86_64 && \
-    wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.2.tar.gz -O - | tar -xz && \
-    cd libgit2-1.3.2 && \
+    wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.5.0.tar.gz -O - | tar -xz && \
+    cd libgit2-1.5.0 && \
     mkdir build && cd build && \
     cmake .. -DCMAKE_C_COMPILER=x86_64-linux-gnu-gcc -DBUILD_SHARED_LIBS=ON -DCMAKE_SYSROOT=/rootfs-amd64 -DCMAKE_INSTALL_PREFIX=/usr/local/deps/x86_64 &&\
     make -j install &&\
