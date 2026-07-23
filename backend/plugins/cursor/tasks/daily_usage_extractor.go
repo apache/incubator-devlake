@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"strings"
 	"time"
 
@@ -60,18 +59,9 @@ func ExtractDailyUsage(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Default.New("task data is not CursorTaskData")
 	}
 
-	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Table:   rawDailyUsageTable,
-			Options: rawParamsFromTaskData(data),
-		},
-		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			var record dailyUsageRecord
-			if err := errors.Convert(json.Unmarshal(row.Data, &record)); err != nil {
-				return nil, err
-			}
-
+	extractor, err := helper.NewStatefulApiExtractor(&helper.StatefulApiExtractorArgs[dailyUsageRecord]{
+		SubtaskCommonArgs: cursorSubtaskCommonArgs(taskCtx, data, rawDailyUsageTable),
+		Extract: func(record *dailyUsageRecord, _ *helper.RawData) ([]any, errors.Error) {
 			userId := strings.TrimSpace(record.UserId)
 			if userId == "" {
 				userId = strings.TrimSpace(record.Email)
@@ -113,7 +103,7 @@ func ExtractDailyUsage(taskCtx plugin.SubTaskContext) errors.Error {
 				LinesAdded:               record.AcceptedLinesAdded,
 				LinesDeleted:             record.AcceptedLinesDeleted,
 			}
-			return []interface{}{usage}, nil
+			return []any{usage}, nil
 		},
 	})
 	if err != nil {

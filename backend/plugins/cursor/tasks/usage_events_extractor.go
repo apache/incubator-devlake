@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -60,18 +59,9 @@ func ExtractUsageEvents(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Default.New("task data is not CursorTaskData")
 	}
 
-	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:   taskCtx,
-			Table: rawUsageEventsTable,
-			Options: rawParamsFromTaskData(data),
-		},
-		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			var record usageEventRecord
-			if err := errors.Convert(json.Unmarshal(row.Data, &record)); err != nil {
-				return nil, err
-			}
-
+	extractor, err := helper.NewStatefulApiExtractor(&helper.StatefulApiExtractorArgs[usageEventRecord]{
+		SubtaskCommonArgs: cursorSubtaskCommonArgs(taskCtx, data, rawUsageEventsTable),
+		Extract: func(record *usageEventRecord, _ *helper.RawData) ([]any, errors.Error) {
 			eventTime, err := parseEventTimestampMs(record.Timestamp)
 			if err != nil {
 				return nil, err
@@ -108,7 +98,7 @@ func ExtractUsageEvents(taskCtx plugin.SubTaskContext) errors.Error {
 				event.CacheWriteTokens = record.TokenUsage.CacheWriteTokens
 				event.TotalCents = record.TokenUsage.TotalCents
 			}
-			return []interface{}{event}, nil
+			return []any{event}, nil
 		},
 	})
 	if err != nil {

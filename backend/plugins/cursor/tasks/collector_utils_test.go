@@ -83,6 +83,16 @@ func TestSplitDailyUsageTimeRangeMsEmptyRange(t *testing.T) {
 	}
 }
 
+func TestNewUsageEventsDateRangeIteratorChunksLongRanges(t *testing.T) {
+	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2026, 4, 1, 12, 0, 0, 0, time.UTC)
+	chunks := splitDailyUsageTimeRangeMs(start.UnixMilli(), end.UnixMilli(), cursorDailyUsageMaxDays)
+
+	if len(chunks) != 4 {
+		t.Fatalf("expected 4 chunks for ~90-day usage-events span, got %d", len(chunks))
+	}
+}
+
 func TestDailyUsagePostBodyUsesEpochMilliseconds(t *testing.T) {
 	body := dailyUsagePostBody(&helper.RequestData{
 		Input: cursorTimeRangeInput{StartDateMs: 1710720000000, EndDateMs: 1710892800000},

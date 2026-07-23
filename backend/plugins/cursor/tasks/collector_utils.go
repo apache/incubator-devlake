@@ -95,8 +95,8 @@ func computeUsageTimeRangeMs(since *time.Time, now time.Time) (int64, int64) {
 	return start.UnixMilli(), end.UnixMilli()
 }
 
-// splitDailyUsageTimeRangeMs splits [startMs, endMs] into chunks of at most maxDays for
-// POST /teams/daily-usage-data (API limit: date range cannot exceed 30 days).
+// splitDailyUsageTimeRangeMs splits [startMs, endMs] into chunks of at most maxDays.
+// Used by daily-usage-data (30-day API limit) and filtered-usage-events collectors.
 func splitDailyUsageTimeRangeMs(startMs, endMs int64, maxDays int) []cursorTimeRangeInput {
 	if startMs >= endMs || maxDays <= 0 {
 		return nil
