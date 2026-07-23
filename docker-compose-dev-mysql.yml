@@ -34,7 +34,7 @@ services:
       --skip-log-bin
 
   grafana:
-    image: devlake.docker.scarf.sh/apache/devlake-dashboard:latest
+    image: ${DEVLAKE_IMAGE_REGISTRY:-devlake.docker.scarf.sh}/apache/devlake-dashboard:latest
     build:
       context: grafana/
     ports:
@@ -82,7 +82,7 @@ services:
       - mysql
 
   config-ui:
-    image: devlake.docker.scarf.sh/apache/devlake-config-ui:latest
+    image: ${DEVLAKE_IMAGE_REGISTRY:-devlake.docker.scarf.sh}/apache/devlake-config-ui:latest
     build:
       context: "config-ui"
     ports:
