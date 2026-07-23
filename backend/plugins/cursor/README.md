@@ -135,7 +135,7 @@ Grafana dashboard JSON lives under `grafana/dashboards/mysql/`:
 | AI Cost Efficiency (Cursor panels) | `ai-cost-efficiency.json` | — |
 | Multi-AI Comparison (Cursor panels) | `multi-ai-comparison.json` | — |
 
-See `grafana/dashboards/mysql/CursorREADME.md` for dashboard prerequisites, variables, and panel descriptions.
+See `grafana/dashboards/mysql/cursor-usage.json` for the dashboard definition and [rak_tools/grafana.md](../../../rak_tools/grafana.md) for currency formatting and Grafana version notes.
 
 ## Error handling
 
@@ -149,9 +149,30 @@ See `grafana/dashboards/mysql/CursorREADME.md` for dashboard prerequisites, vari
 
 Tokens are sanitized before persisting. Connection test results include a `permissions` object showing which Admin API endpoints succeeded.
 
+## Not collected (Enterprise AI Code Tracking)
+
+The following endpoints from the [AI Code Tracking API](https://cursor.com/docs/account/teams/ai-code-tracking-api) are **Enterprise plan only** and are **not implemented** in this plugin (no collector, extractor, or `_tool_cursor_*` table):
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /analytics/ai-code/commits` | Per-commit AI line attribution (TAB vs Composer vs non-AI) |
+| `GET /analytics/ai-code/changes` | Granular accepted AI changes |
+| `GET /analytics/ai-code/commits.csv` / `changes.csv` | Bulk CSV exports of the above |
+
+Team/Business Admin API keys typically receive **401** on these routes. Connection test optionally probes `GET /analytics/team/dau` (`probeEnterpriseAnalytics`) to detect Enterprise access; it does **not** ingest analytics data.
+
+**Metrics this would unlock** (shown on the Cursor native dashboard but absent from DevLake today):
+
+- AI share of **committed** code (not editor line acceptance)
+- Per-commit `commitSource`: IDE, CLI, or cloud
+- Repo name and primary-branch filters
+- TAB vs Composer line attribution on commits
+
+The **Cursor Usage** Grafana dashboard (`grafana/dashboards/mysql/cursor-usage.json`) uses Admin API proxies from `_tool_cursor_daily_usage` and `_tool_cursor_usage_events` instead; panel descriptions note where metrics are approximate.
+
 ## Limitations
 
-- **Team/Business Admin API only** — Enterprise-only Analytics API endpoints (`/analytics/*`) are not collected in this plugin.
+- **Team/Business Admin API only** — Enterprise-only Analytics API endpoints (`/analytics/*`) are not collected in this plugin (see [Not collected (Enterprise AI Code Tracking)](#not-collected-enterprise-ai-code-tracking) above).
 - **Tool layer only** — no domain-layer tables; cross-plugin joins (Jira, GitHub PRs, etc.) are done in Grafana SQL or separate tooling.
 - **Team-level scope** — one scope per connection represents the whole team; per-team multi-tenant collection is not supported.
 - **Beta** — the plugin is marked beta in Config UI while the Admin API surface continues to evolve.
