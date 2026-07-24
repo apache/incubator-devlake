@@ -59,33 +59,48 @@ func CollectAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 		scope = "user"
 	}
 
-	now := time.Now().UTC()
-	queryParam := url.Values{}
-	queryParam.Set("year", strconv.Itoa(now.Year()))
-	queryParam.Set("month", strconv.Itoa(int(now.Month())))
-	queryParam.Set("day", strconv.Itoa(now.Day()))
-
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: copilotRawParams{
-				ConnectionId: data.Options.ConnectionId,
-				ScopeId:      data.Options.ScopeId,
-				Organization: connection.Organization,
-				Endpoint:     connection.Endpoint,
-			},
-			Table: rawAiCreditUsageTable,
+	rawArgs := helper.RawDataSubTaskArgs{
+		Ctx:   taskCtx,
+		Table: rawAiCreditUsageTable,
+		Options: copilotRawParams{
+			ConnectionId: data.Options.ConnectionId,
+			ScopeId:      data.Options.ScopeId,
+			Organization: connection.Organization,
+			Endpoint:     connection.Endpoint,
 		},
-		ApiClient: apiClient,
+	}
+
+	collector, err := helper.NewStatefulApiCollector(rawArgs)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now().UTC()
+	start, until := computeReportDateRange(now, collector.GetSince())
+	start = clampDailyMetricsStartForBackfill(start, until)
+
+	dayIter := newDayIterator(start, until)
+
+	err = collector.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:   apiClient,
+		Input:       dayIter,
 		UrlTemplate: urlTemplate,
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			return queryParam, nil
-		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			if res.StatusCode == http.StatusNotFound {
-				taskCtx.GetLogger().Warn(nil, "AI credit usage endpoint not found (404) for scope %s", scope)
-				return nil, nil
+			input := reqData.Input.(*dayInput)
+			day, parseErr := time.Parse("2006-01-02", input.Day)
+			if parseErr != nil {
+				return nil, errors.Convert(parseErr)
 			}
+			q := url.Values{}
+			q.Set("year", strconv.Itoa(day.Year()))
+			q.Set("month", strconv.Itoa(int(day.Month())))
+			q.Set("day", strconv.Itoa(day.Day()))
+			return q, nil
+		},
+		Incremental:   true,
+		Concurrency:   1,
+		AfterResponse: ignoreNoContent,
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			if res.StatusCode != http.StatusOK {
 				return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("failed to collect AI credit usage for %s", scope))
 			}
@@ -93,9 +108,8 @@ func CollectAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 			var response struct {
 				UsageItems []json.RawMessage `json:"usageItems"`
 			}
-			err := helper.UnmarshalResponse(res, &response)
-			if err != nil {
-				return nil, err
+			if unmErr := helper.UnmarshalResponse(res, &response); unmErr != nil {
+				return nil, unmErr
 			}
 
 			return response.UsageItems, nil

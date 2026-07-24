@@ -25,13 +25,13 @@ import (
 // One row per time period per model per entity (user, org, or cost center).
 type GhCopilotEnterpriseAiCreditUsage struct {
 	ConnectionId uint64 `gorm:"primaryKey" json:"connectionId"`
-	ScopeId      string `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
+	ScopeId      string `gorm:"primaryKey;type:varchar(191)" json:"scopeId"`
 	Year         int    `gorm:"primaryKey" json:"year"`
 	Month        int    `gorm:"primaryKey" json:"month"`
 	Day          int    `gorm:"primaryKey" json:"day"`
 
-	Enterprise   string `gorm:"primaryKey;type:varchar(255);comment:Enterprise slug" json:"enterprise"`
-	Model        string `gorm:"primaryKey;type:varchar(255);comment:AI model name (e.g., gpt-4.1)" json:"model"`
+	Enterprise   string `gorm:"primaryKey;type:varchar(191);comment:Enterprise slug" json:"enterprise"`
+	Model        string `gorm:"primaryKey;type:varchar(191);comment:AI model name (e.g., gpt-4.1)" json:"model"`
 	Organization string `gorm:"index;type:varchar(255);comment:Organization within enterprise, if specified" json:"organization"`
 	User         string `gorm:"index;type:varchar(255);comment:Username, if specified" json:"user"`
 

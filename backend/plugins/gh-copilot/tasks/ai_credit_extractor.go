@@ -98,11 +98,22 @@ func ExtractAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 			wrapper.Product = record.Product
 			wrapper.Model = record.Model
 
-			// Parse date from row (use current time or parsed period)
-			now := time.Now().UTC()
-			wrapper.TimePeriod.Year = now.Year()
-			wrapper.TimePeriod.Month = int(now.Month())
-			wrapper.TimePeriod.Day = now.Day()
+			// Derive the time period from the collector's day input so records are
+			// deterministic and aligned with the requested billing day, rather than
+			// depending on the extraction-time clock.
+			var input dayInput
+			if len(row.Input) > 0 {
+				if unmErr := json.Unmarshal(row.Input, &input); unmErr != nil {
+					return nil, errors.Convert(unmErr)
+				}
+			}
+			day, parseErr := time.Parse("2006-01-02", input.Day)
+			if parseErr != nil {
+				return nil, errors.Convert(parseErr)
+			}
+			wrapper.TimePeriod.Year = day.Year()
+			wrapper.TimePeriod.Month = int(day.Month())
+			wrapper.TimePeriod.Day = day.Day()
 
 			var results []interface{}
 

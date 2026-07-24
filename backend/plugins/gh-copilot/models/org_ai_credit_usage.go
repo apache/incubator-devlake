@@ -25,13 +25,13 @@ import (
 // One row per time period per model per user (within the organization).
 type GhCopilotOrgAiCreditUsage struct {
 	ConnectionId uint64 `gorm:"primaryKey" json:"connectionId"`
-	ScopeId      string `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
+	ScopeId      string `gorm:"primaryKey;type:varchar(191)" json:"scopeId"`
 	Year         int    `gorm:"primaryKey" json:"year"`
 	Month        int    `gorm:"primaryKey" json:"month"`
 	Day          int    `gorm:"primaryKey" json:"day"`
 
-	Organization string `gorm:"primaryKey;type:varchar(255);comment:Organization name" json:"organization"`
-	Model        string `gorm:"primaryKey;type:varchar(255);comment:AI model name (e.g., gpt-4.1)" json:"model"`
+	Organization string `gorm:"primaryKey;type:varchar(191);comment:Organization name" json:"organization"`
+	Model        string `gorm:"primaryKey;type:varchar(191);comment:AI model name (e.g., gpt-4.1)" json:"model"`
 	User         string `gorm:"index;type:varchar(255);comment:Username consuming the credits" json:"user"`
 
 	Product string `gorm:"type:varchar(32);comment:Product name (e.g., copilot)" json:"product"`
