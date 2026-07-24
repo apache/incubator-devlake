@@ -50,7 +50,7 @@ type GitlabMergeRequest struct {
 	Description      string
 	AuthorUsername   string `gorm:"type:varchar(255)"`
 	AuthorUserId     int
-	Component        string `gorm:"type:varchar(255)"`
+	Component        string `gorm:"type:text"`
 	common.NoPKModel
 }
 
