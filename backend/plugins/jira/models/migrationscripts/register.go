@@ -56,6 +56,7 @@ func All() []plugin.MigrationScript {
 		new(updateScopeConfig),
 		new(addFixVersions20250619),
 		new(addSubQueryToBoards),
+		new(changeFixVersionsToText20260707),
 		new(addExtraJQLToScopeConfig),
 	}
 }

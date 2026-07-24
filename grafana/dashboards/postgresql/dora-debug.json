@@ -43,7 +43,7 @@
         "content": "This dashboard is designed to validate the [DORA dashboard](/grafana/d/qNo8_0M4z/dora?orgId=1).",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -104,7 +104,7 @@
         "content": "- See the definition and calculation logic of [Deployment Frequency](https://devlake.apache.org/docs/Metrics/DeploymentFrequency)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n- Transformation Required: Define `deployments` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -118,7 +118,7 @@
       "type": "text"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -189,10 +189,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -226,7 +226,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -310,10 +310,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -365,7 +365,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -436,10 +436,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -473,7 +473,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -550,7 +550,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -602,7 +602,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -681,10 +681,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -718,7 +718,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -798,10 +798,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -835,7 +835,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -915,10 +915,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -998,7 +998,7 @@
         "content": "- See the definition and calculation logic of [Median Lead Time for Changes](https://devlake.apache.org/docs/Metrics/LeadTimeForChanges)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n- Transformation Required: Define `deployments` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- Validatation Steps below:\n  - Step 1 - check the data integrity of PRs in table `pull_requests`\n  - Step 2 - check the data integrity of deployment_commit in table `cicd_deployment_commits`\n  - Step 3 - check if a deployment_commit is associated with the correct PR in table `project_pr_metrics`\n  - Step 4 - check if metrics like PR Coding/Pickup/Review/Deploy/cycle time are correct in table `project_pr_metrics`\n  - Step 5 - check if the median lead time for changes in each month is correct",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -1012,7 +1012,7 @@
       "type": "text"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1059,10 +1059,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1096,7 +1096,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1179,10 +1179,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1234,7 +1234,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1348,10 +1348,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1385,7 +1385,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1456,10 +1456,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1511,7 +1511,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1565,10 +1565,10 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1598,7 +1598,7 @@
           ]
         },
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -1632,7 +1632,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1702,10 +1702,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1739,7 +1739,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1859,10 +1859,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1896,7 +1896,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1958,10 +1958,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1995,7 +1995,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2040,10 +2040,10 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2073,7 +2073,7 @@
           ]
         },
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -2107,7 +2107,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2148,10 +2148,10 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2181,7 +2181,7 @@
           ]
         },
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -2215,7 +2215,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2256,10 +2256,10 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2289,7 +2289,7 @@
           ]
         },
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -2323,7 +2323,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2364,10 +2364,10 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2397,7 +2397,7 @@
           ]
         },
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -2431,7 +2431,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2472,10 +2472,10 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2509,7 +2509,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2608,10 +2608,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -2691,7 +2691,7 @@
         "content": "- See the definition and calculation logic of [${title_value}](https://devlake.apache.org/docs/Metrics/MTTR)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -2725,7 +2725,7 @@
         "content": "- See the definition and calculation logic of [Change Failure Rate](https://devlake.apache.org/docs/Metrics/CFR)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -2739,7 +2739,7 @@
       "type": "text"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2800,10 +2800,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2837,7 +2837,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2920,10 +2920,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2975,7 +2975,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3036,10 +3036,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -3093,7 +3093,7 @@
         "content": "<img src = 'https://devlake.apache.org/assets/images/cfr-definition-94d92cc75f857f183443ad5390d31d65.png' />\n\nIn this case:\n\n- Deployment-1 maps to Incident-1\n- Deployment-3 maps to Incident-2 and Incident-3\n- Deployment-2,4,5 doesn't map to any Incident",
         "mode": "markdown"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -3108,7 +3108,7 @@
       "type": "text"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -3200,10 +3200,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3255,7 +3255,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3338,10 +3338,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3393,7 +3393,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3455,10 +3455,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -3492,7 +3492,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3554,10 +3554,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3609,7 +3609,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -3701,10 +3701,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3769,7 +3769,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT name FROM projects",
         "hide": 0,
         "includeAll": true,
@@ -3790,7 +3790,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT Url || '--' || id FROM pull_requests",
         "hide": 0,
         "includeAll": false,
@@ -3811,7 +3811,7 @@
           "text": "2023",
           "value": "2023"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT dora_report FROM dora_benchmarks",
         "hide": 0,
         "includeAll": false,
@@ -3832,7 +3832,7 @@
           "text": "Failed Deployment Recovery Time",
           "value": "Failed Deployment Recovery Time"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT CASE WHEN dora_report = '2023' THEN 'Failed Deployment Recovery Time' WHEN dora_report = '2021' THEN 'Median Time to Restore Service' ELSE NULL END AS title_value FROM dora_benchmarks WHERE dora_report = '${dora_report:raw}'",
         "hide": 2,
         "includeAll": false,

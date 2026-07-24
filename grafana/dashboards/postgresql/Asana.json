@@ -77,7 +77,7 @@
         "content": "- Use Cases: This dashboard shows the basic project management metrics from Asana.\n- Data Source Required: Asana",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -116,7 +116,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total number of issues created in the selected time range and board.",
       "fieldConfig": {
         "defaults": {
@@ -165,10 +165,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -218,7 +218,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -268,10 +268,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -321,7 +321,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -404,10 +404,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -439,7 +439,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Issue Delivery Rate = count(Delivered Issues)/count(Issues)",
       "fieldConfig": {
         "defaults": {
@@ -493,10 +493,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -528,7 +528,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Issue Delivery Rate = count(Delivered Issues)/count(Issues)",
       "fieldConfig": {
         "defaults": {
@@ -609,10 +609,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -670,7 +670,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -721,10 +721,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -757,7 +757,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -807,10 +807,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -843,7 +843,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -928,10 +928,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -968,7 +968,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "The cumulative distribution of issue lead time. Each point refers to the percent rank of a lead time.",
       "fill": 0,
       "fillGradient": 4,
@@ -1005,7 +1005,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "pointradius": 0.5,
       "points": false,
       "renderer": "flot",
@@ -1015,7 +1015,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -1109,7 +1109,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -1141,7 +1141,7 @@
             "$__all"
           ]
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT name || '--' || id FROM boards WHERE id::text LIKE 'asana%'",
         "hide": 0,
         "includeAll": true,
@@ -1162,7 +1162,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT type FROM issues",
         "hide": 0,
         "includeAll": true,

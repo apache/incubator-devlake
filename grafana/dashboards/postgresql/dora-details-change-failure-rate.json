@@ -57,7 +57,7 @@
         "content": "This dashboard shows the details about [Change Failure Rate](https://devlake.apache.org/docs/Metrics/CFR) in DORA.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -71,7 +71,7 @@
       "type": "text"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -154,10 +154,10 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -209,7 +209,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -355,10 +355,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -410,7 +410,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -492,10 +492,10 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -546,7 +546,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -617,10 +617,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -686,7 +686,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT name FROM projects",
         "hide": 0,
         "includeAll": true,
@@ -707,7 +707,7 @@
           "text": "2023",
           "value": "2023"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT dora_report FROM dora_benchmarks",
         "hide": 0,
         "includeAll": false,
@@ -728,7 +728,7 @@
           "text": "Failed Deployment Recovery Time",
           "value": "Failed Deployment Recovery Time"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT CASE WHEN dora_report = '2023' THEN 'Failed Deployment Recovery Time' WHEN dora_report = '2021' THEN 'Median Time to Restore Service' ELSE NULL END AS title_value FROM dora_benchmarks WHERE dora_report = '${dora_report:raw}'",
         "hide": 2,
         "includeAll": false,

@@ -29,6 +29,7 @@ export const ZenTaoConfig: IPluginConfig = {
   sort: 18,
   connection: {
     docLink: DOC_URL.PLUGIN.ZENTAO.BASIS,
+    initialValues: {},
     fields: [
       'name',
       {

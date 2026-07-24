@@ -22,7 +22,7 @@
   "liveNow": false,
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Org-level daily active user count; intentionally ignores the Selected User filter",
       "fieldConfig": {
         "defaults": {
@@ -62,10 +62,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT daily_active_user_count as \"Org Daily Active Users\"\nFROM _tool_claude_code_activity_summary\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY `date` DESC\nLIMIT 1",
@@ -76,7 +76,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Org-level assigned seat count; intentionally ignores the Selected User filter",
       "fieldConfig": {
         "defaults": {
@@ -116,10 +116,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT assigned_seat_count as \"Org Assigned Seats\"\nFROM _tool_claude_code_activity_summary\nWHERE connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY `date` DESC\nLIMIT 1",
@@ -130,7 +130,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Org-level session total for the selected time range; intentionally ignores the Selected User filter",
       "fieldConfig": {
         "defaults": {
@@ -170,10 +170,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(SUM(cc_session_count), 0) as \"Org Sessions\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'",
@@ -184,7 +184,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Days since the freshest Claude analytics row across the registered metric tables; intentionally ignores the Selected User filter",
       "fieldConfig": {
         "defaults": {
@@ -232,10 +232,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(TIMESTAMPDIFF(DAY, MAX(latest_date), UTC_DATE()), 9999) as \"Days Since Latest Data\"\nFROM (\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_user_activity\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_activity_summary\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_chat_project\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_skill_usage\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT MAX(`date`) as latest_date\n  FROM _tool_claude_code_connector_usage\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n) latest_dates",
@@ -259,7 +259,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Sessions for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -299,10 +299,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(SUM(cc_session_count), 0) as \"Selected User Sessions\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )",
@@ -313,7 +313,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Tool acceptance rate for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -363,10 +363,10 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT ROUND(\n  SUM(edit_tool_accepted + multi_edit_tool_accepted + write_tool_accepted + notebook_edit_tool_accepted) * 100.0\n    / NULLIF(\n        SUM(\n          edit_tool_accepted + multi_edit_tool_accepted + write_tool_accepted + notebook_edit_tool_accepted\n          + edit_tool_rejected + multi_edit_tool_rejected + write_tool_rejected + notebook_edit_tool_rejected\n        ),\n        0\n      ),\n  1\n) as \"Selected User Acceptance Rate %\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )",
@@ -377,7 +377,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Lines added for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -417,10 +417,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(SUM(cc_lines_added), 0) as \"Selected User Lines Added\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )",
@@ -431,7 +431,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Lines removed for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -471,10 +471,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(SUM(cc_lines_removed), 0) as \"Selected User Lines Removed\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )",
@@ -485,7 +485,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Commits for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -525,10 +525,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(SUM(cc_commit_count), 0) as \"Selected User Commits\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )",
@@ -539,7 +539,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Pull requests for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -579,10 +579,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(SUM(cc_pull_request_count), 0) as \"Selected User PRs\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )",
@@ -593,7 +593,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Days with recorded Claude activity for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -633,10 +633,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(DISTINCT CASE\n    WHEN (\n      cc_session_count > 0\n      OR cc_commit_count > 0\n      OR cc_pull_request_count > 0\n      OR cc_lines_added > 0\n      OR cc_lines_removed > 0\n      OR chat_conversation_count > 0\n      OR web_search_count > 0\n      OR edit_tool_accepted + edit_tool_rejected + multi_edit_tool_accepted + multi_edit_tool_rejected + write_tool_accepted + write_tool_rejected + notebook_edit_tool_accepted + notebook_edit_tool_rejected > 0\n    ) THEN `date`\n    ELSE NULL\n  END) as \"Selected User Active Days\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )",
@@ -647,7 +647,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Chat conversations for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -687,10 +687,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COALESCE(SUM(chat_conversation_count), 0) as \"Selected User Chat Conversations\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )",
@@ -714,7 +714,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Sessions, commits, pull requests, and chat conversations over time for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -784,10 +784,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as time,\n  SUM(cc_session_count) as \"Sessions\",\n  SUM(cc_commit_count) as \"Commits\",\n  SUM(cc_pull_request_count) as \"PRs\",\n  SUM(chat_conversation_count) as \"Chat Conversations\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )\nGROUP BY `date`\nORDER BY 1",
@@ -798,7 +798,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Code churn over time for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -868,10 +868,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as time,\n  SUM(cc_lines_added) as \"Lines Added\",\n  SUM(cc_lines_removed) as \"Lines Removed\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )\nGROUP BY `date`\nORDER BY 1",
@@ -895,7 +895,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Accepted and rejected tool actions for the selected user; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -922,10 +922,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT tool_name as \"Tool\",\n  SUM(accepted) as \"Accepted\",\n  SUM(rejected) as \"Rejected\",\n  ROUND(SUM(accepted) * 100.0 / NULLIF(SUM(accepted + rejected), 0), 1) as \"Acceptance Rate %\"\nFROM (\n  SELECT `date`, connection_id, scope_id, 'edit_tool' as tool_name, edit_tool_accepted as accepted, edit_tool_rejected as rejected, user_id, user_email\n  FROM _tool_claude_code_user_activity\n  UNION ALL\n  SELECT `date`, connection_id, scope_id, 'multi_edit_tool' as tool_name, multi_edit_tool_accepted as accepted, multi_edit_tool_rejected as rejected, user_id, user_email\n  FROM _tool_claude_code_user_activity\n  UNION ALL\n  SELECT `date`, connection_id, scope_id, 'write_tool' as tool_name, write_tool_accepted as accepted, write_tool_rejected as rejected, user_id, user_email\n  FROM _tool_claude_code_user_activity\n  UNION ALL\n  SELECT `date`, connection_id, scope_id, 'notebook_edit_tool' as tool_name, notebook_edit_tool_accepted as accepted, notebook_edit_tool_rejected as rejected, user_id, user_email\n  FROM _tool_claude_code_user_activity\n) tool_actions\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )\nGROUP BY tool_name\nORDER BY SUM(accepted + rejected) DESC, tool_name",
@@ -936,7 +936,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Daily activity details for the selected user without exposing user identity columns; admins and managers can inspect any user, other viewers are restricted to their own email-matched data",
       "fieldConfig": {
         "defaults": {
@@ -963,10 +963,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as \"Day\",\n  SUM(cc_session_count) as \"Sessions\",\n  SUM(chat_conversation_count) as \"Chat Conversations\",\n  SUM(web_search_count) as \"Web Searches\",\n  SUM(cc_lines_added) as \"Lines Added\",\n  SUM(cc_lines_removed) as \"Lines Removed\",\n  SUM(cc_commit_count) as \"Commits\",\n  SUM(cc_pull_request_count) as \"PRs\",\n  ROUND(\n    SUM(edit_tool_accepted + multi_edit_tool_accepted + write_tool_accepted + notebook_edit_tool_accepted) * 100.0\n      / NULLIF(\n          SUM(\n            edit_tool_accepted + multi_edit_tool_accepted + write_tool_accepted + notebook_edit_tool_accepted\n            + edit_tool_rejected + multi_edit_tool_rejected + write_tool_rejected + notebook_edit_tool_rejected\n          ),\n          0\n        ),\n    1\n  ) as \"Tool Acceptance Rate %\"\nFROM _tool_claude_code_user_activity\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\n  AND (\n    ixd_get_user_role('${__user.email}') IN ('admin', 'manager')\n    OR user_email = '${__user.email}'\n  )\n  AND (\n    '${user:csv}' = '0'\n    OR COALESCE(NULLIF(user_email, ''), user_id) = ${user:sqlstring}\n  )\nGROUP BY `date`\nORDER BY `date` DESC\nLIMIT 60",
@@ -990,7 +990,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Org-level active user counts over time; intentionally ignores the Selected User filter",
       "fieldConfig": {
         "defaults": {
@@ -1060,10 +1060,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as time,\n  daily_active_user_count as \"Daily Active Users\",\n  weekly_active_user_count as \"Weekly Active Users\",\n  monthly_active_user_count as \"Monthly Active Users\"\nFROM _tool_claude_code_activity_summary\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY 1",
@@ -1074,7 +1074,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Org-level assigned seats and pending invites over time; intentionally ignores the Selected User filter",
       "fieldConfig": {
         "defaults": {
@@ -1144,10 +1144,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT `date` as time,\n  assigned_seat_count as \"Assigned Seats\",\n  pending_invite_count as \"Pending Invites\"\nFROM _tool_claude_code_activity_summary\nWHERE $__timeFilter(`date`)\n  AND connection_id = ${connection_id}\n  AND scope_id = '${scope_id}'\nORDER BY 1",
@@ -1171,7 +1171,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Diagnostics table for row counts and freshest available date per Claude metric table; intentionally ignores the Selected User filter",
       "fieldConfig": {
         "defaults": {
@@ -1198,10 +1198,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT *\nFROM (\n  SELECT '_tool_claude_code_activity_summary' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_activity_summary\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT '_tool_claude_code_user_activity' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_user_activity\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT '_tool_claude_code_skill_usage' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_skill_usage\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT '_tool_claude_code_connector_usage' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_connector_usage\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n  UNION ALL\n  SELECT '_tool_claude_code_chat_project' as table_name,\n    COUNT(*) as row_count,\n    MAX(`date`) as latest_date,\n    COALESCE(TIMESTAMPDIFF(DAY, MAX(`date`), UTC_DATE()), 9999) as days_lag\n  FROM _tool_claude_code_chat_project\n  WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}'\n) data_volume\nORDER BY row_count DESC, table_name",
@@ -1228,7 +1228,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "SELECT DISTINCT connection_id FROM _tool_claude_code_scopes ORDER BY connection_id DESC",
         "hide": 0,
         "includeAll": false,
@@ -1249,7 +1249,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "SELECT DISTINCT id as scope_id FROM _tool_claude_code_scopes WHERE connection_id = ${connection_id} ORDER BY 1",
         "hide": 0,
         "includeAll": false,
@@ -1271,7 +1271,7 @@
           "text": "All Accessible Users",
           "value": "0"
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "SELECT DISTINCT user_key as __value, user_key as __text FROM (SELECT COALESCE(NULLIF(user_email, ''), user_id) as user_key, user_email FROM _tool_claude_code_user_activity WHERE connection_id = ${connection_id} AND scope_id = '${scope_id}') accessible_users WHERE ixd_get_user_role('${__user.email}') IN ('admin', 'manager') OR user_email = '${__user.email}' ORDER BY user_key",
         "hide": 0,
         "includeAll": true,

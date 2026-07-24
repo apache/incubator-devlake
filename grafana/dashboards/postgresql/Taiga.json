@@ -77,7 +77,7 @@
         "content": "- Use Cases: This dashboard shows project management metrics from Taiga across all issue types (User Stories, Tasks, Issues/Requirements, Epics).\n- Data Source Required: Taiga\n- Metrics: Issue throughput (filtered by type), lead time, story points (User Stories), milestone progress, assignee breakdown and issue type breakdown.\n- Use the **Issue Type** variable to filter panels to a specific type, or select All to see all types together.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -116,7 +116,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total number of user stories created in the selected time range and board.",
       "fieldConfig": {
         "defaults": {
@@ -165,10 +165,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -218,7 +218,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total number of issues that have been marked as Done/Closed in the selected time range.",
       "fieldConfig": {
         "defaults": {
@@ -268,10 +268,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -321,7 +321,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Monthly distribution of open vs. closed issues.",
       "fieldConfig": {
         "defaults": {
@@ -404,10 +404,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -439,7 +439,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Issue Delivery Rate = count(Closed Issues) / count(All Issues)",
       "fieldConfig": {
         "defaults": {
@@ -493,10 +493,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -528,7 +528,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Monthly trend of issue delivery rate.",
       "fieldConfig": {
         "defaults": {
@@ -609,10 +609,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -670,7 +670,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Average number of days from story creation to resolution.",
       "fieldConfig": {
         "defaults": {
@@ -721,10 +721,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -755,7 +755,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "80% of stories are resolved within this many days.",
       "fieldConfig": {
         "defaults": {
@@ -805,10 +805,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -839,7 +839,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Mean lead time per month for resolved stories.",
       "fieldConfig": {
         "defaults": {
@@ -920,10 +920,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -954,7 +954,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "The cumulative distribution of story lead time. Each point shows the percent rank of a given lead time value.",
       "fieldConfig": {
         "defaults": {
@@ -1033,10 +1033,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 100
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -1121,7 +1121,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total story points for all user stories in the selected time range.",
       "fieldConfig": {
         "defaults": {
@@ -1164,10 +1164,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1206,7 +1206,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Total story points for closed/completed user stories.",
       "fieldConfig": {
         "defaults": {
@@ -1249,10 +1249,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1291,7 +1291,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Story points allocated to each milestone/sprint. Requires milestone data from Taiga.",
       "fieldConfig": {
         "defaults": {
@@ -1361,10 +1361,10 @@
         "xTickLabelRotation": -15,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1395,7 +1395,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Story points distributed across assignees.",
       "fieldConfig": {
         "defaults": {
@@ -1465,10 +1465,10 @@
         "xTickLabelRotation": -15,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1499,7 +1499,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Distribution of story points across open vs. closed stories.",
       "fieldConfig": {
         "defaults": {
@@ -1550,10 +1550,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1610,7 +1610,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Breakdown of all Taiga issues by their current status, across all issue types (User Story, Task, Issue/Requirement, Epic).",
       "fieldConfig": {
         "defaults": {
@@ -1660,10 +1660,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT NOW() AS time, COUNT(DISTINCT CASE WHEN i.status = 'TODO' THEN i.id END) AS \"To Do\", COUNT(DISTINCT CASE WHEN i.status = 'IN_PROGRESS' THEN i.id END) AS \"In Progress\", COUNT(DISTINCT CASE WHEN i.status = 'DONE' THEN i.id END) AS \"Done\", COUNT(DISTINCT CASE WHEN NOT i.status IN ('TODO', 'IN_PROGRESS', 'DONE') THEN i.id END) AS \"Other\" FROM issues AS i JOIN board_issues AS bi ON i.id = bi.issue_id WHERE ('${board_id:csv}' = '' OR bi.board_id::text = ANY(ARRAY[${board_id:singlequote}]::text[]))",
@@ -1674,7 +1674,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Number of user stories assigned to each team member.",
       "fieldConfig": {
         "defaults": {
@@ -1743,10 +1743,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1777,7 +1777,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Number of user stories in each milestone/sprint.",
       "fieldConfig": {
         "defaults": {
@@ -1846,10 +1846,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1880,7 +1880,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Milestone progress: open vs. closed user stories per sprint.",
       "fieldConfig": {
         "defaults": {
@@ -1948,10 +1948,10 @@
         "xTickLabelRotation": -15,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2002,7 +2002,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -2042,7 +2042,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Distribution of all Taiga items across issue types (User Story, Task, Issue/Requirement, Epic).",
       "fieldConfig": {
         "defaults": {
@@ -2092,10 +2092,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT NOW() AS time, COUNT(DISTINCT CASE WHEN i.type = 'USER_STORY' THEN i.id END) AS \"User Story\", COUNT(DISTINCT CASE WHEN i.type = 'TASK' THEN i.id END) AS \"Task\", COUNT(DISTINCT CASE WHEN i.type = 'REQUIREMENT' THEN i.id END) AS \"Issue\", COUNT(DISTINCT CASE WHEN i.type = 'EPIC' THEN i.id END) AS \"Epic\" FROM issues AS i JOIN board_issues AS bi ON i.id = bi.issue_id WHERE ('${board_id:csv}' = '' OR bi.board_id::text = ANY(ARRAY[${board_id:singlequote}]::text[]))",
@@ -2106,7 +2106,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Open vs closed count for each Taiga issue type in the selected time range.",
       "fieldConfig": {
         "defaults": {
@@ -2175,10 +2175,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -2190,7 +2190,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Monthly count of items created, broken down by issue type (User Stories, Tasks, Issues, Epics).",
       "fieldConfig": {
         "defaults": {
@@ -2266,10 +2266,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT CAST(i.created_date AS DATE) + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST(i.created_date AS DATE)) + 1) AS time, COUNT(DISTINCT CASE WHEN i.type = 'USER_STORY' THEN i.id END) AS \"User Stories\", COUNT(DISTINCT CASE WHEN i.type = 'TASK' THEN i.id END) AS \"Tasks\", COUNT(DISTINCT CASE WHEN i.type = 'REQUIREMENT' THEN i.id END) AS \"Issues\", COUNT(DISTINCT CASE WHEN i.type = 'EPIC' THEN i.id END) AS \"Epics\" FROM issues AS i JOIN board_issues AS bi ON i.id = bi.issue_id WHERE ('${board_id:csv}' = '' OR bi.board_id::text = ANY(ARRAY[${board_id:singlequote}]::text[])) AND $__timeFilter(i.created_date) GROUP BY 1 ORDER BY 1 NULLS FIRST",
@@ -2280,7 +2280,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Average lead time in days from creation to resolution, broken down by issue type (resolved issues only).",
       "fieldConfig": {
         "defaults": {
@@ -2354,10 +2354,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -2387,7 +2387,7 @@
             "$__all"
           ]
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT name || '--' || id FROM boards WHERE id::text LIKE 'taiga%'",
         "hide": 0,
         "includeAll": true,
@@ -2412,7 +2412,7 @@
             "$__all"
           ]
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT i.type FROM issues AS i JOIN board_issues AS bi ON i.id = bi.issue_id WHERE bi.board_id::text LIKE 'taiga%'",
         "hide": 0,
         "includeAll": true,

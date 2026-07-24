@@ -17,29 +17,30 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+)
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(addScopeConfigIdToProject),
-		new(modifyFileMetricsKeyLength),
-		new(modifyComponentLength),
-		new(addSonarQubeScopeConfig20231214),
-		new(modifyCommitCharacterType),
-		new(modifyCommitCharacterType0508),
-		new(updateSonarQubeScopeConfig20240614),
-		new(modifyNameLength),
-		new(changeIssueComponentType),
-		new(increaseProjectKeyLength),
-		new(addOrgToConn),
-		new(addIssueImpacts),
-		new(extendSonarqubeFieldSize),
-		new(changeIssueCodeBlockComponentType),
-		new(addProjectMetricsHistory),
-	}
+type jiraIssue20260707 struct {
+	FixVersions string `gorm:"type:text;column:fix_versions"`
+}
+
+func (jiraIssue20260707) TableName() string {
+	return "_tool_jira_issues"
+}
+
+type changeFixVersionsToText20260707 struct{}
+
+func (script *changeFixVersionsToText20260707) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &jiraIssue20260707{})
+}
+
+func (*changeFixVersionsToText20260707) Version() uint64 {
+	return 20260707140000
+}
+
+func (*changeFixVersionsToText20260707) Name() string {
+	return "change fix_versions type to text in _tool_jira_issues"
 }

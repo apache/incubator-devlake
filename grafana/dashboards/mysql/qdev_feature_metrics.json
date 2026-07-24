@@ -19,7 +19,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "High-level summary of legacy feature-level activity metrics (from by_user_analytic CSV reports)",
       "fieldConfig": {
         "defaults": {
@@ -63,10 +63,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -91,7 +91,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Daily inline suggestion and acceptance counts",
       "fieldConfig": {
         "defaults": {
@@ -167,10 +167,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
@@ -182,7 +182,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Acceptance rates for inline suggestions, code fix, and inline chat over time",
       "fieldConfig": {
         "defaults": {
@@ -258,10 +258,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
@@ -286,7 +286,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Daily chat messages sent and AI-generated code lines from chat",
       "fieldConfig": {
         "defaults": {
@@ -362,10 +362,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
@@ -377,7 +377,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Agentic (Dev) code generation and acceptance metrics",
       "fieldConfig": {
         "defaults": {
@@ -453,10 +453,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
@@ -481,7 +481,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Code review findings and test generation metrics over time",
       "fieldConfig": {
         "defaults": {
@@ -557,10 +557,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
@@ -572,7 +572,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Test generation events and acceptance over time",
       "fieldConfig": {
         "defaults": {
@@ -648,10 +648,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
@@ -663,7 +663,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Doc generation and code transformation events",
       "fieldConfig": {
         "defaults": {
@@ -739,10 +739,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
@@ -754,7 +754,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Number of users who used each feature in the selected period",
       "fieldConfig": {
         "defaults": {
@@ -835,10 +835,10 @@
         },
         "xTickLabelRotation": 0
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -863,7 +863,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Per-user breakdown of legacy feature-level metrics",
       "fieldConfig": {
         "defaults": {
@@ -910,10 +910,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
