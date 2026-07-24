@@ -71,8 +71,8 @@ func ExtractAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Table:   rawAiCreditUsageTable,
+			Ctx:   taskCtx,
+			Table: rawAiCreditUsageTable,
 			Options: copilotRawParams{
 				ConnectionId: data.Options.ConnectionId,
 				ScopeId:      data.Options.ScopeId,
