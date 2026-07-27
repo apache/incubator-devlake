@@ -15,44 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package migrationscripts
 
 import (
-	"time"
-
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-var (
-	BeforeSprint = "BEFORE_SPRINT"
-	DuringSprint = "DURING_SPRINT"
-	AfterSprint  = "AFTER_SPRINT"
-)
+var _ plugin.MigrationScript = (*addSprintVelocityFields)(nil)
 
-type Sprint struct {
-	domainlayer.DomainEntity
-	Name                string `gorm:"type:varchar(255)"`
-	Url                 string `gorm:"type:varchar(255)"`
-	Status              string `gorm:"type:varchar(100)"`
-	StartedDate         *time.Time
-	EndedDate           *time.Time
-	CompletedDate       *time.Time
-	OriginalBoardID     string `gorm:"type:varchar(255)"`
+type sprint20260722 struct {
 	CommittedStoryPoint *float64
 	CompletedStoryPoint *float64
 }
 
-func (Sprint) TableName() string {
+func (sprint20260722) TableName() string {
 	return "sprints"
 }
 
-type SprintIssue struct {
-	common.NoPKModel
-	SprintId string `gorm:"primaryKey;type:varchar(255)"`
-	IssueId  string `gorm:"primaryKey;type:varchar(255)"`
+type addSprintVelocityFields struct{}
+
+func (script *addSprintVelocityFields) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(new(sprint20260722))
 }
 
-func (SprintIssue) TableName() string {
-	return "sprint_issues"
+func (*addSprintVelocityFields) Version() uint64 {
+	return 20260722100000
+}
+
+func (*addSprintVelocityFields) Name() string {
+	return "add committed_story_point/completed_story_point to sprints"
 }

@@ -114,6 +114,7 @@ type WorkspaceResponse struct {
 	Pagelen int             `json:"pagelen"`
 	Page    int             `json:"page"`
 	Size    int             `json:"size"`
+	Next    string          `json:"next"`
 	Values  []GroupResponse `json:"values"`
 }
 
@@ -142,6 +143,7 @@ type ReposResponse struct {
 	Pagelen int                `json:"pagelen"`
 	Page    int                `json:"page"`
 	Size    int                `json:"size"`
+	Next    string             `json:"next"`
 	Values  []BitbucketApiRepo `json:"values"`
 }
 
