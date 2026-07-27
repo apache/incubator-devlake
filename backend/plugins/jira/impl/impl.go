@@ -85,6 +85,7 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraServerInfo{},
 		&models.JiraSprint{},
 		&models.JiraSprintIssue{},
+		&models.JiraSprintReport{},
 		&models.JiraStatus{},
 		&models.JiraWorklog{},
 		&models.JiraIssueComment{},
@@ -138,6 +139,9 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectSprintsMeta,
 		tasks.ExtractSprintsMeta,
 
+		tasks.CollectSprintReportMeta,
+		tasks.ExtractSprintReportMeta,
+
 		tasks.CollectEpicsMeta,
 		tasks.ExtractEpicsMeta,
 
@@ -153,6 +157,7 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,
+		tasks.ConvertSprintReportMeta,
 
 		tasks.CollectDevelopmentPanelMeta,
 		tasks.ExtractDevelopmentPanelMeta,
