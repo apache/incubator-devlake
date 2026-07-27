@@ -80,6 +80,12 @@ func TestSonarqubeIssueCodeBlockLongComponent(t *testing.T) {
 		&sonarqubeIssueCodeBlockBeforeText{},
 		&cqIssueCodeBlockBeforeText{},
 	))
+	require.NoError(t, dataflowTester.Db.Migrator().DropIndex(
+		"cq_issue_code_blocks", "idx_cq_issue_code_blocks_component",
+	))
+	require.NoError(t, dataflowTester.Db.Migrator().DropIndex(
+		"_tool_sonarqube_issue_code_blocks", "idx__tool_sonarqube_issue_code_blocks_component",
+	))
 
 	existingComponent := "existing:component"
 	require.NoError(t, dataflowTester.Db.Create(&sonarqubeIssueCodeBlockBeforeText{

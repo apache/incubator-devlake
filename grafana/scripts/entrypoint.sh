@@ -204,7 +204,7 @@ else
   },
   "jsonData": {
     "sslmode": "${SSL_MODE}",
-    "postgresVersion": 1400,
+    "postgresVersion": 1800,
     "database": "${POSTGRES_DATABASE}"
   },
   "access": "proxy",

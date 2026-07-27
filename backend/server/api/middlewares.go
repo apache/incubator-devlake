@@ -33,6 +33,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/gin-gonic/gin"
 )
 
@@ -272,9 +273,13 @@ func CheckAuthorizationHeader(c *gin.Context, logger log.Logger, db dal.Dal, api
 
 	logger.Info("redirect path: %s to: %s", c.Request.URL.Path, path)
 	c.Request.URL.Path = path
-	c.Set(common.USER, &common.User{
+	user := &common.User{
 		Name:  apiKey.Creator.Creator,
 		Email: apiKey.Creator.CreatorEmail,
-	})
+	}
+	c.Set(common.USER, user)
+	// Also store in the request context so the user survives gin's HandleContext
+	// resetting c.Keys when rerouting from /rest/... to /plugins/...
+	c.Request = shared.SetRestAuthUser(c.Request, user)
 	return true
 }
