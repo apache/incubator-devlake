@@ -148,5 +148,6 @@ func All() []plugin.MigrationScript {
 		new(changeIssueComponentToText),
 		new(changeCqIssueCodeBlocksComponentToText),
 		new(addCqProjectMetricsHistory),
+		new(addSprintVelocityFields),
 	}
 }

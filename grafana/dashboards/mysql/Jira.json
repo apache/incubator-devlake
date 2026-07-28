@@ -1145,6 +1145,154 @@
       "type": "barchart"
     },
     {
+      "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 200,
+      "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "3. Sprint Velocity (Committed vs Completed, Closed Sprints)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Committed = sum of each issue's start-of-sprint estimate for issues that were part of the sprint when it began. Completed = sum of each issue's end-of-sprint estimate for issues Jira's Sprint Report marked done at sprint close. Requires the Jira Sprint Report collector to have run; sprints collected before that will show no bars here.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Story Points",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 201,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Jira Plugin Docs",
+          "url": "https://devlake.apache.org/docs/Plugins/jira"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "text": {
+          "valueSize": 12
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  s.name AS sprint,\n  s.committed_story_point AS 'Committed',\n  s.completed_story_point AS 'Completed'\nFROM sprints s\n  JOIN board_sprints bs ON bs.sprint_id = s.id\nWHERE\n  bs.board_id in (${board_id})\n  AND s.committed_story_point is not null\nORDER BY s.completed_date asc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sprints",
+          "timeColumn": "completed_date",
+          "timeColumnType": "timestamp",
+          "where": []
+        }
+      ],
+      "title": "Sprint Velocity: Committed vs Completed Story Points [Closed Sprints]",
+      "type": "barchart"
+    },
+    {
       "datasource": {
         "type": "datasource",
         "uid": "grafana"
@@ -1153,7 +1301,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 38
       },
       "id": 130,
       "options": {

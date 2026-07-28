@@ -16,8 +16,8 @@
 name: devlake-postgresql
 
 services:
-  postgres: 
-    image: postgres:17.2
+  postgres:
+    image: postgres:18.1
     volumes:
       - postgres-storage:/var/lib/postgresql
     restart: always
