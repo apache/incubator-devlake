@@ -62,7 +62,7 @@ RUN mv /root/go /go &&\
 
 # Install Golang Tools
 RUN export GOPATH=/go &&  \
-    go install github.com/vektra/mockery/v2@v2.53.6 &&  \
+    go install github.com/vektra/mockery/v3@v3.7.2 &&  \
     go install github.com/swaggo/swag/cmd/swag@v1.16.1
 
 # Golang Env
