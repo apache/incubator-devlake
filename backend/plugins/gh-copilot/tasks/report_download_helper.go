@@ -212,17 +212,11 @@ func parseRawReportResponse(res *http.Response, logger log.Logger) ([]json.RawMe
 		return nil, nil
 	}
 
-	var meta *reportMetadataResponse
-	if jsonErr := json.Unmarshal(body, &meta); jsonErr != nil {
-		snippet := string(body)
-		if len(snippet) > 200 {
-			snippet = snippet[:200]
-		}
-		logger.Error(jsonErr, "failed to parse report metadata, body=%s", snippet)
-		return nil, errors.Default.Wrap(jsonErr, "failed to parse report metadata")
-	}
-
-	meta, err := parseReportMetadataResponse(res, logger)
+	// Parse the metadata from the body we already read above. Previously this
+	// re-read res.Body via parseReportMetadataResponse, but the body had already
+	// been consumed by io.ReadAll, so the second read returned empty and the
+	// collector silently produced zero records (affecting enterprise metrics).
+	meta, err := parseReportMetadata(body, logger)
 	if err != nil || meta == nil {
 		return nil, err
 	}
