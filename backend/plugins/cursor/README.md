@@ -135,8 +135,6 @@ Grafana dashboard JSON lives under `grafana/dashboards/mysql/`:
 | AI Cost Efficiency (Cursor panels) | `ai-cost-efficiency.json` | — |
 | Multi-AI Comparison (Cursor panels) | `multi-ai-comparison.json` | — |
 
-See `grafana/dashboards/mysql/cursor-usage.json` for the dashboard definition and [rak_tools/grafana.md](../../../rak_tools/grafana.md) for currency formatting and Grafana version notes.
-
 ## Error handling
 
 | Symptom | Likely cause |
