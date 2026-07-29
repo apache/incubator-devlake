@@ -17,20 +17,29 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+)
 
-// All returns the ordered list of migration scripts for the Copilot plugin.
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addCopilotInitialTables),
-		new(addRawDataOriginToCopilotSeats),
-		new(addRawDataOriginToCopilotLanguageMetrics),
-		new(addNameFieldsToScopes),
-		new(addScopeConfig20260121),
-		new(migrateToUsageMetricsV2),
-		new(addPRFieldsToEnterpriseMetrics),
-		new(addOrganizationIdToUserMetrics),
-		new(addCopilotMetricsGaps),
-		new(addAiCreditUsageMetrics),
-	}
+type addAiCreditUsageMetrics struct{}
+
+func (u *addAiCreditUsageMetrics) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&models.GhCopilotEnterpriseAiCreditUsage{},
+		&models.GhCopilotOrgAiCreditUsage{},
+		&models.GhCopilotUserAiCreditUsage{},
+		&models.GhCopilotUserDailyMetrics{},
+	)
+}
+
+func (u *addAiCreditUsageMetrics) Version() uint64 {
+	return 20260708000000
+}
+
+func (u *addAiCreditUsageMetrics) Name() string {
+	return "add AI credit usage billing tables"
 }
