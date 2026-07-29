@@ -52,6 +52,7 @@ func (p Dbt) GetTablesInfo() []dal.Tabler {
 }
 
 func (p Dbt) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	taskCtx.GetLogger().Warn(nil, "The dbt plugin is deprecated and will be removed on August 31, 2026. Please migrate to alternative transformation approaches.")
 	var op tasks.DbtOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {

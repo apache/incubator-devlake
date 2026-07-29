@@ -50,7 +50,7 @@ class PullRequest(DomainModel, table=True):
 class PullRequestLabels(NoPKModel, table=True):
     __tablename__ = 'pull_request_labels'
     pull_request_id: str = Field(primary_key=True)
-    label_name: str
+    label_name: str = Field(primary_key=True)
 
 
 class PullRequestCommit(NoPKModel, table=True):
@@ -94,7 +94,7 @@ class Commit(NoPKModel, table=True):
 class CommitParent(NoPKModel, table=True):
     __tablename__ = 'commit_parents'
     commit_sha: str = Field(primary_key=True)
-    parent_commit_sha: str
+    parent_commit_sha: str = Field(primary_key=True)
 
 
 class CommitsDiff(DomainModel, table=True):
@@ -111,6 +111,7 @@ class RefCommit(NoPKModel, table=True):
     old_ref_id: str = Field(primary_key=True)
     new_commit_sha: str
     old_commit_sha: str
+
 
 class Component(NoPKModel, table=True):
     __tablename__ = 'components'

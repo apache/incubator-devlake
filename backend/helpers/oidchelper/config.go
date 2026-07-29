@@ -67,6 +67,11 @@ type Config struct {
 	Providers      map[string]*ProviderConfig
 	LogoutRedirect bool
 
+	// Optional OIDC authorization restrictions.
+	// Empty means no restriction.
+	AllowEmails  map[string]struct{}
+	AllowDomains map[string]struct{}
+
 	SessionSecret []byte
 	SessionTTL    time.Duration
 
@@ -88,11 +93,11 @@ func (c *Config) ProviderNames() []string {
 }
 
 // LoadConfig reads auth env vars via Viper and validates required fields.
-// AUTH_ENABLED defaults to true unless it is explicitly set to false.
+// AUTH_ENABLED defaults to false unless it is explicitly set to true.
 func LoadConfig(basicRes context.BasicRes) (*Config, error) {
 	cfg := basicRes.GetConfigReader()
 
-	authEnabled := true
+	authEnabled := false
 	if cfg.IsSet("AUTH_ENABLED") {
 		authEnabled = cfg.GetBool("AUTH_ENABLED")
 	}
@@ -136,6 +141,8 @@ func LoadConfig(basicRes context.BasicRes) (*Config, error) {
 		SessionTTL:     ttl,
 		CookieDomain:   strings.TrimSpace(cfg.GetString("COOKIE_DOMAIN")),
 		CookieSecure:   cookieSecure,
+		AllowEmails:    parseStringSet(cfg.GetString("OIDC_ALLOW_EMAILS")),
+		AllowDomains:   parseStringSet(cfg.GetString("OIDC_ALLOW_DOMAINS")),
 	}
 
 	if !out.OIDCEnabled {
@@ -205,6 +212,23 @@ func parseProviderNames(raw string) []string {
 		seen[n] = struct{}{}
 		out = append(out, n)
 	}
+
+	return out
+}
+
+func parseStringSet(raw string) map[string]struct{} {
+	out := make(map[string]struct{})
+
+	for _, v := range strings.Split(raw, ",") {
+		v = strings.ToLower(strings.TrimSpace(v))
+
+		if v == "" {
+			continue
+		}
+
+		out[v] = struct{}{}
+	}
+
 	return out
 }
 

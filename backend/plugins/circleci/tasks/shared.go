@@ -123,10 +123,15 @@ func ParseCircleciPageTokenResp(res *http.Response) ([]json.RawMessage, errors.E
 	return data.Items, err
 }
 
-func ignoreDeletedBuilds(res *http.Response) errors.Error {
-	// CircleCI API will return a 404 response for a workflow/job that has been deleted
-	// due to their data retention policy. We should ignore these errors.
-	if res.StatusCode == http.StatusNotFound {
+// ignoreDeletedOrBrokenBuilds skips per-item API failures that should not
+// abort an entire collector subtask. 404 means the resource was deleted
+// (retention); 500 means the CircleCI Server record is corrupt/stuck
+// (e.g. pipeline exists but its /workflow endpoint errors).
+func ignoreDeletedOrBrokenBuilds(res *http.Response) errors.Error {
+	switch res.StatusCode {
+	case http.StatusNotFound:
+		return api.ErrIgnoreAndContinue
+	case http.StatusInternalServerError:
 		return api.ErrIgnoreAndContinue
 	}
 	return nil

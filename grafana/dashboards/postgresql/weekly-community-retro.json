@@ -44,7 +44,7 @@
         "content": "- Use Cases: This dashboard can be used to track community growth by OSS maintainers.\n- Data Source Required: GitHub users' organizations are used to filter issues/PRs created by certain users. [Publicize users' org](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/publicizing-or-hiding-organization-membership) so that Apache DevLake can collect users' org.\n- This dashboard **DOES NOT** honor the time filter on the top-right corner.",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -85,7 +85,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -137,10 +137,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -192,7 +192,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -244,10 +244,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -299,7 +299,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -352,10 +352,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -407,7 +407,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -463,10 +463,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -500,7 +500,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -557,10 +557,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -594,7 +594,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -726,10 +726,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -781,7 +781,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -837,10 +837,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -874,7 +874,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1010,10 +1010,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1091,7 +1091,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1143,10 +1143,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1198,7 +1198,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1250,10 +1250,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1305,7 +1305,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1357,10 +1357,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1412,7 +1412,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1464,10 +1464,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1519,7 +1519,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1572,10 +1572,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -1609,7 +1609,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Contributors: the PR authors who have merged PR(s)",
       "fieldConfig": {
         "defaults": {
@@ -1665,10 +1665,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1720,7 +1720,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1777,10 +1777,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1832,7 +1832,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1916,10 +1916,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1971,7 +1971,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2054,10 +2054,10 @@
         "xTickLabelRotation": 45,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2109,7 +2109,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2156,10 +2156,10 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2211,7 +2211,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2263,10 +2263,10 @@
         },
         "valueMode": "color"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2338,7 +2338,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -2370,7 +2370,7 @@
             "$__all"
           ]
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT name || '-' || id AS text FROM repos",
         "hide": 0,
         "includeAll": true,
@@ -2391,7 +2391,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT type FROM issues",
         "hide": 0,
         "includeAll": true,
@@ -2416,7 +2416,7 @@
             "$__all"
           ]
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT organization FROM accounts WHERE organization <> ''",
         "description": "",
         "hide": 0,

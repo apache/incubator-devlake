@@ -77,7 +77,7 @@
         "content": "- Use Cases: This dashboard shows the incident data from PagerDuty.\n- Data Source Required: PagerDuty",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -116,7 +116,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "1. Total number of incidents created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -165,10 +165,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -218,7 +218,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -268,10 +268,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -321,7 +321,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "1. Total number of incidents created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -388,10 +388,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -441,7 +441,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -495,10 +495,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -548,7 +548,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -629,10 +629,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -708,7 +708,7 @@
       "type": "row"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -764,10 +764,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -818,7 +818,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -873,10 +873,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -927,7 +927,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1012,10 +1012,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1070,7 +1070,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "1. The cumulative distribution of MTTR\n2. Each point refers to the percent rank of a distinct duration to resolve incidents.",
       "fill": 0,
       "fillGradient": 4,
@@ -1107,7 +1107,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "pointradius": 0.5,
       "points": false,
       "renderer": "flot",
@@ -1117,7 +1117,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -1232,7 +1232,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -1265,7 +1265,7 @@
             "$__all"
           ]
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT name || '--' || id FROM boards WHERE id::text LIKE 'pagerduty%'",
         "hide": 0,
         "includeAll": true,

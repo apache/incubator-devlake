@@ -44,7 +44,7 @@
         "content": "- Use Cases: This dashboard answers the question \"What makes a great developer experience? And how can we define and track that?\". This dashboard heavily focuses on actionability. All metrics can be deterministically improved as long as OSS maintainers invested time into them.\n- Data Source Required: GitHub",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -59,7 +59,7 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -108,10 +108,10 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -145,7 +145,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -192,10 +192,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -229,7 +229,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -276,10 +276,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -313,7 +313,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -359,10 +359,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -414,7 +414,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -461,10 +461,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -498,7 +498,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -545,10 +545,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -582,7 +582,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -629,10 +629,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -684,7 +684,7 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -737,10 +737,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -812,7 +812,7 @@
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
           "datasource": {
@@ -840,7 +840,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "select concat(name, '-', id) from repos",
         "hide": 0,
         "includeAll": true,

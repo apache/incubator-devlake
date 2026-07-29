@@ -42,12 +42,12 @@
         "content": "- See [how to config](https://devlake.apache.org/docs/DORA) this dashboard\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- You can validate/debug this dashboard with the [DORA validation dashboard](/grafana/d/KGkUnV-Vz/dora-dashboard-validation)\n- DORA benchmarks vary in different years. You can switch the benchmarks to change them.\n- In DORA's official report in 2023, metric 'failed deployment recovery time' has replaced 'MTTR'.",
         "mode": "markdown"
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "title": "Dashboard Introduction",
       "type": "text"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -211,10 +211,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -266,7 +266,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "How often an organization deploys code to production or release it to end users\n\n# 2023 Benchmarks\n- **Elite**: >= 7 deployment days per week\n- **High**: >= 1 deployment day per week\n- **Medium**: >= 1 deployment day per month\n- **Low**: < 1 deployment day per month\n# 2021 Benchmarks\n- **Elite**: >= 7 deployment days per week\n- **High**: >= 1 deployment day per month\n- **Medium**: >= 1  deployment day per six months\n- **Low**: < 1 deployment day per six months",
       "fieldConfig": {
         "defaults": {
@@ -358,10 +358,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -413,7 +413,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "The median amount of time for a code change to be deployed into production.\n\n\n# 2023 Benchmarks\n- **Elite**: Less than one day\n- **High**: Between one day and one week\n- **Medium**: Between one week and one month\n- **Low**: More than one month\n# 2021 Benchmarks\n- **Elite**: Less than one hour\n- **High**: Less than one week\n- **Medium**: Between one week and six months\n- **Low**: More than six months\n",
       "fieldConfig": {
         "defaults": {
@@ -504,10 +504,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -559,7 +559,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "The percentage of changes that were made to a code that then resulted in incidents, rollbacks, or any type of production failure.\n\n# 2023 Benchmarks\n- **Elite**: (0, 5%]\n- **High**: (5%, 10%]\n- **Medium**: (10%, 15%]\n- **Low**: (15%, 100%]\n# 2021 Benchmarks\n- **Elite**: (0, 15%]\n- **High**: (16%, 20%]\n- **Medium**: (21%, 30%]\n- **Low**: (30%, 100%]\n",
       "fieldConfig": {
         "defaults": {
@@ -651,10 +651,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -706,7 +706,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "# MTTR benchmarks:\ndevlake.apache.org/docs/Metrics/MTTR#how-is-it-calculated\n# FDRT benchmarks:\ndevlake.apache.org/docs/Metrics/FailedDeploymentRecoveryTime#how-is-it-calculated\n",
       "fieldConfig": {
         "defaults": {
@@ -805,10 +805,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -860,7 +860,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -941,10 +941,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -996,7 +996,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1074,10 +1074,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1129,7 +1129,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1228,10 +1228,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1283,7 +1283,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1386,10 +1386,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1458,7 +1458,7 @@
             "$__all"
           ]
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT DISTINCT name FROM projects",
         "includeAll": true,
         "label": "Project",
@@ -1475,7 +1475,7 @@
           "text": "2023",
           "value": "2023"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT dora_report FROM dora_benchmarks",
         "includeAll": false,
         "label": "DORA Report",
@@ -1491,7 +1491,7 @@
           "text": "Failed Deployment Recovery Time",
           "value": "Failed Deployment Recovery Time"
         },
-        "datasource": "postgresql",
+        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
         "definition": "SELECT CASE WHEN dora_report = '2023' THEN 'Failed Deployment Recovery Time' WHEN dora_report = '2021' THEN 'Median Time to Restore Service' ELSE NULL END AS title_value FROM dora_benchmarks WHERE dora_report = '${dora_report:raw}'",
         "hide": 2,
         "includeAll": false,

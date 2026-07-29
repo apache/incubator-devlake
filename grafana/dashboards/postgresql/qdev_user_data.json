@@ -19,7 +19,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Overview of key user metrics",
       "fieldConfig": {
         "defaults": {
@@ -63,10 +63,10 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -115,7 +115,7 @@
       "type": "stat"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily AI code line changes across all users",
       "fieldConfig": {
         "defaults": {
@@ -192,10 +192,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -244,7 +244,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily AI interaction trends across all users",
       "fieldConfig": {
         "defaults": {
@@ -321,10 +321,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -373,7 +373,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Code review metrics over time",
       "fieldConfig": {
         "defaults": {
@@ -450,10 +450,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -501,7 +501,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily acceptance rate of AI suggestions",
       "fieldConfig": {
         "defaults": {
@@ -578,10 +578,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -630,7 +630,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "User AI interaction metrics",
       "fieldConfig": {
         "defaults": {
@@ -721,10 +721,10 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -773,7 +773,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily doc generation events and accepted/rejected lines",
       "fieldConfig": {
         "defaults": {
@@ -850,10 +850,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -902,7 +902,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily test generation events and lines",
       "fieldConfig": {
         "defaults": {
@@ -979,10 +979,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -1031,7 +1031,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily agentic dev events and lines",
       "fieldConfig": {
         "defaults": {
@@ -1108,10 +1108,10 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "editorMode": "code",
           "format": "time_series",
           "group": [],

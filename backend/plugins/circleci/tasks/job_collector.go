@@ -41,6 +41,20 @@ var CollectJobsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
+// UnfinishedJobsInputClauses returns the DAL clauses that select the workflows whose
+// jobs are still in a non-terminal status and therefore need their job details
+// recollected by the CollectJobs "unfinished details" collector.
+func UnfinishedJobsInputClauses(connectionId uint64, projectSlug string) []dal.Clause {
+	return []dal.Clause{
+		dal.Select("DISTINCT workflow_id AS id"), // #8907: alias to id so {{ .Input.Id }} resolves when scanned into CircleciJob
+		dal.From(&models.CircleciJob{}),
+		dal.Where(
+			"connection_id = ? AND project_slug = ? AND status IN ('running', 'not_running', 'queued', 'on_hold')",
+			connectionId, projectSlug,
+		),
+	}
+}
+
 func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
 	logger := taskCtx.GetLogger()
@@ -59,8 +73,10 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					dal.Where("connection_id = ? and project_slug = ?", data.Options.ConnectionId, data.Options.ProjectSlug),
 				}
 
-				if isIncremental {
-					clauses = append(clauses, dal.Where("created_date > ?", createdAfter))
+				// Incremental: workflows newer than last successful collectJobs.
+				// Full sync: workflows within SyncPolicy.TimeAfter window.
+				if createdAfter != nil {
+					clauses = append(clauses, dal.Where("created_date >= ?", createdAfter))
 				}
 
 				db := taskCtx.GetDal()
@@ -74,7 +90,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate:    "/v2/workflow/{{ .Input.Id }}/job",
 				Query:          BuildQueryParamsWithPageToken,
 				ResponseParser: ParseCircleciPageTokenResp,
-				AfterResponse:  ignoreDeletedBuilds, // Ignore the 404 response if a workflow has been deleted
+				AfterResponse:  ignoreDeletedOrBrokenBuilds,
 			},
 			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
 				var job struct { // Individual job response lacks created_at field, so have to use started_at
@@ -91,17 +107,11 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate:    "/v2/workflow/{{ .Input.Id }}/job", // The individual job endpoint has different fields so need to recollect all jobs for a workflow
 				Query:          BuildQueryParamsWithPageToken,
 				ResponseParser: ParseCircleciPageTokenResp,
-				AfterResponse:  ignoreDeletedBuilds,
+				AfterResponse:  ignoreDeletedOrBrokenBuilds,
 			},
 			BuildInputIterator: func() (api.Iterator, errors.Error) {
-				clauses := []dal.Clause{
-					dal.Select("DISTINCT workflow_id"), // Only need to recollect jobs for a workflow once
-					dal.From(&models.CircleciJob{}),
-					dal.Where("connection_id = ? AND project_slug = ? AND status IN ('running', 'not_running', 'queued', 'on_hold')", data.Options.ConnectionId, data.Options.ProjectSlug),
-				}
-
 				db := taskCtx.GetDal()
-				cursor, err := db.Cursor(clauses...)
+				cursor, err := db.Cursor(UnfinishedJobsInputClauses(data.Options.ConnectionId, data.Options.ProjectSlug)...)
 				if err != nil {
 					return nil, err
 				}

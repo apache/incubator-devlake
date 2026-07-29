@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -95,9 +94,9 @@ func CollectUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	var urlTemplate string
 
 	if connection.HasEnterprise() {
-		urlTemplate = fmt.Sprintf("enterprises/%s/copilot/metrics/reports/users-1-day", connection.Enterprise)
+		urlTemplate = copilotAPIPath("enterprises", connection.Enterprise, "copilot/metrics/reports/users-1-day")
 	} else if connection.Organization != "" {
-		urlTemplate = fmt.Sprintf("orgs/%s/copilot/metrics/reports/users-1-day", connection.Organization)
+		urlTemplate = copilotAPIPath("orgs", connection.Organization, "copilot/metrics/reports/users-1-day")
 	} else {
 		return nil
 	}

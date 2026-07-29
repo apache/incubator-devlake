@@ -308,6 +308,12 @@ func (s *Service) Callback(c *gin.Context) {
 		fail(c, http.StatusBadGateway, "extract claims", err)
 		return
 	}
+
+	if !s.cfg.IsUserAllowed(email) {
+		fail(c, http.StatusForbidden, "user is not allowed", nil)
+		return
+	}
+
 	jti := uuid.NewString()
 	jwt, expiresAt, err := oidchelper.IssueSession(s.cfg, jti, state.Provider, sub, email, name)
 	if err != nil {

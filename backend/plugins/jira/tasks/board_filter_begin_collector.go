@@ -41,14 +41,18 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("collect board in collectBoardFilterBegin: %d", data.Options.BoardId)
-	// get board filter id
-	filterId, err := getBoardFilterId(data)
+
+	boardConfig, err := getBoardConfiguration(data)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter id for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting board configuration for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
+	filterId := boardConfig.Filter.ID
 	logger.Info("collect board filter:%s", filterId)
 
-	// get board filter jql
+	if boardConfig.SubQuery.Query != "" {
+		logger.Warn(nil, "board %d has kanban sub-filter: %s — using saved filter JQL for collection to avoid silent issue exclusion", data.Options.BoardId, boardConfig.SubQuery.Query)
+	}
+
 	filterInfo, err := getBoardFilterJql(data, filterId)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error getting board filter jql for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
@@ -62,17 +66,21 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Default.Wrap(err, fmt.Sprintf("error finding record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
 	}
 
+	// Store filter ID and sub-query on task data for downstream subtasks
+	data.FilterId = filterId
+	record.SubQuery = boardConfig.SubQuery.Query
+
 	// full sync
 	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	if syncPolicy != nil && syncPolicy.FullSync {
 		if record.Jql != jql {
 			record.Jql = jql
-			err = db.Update(&record, dal.Where("connection_id = ? AND board_id = ? ", data.Options.ConnectionId, data.Options.BoardId))
-			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("error updating record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
-			}
-			logger.Info("full sync mode, update jql to %s", record.Jql)
 		}
+		err = db.Update(&record, dal.Where("connection_id = ? AND board_id = ? ", data.Options.ConnectionId, data.Options.BoardId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("error updating record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
+		}
+		logger.Info("full sync mode, update jql to %s", record.Jql)
 		return nil
 	}
 
@@ -92,7 +100,6 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 		flag := cfg.GetBool("JIRA_JQL_AUTO_FULL_REFRESH")
 		if flag {
 			logger.Info("connection_id:%d board_id:%d filter jql has changed, And the previous jql is %s, now jql is %s, run it in fullSync mode", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql)
-			// set full sync
 			taskCtx.TaskContext().SetSyncPolicy(&coreModels.SyncPolicy{TriggerSyncPolicy: coreModels.TriggerSyncPolicy{FullSync: true}})
 			record.Jql = jql
 			err = db.Update(&record, dal.Where("connection_id = ? AND board_id = ? ", data.Options.ConnectionId, data.Options.BoardId))
@@ -102,24 +109,28 @@ func CollectBoardFilterBegin(taskCtx plugin.SubTaskContext) errors.Error {
 		} else {
 			return errors.Default.New(fmt.Sprintf("connection_id:%d board_id:%d filter jql has changed, please use fullSync mode. And the previous jql is %s, now jql is %s", data.Options.ConnectionId, data.Options.BoardId, record.Jql, jql))
 		}
+	} else {
+		// JQL unchanged but sub-query may have changed — persist it
+		err = db.Update(&record, dal.Where("connection_id = ? AND board_id = ? ", data.Options.ConnectionId, data.Options.BoardId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("error updating record in _tool_jira_boards table for connection_id:%d board_id:%d", data.Options.ConnectionId, data.Options.BoardId))
+		}
 	}
-	// no change
 	return nil
 }
 
-func getBoardFilterId(data *JiraTaskData) (string, error) {
+func getBoardConfiguration(data *JiraTaskData) (*BoardConfiguration, error) {
 	url := fmt.Sprintf("agile/1.0/board/%d/configuration", data.Options.BoardId)
 	boardConfiguration, err := data.ApiClient.Get(url, nil, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	bc := &BoardConfiguration{}
 	err = helper.UnmarshalResponse(boardConfiguration, bc)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	filterId := bc.Filter.ID
-	return filterId, nil
+	return bc, nil
 }
 
 func getBoardFilterJql(data *JiraTaskData, filterId string) (*FilterInfo, error) {
@@ -141,6 +152,9 @@ type BoardConfiguration struct {
 	Name     string `json:"name"`
 	Type     string `json:"type"`
 	Self     string `json:"self"`
+	SubQuery struct {
+		Query string `json:"query"`
+	} `json:"subQuery"`
 	Location struct {
 		Type string `json:"type"`
 		Key  string `json:"key"`

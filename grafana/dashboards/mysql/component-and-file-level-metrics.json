@@ -128,10 +128,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -243,10 +243,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "group": [],
           "hide": false,
@@ -385,10 +385,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -518,10 +518,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -678,10 +678,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -779,10 +779,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -834,7 +834,7 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
       "fieldConfig": {
         "defaults": {
@@ -910,10 +910,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1044,10 +1044,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1125,7 +1125,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
       "fieldConfig": {
         "defaults": {
@@ -1201,10 +1201,10 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1256,7 +1256,7 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Please disable the SkipCommitFiles in the .env setting to view this metric. However, this will significantly increase the time to collect data.",
       "fieldConfig": {
         "defaults": {
@@ -1306,10 +1306,10 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1378,7 +1378,7 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "select concat(name, '--', id) as text from repos",
         "hide": 0,
         "includeAll": true,

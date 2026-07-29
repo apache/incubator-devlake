@@ -18,20 +18,21 @@ limitations under the License.
 package tasks
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
@@ -51,78 +52,143 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	apiCollector, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
-		/*
-			This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-			set of data to be process, for example, we process JiraIssues by Board
-		*/
 		Params: JiraApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			BoardId:      data.Options.BoardId,
 		},
-		/*
-			Table store raw data
-		*/
 		Table: RAW_ISSUE_TABLE,
 	})
 	if err != nil {
 		return err
 	}
 
-	// build jql
-	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
-	//  `updated`, issue will be jumping between pages if it got updated during the collection process
+	// IMPORTANT: we sort by `created ASC` to keep paginated data in a consistent order.
+	// Sorting by `updated` would cause issues to jump between pages during collection.
 	loc, err := getTimeZone(taskCtx)
 	if err != nil {
 		logger.Info("failed to get timezone, err: %v", err)
 	} else {
 		logger.Info("got user's timezone: %v", loc.String())
 	}
-	jql := "ORDER BY created ASC"
+	incrementalJql := "ORDER BY created ASC"
 	if apiCollector.GetSince() != nil {
-		jql = buildJQL(*apiCollector.GetSince(), loc)
+		incrementalJql = buildJQL(*apiCollector.GetSince(), loc)
 	}
 
-	err = apiCollector.InitCollector(api.ApiCollectorArgs{
-		ApiClient: data.ApiClient,
-		PageSize:  data.Options.PageSize,
-		/*
-			url may use arbitrary variables from different connection in any order, we need GoTemplate to allow more
-			flexible for all kinds of possibility.
-			Pager contains information for a particular page, calculated by ApiCollector, and will be passed into
-			GoTemplate to generate a url for that page.
-			We want to do page-fetching in ApiCollector, because the logic are highly similar, by doing so, we can
-			avoid duplicate logic for every tasks, and when we have a better idea like improving performance, we can
-			do it in one place
-		*/
-		UrlTemplate: "agile/1.0/board/{{ .Params.BoardId }}/issue",
-		/*
-			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
-		*/
+	// Use the search API with `filter = {id}` JQL instead of the board Agile API.
+	// The board Agile API applies kanban sub-filters server-side, which silently
+	// excludes resolved issues (e.g. those with a released fixVersion).
+	// The search API with the saved filter JQL returns all matching issues.
+	var extraJql string
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.ExtraJQL != "" {
+		renderedJql, renderErr := renderExtraJQL(data.Options.ScopeConfig.ExtraJQL, data)
+		if renderErr != nil {
+			return renderErr
+		}
+		extraJql = renderedJql
+	}
+	filterJql := buildFilterJQL(data.FilterId, extraJql, incrementalJql)
+	logger.Info("collecting issues via search API with JQL: %s", filterJql)
+
+	pageSize := data.Options.PageSize
+	if pageSize == 0 {
+		pageSize = 100
+	}
+
+	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
+		logger.Info("Using api/2/search for JIRA Server issue collection")
+		err = setupIssueV2Collector(apiCollector, data, filterJql, pageSize)
+	} else {
+		logger.Info("Using api/3/search/jql for JIRA Cloud issue collection")
+		err = setupIssueV3Collector(apiCollector, data, filterJql, pageSize)
+	}
+	if err != nil {
+		return err
+	}
+
+	return apiCollector.Execute()
+}
+
+// JqlTemplateData holds the variables available inside an ExtraJQL template.
+// Users reference these with Go template syntax, e.g. `{{.BoardName}}`.
+type JqlTemplateData struct {
+	BoardId   uint64 // numeric ID of the connected Jira board
+	BoardName string // display name of the connected Jira board
+}
+
+// renderExtraJQL executes the ExtraJQL scope-config field as a Go text/template,
+// substituting board-level variables so the same scope config can produce
+// different JQL for different boards.
+//
+// The template is parsed with an empty FuncMap (no built-in helpers such as
+// printf) and missingkey=error so that typos in variable names produce an
+// explicit error rather than silently rendering "<no value>".
+func renderExtraJQL(tmplStr string, data *JiraTaskData) (string, errors.Error) {
+	tmpl, err := template.New("extraJql").
+		Funcs(template.FuncMap{}).
+		Option("missingkey=error").
+		Parse(tmplStr)
+	if err != nil {
+		return "", errors.BadInput.Wrap(err, "invalid ExtraJQL template")
+	}
+
+	vars := JqlTemplateData{
+		BoardId: data.Options.BoardId,
+	}
+	if data.Board != nil {
+		vars.BoardName = data.Board.Name
+	}
+
+	var buf bytes.Buffer
+	if execErr := tmpl.Execute(&buf, vars); execErr != nil {
+		return "", errors.BadInput.Wrap(execErr, "failed to render ExtraJQL template")
+	}
+	return buf.String(), nil
+}
+
+// buildFilterJQL composes a final JQL query from three inputs:
+//   - filterId: a Jira saved-filter ID (referenced via `filter = {id}`)
+//   - extraJql: optional user-supplied JQL fragment appended as an AND condition
+//     (e.g. `project = "MyComponent"`) to scope a large board down to one project
+//   - incrementalJql: the time-based clause generated by buildJQL, always ending
+//     with "ORDER BY created ASC"
+//
+// extraJql is wrapped in parentheses so that any OR/NOT operators inside it
+// do not interfere with the surrounding AND chain.
+func buildFilterJQL(filterId string, extraJql string, incrementalJql string) string {
+	const orderBy = "ORDER BY created ASC"
+
+	var conditions []string
+	if filterId != "" {
+		conditions = append(conditions, fmt.Sprintf("filter = %s", filterId))
+	}
+	if extraJql != "" {
+		conditions = append(conditions, fmt.Sprintf("(%s)", extraJql))
+	}
+	if incrementalJql != orderBy {
+		// strip the trailing " ORDER BY created ASC" to isolate the time condition
+		conditions = append(conditions, strings.TrimSuffix(incrementalJql, " "+orderBy))
+	}
+
+	if len(conditions) == 0 {
+		return orderBy
+	}
+	return strings.Join(conditions, " AND ") + " " + orderBy
+}
+
+func setupIssueV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int) errors.Error {
+	return apiCollector.InitCollector(api.ApiCollectorArgs{
+		ApiClient:   data.ApiClient,
+		PageSize:    pageSize,
+		UrlTemplate: "api/2/search",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("jql", jql)
+			query.Set("jql", filterJql)
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("expand", "changelog")
 			return query, nil
 		},
-		/*
-			Some api might do pagination by http headers
-		*/
-		//Header: func(pager *plugin.Pager) http.Header {
-		//},
-		/*
-			Sometimes, we need to collect data based on previous collected data, like jira changelog, it requires
-			issue_id as part of the url.
-			We can mimic `stdin` design, to accept a `Input` function which produces a `Iterator`, collector
-			should iterate all records, and do data-fetching for each on, either in parallel or sequential order
-			UrlTemplate: "api/3/issue/{{ Input.ID }}/changelog"
-		*/
-		//Input: databaseIssuesIterator,
-		/*
-			For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
-			or other techniques are required if this information was missing.
-		*/
 		GetTotalPages: GetTotalPagesFromResponse,
 		Concurrency:   10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
@@ -140,11 +206,40 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return data.Issues, nil
 		},
 	})
-	if err != nil {
-		return err
-	}
+}
 
-	return apiCollector.Execute()
+func setupIssueV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int) errors.Error {
+	return apiCollector.InitCollector(api.ApiCollectorArgs{
+		ApiClient:             data.ApiClient,
+		PageSize:              pageSize,
+		UrlTemplate:           "api/3/search/jql",
+		GetNextPageCustomData: getNextPageCustomDataForV3,
+		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
+			query := url.Values{}
+			query.Set("jql", filterJql)
+			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("expand", "changelog")
+			query.Set("fields", "*all")
+			if reqData.CustomData != nil {
+				query.Set("nextPageToken", reqData.CustomData.(string))
+			}
+			return query, nil
+		},
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+			var data struct {
+				Issues []json.RawMessage `json:"issues"`
+			}
+			blob, err := io.ReadAll(res.Body)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+			err = json.Unmarshal(blob, &data)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+			return data.Issues, nil
+		},
+	})
 }
 
 // buildJQL build jql based on timeAfter and incremental mode
