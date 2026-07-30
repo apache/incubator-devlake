@@ -39,6 +39,7 @@ type JiraTaskData struct {
 	JiraServerInfo models.JiraServerInfo
 	FilterId       string
 	Board          *models.JiraBoard
+	ProjectName    string
 }
 
 type JiraApiParams models.JiraApiParams

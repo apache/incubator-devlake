@@ -25,6 +25,8 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/api"
@@ -255,6 +257,19 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
 		Board:          scope,
+	}
+
+	// Resolve the Devlake project name from the project_mapping table so it can
+	// be used as a template variable in ExtraJQL
+	if scope != nil {
+		rowId := didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(scope.ConnectionId, scope.BoardId)
+		var mapping crossdomain.ProjectMapping
+		err = db.First(&mapping, dal.Where("`table` = ? AND `row_id` = ?", "boards", rowId))
+		if err == nil {
+			taskData.ProjectName = mapping.ProjectName
+		} else if !db.IsErrorNotFound(err) {
+			logger.Error(err, "failed to load project mapping for board %s", rowId)
+		}
 	}
 
 	return taskData, nil
