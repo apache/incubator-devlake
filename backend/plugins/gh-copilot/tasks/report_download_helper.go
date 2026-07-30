@@ -95,15 +95,6 @@ type reportMetadataResponse struct {
 	ReportEndDay   string `json:"report_end_day"`
 }
 
-func readReportMetadataBody(res *http.Response) ([]byte, errors.Error) {
-	body, readErr := io.ReadAll(res.Body)
-	res.Body.Close()
-	if readErr != nil {
-		return nil, errors.Default.Wrap(readErr, "failed to read report metadata")
-	}
-	return body, nil
-}
-
 func logReportMetadataParseError(body []byte, err error, logger log.Logger) {
 	if logger == nil {
 		return
@@ -163,23 +154,6 @@ func parseReportMetadata(body []byte, logger log.Logger) (*reportMetadataRespons
 	logMissingDownloadLinks(meta, logger)
 
 	return &meta, nil
-}
-
-func parseReportMetadataResponse(res *http.Response, logger log.Logger) (*reportMetadataResponse, errors.Error) {
-	if res.StatusCode == http.StatusNoContent {
-		if logger != nil {
-			logger.Info("Report metadata not ready yet (204), skipping for now")
-		}
-		res.Body.Close()
-		return nil, nil
-	}
-
-	body, readErr := readReportMetadataBody(res)
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	return parseReportMetadata(body, logger)
 }
 
 func collectRawReportRecords(meta *reportMetadataResponse, logger log.Logger) ([]json.RawMessage, errors.Error) {
