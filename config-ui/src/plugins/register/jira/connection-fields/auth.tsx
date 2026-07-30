@@ -23,8 +23,10 @@ import { Radio, Input } from 'antd';
 import { Block, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
-const JIRA_CLOUD_REGEX = /^https:\/\/\w+.atlassian.net\/rest\/$/;
+const JIRA_CLOUD_REGEX   = /^https:\/\/\w+\.atlassian\.net\/rest\/$/;
+const JIRA_GATEWAY_REGEX = /^https:\/\/api\.atlassian\.com\/ex\/jira\/[^/]+\/rest\/$/;
 
+type JiraVersion = 'cloud' | 'gateway' | 'server';
 type Method = 'BasicAuth' | 'AccessToken';
 
 interface Props {
@@ -37,10 +39,17 @@ interface Props {
 }
 
 export const Auth = ({ type, initialValues, values, setValues, setErrors }: Props) => {
-  const [version, setVersion] = useState('cloud');
+  const [version, setVersion] = useState<JiraVersion>('cloud');
+  const [cloudId, setCloudId] = useState('');
 
   useEffect(() => {
-    if (initialValues.endpoint && !JIRA_CLOUD_REGEX.test(initialValues.endpoint)) {
+    if (!initialValues.endpoint) return;
+    if (JIRA_GATEWAY_REGEX.test(initialValues.endpoint)) {
+      setVersion('gateway');
+      // Extract the Cloud ID from the saved endpoint so the field pre-fills on edit
+      const match = initialValues.endpoint.match(/\/ex\/jira\/([^/]+)\//);
+      if (match) setCloudId(match[1]);
+    } else if (!JIRA_CLOUD_REGEX.test(initialValues.endpoint)) {
       setVersion('server');
     }
   }, [initialValues.endpoint]);
@@ -73,22 +82,32 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
   }, [values]);
 
   const handleChangeVersion = (e: RadioChangeEvent) => {
-    const version = e.target.value;
-
+    const v = e.target.value as JiraVersion;
+    setCloudId('');
     setValues({
       endpoint: '',
-      authMethod: 'BasicAuth',
+      // Gateway always uses AccessToken (scoped API token); others default to BasicAuth
+      authMethod: v === 'gateway' ? 'AccessToken' : 'BasicAuth',
       username: undefined,
       password: undefined,
       token: undefined,
     });
-
-    setVersion(version);
+    setVersion(v);
   };
 
   const handleChangeEndpoint = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({
       endpoint: e.target.value,
+    });
+  };
+
+  const handleChangeCloudId = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const id = e.target.value.trim();
+    setCloudId(id);
+    // Auto-construct the gateway endpoint from the Cloud ID so the user never
+    // has to type the full URL manually.
+    setValues({
+      endpoint: id ? `https://api.atlassian.com/ex/jira/${id}/rest/` : '',
     });
   };
 
@@ -124,32 +143,64 @@ export const Auth = ({ type, initialValues, values, setValues, setErrors }: Prop
       <Block title="Jira Version" required>
         <Radio.Group value={version} onChange={handleChangeVersion}>
           <Radio value="cloud">Jira Cloud</Radio>
+          <Radio value="gateway">Jira Cloud (Atlassian API Gateway)</Radio>
           <Radio value="server">Jira Server / Jira Data Center</Radio>
         </Radio.Group>
 
-        <Block
-          style={{ marginTop: 8, marginBottom: 0 }}
-          title="Endpoint URL"
-          description={
-            <>
-              {version === 'cloud'
-                ? 'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/. Please note that the endpoint URL should end with /.'
-                : ''}
-              {version === 'server'
-                ? 'Provide the Jira instance API endpoint. For Jira Server / Jira Data Center, e.g. https://jira.your-company.com/rest/. Please note that the endpoint URL should end with /.'
-                : ''}
-            </>
-          }
-          required
-        >
-          <Input
-            style={{ width: 386 }}
-            placeholder="Your Endpoint URL"
-            value={values.endpoint}
-            onChange={handleChangeEndpoint}
-          />
-        </Block>
+        {version !== 'gateway' && (
+          <Block
+            style={{ marginTop: 8, marginBottom: 0 }}
+            title="Endpoint URL"
+            description={
+              <>
+                {version === 'cloud'
+                  ? 'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/. Please note that the endpoint URL should end with /.'
+                  : ''}
+                {version === 'server'
+                  ? 'Provide the Jira instance API endpoint. For Jira Server / Jira Data Center, e.g. https://jira.your-company.com/rest/. Please note that the endpoint URL should end with /.'
+                  : ''}
+              </>
+            }
+            required
+          >
+            <Input
+              style={{ width: 386 }}
+              placeholder="Your Endpoint URL"
+              value={values.endpoint}
+              onChange={handleChangeEndpoint}
+            />
+          </Block>
+        )}
       </Block>
+
+      {version === 'gateway' && (
+        <>
+          <Block
+            title="Cloud ID"
+            description="Your Atlassian Cloud ID. Find it at admin.atlassian.com → Settings → Organisation."
+            required
+          >
+            <Input
+              style={{ width: 386 }}
+              placeholder="e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+              value={cloudId}
+              onChange={handleChangeCloudId}
+            />
+          </Block>
+          <Block
+            title="Scoped API Token"
+            description="API token for your Atlassian Managed Service Account with Jira read scopes."
+            required
+          >
+            <Input.Password
+              style={{ width: 386 }}
+              placeholder={type === 'update' ? '********' : 'Your Scoped API Token'}
+              value={values.token}
+              onChange={handleChangeToken}
+            />
+          </Block>
+        </>
+      )}
 
       {version === 'cloud' && (
         <>
