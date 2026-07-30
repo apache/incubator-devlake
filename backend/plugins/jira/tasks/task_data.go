@@ -31,6 +31,13 @@ type JiraOptions struct {
 	ScopeConfig   *models.JiraScopeConfig `json:"scopeConfig" mapstructure:"scopeConfig"`
 	ScopeConfigId uint64                  `json:"scopeConfigId" mapstructure:"scopeConfigId"`
 	PageSize      int                     `json:"pageSize" mapstructure:"pageSize"`
+	// ProjectName is the Devlake project this pipeline run belongs to. It is
+	// injected generically into every plugin's task options by
+	// services.GeneratePlanJsonV200, not set by Jira's own blueprint plan
+	// builder, since that's the only place in the framework where the
+	// running project is known unambiguously (a board scope can be attached
+	// to more than one Devlake project).
+	ProjectName string `json:"projectName" mapstructure:"projectName,omitempty"`
 }
 
 type JiraTaskData struct {

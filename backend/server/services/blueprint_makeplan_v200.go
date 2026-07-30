@@ -70,6 +70,23 @@ func GeneratePlanJsonV200(
 		}
 	}
 
+	// let every task know which Devlake project it's running for, so plugins
+	// can use it (e.g. Jira's ExtraJQL {{.ProjectName}}) without needing
+	// project context threaded through their own blueprint-plan-building
+	// logic. Unrecognized map keys are ignored by mapstructure decoding, so
+	// this is safe for plugins that don't care about it.
+	if projectName != "" {
+		for _, plan := range sourcePlans {
+			for _, stage := range plan {
+				for _, task := range stage {
+					if task.Options != nil {
+						task.Options["projectName"] = projectName
+					}
+				}
+			}
+		}
+	}
+
 	// skip collectors
 	if skipCollectors {
 		for i, plan := range sourcePlans {

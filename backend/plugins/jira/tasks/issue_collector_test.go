@@ -143,10 +143,11 @@ func Test_buildFilterJQL(t *testing.T) {
 }
 
 func Test_renderExtraJQL(t *testing.T) {
-	makeData := func(boardId uint64, boardName string, _ string) *JiraTaskData {
+	makeData := func(boardId uint64, boardName string, projectName string) *JiraTaskData {
 		return &JiraTaskData{
-			Options: &JiraOptions{BoardId: boardId},
-			Board:   &models.JiraBoard{BoardId: boardId, Name: boardName},
+			Options:     &JiraOptions{BoardId: boardId},
+			Board:       &models.JiraBoard{BoardId: boardId, Name: boardName},
+			ProjectName: projectName,
 		}
 	}
 
@@ -180,6 +181,18 @@ func Test_renderExtraJQL(t *testing.T) {
 			tmpl: `project = "{{.BoardName}}"`,
 			data: &JiraTaskData{Options: &JiraOptions{BoardId: 1}, Board: nil},
 			want: `project = ""`,
+		},
+		{
+			name: "ProjectName substitution",
+			tmpl: `labels = "{{.ProjectName}}"`,
+			data: makeData(1, "My Board", "My Devlake Project"),
+			want: `labels = "My Devlake Project"`,
+		},
+		{
+			name: "board with no mapped Devlake project falls back to empty ProjectName",
+			tmpl: `labels = "{{.ProjectName}}"`,
+			data: makeData(1, "My Board", ""),
+			want: `labels = ""`,
 		},
 		{
 			name:    "invalid template returns error",

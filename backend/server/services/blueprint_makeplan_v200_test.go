@@ -29,6 +29,7 @@ import (
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/org/tasks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestMakePlanV200(t *testing.T) {
@@ -100,4 +101,46 @@ func TestMakePlanV200(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, expectedPlan, plan)
+}
+
+// TestMakePlanV200InjectsProjectNameIntoDataSourceTaskOptions verifies that
+// GeneratePlanJsonV200 stamps the running Devlake project's name into every
+// data-source task's options, without requiring the plugin's own
+// MakeDataSourcePipelinePlanV200 implementation to know about it. This is
+// what lets a scope shared by multiple projects (e.g. a Jira board added to
+// two different Devlake projects) resolve the correct project per pipeline
+// run instead of guessing from a many-to-one reverse lookup.
+func TestMakePlanV200InjectsProjectNameIntoDataSourceTaskOptions(t *testing.T) {
+	const projectName = "TestMakePlanV200InjectsProjectName-project"
+	jiraName := "TestMakePlanV200InjectsProjectName-jira"
+	connId := uint64(1)
+	scopes := []*coreModels.BlueprintScope{{ScopeId: "jira:JiraBoard:1:1"}}
+	outputPlan := coreModels.PipelinePlan{
+		{
+			{Plugin: jiraName, Options: map[string]interface{}{"boardId": float64(1)}},
+		},
+	}
+	jira := new(mockplugin.CompositeDataSourcePluginBlueprintV200)
+	jira.On("MakeDataSourcePipelinePlanV200", connId, scopes).Return(outputPlan, []plugin.Scope(nil), nil)
+	plugin.RegisterPlugin(jiraName, jira)
+
+	// GeneratePlanJsonV200 also calls the "org" plugin's ProjectMapper
+	// whenever projectName != "". Re-register it here (overwriting any
+	// registration from other tests in this package) with permissive
+	// matchers, since this test doesn't care about project_mapping.
+	org := new(mockplugin.CompositeProjectMapper)
+	org.On("MapProject", mock.Anything, mock.Anything).Return(coreModels.PipelinePlan{}, nil)
+	plugin.RegisterPlugin("org", org)
+
+	connections := []*coreModels.BlueprintConnection{
+		{PluginName: jiraName, ConnectionId: connId, Scopes: scopes},
+	}
+
+	plan, err := GeneratePlanJsonV200(projectName, connections, nil, false)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(plan))
+	assert.Equal(t, 1, len(plan[0]))
+	assert.Equal(t, projectName, plan[0][0].Options["projectName"])
+	// the plugin's own option is preserved alongside the injected one
+	assert.Equal(t, float64(1), plan[0][0].Options["boardId"])
 }
