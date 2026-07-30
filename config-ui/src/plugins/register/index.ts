@@ -30,6 +30,7 @@ import { ClickUpConfig } from './clickup';
 import { GitHubConfig } from './github';
 import { GhCopilotConfig } from './gh-copilot';
 import { GitLabConfig } from './gitlab';
+import { IncidentioConfig } from './incidentio';
 import { JenkinsConfig } from './jenkins';
 import { JiraConfig } from './jira';
 import { LinearConfig } from './linear';
@@ -60,6 +61,7 @@ export const pluginConfigs: IPluginConfig[] = [
   GitHubConfig,
   GhCopilotConfig,
   GitLabConfig,
+  IncidentioConfig,
   JenkinsConfig,
   JiraConfig,
   LinearConfig,
