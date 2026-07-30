@@ -19,65 +19,20 @@ package tasks
 
 import (
 	"encoding/json"
-	"io"
+	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const rawUserMetricsTable = "copilot_user_metrics"
+const rawAiCreditUsageTable = "copilot_ai_credit_usage"
 
-func collectUserMetricsRecords(meta *reportMetadataResponse, logger log.Logger) ([]json.RawMessage, errors.Error) {
-	var results []json.RawMessage
-	for _, link := range meta.DownloadLinks {
-		reportBody, dlErr := downloadReport(link, logger)
-		if dlErr != nil {
-			return nil, dlErr
-		}
-		if reportBody == nil {
-			continue // blob not found, skip
-		}
-		// Parse JSONL: split by newlines and return each non-empty line.
-		userRecords, parseErr := parseJSONL(reportBody)
-		if parseErr != nil {
-			return nil, parseErr
-		}
-		results = append(results, userRecords...)
-	}
-	return results, nil
-}
-
-func parseUserMetricsReportResponse(res *http.Response, logger log.Logger) ([]json.RawMessage, errors.Error) {
-	body, readErr := io.ReadAll(res.Body)
-	res.Body.Close()
-	if readErr != nil {
-		return nil, errors.Default.Wrap(readErr, "failed to read report metadata")
-	}
-	if isEmptyReport(body) {
-		return nil, nil
-	}
-
-	// Parse the metadata from the body we already read above. Previously this
-	// re-read res.Body via parseReportMetadataResponse, but the body had already
-	// been consumed by io.ReadAll, so the second read returned empty and the
-	// collector silently produced zero user-metrics records.
-	meta, err := parseReportMetadata(body, logger)
-	if err != nil || meta == nil {
-		return nil, err
-	}
-
-	return collectUserMetricsRecords(meta, logger)
-}
-
-// CollectUserMetrics collects enterprise user-level daily Copilot usage reports.
-// These reports are in JSONL format (one JSON object per line per user).
-// Utilizes the enterprise or organization endpoints depending on connection configuration
-func CollectUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectAiCreditUsage(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*GhCopilotTaskData)
 	if !ok {
 		return errors.Default.New("task data is not GhCopilotTaskData")
@@ -91,18 +46,22 @@ func CollectUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	var urlTemplate string
+	var scope string
 
 	if connection.HasEnterprise() {
-		urlTemplate = copilotAPIPath("enterprises", connection.Enterprise, "copilot/metrics/reports/users-1-day")
+		urlTemplate = fmt.Sprintf("enterprises/%s/settings/billing/ai_credit/usage", connection.Enterprise)
+		scope = connection.Enterprise
 	} else if connection.Organization != "" {
-		urlTemplate = copilotAPIPath("orgs", connection.Organization, "copilot/metrics/reports/users-1-day")
+		urlTemplate = fmt.Sprintf("organizations/%s/settings/billing/ai_credit/usage", connection.Organization)
+		scope = connection.Organization
 	} else {
-		return nil
+		urlTemplate = "user/settings/billing/ai_credit/usage"
+		scope = "user"
 	}
 
 	rawArgs := helper.RawDataSubTaskArgs{
 		Ctx:   taskCtx,
-		Table: rawUserMetricsTable,
+		Table: rawAiCreditUsageTable,
 		Options: copilotRawParams{
 			ConnectionId: data.Options.ConnectionId,
 			ScopeId:      data.Options.ScopeId,
@@ -119,7 +78,6 @@ func CollectUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	now := time.Now().UTC()
 	start, until := computeReportDateRange(now, collector.GetSince())
 	start = clampDailyMetricsStartForBackfill(start, until)
-	logger := taskCtx.GetLogger()
 
 	dayIter := newDayIterator(start, until)
 
@@ -129,19 +87,37 @@ func CollectUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate: urlTemplate,
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			input := reqData.Input.(*dayInput)
+			day, parseErr := time.Parse("2006-01-02", input.Day)
+			if parseErr != nil {
+				return nil, errors.Convert(parseErr)
+			}
 			q := url.Values{}
-			q.Set("day", input.Day)
+			q.Set("year", strconv.Itoa(day.Year()))
+			q.Set("month", strconv.Itoa(int(day.Month())))
+			q.Set("day", strconv.Itoa(day.Day()))
 			return q, nil
 		},
 		Incremental:   true,
 		Concurrency:   1,
 		AfterResponse: ignoreNoContent,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			return parseUserMetricsReportResponse(res, logger)
+			if res.StatusCode != http.StatusOK {
+				return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("failed to collect AI credit usage for %s", scope))
+			}
+
+			var response struct {
+				UsageItems []json.RawMessage `json:"usageItems"`
+			}
+			if unmErr := helper.UnmarshalResponse(res, &response); unmErr != nil {
+				return nil, unmErr
+			}
+
+			return response.UsageItems, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
+
 	return collector.Execute()
 }
