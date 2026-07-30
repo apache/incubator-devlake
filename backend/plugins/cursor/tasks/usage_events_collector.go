@@ -26,8 +26,8 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-func newUsageEventsDateRangeIterator(since *time.Time) *helper.QueueIterator {
-	startMs, endMs := computeUsageTimeRangeMs(since, time.Now().UTC())
+func newUsageEventsDateRangeIterator(since *time.Time, isIncremental bool) *helper.QueueIterator {
+	startMs, endMs := computeUsageTimeRangeMs(since, time.Now().UTC(), isIncremental)
 	iter := helper.NewQueueIterator()
 	for _, chunk := range splitDailyUsageTimeRangeMs(startMs, endMs, cursorDailyUsageMaxDays) {
 		iter.Push(chunk)
@@ -92,7 +92,7 @@ func CollectUsageEvents(taskCtx plugin.SubTaskContext) errors.Error {
 
 	err = collector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             apiClient,
-		Input:                 newUsageEventsDateRangeIterator(collector.GetSince()),
+		Input:                 newUsageEventsDateRangeIterator(collector.GetSince(), collector.IsIncremental()),
 		Method:                http.MethodPost,
 		UrlTemplate:           "teams/filtered-usage-events",
 		PageSize:              cursorApiPageSize,
@@ -104,5 +104,6 @@ func CollectUsageEvents(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	logUsageCollectionWindow(taskCtx.GetLogger(), "teams/filtered-usage-events", collector.GetSince(), collector.IsIncremental())
 	return collector.Execute()
 }

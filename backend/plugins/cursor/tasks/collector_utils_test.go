@@ -105,3 +105,97 @@ func TestDailyUsagePostBodyUsesEpochMilliseconds(t *testing.T) {
 		t.Fatalf("endDate should be epoch ms int64, got %#v", body["endDate"])
 	}
 }
+
+func TestComputeUsageTimeRangeMsFullSyncUsesBackfill(t *testing.T) {
+	now := time.Date(2026, 7, 30, 12, 0, 0, 0, time.UTC)
+	startMs, endMs := computeUsageTimeRangeMs(nil, now, false)
+	start := time.UnixMilli(startMs).UTC()
+	end := time.UnixMilli(endMs).UTC()
+	if !end.Equal(now) {
+		t.Fatalf("end mismatch: got %v want %v", end, now)
+	}
+	wantStart := now.AddDate(0, 0, -cursorInitialBackfillDays)
+	if !start.Equal(wantStart) {
+		t.Fatalf("full sync start mismatch: got %v want %v", start, wantStart)
+	}
+}
+
+func TestComputeUsageTimeRangeMsIncrementalLookbackBuffer(t *testing.T) {
+	// since is yesterday: without lookback we'd only request ~1 day.
+	// With the buffer we look back cursorLookbackDays.
+	now := time.Date(2026, 7, 30, 0, 0, 0, 0, time.UTC)
+	since := time.Date(2026, 7, 29, 0, 0, 0, 0, time.UTC)
+	startMs, endMs := computeUsageTimeRangeMs(&since, now, true)
+	start := time.UnixMilli(startMs).UTC()
+	end := time.UnixMilli(endMs).UTC()
+	if !end.Equal(now) {
+		t.Fatalf("end mismatch: got %v want %v", end, now)
+	}
+	wantStart := now.AddDate(0, 0, -cursorLookbackDays)
+	if !start.Equal(wantStart) {
+		t.Fatalf("incremental lookback start mismatch: got %v want %v", start, wantStart)
+	}
+}
+
+func TestComputeUsageTimeRangeMsIncrementalDoesNotExpandPastBackfill(t *testing.T) {
+	now := time.Date(2026, 7, 30, 12, 0, 0, 0, time.UTC)
+	// since far in the past → start clamped to 90-day min; lookback does not apply.
+	since := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	startMs, _ := computeUsageTimeRangeMs(&since, now, true)
+	start := time.UnixMilli(startMs).UTC()
+	wantStart := now.AddDate(0, 0, -cursorInitialBackfillDays)
+	if !start.Equal(wantStart) {
+		t.Fatalf("start should stay at 90-day min: got %v want %v", start, wantStart)
+	}
+}
+
+func TestComputeUsageTimeRangeMsFullSyncUsesSinceWithoutLookback(t *testing.T) {
+	now := time.Date(2026, 7, 30, 0, 0, 0, 0, time.UTC)
+	since := time.Date(2026, 7, 29, 0, 0, 0, 0, time.UTC)
+	startMs, _ := computeUsageTimeRangeMs(&since, now, false)
+	start := time.UnixMilli(startMs).UTC()
+	if !start.Equal(since) {
+		t.Fatalf("full sync should use since without lookback: got %v want %v", start, since)
+	}
+}
+
+func TestUsageCollectionWindowForIncrementalLookback(t *testing.T) {
+	now := time.Date(2026, 7, 30, 0, 0, 0, 0, time.UTC)
+	since := time.Date(2026, 7, 29, 0, 0, 0, 0, time.UTC)
+	window := usageCollectionWindowFor(&since, now, true)
+	wantStart := now.AddDate(0, 0, -cursorLookbackDays).UnixMilli()
+	if window.StartMs != wantStart {
+		t.Fatalf("start mismatch: got %d want %d", window.StartMs, wantStart)
+	}
+	if window.EndMs != now.UnixMilli() {
+		t.Fatalf("end mismatch: got %d want %d", window.EndMs, now.UnixMilli())
+	}
+	if window.ChunkCount != 1 {
+		t.Fatalf("expected 1 chunk for 7-day lookback, got %d", window.ChunkCount)
+	}
+}
+
+func TestUsageCollectionWindowForFullSyncBackfill(t *testing.T) {
+	now := time.Date(2026, 7, 30, 12, 0, 0, 0, time.UTC)
+	window := usageCollectionWindowFor(nil, now, false)
+	wantStart := now.AddDate(0, 0, -cursorInitialBackfillDays).UnixMilli()
+	if window.StartMs != wantStart {
+		t.Fatalf("start mismatch: got %d want %d", window.StartMs, wantStart)
+	}
+	// Exact 90-day span fits in 3×30-day chunks.
+	if window.ChunkCount != 3 {
+		t.Fatalf("expected 3 chunks for 90-day backfill, got %d", window.ChunkCount)
+	}
+}
+
+func TestUsageCollectionWindowForFullSyncUsesSinceWithoutLookback(t *testing.T) {
+	now := time.Date(2026, 7, 30, 0, 0, 0, 0, time.UTC)
+	since := time.Date(2026, 7, 29, 0, 0, 0, 0, time.UTC)
+	window := usageCollectionWindowFor(&since, now, false)
+	if window.StartMs != since.UnixMilli() {
+		t.Fatalf("full sync should use since without lookback: got %d want %d", window.StartMs, since.UnixMilli())
+	}
+	if window.ChunkCount != 1 {
+		t.Fatalf("expected 1 chunk, got %d", window.ChunkCount)
+	}
+}

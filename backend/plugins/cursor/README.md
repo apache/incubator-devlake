@@ -120,9 +120,10 @@ Run the blueprint on a daily schedule to keep usage and cost data current.
 ### Collection behavior
 
 - **Initial backfill**: usage events and daily usage collect up to **90 days** of history on the first run.
-- **Incremental runs**: subsequent runs use the pipeline sync policy (`TimeAfter`) to collect only new data.
+- **Incremental runs**: subsequent runs use the pipeline sync policy / collector state (`LatestSuccessStart`) and **rewind 7 calendar days** so recently-missed or partial days are re-fetched (same idea as the gh-copilot report lookback).
 - **Date range chunking**: both `/teams/daily-usage-data` and `/teams/filtered-usage-events` requests are split into **30-day** chunks (API limit for daily usage; applied to usage events for resilience).
-- **Extract**: `extractUsageEvents` and `extractDailyUsage` use **StatefulApiExtractor** (incremental by default). A config version bump triggers a one-time full re-extract after upgrade.
+- **Extract**: `extractUsageEvents` and `extractDailyUsage` use a cursor-local stateful extractor (incremental by default). Incremental runs also promote any raw rows with `id > MAX(_raw_data_id)` already in the tool table, so collected-but-unpromoted raw data is healed without a full refresh. A config version bump (`extractorVersion`) triggers a one-time full re-extract after upgrade.
+- **Dashboards**: query `_tool_cursor_*` tables only. Legacy domain tables (`cursor_usage`, `cursor_team_events`) are unrelated and must not be used.
 - **Rate limiting**: collectors honor `Retry-After` response headers and respect the configured `rateLimitPerHour`.
 
 ## Dashboards
@@ -143,6 +144,7 @@ Grafana dashboard JSON lives under `grafana/dashboards/mysql/`:
 | **403 Forbidden** on spend or usage events | Key lacks permission for that Admin API endpoint |
 | **429 Too Many Requests** | Rate limit exceeded — lower `rateLimitPerHour` or wait for `Retry-After` |
 | Empty usage events after successful run | Selected time range has no billable events, or sync policy excludes the date range |
+| Tool max date stuck while raw advances | Deploy plugin with lookback + extract repair, then full-refresh the blueprint; verify `MAX(_raw_data_id)` in `_tool_cursor_*` catches up to `MAX(id)` in `_raw_cursor_*` |
 | Reconciliation delta on dashboard | Expected when comparing event-level charges to billing-cycle spend snapshots; see dashboard notes |
 
 Tokens are sanitized before persisting. Connection test results include a `permissions` object showing which Admin API endpoints succeeded.

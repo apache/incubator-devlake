@@ -58,10 +58,14 @@ func ExtractUsageEvents(taskCtx plugin.SubTaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New("task data is not CursorTaskData")
 	}
+	logger := taskCtx.GetLogger()
 
-	extractor, err := helper.NewStatefulApiExtractor(&helper.StatefulApiExtractorArgs[usageEventRecord]{
+	extractor, err := newCursorStatefulExtractor(&cursorStatefulExtractorArgs[usageEventRecord]{
 		SubtaskCommonArgs: cursorSubtaskCommonArgs(taskCtx, data, rawUsageEventsTable),
-		Extract: func(record *usageEventRecord, _ *helper.RawData) ([]any, errors.Error) {
+		ConnectionId:      data.Options.ConnectionId,
+		ScopeId:           data.Options.ScopeId,
+		ToolTable:         models.CursorUsageEvent{}.TableName(),
+		Extract: func(record *usageEventRecord, row *helper.RawData) ([]any, errors.Error) {
 			eventTime, err := parseEventTimestampMs(record.Timestamp)
 			if err != nil {
 				return nil, err
@@ -69,6 +73,11 @@ func ExtractUsageEvents(taskCtx plugin.SubTaskContext) errors.Error {
 
 			userEmail := strings.TrimSpace(record.UserEmail)
 			if userEmail == "" {
+				rawID := uint64(0)
+				if row != nil {
+					rawID = row.ID
+				}
+				logger.Warn(nil, "skipping usage event raw row id=%d: missing userEmail", rawID)
 				return nil, nil
 			}
 

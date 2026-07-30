@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/plugins/cursor/models"
 )
 
@@ -40,6 +41,9 @@ const (
 
 	cursorApiPageSize         = 100
 	cursorInitialBackfillDays = 90
+	// cursorLookbackDays rewinds incremental collection so recent calendar days are
+	// re-fetched (partial API pages / lag). Mirrors gh-copilot reportLookbackDays.
+	cursorLookbackDays = 7
 	// cursorDailyUsageMaxDays is the maximum span allowed by POST /teams/daily-usage-data.
 	cursorDailyUsageMaxDays = 30
 )
@@ -86,13 +90,67 @@ type cursorPagination struct {
 	TotalPages      int  `json:"totalPages"`
 }
 
-func computeUsageTimeRangeMs(since *time.Time, now time.Time) (int64, int64) {
+// computeUsageTimeRangeMs returns the [start, end] epoch-ms window for usage
+// collectors. Full sync uses up to cursorInitialBackfillDays. Incremental runs
+// start at `since` (typically LatestSuccessStart) then rewind by
+// cursorLookbackDays so recently-missed or partial calendar days are retried.
+func computeUsageTimeRangeMs(since *time.Time, now time.Time, isIncremental bool) (int64, int64) {
 	end := now.UTC()
-	start := end.AddDate(0, 0, -cursorInitialBackfillDays)
+	minStart := end.AddDate(0, 0, -cursorInitialBackfillDays)
+	start := minStart
 	if since != nil && !since.IsZero() && since.After(start) {
 		start = since.UTC()
 	}
+	if isIncremental {
+		lookback := end.AddDate(0, 0, -cursorLookbackDays)
+		if start.After(lookback) {
+			start = lookback
+		}
+		if start.Before(minStart) {
+			start = minStart
+		}
+	}
 	return start.UnixMilli(), end.UnixMilli()
+}
+
+// usageCollectionWindow is the computed API request window for usage collectors.
+type usageCollectionWindow struct {
+	StartMs    int64
+	EndMs      int64
+	ChunkCount int
+}
+
+// usageCollectionWindowFor computes the collection window and 30-day chunk count.
+func usageCollectionWindowFor(since *time.Time, now time.Time, isIncremental bool) usageCollectionWindow {
+	startMs, endMs := computeUsageTimeRangeMs(since, now, isIncremental)
+	chunks := splitDailyUsageTimeRangeMs(startMs, endMs, cursorDailyUsageMaxDays)
+	return usageCollectionWindow{
+		StartMs:    startMs,
+		EndMs:      endMs,
+		ChunkCount: len(chunks),
+	}
+}
+
+// logUsageCollectionWindow emits one Info line describing the collection window.
+func logUsageCollectionWindow(logger log.Logger, endpoint string, since *time.Time, isIncremental bool) {
+	if logger == nil {
+		return
+	}
+	window := usageCollectionWindowFor(since, time.Now().UTC(), isIncremental)
+	sinceStr := "nil"
+	if since != nil {
+		sinceStr = since.UTC().Format(time.RFC3339)
+	}
+	logger.Info(
+		"cursor usage collection window: endpoint=%s incremental=%v since=%s start=%s end=%s lookbackDays=%d chunkCount=%d",
+		endpoint,
+		isIncremental,
+		sinceStr,
+		time.UnixMilli(window.StartMs).UTC().Format(time.RFC3339),
+		time.UnixMilli(window.EndMs).UTC().Format(time.RFC3339),
+		cursorLookbackDays,
+		window.ChunkCount,
+	)
 }
 
 // splitDailyUsageTimeRangeMs splits [startMs, endMs] into chunks of at most maxDays.

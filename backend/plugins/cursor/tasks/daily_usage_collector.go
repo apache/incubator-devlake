@@ -26,8 +26,8 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-func newDailyUsageDateRangeIterator(since *time.Time) *helper.QueueIterator {
-	startMs, endMs := computeUsageTimeRangeMs(since, time.Now().UTC())
+func newDailyUsageDateRangeIterator(since *time.Time, isIncremental bool) *helper.QueueIterator {
+	startMs, endMs := computeUsageTimeRangeMs(since, time.Now().UTC(), isIncremental)
 	iter := helper.NewQueueIterator()
 	for _, chunk := range splitDailyUsageTimeRangeMs(startMs, endMs, cursorDailyUsageMaxDays) {
 		iter.Push(chunk)
@@ -75,7 +75,7 @@ func CollectDailyUsage(taskCtx plugin.SubTaskContext) errors.Error {
 
 	err = collector.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             apiClient,
-		Input:                 newDailyUsageDateRangeIterator(collector.GetSince()),
+		Input:                 newDailyUsageDateRangeIterator(collector.GetSince(), collector.IsIncremental()),
 		Method:                http.MethodPost,
 		UrlTemplate:           "teams/daily-usage-data",
 		PageSize:              cursorApiPageSize,
@@ -87,5 +87,6 @@ func CollectDailyUsage(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	logUsageCollectionWindow(taskCtx.GetLogger(), "teams/daily-usage-data", collector.GetSince(), collector.IsIncremental())
 	return collector.Execute()
 }

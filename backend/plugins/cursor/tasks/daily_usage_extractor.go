@@ -58,20 +58,34 @@ func ExtractDailyUsage(taskCtx plugin.SubTaskContext) errors.Error {
 	if !ok {
 		return errors.Default.New("task data is not CursorTaskData")
 	}
+	logger := taskCtx.GetLogger()
 
-	extractor, err := helper.NewStatefulApiExtractor(&helper.StatefulApiExtractorArgs[dailyUsageRecord]{
+	extractor, err := newCursorStatefulExtractor(&cursorStatefulExtractorArgs[dailyUsageRecord]{
 		SubtaskCommonArgs: cursorSubtaskCommonArgs(taskCtx, data, rawDailyUsageTable),
-		Extract: func(record *dailyUsageRecord, _ *helper.RawData) ([]any, errors.Error) {
+		ConnectionId:      data.Options.ConnectionId,
+		ScopeId:           data.Options.ScopeId,
+		ToolTable:         models.CursorDailyUsage{}.TableName(),
+		Extract: func(record *dailyUsageRecord, row *helper.RawData) ([]any, errors.Error) {
 			userId := strings.TrimSpace(record.UserId)
 			if userId == "" {
 				userId = strings.TrimSpace(record.Email)
 			}
 			if userId == "" {
+				rawID := uint64(0)
+				if row != nil {
+					rawID = row.ID
+				}
+				logger.Warn(nil, "skipping daily usage raw row id=%d: missing userId and email", rawID)
 				return nil, nil
 			}
 
 			usageDate, parseErr := time.Parse("2006-01-02", strings.TrimSpace(record.Day))
 			if parseErr != nil {
+				rawID := uint64(0)
+				if row != nil {
+					rawID = row.ID
+				}
+				logger.Warn(nil, "invalid day in daily usage raw row id=%d: %v", rawID, parseErr)
 				return nil, errors.BadInput.Wrap(parseErr, "invalid day format in daily usage record")
 			}
 

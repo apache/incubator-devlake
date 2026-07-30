@@ -90,4 +90,43 @@ func TestCursorExtractorsDataFlow(t *testing.T) {
 		CSVRelPath:  "./snapshot_tables/_tool_cursor_daily_usage.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
+
+	// Non-degradation: appending newer raw rows and re-extracting must never
+	// shrink the tool table or move MAX(usage_date) backward.
+	var beforeCount int64
+	if err := dataflowTester.Db.Model(&models.CursorDailyUsage{}).Count(&beforeCount).Error; err != nil {
+		t.Fatalf("count before: %v", err)
+	}
+	var beforeMax time.Time
+	if err := dataflowTester.Db.Model(&models.CursorDailyUsage{}).Select("MAX(usage_date)").Scan(&beforeMax).Error; err != nil {
+		t.Fatalf("max before: %v", err)
+	}
+
+	extraRaw := map[string]interface{}{
+		"params": `{"ConnectionId":1,"ScopeId":"team","Endpoint":"https://api.cursor.com"}`,
+		"data": []byte(`{"day":"2026-07-09","userId":"user_example123","email":"user@example.com","isActive":true,"completions":1,"premiumRequests":0,"agentRequests":1,"chatRequests":0,"composerRequests":0,"totalTabsAccepted":0,"totalTabsShown":0,"usageBasedReqs":0,"subscriptionIncludedReqs":1,"mostUsedModel":"composer-2.5-fast","clientVersion":"0.50.3","totalLinesAdded":0,"totalLinesDeleted":0,"acceptedLinesAdded":0,"acceptedLinesDeleted":0,"totalApplies":0,"totalAccepts":0,"totalRejects":0}`),
+		"url":        "https://api.cursor.com/teams/daily-usage-data",
+		"input":      nil,
+		"created_at": time.Now().UTC(),
+	}
+	if err := dataflowTester.Db.Table("_raw_cursor_daily_usage").Create(extraRaw).Error; err != nil {
+		t.Fatalf("insert extra raw: %v", err)
+	}
+
+	dataflowTester.Subtask(tasks.ExtractDailyUsageMeta, taskData)
+
+	var afterCount int64
+	if err := dataflowTester.Db.Model(&models.CursorDailyUsage{}).Count(&afterCount).Error; err != nil {
+		t.Fatalf("count after: %v", err)
+	}
+	var afterMax time.Time
+	if err := dataflowTester.Db.Model(&models.CursorDailyUsage{}).Select("MAX(usage_date)").Scan(&afterMax).Error; err != nil {
+		t.Fatalf("max after: %v", err)
+	}
+	if afterCount < beforeCount {
+		t.Fatalf("tool row count decreased: before=%d after=%d", beforeCount, afterCount)
+	}
+	if afterMax.Before(beforeMax) {
+		t.Fatalf("MAX(usage_date) moved backward: before=%v after=%v", beforeMax, afterMax)
+	}
 }
