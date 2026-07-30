@@ -84,6 +84,10 @@ const URLS = {
       TRANSFORMATION:
         'https://devlake.apache.org/docs/Configuration/GitLab#step-3---adding-transformation-rules-optional',
     },
+    INCIDENTIO: {
+      BASIS: 'https://devlake.apache.org/docs/Configuration/Incidentio',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/Incidentio#fixed-rate-limit-optional',
+    },
     JENKINS: {
       BASIS: 'https://devlake.apache.org/docs/Configuration/Jenkins',
       RATE_LIMIT: 'https://devlake.apache.org/docs/Configuration/Jenkins#fixed-rate-limit-optional',
