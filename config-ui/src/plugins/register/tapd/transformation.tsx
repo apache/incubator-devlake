@@ -125,10 +125,13 @@ export const TapdTransformation = ({ entities, connectionId, scopeId, transforma
   const { statusList, typeList } = data;
 
   const transformaType = (its: string[], standardType: string) => {
-    return its.reduce((acc, cur) => {
-      acc[cur] = standardType;
-      return acc;
-    }, {} as Record<string, string>);
+    return its.reduce(
+      (acc, cur) => {
+        acc[cur] = standardType;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
   };
 
   const panelStyle: React.CSSProperties = {

@@ -44,9 +44,9 @@ export const Form = ({ type, name, fields, initialValues, values, errors, setVal
   const getProps = (key: string, defaultValue: any = '') => {
     return {
       name,
-      initialValue: initialValues[key] ?? defaultValue,
-      value: values[key] ?? defaultValue,
-      error: errors[key] ?? defaultValue,
+      initialValue: initialValues?.[key] ?? defaultValue,
+      value: values?.[key] ?? defaultValue,
+      error: errors?.[key] ?? defaultValue,
       setValue: (value: any) => onValues({ [key]: value }),
       setError: (value: any) => onErrors({ [key]: value }),
     };
