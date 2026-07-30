@@ -23,7 +23,7 @@
 #While incubation status is not necessarily a reflection of the completeness or stability of the code,
 #it does indicate that the project has yet to be fully endorsed by the ASF.
 
-FROM --platform=$BUILDPLATFORM node:22-bookworm-slim AS builder
+FROM --platform=$BUILDPLATFORM node:24-bookworm-slim AS builder
 
 WORKDIR /home/node/code
 COPY . .
@@ -31,7 +31,7 @@ COPY . .
 RUN yarn install
 RUN yarn build
 
-FROM nginxinc/nginx-unprivileged:1.30.3
+FROM nginxinc/nginx-unprivileged:1.31.2
 USER 0
 #ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 #RUN chmod +x /wait

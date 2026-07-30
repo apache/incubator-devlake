@@ -239,7 +239,7 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
         <MillerColumnsSelect
           mode={mode}
           items={scopes}
-          columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
+          columnCount={search ? 1 : (config.millerColumn?.columnCount ?? 1)}
           columnHeight={300}
           getCanExpand={(it) => it.type === 'group'}
           getHasMore={(id) => !miller.loadedIds.includes(id ?? 'root')}

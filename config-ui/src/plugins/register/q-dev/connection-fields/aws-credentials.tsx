@@ -68,7 +68,7 @@ export const AwsCredentials = ({ type, initialValues, values, setValues, setErro
 
   useEffect(() => {
     if (values.secretAccessKey === undefined) {
-      setValues({ secretAccessKey: type === 'create' ? initialValues.secretAccessKey ?? '' : '' });
+      setValues({ secretAccessKey: type === 'create' ? (initialValues.secretAccessKey ?? '') : '' });
     }
   }, [type, initialValues.secretAccessKey, values.secretAccessKey, setValues]);
 
@@ -110,9 +110,9 @@ export const AwsCredentials = ({ type, initialValues, values, setValues, setErro
     return '';
   }, [region]);
 
-  const accessKeyErrorRef = useRef<string>();
-  const secretKeyErrorRef = useRef<string>();
-  const regionErrorRef = useRef<string>();
+  const accessKeyErrorRef = useRef<string>(undefined);
+  const secretKeyErrorRef = useRef<string>(undefined);
+  const regionErrorRef = useRef<string>(undefined);
 
   useEffect(() => {
     syncError('accessKeyId', accessKeyError, setErrors, accessKeyErrorRef);
@@ -175,7 +175,9 @@ export const AwsCredentials = ({ type, initialValues, values, setValues, setErro
               onChange={handleAccessKeyChange}
               status={accessKeyError ? 'error' : ''}
             />
-            {accessKeyError && <div style={{ marginTop: 4, color: 'var(--devlake-color-error)' }}>{accessKeyError}</div>}
+            {accessKeyError && (
+              <div style={{ marginTop: 4, color: 'var(--devlake-color-error)' }}>{accessKeyError}</div>
+            )}
           </Block>
 
           <Block
@@ -190,7 +192,9 @@ export const AwsCredentials = ({ type, initialValues, values, setValues, setErro
               onChange={handleSecretKeyChange}
               status={secretKeyError ? 'error' : ''}
             />
-            {secretKeyError && <div style={{ marginTop: 4, color: 'var(--devlake-color-error)' }}>{secretKeyError}</div>}
+            {secretKeyError && (
+              <div style={{ marginTop: 4, color: 'var(--devlake-color-error)' }}>{secretKeyError}</div>
+            )}
           </Block>
         </>
       )}
