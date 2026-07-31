@@ -14,15 +14,17 @@
 # limitations under the License.
 #
 
-FROM --platform=linux/amd64 debian:bullseye as debian-amd64
+FROM --platform=linux/amd64 debian:bullseye AS debian-amd64
 RUN apt-get -y update && apt -y upgrade &&\
     apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
 
-FROM golang:1.26-bullseye as builder
+# This stage only cross-builds libgit2, it does not need a Go toolchain (and
+# `golang:<version>-bullseye` no longer exists for current Go releases).
+FROM --platform=linux/amd64 debian:bullseye AS builder
 
 # Base dependencies
 RUN apt-get -y update && apt -y upgrade &&\
-    apt-get install -y gcc binutils libfindbin-libs-perl cmake libssh2-1-dev libssl-dev zlib1g-dev \
+    apt-get install -y ca-certificates wget gcc binutils libfindbin-libs-perl cmake libssh2-1-dev libssl-dev zlib1g-dev \
     gcc-x86-64-linux-gnu binutils-x86-64-linux-gnu
 
 COPY --from=debian-amd64 /usr/include /rootfs-amd64/usr/include
