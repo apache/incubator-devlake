@@ -30,7 +30,7 @@ export const useAutoRefresh = <T>(
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<T>();
 
-  const timer = useRef<any>();
+  const timer = useRef<any>(undefined);
   const retryCount = useRef<number>(0);
 
   useEffect(() => {

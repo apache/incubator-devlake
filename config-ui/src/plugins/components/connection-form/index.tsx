@@ -109,10 +109,9 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
     setType(connectionId ? 'update' : 'create');
   }, [connectionId]);
 
-  const {
-    name,
-    connection: { docLink, fields, initialValues = {} },
-  } = getPluginConfig(plugin) ?? {};
+  const pluginConfig = getPluginConfig(plugin);
+  const name = pluginConfig?.name;
+  const { docLink = '', fields = [], initialValues = {} } = pluginConfig?.connection ?? {};
 
   const disabled = useMemo(() => {
     return Object.values(errors).some(Boolean);

@@ -20,15 +20,17 @@ import { forwardRef, Ref } from 'react';
 import type { ButtonProps } from 'antd';
 import { Tooltip, Button } from 'antd';
 
-interface Props
-  extends Pick<
-    ButtonProps,
-    'type' | 'icon' | 'size' | 'disabled' | 'loading' | 'ghost' | 'danger' | 'block' | 'onClick'
-  > {
+interface Props extends Pick<
+  ButtonProps,
+  'type' | 'icon' | 'size' | 'disabled' | 'loading' | 'ghost' | 'danger' | 'block' | 'onClick'
+> {
   helptip: string;
 }
 
-export const IconButton = forwardRef(function ({ helptip, ...props }: Props, ref?: Ref<HTMLElement>) {
+export const IconButton = forwardRef(function (
+  { helptip, ...props }: Props,
+  ref?: Ref<HTMLAnchorElement | HTMLButtonElement>,
+) {
   return (
     <Tooltip title={helptip}>
       <Button ref={ref} {...props} />

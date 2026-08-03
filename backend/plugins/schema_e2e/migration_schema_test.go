@@ -54,6 +54,7 @@ import (
 	bitbucket_server "github.com/apache/incubator-devlake/plugins/bitbucket_server/impl"
 	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
 	claudeCode "github.com/apache/incubator-devlake/plugins/claude_code/impl"
+	clickup "github.com/apache/incubator-devlake/plugins/clickup/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
 	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
@@ -65,6 +66,7 @@ import (
 	githubGraphql "github.com/apache/incubator-devlake/plugins/github_graphql/impl"
 	gitlab "github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	icla "github.com/apache/incubator-devlake/plugins/icla/impl"
+	incidentio "github.com/apache/incubator-devlake/plugins/incidentio/impl"
 	issueTrace "github.com/apache/incubator-devlake/plugins/issue_trace/impl"
 	jenkins "github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	jira "github.com/apache/incubator-devlake/plugins/jira/impl"
@@ -103,6 +105,7 @@ func allGoPlugins() []plugin.PluginMeta {
 		bitbucket_server.BitbucketServer{},
 		circleci.Circleci{},
 		claudeCode.ClaudeCode{},
+		clickup.ClickUp{},
 		customize.Customize{},
 		dbt.Dbt{},
 		dora.Dora{},
@@ -114,6 +117,7 @@ func allGoPlugins() []plugin.PluginMeta {
 		githubGraphql.GithubGraphql{},
 		gitlab.Gitlab{},
 		icla.Icla{},
+		incidentio.Incidentio{},
 		issueTrace.IssueTrace{},
 		jenkins.Jenkins{},
 		jira.Jira{},

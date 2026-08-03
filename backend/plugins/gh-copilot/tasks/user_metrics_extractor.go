@@ -49,6 +49,7 @@ type userDailyReport struct {
 	UsedCli                       bool                   `json:"used_cli"`
 	UsedCopilotCodeReviewActive   bool                   `json:"used_copilot_code_review_active"`
 	UsedCopilotCodeReviewPassive  bool                   `json:"used_copilot_code_review_passive"`
+	AiCreditsUsed                 float64                `json:"ai_credits_used"`
 	TotalsByIde                   []userTotalsByIde      `json:"totals_by_ide"`
 	TotalsByFeature               []totalsByFeature      `json:"totals_by_feature"`
 	TotalsByLanguageFeature       []totalsByLangFeature  `json:"totals_by_language_feature"`
@@ -123,6 +124,7 @@ func ExtractUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				UsedCli:                      u.UsedCli,
 				UsedCopilotCodeReviewActive:  u.UsedCopilotCodeReviewActive,
 				UsedCopilotCodeReviewPassive: u.UsedCopilotCodeReviewPassive,
+				AiCreditsUsed:                u.AiCreditsUsed,
 				CopilotActivityMetrics: models.CopilotActivityMetrics{
 					UserInitiatedInteractionCount: u.UserInitiatedInteractionCount,
 					CodeGenerationActivityCount:   u.CodeGenerationActivityCount,
