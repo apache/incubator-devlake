@@ -26,5 +26,6 @@ func All() []plugin.MigrationScript {
 		new(reCreateTeambitionConnections),
 		new(addScopeConfigId),
 		new(addAppIdBack),
+		new(addMissingScopeConfigColumns),
 	}
 }
