@@ -46,20 +46,28 @@ func ExtractCustomizedFields(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 	d := taskCtx.GetDal()
-	var err error
+	logger := taskCtx.GetLogger()
 	for _, rule := range data.Options.TransformationRules {
-		err = extractCustomizedFields(taskCtx.GetContext(), d, rule.Table, rule.RawDataTable, rule.RawDataParams, rule.Mapping)
+		orphaned, err := extractCustomizedFields(taskCtx.GetContext(), d, rule.Table, rule.RawDataTable, rule.RawDataParams, rule.Mapping)
 		if err != nil {
 			return errors.Default.Wrap(err, "error extracting customized fields")
+		}
+		if orphaned > 0 {
+			logger.Warn(nil,
+				"skipped %d row(s) of table %s: the raw record referenced by _raw_data_id no longer exists in %s",
+				orphaned, rule.Table, rule.RawDataTable)
 		}
 	}
 	return nil
 }
 
-func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, rawDataParams string, extractor map[string]string) error {
+// extractCustomizedFields walks the domain layer table and copies configured JSON paths out of the
+// raw record behind each row. It returns the number of rows skipped because no raw record backed
+// them, so the caller can report that rather than leaving it invisible.
+func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, rawDataParams string, extractor map[string]string) (int, error) {
 	pkFields, err := dal.GetPrimarykeyColumns(d, &models.Table{Name: table})
 	if err != nil {
-		return err
+		return 0, err
 	}
 	rawDataField := fmt.Sprintf("%s.data", rawTable)
 	// `fields` only include `_raw_data_id` and primary keys coming from the domain layer table, and `data` coming from the raw layer
@@ -76,21 +84,22 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 	}
 	rows, err := d.Cursor(clauses...)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer rows.Close()
 
+	orphaned := 0
 	for rows.Next() {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return orphaned, ctx.Err()
 		default:
 		}
 		row := make(map[string]interface{})
 		updates := make(map[string]interface{})
 		err = d.Fetch(rows, &row)
 		if err != nil {
-			return err
+			return orphaned, err
 		}
 		switch blob := row["data"].(type) {
 		case []byte:
@@ -104,7 +113,7 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 				// special case for issues custom_fields
 				rawDataId, ok := row["_raw_data_id"].(int64)
 				if !ok {
-					return errors.Default.New("_raw_data_id is not int64")
+					return orphaned, errors.Default.New("_raw_data_id is not int64")
 				}
 				if table == "issues" && result.IsArray() {
 					issueId := row["id"].(string)
@@ -115,7 +124,7 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 						dal.Where("issue_id = ? AND field_id = ?", issueId, fieldId),
 					)
 					if err != nil {
-						return err
+						return orphaned, err
 					}
 
 					result.ForEach(func(_, v gjson.Result) bool {
@@ -142,7 +151,12 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 				}
 			}
 		default:
-			return nil
+			// The cursor LEFT JOINs the raw table, so a domain row whose _raw_data_id points at a
+			// raw record that has since been deleted comes back with a NULL data column. There is
+			// nothing to extract from it, but the rows after it are usually fine, so skip this one
+			// instead of ending the scan.
+			orphaned++
+			continue
 		}
 
 		if len(updates) > 0 {
@@ -151,15 +165,15 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 			delete(row, "data")
 			query, params, err := mkUpdate(table, updates, row)
 			if err != nil {
-				return err
+				return orphaned, err
 			}
 			err = d.Exec(query, params...)
 			if err != nil {
-				return errors.Default.Wrap(err, "Exec SQL error")
+				return orphaned, errors.Default.Wrap(err, "Exec SQL error")
 			}
 		}
 	}
-	return nil
+	return orphaned, rows.Err()
 }
 
 // fillInUpdates fills in the updates map with the result of the gjson query
