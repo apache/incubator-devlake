@@ -16,3 +16,5 @@
  *
  */
 
+export * from './config';
+export * from './transformation';

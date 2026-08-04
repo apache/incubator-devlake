@@ -277,47 +277,55 @@ func batchFetchFirstReviews(projectName string, db dal.Dal) (map[string]*code.Pu
 // batchFetchDeployments retrieves deployment commits for all merge commits in the given project.
 // Returns a map indexed by merge commit SHA for O(1) lookup performance.
 //
-// The query finds the first successful production deployment for each merge commit by:
-// 1. Finding deployment commits that have a previous successful deployment
-// 2. Joining with commits_diffs to find which deployment included each merge commit
-// 3. Filtering for successful production deployments
-// 4. Ordering by started_date to get the earliest deployment
+// Uses a two-phase strategy to avoid the "first deployment over-mapping" problem:
 //
-// The map is indexed by merge_sha (from commits_diffs), not by deployment commit_sha,
-// because the caller needs to look up deployments by PR merge_commit_sha.
+// Phase 1 - Direct match: find successful PRODUCTION deployments whose commit_sha
+// directly equals a PR's merge_commit_sha. Safe even for the very first deployment.
+//
+// Phase 2 - Diff-based fallback: use the commits_diffs join strategy, but deliberately
+// skip the first deployment (prev_success_deployment_commit_id == "") to avoid over-mapping.
 func batchFetchDeployments(projectName string, db dal.Dal) (map[string]*devops.CicdDeploymentCommit, errors.Error) {
-	var results []*deploymentCommitWithMergeSha
-
-	// Query finds the first deployment for each merge commit by using a window function
-	// to rank deployments by started_date, then filtering to keep only rank 1.
+	deploymentMap := make(map[string]*devops.CicdDeploymentCommit)
+	var directResults []*devops.CicdDeploymentCommit
 	err := db.All(
-		&results,
+		&directResults,
+		dal.Select("dc.*"),
+		dal.From("cicd_deployment_commits dc"),
+		dal.Join("LEFT JOIN project_mapping pm ON pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id"),
+		dal.Where("dc.environment = 'PRODUCTION'"), // TODO: remove when multi-environment is supported
+		dal.Where("dc.result = ? AND pm.project_name = ?", devops.RESULT_SUCCESS, projectName),
+		dal.Orderby("dc.started_date ASC, dc.id ASC"),
+	)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "failed to batch fetch direct deployments")
+	}
+	for _, dc := range directResults {
+		if _, exists := deploymentMap[dc.CommitSha]; !exists {
+			deploymentCopy := *dc
+			deploymentMap[dc.CommitSha] = &deploymentCopy
+		}
+	}
+	var diffResults []*deploymentCommitWithMergeSha
+	err = db.All(
+		&diffResults,
 		dal.Select("dc.*, cd.commit_sha as merge_sha"),
 		dal.From("cicd_deployment_commits dc"),
 		dal.Join("LEFT JOIN cicd_deployment_commits p ON dc.prev_success_deployment_commit_id = p.id"),
 		dal.Join("INNER JOIN commits_diffs cd ON cd.new_commit_sha = dc.commit_sha AND cd.old_commit_sha = COALESCE(p.commit_sha, '')"),
 		dal.Join("LEFT JOIN project_mapping pm ON pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id"),
 		dal.Where("dc.prev_success_deployment_commit_id <> ''"),
-		dal.Where("dc.environment = 'PRODUCTION'"), // TODO: remove this when multi-environment is supported
+		dal.Where("dc.environment = 'PRODUCTION'"), // TODO: remove when multi-environment is supported
 		dal.Where("dc.result = ? AND pm.project_name = ?", devops.RESULT_SUCCESS, projectName),
 		dal.Orderby("cd.commit_sha, dc.started_date ASC, dc.id ASC"),
 	)
-
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to batch fetch deployments")
+		return nil, errors.Default.Wrap(err, "failed to batch fetch diff-based deployments")
 	}
-
-	// Build the map indexed by merge_sha for O(1) lookup.
-	// Keep only the first deployment for each merge commit (earliest by started_date).
-	deploymentMap := make(map[string]*devops.CicdDeploymentCommit, len(results))
-	for _, result := range results {
-		// Only keep the first deployment for each merge_sha
+	for _, result := range diffResults {
 		if _, exists := deploymentMap[result.MergeSha]; !exists {
-			// Copy the CicdDeploymentCommit without the MergeSha field
 			deploymentCopy := result.CicdDeploymentCommit
 			deploymentMap[result.MergeSha] = &deploymentCopy
 		}
 	}
-
 	return deploymentMap, nil
 }

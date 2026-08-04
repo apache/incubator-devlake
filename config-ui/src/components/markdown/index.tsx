@@ -28,23 +28,24 @@ interface Props {
 
 export const Markdown = ({ className, children }: Props) => {
   return (
-    <ReactMarkdown
-      className={className}
-      rehypePlugins={[rehypeRaw]}
-      components={{
-        img: ({ alt, ...props }) => (
-          <Zoom>
-            <img alt={alt} {...props} />
-          </Zoom>
-        ),
-        a: ({ href, children, ...props }) => (
-          <a href={href} {...props} target="_blank" rel="noreferrer">
-            {children}
-          </a>
-        ),
-      }}
-    >
-      {children}
-    </ReactMarkdown>
+    <div className={className}>
+      <ReactMarkdown
+        rehypePlugins={[rehypeRaw]}
+        components={{
+          img: ({ alt, ...props }) => (
+            <Zoom>
+              <img alt={alt} {...props} />
+            </Zoom>
+          ),
+          a: ({ href, children, ...props }) => (
+            <a href={href} {...props} target="_blank" rel="noreferrer">
+              {children}
+            </a>
+          ),
+        }}
+      >
+        {children}
+      </ReactMarkdown>
+    </div>
   );
 };

@@ -50,7 +50,7 @@ RUN if [ "$(arch)" != "x86_64" ] ; then \
     fi
 
 RUN go install github.com/vektra/mockery/v2@v2.53.6
-RUN go install github.com/swaggo/swag/cmd/swag@v1.16.1
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
 COPY --from=debian-amd64 /usr/include /rootfs-amd64/usr/include
 COPY --from=debian-amd64 /usr/lib/x86_64-linux-gnu /rootfs-amd64/usr/lib/x86_64-linux-gnu
@@ -113,7 +113,7 @@ RUN cd /usr/local/deps/target/lib && \
     done
 
 
-FROM python:3.9-slim-bookworm as base
+FROM python:3.11-slim-bookworm as base
 
 RUN apt-get update && \
     apt-get install -y python3-dev python3-pip tar pkg-config curl libssh2-1 zlib1g libffi-dev default-libmysqlclient-dev libpq-dev tini git openssh-client corkscrew && \

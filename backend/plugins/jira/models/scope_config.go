@@ -19,6 +19,7 @@ package models
 
 import (
 	"regexp"
+	"text/template"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -49,6 +50,7 @@ type JiraScopeConfig struct {
 	TypeMappings               map[string]TypeMapping `mapstructure:"typeMappings,omitempty" json:"typeMappings" gorm:"type:json;serializer:json"`
 	ApplicationType            string                 `mapstructure:"applicationType,omitempty" json:"applicationType" gorm:"type:varchar(255)"`
 	DueDateField               string                 `mapstructure:"dueDateField,omitempty" json:"dueDateField" gorm:"type:varchar(255)"`
+	ExtraJQL                   string                 `mapstructure:"extraJql,omitempty" json:"extraJql" gorm:"type:varchar(255)"`
 }
 
 func (r *JiraScopeConfig) SetConnectionId(c *JiraScopeConfig, connectionId uint64) {
@@ -71,6 +73,11 @@ func (r *JiraScopeConfig) Validate() errors.Error {
 		_, err = regexp.Compile(pattern.Regex)
 		if err != nil {
 			return errors.Convert(err)
+		}
+	}
+	if r.ExtraJQL != "" {
+		if _, tmplErr := template.New("extraJql").Funcs(template.FuncMap{}).Option("missingkey=error").Parse(r.ExtraJQL); tmplErr != nil {
+			return errors.BadInput.Wrap(errors.Convert(tmplErr), "invalid ExtraJQL template")
 		}
 	}
 	return nil

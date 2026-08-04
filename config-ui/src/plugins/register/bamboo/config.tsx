@@ -28,6 +28,7 @@ export const BambooConfig: IPluginConfig = {
   sort: 3,
   connection: {
     docLink: DOC_URL.PLUGIN.BAMBOO.BASIS,
+    initialValues: {},
     fields: [
       'name',
       'endpoint',

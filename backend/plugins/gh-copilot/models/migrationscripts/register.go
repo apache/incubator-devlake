@@ -31,5 +31,7 @@ func All() []plugin.MigrationScript {
 		new(addPRFieldsToEnterpriseMetrics),
 		new(addOrganizationIdToUserMetrics),
 		new(addCopilotMetricsGaps),
+		new(addAiCreditUsageMetrics),
+		new(fixAiCreditUsageBreakdownColumns),
 	}
 }

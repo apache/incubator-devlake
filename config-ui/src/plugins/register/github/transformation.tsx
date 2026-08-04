@@ -373,7 +373,10 @@ const renderCollapseItems = ({
                         be mapped by the following RegEx)
                       </div>
                       <div>
-                        <CloseCircleOutlined rev="" style={{ marginRight: 4, color: 'var(--devlake-color-error-alt)' }} />
+                        <CloseCircleOutlined
+                          rev=""
+                          style={{ marginRight: 4, color: 'var(--devlake-color-error-alt)' }}
+                        />
                         Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234
                         will NOT be mapped by the following RegEx)
                       </div>

@@ -85,6 +85,7 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraServerInfo{},
 		&models.JiraSprint{},
 		&models.JiraSprintIssue{},
+		&models.JiraSprintReport{},
 		&models.JiraStatus{},
 		&models.JiraWorklog{},
 		&models.JiraIssueComment{},
@@ -138,6 +139,9 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectSprintsMeta,
 		tasks.ExtractSprintsMeta,
 
+		tasks.CollectSprintReportMeta,
+		tasks.ExtractSprintReportMeta,
+
 		tasks.CollectEpicsMeta,
 		tasks.ExtractEpicsMeta,
 
@@ -153,6 +157,7 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,
+		tasks.ConvertSprintReportMeta,
 
 		tasks.CollectDevelopmentPanelMeta,
 		tasks.ExtractDevelopmentPanelMeta,
@@ -195,8 +200,8 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		return nil, errors.Default.Wrap(err, "failed to create jira api client")
 	}
 
+	var scope *models.JiraBoard
 	if op.BoardId != 0 {
-		var scope *models.JiraBoard
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
@@ -249,6 +254,7 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		Options:        &op,
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
+		Board:          scope,
 	}
 
 	return taskData, nil

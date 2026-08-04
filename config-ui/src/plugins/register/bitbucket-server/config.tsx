@@ -29,6 +29,7 @@ export const BitbucketServerConfig: IPluginConfig = {
   isBeta: true,
   connection: {
     docLink: DOC_URL.PLUGIN.BITBUCKET_SERVER.BASIS,
+    initialValues: {},
     fields: [
       'name',
       {

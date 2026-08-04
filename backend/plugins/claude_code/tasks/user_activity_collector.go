@@ -30,7 +30,10 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-// CollectUserActivity collects per-user daily engagement metrics from /v1/organizations/analytics/users.
+// CollectUserActivity collects per-user daily engagement metrics.
+// For Claude Enterprise organizations it calls /v1/organizations/analytics/users.
+// For Claude Console organizations (sk-ant-admin01-... keys) it calls
+// /v1/organizations/usage_report/claude_code.
 func CollectUserActivity(taskCtx plugin.SubTaskContext) errors.Error {
 	data, ok := taskCtx.TaskContext().GetData().(*ClaudeCodeTaskData)
 	if !ok {
@@ -49,6 +52,14 @@ func CollectUserActivity(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	isConsole := connection.IsConsoleApiKey()
+	endpoint := "analytics/users"
+	urlTemplate := "v1/organizations/analytics/users"
+	if isConsole {
+		endpoint = "usage_report/claude_code"
+		urlTemplate = "v1/organizations/usage_report/claude_code"
+	}
+
 	rawArgs := helper.RawDataSubTaskArgs{
 		Ctx:   taskCtx,
 		Table: rawUserActivityTable,
@@ -56,7 +67,7 @@ func CollectUserActivity(taskCtx plugin.SubTaskContext) errors.Error {
 			ConnectionId: data.Options.ConnectionId,
 			ScopeId:      data.Options.ScopeId,
 			Organization: connection.Organization,
-			Endpoint:     "analytics/users",
+			Endpoint:     endpoint,
 		},
 	}
 
@@ -73,12 +84,16 @@ func CollectUserActivity(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:                 dayIter,
 		PageSize:              1,
 		Incremental:           true,
-		UrlTemplate:           "v1/organizations/analytics/users",
+		UrlTemplate:           urlTemplate,
 		GetNextPageCustomData: getNextClaudeCodePageCursor,
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			input := reqData.Input.(*claudeCodeDayInput)
 			query := url.Values{}
-			query.Set("date", input.Day)
+			if isConsole {
+				query.Set("starting_at", input.Day)
+			} else {
+				query.Set("date", input.Day)
+			}
 			query.Set("limit", fmt.Sprintf("%d", claudeCodeApiPageLimit))
 			if cursor, ok := reqData.CustomData.(string); ok && strings.TrimSpace(cursor) != "" {
 				query.Set("page", cursor)

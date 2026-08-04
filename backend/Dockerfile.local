@@ -48,7 +48,7 @@ RUN mkdir -p /tmp/build && cd /tmp/build && \
     ldconfig
 
 RUN go install github.com/vektra/mockery/v2@v2.53.6
-RUN go install github.com/swaggo/swag/cmd/swag@v1.16.1
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
 WORKDIR /app
 COPY . /app

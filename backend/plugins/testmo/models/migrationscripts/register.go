@@ -25,5 +25,6 @@ func All() []plugin.MigrationScript {
 		new(addScopeConfigIdToProjects),
 		new(replaceTestsWithRuns),
 		new(fixRawTableNamesAndSchemas),
+		new(addMissingScopeConfigColumns),
 	}
 }

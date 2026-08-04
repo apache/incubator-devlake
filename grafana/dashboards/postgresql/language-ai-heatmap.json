@@ -19,7 +19,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Completion requests, avg context size, and completion rate per language",
       "fieldConfig": {
         "defaults": {
@@ -63,7 +63,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS \"Language\", COUNT(*) AS \"Requests\", ROUND(CAST(AVG(completions_count) AS DECIMAL), 2) AS \"Avg Completions\", ROUND(AVG(left_context_length)) AS \"Avg Left Context\", ROUND(AVG(right_context_length)) AS \"Avg Right Context\", ROUND(AVG(left_context_length + right_context_length)) AS \"Avg Total Context\", COUNT(DISTINCT user_id) AS \"Users\" FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY \"file_extension\" ORDER BY COUNT(*) DESC NULLS LAST",
@@ -74,7 +74,7 @@
       "type": "table"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Daily completion requests by language",
       "fieldConfig": {
         "defaults": {
@@ -118,7 +118,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT CAST(timestamp AS DATE) AS time, CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS metric, COUNT(*) AS value FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE), \"file_extension\" ORDER BY time NULLS FIRST",
@@ -129,7 +129,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Which file types are most active during chat sessions",
       "fieldConfig": {
         "defaults": {
@@ -183,7 +183,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT CASE WHEN active_file_extension = '' OR active_file_extension IS NULL THEN '(no file)' ELSE active_file_extension END AS \"File Type\", COUNT(*) AS \"Chat Events\" FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY \"active_file_extension\" ORDER BY COUNT(*) DESC NULLS LAST LIMIT 10",
@@ -194,7 +194,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "postgresql",
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
       "description": "Context size trends for top languages",
       "fieldConfig": {
         "defaults": {
@@ -241,7 +241,7 @@
       },
       "targets": [
         {
-          "datasource": "postgresql",
+          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT CAST(timestamp AS DATE) AS time, file_extension AS metric, ROUND(AVG(left_context_length + right_context_length)) AS value FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp) AND file_extension IN (SELECT file_extension FROM _tool_q_dev_completion_log GROUP BY \"file_extension\" ORDER BY COUNT(*) DESC NULLS LAST LIMIT 5) GROUP BY CAST(timestamp AS DATE), \"file_extension\" ORDER BY time NULLS FIRST",
