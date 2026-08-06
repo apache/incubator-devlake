@@ -1,0 +1,4 @@
+connection_id,scope_id,year,month,day,enterprise,model,organization,user,product,cost_center_id,cost_center_name,gross_quantity,discount_quantity,net_quantity,price_per_unit,gross_amount,discount_amount,net_amount
+1,octodemo,2025,12,10,octodemo,gpt-4.1,,,copilot,,,100.5,10.0,90.5,1.0,100.5,10.0,90.5
+1,octodemo,2025,12,10,octodemo,gpt-4o,,,copilot,cc-eng,Engineering,50.0,5.0,45.0,1.0,50.0,5.0,45.0
+1,octodemo,2025,12,10,octodemo,claude-3,,,copilot,cc-ml,Machine Learning,30.0,2.0,28.0,1.0,30.0,2.0,28.0

@@ -103,7 +103,9 @@ export const StepContent = styled.div`
   display: flex;
   height: 450px;
   background-color: ${({ theme }) => theme.colors.bgContainer};
-  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px 0px rgba(0, 0, 0, 0.07);
+  box-shadow:
+    0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
+    0px 1.6px 8px 0px rgba(0, 0, 0, 0.07);
 
   .content {
     flex: 0 0 540px;

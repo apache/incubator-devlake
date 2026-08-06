@@ -49,7 +49,7 @@ export const S3Config = ({ initialValues, values, setValues, setErrors }: Props)
     return '';
   }, [bucket]);
 
-  const bucketErrorRef = useRef<string>();
+  const bucketErrorRef = useRef<string>(undefined);
   useEffect(() => {
     if (bucketErrorRef.current !== bucketError) {
       bucketErrorRef.current = bucketError;

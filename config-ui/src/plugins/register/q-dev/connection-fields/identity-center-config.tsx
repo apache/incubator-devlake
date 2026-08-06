@@ -67,8 +67,8 @@ export const IdentityCenterConfig = ({ initialValues, values, setValues, setErro
     return '';
   }, [identityStoreRegion, identityStoreId]);
 
-  const storeIdErrorRef = useRef<string>();
-  const regionErrorRef = useRef<string>();
+  const storeIdErrorRef = useRef<string>(undefined);
+  const regionErrorRef = useRef<string>(undefined);
 
   useEffect(() => {
     if (storeIdErrorRef.current !== storeIdError) {

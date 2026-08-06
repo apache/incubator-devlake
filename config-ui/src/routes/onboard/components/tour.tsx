@@ -22,9 +22,9 @@ import API from '@/api';
 import { useRefreshData } from '@/hooks';
 
 interface Props {
-  nameRef: React.RefObject<HTMLInputElement>;
-  connectionRef: React.RefObject<HTMLInputElement>;
-  configRef: React.RefObject<HTMLInputElement>;
+  nameRef: React.RefObject<HTMLAnchorElement | null>;
+  connectionRef: React.RefObject<HTMLUListElement | null>;
+  configRef: React.RefObject<HTMLAnchorElement | HTMLButtonElement | null>;
 }
 
 export const OnboardTour = ({ nameRef, connectionRef, configRef }: Props) => {

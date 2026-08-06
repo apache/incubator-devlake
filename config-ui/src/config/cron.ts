@@ -16,7 +16,7 @@
  *
  */
 
-import parser from 'cron-parser';
+import { CronExpressionParser } from 'cron-parser';
 
 export const cronPresets = [
   {
@@ -38,7 +38,7 @@ export const cronPresets = [
 
 const getNextTime = (config: string) => {
   try {
-    return parser.parseExpression(config, { tz: 'utc' }).next().toString();
+    return CronExpressionParser.parse(config, { tz: 'utc' }).next().toString();
   } catch {
     return null;
   }
@@ -46,9 +46,8 @@ const getNextTime = (config: string) => {
 
 const getNextTimes = (config: string) => {
   try {
-    return parser
-      .parseExpression(config, { tz: 'utc' })
-      .iterate(3)
+    return CronExpressionParser.parse(config, { tz: 'utc' })
+      .take(3)
       .map((date) => date.toString());
   } catch {
     return [];

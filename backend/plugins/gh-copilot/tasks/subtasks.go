@@ -105,3 +105,20 @@ var ExtractUserTeamsMeta = plugin.SubTaskMeta{
 	Description:      "Extract Copilot user-team mappings into tool-layer table",
 	Dependencies:     []*plugin.SubTaskMeta{&CollectUserTeamsMeta},
 }
+
+var CollectAiCreditUsageMeta = plugin.SubTaskMeta{
+	Name:             "collectAiCreditUsage",
+	EntryPoint:       CollectAiCreditUsage,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Collect GitHub Copilot AI credit usage billing data from billing API",
+}
+
+var ExtractAiCreditUsageMeta = plugin.SubTaskMeta{
+	Name:             "extractAiCreditUsage",
+	EntryPoint:       ExtractAiCreditUsage,
+	EnabledByDefault: true,
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Extract Copilot AI credit usage into tool-layer billing tables",
+	Dependencies:     []*plugin.SubTaskMeta{&CollectAiCreditUsageMeta},
+}

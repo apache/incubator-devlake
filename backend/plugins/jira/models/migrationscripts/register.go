@@ -58,5 +58,7 @@ func All() []plugin.MigrationScript {
 		new(addSubQueryToBoards),
 		new(changeFixVersionsToText20260707),
 		new(addExtraJQLToScopeConfig),
+		new(addSprintReportTable),
+		new(addRawDataColumnsToSprintReport),
 	}
 }
