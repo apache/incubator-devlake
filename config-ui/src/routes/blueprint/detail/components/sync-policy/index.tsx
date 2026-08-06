@@ -192,7 +192,7 @@ export const SyncPolicy = ({
         <Block title="Next Three Runs:">
           {cron.nextTimes.length ? (
             <ul>
-              {cron.nextTimes.map((it, i) => (
+              {cron.nextTimes.map((it: string, i: number) => (
                 <li key={i}>
                   {dayjs(it).format('YYYY-MM-DD HH:mm A')}({dayjs(it).fromNow()})
                 </li>
