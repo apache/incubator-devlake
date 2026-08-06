@@ -48,8 +48,8 @@ func ExtractUserSpend(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:   taskCtx,
-			Table: rawUserSpendTable,
+			Ctx:     taskCtx,
+			Table:   rawUserSpendTable,
 			Options: rawParamsFromTaskData(data),
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {

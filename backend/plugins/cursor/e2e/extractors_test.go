@@ -103,8 +103,8 @@ func TestCursorExtractorsDataFlow(t *testing.T) {
 	}
 
 	extraRaw := map[string]interface{}{
-		"params": `{"ConnectionId":1,"ScopeId":"team","Endpoint":"https://api.cursor.com"}`,
-		"data": []byte(`{"day":"2026-07-09","userId":"user_example123","email":"user@example.com","isActive":true,"completions":1,"premiumRequests":0,"agentRequests":1,"chatRequests":0,"composerRequests":0,"totalTabsAccepted":0,"totalTabsShown":0,"usageBasedReqs":0,"subscriptionIncludedReqs":1,"mostUsedModel":"composer-2.5-fast","clientVersion":"0.50.3","totalLinesAdded":0,"totalLinesDeleted":0,"acceptedLinesAdded":0,"acceptedLinesDeleted":0,"totalApplies":0,"totalAccepts":0,"totalRejects":0}`),
+		"params":     `{"ConnectionId":1,"ScopeId":"team","Endpoint":"https://api.cursor.com"}`,
+		"data":       []byte(`{"day":"2026-07-09","userId":"user_example123","email":"user@example.com","isActive":true,"completions":1,"premiumRequests":0,"agentRequests":1,"chatRequests":0,"composerRequests":0,"totalTabsAccepted":0,"totalTabsShown":0,"usageBasedReqs":0,"subscriptionIncludedReqs":1,"mostUsedModel":"composer-2.5-fast","clientVersion":"0.50.3","totalLinesAdded":0,"totalLinesDeleted":0,"acceptedLinesAdded":0,"acceptedLinesDeleted":0,"totalApplies":0,"totalAccepts":0,"totalRejects":0}`),
 		"url":        "https://api.cursor.com/teams/daily-usage-data",
 		"input":      nil,
 		"created_at": time.Now().UTC(),

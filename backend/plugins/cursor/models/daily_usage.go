@@ -27,10 +27,10 @@ import (
 // Line fields map from acceptedLinesAdded/totalLinesAdded (etc.); LinesAdded/LinesDeleted
 // duplicate accepted_lines_added/accepted_lines_deleted for backward compatibility.
 type CursorDailyUsage struct {
-	ConnectionId             uint64    `gorm:"primaryKey" json:"connectionId"`
-	ScopeId                  string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
-	UserId                   string    `gorm:"primaryKey;type:varchar(255)" json:"userId"`
-	UsageDate                time.Time `gorm:"primaryKey" json:"usageDate"`
+	ConnectionId uint64    `gorm:"primaryKey" json:"connectionId"`
+	ScopeId      string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
+	UserId       string    `gorm:"primaryKey;type:varchar(255)" json:"userId"`
+	UsageDate    time.Time `gorm:"primaryKey" json:"usageDate"`
 
 	Email                    string `json:"email" gorm:"type:varchar(255);index"`
 	IsActive                 bool   `json:"isActive"`

@@ -44,8 +44,8 @@ func ExtractMembers(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:   taskCtx,
-			Table: rawMembersTable,
+			Ctx:     taskCtx,
+			Table:   rawMembersTable,
 			Options: rawParamsFromTaskData(data),
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {

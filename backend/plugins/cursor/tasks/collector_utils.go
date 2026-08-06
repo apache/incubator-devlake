@@ -195,20 +195,6 @@ func parseUsageEventsResponse(res *http.Response) ([]json.RawMessage, errors.Err
 	return response.UsageEvents, nil
 }
 
-func parseSpendMembersResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
-	body, err := readResponseBody(res)
-	if err != nil {
-		return nil, err
-	}
-	var response struct {
-		TeamMemberSpend []json.RawMessage `json:"teamMemberSpend"`
-	}
-	if jsonErr := json.Unmarshal(body, &response); jsonErr != nil {
-		return nil, errors.Default.Wrap(errors.Convert(jsonErr), "failed to decode spend response")
-	}
-	return response.TeamMemberSpend, nil
-}
-
 func parseDailyUsageResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	body, err := readResponseBody(res)
 	if err != nil {
@@ -235,20 +221,6 @@ func parseMembersResponse(res *http.Response) ([]json.RawMessage, errors.Error) 
 		return nil, errors.Default.Wrap(errors.Convert(jsonErr), "failed to decode members response")
 	}
 	return response.TeamMembers, nil
-}
-
-func parseSpendMeta(res *http.Response) (int64, errors.Error) {
-	body, err := readResponseBody(res)
-	if err != nil {
-		return 0, err
-	}
-	var response struct {
-		SubscriptionCycleStart int64 `json:"subscriptionCycleStart"`
-	}
-	if jsonErr := json.Unmarshal(body, &response); jsonErr != nil {
-		return 0, errors.Default.Wrap(errors.Convert(jsonErr), "failed to decode spend metadata")
-	}
-	return response.SubscriptionCycleStart, nil
 }
 
 func parsePaginationBody(body []byte) (cursorPagination, errors.Error) {

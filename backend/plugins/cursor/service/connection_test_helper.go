@@ -116,8 +116,8 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 	hasEnterpriseAnalytics := probeEnterpriseAnalytics(apiClient)
 
 	return &TestConnectionResult{
-		Success: true,
-		Message: "Team Admin API key validated. Members, spend, and usage events are accessible.",
+		Success:                true,
+		Message:                "Team Admin API key validated. Members, spend, and usage events are accessible.",
 		MemberCount:            memberCount,
 		Permissions:            permissions,
 		HasEnterpriseAnalytics: hasEnterpriseAnalytics,

@@ -25,19 +25,19 @@ import (
 
 // CursorUserSpend stores per-user billing cycle spend from /teams/spend.
 type CursorUserSpend struct {
-	ConnectionId       uint64    `gorm:"primaryKey" json:"connectionId"`
-	ScopeId            string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
-	UserId             string    `gorm:"primaryKey;type:varchar(255)" json:"userId"`
-	BillingCycleStart  time.Time `gorm:"primaryKey" json:"billingCycleStart"`
-	CollectedAt        time.Time `gorm:"index" json:"collectedAt"`
+	ConnectionId      uint64    `gorm:"primaryKey" json:"connectionId"`
+	ScopeId           string    `gorm:"primaryKey;type:varchar(255)" json:"scopeId"`
+	UserId            string    `gorm:"primaryKey;type:varchar(255)" json:"userId"`
+	BillingCycleStart time.Time `gorm:"primaryKey" json:"billingCycleStart"`
+	CollectedAt       time.Time `gorm:"index" json:"collectedAt"`
 
-	Email                   string  `json:"email" gorm:"type:varchar(255);index"`
-	Name                    string  `json:"name" gorm:"type:varchar(255)"`
-	Role                    string  `json:"role" gorm:"type:varchar(50)"`
-	SpendCents              float64 `json:"spendCents"`
-	IncludedSpendCents      float64 `json:"includedSpendCents"`
-	FastPremiumRequests     int     `json:"fastPremiumRequests"`
-	MonthlyLimitDollars     float64 `json:"monthlyLimitDollars"`
+	Email                    string  `json:"email" gorm:"type:varchar(255);index"`
+	Name                     string  `json:"name" gorm:"type:varchar(255)"`
+	Role                     string  `json:"role" gorm:"type:varchar(50)"`
+	SpendCents               float64 `json:"spendCents"`
+	IncludedSpendCents       float64 `json:"includedSpendCents"`
+	FastPremiumRequests      int     `json:"fastPremiumRequests"`
+	MonthlyLimitDollars      float64 `json:"monthlyLimitDollars"`
 	HardLimitOverrideDollars float64 `json:"hardLimitOverrideDollars"`
 
 	common.NoPKModel
