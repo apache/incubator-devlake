@@ -52,7 +52,8 @@ fi
 
 if [ -z "$DEVLAKE_PLUGINS" ]; then
     echo "Building all plugins"
-    PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -name logs -not -empty)
+    # schema_e2e is not a plugin, it only holds the cross-plugin schema-drift e2e test
+    PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -name logs -not -name schema_e2e -not -empty)
 else
     echo "Building the following plugins: $PLUGIN"
     PLUGINS=

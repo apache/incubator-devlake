@@ -18,12 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"bytes"
-	"io"
 	"net/http"
 	"testing"
 	"time"
 
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/stretchr/testify/require"
 )
 
@@ -109,35 +108,20 @@ func TestUserMetricsDateRangeAppliesFourDayBackfillWindow(t *testing.T) {
 	require.Equal(t, time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC), start)
 }
 
-func TestParseReportMetadataResponseNoContent(t *testing.T) {
-	res := &http.Response{
-		StatusCode: http.StatusNoContent,
-		Body:       io.NopCloser(bytes.NewReader(nil)),
-	}
+func TestIgnoreNoContentSkips204And404(t *testing.T) {
+	require.Equal(t, helper.ErrIgnoreAndContinue, ignoreNoContent(&http.Response{StatusCode: http.StatusNoContent}))
+	require.Equal(t, helper.ErrIgnoreAndContinue, ignoreNoContent(&http.Response{StatusCode: http.StatusNotFound}))
+	require.NoError(t, ignoreNoContent(&http.Response{StatusCode: http.StatusOK}))
+}
 
-	meta, err := parseReportMetadataResponse(res, nil)
+func TestParseReportMetadataEmptyBody(t *testing.T) {
+	meta, err := parseReportMetadata(nil, nil)
 	require.NoError(t, err)
 	require.Nil(t, meta)
 }
 
-func TestParseReportMetadataResponseEmptyBody(t *testing.T) {
-	res := &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewReader(nil)),
-	}
-
-	meta, err := parseReportMetadataResponse(res, nil)
-	require.NoError(t, err)
-	require.Nil(t, meta)
-}
-
-func TestParseReportMetadataResponseEmptyString(t *testing.T) {
-	res := &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewReader([]byte(`""`))),
-	}
-
-	meta, err := parseReportMetadataResponse(res, nil)
+func TestParseReportMetadataEmptyString(t *testing.T) {
+	meta, err := parseReportMetadata([]byte(`""`), nil)
 	require.NoError(t, err)
 	require.Nil(t, meta)
 }

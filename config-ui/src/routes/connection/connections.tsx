@@ -19,7 +19,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { theme, Badge, Modal } from 'antd';
-import { chunk } from 'lodash';
 
 import { selectPlugins, selectAllConnections, selectWebhooks } from '@/features/connections';
 import { PATHS } from '@/config';
@@ -51,7 +50,11 @@ export const Connections = () => {
 
   const [firstPlugins, secondPlugins] = useMemo(() => {
     if (index > 0) {
-      return chunk(filterWebhookPlugins, index);
+      // Split into A-N / O-Z at the first O-Z plugin. Must be a two-way
+      // slice — `chunk(list, index)` produces equal-size groups and the
+      // destructure keeps only the first two, silently dropping any plugins
+      // in the tail once the list exceeds 2*index.
+      return [filterWebhookPlugins.slice(0, index), filterWebhookPlugins.slice(index)];
     }
     return [filterWebhookPlugins, []];
   }, [index]);

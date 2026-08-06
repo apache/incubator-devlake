@@ -55,6 +55,7 @@ type userDailyReport struct {
 	// are collected in case they're ever populated independently.
 	UsedCopilotCodingAgent  bool                   `json:"used_copilot_coding_agent"`
 	UsedCopilotCloudAgent   bool                   `json:"used_copilot_cloud_agent"`
+	AiCreditsUsed           float64                `json:"ai_credits_used"`
 	AiAdoptionPhase         *aiAdoptionPhase       `json:"ai_adoption_phase"`
 	TotalsByIde             []userTotalsByIde      `json:"totals_by_ide"`
 	TotalsByFeature         []totalsByFeature      `json:"totals_by_feature"`
@@ -70,7 +71,7 @@ type userDailyReport struct {
 type aiAdoptionPhase struct {
 	Phase   int `json:"phase"`
 	Version int `json:"version"`
- }
+}
 
 type userTotalsByIde struct {
 	totalsByIde
@@ -140,6 +141,7 @@ func ExtractUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				UsedCopilotCodeReviewPassive: u.UsedCopilotCodeReviewPassive,
 				UsedCopilotCodingAgent:       u.UsedCopilotCodingAgent,
 				UsedCopilotCloudAgent:        u.UsedCopilotCloudAgent,
+				AiCreditsUsed:                u.AiCreditsUsed,
 				CopilotActivityMetrics: models.CopilotActivityMetrics{
 					UserInitiatedInteractionCount: u.UserInitiatedInteractionCount,
 					CodeGenerationActivityCount:   u.CodeGenerationActivityCount,

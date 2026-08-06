@@ -34,6 +34,7 @@ import (
 	githubGraphql "github.com/apache/incubator-devlake/plugins/github_graphql/impl"
 	gitlab "github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	icla "github.com/apache/incubator-devlake/plugins/icla/impl"
+	incidentio "github.com/apache/incubator-devlake/plugins/incidentio/impl"
 	jenkins "github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	jira "github.com/apache/incubator-devlake/plugins/jira/impl"
 	org "github.com/apache/incubator-devlake/plugins/org/impl"
@@ -74,6 +75,7 @@ func loadGoPlugins() []plugin.PluginMeta {
 		githubGraphql.GithubGraphql{},
 		gitlab.Gitlab{},
 		icla.Icla{},
+		incidentio.Incidentio{},
 		jenkins.Jenkins{},
 		jira.Jira{},
 		org.Org{},
