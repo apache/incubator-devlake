@@ -255,6 +255,7 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
 		Board:          scope,
+		ProjectName:    op.ProjectName,
 	}
 
 	return taskData, nil
