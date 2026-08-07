@@ -116,7 +116,7 @@ type GhCopilotEnterpriseDailyMetrics struct {
 	// {comment_type, total_suggestions, total_applied_suggestions}, e.g. the
 	// split between "suggestion" and "explanation" style review comments.
 	PRCopilotSuggestionsByCommentType string `json:"prCopilotSuggestionsByCommentType" gorm:"type:text;comment:JSON breakdown of Copilot PR suggestions by comment type"`
- 
+
 	CopilotActivityMetrics `mapstructure:",squash"`
 	CopilotCliMetrics      `mapstructure:",squash"`
 	common.NoPKModel

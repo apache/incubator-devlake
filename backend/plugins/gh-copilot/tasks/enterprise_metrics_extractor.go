@@ -83,7 +83,6 @@ type enterpriseDayTotal struct {
 	// cohort (phase 0-3). Added 2026-05-29, extended with review-cycle metrics
 	// 2026-07-07. Only present on enterprise/org reports, not user reports.
 	TotalsByAiAdoptionPhase []totalsByAiAdoptionPhase `json:"totals_by_ai_adoption_phase"`
-
 }
 
 type totalsByIde struct {

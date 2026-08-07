@@ -48,10 +48,6 @@ func GetTablesInfo() []dal.Tabler {
 		&GhCopilotSeat{},
 		// User-team mappings
 		&GhCopilotUserTeam{},
-		// 28-day rolling-window snapshots (separate cadence from the daily tables above)
-		&GhCopilotEnterprise28DayMetrics{},
-		&GhCopilotUser28DayMetrics{},
-		// AI credit usage billing (enterprise, org, user levels)
 		&GhCopilotEnterpriseAiCreditUsage{},
 		&GhCopilotOrgAiCreditUsage{},
 		&GhCopilotUserAiCreditUsage{},
