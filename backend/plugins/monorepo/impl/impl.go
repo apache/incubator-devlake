@@ -1,0 +1,170 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package impl
+
+import (
+	"encoding/json"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/monorepo/models"
+	"github.com/apache/incubator-devlake/plugins/monorepo/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/monorepo/tasks"
+)
+
+// make sure interface is implemented
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginModel
+	plugin.PluginMetric
+	plugin.PluginMigration
+	plugin.MetricPluginBlueprintV200
+} = (*Monorepo)(nil)
+
+type Monorepo struct{}
+
+func (p Monorepo) Description() string {
+	return "Split a monorepo into sub-projects and compute per-sub-project DORA metrics"
+}
+
+func (p Monorepo) Name() string {
+	return "monorepo"
+}
+
+func (p Monorepo) Dashboards() []plugin.GrafanaDashboard {
+	return nil
+}
+
+func (p Monorepo) SvgIcon() string {
+	return `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1 1h6v6H1V1zm1 1v4h4V2H2zm7-1h6v6H9V1zm1 1v4h4V2h-4zM1 9h6v6H1V9zm1 1v4h4v-4H2zm7-1h6v6H9V9zm1 1v4h4v-4h-4z" fill="#444444"/>
+</svg>`
+}
+
+// RequiredDataEntities declares that deployments must be recognisable as CI/CD tasks of
+// type Deployment, which is what sub-project attribution matches job names against.
+func (p Monorepo) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{
+		{
+			"model": "cicd_tasks",
+			"requiredFields": map[string]string{
+				"column":        "type",
+				"execptedValue": "Deployment",
+			},
+		},
+	}, nil
+}
+
+func (p Monorepo) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
+		&models.SubProjectDeployment{},
+		&models.SubProjectPrMetric{},
+	}
+}
+
+func (p Monorepo) IsProjectMetric() bool {
+	return true
+}
+
+// RunAfter ensures DORA has produced project_pr_metrics (coding/pickup/review times) and
+// its deployment records before sub-project attribution reads them.
+func (p Monorepo) RunAfter() ([]string, errors.Error) {
+	return []string{"dora"}, nil
+}
+
+func (p Monorepo) Settings() interface{} {
+	return nil
+}
+
+func (p Monorepo) SubTaskMetas() []plugin.SubTaskMeta {
+	return []plugin.SubTaskMeta{
+		tasks.AttributeDeploymentsMeta,
+		tasks.AttributePullRequestsMeta,
+	}
+}
+
+func (p Monorepo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	op, err := tasks.DecodeAndValidateTaskOptions(options)
+	if err != nil {
+		return nil, err
+	}
+	matcher, err := tasks.NewSubProjectMatcher(op.SubProjects)
+	if err != nil {
+		return nil, err
+	}
+	return &tasks.MonorepoTaskData{
+		Options: op,
+		Matcher: matcher,
+	}, nil
+}
+
+// RootPkgPath information lost when compiled as plugin(.so)
+func (p Monorepo) RootPkgPath() string {
+	return "github.com/apache/incubator-devlake/plugins/monorepo"
+}
+
+func (p Monorepo) MigrationScripts() []plugin.MigrationScript {
+	return migrationscripts.All()
+}
+
+func (p Monorepo) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (coreModels.PipelinePlan, errors.Error) {
+	op := &tasks.MonorepoOptions{}
+	if options != nil && string(options) != "\"\"" {
+		if err := json.Unmarshal(options, op); err != nil {
+			return nil, errors.Default.WrapRaw(err)
+		}
+	}
+	if len(op.SubProjects) == 0 {
+		return nil, errors.BadInput.New(
+			"the monorepo plugin requires a subProjects list in its metric plugin options")
+	}
+	// Validate eagerly so a bad regex is reported when the blueprint is saved rather
+	// than midway through a pipeline run.
+	if _, err := tasks.NewSubProjectMatcher(op.SubProjects); err != nil {
+		return nil, err
+	}
+
+	subProjects := make([]map[string]interface{}, 0, len(op.SubProjects))
+	for _, sp := range op.SubProjects {
+		subProjects = append(subProjects, map[string]interface{}{
+			"name":             sp.Name,
+			"prLabels":         sp.PrLabels,
+			"deployJobPattern": sp.DeployJobPattern,
+		})
+	}
+
+	plan := coreModels.PipelinePlan{
+		{
+			{
+				Plugin: "monorepo",
+				Options: map[string]interface{}{
+					"projectName": projectName,
+					"subProjects": subProjects,
+				},
+				Subtasks: []string{
+					tasks.AttributeDeploymentsMeta.Name,
+					tasks.AttributePullRequestsMeta.Name,
+				},
+			},
+		},
+	}
+	return plan, nil
+}
