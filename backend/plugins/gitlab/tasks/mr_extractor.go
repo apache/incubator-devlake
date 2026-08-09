@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -65,7 +66,7 @@ type MergeRequestRes struct {
 	Assignees        []Assignee
 	FirstCommentTime common.Iso8601Time
 	Labels           []string `json:"labels"`
-	DiffStats *struct {
+	DiffStats        *struct {
 		Additions int `json:"additions"`
 		Deletions int `json:"deletions"`
 	} `json:"diff_stats"`
@@ -256,8 +257,7 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 	if mr.DiffStats != nil && (mr.DiffStats.Additions > 0 || mr.DiffStats.Deletions > 0) {
 		gitlabMergeRequest.Additions = mr.DiffStats.Additions
 		gitlabMergeRequest.Deletions = mr.DiffStats.Deletions
-	}
-	else if mr.ChangesCount != "" && mr.ChangesCount != "0" {
+	} else if mr.ChangesCount != "" && mr.ChangesCount != "0" {
 		count, err := strconv.Atoi(mr.ChangesCount)
 		if err == nil {
 			// changes_count is cumulative (bug source), but better than zero
