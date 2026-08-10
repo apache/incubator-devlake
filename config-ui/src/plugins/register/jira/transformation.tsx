@@ -19,7 +19,7 @@
 import { useState, useEffect } from 'react';
 import { uniqWith } from 'lodash';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { theme, Collapse, Tag, Form, Select } from 'antd';
+import { theme, Collapse, Tag, Form, Select, Input } from 'antd';
 
 import API from '@/api';
 import { PageLoading, HelpTooltip, ExternalLink } from '@/components';
@@ -261,6 +261,26 @@ const renderCollapseItems = ({
                 onChangeTransformation({
                   ...transformation,
                   storyPointField: value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label={
+              <>
+                <span>Extra JQL</span>
+                <HelpTooltip content="Additional JQL clause ANDed into every issue query. Supports Go text/template syntax. Available variables: {{.BoardName}} (Jira board display name), {{.BoardId}} (numeric board ID)." />
+              </>
+            }
+            extra='Tip: use Go template variables to make this dynamic, e.g. owner = "{{.BoardName}}"'
+          >
+            <Input
+              placeholder='e.g. component = "my-project"'
+              value={transformation.extraJql}
+              onChange={(e) =>
+                onChangeTransformation({
+                  ...transformation,
+                  extraJql: e.target.value,
                 })
               }
             />

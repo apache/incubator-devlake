@@ -58,7 +58,10 @@ func testConnection(ctx context.Context, connection models.JiraConn) (*JiraTestC
 	}
 	serverInfoFail := "Failed testing the serverInfo: [ " + res.Request.URL.String() + " ]"
 	// check if `/rest/` was missing
-	if res.StatusCode == http.StatusNotFound && !strings.HasSuffix(connection.Endpoint, "/rest/") {
+	// Skip this hint for Atlassian API Gateway endpoints — they already include /rest/ in the path
+	// and a 404 on serverInfo there indicates a wrong Cloud ID, not a missing /rest/ segment.
+	isGatewayEndpoint := strings.Contains(connection.Endpoint, "api.atlassian.com")
+	if res.StatusCode == http.StatusNotFound && !strings.HasSuffix(connection.Endpoint, "/rest/") && !isGatewayEndpoint {
 		endpointUrl, err := url.Parse(connection.Endpoint)
 		if err != nil {
 			return nil, errors.Convert(err)

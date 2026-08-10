@@ -1,0 +1,4 @@
+connection_id,scope_id,year,month,day,user,model,product,gross_quantity,discount_quantity,net_quantity,price_per_unit,gross_amount,discount_amount,net_amount
+1,octodemo,2025,12,10,alice,gpt-4.1,copilot,50.0,5.0,45.0,1.0,50.0,5.0,45.0
+1,octodemo,2025,12,10,alice,gpt-4o,copilot,30.0,3.0,27.0,1.0,30.0,3.0,27.0
+1,octodemo,2025,12,10,bob,claude-3,copilot,20.0,2.0,18.0,1.0,20.0,2.0,18.0

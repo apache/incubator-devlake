@@ -69,7 +69,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
 
   const options = useMemo(
     () =>
-      [{ value: '' }].concat(
+      [{ value: '', plugin: '', label: '' }].concat(
         connections
           .filter((cs) => (disabled.length ? !disabled.includes(cs.unique) : true))
           .map((cs) => ({

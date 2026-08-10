@@ -105,15 +105,15 @@ func (b basicResStub) ReplaceLogger(log.Logger) corectx.BasicRes {
 }
 func (b basicResStub) GetDal() dal.Dal { return nil }
 
-func TestLoadConfigDefaultsAuthEnabled(t *testing.T) {
+func TestLoadConfigDefaultsAuthDisabled(t *testing.T) {
 	v := viper.New()
 
 	cfg, err := LoadConfig(basicResStub{cfg: v})
 	if err != nil {
 		t.Fatalf("LoadConfig returned error: %v", err)
 	}
-	if !cfg.AuthEnabled {
-		t.Fatal("AuthEnabled should default to true when AUTH_ENABLED is unset")
+	if cfg.AuthEnabled {
+		t.Fatal("AuthEnabled should default to false when AUTH_ENABLED is unset")
 	}
 	if cfg.OIDCEnabled {
 		t.Fatal("OIDCEnabled should default to false")
@@ -125,6 +125,7 @@ func TestLoadConfigDefaultsAuthEnabled(t *testing.T) {
 
 func TestLoadConfigRequiresSessionSecretForOIDC(t *testing.T) {
 	v := viper.New()
+	v.Set("AUTH_ENABLED", true)
 	v.Set("OIDC_ENABLED", true)
 
 	if _, err := LoadConfig(basicResStub{cfg: v}); err == nil {

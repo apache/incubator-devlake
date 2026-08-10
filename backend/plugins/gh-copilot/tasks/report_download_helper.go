@@ -95,15 +95,6 @@ type reportMetadataResponse struct {
 	ReportEndDay   string `json:"report_end_day"`
 }
 
-func readReportMetadataBody(res *http.Response) ([]byte, errors.Error) {
-	body, readErr := io.ReadAll(res.Body)
-	res.Body.Close()
-	if readErr != nil {
-		return nil, errors.Default.Wrap(readErr, "failed to read report metadata")
-	}
-	return body, nil
-}
-
 func logReportMetadataParseError(body []byte, err error, logger log.Logger) {
 	if logger == nil {
 		return
@@ -165,23 +156,6 @@ func parseReportMetadata(body []byte, logger log.Logger) (*reportMetadataRespons
 	return &meta, nil
 }
 
-func parseReportMetadataResponse(res *http.Response, logger log.Logger) (*reportMetadataResponse, errors.Error) {
-	if res.StatusCode == http.StatusNoContent {
-		if logger != nil {
-			logger.Info("Report metadata not ready yet (204), skipping for now")
-		}
-		res.Body.Close()
-		return nil, nil
-	}
-
-	body, readErr := readReportMetadataBody(res)
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	return parseReportMetadata(body, logger)
-}
-
 func collectRawReportRecords(meta *reportMetadataResponse, logger log.Logger) ([]json.RawMessage, errors.Error) {
 	if len(meta.DownloadLinks) == 0 {
 		logger.Info("No download links for report day=%s, skipping", meta.ReportDay)
@@ -212,17 +186,11 @@ func parseRawReportResponse(res *http.Response, logger log.Logger) ([]json.RawMe
 		return nil, nil
 	}
 
-	var meta *reportMetadataResponse
-	if jsonErr := json.Unmarshal(body, &meta); jsonErr != nil {
-		snippet := string(body)
-		if len(snippet) > 200 {
-			snippet = snippet[:200]
-		}
-		logger.Error(jsonErr, "failed to parse report metadata, body=%s", snippet)
-		return nil, errors.Default.Wrap(jsonErr, "failed to parse report metadata")
-	}
-
-	meta, err := parseReportMetadataResponse(res, logger)
+	// Parse the metadata from the body we already read above. Previously this
+	// re-read res.Body via parseReportMetadataResponse, but the body had already
+	// been consumed by io.ReadAll, so the second read returned empty and the
+	// collector silently produced zero records (affecting enterprise metrics).
+	meta, err := parseReportMetadata(body, logger)
 	if err != nil || meta == nil {
 		return nil, err
 	}

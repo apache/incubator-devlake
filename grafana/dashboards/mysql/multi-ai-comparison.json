@@ -65,7 +65,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Weekly active users for both tools",
       "fieldConfig": {
         "defaults": {
@@ -88,14 +88,14 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time,\n  COUNT(DISTINCT user_id) AS 'Kiro Active Users'\nFROM _tool_q_dev_user_report\nWHERE $__timeFilter(date)\nGROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\nORDER BY time",
           "refId": "A"
         },
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY) AS time,\n  MAX(daily_active_users) AS 'Copilot Active Users'\nFROM _tool_copilot_enterprise_daily_metrics\nWHERE connection_id = ${copilot_connection_id}\n  AND scope_id = '${copilot_scope_id}'\n  AND $__timeFilter(day)\nGROUP BY DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY)\nORDER BY time",
@@ -114,7 +114,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Weekly code generation and acceptance events",
       "fieldConfig": {
         "defaults": {
@@ -137,7 +137,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time,\n  SUM(inline_suggestions_count) AS 'Kiro: Suggestions',\n  SUM(inline_acceptance_count) AS 'Kiro: Accepted'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\nORDER BY time",
@@ -148,7 +148,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Weekly Copilot code generation and acceptance events",
       "fieldConfig": {
         "defaults": {
@@ -171,7 +171,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY) AS time,\n  SUM(code_generation_activity_count) AS 'Copilot: Suggestions',\n  SUM(code_acceptance_activity_count) AS 'Copilot: Accepted'\nFROM _tool_copilot_enterprise_daily_metrics\nWHERE connection_id = ${copilot_connection_id}\n  AND scope_id = '${copilot_scope_id}'\n  AND $__timeFilter(day)\nGROUP BY DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY)\nORDER BY time",
@@ -190,7 +190,7 @@
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Weekly AI-generated lines of code accepted",
       "fieldConfig": {
         "defaults": {
@@ -213,7 +213,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT time, SUM(kiro_loc) AS 'Kiro LOC Accepted', SUM(copilot_loc) AS 'Copilot LOC Added'\nFROM (\n  SELECT DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time,\n    SUM(inline_ai_code_lines + chat_ai_code_lines) AS kiro_loc, 0 AS copilot_loc\n  FROM _tool_q_dev_user_data WHERE $__timeFilter(date)\n  GROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\n  UNION ALL\n  SELECT DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY) AS time,\n    0 AS kiro_loc, SUM(loc_added_sum) AS copilot_loc\n  FROM _tool_copilot_enterprise_daily_metrics\n  WHERE connection_id = ${copilot_connection_id}\n    AND scope_id = '${copilot_scope_id}'\n    AND $__timeFilter(day)\n  GROUP BY DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY)\n) combined\nGROUP BY time ORDER BY time",
@@ -224,7 +224,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
+      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
       "description": "Overall acceptance rates for both tools",
       "fieldConfig": {
         "defaults": {
@@ -247,7 +247,7 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
           "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT 'Kiro' AS Tool,\n  ROUND(SUM(inline_acceptance_count) * 100.0 / NULLIF(SUM(inline_suggestions_count), 0), 1) AS 'Acceptance Rate'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)\nUNION ALL\nSELECT 'Copilot' AS Tool,\n  ROUND(SUM(code_acceptance_activity_count) * 100.0 / NULLIF(SUM(code_generation_activity_count), 0), 1)\nFROM _tool_copilot_enterprise_daily_metrics\nWHERE connection_id = ${copilot_connection_id}\n  AND scope_id = '${copilot_scope_id}'\n  AND $__timeFilter(day)",
@@ -266,7 +266,7 @@
     "list": [
       {
         "current": {},
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "SELECT DISTINCT connection_id FROM _tool_copilot_scopes ORDER BY connection_id DESC",
         "hide": 0,
         "label": "Copilot Connection",
@@ -278,7 +278,7 @@
       },
       {
         "current": {},
-        "datasource": "mysql",
+        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
         "definition": "SELECT DISTINCT id FROM _tool_copilot_scopes WHERE connection_id = CAST('${copilot_connection_id}' AS UNSIGNED)",
         "hide": 0,
         "label": "Copilot Scope",

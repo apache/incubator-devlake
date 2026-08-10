@@ -28,7 +28,8 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 6px 8px;
-  background: #f0f4fe;
+  color: ${({ theme }) => theme.colors.text};
+  background: ${({ theme }) => theme.colors.infoBg};
 `;
 
 interface Props {

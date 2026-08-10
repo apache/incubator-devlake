@@ -102,24 +102,41 @@ func (p Org) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/org"
 }
 
-func (p Org) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
+// wrapHandler defers the resolution of p.handlers to request time.
+// ApiResources() may be evaluated during route registration, which can happen
+// before InitPlugins() has called Init() (InitPlugins runs inside
+// pipelineServiceInit); a bound method value like p.handlers.GetTeam would
+// capture a nil receiver permanently, making every org endpoint panic with a
+// nil pointer dereference. See https://github.com/apache/devlake/issues/9021.
+func (p *Org) wrapHandler(
+	method func(*api.Handlers, *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error),
+) plugin.ApiResourceHandler {
+	return func(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+		if p.handlers == nil {
+			return nil, errors.Internal.New("org plugin is not initialized yet, please retry later")
+		}
+		return method(p.handlers, input)
+	}
+}
+
+func (p *Org) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"teams.csv": {
-			"GET": p.handlers.GetTeam,
-			"PUT": p.handlers.CreateTeam,
+			"GET": p.wrapHandler((*api.Handlers).GetTeam),
+			"PUT": p.wrapHandler((*api.Handlers).CreateTeam),
 		},
 		"users.csv": {
-			"GET": p.handlers.GetUser,
-			"PUT": p.handlers.CreateUser,
+			"GET": p.wrapHandler((*api.Handlers).GetUser),
+			"PUT": p.wrapHandler((*api.Handlers).CreateUser),
 		},
 
 		"user_account_mapping.csv": {
-			"GET": p.handlers.GetUserAccountMapping,
-			"PUT": p.handlers.CreateUserAccountMapping,
+			"GET": p.wrapHandler((*api.Handlers).GetUserAccountMapping),
+			"PUT": p.wrapHandler((*api.Handlers).CreateUserAccountMapping),
 		},
 		"project_mapping.csv": {
-			"GET": p.handlers.GetProjectMapping,
-			"PUT": p.handlers.CreateProjectMapping,
+			"GET": p.wrapHandler((*api.Handlers).GetProjectMapping),
+			"PUT": p.wrapHandler((*api.Handlers).CreateProjectMapping),
 		},
 	}
 }

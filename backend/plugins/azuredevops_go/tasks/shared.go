@@ -153,8 +153,11 @@ func change203To401(res *http.Response) errors.Error {
 // that failed due to a YAML syntax error never produce a usable timeline), instead
 // of aborting the entire subtask.
 func ignoreInvalidTimelineResponse(res *http.Response) errors.Error {
-	// Keep existing behaviour: treat 404 as a graceful skip (build was deleted).
-	if res.StatusCode == http.StatusNotFound {
+	// Treat 404 (build deleted) and 204 (build has no timeline data) as
+	// graceful skips so the subtask continues instead of failing.
+	// The 204 guard must come before the body is read because a 204 response
+	// has an empty body by definition and would cause the JSON parser to fail.
+	if res.StatusCode == http.StatusNotFound || res.StatusCode == http.StatusNoContent {
 		return api.ErrIgnoreAndContinue
 	}
 

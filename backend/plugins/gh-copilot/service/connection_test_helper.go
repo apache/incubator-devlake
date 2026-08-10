@@ -85,7 +85,7 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 	// Note: /enterprises/{ent}/copilot/billing does not exist — use /billing/seats instead.
 	if hasEnterprise {
 		entSlug := strings.TrimSpace(connection.Enterprise)
-		seatsPath := fmt.Sprintf("enterprises/%s/copilot/billing/seats", entSlug)
+		seatsPath := copilotAPIPath("enterprises", entSlug, "copilot/billing/seats")
 		entSummary, entErr := fetchSeatsSummary(apiClient, seatsPath)
 		if entErr != nil {
 			return nil, entErr
@@ -97,7 +97,7 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 
 	// Test org endpoint when configured.
 	if hasOrg {
-		orgSummary, orgErr := fetchBillingSummary(apiClient, fmt.Sprintf("orgs/%s/copilot/billing", connection.Organization))
+		orgSummary, orgErr := fetchBillingSummary(apiClient, copilotAPIPath("orgs", connection.Organization, "copilot/billing"))
 		if orgErr != nil {
 			return nil, orgErr
 		}

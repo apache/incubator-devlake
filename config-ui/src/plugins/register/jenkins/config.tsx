@@ -28,6 +28,7 @@ export const JenkinsConfig: IPluginConfig = {
   sort: 8,
   connection: {
     docLink: DOC_URL.PLUGIN.JENKINS.BASIS,
+    initialValues: {},
     fields: [
       'name',
       {

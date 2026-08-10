@@ -19,10 +19,11 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"net/http"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/helpers/dbhelper"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -109,6 +110,26 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 func PostIssueByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.FirstByName(connection, input.Params)
+	return postIssue(input, err, connection)
+}
+
+// PostIssuesByProjectName
+// @Summary create issue by project name
+// @Description Create issue by project name. The webhook connection will be created automatically if it does not exist.<br/>
+// @Description example: {"url":"","issue_key":"DLK-1234","title":"a feature from DLK","description":"","epic_key":"","type":"BUG","status":"TODO","original_status":"created","story_point":0,"resolution_date":null,"created_date":"2020-01-01T12:00:00+00:00","updated_date":null,"lead_time_minutes":0,"parent_issue_key":"DLK-1200","priority":"","original_estimate_minutes":0,"time_spent_minutes":0,"time_remaining_minutes":0,"creator_id":"user1131","creator_name":"Nick name 1","assignee_id":"user1132","assignee_name":"Nick name 2","severity":"","component":""}
+// @Tags plugins/webhook
+// @Param body body WebhookIssueRequest true "json body"
+// @Success 200  {string} noResponse ""
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 403  {string} errcode.Error "Forbidden"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /projects/:projectName/issues [POST]
+func PostIssuesByProjectName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// find or create the connection for this project
+	connection, err, shouldReturn := getOrCreateConnection(input, "issues")
+	if shouldReturn {
+		return nil, err
+	}
 	return postIssue(input, err, connection)
 }
 
@@ -234,6 +255,42 @@ func CloseIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 	return closeIssue(input, err, connection)
 }
 
+// CloseIssueByBodyRequest is the body for the body-based close endpoint
+type CloseIssueByBodyRequest struct {
+	IssueKey       string     `mapstructure:"issueKey"       validate:"required,max=255"`
+	ResolutionDate *time.Time `mapstructure:"resolutionDate"`
+	OriginalStatus string     `mapstructure:"originalStatus"`
+}
+
+// CloseIssueByBody
+// @Summary      close an issue (body-based)
+// @Description  Close an incident by passing issueKey in the request body.
+// @Description  Use this when the client (e.g. Kibana) cannot construct a dynamic URL.
+// @Tags          plugins/webhook
+// @Param         connectionId path  int                    true  "connection ID"
+// @Param         body         body  CloseIssueByBodyRequest true  "close request"
+// @Success 200  {string} noResponse ""
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router        /plugins/webhook/connections/{connectionId}/issue/close [POST]
+func CloseIssueByBody(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	request := &CloseIssueByBodyRequest{}
+	if err2 := helper.DecodeMapStruct(input.Body, request, true); err2 != nil {
+		return &plugin.ApiResourceOutput{Body: err2.Error(), Status: http.StatusBadRequest}, nil
+	}
+	vld = validator.New()
+	if err2 := errors.Convert(vld.Struct(request)); err2 != nil {
+		return &plugin.ApiResourceOutput{Body: err2.Error(), Status: http.StatusBadRequest}, nil
+	}
+	input.Params["issueKey"] = request.IssueKey
+	return closeIssue(input, err, connection)
+}
+
 // CloseIssueByName
 // @Summary set issue's status to DONE
 // @Description set issue's status to DONE
@@ -245,6 +302,34 @@ func CloseIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 func CloseIssueByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.FirstByName(connection, input.Params)
+	return closeIssue(input, err, connection)
+}
+
+// CloseIssueByBodyByName
+// @Summary      close an issue by connection name (body-based)
+// @Description  Close an incident using connection name + issueKey in request body.
+// @Tags          plugins/webhook
+// @Param         connectionName path  string                 true "connection name"
+// @Param         body           body  CloseIssueByBodyRequest true "close request"
+// @Success 200  {string} noResponse ""
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router        /plugins/webhook/connections/by-name/{connectionName}/issue/close [POST]
+func CloseIssueByBodyByName(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.FirstByName(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	request := &CloseIssueByBodyRequest{}
+	if err2 := helper.DecodeMapStruct(input.Body, request, true); err2 != nil {
+		return &plugin.ApiResourceOutput{Body: err2.Error(), Status: http.StatusBadRequest}, nil
+	}
+	vld = validator.New()
+	if err2 := errors.Convert(vld.Struct(request)); err2 != nil {
+		return &plugin.ApiResourceOutput{Body: err2.Error(), Status: http.StatusBadRequest}, nil
+	}
+	input.Params["issueKey"] = request.IssueKey
 	return closeIssue(input, err, connection)
 }
 

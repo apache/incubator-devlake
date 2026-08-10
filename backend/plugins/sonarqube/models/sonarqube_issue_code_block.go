@@ -23,7 +23,7 @@ type SonarqubeIssueCodeBlock struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Id           string `gorm:"primaryKey"`
 	IssueKey     string `gorm:"index"`
-	Component    string `gorm:"index;type:varchar(500)"`
+	Component    string `gorm:"type:text"`
 	StartLine    int
 	EndLine      int
 	StartOffset  int

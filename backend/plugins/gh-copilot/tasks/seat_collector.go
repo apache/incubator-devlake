@@ -90,9 +90,9 @@ func CollectCopilotSeatAssignments(taskCtx plugin.SubTaskContext) errors.Error {
 	var urlTemplate string
 	switch {
 	case connection.HasEnterprise():
-		urlTemplate = fmt.Sprintf("enterprises/%s/copilot/billing/seats", connection.Enterprise)
+		urlTemplate = copilotAPIPath("enterprises", connection.Enterprise, "copilot/billing/seats")
 	case connection.Organization != "":
-		urlTemplate = fmt.Sprintf("orgs/%s/copilot/billing/seats", connection.Organization)
+		urlTemplate = copilotAPIPath("orgs", connection.Organization, "copilot/billing/seats")
 	default:
 		taskCtx.GetLogger().Warn(nil, "skipping seat collection: no enterprise or organization configured on connection %d", connection.ID)
 		return nil

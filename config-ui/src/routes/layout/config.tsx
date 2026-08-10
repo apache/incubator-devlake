@@ -31,6 +31,7 @@ import {
 import { DOC_URL } from '@/release';
 
 const PATH_PREFIX = import.meta.env.DEVLAKE_PATH_PREFIX ?? '';
+const GRAFANA_PATH = import.meta.env.DEVLAKE_GRAFANA_PATH ?? '/grafana';
 
 type MenuItem = {
   key: string;
@@ -73,25 +74,28 @@ export const menuItems: MenuItem[] = [
 ];
 
 const getMenuMatchs = (items: MenuItem[], parentKey?: string) => {
-  return items.reduce((pre, cur) => {
-    pre[cur.key] = {
-      ...cur,
-      parentKey,
-    };
+  return items.reduce(
+    (pre, cur) => {
+      pre[cur.key] = {
+        ...cur,
+        parentKey,
+      };
 
-    if (cur.children) {
-      pre = { ...pre, ...getMenuMatchs(cur.children, cur.key) };
-    }
+      if (cur.children) {
+        pre = { ...pre, ...getMenuMatchs(cur.children, cur.key) };
+      }
 
-    return pre;
-  }, {} as Record<string, MenuItem & { parentKey?: string }>);
+      return pre;
+    },
+    {} as Record<string, MenuItem & { parentKey?: string }>,
+  );
 };
 
 export const menuItemsMatch = getMenuMatchs(menuItems);
 
 export const headerItems = [
   {
-    link: import.meta.env.DEV ? `${window.location.protocol}//${window.location.hostname}:3002` : `/grafana`,
+    link: GRAFANA_PATH,
     label: 'Dashboards',
     icon: <DashboardOutlined />,
   },

@@ -62,6 +62,14 @@ func (conn *ClaudeCodeConn) HasUsableCustomHeaders() bool {
 	return false
 }
 
+// IsConsoleApiKey returns true when the token is a Claude Console Admin API key.
+// Console keys (sk-ant-admin01-...) have full Admin API access and use
+// /v1/organizations/usage_report/claude_code instead of the Enterprise
+// /v1/organizations/analytics/* endpoints.
+func (conn *ClaudeCodeConn) IsConsoleApiKey() bool {
+	return strings.HasPrefix(strings.TrimSpace(conn.Token), "sk-ant-admin01-")
+}
+
 func (conn *ClaudeCodeConn) HasIncompleteCustomHeaders() bool {
 	if conn == nil {
 		return false
