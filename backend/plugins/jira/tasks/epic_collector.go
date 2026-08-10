@@ -82,9 +82,9 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 		jql = buildJQL(*apiCollector.GetSince(), loc)
 	}
 
-	// Choose API endpoint based on JIRA deployment type
-	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
-		logger.Info("Using api/2/search for JIRA Server")
+	searchEndpoint := getJiraSearchEndpoint(data.JiraServerInfo.DeploymentType)
+	if searchEndpoint == jiraSearchEndpointV2 {
+		logger.Info("Using api/2/search for non-Cloud JIRA")
 		err = setupApiV2Collector(apiCollector, data, epicIterator, jql)
 	} else {
 		logger.Info("Using api/3/search/jql for JIRA Cloud")
@@ -102,7 +102,7 @@ func setupApiV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskD
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: false,
-		UrlTemplate: "api/2/search",
+		UrlTemplate: jiraSearchEndpointV2,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			epicKeys := []string{}
@@ -152,25 +152,36 @@ func setupApiV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskD
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
 		Incremental:           false,
-		UrlTemplate:           "api/3/search/jql",
+		UrlTemplate:           jiraSearchEndpointV3,
 		GetNextPageCustomData: getNextPageCustomDataForV3,
+		Method:                http.MethodPost,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
 			epicKeys := []string{}
-			for _, e := range reqData.Input.([]interface{}) {
-				epicKeys = append(epicKeys, *e.(*string))
+			input, ok := reqData.Input.([]interface{})
+			if !ok {
+				return nil, errors.Default.New("invalid input type, expected []interface{}")
+			}
+			for _, e := range input {
+				epicKey, ok := e.(*string)
+				if ok && epicKey != nil {
+					epicKeys = append(epicKeys, *epicKey)
+				}
+			}
+			return url.Values{}, nil
+		},
+		RequestBody: func(reqData *api.RequestData) map[string]interface{} {
+			epicKeys := []string{}
+			input, ok := reqData.Input.([]interface{})
+			if ok {
+				for _, e := range input {
+					epicKey, castOk := e.(*string)
+					if castOk && epicKey != nil {
+						epicKeys = append(epicKeys, *epicKey)
+					}
+				}
 			}
 			localJQL := fmt.Sprintf("issue in (%s) and %s", strings.Join(epicKeys, ","), jql)
-			query.Set("jql", localJQL)
-			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("expand", "changelog")
-			query.Set("fields", "*all")
-
-			if reqData.CustomData != nil {
-				query.Set("nextPageToken", reqData.CustomData.(string))
-			}
-
-			return query, nil
+			return buildJiraV3SearchRequestBody(localJQL, reqData)
 		},
 		Input: epicIterator,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {

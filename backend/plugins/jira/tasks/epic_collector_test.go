@@ -178,22 +178,32 @@ func TestEpicCollectorApiEndpointSelection(t *testing.T) {
 		{
 			name:             "JIRA Server should use api/2/search",
 			deploymentType:   models.DeploymentServer,
-			expectedEndpoint: "api/2/search",
+			expectedEndpoint: jiraSearchEndpointV2,
 		},
 		{
 			name:             "JIRA Cloud should use api/3/search/jql",
 			deploymentType:   models.DeploymentCloud,
-			expectedEndpoint: "api/3/search/jql",
+			expectedEndpoint: jiraSearchEndpointV3,
 		},
 		{
 			name:             "Lowercase server should use api/2/search",
 			deploymentType:   "server",
-			expectedEndpoint: "api/2/search",
+			expectedEndpoint: jiraSearchEndpointV2,
 		},
 		{
 			name:             "Uppercase CLOUD should use api/3/search/jql",
 			deploymentType:   "CLOUD",
-			expectedEndpoint: "api/3/search/jql",
+			expectedEndpoint: jiraSearchEndpointV3,
+		},
+		{
+			name:             "JIRA Data Center should use api/2/search",
+			deploymentType:   "Data Center",
+			expectedEndpoint: jiraSearchEndpointV2,
+		},
+		{
+			name:             "Unknown deployment should use api/2/search",
+			deploymentType:   "Unknown",
+			expectedEndpoint: jiraSearchEndpointV2,
 		},
 	}
 
@@ -202,11 +212,7 @@ func TestEpicCollectorApiEndpointSelection(t *testing.T) {
 			// Test the API endpoint selection logic from CollectEpics function
 			var selectedEndpoint string
 
-			if strings.EqualFold(string(tt.deploymentType), string(models.DeploymentServer)) {
-				selectedEndpoint = "api/2/search"
-			} else {
-				selectedEndpoint = "api/3/search/jql"
-			}
+			selectedEndpoint = getJiraSearchEndpoint(tt.deploymentType)
 
 			if selectedEndpoint != tt.expectedEndpoint {
 				t.Errorf("API endpoint selection for %s: got %s, want %s",

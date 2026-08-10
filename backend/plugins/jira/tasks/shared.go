@@ -18,11 +18,42 @@ limitations under the License.
 package tasks
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
+
+const jiraSearchEndpointV2 = "api/2/search"
+const jiraSearchEndpointV3 = "api/3/search/jql"
+
+func isJiraCloudDeployment(deploymentType models.DeploymentType) bool {
+	return strings.EqualFold(string(deploymentType), string(models.DeploymentCloud))
+}
+
+func getJiraSearchEndpoint(deploymentType models.DeploymentType) string {
+	if isJiraCloudDeployment(deploymentType) {
+		return jiraSearchEndpointV3
+	}
+	// Jira Server and Data Center continue using v2 search for compatibility.
+	return jiraSearchEndpointV2
+}
+
+func buildJiraV3SearchRequestBody(jql string, reqData *api.RequestData) map[string]interface{} {
+	body := map[string]interface{}{
+		"jql":        jql,
+		"maxResults": reqData.Pager.Size,
+		"expand":     "changelog",
+		"fields":     "*all",
+	}
+	if nextPageToken, ok := reqData.CustomData.(string); ok && nextPageToken != "" {
+		body["nextPageToken"] = nextPageToken
+	}
+	return body
+}
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 	body := &JiraPagination{}

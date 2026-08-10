@@ -95,8 +95,9 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		pageSize = 100
 	}
 
-	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
-		logger.Info("Using api/2/search for JIRA Server issue collection")
+	searchEndpoint := getJiraSearchEndpoint(data.JiraServerInfo.DeploymentType)
+	if searchEndpoint == jiraSearchEndpointV2 {
+		logger.Info("Using api/2/search for non-Cloud JIRA issue collection")
 		err = setupIssueV2Collector(apiCollector, data, filterJql, pageSize)
 	} else {
 		logger.Info("Using api/3/search/jql for JIRA Cloud issue collection")
@@ -180,7 +181,7 @@ func setupIssueV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTas
 	return apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    pageSize,
-		UrlTemplate: "api/2/search",
+		UrlTemplate: jiraSearchEndpointV2,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("jql", filterJql)
@@ -212,18 +213,14 @@ func setupIssueV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTas
 	return apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              pageSize,
-		UrlTemplate:           "api/3/search/jql",
+		UrlTemplate:           jiraSearchEndpointV3,
 		GetNextPageCustomData: getNextPageCustomDataForV3,
+		Method:                http.MethodPost,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("jql", filterJql)
-			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("expand", "changelog")
-			query.Set("fields", "*all")
-			if reqData.CustomData != nil {
-				query.Set("nextPageToken", reqData.CustomData.(string))
-			}
-			return query, nil
+			return url.Values{}, nil
+		},
+		RequestBody: func(reqData *api.RequestData) map[string]interface{} {
+			return buildJiraV3SearchRequestBody(filterJql, reqData)
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
@@ -268,7 +265,7 @@ func getTimeZone(taskCtx plugin.SubTaskContext) (*time.Location, errors.Error) {
 	var resp *http.Response
 	var path string
 	var query url.Values
-	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
+	if !isJiraCloudDeployment(data.JiraServerInfo.DeploymentType) {
 		path = "api/2/user"
 		query = url.Values{"username": []string{conn.Username}}
 	} else {
