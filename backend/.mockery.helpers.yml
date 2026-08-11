@@ -33,4 +33,3 @@ template-data:
   unroll-variadic: false
 packages:
   github.com/apache/incubator-devlake/helpers:
-
