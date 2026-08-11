@@ -26,8 +26,8 @@ import (
 var _ plugin.MigrationScript = (*addAdditionsDeletionsToMr)(nil)
 
 type mrAdditionsDeletions struct {
-	Additions int
-	Deletions int
+	Additions *int
+	Deletions *int
 }
 
 func (mrAdditionsDeletions) TableName() string {

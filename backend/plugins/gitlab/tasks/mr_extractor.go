@@ -254,14 +254,16 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 	}
 	// Use diff_stats when available (GitLab 13.0+); fall back to changes_count
 	// for older self-managed instances that don't support include_diff_stats
-	if mr.DiffStats != nil && (mr.DiffStats.Additions > 0 || mr.DiffStats.Deletions > 0) {
-		gitlabMergeRequest.Additions = mr.DiffStats.Additions
-		gitlabMergeRequest.Deletions = mr.DiffStats.Deletions
+	if mr.DiffStats != nil {
+		additions := mr.DiffStats.Additions
+		deletions := mr.DiffStats.Deletions
+		gitlabMergeRequest.Additions = &additions
+		gitlabMergeRequest.Deletions = &deletions
 	} else if mr.ChangesCount != "" && mr.ChangesCount != "0" {
 		count, err := strconv.Atoi(mr.ChangesCount)
 		if err == nil {
 			// changes_count is cumulative (bug source), but better than zero
-			gitlabMergeRequest.Additions = count
+			gitlabMergeRequest.Additions = &count
 		}
 	}
 	return gitlabMergeRequest, nil
