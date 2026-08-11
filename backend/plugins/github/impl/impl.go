@@ -225,6 +225,9 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"scope-config/:scopeConfigId/projects": {
 			"GET": api.GetProjectsByScopeConfig,
 		},
+		"scope-duplicates": {
+			"GET": api.GetScopeDuplicates,
+		},
 	}
 }
 
