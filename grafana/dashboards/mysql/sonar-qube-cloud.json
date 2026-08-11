@@ -634,7 +634,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CONCAT(ROUND((sum(lines_to_cover) - sum(uncovered_lines)) / sum(lines_to_cover) * 100, 1), '% ', 'Coverage on ', ROUND(sum(lines_to_cover) / 1000, 0),'k Lines to cover')\nFROM cq_file_metrics\nWHERE\n  project_key in (${project_id})\n",
+          "rawSql": "SELECT\n  CONCAT(ROUND(SUM(coverage * lines_to_cover) / NULLIF(SUM(lines_to_cover), 0), 1), '% ', 'Coverage on ', ROUND(sum(lines_to_cover) / 1000, 0),'k Lines to cover')\nFROM cq_file_metrics\nWHERE\n  project_key in (${project_id})\n",
           "refId": "A",
           "sql": {
             "columns": [

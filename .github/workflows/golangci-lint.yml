@@ -30,6 +30,8 @@ jobs:
     container: mericodev/lake-builder:latest
     steps:
       - uses: actions/checkout@v6
+      - name: Install libgit2 1.5 for git2go v34
+        run: backend/scripts/install-libgit2.sh
       - name: Cache golangci-lint
         id: cache-golangci-lint
         uses: actions/cache@v5
