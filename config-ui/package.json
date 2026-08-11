@@ -83,7 +83,7 @@
     "vitest": "4.1.9"
   },
   "volta": {
-    "node": "24.17.0",
+    "node": "24.19.0",
     "yarn": "4.17.0"
   },
   "resolutions": {
