@@ -96,3 +96,27 @@ export const searchRemote = (
     method: 'get',
     data,
   });
+
+export type ScopeDuplicateConnection = {
+  connectionId: ID;
+  connectionName: string;
+};
+
+export type ScopeDuplicateGroup = {
+  githubId: number;
+  htmlUrl: string;
+  fullName: string;
+  connections: ScopeDuplicateConnection[];
+};
+
+export const scopeDuplicates = (
+  plugin: string,
+  data?: {
+    connectionId?: ID;
+    githubIds?: string;
+  },
+): Promise<{ duplicates: ScopeDuplicateGroup[] }> =>
+  request(`/plugins/${plugin}/scope-duplicates`, {
+    method: 'get',
+    data,
+  });
