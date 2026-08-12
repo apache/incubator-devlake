@@ -104,11 +104,11 @@ func TestParseScopeDuplicateQuery(t *testing.T) {
 		"bitbucketIds": []string{"o/a"},
 	}}
 	_, _, err = parseScopeDuplicateQuery(input)
-	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "connectionId is required when bitbucketIds is provided")
 
 	input = &plugin.ApiResourceInput{Query: url.Values{
 		"connectionId": []string{"abc"},
 	}}
 	_, _, err = parseScopeDuplicateQuery(input)
-	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid connectionId")
 }
