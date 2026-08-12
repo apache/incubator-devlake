@@ -31,6 +31,8 @@ type AzuredevopsBuild struct {
 	Status        string
 	Result        string
 	Name          string
+	BuildNumber   string
+	Url           string
 	SourceBranch  string
 	SourceVersion string
 	// Tags is a string version of the APIs tags array that helps to identify

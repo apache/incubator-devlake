@@ -15,34 +15,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type AzuredevopsBuild struct {
-	archived.NoPKModel
+type addBuildRunFields struct{}
 
+type BuildRunFields struct {
 	ConnectionId  uint64 `gorm:"primaryKey"`
 	AzuredevopsId int    `gorm:"primaryKey"`
-	RepositoryId  string `gorm:"type:varchar(255)"`
-	Name          string `gorm:"type:varchar(100)"`
-	BuildNumber   string `gorm:"type:varchar(255)"`
-	Url           string `gorm:"type:varchar(255)"`
-	Status        string `gorm:"type:varchar(255)"`
-	Result        string `gorm:"type:varchar(255)"`
-	SourceBranch  string `gorm:"type:varchar(255)"`
-	SourceVersion string `gorm:"type:varchar(255)"`
-	// Tags is a string version of the APIs tags array that helps to identify
-	// devops.CICDPipeline's environment and type.
-	Tags       string
-	QueueTime  *time.Time
-	StartTime  *time.Time
-	FinishTime *time.Time
+
+	BuildNumber string `gorm:"type:varchar(255)"`
+	Url         string `gorm:"type:varchar(255)"`
 }
 
-func (AzuredevopsBuild) TableName() string {
+func (BuildRunFields) TableName() string {
 	return "_tool_azuredevops_go_builds"
+}
+
+func (*addBuildRunFields) Up(baseRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(baseRes, &BuildRunFields{})
+}
+
+func (*addBuildRunFields) Version() uint64 {
+	return 20260616000000
+}
+
+func (*addBuildRunFields) Name() string {
+	return "add build_number and url to _tool_azuredevops_go_builds"
 }
