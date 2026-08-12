@@ -1,0 +1,38 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# mockery v3 configuration for the ./core tree.
+#
+# Replaces the v2 command line
+#   mockery --recursive --keeptree --dir=./core --output=./mocks/core \
+#           --unroll-variadic=false --name='.*'
+# and reproduces the exact same layout: backend/mocks/core/<pkg>/<Interface>.go
+# with package name `mocks` and an un-prefixed mock struct name.
+#
+# NOTE: this config is deliberately kept separate from `.mockery.helpers.yml`.
+# `helpers/unithelper` imports the generated `mocks/core/...` packages, so the
+# core mocks have to exist before the helpers tree can be type-checked by
+# mockery v3 (which, unlike v2, loads packages via go/packages).
+all: true
+recursive: true
+template: testify
+dir: "mocks/{{.InterfaceDirRelative}}"
+filename: "{{.InterfaceName}}.go"
+pkgname: "mocks"
+structname: "{{.InterfaceName}}"
+template-data:
+  unroll-variadic: false
+packages:
+  github.com/apache/incubator-devlake/core:

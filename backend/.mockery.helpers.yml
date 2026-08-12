@@ -12,38 +12,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# mockery v3 configuration for the ./helpers tree.
 #
-
-# This docker-compose file is intended for local development testing to be used quickly for IT tests
-version: "3"
-services:
-
-  mysql-test:
-    image: mysql:8.4.11
-    platform: linux/x86_64
-    volumes:
-      - mysql-test-storage:/var/lib/mysql
-    restart: always
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: admin
-      MYSQL_DATABASE: lake
-      MYSQL_USER: merico
-      MYSQL_PASSWORD: merico
-
-  postgres-test:
-    image: postgres:18.4-alpine
-    restart: always
-    ports:
-      - "3308:5432"
-    volumes:
-      - postgres-test-storage:/var/lib/postgresql
-    environment:
-      POSTGRES_DB: lake
-      POSTGRES_USER: merico
-      POSTGRES_PASSWORD: merico
-
-volumes:
-  mysql-test-storage:
-  postgres-test-storage:
+# Replaces the v2 command line
+#   mockery --recursive --keeptree --dir=./helpers --output=./mocks/helpers \
+#           --unroll-variadic=false --name='.*'
+# and reproduces the exact same layout: backend/mocks/helpers/<pkg>/<Interface>.go
+# with package name `mocks` and an un-prefixed mock struct name.
+#
+# Must run *after* `.mockery.core.yml` — see the note there.
+all: true
+recursive: true
+template: testify
+dir: "mocks/{{.InterfaceDirRelative}}"
+filename: "{{.InterfaceName}}.go"
+pkgname: "mocks"
+structname: "{{.InterfaceName}}"
+template-data:
+  unroll-variadic: false
+packages:
+  github.com/apache/incubator-devlake/helpers:

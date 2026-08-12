@@ -34,6 +34,8 @@ jobs:
         run: backend/scripts/install-libgit2.sh
       - name: Install Go 1.26.2
         run: backend/scripts/install-go.sh
+      - name: Install mockery 3.7.2
+        run: backend/scripts/install-mockery.sh
       - name: Cache golangci-lint
         id: cache-golangci-lint
         uses: actions/cache@v5
