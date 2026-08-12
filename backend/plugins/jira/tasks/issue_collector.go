@@ -23,15 +23,26 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
+
+// skipUnparseableIssuesEnvVar controls whether jira:collectIssues aborts on a
+// JSON parse failure of an otherwise-successful (2xx) response body (default),
+// or logs a warning and skips the bad page so the rest of the sync completes.
+const skipUnparseableIssuesEnvVar = "JIRA_SKIP_UNPARSEABLE_ISSUES"
+
+func shouldSkipUnparseableIssues() bool {
+	return strings.EqualFold(os.Getenv(skipUnparseableIssuesEnvVar), "true")
+}
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
 
@@ -87,10 +98,10 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 
 	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
 		logger.Info("Using api/2/search for JIRA Server issue collection")
-		err = setupIssueV2Collector(apiCollector, data, filterJql, pageSize)
+		err = setupIssueV2Collector(apiCollector, data, filterJql, pageSize, logger)
 	} else {
 		logger.Info("Using api/3/search/jql for JIRA Cloud issue collection")
-		err = setupIssueV3Collector(apiCollector, data, filterJql, pageSize)
+		err = setupIssueV3Collector(apiCollector, data, filterJql, pageSize, logger)
 	}
 	if err != nil {
 		return err
@@ -114,7 +125,7 @@ func buildFilterJQL(filterId string, incrementalJql string) string {
 	return fmt.Sprintf("filter = %s AND %s", filterId, incrementalJql)
 }
 
-func setupIssueV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int) errors.Error {
+func setupIssueV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int, logger log.Logger) errors.Error {
 	return apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    pageSize,
@@ -129,24 +140,11 @@ func setupIssueV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTas
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
 		Concurrency:   10,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Issues []json.RawMessage `json:"issues"`
-			}
-			blob, err := io.ReadAll(res.Body)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			err = json.Unmarshal(blob, &data)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			return data.Issues, nil
-		},
+		ResponseParser: parseIssuesResponse(logger),
 	})
 }
 
-func setupIssueV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int) errors.Error {
+func setupIssueV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int, logger log.Logger) errors.Error {
 	return apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              pageSize,
@@ -163,21 +161,44 @@ func setupIssueV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTas
 			}
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Issues []json.RawMessage `json:"issues"`
-			}
-			blob, err := io.ReadAll(res.Body)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			err = json.Unmarshal(blob, &data)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			return data.Issues, nil
-		},
+		ResponseParser: parseIssuesResponse(logger),
 	})
+}
+
+// parseIssuesResponse builds the ResponseParser shared by the V2 (Server) and V3
+// (Cloud) Jira issue collectors. When the response body of a 2xx-status page
+// cannot be decoded as JSON — typically a truncated body from a dropped
+// connection, or a mis-served HTML page from an upstream proxy — the default is
+// to surface the error and abort collectIssues. On big/flaky Jira instances a
+// single bad page can kill an entire sync while thousands of other pages are
+// fine, so JIRA_SKIP_UNPARSEABLE_ISSUES=true opts into a non-fatal mode: log a
+// warning and skip the page. See #8949.
+func parseIssuesResponse(logger log.Logger) func(res *http.Response) ([]json.RawMessage, errors.Error) {
+	return func(res *http.Response) ([]json.RawMessage, errors.Error) {
+		var body struct {
+			Issues []json.RawMessage `json:"issues"`
+		}
+		blob, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+		if err := json.Unmarshal(blob, &body); err != nil {
+			if shouldSkipUnparseableIssues() {
+				preview := blob
+				if len(preview) > 256 {
+					preview = preview[:256]
+				}
+				logger.Warn(
+					err,
+					"jira:collectIssues: %s=true, skipping unparseable page (body_len=%d, prefix=%q)",
+					skipUnparseableIssuesEnvVar, len(blob), string(preview),
+				)
+				return []json.RawMessage{}, nil
+			}
+			return nil, errors.Convert(err)
+		}
+		return body.Issues, nil
+	}
 }
 
 // buildJQL build jql based on timeAfter and incremental mode
