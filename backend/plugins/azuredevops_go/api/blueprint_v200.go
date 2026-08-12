@@ -180,7 +180,11 @@ func makePipelinePlanV200(
 			}
 
 			if scope.Scope.Type == models.RepositoryTypeADO {
-				cloneUrl.User = url.UserPassword("git", connection.Token)
+				username := connection.Username
+				if username == "" {
+					username = "git"
+				}
+				cloneUrl.User = url.UserPassword(username, connection.Token)
 			}
 			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",

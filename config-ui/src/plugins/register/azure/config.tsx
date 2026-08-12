@@ -33,7 +33,9 @@ export const AzureConfig: IPluginConfig = {
     initialValues: {},
     fields: [
       'name',
-      () => <BaseURL key="base-url" />,
+      ({ values, setValues }: any) => (
+        <BaseURL key="base-url" value={values.endpoint} onChange={(val) => setValues({ endpoint: val })} />
+      ),
       {
         key: 'token',
         label: 'Personal Access Token',
@@ -86,10 +88,24 @@ export const AzureGoConfig: IPluginConfig = {
     initialValues: {},
     fields: [
       'name',
-      () => <BaseURL key="base-url" />,
+      ({ values, setValues }: any) => (
+        <BaseURL key="base-url" value={values.endpoint} onChange={(val) => setValues({ endpoint: val })} />
+      ),
+      {
+        key: 'username',
+        label: 'Username (Optional for On-Premises)',
+        subLabel:
+          'For On-Premises Azure DevOps Server, enter your Windows/Domain username if required (e.g. Administrator or domain\\user). Leave empty for Cloud.',
+      },
       {
         key: 'token',
         label: 'Personal Access Token',
+        subLabel: (
+          <span>
+            For Azure DevOps Cloud, use a Personal Access Token (PAT). For On-Premises Server, use a PAT or your domain
+            password.
+          </span>
+        ),
       },
       ({ initialValues, values, setValues }: any) => (
         <ConnectionOrganization

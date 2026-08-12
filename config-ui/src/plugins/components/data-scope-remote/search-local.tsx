@@ -102,7 +102,7 @@ export const SearchLocal = ({ mode, plugin, connectionId, config, disabledScope,
         pageToken: currentPageToken,
       });
 
-      newItems = (res.children ?? []).map((it) => ({
+      newItems = (res?.children ?? []).map((it) => ({
         ...it,
         title: it.name,
       }));

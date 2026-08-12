@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"net/http"
+	"strings"
 )
 
 var _ plugin.ApiConnection = (*AzuredevopsConn)(nil)
@@ -50,16 +51,39 @@ func (at *AzuredevopsAccessToken) SetupAuthentication(req *http.Request) errors.
 
 // AzuredevopsConn holds the essential information to connect to the Azure DevOps API
 type AzuredevopsConn struct {
-	//api.RestConnection `mapstructure:",squash"`
 	AzuredevopsAccessToken `mapstructure:",squash"`
 	Organization           string `json:"organization"`
-	//Endpoint         string `mapstructure:"endpoint" json:"endpoint"`
-	Proxy string `mapstructure:"proxy" json:"proxy"`
-	//RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimitPerHour"`
+	Username               string `mapstructure:"username" json:"username"`
+	Proxy                  string `mapstructure:"proxy" json:"proxy"`
+
+	// Endpoint is the base URL for On-Premises Azure DevOps Server (optional, empty for Cloud)
+	Endpoint string `mapstructure:"endpoint" json:"endpoint" validate:"omitempty,url"`
+}
+
+func (conn *AzuredevopsConn) GetAccessTokenAuthenticator() plugin.ApiAuthenticator {
+	return conn
+}
+
+func (conn *AzuredevopsConn) SetupAuthentication(req *http.Request) errors.Error {
+	username := conn.Username
+	if conn.Endpoint != "" {
+		// On-Premises Azure DevOps REST API uses PAT token auth with empty username over HTTP Basic Auth
+		username = ""
+	}
+	req.SetBasicAuth(username, conn.Token)
+	return nil
 }
 
 func (conn *AzuredevopsConn) GetEndpoint() string {
-	return "https://dev.azure.com"
+	// Returns the On-Premises endpoint if configured, otherwise defaults to Azure DevOps Cloud URL
+	if conn.Endpoint != "" {
+		ep := conn.Endpoint
+		if !strings.HasSuffix(ep, "/") {
+			ep += "/"
+		}
+		return ep
+	}
+	return "https://dev.azure.com/"
 }
 
 func (conn *AzuredevopsConn) GetProxy() string {
@@ -79,9 +103,9 @@ type AzuredevopsConnection struct {
 }
 
 func (c AzuredevopsConnection) GetEndpoint() string {
-	return "https://dev.azure.com"
+	// Delegates to the embedded AzuredevopsConn.GetEndpoint()
+	return c.AzuredevopsConn.GetEndpoint()
 }
-
 func (c AzuredevopsConnection) GetProxy() string {
 	return c.Proxy
 }

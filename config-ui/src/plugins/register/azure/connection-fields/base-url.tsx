@@ -16,20 +16,51 @@
  *
  */
 
-import { Radio } from 'antd';
-
+import React, { useState } from 'react';
+import { Input, Radio } from 'antd';
 import { Block } from '@/components';
 
-export const BaseURL = () => {
+interface Props {
+  value?: string;
+  onChange?: (value: string) => void;
+}
+
+export const BaseURL = ({ value, onChange }: Props) => {
+  // Default to 'server' mode if an endpoint value already exists, 'cloud' otherwise
+  const [version, setVersion] = useState<'cloud' | 'server'>(value ? 'server' : 'cloud');
+
+  const handleVersionChange = (e: any) => {
+    const selectedVersion = e.target.value;
+    setVersion(selectedVersion);
+    if (selectedVersion === 'cloud') {
+      onChange?.(''); // Reset endpoint when switching to Cloud mode
+    }
+  };
+
   return (
     <Block title="Azure DevOps Version" required>
-      <Radio.Group value="cloud" onChange={() => {}}>
+      <Radio.Group value={version} onChange={handleVersionChange}>
         <Radio value="cloud">Azure DevOps Cloud</Radio>
-        <Radio value="server" disabled>
-          Azure DevOps Server (not supported)
-        </Radio>
+        <Radio value="server">Azure DevOps Server (On-Premises)</Radio>
       </Radio.Group>
-      <p style={{ margin: 0 }}>If you are using Azure DevOps Cloud, you do not need to enter the endpoint URL.</p>
+
+      {version === 'cloud' ? (
+        <p style={{ margin: '8px 0 0 0', color: 'gray' }}>
+          If you are using Azure DevOps Cloud, you do not need to enter the endpoint URL.
+        </p>
+      ) : (
+        <div style={{ marginTop: 12 }}>
+          <p style={{ margin: '0 0 8px 0', fontWeight: 500 }}>Endpoint URL *</p>
+          <Input
+            placeholder="e.g., https://your-server/tfs/DefaultCollection/"
+            value={value}
+            onChange={(e) => onChange?.(e.target.value)}
+          />
+          <p style={{ margin: '4px 0 0 0', color: 'gray', fontSize: 12 }}>
+            Enter your full Azure DevOps Server base URL including the collection name.
+          </p>
+        </div>
+      )}
     </Block>
   );
 };
