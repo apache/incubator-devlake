@@ -1,0 +1,9 @@
+connection_id,issue_id,field_id,field_name,data_type,value,raw_value,option_color
+1,346842831,123,Priority,single_select,Critical,"""Critical""",ff0000
+1,346842831,456,Effort,number,5,5,
+1,346842831,789,Target date,date,2024-12-31,"""2024-12-31""",
+1,347255859,123,Priority,single_select,Low,"""Low""",0052cc
+1,347255859,456,Effort,number,2.5,2.5,
+1,347255859,901,Squad,multi_select,"backend,urgent","[""backend"",""urgent""]",
+1,348630179,123,Priority,single_select,,null,
+1,348630179,789,Target date,date,soon,"""soon""",
