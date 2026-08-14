@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -65,6 +66,11 @@ type MergeRequestRes struct {
 	Assignees        []Assignee
 	FirstCommentTime common.Iso8601Time
 	Labels           []string `json:"labels"`
+	DiffStats        *struct {
+		Additions int `json:"additions"`
+		Deletions int `json:"deletions"`
+	} `json:"diff_stats"`
+	ChangesCount string `json:"changes_count"`
 }
 
 type Reviewer struct {
@@ -245,6 +251,20 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 		AuthorUserId:     mr.Author.Id,
+	}
+	// Use diff_stats when available (GitLab 13.0+); fall back to changes_count
+	// for older self-managed instances that don't support include_diff_stats
+	if mr.DiffStats != nil {
+		additions := mr.DiffStats.Additions
+		deletions := mr.DiffStats.Deletions
+		gitlabMergeRequest.Additions = &additions
+		gitlabMergeRequest.Deletions = &deletions
+	} else if mr.ChangesCount != "" && mr.ChangesCount != "0" {
+		count, err := strconv.Atoi(mr.ChangesCount)
+		if err == nil {
+			// changes_count is cumulative (bug source), but better than zero
+			gitlabMergeRequest.Additions = &count
+		}
 	}
 	return gitlabMergeRequest, nil
 }

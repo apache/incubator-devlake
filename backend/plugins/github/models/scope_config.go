@@ -26,16 +26,25 @@ import (
 var _ plugin.ToolLayerScopeConfig = (*GithubScopeConfig)(nil)
 
 type GithubScopeConfig struct {
-	common.ScopeConfig           `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	PrType                       string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
-	PrComponent                  string            `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
-	PrBodyClosePattern           string            `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
-	IssueSeverity                string            `mapstructure:"issueSeverity,omitempty" json:"issueSeverity" gorm:"type:varchar(255)"`
-	IssuePriority                string            `mapstructure:"issuePriority,omitempty" json:"issuePriority" gorm:"type:varchar(255)"`
-	IssueComponent               string            `mapstructure:"issueComponent,omitempty" json:"issueComponent" gorm:"type:varchar(255)"`
-	IssueTypeBug                 string            `mapstructure:"issueTypeBug,omitempty" json:"issueTypeBug" gorm:"type:varchar(255)"`
-	IssueTypeIncident            string            `mapstructure:"issueTypeIncident,omitempty" json:"issueTypeIncident" gorm:"type:varchar(255)"`
-	IssueTypeRequirement         string            `mapstructure:"issueTypeRequirement,omitempty" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
+	common.ScopeConfig   `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	PrType               string `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
+	PrComponent          string `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
+	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
+	IssueSeverity        string `mapstructure:"issueSeverity,omitempty" json:"issueSeverity" gorm:"type:varchar(255)"`
+	IssuePriority        string `mapstructure:"issuePriority,omitempty" json:"issuePriority" gorm:"type:varchar(255)"`
+	IssueComponent       string `mapstructure:"issueComponent,omitempty" json:"issueComponent" gorm:"type:varchar(255)"`
+	IssueTypeBug         string `mapstructure:"issueTypeBug,omitempty" json:"issueTypeBug" gorm:"type:varchar(255)"`
+	IssueTypeIncident    string `mapstructure:"issueTypeIncident,omitempty" json:"issueTypeIncident" gorm:"type:varchar(255)"`
+	IssueTypeRequirement string `mapstructure:"issueTypeRequirement,omitempty" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
+	// Issue field mappings. Each holds the *name* of a GitHub issue field (organization-level
+	// structured metadata) whose value should populate the matching issue column. When a
+	// mapping is set and the issue carries a value for that field, it takes precedence over
+	// the label regexes above, which cannot express mutual exclusion or span repositories.
+	IssueFieldPriority           string            `mapstructure:"issueFieldPriority,omitempty" json:"issueFieldPriority" gorm:"type:varchar(255)"`
+	IssueFieldSeverity           string            `mapstructure:"issueFieldSeverity,omitempty" json:"issueFieldSeverity" gorm:"type:varchar(255)"`
+	IssueFieldComponent          string            `mapstructure:"issueFieldComponent,omitempty" json:"issueFieldComponent" gorm:"type:varchar(255)"`
+	IssueFieldStoryPoint         string            `mapstructure:"issueFieldStoryPoint,omitempty" json:"issueFieldStoryPoint" gorm:"type:varchar(255)"`
+	IssueFieldDueDate            string            `mapstructure:"issueFieldDueDate,omitempty" json:"issueFieldDueDate" gorm:"type:varchar(255)"`
 	DeploymentPattern            string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
 	ProductionPattern            string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 	EnvNamePattern               string            `mapstructure:"envNamePattern,omitempty" json:"envNamePattern" gorm:"type:varchar(255)"`

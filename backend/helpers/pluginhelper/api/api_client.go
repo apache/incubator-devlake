@@ -324,7 +324,7 @@ func (apiClient *ApiClient) Do(
 	body interface{},
 	headers http.Header,
 ) (*http.Response, errors.Error) {
-	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
+	uri, err := ResolveRequestURI(apiClient.endpoint, path, query)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Unable to construct URI from %s, %s, %s", apiClient.endpoint, path, query))
 	}
@@ -453,8 +453,12 @@ func UnmarshalResponseXML(res *http.Response, v interface{}) errors.Error {
 	return nil
 }
 
-// GetURIStringPointer FIXME ...
-func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) (*string, errors.Error) {
+// ResolveRequestURI combines baseUrl, relativePath and query into the absolute URI used
+// for an API request. relativePath must be a relative reference (no scheme or host of its
+// own): url.URL.ResolveReference resolves an absolute reference by discarding the base
+// entirely (RFC 3986 §5.3), so an absolute or protocol-relative relativePath would silently
+// ignore baseUrl and target whatever host it carries instead.
+func ResolveRequestURI(baseUrl string, relativePath string, query url.Values) (*string, errors.Error) {
 	// If the base URL doesn't end with a slash, and has a relative path attached
 	// the values will be removed by the Go package, therefore we need to add a missing slash.
 	AddMissingSlashToURL(&baseUrl)
@@ -467,6 +471,9 @@ func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) 
 	u, err := url.Parse(relativePath)
 	if err != nil {
 		return nil, errors.Convert(err)
+	}
+	if u.IsAbs() || u.Host != "" {
+		return nil, errors.BadInput.New(fmt.Sprintf("relativePath must be a relative path, not an absolute URL: %s", relativePath))
 	}
 	if query != nil {
 		queryString := u.Query()

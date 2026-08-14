@@ -243,6 +243,9 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"scope-config/:scopeConfigId/projects": {
 			"GET": api.GetProjectsByScopeConfig,
 		},
+		"scope-duplicates": {
+			"GET": api.GetScopeDuplicates,
+		},
 	}
 }
 

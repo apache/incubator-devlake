@@ -104,7 +104,13 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 			if stateManager.IsIncremental() {
 				since := stateManager.GetSince()
 				if since != nil {
-					clauses = append(clauses, dal.Where("_tool_jira_issue_changelog_items.created_at >= ? ", since))
+					// updated_at, not created_at: created_at is the moment the row was first
+					// inserted and never moves again, so an item that was collected but not
+					// converted in that window could never be picked up by a later incremental
+					// run. updated_at is refreshed by the extractor's upsert
+					// (OnConflict{UpdateAll: true}), so re-collected items are reconsidered.
+					// Every other convertor in the code base already filters on updated_at.
+					clauses = append(clauses, dal.Where("_tool_jira_issue_changelog_items.updated_at >= ? ", since))
 				}
 			}
 			return db.Cursor(clauses...)
@@ -170,7 +176,51 @@ func ConvertIssueChangelogs(subtaskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return converter.Execute()
+	if err = converter.Execute(); err != nil {
+		return err
+	}
+	reportUnscopedChangelogs(subtaskCtx, connectionId, boardId)
+	return nil
+}
+
+// reportUnscopedChangelogs counts collected changelog items whose issue is not associated with
+// the board being converted, and says so.
+//
+// Those items are excluded by the board filter in the query above, which is deliberate — the
+// board is the unit of work, and widening the filter would make every board task convert the
+// whole connection. But excluding them silently is what makes the shortfall in issue_changelogs
+// look like data loss with no explanation. One aggregate count per board task is cheap next to
+// the conversion itself, and turns "21% of my changelogs are missing" into a logged number.
+func reportUnscopedChangelogs(subtaskCtx plugin.SubTaskContext, connectionId, boardId uint64) {
+	db := subtaskCtx.GetDal()
+	logger := subtaskCtx.GetLogger()
+
+	count, err := db.Count(
+		dal.From("_tool_jira_issue_changelog_items"),
+		dal.Join(`left join _tool_jira_issue_changelogs on (
+			_tool_jira_issue_changelogs.connection_id = _tool_jira_issue_changelog_items.connection_id
+			AND _tool_jira_issue_changelogs.changelog_id = _tool_jira_issue_changelog_items.changelog_id
+		)`),
+		dal.Where(`_tool_jira_issue_changelog_items.connection_id = ?
+			AND NOT EXISTS (
+				SELECT 1 FROM _tool_jira_board_issues bi
+				WHERE bi.connection_id = _tool_jira_issue_changelogs.connection_id
+				AND bi.issue_id = _tool_jira_issue_changelogs.issue_id
+				AND bi.board_id = ?
+			)`, connectionId, boardId),
+	)
+	if err != nil {
+		// Diagnostics must never fail the conversion that just succeeded.
+		logger.Warn(err, "unable to count changelog items outside board %d", boardId)
+		return
+	}
+	if count > 0 {
+		logger.Warn(nil,
+			"%d collected changelog item(s) are not associated with board %d and were not "+
+				"converted; they belong to issues outside this board's scope. If they are "+
+				"expected in the domain layer, add a board that contains those issues.",
+			count, boardId)
+	}
 }
 
 func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.DomainIdGenerator) (string, errors.Error) {
