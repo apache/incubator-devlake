@@ -39,28 +39,38 @@ interface Props {
   onSubmit?: (origin: any) => void;
 }
 
-const getGithubId = (scope: any): number | undefined => {
-  const fromData = scope?.data?.githubId;
+// Plugins that support the "warn on duplicate scope" check, and the field/query-param
+// names their scope-duplicates API uses. Bitbucket's id is a string ("owner/repo"),
+// GitHub/GitLab's is numeric, but both work fine as strings on the wire.
+const SCOPE_DUPLICATE_FIELDS: Record<string, { dataField: string; queryParam: string }> = {
+  github: { dataField: 'githubId', queryParam: 'githubIds' },
+  gitlab: { dataField: 'gitlabId', queryParam: 'gitlabIds' },
+  bitbucket: { dataField: 'bitbucketId', queryParam: 'bitbucketIds' },
+};
+
+const getScopeDuplicateId = (plugin: string, scope: any): string | undefined => {
+  const dataField = SCOPE_DUPLICATE_FIELDS[plugin]?.dataField;
+  const fromData = dataField ? scope?.data?.[dataField] : undefined;
   if (typeof fromData === 'number' && fromData > 0) {
+    return String(fromData);
+  }
+  if (typeof fromData === 'string' && fromData) {
     return fromData;
   }
-  const fromId = Number(scope?.id);
-  if (!Number.isNaN(fromId) && fromId > 0) {
-    return fromId;
+  if (scope?.id !== undefined && scope?.id !== null && String(scope.id) !== '') {
+    return String(scope.id);
   }
   return undefined;
 };
 
 const buildDuplicateWarning = (duplicates: ScopeDuplicateGroup[]): string => {
   const connectionNames = Array.from(
-    new Set(
-      duplicates.flatMap((d) => d.connections.map((c) => c.connectionName).filter(Boolean)),
-    ),
+    new Set(duplicates.flatMap((d) => d.connections.map((c) => c.connectionName).filter(Boolean))),
   );
   const repoLabel =
     duplicates.length === 1
-      ? duplicates[0].fullName || duplicates[0].htmlUrl || 'This repository'
-      : 'One or more selected repositories';
+      ? duplicates[0].fullName || duplicates[0].htmlUrl || 'This item'
+      : 'One or more selected items';
 
   const via =
     connectionNames.length === 1
@@ -69,7 +79,7 @@ const buildDuplicateWarning = (duplicates: ScopeDuplicateGroup[]): string => {
         ? `Connections ${connectionNames.map((n) => `"${n}"`).join(', ')}`
         : 'another connection';
 
-  return `${repoLabel} is already connected via ${via}. Collecting it here will create duplicate pull requests and issue records, which will inflate all metrics for this repository.`;
+  return `${repoLabel} is already connected via ${via}. Collecting it here will create duplicate records, which will inflate all metrics for this repository.`;
 };
 
 export const DataScopeRemote = ({
@@ -94,19 +104,21 @@ export const DataScopeRemote = ({
 
   const config = useMemo(() => getPluginConfig(plugin).dataScope, [plugin]);
 
-  const githubIdsKey = useMemo(() => {
-    if (plugin !== 'github') {
+  const duplicateFields = SCOPE_DUPLICATE_FIELDS[plugin];
+
+  const idsKey = useMemo(() => {
+    if (!duplicateFields) {
       return '';
     }
     return selectedScope
-      .map(getGithubId)
-      .filter((id): id is number => id !== undefined)
-      .sort((a, b) => a - b)
+      .map((it) => getScopeDuplicateId(plugin, it))
+      .filter((id): id is string => id !== undefined)
+      .sort()
       .join(',');
-  }, [plugin, selectedScope]);
+  }, [plugin, duplicateFields, selectedScope]);
 
   useEffect(() => {
-    if (plugin !== 'github' || !githubIdsKey) {
+    if (!duplicateFields || !idsKey) {
       setDuplicates([]);
       setWarningDismissed(false);
       return;
@@ -118,7 +130,8 @@ export const DataScopeRemote = ({
     API.scope
       .scopeDuplicates(plugin, {
         connectionId,
-        githubIds: githubIdsKey,
+        idsParam: duplicateFields.queryParam,
+        ids: idsKey,
       })
       .then((res) => {
         if (!cancelled) {
@@ -134,7 +147,7 @@ export const DataScopeRemote = ({
     return () => {
       cancelled = true;
     };
-  }, [plugin, connectionId, githubIdsKey]);
+  }, [plugin, connectionId, duplicateFields, idsKey]);
 
   const handleSubmit = async () => {
     const [success, res] = await operator(
@@ -150,7 +163,7 @@ export const DataScopeRemote = ({
     }
   };
 
-  const showWarning = plugin === 'github' && duplicates.length > 0 && !warningDismissed;
+  const showWarning = !!duplicateFields && duplicates.length > 0 && !warningDismissed;
 
   return (
     <Flex vertical>
