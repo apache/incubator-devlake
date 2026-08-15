@@ -60,7 +60,9 @@ export const Wrapper = styled.div`
     border-radius: 8px;
     border: 1px solid ${({ theme }) => (theme.mode === 'dark' ? theme.colors.border : 'transparent')};
     background-color: ${({ theme }) => theme.colors.bgContainer};
-    box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px rgba(0, 0, 0, 0.07);
+    box-shadow:
+      0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
+      0px 1.6px 8px rgba(0, 0, 0, 0.07);
     box-sizing: border-box;
     cursor: pointer;
     transition: all 0.2s linear;

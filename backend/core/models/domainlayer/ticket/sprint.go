@@ -18,9 +18,10 @@ limitations under the License.
 package ticket
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"time"
 )
 
 var (
@@ -31,13 +32,15 @@ var (
 
 type Sprint struct {
 	domainlayer.DomainEntity
-	Name            string `gorm:"type:varchar(255)"`
-	Url             string `gorm:"type:varchar(255)"`
-	Status          string `gorm:"type:varchar(100)"`
-	StartedDate     *time.Time
-	EndedDate       *time.Time
-	CompletedDate   *time.Time
-	OriginalBoardID string `gorm:"type:varchar(255)"`
+	Name                string `gorm:"type:varchar(255)"`
+	Url                 string `gorm:"type:varchar(255)"`
+	Status              string `gorm:"type:varchar(100)"`
+	StartedDate         *time.Time
+	EndedDate           *time.Time
+	CompletedDate       *time.Time
+	OriginalBoardID     string `gorm:"type:varchar(255)"`
+	CommittedStoryPoint *float64
+	CompletedStoryPoint *float64
 }
 
 func (Sprint) TableName() string {

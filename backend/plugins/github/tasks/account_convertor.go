@@ -41,6 +41,7 @@ type repoAccountForConvert struct {
 	Name      string
 	Email     string
 	AvatarUrl string
+	Type      string
 	common.NoPKModel
 }
 
@@ -96,6 +97,7 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 					COALESCE(ga.name, '') AS name,
 					COALESCE(ga.email, '') AS email,
 					COALESCE(ga.avatar_url, '') AS avatar_url,
+					COALESCE(ga.type, '') AS type,
 					COALESCE(ga._raw_data_params, _tool_github_repo_accounts._raw_data_params) AS _raw_data_params,
 					COALESCE(ga._raw_data_table, _tool_github_repo_accounts._raw_data_table) AS _raw_data_table,
 					COALESCE(ga._raw_data_id, _tool_github_repo_accounts._raw_data_id) AS _raw_data_id,
@@ -145,6 +147,7 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 					orgStr = orgStr[:255]
 				}
 			}
+			isBot := githubUser.Type == "Bot" || strings.HasSuffix(githubUser.Login, "[bot]")
 
 			domainUser := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, githubUser.Id)},
@@ -153,6 +156,7 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 				UserName:     githubUser.Login,
 				AvatarUrl:    githubUser.AvatarUrl,
 				Organization: orgStr,
+				IsBot:        isBot,
 			}
 			return []interface{}{
 				domainUser,

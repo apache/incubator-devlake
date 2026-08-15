@@ -107,6 +107,12 @@ func listBitbucketWorkspaces(
 			FullName: r.GroupName(),
 		})
 	}
+	if resBody.Next != "" {
+		nextPage = &BitbucketRemotePagination{
+			Page:    page.Page + 1,
+			PageLen: page.PageLen,
+		}
+	}
 	return
 }
 
@@ -123,7 +129,7 @@ func listBitbucketRepos(
 	var res *http.Response
 	// list projects part
 	res, err = apiClient.Get(fmt.Sprintf("/repositories/%s", workspace), url.Values{
-		"fields":  {"values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size"},
+		"fields":  {"values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size,next"},
 		"page":    {fmt.Sprintf("%v", page.Page)},
 		"pagelen": {fmt.Sprintf("%v", page.PageLen)},
 	}, nil)
@@ -152,6 +158,12 @@ func listBitbucketRepos(
 			FullName: r.FullName,
 			Data:     r.ConvertApiScope(),
 		})
+	}
+	if resBody.Next != "" {
+		nextPage = &BitbucketRemotePagination{
+			Page:    page.Page + 1,
+			PageLen: page.PageLen,
+		}
 	}
 	return
 }

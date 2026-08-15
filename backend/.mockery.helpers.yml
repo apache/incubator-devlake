@@ -12,7 +12,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-dist
-node_modules
+# mockery v3 configuration for the ./helpers tree.
+#
+# Replaces the v2 command line
+#   mockery --recursive --keeptree --dir=./helpers --output=./mocks/helpers \
+#           --unroll-variadic=false --name='.*'
+# and reproduces the exact same layout: backend/mocks/helpers/<pkg>/<Interface>.go
+# with package name `mocks` and an un-prefixed mock struct name.
+#
+# Must run *after* `.mockery.core.yml` — see the note there.
+all: true
+recursive: true
+template: testify
+dir: "mocks/{{.InterfaceDirRelative}}"
+filename: "{{.InterfaceName}}.go"
+pkgname: "mocks"
+structname: "{{.InterfaceName}}"
+template-data:
+  unroll-variadic: false
+packages:
+  github.com/apache/incubator-devlake/helpers:

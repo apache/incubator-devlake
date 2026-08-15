@@ -30,6 +30,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -95,12 +96,17 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		pageSize = 100
 	}
 
+	skipUnparseable := taskCtx.GetConfigReader().GetBool("JIRA_SKIP_UNPARSEABLE_ISSUES")
+	if skipUnparseable {
+		logger.Info("JIRA_SKIP_UNPARSEABLE_ISSUES is enabled, unparseable issue pages will be skipped")
+	}
+
 	if strings.EqualFold(string(data.JiraServerInfo.DeploymentType), string(models.DeploymentServer)) {
 		logger.Info("Using api/2/search for JIRA Server issue collection")
-		err = setupIssueV2Collector(apiCollector, data, filterJql, pageSize)
+		err = setupIssueV2Collector(apiCollector, data, filterJql, pageSize, skipUnparseable, logger)
 	} else {
 		logger.Info("Using api/3/search/jql for JIRA Cloud issue collection")
-		err = setupIssueV3Collector(apiCollector, data, filterJql, pageSize)
+		err = setupIssueV3Collector(apiCollector, data, filterJql, pageSize, skipUnparseable, logger)
 	}
 	if err != nil {
 		return err
@@ -176,7 +182,45 @@ func buildFilterJQL(filterId string, extraJql string, incrementalJql string) str
 	return strings.Join(conditions, " AND ") + " " + orderBy
 }
 
-func setupIssueV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int) errors.Error {
+// parseIssuesResponse extracts the `issues` array from a Jira search response.
+//
+// A response that arrived with a successful status but carries a body which is not the
+// expected JSON - a truncated payload, or an HTML error page substituted by a proxy -
+// normally fails the whole collectIssues subtask, discarding an otherwise complete sync
+// because of a single page. When skipUnparseable is set the page is logged and skipped
+// instead. Non-2xx responses never reach this point; they are handled by the retry logic
+// in the API client.
+func parseIssuesResponse(res *http.Response, skipUnparseable bool, logger log.Logger) ([]json.RawMessage, errors.Error) {
+	blob, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	var body struct {
+		Issues []json.RawMessage `json:"issues"`
+	}
+	if err := json.Unmarshal(blob, &body); err != nil {
+		if !skipUnparseable {
+			return nil, errors.Convert(err)
+		}
+		if logger != nil {
+			logger.Warn(err, "skipping unparseable issue page from %s (%d bytes)", responseUrl(res), len(blob))
+		}
+		return []json.RawMessage{}, nil
+	}
+	return body.Issues, nil
+}
+
+// responseUrl reports the request URL behind a response, for log messages. The request is
+// always populated on responses returned by the API client, but a hand-built response in a
+// test may not carry one.
+func responseUrl(res *http.Response) string {
+	if res == nil || res.Request == nil || res.Request.URL == nil {
+		return "unknown url"
+	}
+	return res.Request.URL.String()
+}
+
+func setupIssueV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int, skipUnparseable bool, logger log.Logger) errors.Error {
 	return apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    pageSize,
@@ -192,23 +236,12 @@ func setupIssueV2Collector(apiCollector *api.StatefulApiCollector, data *JiraTas
 		GetTotalPages: GetTotalPagesFromResponse,
 		Concurrency:   10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Issues []json.RawMessage `json:"issues"`
-			}
-			blob, err := io.ReadAll(res.Body)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			err = json.Unmarshal(blob, &data)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			return data.Issues, nil
+			return parseIssuesResponse(res, skipUnparseable, logger)
 		},
 	})
 }
 
-func setupIssueV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int) errors.Error {
+func setupIssueV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTaskData, filterJql string, pageSize int, skipUnparseable bool, logger log.Logger) errors.Error {
 	return apiCollector.InitCollector(api.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              pageSize,
@@ -226,18 +259,7 @@ func setupIssueV3Collector(apiCollector *api.StatefulApiCollector, data *JiraTas
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Issues []json.RawMessage `json:"issues"`
-			}
-			blob, err := io.ReadAll(res.Body)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			err = json.Unmarshal(blob, &data)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			return data.Issues, nil
+			return parseIssuesResponse(res, skipUnparseable, logger)
 		},
 	})
 }

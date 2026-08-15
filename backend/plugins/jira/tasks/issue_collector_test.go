@@ -18,10 +18,17 @@ limitations under the License.
 package tasks
 
 import (
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/apache/incubator-devlake/helpers/unithelper"
+	mocklog "github.com/apache/incubator-devlake/mocks/core/log"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/stretchr/testify/mock"
 )
 
 func Test_buildJQL(t *testing.T) {
@@ -139,6 +146,117 @@ func Test_buildFilterJQL(t *testing.T) {
 				t.Errorf("buildFilterJQL() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_parseIssuesResponse(t *testing.T) {
+	const twoIssues = `{"issues":[{"id":"1"},{"id":"2"}]}`
+	// A proxy returning an HTML error page under a 200, the case reported in #8949.
+	const htmlPage = `<html><head><title>502 Bad Gateway</title></head></html>`
+	// A response truncated mid-flight, so the JSON never terminates.
+	const truncated = `{"issues":[{"id":"1"},{"id":`
+
+	makeResponse := func(body string) *http.Response {
+		return &http.Response{
+			Body:    io.NopCloser(strings.NewReader(body)),
+			Request: &http.Request{URL: &url.URL{Scheme: "https", Host: "jira.example.com", Path: "/rest/api/2/search"}},
+		}
+	}
+
+	tests := []struct {
+		name            string
+		body            string
+		skipUnparseable bool
+		wantCount       int
+		wantErr         bool
+		// wantSkipped marks the cases that took the skip path, which must yield an
+		// empty non-nil slice so the collector records "this page had no rows" rather
+		// than treating the result as absent.
+		wantSkipped bool
+	}{
+		{
+			name:      "valid page is parsed",
+			body:      twoIssues,
+			wantCount: 2,
+		},
+		{
+			name:            "valid page is parsed when skipping is enabled",
+			body:            twoIssues,
+			skipUnparseable: true,
+			wantCount:       2,
+		},
+		{
+			name:    "html body fails by default",
+			body:    htmlPage,
+			wantErr: true,
+		},
+		{
+			name:            "html body is skipped when enabled",
+			body:            htmlPage,
+			skipUnparseable: true,
+			wantCount:       0,
+			wantSkipped:     true,
+		},
+		{
+			name:    "truncated body fails by default",
+			body:    truncated,
+			wantErr: true,
+		},
+		{
+			name:            "truncated body is skipped when enabled",
+			body:            truncated,
+			skipUnparseable: true,
+			wantCount:       0,
+			wantSkipped:     true,
+		},
+		{
+			name:      "valid page without an issues key yields no issues",
+			body:      `{"total":0}`,
+			wantCount: 0,
+		},
+	}
+
+	// unithelper.DummyLogger stubs Warn with two arguments, but the real signature is
+	// Warn(err, format, a ...interface{}), which mockery records as three. Add the
+	// variadic form so the skip path can log.
+	newLogger := func() *mocklog.Logger {
+		logger := unithelper.DummyLogger()
+		logger.On("Warn", mock.Anything, mock.Anything, mock.Anything).Maybe()
+		return logger
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := parseIssuesResponse(makeResponse(tt.body), tt.skipUnparseable, newLogger())
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseIssuesResponse() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				return
+			}
+			if len(got) != tt.wantCount {
+				t.Errorf("parseIssuesResponse() returned %d issues, want %d", len(got), tt.wantCount)
+			}
+			if tt.wantSkipped && got == nil {
+				t.Error("parseIssuesResponse() returned nil for a skipped page, want an empty slice")
+			}
+		})
+	}
+}
+
+func Test_responseUrl(t *testing.T) {
+	withUrl := &http.Response{
+		Request: &http.Request{URL: &url.URL{Scheme: "https", Host: "jira.example.com", Path: "/rest/api/2/search"}},
+	}
+	if got, want := responseUrl(withUrl), "https://jira.example.com/rest/api/2/search"; got != want {
+		t.Errorf("responseUrl() = %v, want %v", got, want)
+	}
+	if got, want := responseUrl(&http.Response{}), "unknown url"; got != want {
+		t.Errorf("responseUrl() with no request = %v, want %v", got, want)
+	}
+	if got, want := responseUrl(nil), "unknown url"; got != want {
+		t.Errorf("responseUrl(nil) = %v, want %v", got, want)
 	}
 }
 

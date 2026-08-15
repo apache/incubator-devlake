@@ -19,8 +19,6 @@ package archived
 
 import (
 	"time"
-
-	"golang.org/x/exp/constraints"
 )
 
 type DomainEntity struct {
@@ -44,7 +42,14 @@ type ScopeConfig struct {
 	Entities []string `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`
 }
 
-type GenericModel[T string | constraints.Unsigned] struct {
+// unsignedInteger matches all unsigned integer types, replacing
+// golang.org/x/exp/constraints.Unsigned to avoid a transitive dependency
+// on that module which requires Go 1.23+ in recent versions.
+type unsignedInteger interface {
+	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr
+}
+
+type GenericModel[T string | unsignedInteger] struct {
 	ID        T         `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`

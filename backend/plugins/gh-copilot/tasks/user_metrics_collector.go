@@ -62,12 +62,11 @@ func parseUserMetricsReportResponse(res *http.Response, logger log.Logger) ([]js
 		return nil, nil
 	}
 
-	var meta *reportMetadataResponse
-	if jsonErr := json.Unmarshal(body, &meta); jsonErr != nil {
-		return nil, errors.Default.Wrap(jsonErr, "failed to parse report metadata")
-	}
-
-	meta, err := parseReportMetadataResponse(res, logger)
+	// Parse the metadata from the body we already read above. Previously this
+	// re-read res.Body via parseReportMetadataResponse, but the body had already
+	// been consumed by io.ReadAll, so the second read returned empty and the
+	// collector silently produced zero user-metrics records.
+	meta, err := parseReportMetadata(body, logger)
 	if err != nil || meta == nil {
 		return nil, err
 	}

@@ -62,6 +62,32 @@ type userDailyReport struct {
 	TotalsByLanguageModel   []totalsByLangModel    `json:"totals_by_language_model"`
 	TotalsByModelFeature    []totalsByModelFeature `json:"totals_by_model_feature"`
 	TotalsByCli             *totalsByCli           `json:"totals_by_cli"`
+	ReportStartDay                string                 `json:"report_start_day"`
+	ReportEndDay                  string                 `json:"report_end_day"`
+	Day                           string                 `json:"day"`
+	OrganizationId                string                 `json:"organization_id"`
+	EnterpriseId                  string                 `json:"enterprise_id"`
+	UserId                        int64                  `json:"user_id"`
+	UserLogin                     string                 `json:"user_login"`
+	UserInitiatedInteractionCount int                    `json:"user_initiated_interaction_count"`
+	CodeGenerationActivityCount   int                    `json:"code_generation_activity_count"`
+	CodeAcceptanceActivityCount   int                    `json:"code_acceptance_activity_count"`
+	LocSuggestedToAddSum          int                    `json:"loc_suggested_to_add_sum"`
+	LocSuggestedToDeleteSum       int                    `json:"loc_suggested_to_delete_sum"`
+	LocAddedSum                   int                    `json:"loc_added_sum"`
+	LocDeletedSum                 int                    `json:"loc_deleted_sum"`
+	UsedAgent                     bool                   `json:"used_agent"`
+	UsedChat                      bool                   `json:"used_chat"`
+	UsedCli                       bool                   `json:"used_cli"`
+	UsedCopilotCodeReviewActive   bool                   `json:"used_copilot_code_review_active"`
+	UsedCopilotCodeReviewPassive  bool                   `json:"used_copilot_code_review_passive"`
+	AiCreditsUsed                 float64                `json:"ai_credits_used"`
+	TotalsByIde                   []userTotalsByIde      `json:"totals_by_ide"`
+	TotalsByFeature               []totalsByFeature      `json:"totals_by_feature"`
+	TotalsByLanguageFeature       []totalsByLangFeature  `json:"totals_by_language_feature"`
+	TotalsByLanguageModel         []totalsByLangModel    `json:"totals_by_language_model"`
+	TotalsByModelFeature          []totalsByModelFeature `json:"totals_by_model_feature"`
+	TotalsByCli                   *totalsByCli           `json:"totals_by_cli"`
 }
 
 // aiAdoptionPhase is the per-user cohort classification (phase 0-3), added
@@ -140,6 +166,7 @@ func ExtractUserMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				UsedCopilotCodeReviewPassive: u.UsedCopilotCodeReviewPassive,
 				UsedCopilotCodingAgent:       u.UsedCopilotCodingAgent,
 				UsedCopilotCloudAgent:        u.UsedCopilotCloudAgent,
+				AiCreditsUsed:                u.AiCreditsUsed,
 				CopilotActivityMetrics: models.CopilotActivityMetrics{
 					UserInitiatedInteractionCount: u.UserInitiatedInteractionCount,
 					CodeGenerationActivityCount:   u.CodeGenerationActivityCount,

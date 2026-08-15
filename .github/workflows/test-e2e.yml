@@ -50,6 +50,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - run: git config --global --add safe.directory $(pwd)
+      - name: Install libgit2 1.5 for git2go v34
+        run: backend/scripts/install-libgit2.sh
       - name: Build Python
         run: |
           cd backend
@@ -90,6 +92,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - run: git config --global --add safe.directory $(pwd)
+      - name: Install libgit2 1.5 for git2go v34
+        run: backend/scripts/install-libgit2.sh
       - name: Build Python
         run: |
           cd backend

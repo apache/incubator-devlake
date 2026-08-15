@@ -96,3 +96,33 @@ export const searchRemote = (
     method: 'get',
     data,
   });
+
+export type ScopeDuplicateConnection = {
+  connectionId: ID;
+  connectionName: string;
+};
+
+// The plugin-specific id field (githubId/gitlabId/bitbucketId) is intentionally
+// omitted here since the UI only ever needs `htmlUrl`/`fullName`/`connections`.
+export type ScopeDuplicateGroup = {
+  htmlUrl: string;
+  fullName: string;
+  connections: ScopeDuplicateConnection[];
+};
+
+// The query param that carries the comma-separated scope ids is named differently per
+// plugin (githubIds/gitlabIds/bitbucketIds), so callers pass it in via `idsParam`.
+export const scopeDuplicates = (
+  plugin: string,
+  data?: {
+    connectionId?: ID;
+    idsParam?: string;
+    ids?: string;
+  },
+): Promise<{ duplicates: ScopeDuplicateGroup[] }> => {
+  const { idsParam, ids, ...rest } = data ?? {};
+  return request(`/plugins/${plugin}/scope-duplicates`, {
+    method: 'get',
+    data: idsParam && ids !== undefined ? { ...rest, [idsParam]: ids } : rest,
+  });
+};
