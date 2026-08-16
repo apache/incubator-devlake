@@ -23,7 +23,7 @@ import { Block, ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
 interface Props {
-  initialValue: OrganizationSettings;
+  initialValue?: OrganizationSettings | null;
   value: string;
   label?: string;
   setValue: (value: string) => void;
@@ -38,11 +38,11 @@ export const ConnectionOrganization = ({ label, initialValue, value, setValue }:
   const [settings, setSettings] = useState<OrganizationSettings>({ scoped: false, organization: '' });
 
   useEffect(() => {
-    const org = initialValue.organization || '';
+    const org = initialValue?.organization || '';
     setValue(org);
 
-    setSettings({ organization: initialValue.organization, scoped: org !== '' });
-  }, [initialValue.organization]);
+    setSettings({ organization: initialValue?.organization ?? '', scoped: org !== '' });
+  }, [initialValue?.organization]);
 
   const handleChange = (e: RadioChangeEvent) => {
     const scoped = e.target.value;

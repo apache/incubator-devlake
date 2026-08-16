@@ -15,22 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type AzuredevopsConnection struct {
-	archived.Model
+type addUsernameToAzuredevops struct{}
 
-	Name         string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Token        string `mapstructure:"token" validate:"required" encrypt:"yes"`
-	Proxy        string `gorm:"type:varchar(255)"`
-	Organization string `gorm:"type:varchar(255)"`
-	Endpoint     string `gorm:"type:varchar(255)"`
+type azuredevopsConnection20260726 struct {
+	Username string `gorm:"type:varchar(255)"`
 }
 
-func (AzuredevopsConnection) TableName() string {
+func (azuredevopsConnection20260726) TableName() string {
 	return "_tool_azuredevops_go_connections"
+}
+
+func (script *addUsernameToAzuredevops) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&azuredevopsConnection20260726{},
+	)
+}
+
+func (*addUsernameToAzuredevops) Version() uint64 {
+	return 20260726000001
+}
+
+func (*addUsernameToAzuredevops) Name() string {
+	return "add username field to _tool_azuredevops_go_connections"
 }

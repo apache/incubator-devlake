@@ -18,6 +18,7 @@ limitations under the License.
 package parser
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/url"
 	"os"
@@ -46,16 +47,17 @@ type CloneRepoConfig struct {
 }
 
 type GitcliCloner struct {
-	ctx          plugin.SubTaskContext
-	taskData     *GitExtractorTaskData
-	logger       log.Logger
-	stateManager *api.SubtaskStateManager
-	since        *time.Time
-	remoteUrl    string
-	localDir     string
-	success      bool
-	syncEnvs     []string
-	syncArgs     []string
+	ctx              plugin.SubTaskContext
+	taskData         *GitExtractorTaskData
+	logger           log.Logger
+	stateManager     *api.SubtaskStateManager
+	since            *time.Time
+	remoteUrl        string
+	localDir         string
+	success          bool
+	syncEnvs         []string
+	syncArgs         []string
+	globalConfigArgs []string
 }
 
 func NewGitcliCloner(ctx plugin.SubTaskContext, localDir string) (*GitcliCloner, errors.Error) {
@@ -93,8 +95,17 @@ func (g *GitcliCloner) prepareSync() errors.Error {
 	if e != nil {
 		return errors.Convert(e)
 	}
-	// support proxy
+	// support proxy and http auth
 	if remoteUrl.Scheme == "http" || remoteUrl.Scheme == "https" {
+		g.globalConfigArgs = append(g.globalConfigArgs, "-c", "credential.helper=")
+		if remoteUrl.User != nil {
+			password, ok := remoteUrl.User.Password()
+			if ok && password != "" {
+				username := remoteUrl.User.Username()
+				auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", username, password)))
+				g.globalConfigArgs = append(g.globalConfigArgs, "-c", fmt.Sprintf("http.extraHeader=Authorization: Basic %s", auth))
+			}
+		}
 		if taskData.Options.Proxy != "" {
 			g.syncEnvs = append(g.syncEnvs, fmt.Sprintf("HTTPS_PROXY=%s", taskData.Options.Proxy))
 		}
@@ -308,8 +319,10 @@ func (g *GitcliCloner) gitCmd(gitcmd string, args ...string) errors.Error {
 
 func (g *GitcliCloner) git(env []string, dir string, gitcmd string, args ...string) errors.Error {
 	g.logger.Debug("git %s %v", gitcmd, sanitizeArgs(args)) // CWE-532: sanitize before logging
-	args = append([]string{gitcmd}, args...)
-	cmd := exec.CommandContext(g.ctx.GetContext(), "git", args...)
+	cmdArgs := append([]string{}, g.globalConfigArgs...)
+	cmdArgs = append(cmdArgs, gitcmd)
+	cmdArgs = append(cmdArgs, args...)
+	cmd := exec.CommandContext(g.ctx.GetContext(), "git", cmdArgs...)
 	cmd.Env = env
 	cmd.Dir = dir
 	return g.execCommand(cmd)

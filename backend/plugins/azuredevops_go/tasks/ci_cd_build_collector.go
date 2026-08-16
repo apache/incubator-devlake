@@ -63,7 +63,7 @@ func CollectBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			GetNextPageCustomData: ExtractContToken,
 			PageSize:              100,
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: "{{ .Params.OrganizationId }}/{{ .Params.ProjectId }}/_apis/build/builds?api-version=7.1",
+				UrlTemplate: "{{ if .Params.OrganizationId }}{{ .Params.OrganizationId }}/{{ end }}{{ .Params.ProjectId }}/_apis/build/builds?api-version=7.1",
 				Query: func(reqData *api.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
 					query := url.Values{}
 					query.Set("repositoryType", repoType)
