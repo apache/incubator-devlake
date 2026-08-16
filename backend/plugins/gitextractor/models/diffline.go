@@ -17,7 +17,7 @@ limitations under the License.
 
 package models
 
-import git "github.com/libgit2/git2go/v33"
+import git "github.com/libgit2/git2go/v34"
 
 type DiffLines []git.DiffLine
 

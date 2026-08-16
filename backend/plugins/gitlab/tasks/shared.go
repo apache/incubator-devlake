@@ -195,7 +195,15 @@ func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, apiCollector *api.S
 	}
 	if apiCollector != nil {
 		if apiCollector.GetSince() != nil {
-			clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *apiCollector.GetSince()))
+			// Filter by the LATER of gitlab_updated_at or commit_updated_at.
+			// Using only gitlab_updated_at misses MRs where new commits were pushed
+			// without the MR itself being updated (e.g. force-pushed commits).
+			// commit_updated_at is maintained by the MR commit extractor and is NULL
+			// for MRs without collected commits, hence the COALESCE.
+			clauses = append(clauses, dal.Where(
+				`GREATEST(gmr.gitlab_updated_at, COALESCE(gmr.commit_updated_at, gmr.gitlab_updated_at)) > ?`,
+				*apiCollector.GetSince(),
+			))
 		}
 	}
 	// construct the input iterator

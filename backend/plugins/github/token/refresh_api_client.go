@@ -74,7 +74,7 @@ func (c *refreshApiClient) Post(path string, query url.Values, body interface{},
 }
 
 func (c *refreshApiClient) do(method, path string, query url.Values, body interface{}, headers http.Header) (*http.Response, errors.Error) {
-	uri, err := api.GetURIStringPointer(c.endpoint, path, query)
+	uri, err := api.ResolveRequestURI(c.endpoint, path, query)
 	if err != nil {
 		return nil, err
 	}

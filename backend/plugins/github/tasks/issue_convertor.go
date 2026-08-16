@@ -42,8 +42,9 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 	Description:      "Convert tool layer table github_issues into  domain layer table issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{
-		models.GithubIssue{}.TableName(),   // cursor
-		models.GithubAccount{}.TableName(), // id generator
+		models.GithubIssue{}.TableName(),           // cursor
+		models.GithubAccount{}.TableName(),         // id generator
+		models.GithubIssueFieldValue{}.TableName(), // issue field mappings
 		//models.GithubRepo{}.TableName(),    // id generator, but config not regard as dependency
 		RAW_ISSUE_TABLE},
 	ProductTables: []string{
@@ -60,6 +61,15 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	accountIdGen := didgen.NewDomainIdGenerator(&models.GithubAccount{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.GithubRepo{})
 
+	// GitHub issue fields are organization-level structured metadata. When the scope config
+	// maps one onto an issue column it wins over the label regexes, which cannot express
+	// mutual exclusion and do not span repositories.
+	fieldMapping := resolveIssueFieldMapping(data.Options.ScopeConfig)
+	fieldValues, err := loadIssueFieldValues(taskCtx, data.Options.ConnectionId, fieldMapping)
+	if err != nil {
+		return err
+	}
+
 	converter, err := api.NewStatefulDataConverter(&api.StatefulDataConverterArgs[models.GithubIssue]{
 		SubtaskCommonArgs: &api.SubtaskCommonArgs{
 			SubTaskContext: taskCtx,
@@ -68,6 +78,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				Name:         data.Options.Name,
 			},
+			SubtaskConfig: fieldMapping.asSubtaskConfig(),
 		},
 		Input: func(stateManager *api.SubtaskStateManager) (dal.Rows, errors.Error) {
 			clauses := []dal.Clause{
@@ -102,6 +113,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Severity:        issue.Severity,
 				Component:       issue.Component,
 			}
+			applyIssueFields(taskCtx, fieldMapping, fieldValues, issue, domainIssue)
 			if issue.AssigneeId != 0 {
 				domainIssue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId)
 			}

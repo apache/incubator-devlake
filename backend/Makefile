@@ -27,7 +27,7 @@ PYTHON_DIR ?= "./python"
 all: build
 
 go-dep:
-	go install github.com/vektra/mockery/v2@v2.53.6
+	go install github.com/vektra/mockery/v3@v3.7.2
 	go install github.com/swaggo/swag/cmd/swag@v1.16.6
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
 
@@ -73,8 +73,12 @@ debug: build-plugin-debug
 
 mock:
 	rm -rf mocks
-	mockery --recursive --keeptree --dir=./core --output=./mocks/core --unroll-variadic=false --name='.*'
-	mockery --recursive --keeptree --dir=./helpers --output=./mocks/helpers --unroll-variadic=false --name='.*'
+	# mockery v3 is configured via YAML instead of CLI flags. Two invocations are
+	# required (and must run in this order): `helpers/unithelper` imports the
+	# generated `mocks/core/...` packages, and v3 type-checks the sources it
+	# parses, so the core mocks have to exist before the helpers tree loads.
+	mockery --config .mockery.core.yml
+	mockery --config .mockery.helpers.yml
 
 test: unit-test e2e-test
 

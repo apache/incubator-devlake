@@ -59,31 +59,48 @@ func listAzuredevopsRemoteScopes(
 ) {
 
 	org := connection.Organization
-	vsc := azuredevops.NewClient(connection, apiClient, "https://app.vssps.visualstudio.com")
+	// Use the connection endpoint for On-Premises, or VSSPS for Cloud
+	clientUrl := "https://app.vssps.visualstudio.com"
+	if connection.Endpoint != "" {
+		clientUrl = connection.GetEndpoint()
+	}
+	vsc := azuredevops.NewClient(connection, apiClient, clientUrl)
 
 	if groupId == "" {
-		return listAzuredevopsProjects(vsc, page, org)
+		return listAzuredevopsProjects(connection, vsc, page, org)
 	}
 
 	id := strings.Split(groupId, idSeparator)
-
-	if remote, err := listRemoteRepos(vsc, id[0], id[1]); err == nil {
-		children = append(children, remote...)
+	orgId := id[0]
+	projectId := ""
+	if len(id) > 1 {
+		projectId = id[1]
+	} else if connection.Endpoint != "" {
+		orgId = ""
+		projectId = id[0]
 	}
 
-	if remote, err := listAzuredevopsRepos(vsc, id[0], id[1]); err == nil {
-		children = append(children, remote...)
+	if projectId != "" {
+		if remote, err := listRemoteRepos(vsc, orgId, projectId); err == nil {
+			children = append(children, remote...)
+		}
+
+		if remote, err := listAzuredevopsRepos(vsc, orgId, projectId); err == nil {
+			children = append(children, remote...)
+		}
 	}
 	return children, nextPage, nil
 }
 
-func listAzuredevopsProjects(vsc azuredevops.Client, _ AzuredevopsRemotePagination, org string) (
+func listAzuredevopsProjects(connection *models.AzuredevopsConnection, vsc azuredevops.Client, _ AzuredevopsRemotePagination, org string) (
 	children []dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo],
 	nextPage *AzuredevopsRemotePagination,
 	err errors.Error) {
 
 	var accounts azuredevops.AccountResponse
-	if org == "" {
+	if connection.Endpoint != "" {
+		accounts = append(accounts, azuredevops.Account{AccountName: org})
+	} else if org == "" {
 		profile, err := vsc.GetUserProfile()
 		if err != nil {
 			return nil, nil, err
@@ -114,8 +131,12 @@ func listAzuredevopsProjects(vsc azuredevops.Client, _ AzuredevopsRemotePaginati
 
 			var tmp []dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo]
 			for _, vv := range projects {
+				groupId := vv.Name
+				if accountName != "" {
+					groupId = accountName + idSeparator + vv.Name
+				}
 				tmp = append(tmp, dsmodels.DsRemoteApiScopeListEntry[models.AzuredevopsRepo]{
-					Id:   accountName + idSeparator + vv.Name,
+					Id:   groupId,
 					Type: api.RAS_ENTRY_TYPE_GROUP,
 					Name: vv.Name,
 				})
@@ -153,7 +174,10 @@ func listAzuredevopsRepos(
 			continue
 		}
 
-		pID := orgId + idSeparator + projectId
+		pID := projectId
+		if orgId != "" {
+			pID = orgId + idSeparator + projectId
+		}
 		repo := models.AzuredevopsRepo{
 			Id:        v.Id,
 			Type:      models.RepositoryTypeADO,

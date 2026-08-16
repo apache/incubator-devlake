@@ -99,6 +99,7 @@ func ConvertApiMergeRequests(subtaskCtx plugin.SubTaskContext) errors.Error {
 				HeadRef:        gitlabMr.SourceBranch,
 				BaseRef:        gitlabMr.TargetBranch,
 				Component:      gitlabMr.Component,
+				IsDraft:        gitlabMr.WorkInProgress,
 			}
 			switch gitlabMr.State {
 			case "opened":

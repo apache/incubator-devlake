@@ -51,6 +51,13 @@ type GitlabMergeRequest struct {
 	AuthorUsername   string `gorm:"type:varchar(255)"`
 	AuthorUserId     int
 	Component        string `gorm:"type:varchar(255)"`
+	Additions        *int   `gorm:"comment:Lines added in this MR diff only"`
+	Deletions        *int   `gorm:"comment:Lines deleted in this MR diff only"`
+	// CommitUpdatedAt holds the most recent authored date among the commits of this MR.
+	// GitLab does not bump `updated_at` for every push (e.g. force-pushes), so this
+	// timestamp is used in addition to GitlabUpdatedAt to detect MRs that changed
+	// during incremental collection.
+	CommitUpdatedAt *time.Time `gorm:"comment:Latest authored date of the commits belonging to this MR"`
 	common.NoPKModel
 }
 

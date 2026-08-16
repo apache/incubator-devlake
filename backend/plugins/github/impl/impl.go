@@ -103,6 +103,7 @@ func (p Github) GetTablesInfo() []dal.Tabler {
 		&models.GithubReviewer{},
 		&models.GithubRun{},
 		&models.GithubIssueAssignee{},
+		&models.GithubIssueFieldValue{},
 		&models.GithubScopeConfig{},
 		&models.GithubDeployment{},
 		&models.GithubRelease{},
@@ -224,6 +225,9 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"scope-config/:scopeConfigId/projects": {
 			"GET": api.GetProjectsByScopeConfig,
+		},
+		"scope-duplicates": {
+			"GET": api.GetScopeDuplicates,
 		},
 	}
 }

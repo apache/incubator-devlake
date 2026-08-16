@@ -19,7 +19,7 @@ version: "3"
 services:
 
   mysql-test:
-    image: mysql:8.4.10
+    image: mysql:8.4.11
     platform: linux/x86_64
     volumes:
       - mysql-test-storage:/var/lib/mysql
@@ -33,7 +33,7 @@ services:
       MYSQL_PASSWORD: merico
 
   postgres-test:
-    image: postgres:18.1-alpine
+    image: postgres:18.4-alpine
     restart: always
     ports:
       - "3308:5432"

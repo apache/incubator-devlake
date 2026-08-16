@@ -28,6 +28,7 @@ type AzuredevopsConnection struct {
 	Token        string `mapstructure:"token" validate:"required" encrypt:"yes"`
 	Proxy        string `gorm:"type:varchar(255)"`
 	Organization string `gorm:"type:varchar(255)"`
+	Endpoint     string `gorm:"type:varchar(255)"`
 }
 
 func (AzuredevopsConnection) TableName() string {
