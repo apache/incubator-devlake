@@ -67,7 +67,7 @@ export const DataScopeSelect = ({
     const res = await API.scope.list(plugin, connectionId, { page, pageSize });
     setItems((items) => [
       ...items,
-      ...res.scopes.map((sc) => ({
+      ...(res.scopes ?? []).map((sc) => ({
         parentId: null,
         id: getPluginScopeId(plugin, sc.scope),
         title: getPluginScopeName(plugin, sc.scope) || sc.scope.fullName || sc.scope.name,
@@ -92,10 +92,10 @@ export const DataScopeSelect = ({
 
   const searchOptions = useMemo(
     () =>
-      data?.scopes.map((sc) => ({
+      (data?.scopes ?? []).map((sc) => ({
         label: getPluginScopeName(plugin, sc.scope) || sc.scope.fullName || sc.scope.name,
         value: getPluginScopeId(plugin, sc.scope),
-      })) ?? [],
+      })),
     [data],
   );
 

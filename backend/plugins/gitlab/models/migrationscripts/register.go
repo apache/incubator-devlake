@@ -53,5 +53,7 @@ func All() []plugin.MigrationScript {
 		new(changeIssueComponentType),
 		new(addIsChildToPipelines240906),
 		new(addPrSizeExcludedFileExtensions),
+		new(addAdditionsDeletionsToMr),
+		new(addMrCommitUpdatedAt),
 	}
 }

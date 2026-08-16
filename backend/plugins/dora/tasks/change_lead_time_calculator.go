@@ -248,7 +248,9 @@ func batchFetchFirstReviews(projectName string, db dal.Dal) (map[string]*code.Pu
 			SELECT prc2.pull_request_id, MIN(prc2.created_date) as min_date
 			FROM pull_request_comments prc2
 			INNER JOIN pull_requests pr2 ON pr2.id = prc2.pull_request_id
+			LEFT JOIN accounts acc2 ON acc2.id = prc2.account_id
 			WHERE (pr2.author_id IS NULL OR pr2.author_id = '' OR prc2.account_id != pr2.author_id)
+			AND COALESCE(acc2.is_bot, false) = false
 			GROUP BY prc2.pull_request_id
 		) first_reviews ON prc.pull_request_id = first_reviews.pull_request_id
 		AND prc.created_date = first_reviews.min_date`),

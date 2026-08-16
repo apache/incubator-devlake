@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"reflect"
+	"strings"
 )
 
 var ConnectUserAccountsExactMeta = plugin.SubTaskMeta{
@@ -42,11 +43,14 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	// Email addresses are compared case-insensitively: a corporate git config and a provider
+	// profile routinely record the same address with different capitalisation, and matching them
+	// exactly silently drops links that should be made.
 	emails := make(map[string]string)
 	names := make(map[string]string)
 	for _, user := range users {
 		if user.Email != "" {
-			emails[user.Email] = user.Id
+			emails[strings.ToLower(user.Email)] = user.Id
 		}
 		if user.Name != "" {
 			names[user.Name] = user.Id
@@ -76,7 +80,7 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			account := inputRow.(*crossdomain.Account)
-			if userId, ok := emails[account.Email]; account.Email != "" && ok {
+			if userId, ok := emails[strings.ToLower(account.Email)]; account.Email != "" && ok {
 				return []interface{}{
 					&crossdomain.UserAccount{
 						UserId:    userId,

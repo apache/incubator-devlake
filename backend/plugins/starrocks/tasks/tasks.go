@@ -37,7 +37,7 @@ import (
 	"github.com/apache/incubator-devlake/impls/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/starrocks/utils"
 
-	"github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgtype"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -306,6 +306,9 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 	}
 
 	var batchCount int
+	// typeMap registers the default pgtype catalog, so it is built once per query
+	// and reused for every array column of every row.
+	typeMap := pgtype.NewMap()
 	for rows.Next() {
 		select {
 		case <-c.GetContext().Done():
@@ -320,7 +323,7 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 			if strings.HasPrefix(dataType, "array") {
 				var arr []string
 				columns[i] = &arr
-				columnPointers[i] = pq.Array(&arr)
+				columnPointers[i] = typeMap.SQLScanner(&arr)
 			} else {
 				columnPointers[i] = &columns[i]
 			}

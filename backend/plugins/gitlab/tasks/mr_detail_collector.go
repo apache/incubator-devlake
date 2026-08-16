@@ -62,6 +62,7 @@ func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("with_stats", "true")
+			query.Set("include_diff_stats", "true")
 			return query, nil
 		},
 		ResponseParser: GetOneRawMessageFromResponse,

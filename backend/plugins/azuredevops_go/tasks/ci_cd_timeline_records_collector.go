@@ -65,7 +65,7 @@ func CollectRecords(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:          data.ApiClient,
 		Input:              iterator,
 		Incremental:        false,
-		UrlTemplate:        "{{ .Params.OrganizationId }}/{{ .Params.ProjectId }}/_apis/build/builds/{{ .Input.AzuredevopsId }}/Timeline?api-version=7.1",
+		UrlTemplate:        "{{ if .Params.OrganizationId }}{{ .Params.OrganizationId }}/{{ end }}{{ .Params.ProjectId }}/_apis/build/builds/{{ .Input.AzuredevopsId }}/Timeline?api-version=7.1",
 		Query:              BuildPaginator(true),
 		ResponseParser:     ParseRawMessageFromRecords,
 		AfterResponse:      ignoreInvalidTimelineResponse, // Skip builds with missing/malformed timelines (e.g. YAML syntax errors)

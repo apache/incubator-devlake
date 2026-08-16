@@ -96,7 +96,7 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
         pageToken: currentPageToken,
       });
 
-      newItems = (res.children ?? []).map((it) => ({
+      newItems = (res?.children ?? []).map((it) => ({
         ...it,
         title: getPluginScopeName(plugin, it) || it.name,
       }));
@@ -140,7 +140,7 @@ export const SearchRemote = ({ mode, plugin, connectionId, config, disabledScope
         pageSize: PAGE_SIZE,
       });
 
-      const newItems = (res.children ?? []).map((it) => ({
+      const newItems = (res?.children ?? []).map((it) => ({
         ...it,
         title: getPluginScopeName(plugin, it) || it.fullName || it.name,
       }));
