@@ -84,8 +84,12 @@ func (p Monorepo) IsProjectMetric() bool {
 	return true
 }
 
-// RunAfter ensures DORA has produced project_pr_metrics (coding/pickup/review times) and
-// its deployment records before sub-project attribution reads them.
+// RunAfter declares that this plugin should run after dora. NOTE: this is currently
+// advisory metadata only (surfaced via the /plugins API) — core's blueprint plan builder
+// (server/services/blueprint_makeplan_v200.go GeneratePlanJsonV200) merges all enabled
+// metric plugins' plans with ParallelizePipelinePlans, which zips their stages together by
+// index and does not consult RunAfter. Actual ordering against dora is enforced by stage
+// padding in MakeMetricPluginPipelinePlanV200 below, not by this declaration.
 func (p Monorepo) RunAfter() ([]string, errors.Error) {
 	return []string{"dora"}, nil
 }
@@ -151,18 +155,32 @@ func (p Monorepo) MakeMetricPluginPipelinePlanV200(projectName string, options j
 		})
 	}
 
-	plan := coreModels.PipelinePlan{
+	// attributeDeployments reads cicd_deployment_commits, and attributePullRequests reads
+	// project_pr_metrics — both are written by dora's own multi-stage plan (currently 3
+	// stages: generate deployments, refdiff, calculate change lead time). Core's
+	// ParallelizePipelinePlans merges every enabled metric plugin's plan by stage index, so
+	// without padding, our single stage would run concurrently with dora's stage 0 instead
+	// of after its stage 2 — a real race that silently produces incomplete/nil-metric
+	// output (no error) when dora and monorepo are enabled together, since core's RunAfter
+	// contract above is not actually enforced by the scheduler. Padding with empty stages
+	// through dora's stage count (and then some, for headroom against future growth) is a
+	// workaround, not a fix: if dora's plan ever grows past this padding, the race returns.
+	// Revisit if DevLake ever adds real cross-plugin dependency scheduling.
+	const stagesToOutlastDora = 6
+	plan := make(coreModels.PipelinePlan, stagesToOutlastDora+1)
+	for i := 0; i < stagesToOutlastDora; i++ {
+		plan[i] = coreModels.PipelineStage{}
+	}
+	plan[stagesToOutlastDora] = coreModels.PipelineStage{
 		{
-			{
-				Plugin: "monorepo",
-				Options: map[string]interface{}{
-					"projectName": projectName,
-					"subProjects": subProjects,
-				},
-				Subtasks: []string{
-					tasks.AttributeDeploymentsMeta.Name,
-					tasks.AttributePullRequestsMeta.Name,
-				},
+			Plugin: "monorepo",
+			Options: map[string]interface{}{
+				"projectName": projectName,
+				"subProjects": subProjects,
+			},
+			Subtasks: []string{
+				tasks.AttributeDeploymentsMeta.Name,
+				tasks.AttributePullRequestsMeta.Name,
 			},
 		},
 	}
