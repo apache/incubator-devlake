@@ -18,7 +18,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/robfig/cron/v3 v3.0.0
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.10.0
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.5.0
@@ -43,7 +43,7 @@ require (
 	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/coreos/go-oidc/v3 v3.9.0
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/merico-ai/graphql v0.0.0-20260206020408-b7fd267bcfac
 	github.com/rogpeppe/go-internal v1.11.0
 	golang.org/x/mod v0.38.0
@@ -121,7 +121,7 @@ require (
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
 	golang.org/x/tools v0.48.0 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
