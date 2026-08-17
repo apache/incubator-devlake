@@ -29,10 +29,10 @@ require (
 	github.com/swaggo/swag v1.16.1
 	github.com/tidwall/gjson v1.14.3
 	github.com/viant/afs v1.16.0
-	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f
-	golang.org/x/oauth2 v0.13.0
-	golang.org/x/sync v0.17.0
+	golang.org/x/oauth2 v0.36.0
+	golang.org/x/sync v0.22.0
 	gorm.io/datatypes v1.0.1
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.5.2
@@ -46,7 +46,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
 	github.com/merico-ai/graphql v0.0.0-20260206020408-b7fd267bcfac
 	github.com/rogpeppe/go-internal v1.11.0
-	golang.org/x/mod v0.27.0
+	golang.org/x/mod v0.38.0
 )
 
 require (
@@ -80,7 +80,6 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -118,11 +117,10 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
+	golang.org/x/net v0.58.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/tools v0.48.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
