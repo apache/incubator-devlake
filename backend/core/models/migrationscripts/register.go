@@ -150,5 +150,6 @@ func All() []plugin.MigrationScript {
 		new(addCqProjectMetricsHistory),
 		new(addIsBotToAccounts),
 		new(addSprintVelocityFields),
+		new(addBlueprintIdIndexToPipelines),
 	}
 }
