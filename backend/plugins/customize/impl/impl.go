@@ -26,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/customize/models"
 	"github.com/apache/incubator-devlake/plugins/customize/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/customize/tasks"
-	"github.com/mitchellh/mapstructure"
+	"github.com/go-viper/mapstructure/v2"
 )
 
 var _ interface {
