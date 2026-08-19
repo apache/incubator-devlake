@@ -95,6 +95,26 @@ func GeneratePlanJsonV200(
 		}
 	}
 
+	// Inject projectName into every data-source task option so plugins can use it
+	// (e.g. Jira's ExtraJQL {{.ProjectName}}) without needing it threaded through
+	// their own MakeDataSourcePipelinePlanV200. mapstructure silently ignores
+	// unknown keys for plugins that don't declare the field.
+	if projectName != "" {
+		for i, plan := range sourcePlans {
+			for j, stage := range plan {
+				for k, task := range stage {
+					if task.Options == nil {
+						task.Options = make(map[string]interface{})
+					}
+					task.Options["projectName"] = projectName
+					stage[k] = task
+				}
+				plan[j] = stage
+			}
+			sourcePlans[i] = plan
+		}
+	}
+
 	// make plans for metric plugins
 	metricPlans := make([]coreModels.PipelinePlan, len(metrics))
 	i := 0

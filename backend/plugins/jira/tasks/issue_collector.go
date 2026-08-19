@@ -118,8 +118,9 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 // JqlTemplateData holds the variables available inside an ExtraJQL template.
 // Users reference these with Go template syntax, e.g. `{{.BoardName}}`.
 type JqlTemplateData struct {
-	BoardId   uint64 // numeric ID of the connected Jira board
-	BoardName string // display name of the connected Jira board
+	BoardId     uint64 // numeric ID of the connected Jira board
+	BoardName   string // display name of the connected Jira board
+	ProjectName string // DevLake project name; empty string if no project context
 }
 
 // renderExtraJQL executes the ExtraJQL scope-config field as a Go text/template,
@@ -139,7 +140,8 @@ func renderExtraJQL(tmplStr string, data *JiraTaskData) (string, errors.Error) {
 	}
 
 	vars := JqlTemplateData{
-		BoardId: data.Options.BoardId,
+		BoardId:     data.Options.BoardId,
+		ProjectName: data.ProjectName,
 	}
 	if data.Board != nil {
 		vars.BoardName = data.Board.Name
