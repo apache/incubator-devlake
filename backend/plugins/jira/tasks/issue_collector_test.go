@@ -18,11 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
+	"testing/quick"
 	"time"
 
 	"github.com/apache/incubator-devlake/helpers/unithelper"
@@ -261,10 +263,12 @@ func Test_responseUrl(t *testing.T) {
 }
 
 func Test_renderExtraJQL(t *testing.T) {
-	makeData := func(boardId uint64, boardName string, _ string) *JiraTaskData {
+	// Task 3.2 (1): wire the third parameter to set ProjectName on both structs.
+	makeData := func(boardId uint64, boardName string, projectName string) *JiraTaskData {
 		return &JiraTaskData{
-			Options: &JiraOptions{BoardId: boardId},
-			Board:   &models.JiraBoard{BoardId: boardId, Name: boardName},
+			Options:     &JiraOptions{BoardId: boardId, ProjectName: projectName},
+			Board:       &models.JiraBoard{BoardId: boardId, Name: boardName},
+			ProjectName: projectName,
 		}
 	}
 
@@ -311,6 +315,25 @@ func Test_renderExtraJQL(t *testing.T) {
 			data:    makeData(1, "My Board", ""),
 			wantErr: true,
 		},
+		// Task 3.2 (2): ProjectName table-driven test cases.
+		{
+			name: "ProjectName substitution",
+			tmpl: `labels = "{{.ProjectName}}"`,
+			data: makeData(1, "My Board", "My DevLake Project"),
+			want: `labels = "My DevLake Project"`,
+		},
+		{
+			name: "empty ProjectName renders empty string",
+			tmpl: `labels = "{{.ProjectName}}"`,
+			data: makeData(1, "My Board", ""),
+			want: `labels = ""`,
+		},
+		{
+			name: "combined ProjectName and BoardName substitution",
+			tmpl: `component = "{{.ProjectName}}" AND owner = "{{.BoardName}}"`,
+			data: makeData(1, "My Board", "My Project"),
+			want: `component = "My Project" AND owner = "My Board"`,
+		},
 	}
 
 	for _, tt := range tests {
@@ -324,5 +347,89 @@ func Test_renderExtraJQL(t *testing.T) {
 				t.Errorf("renderExtraJQL() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+
+	// Task 3.2 (3): Property 1 — template variable round-trip.
+	// Validates: Requirements 1.2, 1.4, 5.4
+	// Tag: Feature: jira-extrajql-projectname, Property 1: template variable round-trip
+	t.Run("property: triple-variable round-trip", func(t *testing.T) {
+		f := func(projectName, boardName string, boardId uint64) bool {
+			data := &JiraTaskData{
+				Options:     &JiraOptions{BoardId: boardId, ProjectName: projectName},
+				Board:       &models.JiraBoard{BoardId: boardId, Name: boardName},
+				ProjectName: projectName,
+			}
+			got, err := renderExtraJQL(`{{.ProjectName}}-{{.BoardName}}-{{.BoardId}}`, data)
+			if err != nil {
+				return false
+			}
+			want := fmt.Sprintf("%s-%s-%d", projectName, boardName, boardId)
+			return got == want
+		}
+		if err := quick.Check(f, &quick.Config{MaxCount: 100}); err != nil {
+			t.Errorf("Property 1 (triple-variable round-trip) failed: %v", err)
+		}
+	})
+
+	// Task 3.3: Property 2 — static JQL passthrough.
+	// Validates: Requirements 4.3
+	// Tag: Feature: jira-extrajql-projectname, Property 2: static JQL passthrough
+	t.Run("property: static JQL passthrough", func(t *testing.T) {
+		f := func(s string) bool {
+			if strings.Contains(s, "{{") {
+				return true // skip: not a static template
+			}
+			data := &JiraTaskData{
+				Options: &JiraOptions{BoardId: 1},
+				Board:   &models.JiraBoard{},
+			}
+			got, err := renderExtraJQL(s, data)
+			return err == nil && got == s
+		}
+		if err := quick.Check(f, &quick.Config{MaxCount: 100}); err != nil {
+			t.Errorf("Property 2 (static JQL passthrough) failed: %v", err)
+		}
+	})
+}
+
+// Test_renderExtraJQL_Property1_RoundTrip is a top-level property-based test for
+// the template variable round-trip property.
+// Validates: Requirements 1.2, 1.4, 5.4
+func Test_renderExtraJQL_Property1_RoundTrip(t *testing.T) {
+	f := func(projectName, boardName string, boardId uint64) bool {
+		data := &JiraTaskData{
+			Options:     &JiraOptions{BoardId: boardId},
+			Board:       &models.JiraBoard{BoardId: boardId, Name: boardName},
+			ProjectName: projectName,
+		}
+		got, err := renderExtraJQL(`{{.ProjectName}}-{{.BoardName}}-{{.BoardId}}`, data)
+		if err != nil {
+			return false
+		}
+		want := fmt.Sprintf("%s-%s-%d", projectName, boardName, boardId)
+		return got == want
+	}
+	if err := quick.Check(f, &quick.Config{MaxCount: 100}); err != nil {
+		t.Errorf("Property 1 (round-trip) failed: %v", err)
+	}
+}
+
+// Test_renderExtraJQL_Property2_StaticPassthrough is a top-level property-based test for
+// the static JQL passthrough property.
+// Validates: Requirements 4.3
+func Test_renderExtraJQL_Property2_StaticPassthrough(t *testing.T) {
+	f := func(s string) bool {
+		if strings.Contains(s, "{{") {
+			return true // skip: not a static template
+		}
+		data := &JiraTaskData{
+			Options: &JiraOptions{BoardId: 1},
+			Board:   &models.JiraBoard{},
+		}
+		got, err := renderExtraJQL(s, data)
+		return err == nil && got == s
+	}
+	if err := quick.Check(f, &quick.Config{MaxCount: 100}); err != nil {
+		t.Errorf("Property 2 (static passthrough) failed: %v", err)
 	}
 }

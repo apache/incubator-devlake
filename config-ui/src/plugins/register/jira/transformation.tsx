@@ -269,7 +269,7 @@ const renderCollapseItems = ({
             label={
               <>
                 <span>Extra JQL</span>
-                <HelpTooltip content="Additional JQL clause ANDed into every issue query. Supports Go text/template syntax. Available variables: {{.BoardName}} (Jira board display name), {{.BoardId}} (numeric board ID)." />
+                <HelpTooltip content="Additional JQL clause ANDed into every issue query. Supports Go text/template syntax. Available variables: {{.BoardName}} (Jira board display name), {{.BoardId}} (numeric board ID), {{.ProjectName}} (DevLake project name)." />
               </>
             }
             extra='Tip: use Go template variables to make this dynamic, e.g. owner = "{{.BoardName}}"'
