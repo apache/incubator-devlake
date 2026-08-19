@@ -27,7 +27,7 @@ import (
 
 type CICDPipeline struct {
 	domainlayer.DomainEntity
-	Name              string `gorm:"type:varchar(255)"`
+	Name              string `gorm:"type:text"`
 	DisplayTitle      string
 	Url               string
 	Result            string `gorm:"type:varchar(100)"`

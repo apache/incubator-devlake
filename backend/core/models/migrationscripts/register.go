@@ -151,5 +151,6 @@ func All() []plugin.MigrationScript {
 		new(addIsBotToAccounts),
 		new(addSprintVelocityFields),
 		new(addBlueprintIdIndexToPipelines),
+		new(expandDomainTextColumns),
 	}
 }
