@@ -38,7 +38,7 @@ const ENV_NAME_PATTERN = "ENV_NAME_PATTERN"
 
 type CICDTask struct {
 	domainlayer.DomainEntity
-	Name              string `gorm:"type:varchar(255)"`
+	Name              string `gorm:"type:text"`
 	PipelineId        string `gorm:"index;type:varchar(255)"`
 	Result            string `gorm:"type:varchar(100)"`
 	Status            string `gorm:"type:varchar(100)"`
