@@ -130,9 +130,11 @@ func SetupApiServer(router *gin.Engine) {
 	// Endpoint to proceed database migration — listed in auth.publicPaths because
 	// auth tables may not exist yet when migration is pending.
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
-		// Execute database migration
-		errors.Must(services.ExecuteMigration())
-		// Return success response
+		// Surface the real migration error to the client instead of a bare 500.
+		if err := services.ExecuteMigration(); err != nil {
+			shared.ApiOutputError(ctx, err)
+			return
+		}
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 	})
 
