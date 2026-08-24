@@ -47,7 +47,7 @@ RUN mkdir -p /tmp/build && cd /tmp/build && \
     make -j$(nproc) install && \
     ldconfig
 
-RUN go install github.com/vektra/mockery/v3@v3.7.2
+RUN go install github.com/vektra/mockery/v3@v3.7.4
 RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
 WORKDIR /app
