@@ -38,6 +38,7 @@ export interface IConnectionAPI {
   rateLimitPerHour?: number;
   organization?: string;
   organizationId?: string;
+  enterprise?: string;
   customHeaders?: ICustomHeader[];
 }
 
@@ -95,5 +96,6 @@ export interface IConnection {
   rateLimitPerHour?: number;
   organization?: string;
   organizationId?: string;
+  enterprise?: string;
   customHeaders?: ICustomHeader[];
 }

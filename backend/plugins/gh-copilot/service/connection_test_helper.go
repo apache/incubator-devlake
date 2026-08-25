@@ -64,7 +64,7 @@ func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.
 	hasOrg := strings.TrimSpace(connection.Organization) != ""
 
 	if !hasEnterprise && !hasOrg {
-		return nil, errors.BadInput.New("either enterprise or organization must be specified")
+		return nil, errors.BadInput.New("either enterprise or organization is required")
 	}
 
 	apiClient, err := helper.NewApiClientFromConnection(ctx, br, connection)
