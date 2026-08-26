@@ -26,7 +26,7 @@ import (
 type addScopeConfigIdToS3Slice struct{}
 
 type QDevS3Slice20251123 struct {
-	ScopeConfigId uint64 `gorm:"type:BIGINT DEFAULT 0"`
+	ScopeConfigId uint64 `gorm:"default:0"`
 }
 
 func (QDevS3Slice20251123) TableName() string {
