@@ -1,0 +1,272 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Dependabot version updates.
+#
+# Conventions used throughout this file:
+#   * `commit-message.prefix: build(deps)` matches the commit convention that
+#     `.github/workflows/commit-msg.yml` enforces on every pull request.
+#   * Minor and patch updates are grouped into a single pull request per
+#     ecosystem; majors stay separate so they remain individually reviewable.
+#   * `ignore` entries document deliberately deferred upgrades. Each one names
+#     the reason, so the rule can be removed once the reason disappears.
+#
+# Known coverage gaps (intentionally not automated):
+#   * Compose files use their own `docker-compose` ecosystem. Its filename
+#     matcher does not accept the two multi-suffix names
+#     `docker-compose-dev-mysql.yml` and `docker-compose-dev-postgresql.yml`,
+#     so the images in those files stay on manual maintenance.
+#   * Workflow `container:` and `services:` images are not covered either: the
+#     `github-actions` ecosystem only updates `uses:` references.
+#   * `backend/scripts/install-mockery.sh` pins a tool version in a shell
+#     script and is not a supported manifest format.
+version: 2
+updates:
+  # ---------------------------------------------------------------- Go -----
+  - package-ecosystem: gomod
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build(deps)
+    groups:
+      go-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # The Go toolchain directive is coupled to the CI bootstrap version and
+      # to the golang base images; it is raised deliberately, never by a bot.
+      - dependency-name: go
+      # git2go is ABI-coupled to the libgit2 version installed in the builder
+      # image. A mismatch fails at link time, so this is always manual.
+      - dependency-name: github.com/libgit2/git2go/*
+      # swag v2 is still a release candidate and requires regenerating every
+      # swagger annotation. Tracked as an externally gated upgrade.
+      - dependency-name: github.com/swaggo/swag
+        update-types:
+          - version-update:semver-major
+
+  # -------------------------------------------------------------- npm ------
+  - package-ecosystem: npm
+    directory: /config-ui
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build(deps)
+    groups:
+      js-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # TypeScript 7 is the native-port compiler. Upgrading requires validating
+      # the whole build chain (vite, eslint, type definitions) in one go.
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
+
+  - package-ecosystem: npm
+    directory: /e2e
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build(deps)
+    # This directory has no lockfile. Without `increase`, Dependabot would stay
+    # silent as long as a new release still satisfies the declared caret range.
+    versioning-strategy: increase
+    groups:
+      e2e-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  # ------------------------------------------------------------- Python ----
+  - package-ecosystem: pip
+    directories:
+      - /backend/python
+      - /backend/python/pydevlake
+      - /backend/python/plugins/azuredevops
+      - /backend/python/test/fakeplugin
+      - /grafana/scripts
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build(deps)
+    groups:
+      python-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # pydevlake is written against Pydantic 1 and SQLModel 0.0.8. SQLModel is
+      # still pre-1.0, so SemVer treats even 0.0.8 -> 0.0.30 as a patch, yet that
+      # release pulls in SQLAlchemy 2 and Pydantic 2 and breaks
+      # `pydevlake/model.py` with "Passing primary_key is not supported when also
+      # passing a sa_column". Verified on a fork: the bump landed in the group
+      # and turned unit-test and test-e2e red.
+      # Drop both entries once pydevlake has been migrated to Pydantic 2.
+      - dependency-name: sqlmodel
+      - dependency-name: pydantic
+        update-types:
+          - version-update:semver-major
+
+  # ------------------------------------------------------------- Docker ----
+  #
+  # This block covers both Dockerfiles and Kubernetes manifests: the `docker`
+  # file fetcher also picks up YAML files that carry `apiVersion` and `kind`,
+  # which is why `/devops/deployment/k8s` is listed here. Only the `mysql`
+  # image there is pinned to a version; the `apache/devlake*` images use
+  # `latest` and are left untouched.
+  #
+  # Note on Docker tag semantics: language base images encode their version in
+  # the tag, so `node:24 -> node:25` is a major update while
+  # `python:3.11 -> python:3.14` would count as a minor one. All three images
+  # define a runtime rather than a dependency: the Python tag has to match what
+  # the Poetry lockfiles resolve against, and the Go tag has to match the `go`
+  # directive in backend/go.mod and the toolchain used by CI. They are raised
+  # deliberately, so they are ignored here.
+  - package-ecosystem: docker
+    directories:
+      - /backend
+      - /config-ui
+      - /grafana
+      - /devops/docker/lake-builder
+      - /.devcontainer
+      - /devops/deployment/k8s
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build(deps)
+    groups:
+      docker-patch:
+        patterns:
+          - "*"
+        update-types:
+          - patch
+    ignore:
+      # The build image tracks the active LTS line. Node 26 is not an LTS
+      # release, and a trial run confirmed that without this rule Dependabot
+      # proposes moving from 24 to 25.
+      - dependency-name: node
+        update-types:
+          - version-update:semver-major
+      # Ignored for minor as well, because a jump such as 3.11 -> 3.14 is a
+      # minor update in tag terms while being a runtime change in practice.
+      - dependency-name: python
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: golang
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      # Dependabot strips the registry host from the dependency name, so this
+      # must be "devcontainers/go" and not "mcr.microsoft.com/devcontainers/go".
+      - dependency-name: devcontainers/go
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+
+  # ----------------------------------------------------- Docker Compose ---
+  #
+  # The separate Compose updater recognises four of the six non-release
+  # Compose files. The two docker-compose-dev-*.yml names are not matched by
+  # its current filename regexp and therefore remain a documented manual gap.
+  # Jira, Jenkins and Bitbucket are compatibility fixtures rather than runtime
+  # dependencies; their deliberately old versions must not be raised blindly.
+  - package-ecosystem: docker-compose
+    directories:
+      - /
+      - /.devcontainer
+      - /devops/deployment/temporal
+      - /backend/test/e2e/remote
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build(deps)
+    groups:
+      compose-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: jenkins/jenkins
+      - dependency-name: atlassian/jira-software
+      - dependency-name: atlassian/bitbucket-server
+
+  # ------------------------------------------------------ GitHub Actions ---
+  #
+  # Most workflows reference actions by tag, while the docker/* actions are
+  # pinned to a commit SHA with a `# vX.Y.Z` comment. Dependabot updates a
+  # SHA pin to the new SHA and rewrites that comment, so pinning is preserved.
+  #
+  # Dependabot never proposes a change of action *namespace*. Migrating to a
+  # differently owned action stays a manual step because ASF infrastructure
+  # maintains an allow-list of permitted actions.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build(deps)
+    groups:
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
