@@ -456,7 +456,14 @@ func (d *Dalgorm) DropIndexes(table string, indexNames ...string) errors.Error {
 		if !d.db.Migrator().HasIndex(table, indexName) {
 			continue
 		}
-		err := d.db.Migrator().DropIndex(table, indexName)
+		var err error
+		if d.Dialect() == "postgres" {
+			// gorm.io/driver/postgres v1.6.x quotes its CURRENT_SCHEMA()
+			// expression when dropping an index, yielding invalid SQL.
+			err = d.db.Exec("DROP INDEX IF EXISTS ?", clause.Column{Name: indexName}).Error
+		} else {
+			err = d.db.Migrator().DropIndex(table, indexName)
+		}
 		if err != nil {
 			return d.convertGormError(err)
 		}
