@@ -19,8 +19,11 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Overview of logging event metrics",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Chat users, user turns, agent continuations, and completion events.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -66,11 +69,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT (SELECT COUNT(*) FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp)) AS \"Chat Events\", (SELECT COUNT(DISTINCT user_id) FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp)) AS \"Chat Users\", (SELECT COUNT(DISTINCT conversation_id) FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) AND conversation_id <> '') AS \"Conversations\", (SELECT COUNT(*) FROM lake._tool_q_dev_completion_log WHERE $__timeFilter(timestamp)) AS \"Completion Events\", (SELECT COUNT(DISTINCT user_id) FROM lake._tool_q_dev_completion_log WHERE $__timeFilter(timestamp)) AS \"Completion Users\", (SELECT SUM(code_reference_count) FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp)) AS \"Code References\", (SELECT SUM(web_link_count) FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp)) AS \"Web Links Cited\"",
+          "rawSql": "SELECT (SELECT COUNT(*) FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)) AS 'Chat Events', (SELECT COUNT(DISTINCT user_id) FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)) AS 'Chat Users', (SELECT SUM(CASE WHEN has_prompt = 1 THEN 1 ELSE 0 END) FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)) AS 'User Turns', (SELECT SUM(CASE WHEN has_prompt = 0 THEN 1 ELSE 0 END) FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)) AS 'Agent Continuations', (SELECT COUNT(*) FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp)) AS 'Completion Events'",
           "refId": "A"
         }
       ],
@@ -78,7 +84,10 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Hourly distribution of AI usage activity (chat + completions)",
       "fieldConfig": {
         "defaults": {
@@ -155,11 +164,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT LPAD(CAST(hour_of_day AS TEXT), 2, '0') AS \"Hour\", SUM(chat_count) AS \"Chat Events\", SUM(completion_count) AS \"Completion Events\" FROM (SELECT EXTRACT(HOUR FROM timestamp) AS hour_of_day, COUNT(*) AS chat_count, 0 AS completion_count FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY EXTRACT(HOUR FROM timestamp) UNION ALL SELECT EXTRACT(HOUR FROM timestamp) AS hour_of_day, 0 AS chat_count, COUNT(*) AS completion_count FROM lake._tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY EXTRACT(HOUR FROM timestamp)) AS combined GROUP BY hour_of_day ORDER BY hour_of_day NULLS FIRST",
+          "rawSql": "SELECT\n  LPAD(CAST(hour_of_day AS CHAR), 2, '0') as 'Hour',\n  SUM(chat_count) as 'Chat Events',\n  SUM(completion_count) as 'Completion Events'\nFROM (\n  SELECT HOUR(timestamp) as hour_of_day, COUNT(*) as chat_count, 0 as completion_count\n  FROM lake._tool_kiro_chat_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n  UNION ALL\n  SELECT HOUR(timestamp) as hour_of_day, 0 as chat_count, COUNT(*) as completion_count\n  FROM lake._tool_kiro_completion_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n) combined\nGROUP BY hour_of_day\nORDER BY hour_of_day",
           "refId": "A"
         }
       ],
@@ -167,7 +179,10 @@
       "type": "barchart"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Distribution of chat trigger types: MANUAL (chat window) vs INLINE_CHAT",
       "fieldConfig": {
         "defaults": {
@@ -223,11 +238,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT CASE WHEN chat_trigger_type = '' OR chat_trigger_type IS NULL THEN '(unknown)' ELSE chat_trigger_type END AS \"Trigger Type\", COUNT(*) AS \"Events\" FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY \"chat_trigger_type\" ORDER BY COUNT(*) DESC NULLS LAST",
+          "rawSql": "SELECT\n  CASE\n    WHEN chat_trigger_type = '' OR chat_trigger_type IS NULL THEN '(unknown)'\n    ELSE chat_trigger_type\n  END as 'Trigger Type',\n  COUNT(*) as 'Events'\nFROM lake._tool_kiro_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY chat_trigger_type\nORDER BY COUNT(*) DESC",
           "refId": "A"
         }
       ],
@@ -235,8 +253,11 @@
       "type": "piechart"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Distribution of model usage across chat events",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Authoritative model and routing-mode counts from daily reports; chat model_id is only partially populated.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -280,7 +301,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "/^Requests$/",
+          "fields": "/^Messages$/",
           "values": true
         },
         "tooltip": {
@@ -291,19 +312,25 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT CASE WHEN model_id = '' OR model_id IS NULL THEN '(unknown)' ELSE model_id END AS \"Model\", COUNT(*) AS \"Requests\" FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY \"model_id\" ORDER BY COUNT(*) DESC NULLS LAST",
+          "rawSql": "SELECT model_name AS 'Model / Route', SUM(message_count) AS 'Messages' FROM _tool_kiro_user_model_messages WHERE $__timeFilter(date) GROUP BY model_name ORDER BY SUM(message_count) DESC",
           "refId": "A"
         }
       ],
-      "title": "Model Usage Distribution",
+      "title": "Model / Route Message Distribution",
       "type": "piechart"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Top file extensions used with inline completions",
       "fieldConfig": {
         "defaults": {
@@ -359,11 +386,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS \"File Type\", COUNT(*) AS \"Completions\" FROM lake._tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY \"file_extension\" ORDER BY COUNT(*) DESC NULLS LAST LIMIT 15",
+          "rawSql": "SELECT\n  CASE\n    WHEN file_extension = '' THEN '(unknown)'\n    ELSE file_extension\n  END as 'File Type',\n  COUNT(*) as 'Completions'\nFROM lake._tool_kiro_completion_log\nWHERE $__timeFilter(timestamp)\nGROUP BY file_extension\nORDER BY COUNT(*) DESC\nLIMIT 15",
           "refId": "A"
         }
       ],
@@ -371,8 +401,11 @@
       "type": "piechart"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Average number of chat events per conversation",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Conversation IDs are absent in sampled Kiro logs, so conversation depth cannot be computed.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -451,19 +484,25 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, CAST(COUNT(*) AS NUMERIC) / NULLIF(NULLIF(COUNT(DISTINCT CASE WHEN conversation_id <> '' THEN conversation_id END), 0), 0) AS \"Avg Turns per Conversation\", COUNT(DISTINCT CASE WHEN conversation_id <> '' THEN conversation_id END) AS \"Unique Conversations\", COUNT(*) AS \"Total Chat Events\" FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY CAST(timestamp AS DATE) NULLS FIRST",
+          "rawSql": "SELECT DATE(timestamp) AS time, SUM(CASE WHEN has_prompt = 1 THEN 1 ELSE 0 END) AS 'User Turns', SUM(CASE WHEN has_prompt = 0 THEN 1 ELSE 0 END) AS 'Agent Continuations', SUM(CASE WHEN has_prompt = 0 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0) AS 'Agent Continuation Rate' FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY DATE(timestamp) ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Conversation Depth Analysis",
+      "title": "User Turns vs Agent Continuations",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Daily chat and completion events over time",
       "fieldConfig": {
         "defaults": {
@@ -543,11 +582,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT time, SUM(chat) AS \"Chat Events\", SUM(completions) AS \"Completion Events\" FROM (SELECT CAST(timestamp AS DATE) AS time, COUNT(*) AS chat, 0 AS completions FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) UNION ALL SELECT CAST(timestamp AS DATE) AS time, 0 AS chat, COUNT(*) AS completions FROM lake._tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE)) AS combined GROUP BY time ORDER BY time NULLS FIRST",
+          "rawSql": "SELECT time, SUM(chat) as 'Chat Events', SUM(completions) as 'Completion Events'\nFROM (\n  SELECT DATE(timestamp) as time, COUNT(*) as chat, 0 as completions\n  FROM lake._tool_kiro_chat_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY DATE(timestamp)\n  UNION ALL\n  SELECT DATE(timestamp) as time, 0 as chat, COUNT(*) as completions\n  FROM lake._tool_kiro_completion_log\n  WHERE $__timeFilter(timestamp)\n  GROUP BY DATE(timestamp)\n) combined\nGROUP BY time\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -555,8 +597,11 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Per-user logging activity summary",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Per-user chat and completion activity with display names resolved from usage reports.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -605,11 +650,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COALESCE(u.display_name, u.user_id) AS \"User\", u.user_id AS \"User ID\", u.chat_events AS \"Chat Events\", u.conversations AS \"Conversations\", ROUND(CAST(u.chat_events AS NUMERIC) / NULLIF(NULLIF(u.conversations, 0), 0), 1) AS \"Avg Turns\", COALESCE(c.completion_events, 0) AS \"Completion Events\", COALESCE(c.files_count, 0) AS \"Distinct Files\", ROUND(u.avg_prompt_len) AS \"Avg Prompt Len\", ROUND(u.avg_response_len) AS \"Avg Response Len\", u.steering_count AS \"Steering Uses\", u.spec_count AS \"Spec Mode Uses\", u.code_ref_count AS \"Code Refs\", u.web_link_count AS \"Web Links\", u.models_used AS \"Models Used\", u.first_seen AS \"First Seen\", GREATEST(u.last_seen, COALESCE(c.last_seen, u.last_seen)) AS \"Last Seen\" FROM (SELECT user_id, MAX(display_name) AS display_name, COUNT(*) AS chat_events, COUNT(DISTINCT CASE WHEN conversation_id <> '' THEN conversation_id END) AS conversations, AVG(prompt_length) AS avg_prompt_len, AVG(response_length) AS avg_response_len, STRING_AGG(DISTINCT CASE WHEN model_id <> '' AND NOT model_id IS NULL THEN model_id END, ', ' ORDER BY model_id NULLS FIRST) AS models_used, SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS steering_count, SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS spec_count, SUM(code_reference_count) AS code_ref_count, SUM(web_link_count) AS web_link_count, MIN(timestamp) AS first_seen, MAX(timestamp) AS last_seen FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY user_id) AS u LEFT JOIN (SELECT user_id, COUNT(*) AS completion_events, COUNT(DISTINCT file_name) AS files_count, MAX(timestamp) AS last_seen FROM lake._tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY user_id) AS c ON u.user_id = c.user_id ORDER BY u.user_id NULLS FIRST",
+          "rawSql": "WITH chat AS (SELECT user_id, COUNT(*) AS chat_events, SUM(CASE WHEN has_prompt = 1 THEN 1 ELSE 0 END) AS user_turns, SUM(CASE WHEN has_prompt = 0 THEN 1 ELSE 0 END) AS agent_continuations FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY user_id), completion AS (SELECT user_id, COUNT(*) AS completion_events, SUM(returned_line_count) AS returned_lines FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY user_id), names AS (SELECT user_id, MAX(display_name) AS display_name FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY user_id) SELECT COALESCE(n.display_name, c.user_id) AS 'User', c.user_id AS 'User ID', c.chat_events AS 'Chat Events', c.user_turns AS 'User Turns', c.agent_continuations AS 'Agent Continuations', COALESCE(x.completion_events, 0) AS 'Completion Events', COALESCE(x.returned_lines, 0) AS 'Returned Lines' FROM chat c LEFT JOIN completion x ON c.user_id = x.user_id LEFT JOIN names n ON c.user_id = n.user_id ORDER BY c.chat_events DESC",
           "refId": "A"
         }
       ],
@@ -617,7 +665,10 @@
       "type": "table"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Distribution of Kiro feature adoption: Steering, Spec Mode, and Plain Chat",
       "fieldConfig": {
         "defaults": {
@@ -673,11 +724,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS \"Using Steering\", SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS \"Using Spec Mode\", SUM(CASE WHEN has_steering = FALSE AND is_spec_mode = FALSE THEN 1 ELSE 0 END) AS \"Plain Chat\" FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "rawSql": "SELECT\n  SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) as 'Using Steering',\n  SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) as 'Using Spec Mode',\n  SUM(CASE WHEN has_steering = 0 AND is_spec_mode = 0 THEN 1 ELSE 0 END) as 'Plain Chat'\nFROM lake._tool_kiro_chat_log\nWHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -685,8 +739,11 @@
       "type": "piechart"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Top file extensions active during chat events",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Chat logs do not contain active file extensions; completion logs provide file types and returned lines.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -741,20 +798,26 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT CASE WHEN active_file_extension = '' OR active_file_extension IS NULL THEN '(no file active)' ELSE active_file_extension END AS \"File Type\", COUNT(*) AS \"Chat Events\" FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY \"active_file_extension\" ORDER BY COUNT(*) DESC NULLS LAST LIMIT 15",
+          "rawSql": "SELECT CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS 'File Type', SUM(returned_line_count) AS 'Returned Lines' FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY file_extension ORDER BY SUM(returned_line_count) DESC",
           "refId": "A"
         }
       ],
-      "title": "Active File Types in Chat",
+      "title": "Returned Lines by File Type",
       "type": "piechart"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "How often Kiro responses include code references and web links",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Kiro logs expose follow-up prompts but not code-reference or web-link counters.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -809,19 +872,25 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(CASE WHEN code_reference_count > 0 THEN 1 ELSE 0 END) AS \"With Code References\", SUM(CASE WHEN web_link_count > 0 THEN 1 ELSE 0 END) AS \"With Web Links\", SUM(CASE WHEN has_followup_prompts = TRUE THEN 1 ELSE 0 END) AS \"With Followup Prompts\", SUM(CASE WHEN code_reference_count = '0' AND web_link_count = '0' AND has_followup_prompts = FALSE THEN 1 ELSE 0 END) AS \"Plain Response\" FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "rawSql": "SELECT SUM(CASE WHEN has_followup_prompts = 1 THEN 1 ELSE 0 END) AS 'With Follow-up Prompts', SUM(CASE WHEN has_followup_prompts = 0 THEN 1 ELSE 0 END) AS 'Without Follow-up Prompts' FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
-      "title": "Response Enrichment Breakdown",
+      "title": "Follow-up Prompt Breakdown",
       "type": "piechart"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Average and maximum prompt/response lengths over time",
       "fieldConfig": {
         "defaults": {
@@ -901,11 +970,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, AVG(prompt_length) AS \"Avg Prompt Length\", AVG(response_length) AS \"Avg Response Length\", MAX(prompt_length) AS \"Max Prompt Length\", MAX(response_length) AS \"Max Response Length\" FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY CAST(timestamp AS DATE) NULLS FIRST",
+          "rawSql": "SELECT\n  DATE(timestamp) as time,\n  AVG(prompt_length) as 'Avg Prompt Length',\n  AVG(response_length) as 'Avg Response Length',\n  MAX(prompt_length) as 'Max Prompt Length',\n  MAX(response_length) as 'Max Response Length'\nFROM lake._tool_kiro_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY DATE(timestamp)\nORDER BY DATE(timestamp)",
           "refId": "A"
         }
       ],
@@ -913,7 +985,10 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Average code context size provided to inline completions over time",
       "fieldConfig": {
         "defaults": {
@@ -992,11 +1067,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, ROUND(AVG(left_context_length)) AS \"Avg Left Context\", ROUND(AVG(right_context_length)) AS \"Avg Right Context\", ROUND(AVG(left_context_length + right_context_length)) AS \"Avg Total Context\" FROM lake._tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY CAST(timestamp AS DATE) NULLS FIRST",
+          "rawSql": "SELECT\n  DATE(timestamp) as time,\n  ROUND(AVG(left_context_length)) as 'Avg Left Context',\n  ROUND(AVG(right_context_length)) as 'Avg Right Context',\n  ROUND(AVG(left_context_length + right_context_length)) as 'Avg Total Context'\nFROM lake._tool_kiro_completion_log\nWHERE $__timeFilter(timestamp)\nGROUP BY DATE(timestamp)\nORDER BY DATE(timestamp)",
           "refId": "A"
         }
       ],
@@ -1004,8 +1082,11 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Daily trend of code references and web links in chat responses",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Daily responses with and without follow-up prompts. Code-reference and web-link counters are not exported.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1083,15 +1164,18 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, SUM(code_reference_count) AS \"Code References\", SUM(web_link_count) AS \"Web Links\", SUM(CASE WHEN has_followup_prompts = TRUE THEN 1 ELSE 0 END) AS \"Followup Prompts\" FROM lake._tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY CAST(timestamp AS DATE) NULLS FIRST",
+          "rawSql": "SELECT DATE(timestamp) AS time, SUM(CASE WHEN has_followup_prompts = 1 THEN 1 ELSE 0 END) AS 'With Follow-up Prompts', SUM(CASE WHEN has_followup_prompts = 0 THEN 1 ELSE 0 END) AS 'Without Follow-up Prompts' FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY DATE(timestamp) ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Response Enrichment Trends",
+      "title": "Follow-up Prompt Trends",
       "type": "timeseries"
     }
   ],
@@ -1099,9 +1183,8 @@
   "refresh": "5m",
   "schemaVersion": 41,
   "tags": [
-    "q_dev",
-    "logging",
-    "kiro"
+    "kiro",
+    "logging"
   ],
   "templating": {
     "list": []
@@ -1113,6 +1196,6 @@
   "timepicker": {},
   "timezone": "utc",
   "title": "Kiro AI Activity Insights",
-  "uid": "qdev_logging-pg",
+  "uid": "kiro_logging",
   "version": 1
 }
