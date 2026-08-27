@@ -33,6 +33,7 @@ import { GitLabConfig } from './gitlab';
 import { IncidentioConfig } from './incidentio';
 import { JenkinsConfig } from './jenkins';
 import { JiraConfig } from './jira';
+import { KiroConfig } from './kiro';
 import { LinearConfig } from './linear';
 import { PagerDutyConfig } from './pagerduty';
 import { RootlyConfig } from './rootly';
@@ -64,6 +65,7 @@ export const pluginConfigs: IPluginConfig[] = [
   IncidentioConfig,
   JenkinsConfig,
   JiraConfig,
+  KiroConfig,
   LinearConfig,
   PagerDutyConfig,
   RootlyConfig,
