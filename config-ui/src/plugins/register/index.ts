@@ -33,7 +33,6 @@ import { GitLabConfig } from './gitlab';
 import { IncidentioConfig } from './incidentio';
 import { JenkinsConfig } from './jenkins';
 import { JiraConfig } from './jira';
-import { KiroConfig } from './kiro';
 import { LinearConfig } from './linear';
 import { PagerDutyConfig } from './pagerduty';
 import { RootlyConfig } from './rootly';
@@ -42,7 +41,7 @@ import { TAPDConfig } from './tapd';
 import { WebhookConfig } from './webhook';
 import { ZenTaoConfig } from './zentao';
 import { OpsgenieConfig } from './opsgenie';
-import { QDevConfig } from './q-dev';
+import { KiroConfig } from './kiro';
 import { TeambitionConfig } from './teambition';
 import { TestmoConfig } from './testmo';
 import { SlackConfig } from './slack/config';
@@ -65,13 +64,12 @@ export const pluginConfigs: IPluginConfig[] = [
   IncidentioConfig,
   JenkinsConfig,
   JiraConfig,
-  KiroConfig,
   LinearConfig,
   PagerDutyConfig,
   RootlyConfig,
   SlackConfig,
   TempoConfig,
-  QDevConfig,
+  KiroConfig,
   SonarQubeConfig,
   TAPDConfig,
   TestmoConfig,
