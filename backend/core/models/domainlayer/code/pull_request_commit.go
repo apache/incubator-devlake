@@ -30,6 +30,10 @@ type PullRequestCommit struct {
 	CommitAuthorEmail  string `gorm:"type:varchar(255)"`
 	CommitAuthoredDate time.Time
 	common.NoPKModel
+	// SubProject mirrors the owning pull request's SubProject (see code.PullRequest), kept
+	// denormalized here so commit-level dashboards can group without joining back to
+	// pull_requests.
+	SubProject string `gorm:"index;type:varchar(100)"`
 }
 
 func (PullRequestCommit) TableName() string {

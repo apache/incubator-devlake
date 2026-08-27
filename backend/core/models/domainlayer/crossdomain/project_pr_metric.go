@@ -40,6 +40,11 @@ type ProjectPrMetric struct {
 	PrCreatedDate           *time.Time
 	PrMergedDate            *time.Time
 	PrDeployedDate          *time.Time
+
+	// SubProject mirrors pull_requests.sub_project, tagged by the monorepo plugin's
+	// updateProjectPrMetricsSubProject subtask after DORA computes this row. Empty/NULL
+	// when the project has no monorepo configuration.
+	SubProject string `gorm:"index;type:varchar(100)"`
 }
 
 func (ProjectPrMetric) TableName() string {
