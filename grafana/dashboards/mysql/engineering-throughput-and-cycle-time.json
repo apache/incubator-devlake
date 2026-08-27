@@ -622,7 +622,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  count(distinct prc.id)/count(distinct pr.id) as \"PR Review Depth\"\nFROM \n  pull_requests pr\n  left join pull_request_comments prc on pr.id = prc.pull_request_id\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in (${project})\n  and pr.merged_date is not null\ngroup by 1\n",
+          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  COALESCE(pr.sub_project, 'All') as sub_project,\n  count(distinct prc.id)/count(distinct pr.id) as \"PR Review Depth\"\nFROM \n  pull_requests pr\n  left join pull_request_comments prc on pr.id = prc.pull_request_id\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in (${project})\n  and pr.merged_date is not null\ngroup by 1, 2",
           "refId": "A",
           "select": [
             [
@@ -1004,7 +1004,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  sum(case when pr.id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in (${project})\n  and pr.merged_date is not null\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  COALESCE(pr.sub_project, 'All') as sub_project,\n  sum(case when pr.id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id and pm.table = 'repos' \nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in (${project})\n  and pr.merged_date is not null\nGROUP BY 1, 2\nORDER BY 1",
           "refId": "A",
           "select": [
             [
