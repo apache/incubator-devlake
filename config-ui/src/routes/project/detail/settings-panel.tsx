@@ -40,6 +40,12 @@ interface ISubProject {
 
 const emptySubProject: ISubProject = { name: '', prLabels: '', deployJobPattern: '' };
 
+// Mirrors the backend's reserved names (backend/plugins/monorepo/tasks/task_data.go):
+// 'unattributed' is the sentinel written for unmatched PRs/deployments, and 'All' is the
+// label dashboards show for rows with no sub_project at all. Configuring a sub-project
+// with either name would make it indistinguishable from that sentinel in the UI.
+const RESERVED_SUB_PROJECT_NAMES = ['unattributed', 'All'];
+
 interface Props {
   project: IProject;
   onRefresh: () => void;
@@ -111,6 +117,11 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
       subProjects: monorepo.subProjects.map((sp, i) => (i === index ? { ...sp, [field]: value } : sp)),
     });
   };
+
+  // Blank rows are filtered out on save (see handleUpdate), so only named rows are checked.
+  const reservedSubProjectName = monorepo.enable
+    ? monorepo.subProjects.map((sp) => sp.name.trim()).find((n) => RESERVED_SUB_PROJECT_NAMES.includes(n))
+    : undefined;
 
   const handleUpdate = async () => {
     const [success] = await operator(
@@ -297,11 +308,16 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
                 <Button icon={<PlusOutlined />} onClick={handleAddSubProject}>
                   Add Sub-Project
                 </Button>
+                {reservedSubProjectName && (
+                  <Message
+                    content={`"${reservedSubProjectName}" is a reserved name and cannot be used as a sub-project name.`}
+                  />
+                )}
               </S.SubProjectList>
             )}
           </Block>
           <Block>
-            <Button type="primary" loading={operating} disabled={!name} onClick={handleUpdate}>
+            <Button type="primary" loading={operating} disabled={!name || !!reservedSubProjectName} onClick={handleUpdate}>
               Save
             </Button>
           </Block>
