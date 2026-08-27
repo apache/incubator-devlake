@@ -5,3 +5,4 @@ dc3,pipeline3,cicd1,deploy-both,SUCCESS,DONE,PRODUCTION,https://gitlab.example.c
 dc5,pipeline5,cicd2,deploy-serviceA,SUCCESS,DONE,PRODUCTION,https://gitlab.example.com/acme/other,commitOther,2026-08-01T09:50:00.000+00:00,2026-08-01T10:00:00.000+00:00
 dc6,pipeline6,cicd1,deploy-serviceA,FAILURE,DONE,PRODUCTION,https://gitlab.example.com/acme/monorepo,commitFail,2026-08-01T09:20:00.000+00:00,2026-08-01T09:30:00.000+00:00
 dc7,pipeline7,cicd1,deploy-serviceA,SUCCESS,DONE,STAGING,https://gitlab.example.com/acme/monorepo,commitStg,2026-08-01T09:35:00.000+00:00,2026-08-01T09:45:00.000+00:00
+dc8,pipeline8,cicd1,deploy-unknown,SUCCESS,DONE,PRODUCTION,https://gitlab.example.com/acme/monorepo,commitUnknown,2026-08-01T13:50:00.000+00:00,2026-08-01T14:00:00.000+00:00

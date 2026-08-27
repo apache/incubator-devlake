@@ -1,0 +1,8 @@
+project_name,cicd_deployment_id,sub_project
+monorepo,pipeline1,serviceA
+monorepo,pipeline2,serviceB
+monorepo,pipeline3,serviceA
+monorepo,pipeline3,serviceB
+monorepo,pipeline6,serviceA
+monorepo,pipeline7,serviceA
+monorepo,pipeline8,unattributed

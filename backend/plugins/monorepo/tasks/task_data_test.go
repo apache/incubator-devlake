@@ -167,6 +167,23 @@ func TestNewSubProjectMatcher_Validation(t *testing.T) {
 			subProjects: []SubProjectConfig{{Name: "serviceA", DeployJobPattern: "^deploy-(unclosed"}},
 			expectErr:   true,
 		},
+		{
+			name:        "name 'unattributed' collides with the sentinel and is rejected",
+			subProjects: []SubProjectConfig{{Name: "unattributed", DeployJobPattern: "^deploy-x$"}},
+			expectErr:   true,
+		},
+		{
+			name:        "name 'All' collides with the dashboard-side sentinel and is rejected",
+			subProjects: []SubProjectConfig{{Name: "All", DeployJobPattern: "^deploy-x$"}},
+			expectErr:   true,
+		},
+		{
+			name: "empty prLabels entry is rejected",
+			subProjects: []SubProjectConfig{
+				{Name: "serviceA", PrLabels: []string{"serviceA", ""}},
+			},
+			expectErr: true,
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -200,6 +217,20 @@ func TestDecodeAndValidateTaskOptions(t *testing.T) {
 		assert.Equal(t, "serviceA", op.SubProjects[0].Name)
 		assert.Equal(t, []string{"serviceA"}, op.SubProjects[0].PrLabels)
 		assert.Equal(t, "^deploy-serviceA$", op.SubProjects[0].DeployJobPattern)
+		assert.True(t, op.ShouldIncludeUnattributed(),
+			"includeUnattributed must default to true when the caller doesn't set it")
+	})
+
+	t.Run("includeUnattributed explicit false is preserved", func(t *testing.T) {
+		op, err := DecodeAndValidateTaskOptions(map[string]interface{}{
+			"projectName": "monorepo",
+			"subProjects": []interface{}{
+				map[string]interface{}{"name": "serviceA"},
+			},
+			"includeUnattributed": false,
+		})
+		assert.Nil(t, err)
+		assert.False(t, op.ShouldIncludeUnattributed())
 	})
 
 	t.Run("missing projectName is rejected", func(t *testing.T) {

@@ -29,6 +29,20 @@ type MonorepoApiParams struct {
 	ProjectName string
 }
 
+const (
+	// UnattributedSubProject is the sentinel sub_project value written for PRs/deployments
+	// that belong to a monorepo project (i.e. one with SubProjects configured) but matched
+	// none of the configured sub-projects. Whether it is written at all is controlled by
+	// MonorepoOptions.IncludeUnattributed.
+	UnattributedSubProject = "unattributed"
+	// AllSubProjectsLabel is the dashboard-side label shown for rows with no sub_project at
+	// all (single-repo projects, or rows the monorepo plugin has not processed). It is never
+	// written to the database — dashboards derive it via COALESCE(sub_project, 'All') — but
+	// it is reserved here too so it cannot be configured as a real sub-project name and
+	// collide with that convention.
+	AllSubProjectsLabel = "All"
+)
+
 // SubProjectConfig declares one logical project living inside a monorepo.
 type SubProjectConfig struct {
 	// Name identifies the sub-project in the output tables and dashboards.
@@ -46,6 +60,18 @@ type MonorepoOptions struct {
 	// SubProjects is ordered: when a pull request carries the labels of more than one
 	// sub-project, the earliest entry in this list wins.
 	SubProjects []SubProjectConfig `json:"subProjects" mapstructure:"subProjects"`
+	// IncludeUnattributed controls whether PRs/deployments that belong to this monorepo
+	// project but matched none of the configured sub-projects get sub_project =
+	// UnattributedSubProject (true, the default) or are left unclassified / skipped
+	// entirely (false, the pre-existing behaviour). A pointer so decoding can distinguish
+	// "the caller didn't set this" (nil, defaults to true) from an explicit false.
+	IncludeUnattributed *bool `json:"includeUnattributed" mapstructure:"includeUnattributed"`
+}
+
+// ShouldIncludeUnattributed returns the effective value of IncludeUnattributed, defaulting
+// to true when the option was not set.
+func (op *MonorepoOptions) ShouldIncludeUnattributed() bool {
+	return op.IncludeUnattributed == nil || *op.IncludeUnattributed
 }
 
 type MonorepoTaskData struct {
@@ -74,6 +100,10 @@ func NewSubProjectMatcher(subProjects []SubProjectConfig) (*SubProjectMatcher, e
 		if sp.Name == "" {
 			return nil, errors.BadInput.New(fmt.Sprintf("subProjects[%d]: name is required", i))
 		}
+		if sp.Name == UnattributedSubProject || sp.Name == AllSubProjectsLabel {
+			return nil, errors.BadInput.New(fmt.Sprintf(
+				"subProjects[%d]: name %q is reserved and cannot be used as a sub-project name", i, sp.Name))
+		}
 		if _, dup := seen[sp.Name]; dup {
 			return nil, errors.BadInput.New(fmt.Sprintf("subProjects[%d]: duplicate name %q", i, sp.Name))
 		}
@@ -90,10 +120,12 @@ func NewSubProjectMatcher(subProjects []SubProjectConfig) (*SubProjectMatcher, e
 		}
 
 		labels := make(map[string]struct{}, len(sp.PrLabels))
-		for _, l := range sp.PrLabels {
-			if l != "" {
-				labels[l] = struct{}{}
+		for j, l := range sp.PrLabels {
+			if l == "" {
+				return nil, errors.BadInput.New(fmt.Sprintf(
+					"subProjects[%d] (%s): prLabels[%d] must not be empty", i, sp.Name, j))
 			}
+			labels[l] = struct{}{}
 		}
 
 		m.names = append(m.names, sp.Name)
@@ -149,6 +181,10 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*MonorepoOpti
 	}
 	if len(op.SubProjects) == 0 {
 		return nil, errors.BadInput.New("at least one entry in subProjects is required for the monorepo plugin")
+	}
+	if op.IncludeUnattributed == nil {
+		defaultTrue := true
+		op.IncludeUnattributed = &defaultTrue
 	}
 	return &op, nil
 }

@@ -19,107 +19,57 @@ package tasks
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func at(hour int) time.Time {
-	return time.Date(2026, 8, 9, hour, 0, 0, 0, time.UTC)
-}
-
-func TestFirstDeploymentAfter(t *testing.T) {
-	// Sorted ascending, as loadSubProjectDeployments guarantees.
-	deployments := []deployedAt{
-		{Id: "deploy-08", FinishedDate: at(8)},
-		{Id: "deploy-12", FinishedDate: at(12)},
-		{Id: "deploy-18", FinishedDate: at(18)},
-	}
-
+// TestResolveSubProject exercises the three buckets a pull request can land in during
+// attribution: matched by label, unattributed (when enabled), or left unclassified (when
+// unattributed rows are disabled). This is the pure decision logic behind
+// AttributePullRequests; the actual DB reads/writes around it are covered by the e2e
+// dataflow test, since AttributePullRequests no longer contains any other pure logic to
+// unit test - the coding/pickup/review/deploy/cycle-time computation that used to live
+// here (and was unit tested via firstDeploymentAfter/computeTimeSpan) has been retired in
+// favor of updateProjectPrMetricsSubProject sourcing those numbers from DORA.
+func TestResolveSubProject(t *testing.T) {
 	cases := []struct {
-		name        string
-		deployments []deployedAt
-		mergedDate  *time.Time
-		expectedId  string
+		name                string
+		labelMatch          string
+		includeUnattributed bool
+		wantSubProject      string
+		wantMatched         bool
+		wantUnattributed    bool
+		wantSkipped         bool
 	}{
 		{
-			name:        "picks the earliest deployment after the merge",
-			deployments: deployments,
-			mergedDate:  ptrTime(at(10)),
-			expectedId:  "deploy-12",
+			name:                "label match wins regardless of includeUnattributed",
+			labelMatch:          "serviceA",
+			includeUnattributed: false,
+			wantSubProject:      "serviceA",
+			wantMatched:         true,
 		},
 		{
-			name:        "merge before every deployment picks the first",
-			deployments: deployments,
-			mergedDate:  ptrTime(at(1)),
-			expectedId:  "deploy-08",
+			name:                "no match, unattributed enabled",
+			labelMatch:          "",
+			includeUnattributed: true,
+			wantSubProject:      UnattributedSubProject,
+			wantUnattributed:    true,
 		},
 		{
-			name:        "merge after every deployment has none to link",
-			deployments: deployments,
-			mergedDate:  ptrTime(at(20)),
-			expectedId:  "",
-		},
-		{
-			name:        "a deployment finishing exactly at merge time does not count",
-			deployments: deployments,
-			mergedDate:  ptrTime(at(12)),
-			expectedId:  "deploy-18",
-		},
-		{
-			name:        "no deployments at all",
-			deployments: nil,
-			mergedDate:  ptrTime(at(10)),
-			expectedId:  "",
-		},
-		{
-			name:        "unmerged pull request",
-			deployments: deployments,
-			mergedDate:  nil,
-			expectedId:  "",
+			name:                "no match, unattributed disabled leaves it unclassified",
+			labelMatch:          "",
+			includeUnattributed: false,
+			wantSubProject:      "",
+			wantSkipped:         true,
 		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := firstDeploymentAfter(tc.deployments, tc.mergedDate)
-			if tc.expectedId == "" {
-				assert.Nil(t, got)
-				return
-			}
-			assert.NotNil(t, got)
-			assert.Equal(t, tc.expectedId, got.Id)
+			subProject, matched, unattributed, skipped := resolveSubProject(tc.labelMatch, tc.includeUnattributed)
+			assert.Equal(t, tc.wantSubProject, subProject)
+			assert.Equal(t, tc.wantMatched, matched)
+			assert.Equal(t, tc.wantUnattributed, unattributed)
+			assert.Equal(t, tc.wantSkipped, skipped)
 		})
 	}
-}
-
-func TestComputeTimeSpan(t *testing.T) {
-	start := at(10)
-	end := at(12)
-
-	t.Run("whole minutes between two times", func(t *testing.T) {
-		got := computeTimeSpan(&start, &end)
-		assert.NotNil(t, got)
-		assert.Equal(t, int64(120), *got)
-	})
-
-	t.Run("partial minutes round up", func(t *testing.T) {
-		later := start.Add(90 * time.Second)
-		got := computeTimeSpan(&start, &later)
-		assert.NotNil(t, got)
-		assert.Equal(t, int64(2), *got)
-	})
-
-	t.Run("negative spans are discarded", func(t *testing.T) {
-		assert.Nil(t, computeTimeSpan(&end, &start))
-	})
-
-	t.Run("missing endpoints yield nil", func(t *testing.T) {
-		assert.Nil(t, computeTimeSpan(nil, &end))
-		assert.Nil(t, computeTimeSpan(&start, nil))
-		assert.Nil(t, computeTimeSpan(nil, nil))
-	})
-}
-
-func ptrTime(t time.Time) *time.Time {
-	return &t
 }

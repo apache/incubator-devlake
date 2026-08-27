@@ -1,0 +1,9 @@
+commit_sha,pull_request_id,commit_author_name,commit_author_email,commit_authored_date
+commitA1,pr1,Alice,alice@example.com,2026-08-01T08:30:00.000+00:00
+commitB1,pr2,Bob,bob@example.com,2026-08-01T08:30:00.000+00:00
+commitAB,pr3,Carol,carol@example.com,2026-08-01T09:00:00.000+00:00
+commitBug,pr4,Dave,dave@example.com,2026-08-01T08:30:00.000+00:00
+commitLate,pr5,Erin,erin@example.com,2026-08-03T08:30:00.000+00:00
+commitOther,pr6,Frank,frank@example.com,2026-08-01T08:30:00.000+00:00
+commitOpen,pr7,Grace,grace@example.com,2026-08-01T08:30:00.000+00:00
+commitPr8,pr8,Heidi,heidi@example.com,2026-08-01T08:30:00.000+00:00
