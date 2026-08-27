@@ -1483,7 +1483,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(created_date AS DATE) + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST(created_date AS DATE)) + 1) AS time, CAST(100 * COUNT(DISTINCT CASE WHEN pr.id IN (SELECT pull_request_id FROM pull_request_issues) THEN pr.id ELSE NULL END) AS NUMERIC) / NULLIF(COUNT(DISTINCT pr.id), 0) AS unlinked_pr_rate FROM pull_requests AS pr JOIN project_mapping AS pm ON pr.base_repo_id = pm.row_id AND pm.table = 'repos' WHERE ('${project:csv}' = '' OR pm.project_name::text = ANY(ARRAY[${project:singlequote}]::text[])) AND $__timeFilter(created_date) AND created_date >= $__timeFrom()::timestamp + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST($__timeFrom() AS DATE)) + 1) + INTERVAL '1 MONTH' GROUP BY \"time\"",
+          "rawSql": "SELECT CAST(created_date AS DATE) + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST(created_date AS DATE)) + 1) AS time, COALESCE(pr.sub_project, 'All') AS sub_project, CAST(100 * COUNT(DISTINCT CASE WHEN pr.id IN (SELECT pull_request_id FROM pull_request_issues) THEN pr.id ELSE NULL END) AS NUMERIC) / NULLIF(COUNT(DISTINCT pr.id), 0) AS unlinked_pr_rate FROM pull_requests AS pr JOIN project_mapping AS pm ON pr.base_repo_id = pm.row_id AND pm.table = 'repos' WHERE ('${project:csv}' = '' OR pm.project_name::text = ANY(ARRAY[${project:singlequote}]::text[])) AND $__timeFilter(created_date) AND created_date >= $__timeFrom()::timestamp + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST($__timeFrom() AS DATE)) + 1) + INTERVAL '1 MONTH' GROUP BY \"time\", pr.sub_project",
           "refId": "A",
           "select": [
             [
@@ -1969,7 +1969,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(pr.created_date AS DATE) + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST(pr.created_date AS DATE)) + 1) AS time, AVG(CAST((EXTRACT(EPOCH FROM (pr.merged_date - pr.created_date))/60) AS NUMERIC) / NULLIF(1440, 0)) AS pr_time_to_merge_in_days FROM pull_requests AS pr JOIN project_mapping AS pm ON pr.base_repo_id = pm.row_id AND pm.table = 'repos' WHERE ('${project:csv}' = '' OR pm.project_name::text = ANY(ARRAY[${project:singlequote}]::text[])) AND NOT pr.merged_date IS NULL AND $__timeFilter(pr.created_date) AND pr.created_date >= $__timeFrom()::timestamp + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST($__timeFrom() AS DATE)) + 1) + INTERVAL '1 MONTH' GROUP BY \"time\" ORDER BY time NULLS FIRST",
+          "rawSql": "SELECT CAST(pr.created_date AS DATE) + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST(pr.created_date AS DATE)) + 1) AS time, COALESCE(pr.sub_project, 'All') AS sub_project, AVG(CAST((EXTRACT(EPOCH FROM (pr.merged_date - pr.created_date))/60) AS NUMERIC) / NULLIF(1440, 0)) AS pr_time_to_merge_in_days FROM pull_requests AS pr JOIN project_mapping AS pm ON pr.base_repo_id = pm.row_id AND pm.table = 'repos' WHERE ('${project:csv}' = '' OR pm.project_name::text = ANY(ARRAY[${project:singlequote}]::text[])) AND NOT pr.merged_date IS NULL AND $__timeFilter(pr.created_date) AND pr.created_date >= $__timeFrom()::timestamp + INTERVAL '1 DAY' * (-EXTRACT(DAY FROM CAST($__timeFrom() AS DATE)) + 1) + INTERVAL '1 MONTH' GROUP BY \"time\", pr.sub_project ORDER BY time NULLS FIRST",
           "refId": "A",
           "select": [
             [

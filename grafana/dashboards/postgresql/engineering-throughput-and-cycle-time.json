@@ -622,7 +622,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(pr.created_date AS DATE) + INTERVAL '1 DAY' * (-CASE WHEN '$interval' = 'DAYOFMONTH' THEN EXTRACT(DAY FROM CAST(pr.created_date AS DATE)) ELSE (EXTRACT(ISODOW FROM CAST(pr.created_date AS DATE)) - 1) END + 1) AS time, CAST(COUNT(DISTINCT prc.id) AS NUMERIC) / NULLIF(COUNT(DISTINCT pr.id), 0) AS \"PR Review Depth\" FROM pull_requests AS pr LEFT JOIN pull_request_comments AS prc ON pr.id = prc.pull_request_id JOIN project_mapping AS pm ON pr.base_repo_id = pm.row_id AND pm.table = 'repos' WHERE $__timeFilter(pr.created_date) AND ('${project:csv}' = '' OR pm.project_name::text = ANY(ARRAY[${project:singlequote}]::text[])) AND NOT pr.merged_date IS NULL GROUP BY 1",
+          "rawSql": "SELECT CAST(pr.created_date AS DATE) + INTERVAL '1 DAY' * (-CASE WHEN '$interval' = 'DAYOFMONTH' THEN EXTRACT(DAY FROM CAST(pr.created_date AS DATE)) ELSE (EXTRACT(ISODOW FROM CAST(pr.created_date AS DATE)) - 1) END + 1) AS time, COALESCE(pr.sub_project, 'All') AS sub_project, CAST(COUNT(DISTINCT prc.id) AS NUMERIC) / NULLIF(COUNT(DISTINCT pr.id), 0) AS \"PR Review Depth\" FROM pull_requests AS pr LEFT JOIN pull_request_comments AS prc ON pr.id = prc.pull_request_id JOIN project_mapping AS pm ON pr.base_repo_id = pm.row_id AND pm.table = 'repos' WHERE $__timeFilter(pr.created_date) AND ('${project:csv}' = '' OR pm.project_name::text = ANY(ARRAY[${project:singlequote}]::text[])) AND NOT pr.merged_date IS NULL GROUP BY 1, 2",
           "refId": "A",
           "select": [
             [
@@ -1004,7 +1004,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(pr.created_date AS DATE) + INTERVAL '1 DAY' * (-CASE WHEN '$interval' = 'DAYOFMONTH' THEN EXTRACT(DAY FROM CAST(pr.created_date AS DATE)) ELSE (EXTRACT(ISODOW FROM CAST(pr.created_date AS DATE)) - 1) END + 1) AS time, SUM(CASE WHEN NOT pr.id IN (SELECT pull_request_id FROM pull_request_comments) THEN 1 ELSE 0 END) AS \"PRs Merged w/o Review\" FROM pull_requests AS pr JOIN project_mapping AS pm ON pr.base_repo_id = pm.row_id AND pm.table = 'repos' WHERE $__timeFilter(pr.created_date) AND ('${project:csv}' = '' OR pm.project_name::text = ANY(ARRAY[${project:singlequote}]::text[])) AND NOT pr.merged_date IS NULL GROUP BY 1 ORDER BY 1 NULLS FIRST",
+          "rawSql": "SELECT CAST(pr.created_date AS DATE) + INTERVAL '1 DAY' * (-CASE WHEN '$interval' = 'DAYOFMONTH' THEN EXTRACT(DAY FROM CAST(pr.created_date AS DATE)) ELSE (EXTRACT(ISODOW FROM CAST(pr.created_date AS DATE)) - 1) END + 1) AS time, COALESCE(pr.sub_project, 'All') AS sub_project, SUM(CASE WHEN NOT pr.id IN (SELECT pull_request_id FROM pull_request_comments) THEN 1 ELSE 0 END) AS \"PRs Merged w/o Review\" FROM pull_requests AS pr JOIN project_mapping AS pm ON pr.base_repo_id = pm.row_id AND pm.table = 'repos' WHERE $__timeFilter(pr.created_date) AND ('${project:csv}' = '' OR pm.project_name::text = ANY(ARRAY[${project:singlequote}]::text[])) AND NOT pr.merged_date IS NULL GROUP BY 1, 2 ORDER BY 1 NULLS FIRST",
           "refId": "A",
           "select": [
             [
