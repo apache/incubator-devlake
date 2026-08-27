@@ -1,0 +1,2 @@
+Date,UserId,Client_Type,Chat_Conversations,Credits_Used,Overage_Cap,Overage_Credits_Used,Overage_Enabled,ProfileId,Subscription_Tier,Total_Messages,New_User,User_Email,auto_messages,claude_sonnet_4.6_messages
+2026-06-07,"11111111-1111-4111-8111-111111111111",PLUGIN,1,1.6401393711566925,10000.0,0.0,true,"arn:aws:codewhisperer:us-east-1:123456789012:profile/AKEXAMPLE1234",POWER,16,false,"dev1@example.com",9,7

@@ -1,0 +1,2 @@
+Date,UserId,Client_Type,Chat_Conversations,Credits_Used,Overage_Cap,Overage_Credits_Used,Overage_Enabled,ProfileId,Subscription_Tier,Total_Messages,New_User,User_Email,claude_opus_5_messages
+2026-07-27,"11111111-1111-4111-8111-111111111111",KIRO_IDE,2,19.59644039641791,10000.0,0.0,true,"arn:aws:codewhisperer:us-east-1:123456789012:profile/AKEXAMPLE1234",POWER,30,false,"dev1@example.com",30
