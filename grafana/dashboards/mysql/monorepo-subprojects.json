@@ -76,7 +76,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT sub_project AS 'Sub-Project', COUNT(DISTINCT cicd_deployment_id) AS 'Deployments'\nFROM monorepo_subproject_deployments\nWHERE result = 'SUCCESS'\n  AND environment = 'PRODUCTION'\n  AND ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(finished_date)\nGROUP BY sub_project\nORDER BY 2 DESC",
+          "rawSql": "SELECT COALESCE(ds.sub_project, 'All') AS 'Sub-Project', COUNT(DISTINCT dc.cicd_deployment_id) AS 'Deployments'\nFROM cicd_deployment_commits dc\nJOIN project_mapping pm ON (pm.`table` = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)\nLEFT JOIN cicd_deployment_subprojects ds\n  ON ds.cicd_deployment_id = dc.cicd_deployment_id AND ds.project_name = pm.project_name\nWHERE dc.result = 'SUCCESS'\n  AND dc.environment = 'PRODUCTION'\n  AND ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(dc.finished_date)\nGROUP BY 1\nORDER BY 2 DESC",
           "refId": "A",
           "sql": { "columns": [{ "parameters": [], "type": "function" }], "groupBy": [{ "property": { "type": "string" }, "type": "groupBy" }], "limit": 50 }
         }
@@ -126,7 +126,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE(finished_date) AS time,\n  sub_project AS metric,\n  COUNT(DISTINCT cicd_deployment_id) AS value\nFROM monorepo_subproject_deployments\nWHERE result = 'SUCCESS'\n  AND environment = 'PRODUCTION'\n  AND ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(finished_date)\nGROUP BY 1, 2\nORDER BY 1",
+          "rawSql": "SELECT\n  DATE(dc.finished_date) AS time,\n  COALESCE(ds.sub_project, 'All') AS metric,\n  COUNT(DISTINCT dc.cicd_deployment_id) AS value\nFROM cicd_deployment_commits dc\nJOIN project_mapping pm ON (pm.`table` = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)\nLEFT JOIN cicd_deployment_subprojects ds\n  ON ds.cicd_deployment_id = dc.cicd_deployment_id AND ds.project_name = pm.project_name\nWHERE dc.result = 'SUCCESS'\n  AND dc.environment = 'PRODUCTION'\n  AND ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(dc.finished_date)\nGROUP BY 1, 2\nORDER BY 1",
           "refId": "A"
         }
       ],
@@ -172,7 +172,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  sub_project AS 'Sub-Project',\n  COUNT(*) AS 'PRs',\n  ROUND(AVG(coding_time) / 60, 1) AS 'Coding (h)',\n  ROUND(AVG(pickup_time) / 60, 1) AS 'Pickup (h)',\n  ROUND(AVG(review_time) / 60, 1) AS 'Review (h)',\n  ROUND(AVG(deploy_time) / 60, 1) AS 'Deploy (h)',\n  ROUND(AVG(cycle_time) / 60, 1) AS 'Cycle Time (h)'\nFROM monorepo_subproject_pr_metrics\nWHERE ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr_merged_date)\nGROUP BY sub_project\nORDER BY 1",
+          "rawSql": "SELECT\n  COALESCE(sub_project, 'All') AS 'Sub-Project',\n  COUNT(*) AS 'PRs',\n  ROUND(AVG(pr_coding_time) / 60, 1) AS 'Coding (h)',\n  ROUND(AVG(pr_pickup_time) / 60, 1) AS 'Pickup (h)',\n  ROUND(AVG(pr_review_time) / 60, 1) AS 'Review (h)',\n  ROUND(AVG(pr_deploy_time) / 60, 1) AS 'Deploy (h)',\n  ROUND(AVG(pr_cycle_time) / 60, 1) AS 'Cycle Time (h)'\nFROM project_pr_metrics\nWHERE ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr_merged_date)\nGROUP BY 1\nORDER BY 1",
           "refId": "A"
         }
       ],
@@ -214,7 +214,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS 'Unattributed merged PRs'\nFROM pull_requests pr\nJOIN project_mapping pm\n  ON pm.table = 'repos' AND pm.row_id = pr.base_repo_id\nLEFT JOIN monorepo_subproject_pr_metrics m\n  ON m.pull_request_id = pr.id AND m.project_name = pm.project_name\nWHERE pr.merged_date IS NOT NULL\n  AND m.pull_request_id IS NULL\n  AND ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr.merged_date)",
+          "rawSql": "SELECT COUNT(*) AS 'Unattributed merged PRs'\nFROM pull_requests pr\nJOIN project_mapping pm ON (pm.`table` = 'repos' AND pm.row_id = pr.base_repo_id)\nWHERE pr.merged_date IS NOT NULL\n  AND pr.sub_project = 'unattributed'\n  AND ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr.merged_date)",
           "refId": "A"
         }
       ],
@@ -249,7 +249,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS 'Merged, not yet deployed'\nFROM monorepo_subproject_pr_metrics\nWHERE deployment_id = ''\n  AND ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr_merged_date)",
+          "rawSql": "SELECT COUNT(*) AS 'Merged, not yet deployed'\nFROM project_pr_metrics\nWHERE (deployment_commit_id = '' OR deployment_commit_id IS NULL)\n  AND sub_project IS NOT NULL\n  AND ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr_merged_date)",
           "refId": "A"
         }
       ],
@@ -258,7 +258,7 @@
     },
     {
       "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
-      "description": "Every attributed deployment, newest first. The job name column shows which CI job caused the attribution — useful for checking a deployJobPattern is matching what you expect.",
+      "description": "Every attributed deployment, newest first, sourced from cicd_deployment_commits joined through the core cicd_deployment_subprojects mapping table.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -297,7 +297,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  finished_date AS 'Finished',\n  sub_project AS 'Sub-Project',\n  job_name AS 'CI Job',\n  environment AS 'Environment',\n  result AS 'Result',\n  cicd_deployment_id AS 'Deployment',\n  commit_sha AS 'Commit'\nFROM monorepo_subproject_deployments\nWHERE ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(finished_date)\nORDER BY finished_date DESC\nLIMIT 200",
+          "rawSql": "SELECT\n  dc.finished_date AS 'Finished',\n  COALESCE(ds.sub_project, 'All') AS 'Sub-Project',\n  dc.environment AS 'Environment',\n  dc.result AS 'Result',\n  dc.cicd_deployment_id AS 'Deployment',\n  dc.commit_sha AS 'Commit'\nFROM cicd_deployment_commits dc\nJOIN project_mapping pm ON (pm.`table` = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)\nLEFT JOIN cicd_deployment_subprojects ds\n  ON ds.cicd_deployment_id = dc.cicd_deployment_id AND ds.project_name = pm.project_name\nWHERE ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(dc.finished_date)\nORDER BY dc.finished_date DESC\nLIMIT 200",
           "refId": "A"
         }
       ],
