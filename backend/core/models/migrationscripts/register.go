@@ -150,6 +150,9 @@ func All() []plugin.MigrationScript {
 		new(addCqProjectMetricsHistory),
 		new(addIsBotToAccounts),
 		new(addSprintVelocityFields),
+		new(addSubProjectToPrAndMetrics),
+		new(addCicdDeploymentSubprojects),
+		new(backfillSubProjectFromMonorepo),
 		new(addBlueprintIdIndexToPipelines),
 		new(expandDomainTextColumns),
 	}

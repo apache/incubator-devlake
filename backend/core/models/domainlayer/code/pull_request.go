@@ -60,6 +60,9 @@ type PullRequest struct {
 	Additions      int
 	Deletions      int
 	IsDraft        bool
+	// SubProject is the monorepo sub-project this pull request was attributed to by the
+	// monorepo plugin, or empty/NULL when the project has no monorepo configuration.
+	SubProject string `gorm:"index;type:varchar(100)"`
 }
 
 func (PullRequest) TableName() string {
