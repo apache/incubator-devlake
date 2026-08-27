@@ -54,5 +54,29 @@ func TestMakeMetricPluginPipelinePlanV200_StagePadding(t *testing.T) {
 	lastStage := plan[len(plan)-1]
 	require.Len(t, lastStage, 1)
 	assert.Equal(t, "monorepo", lastStage[0].Plugin)
-	assert.ElementsMatch(t, []string{"attributeDeployments", "attributePullRequests"}, lastStage[0].Subtasks)
+	assert.ElementsMatch(t, []string{
+		"attributeDeployments", "attributePullRequests", "updateProjectPrMetricsSubProject",
+	}, lastStage[0].Subtasks)
+	assert.Equal(t, true, lastStage[0].Options["includeUnattributed"],
+		"includeUnattributed must default to true when the caller doesn't set it")
+}
+
+// TestMakeMetricPluginPipelinePlanV200_IncludeUnattributedExplicitFalse locks in that an
+// explicit `"includeUnattributed": false` survives into the task options unchanged,
+// distinguishing it from "not set" (which defaults to true).
+func TestMakeMetricPluginPipelinePlanV200_IncludeUnattributedExplicitFalse(t *testing.T) {
+	options, err := json.Marshal(map[string]interface{}{
+		"subProjects": []map[string]interface{}{
+			{"name": "serviceA", "prLabels": []string{"serviceA"}, "deployJobPattern": "^deploy-serviceA$"},
+		},
+		"includeUnattributed": false,
+	})
+	require.NoError(t, err)
+
+	var p Monorepo
+	plan, err2 := p.MakeMetricPluginPipelinePlanV200("test-project", options)
+	require.NoError(t, err2)
+
+	lastStage := plan[len(plan)-1]
+	assert.Equal(t, false, lastStage[0].Options["includeUnattributed"])
 }

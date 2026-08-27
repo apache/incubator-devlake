@@ -1,10 +1,9 @@
-pull_request_id,label_name
+id,sub_project
 pr1,serviceA
 pr2,serviceB
-pr3,serviceB
 pr3,serviceA
-pr4,bug
+pr4,unattributed
 pr5,serviceA
-pr6,serviceA
+pr6,
 pr7,serviceA
 pr8,serviceA

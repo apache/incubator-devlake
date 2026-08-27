@@ -102,6 +102,7 @@ func (p Monorepo) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.AttributeDeploymentsMeta,
 		tasks.AttributePullRequestsMeta,
+		tasks.UpdateProjectPrMetricsSubProjectMeta,
 	}
 }
 
@@ -154,6 +155,8 @@ func (p Monorepo) MakeMetricPluginPipelinePlanV200(projectName string, options j
 			"deployJobPattern": sp.DeployJobPattern,
 		})
 	}
+	// Preserve an explicit false; only default to true when the caller didn't set it at all.
+	includeUnattributed := op.ShouldIncludeUnattributed()
 
 	// attributeDeployments reads cicd_deployment_commits, and attributePullRequests reads
 	// project_pr_metrics — both are written by dora's own multi-stage plan (currently 3
@@ -175,12 +178,14 @@ func (p Monorepo) MakeMetricPluginPipelinePlanV200(projectName string, options j
 		{
 			Plugin: "monorepo",
 			Options: map[string]interface{}{
-				"projectName": projectName,
-				"subProjects": subProjects,
+				"projectName":         projectName,
+				"subProjects":         subProjects,
+				"includeUnattributed": includeUnattributed,
 			},
 			Subtasks: []string{
 				tasks.AttributeDeploymentsMeta.Name,
 				tasks.AttributePullRequestsMeta.Name,
+				tasks.UpdateProjectPrMetricsSubProjectMeta.Name,
 			},
 		},
 	}

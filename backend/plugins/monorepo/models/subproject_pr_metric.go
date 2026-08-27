@@ -26,10 +26,20 @@ import (
 // SubProjectPrMetric holds the change-lead-time breakdown for a merged pull request,
 // attributed to exactly one sub-project of a monorepo.
 //
-// CodingTime/PickupTime/ReviewTime are carried over from DORA's project_pr_metrics:
-// they depend only on the pull request itself, so DORA already computes them correctly
-// for a monorepo. Only DeployTime (and therefore CycleTime) is recomputed here, against
-// the deployments of this sub-project rather than the whole repository's.
+// Deprecated: this table is kept populated for one release for backward compatibility
+// with dashboards/integrations built against it, but new dashboards should read
+// project_pr_metrics.sub_project (joined through cicd_deployment_commits /
+// cicd_deployment_subprojects for deployment-side data) instead. It is a candidate for
+// removal in a follow-up release once the compat window closes.
+//
+// All five metric fields (CodingTime/PickupTime/ReviewTime/DeployTime/CycleTime) are now
+// written by project_pr_metrics_updater.go's updateProjectPrMetricsSubProject subtask,
+// copied verbatim from DORA's project_pr_metrics rather than recomputed here. In
+// particular, DeployTime/CycleTime used to be computed by AttributePullRequests using a
+// merge-date-nearest-deployment heuristic; that heuristic has been retired because it is
+// less accurate than DORA's own commit-based PR-to-deployment attribution
+// (project_pr_metrics.deployment_commit_id). Existing monorepo users will see these two
+// values change (improve) on upgrade - this is a correction, not a regression.
 //
 // All durations are in minutes, matching DORA's convention.
 type SubProjectPrMetric struct {
@@ -44,7 +54,8 @@ type SubProjectPrMetric struct {
 	DeployTime *int64
 	CycleTime  *int64
 
-	// DeploymentId is the sub-project deployment this PR was linked to, if any.
+	// DeploymentId is the cicd_deployment_id (pipeline id) of the deployment DORA
+	// attributed this PR to via project_pr_metrics.deployment_commit_id, if any.
 	DeploymentId string `gorm:"type:varchar(255)"`
 
 	PrCreatedDate *time.Time

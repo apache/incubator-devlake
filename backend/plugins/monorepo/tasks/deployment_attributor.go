@@ -52,12 +52,23 @@ type deploymentJobRow struct {
 	JobName          string
 }
 
+// AttributeDeployments populates the core cicd_deployment_subprojects mapping table from
+// cicd_deployment_commits + cicd_tasks regex matching, and - for one release, for backward
+// compatibility - the monorepo plugin's own monorepo_subproject_deployments table with the
+// exact same matches. There is no heuristic involved in either write (both are a direct
+// regex match against the deploying job's name), so dual-writing is cheap and safe.
 func AttributeDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*MonorepoTaskData)
 
 	// Rebuild from scratch: attribution depends on configuration that may have changed
 	// since the last run, so stale rows cannot be reconciled incrementally.
+	if err := db.Exec(
+		"DELETE FROM cicd_deployment_subprojects WHERE project_name = ?",
+		data.Options.ProjectName,
+	); err != nil {
+		return errors.Default.Wrap(err, "error deleting previous cicd_deployment_subprojects")
+	}
 	if err := db.Exec(
 		"DELETE FROM monorepo_subproject_deployments WHERE project_name = ?",
 		data.Options.ProjectName,
@@ -82,6 +93,7 @@ func AttributeDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
+	includeUnattributed := data.Options.ShouldIncludeUnattributed()
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -95,8 +107,22 @@ func AttributeDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			row := inputRow.(*deploymentJobRow)
 			matched := data.Matcher.MatchDeployJob(row.JobName)
-			results := make([]interface{}, 0, len(matched))
+			if len(matched) == 0 {
+				if !includeUnattributed {
+					// No sub-project matches and the caller opted out of the
+					// 'unattributed' bucket: behave as before and skip the row.
+					return nil, nil
+				}
+				matched = []string{UnattributedSubProject}
+			}
+
+			results := make([]interface{}, 0, len(matched)*2)
 			for _, subProject := range matched {
+				results = append(results, &devops.CicdDeploymentSubproject{
+					ProjectName:      data.Options.ProjectName,
+					CicdDeploymentId: row.CicdDeploymentId,
+					SubProject:       subProject,
+				})
 				results = append(results, &models.SubProjectDeployment{
 					ProjectName:      data.Options.ProjectName,
 					SubProject:       subProject,

@@ -26,9 +26,22 @@ import (
 // SubProjectDeployment attributes a deployment to a single sub-project of a monorepo,
 // based on the name of the CI job that performed the deployment.
 //
+// Deprecated: this table is kept populated for one release for backward compatibility
+// with dashboards/integrations built against it, but new dashboards should read the core
+// devops.CicdDeploymentSubproject mapping table instead. It is a candidate for removal in
+// a follow-up release once the compat window closes.
+//
 // One deployment may produce several rows when a single pipeline runs the deploy jobs
 // of several sub-projects. That is not double counting: each sub-project really was
 // deployed by that pipeline.
+//
+// SubProject may hold the sentinel value "unattributed" (tasks.UnattributedSubProject)
+// when the deployment belongs to a monorepo project but matched none of the configured
+// sub-projects' DeployJobPattern, and the project's IncludeUnattributed option is left at
+// its default (true). This mirrors the same sentinel written to the new
+// devops.CicdDeploymentSubproject table and to pull_requests.sub_project - it is not a
+// breaking change to this table's shape, only a previously-omitted case now being filled
+// in with a visible value instead of silently dropped.
 type SubProjectDeployment struct {
 	common.NoPKModel
 	// The four primary key columns are deliberately kept narrow: MySQL caps a composite

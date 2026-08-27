@@ -5,3 +5,4 @@ monorepo,serviceA,pipeline3,commitAB,deploy-serviceA,SUCCESS,PRODUCTION,2026-08-
 monorepo,serviceB,pipeline3,commitAB,deploy-serviceB,SUCCESS,PRODUCTION,2026-08-02T10:00:00.000+00:00
 monorepo,serviceA,pipeline6,commitFail,deploy-serviceA,FAILURE,PRODUCTION,2026-08-01T09:30:00.000+00:00
 monorepo,serviceA,pipeline7,commitStg,deploy-serviceA,SUCCESS,STAGING,2026-08-01T09:45:00.000+00:00
+monorepo,unattributed,pipeline8,commitUnknown,deploy-unknown,SUCCESS,PRODUCTION,2026-08-01T14:00:00.000+00:00
