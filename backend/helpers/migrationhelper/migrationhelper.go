@@ -153,6 +153,43 @@ func ChangePrimaryKeyColumnsType[D any](
 		return err
 	}
 
+	// Some GORM dialects recreate the primary key while AutoMigrate changes the
+	// column type, so adding it unconditionally would fail with a duplicate key.
+	primaryKeyColumns, err := dal.GetPrimarykeyColumns(db, dal.DefaultTabler{Name: tableName})
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to check primary key on table [%s]", tableName))
+	}
+	if len(primaryKeyColumns) == len(TargetPriColumns) {
+		existingPrimaryKeyColumns := make(map[string]struct{}, len(primaryKeyColumns))
+		for _, column := range primaryKeyColumns {
+			existingPrimaryKeyColumns[column.Name()] = struct{}{}
+		}
+		allColumnsPresent := true
+		for _, column := range TargetPriColumns {
+			if _, ok := existingPrimaryKeyColumns[column]; !ok {
+				allColumnsPresent = false
+				break
+			}
+		}
+		if allColumnsPresent {
+			return nil
+		}
+	}
+
+	if len(primaryKeyColumns) > 0 {
+		if u.Scheme == "mysql" {
+			sql := fmt.Sprintf("ALTER TABLE %s DROP PRIMARY KEY", tableName)
+			if err := db.Exec(sql); err != nil {
+				return err
+			}
+		} else {
+			sql := fmt.Sprintf("ALTER TABLE %s DROP CONSTRAINT %s_pkey", tableName, tableName)
+			if err := db.Exec(sql); err != nil {
+				return err
+			}
+		}
+	}
+
 	// Add the primary key
 	sql := fmt.Sprintf("ALTER TABLE %s ADD PRIMARY KEY (%s)", tableName, strings.Join(TargetPriColumns, ","))
 	if err := db.Exec(sql); err != nil {

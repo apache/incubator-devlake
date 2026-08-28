@@ -30,9 +30,9 @@ type GithubRun struct {
 	ID               int        `json:"id" gorm:"primaryKey;autoIncrement:false"`
 	Name             string     `json:"name" gorm:"type:text"`
 	NodeID           string     `json:"node_id" gorm:"type:varchar(255)"`
-	HeadBranch       string     `json:"head_branch" gorm:"type:varchar(255)"`
+	HeadBranch       string     `json:"head_branch" gorm:"type:text"`
 	HeadSha          string     `json:"head_sha" gorm:"type:varchar(255)"`
-	Path             string     `json:"path" gorm:"type:varchar(255)"`
+	Path             string     `json:"path" gorm:"type:text"`
 	RunNumber        int        `json:"run_number"`
 	Event            string     `json:"event" gorm:"type:varchar(255)"`
 	Status           string     `json:"status" gorm:"type:varchar(255)"`

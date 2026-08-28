@@ -30,7 +30,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/issue_trace/models"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/issue_trace/tasks"
-	"github.com/mitchellh/mapstructure"
+	"github.com/go-viper/mapstructure/v2"
 )
 
 type IssueTrace struct{}

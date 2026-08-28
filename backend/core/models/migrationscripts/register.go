@@ -153,5 +153,7 @@ func All() []plugin.MigrationScript {
 		new(addSubProjectToPrAndMetrics),
 		new(addCicdDeploymentSubprojects),
 		new(backfillSubProjectFromMonorepo),
+		new(addBlueprintIdIndexToPipelines),
+		new(expandDomainTextColumns),
 	}
 }
