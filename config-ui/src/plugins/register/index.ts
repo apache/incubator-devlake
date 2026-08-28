@@ -42,7 +42,6 @@ import { TAPDConfig } from './tapd';
 import { WebhookConfig } from './webhook';
 import { ZenTaoConfig } from './zentao';
 import { OpsgenieConfig } from './opsgenie';
-import { KiroConfig } from './kiro';
 import { TeambitionConfig } from './teambition';
 import { TestmoConfig } from './testmo';
 import { SlackConfig } from './slack/config';
@@ -71,7 +70,6 @@ export const pluginConfigs: IPluginConfig[] = [
   RootlyConfig,
   SlackConfig,
   TempoConfig,
-  KiroConfig,
   SonarQubeConfig,
   TAPDConfig,
   TestmoConfig,
