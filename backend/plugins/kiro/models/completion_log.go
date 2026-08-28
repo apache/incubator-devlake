@@ -40,7 +40,7 @@ type KiroCompletionLog struct {
 
 	UserId          string    `gorm:"type:varchar(64);index" json:"userId"`
 	IdentityStoreId string    `gorm:"type:varchar(32)" json:"identityStoreId"`
-	Timestamp       time.Time `gorm:"type:datetime(6);index" json:"timestamp"`
+	Timestamp       time.Time `gorm:"precision:6;index" json:"timestamp"`
 
 	// FileName has no path component; see the type comment.
 	FileName      string `gorm:"type:varchar(255);index" json:"fileName"`
