@@ -37,6 +37,7 @@ var CollectApplicationsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectApplications,
 	EnabledByDefault: true,
 	Description:      "Collect applications from ArgoCD API",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
 func CollectApplications(taskCtx plugin.SubTaskContext) errors.Error {

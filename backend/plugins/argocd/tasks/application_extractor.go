@@ -34,6 +34,7 @@ var ExtractApplicationsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractApplications,
 	EnabledByDefault: true,
 	Description:      "Extract applications from raw data",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{RAW_APPLICATION_TABLE},
 	ProductTables:    []string{models.ArgocdApplication{}.TableName()},
 }
