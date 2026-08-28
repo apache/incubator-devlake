@@ -19,29 +19,56 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue" }] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          },
           "unit": "percent"
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "options": {
-        "colorMode": "value", "graphMode": "area",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(COUNT(DISTINCT CASE WHEN has_steering = 1 THEN user_id END) * 100.0 / NULLIF(COUNT(DISTINCT user_id), 0), 0) AS 'value'\nFROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "rawSql": "SELECT ROUND(COUNT(DISTINCT CASE WHEN has_steering = 1 THEN user_id END) * 100.0 / NULLIF(COUNT(DISTINCT user_id), 0), 0) AS 'value'\nFROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -49,29 +76,56 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple" }] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple"
+              }
+            ]
+          },
           "unit": "percent"
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
       "id": 2,
       "options": {
-        "colorMode": "value", "graphMode": "area",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(COUNT(DISTINCT CASE WHEN is_spec_mode = 1 THEN user_id END) * 100.0 / NULLIF(COUNT(DISTINCT user_id), 0), 0) AS 'value'\nFROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "rawSql": "SELECT ROUND(COUNT(DISTINCT CASE WHEN is_spec_mode = 1 THEN user_id END) * 100.0 / NULLIF(COUNT(DISTINCT user_id), 0), 0) AS 'value'\nFROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -79,29 +133,56 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green" }] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
           "unit": "percent"
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
       "id": 3,
       "options": {
-        "colorMode": "value", "graphMode": "area",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS 'value'\nFROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "rawSql": "SELECT ROUND(SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS 'value'\nFROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -109,32 +190,64 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Weekly trend of steering and spec mode adoption rate",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
-            "showPoints": "never", "spanNulls": true,
-            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "percentunit"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
       "id": 4,
       "options": {
-        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY) AS time,\n  SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) / COUNT(*) AS 'Steering Rate',\n  SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) / COUNT(*) AS 'Spec Mode Rate'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY)\nORDER BY time",
+          "rawSql": "SELECT\n  DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY) AS time,\n  SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) / COUNT(*) AS 'Steering Rate',\n  SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) / COUNT(*) AS 'Spec Mode Rate'\nFROM _tool_kiro_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY)\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -142,29 +255,54 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Compare prompt and response quality between steering and non-steering sessions",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green" }] },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
       "id": 5,
       "options": {
-        "barRadius": 0.1, "barWidth": 0.5,
-        "orientation": "horizontal", "showValue": "auto", "stacking": "none",
-        "tooltip": { "mode": "single" }
+        "barRadius": 0.1,
+        "barWidth": 0.5,
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT 'With Steering' AS 'Mode', ROUND(AVG(prompt_length)) AS 'Avg Prompt', ROUND(AVG(response_length)) AS 'Avg Response'\nFROM _tool_q_dev_chat_log WHERE has_steering = 1 AND $__timeFilter(timestamp)\nUNION ALL\nSELECT 'Without Steering', ROUND(AVG(prompt_length)), ROUND(AVG(response_length))\nFROM _tool_q_dev_chat_log WHERE has_steering = 0 AND $__timeFilter(timestamp)",
+          "rawSql": "SELECT 'With Steering' AS 'Mode', ROUND(AVG(prompt_length)) AS 'Avg Prompt', ROUND(AVG(response_length)) AS 'Avg Response'\nFROM _tool_kiro_chat_log WHERE has_steering = 1 AND $__timeFilter(timestamp)\nUNION ALL\nSELECT 'Without Steering', ROUND(AVG(prompt_length)), ROUND(AVG(response_length))\nFROM _tool_kiro_chat_log WHERE has_steering = 0 AND $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -172,25 +310,54 @@
       "type": "bargauge"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Per-user steering and spec mode usage",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Per-user steering and spec-mode use, with names resolved from usage reports.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green" }] }
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
       "id": 6,
-      "options": { "cellHeight": "sm", "showHeader": true },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(MAX(display_name), user_id) AS 'User',\n  COUNT(*) AS 'Total Chats',\n  SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) AS 'Steering',\n  SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) AS 'Spec Mode',\n  ROUND(SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS 'Steering %'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY user_id\nORDER BY COUNT(*) DESC",
+          "rawSql": "WITH names AS (SELECT user_id, MAX(display_name) AS display_name FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY user_id) SELECT COALESCE(n.display_name, c.user_id) AS 'User', COUNT(*) AS 'Total Chats', SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) AS 'Steering', SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) AS 'Spec Mode', ROUND(SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 1) AS 'Steering %' FROM _tool_kiro_chat_log c LEFT JOIN names n ON c.user_id = n.user_id WHERE $__timeFilter(c.timestamp) GROUP BY c.user_id, n.display_name ORDER BY COUNT(*) DESC",
           "refId": "A"
         }
       ],
@@ -201,9 +368,18 @@
   "preload": false,
   "refresh": "5m",
   "schemaVersion": 41,
-  "tags": ["q_dev", "kiro", "steering", "adoption"],
-  "templating": { "list": [] },
-  "time": { "from": "now-90d", "to": "now" },
+  "tags": [
+    "kiro",
+    "steering",
+    "adoption"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-90d",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "utc",
   "title": "Kiro Steering & Spec Mode Adoption",
