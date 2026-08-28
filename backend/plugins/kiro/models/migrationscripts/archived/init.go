@@ -127,7 +127,7 @@ type KiroChatLog struct {
 	RequestId          string    `gorm:"primaryKey;type:varchar(64)"`
 	UserId             string    `gorm:"type:varchar(64);index" json:"userId"`
 	IdentityStoreId    string    `gorm:"type:varchar(32)" json:"identityStoreId"`
-	Timestamp          time.Time `gorm:"type:datetime(6);index" json:"timestamp"`
+	Timestamp          time.Time `gorm:"precision:6;index" json:"timestamp"`
 	ChatTriggerType    string    `gorm:"type:varchar(20)" json:"chatTriggerType"`
 	ModelId            *string   `gorm:"type:varchar(100)" json:"modelId"`
 	HasPrompt          bool      `gorm:"index" json:"hasPrompt"`
@@ -152,7 +152,7 @@ type KiroCompletionLog struct {
 	RequestId          string    `gorm:"primaryKey;type:varchar(64)"`
 	UserId             string    `gorm:"type:varchar(64);index" json:"userId"`
 	IdentityStoreId    string    `gorm:"type:varchar(32)" json:"identityStoreId"`
-	Timestamp          time.Time `gorm:"type:datetime(6);index" json:"timestamp"`
+	Timestamp          time.Time `gorm:"precision:6;index" json:"timestamp"`
 	FileName           string    `gorm:"type:varchar(255);index" json:"fileName"`
 	FileExtension      string    `gorm:"type:varchar(50)" json:"fileExtension"`
 	HasCustomization   bool      `json:"hasCustomization"`

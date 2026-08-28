@@ -44,7 +44,7 @@ type KiroChatLog struct {
 	UserId string `gorm:"type:varchar(64);index" json:"userId"`
 	// IdentityStoreId is the stripped prefix, retained for auditability.
 	IdentityStoreId string    `gorm:"type:varchar(32)" json:"identityStoreId"`
-	Timestamp       time.Time `gorm:"type:datetime(6);index" json:"timestamp"`
+	Timestamp       time.Time `gorm:"precision:6;index" json:"timestamp"`
 	// ChatTriggerType is MANUAL or INLINE_CHAT per the docs; only MANUAL has
 	// been observed. Not validated against a fixed set.
 	ChatTriggerType string `gorm:"type:varchar(20)" json:"chatTriggerType"`
