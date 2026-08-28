@@ -73,6 +73,12 @@ RUN apt-get update && apt-get install -y \
     libssh2-1 \
     libssl3 \
     ca-certificates \
+    # gitextractor shells out to the git CLI unless
+    # USE_GO_GIT_IN_GIT_EXTRACTOR is set, so the binary must be present or every
+    # clone fails with "git: executable file not found in $PATH".
+    # debian:bookworm-slim does not ship it; the official image inherits it from
+    # its python base.
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy libgit2

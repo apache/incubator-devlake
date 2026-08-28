@@ -70,6 +70,7 @@ import (
 	issueTrace "github.com/apache/incubator-devlake/plugins/issue_trace/impl"
 	jenkins "github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	jira "github.com/apache/incubator-devlake/plugins/jira/impl"
+	kiro "github.com/apache/incubator-devlake/plugins/kiro/impl"
 	linear "github.com/apache/incubator-devlake/plugins/linear/impl"
 	linker "github.com/apache/incubator-devlake/plugins/linker/impl"
 	opsgenie "github.com/apache/incubator-devlake/plugins/opsgenie/impl"
@@ -121,6 +122,7 @@ func allGoPlugins() []plugin.PluginMeta {
 		issueTrace.IssueTrace{},
 		jenkins.Jenkins{},
 		jira.Jira{},
+		kiro.Kiro{},
 		linear.Linear{},
 		linker.Linker{},
 		opsgenie.Opsgenie{},
