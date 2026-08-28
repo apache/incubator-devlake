@@ -19,7 +19,10 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -59,10 +62,13 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(CAST(CAST(COUNT(DISTINCT CASE WHEN has_steering = TRUE THEN user_id END) * 100.0 AS NUMERIC) / NULLIF(NULLIF(COUNT(DISTINCT user_id), 0), 0) AS DECIMAL), 0) AS \"value\" FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "rawSql": "SELECT ROUND(CAST(CAST(COUNT(DISTINCT CASE WHEN has_steering = TRUE THEN user_id END) * 100.0 AS NUMERIC) / NULLIF(NULLIF(COUNT(DISTINCT user_id), 0), 0) AS DECIMAL), 0) AS \"value\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -70,7 +76,10 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -110,10 +119,13 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(CAST(CAST(COUNT(DISTINCT CASE WHEN is_spec_mode = TRUE THEN user_id END) * 100.0 AS NUMERIC) / NULLIF(NULLIF(COUNT(DISTINCT user_id), 0), 0) AS DECIMAL), 0) AS \"value\" FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "rawSql": "SELECT ROUND(CAST(CAST(COUNT(DISTINCT CASE WHEN is_spec_mode = TRUE THEN user_id END) * 100.0 AS NUMERIC) / NULLIF(NULLIF(COUNT(DISTINCT user_id), 0), 0) AS DECIMAL), 0) AS \"value\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -121,7 +133,10 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -161,10 +176,13 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(CAST(CAST(SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) * 100.0 AS NUMERIC) / NULLIF(COUNT(*), 0) AS DECIMAL), 1) AS \"value\" FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)",
+          "rawSql": "SELECT ROUND(CAST(CAST(SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) * 100.0 AS NUMERIC) / NULLIF(COUNT(*), 0) AS DECIMAL), 1) AS \"value\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -172,7 +190,10 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
       "description": "Weekly trend of steering and spec mode adoption rate",
       "fieldConfig": {
         "defaults": {
@@ -220,10 +241,13 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(timestamp AS DATE) - (EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) - 1) * INTERVAL '1 day' AS time, CAST(SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS NUMERIC) / NULLIF(COUNT(*), 0) AS \"Steering Rate\", CAST(SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS NUMERIC) / NULLIF(COUNT(*), 0) AS \"Spec Mode Rate\" FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) - (EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) - 1) * INTERVAL '1 day' ORDER BY time NULLS FIRST",
+          "rawSql": "SELECT CAST(timestamp AS DATE) - (EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) - 1) * INTERVAL '1 day' AS time, CAST(SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS NUMERIC) / NULLIF(COUNT(*), 0) AS \"Steering Rate\", CAST(SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS NUMERIC) / NULLIF(COUNT(*), 0) AS \"Spec Mode Rate\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) - (EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) - 1) * INTERVAL '1 day' ORDER BY time NULLS FIRST",
           "refId": "A"
         }
       ],
@@ -231,7 +255,10 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
       "description": "Compare prompt and response quality between steering and non-steering sessions",
       "fieldConfig": {
         "defaults": {
@@ -269,10 +296,13 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT 'With Steering' AS \"Mode\", ROUND(AVG(prompt_length)) AS \"Avg Prompt\", ROUND(AVG(response_length)) AS \"Avg Response\" FROM _tool_q_dev_chat_log WHERE has_steering = TRUE AND $__timeFilter(timestamp) UNION ALL SELECT 'Without Steering', ROUND(AVG(prompt_length)), ROUND(AVG(response_length)) FROM _tool_q_dev_chat_log WHERE has_steering = FALSE AND $__timeFilter(timestamp)",
+          "rawSql": "SELECT 'With Steering' AS \"Mode\", ROUND(AVG(prompt_length)) AS \"Avg Prompt\", ROUND(AVG(response_length)) AS \"Avg Response\" FROM _tool_kiro_chat_log WHERE has_steering = TRUE AND $__timeFilter(timestamp) UNION ALL SELECT 'Without Steering', ROUND(AVG(prompt_length)), ROUND(AVG(response_length)) FROM _tool_kiro_chat_log WHERE has_steering = FALSE AND $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -280,8 +310,11 @@
       "type": "bargauge"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Per-user steering and spec mode usage",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Per-user steering and spec-mode use, with names resolved from usage reports.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -318,10 +351,13 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COALESCE(MAX(display_name), user_id) AS \"User\", COUNT(*) AS \"Total Chats\", SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS \"Steering\", SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS \"Spec Mode\", ROUND(CAST(CAST(SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) * 100.0 AS NUMERIC) / NULLIF(COUNT(*), 0) AS DECIMAL), 1) AS \"Steering %\" FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY \"user_id\" ORDER BY COUNT(*) DESC NULLS LAST",
+          "rawSql": "WITH names AS (SELECT user_id, MAX(display_name) AS display_name FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY user_id) SELECT COALESCE(n.display_name, c.user_id) AS \"User\", COUNT(*) AS \"Total Chats\", SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS \"Steering\", SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS \"Spec Mode\", ROUND(CAST(SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS NUMERIC) * 100.0 / NULLIF(COUNT(*), 0), 1) AS \"Steering %\" FROM _tool_kiro_chat_log c LEFT JOIN names n ON c.user_id = n.user_id WHERE $__timeFilter(c.timestamp) GROUP BY c.user_id, n.display_name ORDER BY COUNT(*) DESC",
           "refId": "A"
         }
       ],
@@ -333,7 +369,6 @@
   "refresh": "5m",
   "schemaVersion": 41,
   "tags": [
-    "q_dev",
     "kiro",
     "steering",
     "adoption"
