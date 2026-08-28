@@ -76,7 +76,6 @@ import (
 	opsgenie "github.com/apache/incubator-devlake/plugins/opsgenie/impl"
 	org "github.com/apache/incubator-devlake/plugins/org/impl"
 	pagerduty "github.com/apache/incubator-devlake/plugins/pagerduty/impl"
-	q_dev "github.com/apache/incubator-devlake/plugins/q_dev/impl"
 	refdiff "github.com/apache/incubator-devlake/plugins/refdiff/impl"
 	rootly "github.com/apache/incubator-devlake/plugins/rootly/impl"
 	slack "github.com/apache/incubator-devlake/plugins/slack/impl"
@@ -128,7 +127,6 @@ func allGoPlugins() []plugin.PluginMeta {
 		opsgenie.Opsgenie{},
 		org.Org{},
 		pagerduty.PagerDuty{},
-		q_dev.QDev{},
 		refdiff.RefDiff{},
 		rootly.Rootly{},
 		slack.Slack{},
